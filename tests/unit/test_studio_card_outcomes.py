@@ -90,9 +90,11 @@ def _write_log(
     deck_hashes: object = _DEFAULT,
     revisions: tuple[str | None, str | None] = (None, None),
     fingerprint: str | None = None,
+    extra_seats: Sequence[object] = (),
 ) -> Path:
     """One game log. Every seat names a deck state derived from its deck id unless
-    ``deck_hashes`` gives others; ``deck_hashes=None`` writes a log of before #1657."""
+    ``deck_hashes`` gives others; ``deck_hashes=None`` writes a log of before #1657.
+    ``extra_seats`` are further header seat rows (a bigger table, or a damaged seat list)."""
     hashes: tuple[str | None, str | None] = (
         (_hash(decks[0]), _hash(decks[1]))
         if deck_hashes is _DEFAULT
@@ -107,6 +109,7 @@ def _write_log(
             row["studio_revision_id"] = revisions[index]
         row["commanders"] = [commanders[index]]
         seats.append(row)
+    header_seats: list[object] = [*seats, *extra_seats]
     header = {
         "kind": "header",
         "schema": "studio-game-log-1",
@@ -115,7 +118,7 @@ def _write_log(
         "engine_commit": commit,
         "pilot": "Pilot 1.0.0",
         "decision_policy": "policy-1",
-        "seats": seats,
+        "seats": header_seats,
     }
     if fingerprint is not None:
         header["pilot_fingerprint"] = fingerprint
@@ -257,6 +260,7 @@ def _synthetic(
                 "engine_commit": commit,
                 "pilot": pilot,
                 "decision_policy": "policy-1",
+                "table_size": 2,
                 "winner_seats": [0] if won else [1],
                 "seats": [
                     _seat(0, DECK, hand, 1.0 if won else 0.0),
@@ -515,6 +519,7 @@ def _two_seat_game(deck_a: str, deck_b: str) -> GameExposure:
         "engine_commit": COMMIT,
         "pilot": "P1",
         "decision_policy": "policy-1",
+        "table_size": 2,
         "winner_seats": [1],
         "seats": [_seat(0, deck_a, ["Low"], 0.0), _seat(1, deck_b, ["High"], 1.0)],
     }
@@ -742,7 +747,7 @@ def test_two_deck_states_give_two_tables_and_one_stratified_row() -> None:
     per_state = {h: {r["card"]: r for r in s["cards"]}["A"] for h, s in stands.items()}
     assert per_state[STATE_A]["difference_pp"] == pytest.approx(20.0)
     assert per_state[STATE_B]["difference_pp"] == pytest.approx(20.0)
-    assert table["unknown_stand"] is None
+    assert table["unknown_strata"] == []
     assert table["games_total"] == 80  # n/N of the known states, counted once each
     row = {r["card"]: r for r in table["cards"]}["A"]
     assert row["strata"] == 2
@@ -765,8 +770,8 @@ def test_logs_without_a_hash_form_only_the_unknown_stand() -> None:
     assert table["strata"] == 1 and table["pooling"]["status"] == "SINGLE_STAND"
     assert table["deck_hash"] == STATE_A
     assert table["games_total"] == 40  # never 52: the unknown stand is not added
-    unknown = table["unknown_stand"]
-    assert unknown is not None and unknown["deck_hash"] is None
+    (unknown,) = table["unknown_strata"]
+    assert unknown["deck_hash"] is None and unknown["table_size"] == 2
     assert unknown["games_total"] == 12
     assert {r["card"]: r for r in unknown["cards"]}["A"]["games_in_first_hand"] == 7
     assert {r["card"]: r for r in table["cards"]}["A"]["games_in_first_hand"] == 30
@@ -775,8 +780,7 @@ def test_logs_without_a_hash_form_only_the_unknown_stand() -> None:
     assert only_old["status"] == "NO_GAMES" and only_old["cards"] == []
     assert only_old["strata"] == 0
     assert only_old["pooling"]["status"] == "NO_KNOWN_STAND"
-    assert only_old["unknown_stand"] is not None
-    assert only_old["unknown_stand"]["games_total"] == 12
+    assert [t["games_total"] for t in only_old["unknown_strata"]] == [12]
 
 
 def test_deck_states_are_never_pooled_across_a_pod_or_engine_change() -> None:
@@ -847,7 +851,7 @@ def test_cache_entry_of_before_deck_states_is_read_again(tmp_path: Path) -> None
     assert again is not None
     assert again["seats"][0].get("deck_hash") == STATE_A
     table = outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
-    assert table["strata"] == 1 and table["unknown_stand"] is None
+    assert table["strata"] == 1 and table["unknown_strata"] == []
 
 
 def test_api_answers_per_deck_state(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -859,10 +863,10 @@ def test_api_answers_per_deck_state(tmp_path: Path, monkeypatch: pytest.MonkeyPa
     with TestClient(create_app(tmp_path)) as client:
         body = client.get("/api/outcomes", params={"deck_id": DECK, "min_exposed": 1}).json()
         decks = {r["deck_id"]: r for r in client.get("/api/outcomes/decks").json()["decks"]}
-    assert body["schema"] == "studio-card-outcomes-2"
+    assert body["schema"] == "studio-card-outcomes-3"
     assert body["strata"] == 2 and body["games_total"] == 2
     assert sorted(s["deck_hash"] for s in body["stands"]) == sorted([STATE_A, STATE_B])
-    assert body["unknown_stand"]["games_total"] == 1
+    assert [t["games_total"] for t in body["unknown_strata"]] == [1]
     assert decks[DECK]["games"] == 3
     assert (decks[DECK]["stands"], decks[DECK]["games_unknown_stand"]) == (2, 1)
     assert (decks[OTHER]["stands"], decks[OTHER]["games_unknown_stand"]) == (0, 3)
@@ -884,15 +888,15 @@ def test_unknown_stand_names_its_provenance_and_bridge_ahead() -> None:
         bridge_qualification_state="BRIDGE_AHEAD_OF_QUALIFICATION",
     )
     table = card_outcomes.stand_tables(old, deck_id=DECK, min_exposed=1)
-    unknown = table["unknown_stand"]
-    assert unknown is not None
+    (unknown,) = table["unknown_strata"]
     assert unknown["pilots"] == ["P1"] and unknown["engine_commits"] == [COMMIT]
     assert unknown["bridge_jar_sha256s"] == ["c" * 64]
     assert unknown["bridge_qualification_states"] == ["BRIDGE_AHEAD_OF_QUALIFICATION"]
     assert any(w.startswith("BRIDGE_AHEAD_OF_QUALIFICATION") for w in unknown["warnings"])
     # the top level (no known stand) repeats the unknown stand's warnings, named
     assert any(
-        w.startswith("Stand unbekannt: BRIDGE_AHEAD_OF_QUALIFICATION") for w in table["warnings"]
+        w.startswith("Stand unbekannt · 2 seats: BRIDGE_AHEAD_OF_QUALIFICATION")
+        for w in table["warnings"]
     )
 
 
@@ -911,7 +915,7 @@ def test_unknown_provenance_is_never_equal_and_warnings_reach_the_top() -> None:
     assert table["status"] == "NOT_POOLED" and table["cards"] == []
     assert "unknown provenance" in str(table["pooling"]["reason"])
     assert any("BRIDGE_AHEAD_OF_QUALIFICATION" in w for w in table["warnings"])
-    assert any(f"deck state {STATE_A[:12]}:" in w for w in table["warnings"])
+    assert any(f"deck state {STATE_A[:12]} · 2 seats:" in w for w in table["warnings"])
 
 
 @pytest.mark.parametrize(
@@ -973,3 +977,177 @@ def test_api_refuses_mixed_commits_inside_the_unknown_stand_with_409(tmp_path: P
     _write_log(tmp_path / "games", "g2", _simple_frames(["X"]), commit="b" * 40, deck_hashes=None)
     with TestClient(create_app(tmp_path)) as client:
         assert client.get("/api/outcomes", params={"deck_id": DECK}).status_code == 409
+
+
+# --- #1683: table size is a stratum; unknown table size apart; never pooled across sizes ---
+
+
+def _seats(count: int, *, start: int = 2) -> list[dict[str, object]]:
+    """Header seat rows of further opponents (seat ``start`` .. ``start + count - 1``)."""
+    return [
+        {"seat": i, "deck_id": f"deck/x{i}", "commanders": [f"Cmd {i}"]}
+        for i in range(start, start + count)
+    ]
+
+
+def test_header_seats_give_the_table_size_and_never_a_guess(tmp_path: Path) -> None:
+    cases: list[tuple[list[object], int | None]] = [
+        ([], 2),
+        (_seats(1), 3),
+        (_seats(2), 4),
+        (_seats(4), 6),  # read as written: 5/6 seats stay locked elsewhere, not here
+        (_seats(1, start=3), None),  # a gap (0, 1, 3): incomplete seat list
+        ([{"seat": 1, "deck_id": "deck/x"}], None),  # a repeated seat
+        ([{"deck_id": "deck/x"}], None),  # a seat row without a seat number
+        (["not a row"], None),
+    ]
+    for index, (extra, size) in enumerate(cases):
+        path = _write_log(tmp_path, f"g{index}", _simple_frames(["X"]), extra_seats=extra)
+        game = game_exposures(path)
+        assert game is not None and game.get("table_size") == size, (extra, size)
+    assert card_outcomes._table_size(None) is None and card_outcomes._table_size([]) is None
+
+
+def test_two_three_and_four_seat_logs_of_one_stand_are_separate_strata(tmp_path: Path) -> None:
+    """Acceptance #1683: one deck state at 2, 3 and 4 seats gives three strata, never one sum;
+    logs without a table size sit only in "Tischgröße unbekannt" with their own n/N."""
+    games = tmp_path / "games"
+    for size, extra in ((2, []), (3, _seats(1)), (4, _seats(2))):
+        for n in range(size):  # 2, 3 and 4 games: every stratum has its own n
+            won = (0,) if n % 2 == 0 else (1,)
+            hand = ["Sol Ring"] if n == 0 else ["Forest"]
+            _write_log(
+                games,
+                f"t{size}-{n}",
+                _simple_frames(hand),
+                winners=won,
+                seed=size * 10 + n,
+                extra_seats=extra,
+            )
+    for n in range(5):  # a damaged seat list: the size is unknown, never 2 and never 0
+        _write_log(
+            games,
+            f"u{n}",
+            _simple_frames(["Sol Ring"]),
+            seed=900 + n,
+            extra_seats=[{"deck_id": "deck/x"}],
+        )
+    table = outcomes_for_folder(games, deck_id=DECK, min_exposed=1)
+    assert table["strata"] == 3
+    by_size = {s["table_size"]: s for s in table["stands"]}
+    assert set(by_size) == {2, 3, 4}
+    assert {k: v["games_total"] for k, v in by_size.items()} == {2: 2, 3: 3, 4: 4}
+    assert all(s["deck_hash"] == _hash(DECK) for s in table["stands"])
+    assert {k: len(v["pods"][0]["opponents"]) for k, v in by_size.items()} == {2: 1, 3: 2, 4: 3}
+    # never combined across table sizes: no card row at the top, a reason that names the axis
+    assert table["status"] == "NOT_POOLED" and table["cards"] == []
+    assert table["pooling"]["status"] == "NOT_POOLED"
+    assert "table size" in str(table["pooling"]["reason"])
+    assert table["table_size"] is None
+    (apart,) = table["unknown_strata"]
+    assert apart["table_size"] is None and apart["deck_hash"] == _hash(DECK)
+    assert apart["games_total"] == 5  # its own n/N
+    assert table["games_total"] == 9  # 2 + 3 + 4: the unknown table size is never added
+    assert any(
+        "5 game(s) without a table size (Tischgröße unbekannt)" in w for w in table["warnings"]
+    )
+    text = format_table(table)
+    assert "strata (deck state x table size) 3" in text
+    assert f"deck state {_hash(DECK)[:12]} · Tischgröße unbekannt  games 5" in text
+    for size in (2, 3, 4):
+        assert f"deck state {_hash(DECK)[:12]} · {size} seats  games {size}" in text
+
+
+def test_strata_of_another_table_size_are_never_pooled_even_with_equal_pods() -> None:
+    """The size check stands on its own: equal pods and provenance, only the size differs."""
+    a = _stated(_block("A", 10, 5) + _block("F", 10, 5), STATE_A, prefix="a")
+    b = _with(_stated(_block("A", 10, 5) + _block("F", 10, 5), STATE_B, prefix="b"), table_size=3)
+    table = card_outcomes.stand_tables([*a, *b], deck_id=DECK, min_exposed=1)
+    assert table["strata"] == 2
+    assert table["status"] == "NOT_POOLED" and table["cards"] == []
+    assert "table size (2, 3)" in str(table["pooling"]["reason"])
+    assert table["pooling"].get("differing_axis") == "table_size"
+    assert table["pooling"].get("differing_values") == [2, 3]
+    # sizes are listed numerically, never as text ("10, 2"); one seat is singular
+    ten = _with(
+        _stated(_block("A", 10, 5) + _block("F", 10, 5), STATE_B, prefix="t"), table_size=10
+    )
+    tens = card_outcomes.stand_tables([*a, *ten], deck_id=DECK, min_exposed=1)
+    assert "table size (2, 10)" in str(tens["pooling"]["reason"])
+    assert tens["pooling"].get("differing_values") == [2, 10]
+    one = _with(_stated(_block("A", 2, 1), STATE_B, prefix="o"), table_size=1)
+    assert card_outcomes.stratum_label(card_outcomes.stand_tables(one, deck_id=DECK)).endswith(
+        "· 1 seat"
+    )
+    same = _with(
+        _stated(_block("A", 10, 5) + _block("F", 10, 5), STATE_B, prefix="c"), table_size=2
+    )
+    pooled = card_outcomes.stand_tables([*a, *same], deck_id=DECK, min_exposed=1)
+    assert pooled["pooling"]["status"] == "POOLED" and pooled["table_size"] == 2
+    assert {r["card"]: r for r in pooled["cards"]}["A"]["strata"] == 2
+    # a single known stratum names its size at the top
+    single = card_outcomes.stand_tables(b, deck_id=DECK, min_exposed=1)
+    assert single["pooling"]["status"] == "SINGLE_STAND" and single["table_size"] == 3
+
+
+def test_unknown_table_size_is_not_equal_to_a_known_or_another_unknown_one() -> None:
+    sized = _stated(_block("A", 10, 5) + _block("F", 10, 5), STATE_A, prefix="a")
+    unsized = _with(
+        _stated(_block("A", 6, 6) + _block("F", 6, 0), STATE_A, prefix="u"), table_size=None
+    )
+    table = card_outcomes.stand_tables([*sized, *unsized], deck_id=DECK, min_exposed=1)
+    assert table["strata"] == 1 and table["games_total"] == 20  # never 32
+    assert [s["table_size"] for s in table["stands"]] == [2]
+    assert {r["card"]: r for r in table["cards"]}["A"]["games_in_first_hand"] == 10
+    (apart,) = table["unknown_strata"]
+    assert (apart["deck_hash"], apart["table_size"], apart["games_total"]) == (STATE_A, None, 12)
+    # two deck states, both without a table size: nothing is known, nothing is pooled
+    other = _with(
+        _stated(_block("A", 6, 3) + _block("F", 6, 3), STATE_B, prefix="o"), table_size=None
+    )
+    none_known = card_outcomes.stand_tables([*unsized, *other], deck_id=DECK, min_exposed=1)
+    assert none_known["strata"] == 0 and none_known["cards"] == []
+    assert none_known["pooling"]["status"] == "NO_KNOWN_STAND"
+    assert sorted(str(t["deck_hash"]) for t in none_known["unknown_strata"]) == sorted(
+        [STATE_A, STATE_B]
+    )
+    # and _not_poolable itself refuses a stratum without a size
+    stands = [dict(t) for t in none_known["unknown_strata"]]
+    reason = card_outcomes._not_poolable(stands)  # type: ignore[arg-type]
+    assert reason is not None and "table size unknown" in reason
+
+
+def test_cache_entry_of_before_table_sizes_is_read_again(tmp_path: Path) -> None:
+    """An entry of cache version 4 (before #1683) knows no table size; it must not pass as
+    "Tischgröße unbekannt" but be read again from its log."""
+    path = _write_log(tmp_path, "g1", _simple_frames(["X"]), extra_seats=_seats(1))
+    exposure = game_exposures(path)
+    assert exposure is not None and exposure.get("table_size") == 3
+    stat = path.stat()
+    old = {
+        "version": 4,
+        "size": stat.st_size,
+        "mtime_ns": stat.st_mtime_ns,
+        "exposure": {k: v for k, v in exposure.items() if k != "table_size"},
+        "deck_ids": [DECK, OTHER, "deck/x2"],
+    }
+    card_outcomes._cache_file(path).write_text(json.dumps(old), encoding="utf-8")
+    table = outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
+    assert table["strata"] == 1 and table["table_size"] == 3
+    assert table["unknown_strata"] == []
+    stored = json.loads(card_outcomes._cache_file(path).read_text(encoding="utf-8"))
+    assert stored["version"] == card_outcomes.CACHE_VERSION == 5
+    assert stored["exposure"]["table_size"] == 3
+
+
+@pytest.mark.parametrize("damaged", [True, "3", 0, -2, 2.0])
+def test_damaged_cached_table_size_is_rebuilt_from_the_log(tmp_path: Path, damaged: object) -> None:
+    path = _write_log(tmp_path, "g1", _simple_frames(["X"]), extra_seats=_seats(1))
+    exposure = game_exposures(path)
+    assert exposure is not None
+    cache = card_outcomes._cache_file(path)
+    entry = json.loads(cache.read_text(encoding="utf-8"))
+    entry["exposure"]["table_size"] = damaged
+    cache.write_text(json.dumps(entry), encoding="utf-8")
+    again = game_exposures(path)
+    assert again is not None and again.get("table_size") == 3

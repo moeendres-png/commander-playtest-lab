@@ -38,7 +38,7 @@ der eigenen Fläche sind nur lesbar. Pfade unter `studio/` meinen `src/commander
 | PLAY-Server | `studio/play.py`, `studio/games.py`, Partie-Teil von `studio/launch.py` |
 | SIMULATE-Kern | `studio/paired_series.py`, `paired_comparison.py`, `play_batch.py`, `simulations.py`, `deck_series.py`; `studio/static/paired.js`, `deckseries.js` und ihre Tests. Pakete hier laufen nacheinander, nie zwei offene PRs auf `paired_series.py`. |
 | SIMULATE-Auswertung | `studio/card_outcomes.py`, `castability.py` und neue Auswertungs-Dateien |
-| BUILD-Tierliste | `studio/strength*.py`, `overall_rating.py`, `card_understanding.py`, `tiers.py`, `tier_snapshot.py`, `ranking_check.py`; `studio/static/tierliste.*` |
+| BUILD-Tierliste | `studio/strength*.py`, `understanding_field.py`, `card_understanding.py`, `tiers.py`, `tier_snapshot.py`, `ranking_check.py`; `studio/static/tierliste.*` |
 | BUILD-Deckbauer | übrige Deckbau-Module unter `studio/`; `studio/static/app.js`, `decks.js`, `cutlab.js`, `search.js` |
 | Betrieb | `studio/doctor.py`; `scripts/studio_start.*`, `scripts/provision_engine_bridge.py`; `docs/STUDIO_OWNER_PC_SETUP.md` |
 | Gate-Werkzeuge und CI | `scripts/benchmark_xmage_full_games.py`, `scripts/check_studio_series_identity.py`, `.github/workflows/**` (MATERIAL; Pflicht-Checks und Gate-Definitionen ändert nur der Owner, `AGENTS.md` §10) |

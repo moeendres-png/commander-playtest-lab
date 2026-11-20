@@ -17,8 +17,10 @@ before and after a change.
             Only manifests of the same ``format`` are comparable; an older one is refused (exit 2).
 ``fields``  two JSON answers of one route (before and after a change that removes fields,
             Q1-b2 #1677, inventory R5): exit 0 only if the key paths "before minus after" are
-            exactly the declared ``--removed`` paths and no key path was added; with
-            ``--values`` the answers must also be equal once the declared paths are pruned.
+            exactly the declared ``--removed`` paths and the key paths "after minus before"
+            exactly the declared ``--added`` paths (Q1-b3 #1678: a field that replaces a removed
+            one); with ``--values`` the answers must also be equal once the declared paths are
+            pruned from both.
             Key paths join object keys with ``/`` and write a list item as ``[]``
             (``cards[]/layers``). A declared path counts with everything below it. It reads answer
             bodies, not manifests, so it does not depend on the manifest ``format`` (/2).
@@ -45,7 +47,7 @@ Usage::
     python scripts/studio_response_manifest.py writes --store <template folder> --out <file>
     python scripts/studio_response_manifest.py compare <manifest A> <manifest B>
     python scripts/studio_response_manifest.py fields <before.json> <after.json>
-        --removed <path> [--removed <path> ...] [--values]
+        --removed <path> [--removed <path> ...] [--added <path> ...] [--values]
 """
 
 from __future__ import annotations
@@ -736,11 +738,20 @@ def _top_paths(paths: set[str]) -> set[str]:
     }
 
 
-def field_check(before: object, after: object, removed: Sequence[str]) -> list[str]:
-    """Problems of a change that should only remove the ``removed`` key paths: a path added, a
-    path removed without being declared, a declared path still present or never there."""
+def field_check(
+    before: object, after: object, removed: Sequence[str], added: Sequence[str] = ()
+) -> list[str]:
+    """Problems of a change that should only remove the ``removed`` key paths and add the
+    ``added`` ones: a path added without being declared, a declared added path missing or
+    already there before, a path removed without being declared, a declared removed path still
+    present or never there."""
     old, new = key_paths(before), key_paths(after)
-    problems = [f"added: {path}" for path in sorted(_top_paths(new - old))]
+    appeared = _top_paths(new - old)
+    wanted = set(added)
+    problems = [f"added: {path}" for path in sorted(appeared - wanted)]
+    for path in sorted(wanted - appeared):
+        state = "already in the answer before" if path in old else "missing"
+        problems.append(f"declared added, {state}: {path}")
     gone = _top_paths(old - new)
     declared = set(removed)
     problems.extend(f"removed, not declared: {path}" for path in sorted(gone - declared))
@@ -931,6 +942,7 @@ def main(argv: list[str] | None = None) -> int:
     fields.add_argument("before")
     fields.add_argument("after")
     fields.add_argument("--removed", action="append", default=[], help="removed key path")
+    fields.add_argument("--added", action="append", default=[], help="added key path")
     fields.add_argument(
         "--values", action="store_true", help="also compare the values outside the removed paths"
     )
@@ -939,15 +951,17 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "fields":
             before = json.loads(Path(args.before).read_text(encoding="utf-8"))
             after = json.loads(Path(args.after).read_text(encoding="utf-8"))
-            problems = field_check(before, after, args.removed)
+            problems = field_check(before, after, args.removed, args.added)
             if args.values:
                 pruned = prune(before, args.removed)
                 problems.extend(
-                    f"value differs: {path}" for path in value_differences(pruned, after)
+                    f"value differs: {path}"
+                    for path in value_differences(pruned, prune(after, args.added))
                 )
             for line in problems:
                 print(line)
-            print(f"{len(args.removed)} declared path(s), {len(problems)} problem(s)")
+            declared = len(args.removed) + len(args.added)
+            print(f"{declared} declared path(s), {len(problems)} problem(s)")
             return 1 if problems else 0
         if args.command == "compare":
             left = json.loads(Path(args.left).read_text(encoding="utf-8"))

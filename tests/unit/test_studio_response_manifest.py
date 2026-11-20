@@ -274,6 +274,32 @@ def test_studio_fields_command_exits_zero_or_one(tmp_path: Path) -> None:
     assert tool.main(["fields", str(before), str(after), *declared[:-2]]) == 1
 
 
+def test_studio_fields_accept_exactly_the_declared_added_paths(tmp_path: Path) -> None:
+    """Q1-b3 (#1678): a change may add declared key paths; an undeclared added path, a declared
+    one that is missing or was already there stay problems, and ``--values`` prunes both."""
+    added = {**AFTER, "judgement": {"zahlen": [{"id": "x"}]}}
+    assert tool.field_check(BEFORE, added, REMOVED, ["judgement"]) == []
+    assert tool.field_check(BEFORE, added, REMOVED) == ["added: judgement"]
+    assert tool.field_check(BEFORE, AFTER, REMOVED, ["judgement"]) == [
+        "declared added, missing: judgement"
+    ]
+    assert tool.field_check(BEFORE, AFTER, REMOVED, ["notices"]) == [
+        "declared added, already in the answer before: notices"
+    ]
+    more = {**added, "more": 1}
+    assert tool.field_check(BEFORE, more, REMOVED, ["judgement"]) == ["added: more"]
+    before, after = tmp_path / "b.json", tmp_path / "a.json"
+    before.write_text(json.dumps(BEFORE), encoding="utf-8")
+    after.write_text(json.dumps(added), encoding="utf-8")
+    declared = [arg for path in REMOVED for arg in ("--removed", path)]
+    assert tool.main(["fields", str(before), str(after), *declared, "--values"]) == 1
+    run = ["fields", str(before), str(after), *declared, "--added", "judgement", "--values"]
+    assert tool.main(run) == 0
+    changed = {**added, "cards": [{"id": "a", "tier": "A"}, {"id": "b", "tier": "A"}]}
+    after.write_text(json.dumps(changed), encoding="utf-8")
+    assert tool.main(run) == 1  # values outside the declared paths still count
+
+
 def test_studio_manifest_never_lands_in_the_repository(tmp_path: Path) -> None:
     with pytest.raises(tool.ManifestError):
         tool.check_out_path(ROOT / "manifest.json", [ROOT])

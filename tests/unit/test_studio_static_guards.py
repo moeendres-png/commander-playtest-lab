@@ -665,155 +665,30 @@ def test_why_box_split_is_only_shown_when_it_adds_up() -> None:
     assert 99 <= result["highSum"] <= 101
 
 
-def _overall_node_prelude() -> str:
-    """JS source for the node tests of the overall rating: the real de-DE helpers of ui.js, the
-    real ranking constants and the real pure helpers of tierliste.js (cut out by their markers)."""
+def _ui_helpers_prelude() -> str:
+    """The real de-DE number helpers of ui.js as a small ``StudioUI`` object for node tests."""
     ui = (STATIC / "ui.js").read_text(encoding="utf-8")
     ui_part = ui[
         ui.index("function _formatDe(n, opts) {") : ui.index("// Simulator readiness codes")
     ]
-    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
-    nf_line = next(line for line in js.splitlines() if line.startswith("const nf = "))
-    names_line = next(line for line in js.splitlines() if line.startswith("const CONFIDENCE_NAMES"))
-    constants = js[js.index("const DEFAULT_RANKING") : js.index("const SORTS = [")]
-    helpers = js[
-        js.index("// ---------- overall rating (Gesamtrating): pure helpers") : js.index(
-            "// ---------- end of the overall rating helpers"
-        )
-    ]
-    shares_at = js.index("function indexShares(item) {")
-    shares = js[shares_at : js.index('// "Warum hier?"', shares_at)]
-    return (
-        "const StudioUI = (() => {"
-        + ui_part
-        + "return {num, pct, numFlex, numSig}; })();\n"
-        + nf_line
-        + "\n"
-        + names_line
-        + "\n"
-        + constants
-        + "\n"
-        + helpers
-        + "\n"
-        + shares
-        + "\n"
-    )
-
-
-def test_tierliste_overall_toggle_and_columns_contract() -> None:
-    """Second ranking (Gesamtrating, #1369): the toggle is fixed in the page (nothing is rebuilt, so
-    the focus stays and nothing moves), the default ranking is one constant that stays "usage", the
-    choice is remembered only through the guarded StudioUI helpers, the criteria have tooltips, and
-    the overall rating never gets a tier letter."""
-    html = (STATIC / "tierliste.html").read_text(encoding="utf-8")
-    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
-    css = (STATIC / "tierliste.css").read_text(encoding="utf-8")
-    toggle = html.split('id="ranking-toggle"', 1)[1].split("</span>\n  <span", 1)[0]
-    assert 'role="group"' in html.split('id="ranking-toggle"', 1)[1][:120]
-    assert 'data-ranking="usage"' in toggle and 'data-ranking="overall"' in toggle
-    assert toggle.count("disabled") >= 2 and ">Nutzung</button>" in toggle
-    assert ">Gesamtrating</button>" in toggle and 'id="overall-panel"' in html
-    assert js.count('const DEFAULT_RANKING = "usage";') == 1
-    assert 'const RANKING_KEY = "studio.tier.ranking";' in js
-    sync = js[js.index("function syncRankingToggle() {") : js.index("function syncRanking() {")]
-    assert "replaceChildren" not in sync and "classList.toggle" in sync and "aria-pressed" in sync
-    assert "localStorage" not in js.split("const OVERALL_CRITERIA")[1].split("function")[0]
-    for letter in "EFTRKDH":
-        assert f'["{letter}", "' in js, letter
-    assert "Kostenarmut" in js and "100 = kein Risiko" in js
-    assert "Begründung der Modell-Rater (englisch; ungeprüft, keine Regelauskunft)" in js
-    assert "Gewichte sind eine Setzung" in js
-    assert "keine Nutzungsdaten" in js and "ohne Nutzung" in js
-    cells = js[js.index("function overallCell(card) {") : js.index("function overallCriterionCell")]
-    assert 'class: "tier-badge' not in cells and "tierBadge(" not in cells
-    assert "#ranking-toggle" in css or "#overall-panel" in css
-    for forbidden in ("innerHTML", "style=", 'setAttribute("style"', ".toFixed(", ".toPrecision("):
-        assert forbidden not in js and forbidden not in html and forbidden not in css, forbidden
-    for sort_key in ('["overall", "', '["overall_rank", "', "CRIT_SORT + key"):
-        assert sort_key in js, sort_key
-    assert '"rolerank", "overall_rank"' in js  # the rank sorts best first
-
-
-def test_overall_helpers_format_decompose_and_report_unknown() -> None:
-    """The real pure helpers run in node: score and rank in de-DE, the breakdown adds up to the
-    score (a mismatch shows no numbers), unknown is never 0, and no usage axis is named."""
-    script = (
-        _overall_node_prelude()
-        + """
-const axes = [
-  {axis: 'usage', value: 37.2, weight_effective: 0.3, contribution: 11.2},
-  {axis: 'H', value: 35, weight_effective: 0.3, contribution: 10.5},
-  {axis: 'F', value: 55, weight_effective: 0.15, contribution: 8.3},
-  {axis: 'R', value: 55, weight_effective: 0.05, contribution: 2.7},
-  {axis: 'E', value: 25, weight_effective: 0.1, contribution: 2.5},
-  {axis: 'T', value: 45, weight_effective: 0.05, contribution: 2.2},
-  {axis: 'D', value: 55, weight_effective: 0.025, contribution: 1.4},
-  {axis: 'K', value: 40, weight_effective: 0.025, contribution: 1.0}];
-const rated = {score: 39.8, rank: 169, n_rated: 922, axes, stability: {rank_min: 129, rank_max: 226, unscharf: true, variants: 80},
-  confidence: {level: 'high', uncertain: false, rater_confidence: 'high', h_sd: null, raters: 1}};
-const unknown = {score: null, rank: null, n_rated: 922, axes: [], stability: null, confidence: null, unknown_reason: 'keine Kartenverständnis-Bewertung'};
-const split = overallRows(rated);
-const broken = overallRows({...rated, score: 40.0});
-const noUsage = {...rated, axes: axes.filter((a) => a.axis !== 'usage')};
-const wide = {...rated, confidence: {level: 'low', uncertain: true, rater_confidence: 'medium', h_sd: 22.5, raters: 3}};
-console.log(JSON.stringify({
-  score: overallScoreText(rated), whole: overallScoreText({score: 100}), zero: overallScoreText({score: 0}),
-  unknownScore: overallScoreText(unknown), missing: overallScoreText(null),
-  rank: overallRankText(rated), bigRank: overallRankText({rank: 1234, n_rated: 1500}), unknownRank: overallRankText(unknown),
-  span: overallSpanText(rated, 0.3), spanBare: overallSpanText(rated, null), noSpan: overallSpanText(unknown, 0.3),
-  sum: split.rows.reduce((s, r) => s + Math.round(r.contribution * 10), 0), first: split.rows[0].axis, last: split.rows[split.rows.length - 1].axis,
-  labelUsage: split.rows.find((r) => r.axis === 'usage').label, weightSum: Math.round(split.weightSum * 1000) / 1000,
-  broken: broken, unknownRows: overallRows(unknown),
-  usageOk: overallWithoutUsage({tier: 'S'}, rated), tierU: overallWithoutUsage({tier: 'U'}, rated), tierN: overallWithoutUsage({tier: 'N'}, rated),
-  axisMissing: overallWithoutUsage({tier: 'S'}, noUsage), noItem: overallWithoutUsage(null, rated), unknownNoUsage: overallWithoutUsage({tier: 'U'}, unknown),
-  crit: overallCriterion(rated, 'D'), critUnknown: overallCriterion(unknown, 'D'), critNull: overallCriterion(null, 'D'),
-  wordHigh: overallConfidenceWord(rated), wordLow: overallConfidenceWord(wide), wordNone: overallConfidenceWord(unknown),
-  textOne: overallConfidenceText(rated), textWide: overallConfidenceText(wide),
-  under: percentOrUnder(0.4), one: percentOrUnder(0.6), twelve: percentOrUnder(12.4),
-  wanted: [wantedRanking(null), wantedRanking(''), wantedRanking('x'), wantedRanking('overall'), wantedRanking('usage')],
-  effective: [effectiveRanking('overall', false), effectiveRanking('overall', true), effectiveRanking('usage', true)],
-  defaults: DEFAULT_RANKING, letters: OVERALL_CRITERIA.map((c) => c[0]).join(''),
-}));
-"""
-    )
-    result = _node_json(script)
-    assert isinstance(result, dict)
-    assert result["score"] == "39,8" and result["whole"] == "100,0" and result["zero"] == "0,0"
-    assert result["unknownScore"] is None and result["missing"] is None
-    assert result["rank"] == "Rang 169 von 922" and result["bigRank"] == "Rang 1.234 von 1.500"
-    assert result["unknownRank"] is None and result["noSpan"] is None
-    assert (
-        "Rangspanne 129 bis 226" in result["span"] and "\u00d70,7 bis \u00d71,3" in result["span"]
-    )
-    assert "\u00d7" not in result["spanBare"] and "80 Varianten" in result["spanBare"]
-    assert result["sum"] == 398 and result["first"] == "usage" and result["last"] == "K"
-    assert result["labelUsage"] == "Nutzungsindex" and result["weightSum"] == 1
-    assert result["broken"] is None and result["unknownRows"] is None
-    assert result["usageOk"] is False and result["tierU"] is True and result["tierN"] is True
-    assert result["axisMissing"] is True and result["noItem"] is True
-    assert (
-        result["unknownNoUsage"] is False
-    )  # no score: the unknown path, not the "only card rating" note
-    assert result["crit"] == 55 and result["critUnknown"] is None and result["critNull"] is None
-    assert (
-        result["wordHigh"] == "hoch"
-        and result["wordLow"] == "unsicher"
-        and result["wordNone"] is None
-    )
-    assert "ein Lauf je Karte" in result["textOne"] and "unbekannt" in result["textOne"]
-    assert "3 Bewerter" in result["textWide"] and "Streuung von H 22,5" in result["textWide"]
-    assert "Als unsicher markiert" in result["textWide"] and "high" not in result["textOne"]
-    assert result["under"] == "unter 1 %" and result["one"] == "1 %" and result["twelve"] == "12 %"
-    assert result["wanted"] == ["usage", "usage", "usage", "overall", "usage"]
-    assert result["effective"] == ["usage", "overall", "usage"]
-    assert result["defaults"] == "usage" and result["letters"] == "EFTRKDH"
+    return "const StudioUI = (() => {" + ui_part + "return {num, pct, numFlex, numSig}; })();\n"
 
 
 def test_why_box_names_the_further_signals_and_never_shows_zero_percent() -> None:
     """P3 of #1494: a positive share that rounds to 0 % is shown as "unter 1 %", the number of
-    further signals is named, and a top row under 1 % switches the percentages off."""
+    further signals is named, and a top row under 1 % switches the percentages off. Rewritten in
+    Q1-b3 (#1678): it ran on the prelude of the removed overall rating; it now cuts out only the
+    real ``percentOrUnder`` and ``indexShares`` of tierliste.js."""
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    nf_line = next(line for line in js.splitlines() if line.startswith("const nf = "))
+    start = js.index("function percentOrUnder(percent) {")
+    shares = js[start : js.index('// "Warum hier?"', start)]
+    assert "function indexShares(item) {" in shares
     script = (
-        _overall_node_prelude()
+        _ui_helpers_prelude()
+        + nf_line
+        + "\n"
+        + shares
         + """
 const comp = (component, weight, percentile) => ({component, label: component, weight, percentile});
 const item = (parts) => { const total = parts.reduce((s, p) => s + p[1], 0);
@@ -830,462 +705,136 @@ console.log(JSON.stringify({tailDetail: tail.detail, tailCount: tail.restCount, 
     assert result["tailDetail"] is True and result["tailCount"] == 2
     assert result["tailRest"] == "unter 1 %" and "0 %" not in result["tailRest"].replace("1 %", "")
     assert result["spreadCount"] == 1 and result["spreadRest"] != "unter 1 %"
-    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
     assert "percentOrUnder(shares.restPercent)" in js and "weitere ${nf(shares.restCount)}" in js
 
 
-def test_ranking_toggle_state_follows_the_server_and_names_the_reason() -> None:
-    """The toggle runs against a fake DOM: with the rating it shows the chosen ranking, without it
-    (not available, global view, still loading, stored choice) it falls back to "Nutzung" and the
-    disabled button carries the reason in title and aria-label."""
+def test_the_tierliste_has_no_overall_rating_left() -> None:
+    """Q1-b3 (#1678, E15 Q1): the overall rating v1 left the tier list. No toggle button, panel,
+    sort key, style or server field of it remains; the bar keeps the usage button for Q1-b5
+    (#1680), and a remembered sort of the removed rating is no sort option any more (the page
+    falls back to the index sort)."""
+    html = (STATIC / "tierliste.html").read_text(encoding="utf-8")
     js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
-    state_part = js[js.index("const overallMeta = ") : js.index("function overallUnknownCell")]
-    sync_part = js[
-        js.index("function syncRankingToggle() {") : js.index("function syncRanking() {")
+    css = (STATIC / "tierliste.css").read_text(encoding="utf-8")
+    for token in ("rk-overall", "overall-panel", 'data-ranking="overall"', "Gesamtrating"):
+        assert token not in html, token
+    for token in (
+        "overall_meta",
+        "overallOf",
+        "overallColumns",
+        "renderOverallPanel",
+        "overall-hint",
+        "setRanking",
+        "studio.tier.ranking",
+        '"overall_rank"',
+        "CRIT_SORT",
+        "Gesamtrating",
+    ):
+        assert token not in js, token
+    for token in ("#overall-panel", ".ocell", ".oscore", ".overall-reason", "crit-head"):
+        assert token not in css, token
+    toggle = html.split('id="ranking-toggle"', 1)[1].split("</span>\n  <span", 1)[0]
+    assert 'id="rk-usage"' in toggle and ">Nutzung</button>" in toggle
+    assert toggle.count("<button") == 1
+    # a stored sort key is only restored when it is still a sort option
+    assert "SORTS.some((item) => item[0] === savedSort)" in js
+    sorts = js[js.index("const SORTS = [") : js.index("];", js.index("const SORTS = ["))]
+    for gone in ('"overall"', '"overall_rank"', "crit:"):
+        assert gone not in sorts, gone
+    # the judgement column uses the number contract component of B3
+    assert html.index('<script src="zahl.js">') < html.index('<script src="tierliste.js">')
+
+
+def _understanding_node_prelude() -> str:
+    """The real number contract component (zahl.js), the real constants and judgement block of
+    tierliste.js (cut out by their markers) and a small stub of h() and the page state."""
+    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    zahl = (STATIC / "zahl.js").read_text(encoding="utf-8")
+    lines = js.splitlines()
+    nf_line = next(line for line in lines if line.startswith("const nf = "))
+    head_line = next(line for line in lines if line.startswith("const plainHead = "))
+    constants = js[js.index("const UNDERSTANDING_NAME") : js.index("const SORTS = [")]
+    block = js[
+        js.index("// ---------- rubric v2 judgement") : js.index("function spreadCell(card) {")
     ]
-    script = (
-        _overall_node_prelude()
-        + "const strengthItem = () => null;\n"
-        + state_part
-        + sync_part
-        + """
-const fakeButton = (key) => { const attrs = {'data-ranking': key}; const cls = new Set();
-  return {disabled: true, attrs, cls, classList: {toggle: (name, on) => (on ? cls.add(name) : cls.delete(name))},
-    getAttribute: (k) => (k in attrs ? attrs[k] : null), setAttribute: (k, v) => { attrs[k] = v; }}; };
-const make = () => { const buttons = [fakeButton('usage'), fakeButton('overall')]; const attrs = {};
-  return {buttons, attrs, querySelectorAll: () => buttons, setAttribute: (k, v) => { attrs[k] = v; }, removeAttribute: (k) => { delete attrs[k]; }}; };
-let box = make();
-globalThis.$ = (id) => (id === 'ranking-toggle' ? box : null);
-const run = (state0) => { box = make(); globalThis.state = state0; syncRankingToggle();
-  const [u, o] = box.buttons;
-  return {usage: [u.attrs['aria-pressed'], u.disabled], overall: [o.attrs['aria-pressed'], o.disabled], title: o.attrs.title || '', label: o.attrs['aria-label'] || '', boxTitle: box.attrs.title || ''}; };
-const ready = (meta, extra) => ({view: 'commander', ranking: 'overall', strength: {status: 'ready', map: new Map(), result: {overall_meta: meta}}, ...extra});
-console.log(JSON.stringify({
-  on: run(ready({available: true})),
-  stored: run(ready({available: true}, {ranking: 'usage'})),
-  off: run(ready({available: false, unavailable_reason: 'Kartenverständnis liegt nur für einen anderen Commander vor'})),
-  none: run(ready(null)),
-  global: run(ready({available: true}, {view: 'global'})),
-  loading: run({view: 'commander', ranking: 'overall', strength: {status: 'loading', map: null, result: null}}),
-}));
-"""
-    )
-    result = _node_json(script)
-    assert isinstance(result, dict)
-    assert result["on"]["overall"] == ["true", False] and result["on"]["usage"] == ["false", False]
-    assert result["on"]["boxTitle"] == "" and "Stufe" in result["on"]["title"]
-    assert (
-        result["stored"]["usage"] == ["true", False] and result["stored"]["overall"][0] == "false"
-    )
-    off = result["off"]
-    assert off["overall"] == ["false", True] and off["usage"] == ["true", False]
-    assert "anderen Commander" in off["title"] and "nicht verfügbar" in off["label"]
-    assert off["boxTitle"] == off["title"]
-    assert "nicht verfügbar" in result["none"]["title"] and result["none"]["overall"][1] is True
-    assert (
-        result["global"]["overall"] == ["false", True]
-        and "je Commander" in result["global"]["title"]
-    )
-    assert result["loading"]["usage"][1] is True and result["loading"]["overall"][1] is True
-    assert "berechnet" in result["loading"]["title"]
-
-
-def test_remembered_overall_sort_falls_back_to_the_index_without_the_rating() -> None:
-    """A remembered sort by the overall rating has no values where the rating is missing (other
-    commander, not available): the page sorts by the index again and keeps the memory untouched."""
-    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
-    state_part = js[js.index("const overallMeta = ") : js.index("function overallUnknownCell")]
-    start = js.index("function syncRanking() {")
-    sync_part = js[start : js.index("function setRanking(ranking) {")]
-    script = (
-        _overall_node_prelude()
-        + "const strengthItem = () => null; const syncRankingToggle = () => {};"
-        + "const renderCoreLine = () => {}; const renderOverallPanel = () => {};\n"
-        + state_part
-        + sync_part
-        + """
-const sel = {value: ''};
-globalThis.$ = (id) => (id === 'sort' ? sel : null);
-const run = (sortKey, meta, status = 'ready', view = 'commander') => {
-  sel.value = sortKey;
-  globalThis.state = {view, sortKey, sortDir: 1, ranking: 'overall',
-    strength: {status, map: new Map(), result: meta === undefined ? null : {overall_meta: meta}}};
-  syncRanking(); return [state.sortKey, state.sortDir, sel.value]; };
-const off = {available: false, unavailable_reason: 'x'};
-console.log(JSON.stringify({
-  rank: run('overall_rank', off), crit: run('crit:D', off), score: run('overall', off),
-  kept: run('overall', {available: true}), other: run('name', off), loading: run('overall', off, 'loading'),
-  global: run('overall', off, 'ready', 'global'),
-}));
-"""
-    )
-    result = _node_json(script)
-    assert isinstance(result, dict)
-    for key in ("rank", "crit", "score"):
-        assert result[key] == ["strength", -1, "strength"], key
-    assert result["kept"] == ["overall", 1, "overall"] and result["other"][0] == "name"
-    assert result["loading"][0] == "overall" and result["global"][0] == "overall"
-    seen = js[start : js.index("function setRanking(ranking) {")]
-    assert "StudioUI.remember" not in seen  # the fallback never overwrites the remembered sort
-
-
-def test_overall_v2_fields_group_rank_raw_index_single_values_and_no_usage_flag() -> None:
-    """overall-v2 fields (real helpers in node): the rank inside Länder or Zauber, the raw index
-    next to the log-scaled usage axis, usage tier/index and H as single values in every row, and
-    the flag no_usage_axis as "ohne Nutzungsdaten" (also when the axis list has a usage entry)."""
-    script = (
-        _overall_node_prelude()
-        + """
-const axes = [{axis: 'usage', value: 3.9, raw_value: 0.2, weight_effective: 0.3, contribution: 1.2},
-  {axis: 'H', value: 10, weight_effective: 0.7, contribution: 7.0}];
-const land = {score: 8.2, rank: 900, n_rated: 922, group: 'land', rank_in_group: 3, n_group: 65, flags: [], axes};
-const spell = {...land, group: 'spell', rank_in_group: 1234, n_group: 1500};
-const flagged = {...land, flags: ['no_usage_axis']};
-const split = overallRows(land);
-console.log(JSON.stringify({
-  land: overallGroupText(land), spell: overallGroupText(spell), none: overallGroupText({score: null, rank_in_group: null}),
-  usageLabel: split.rows.find((r) => r.axis === 'usage').label, usageRaw: split.rows.find((r) => r.axis === 'usage').raw,
-  hRaw: split.rows.find((r) => r.axis === 'H').raw,
-  usageText: overallUsageText({tier: 'S', index: 76.5}), usageU: overallUsageText({tier: 'U', index: null}), usageN: overallUsageText(null),
-  h: overallHText(land), hNone: overallHText({axes: []}),
-  flagged: overallWithoutUsage({tier: 'S'}, flagged), plain: overallWithoutUsage({tier: 'S'}, land),
-}));
-"""
-    )
-    result = _node_json(script)
-    assert isinstance(result, dict)
-    assert (
-        result["land"] == "Länder: Rang 3 von 65"
-        and result["spell"] == "Zauber: Rang 1.234 von 1.500"
-    )
-    assert result["none"] is None
-    assert result["usageLabel"] == "Nutzungsindex (log-skaliert)" and result["usageRaw"] == 0.2
-    assert result["hRaw"] is None
-    assert result["usageText"] == "Nutzung S 76,5" and result["usageU"] == "Nutzung unbekannt"
-    assert result["usageN"] == "Nutzung unbekannt"
-    assert result["h"] == "H 10" and result["hNone"] == "H unbekannt"
-    assert result["flagged"] is True and result["plain"] is False
-    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
-    assert "ohne Nutzungsdaten" in js and 'id: "overall-hint"' in js and "(Index ${" in js
-
-
-def test_overall_global_view_and_profile_loading_sync() -> None:
-    """PR #1509 regression: global view clears overallOf/sortValue so commander scores never leak
-    into global sorting; loadSavedProfile and initStrength error handling invoke syncRanking so
-    toggle state, core-line, panel and sortKey stay consistent across bracket transitions."""
-    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
-    state_part = js[js.index("const overallMeta = ") : js.index("function overallUnknownCell")]
-    sort_part = js[js.index("function sortValue(card, key) {") : js.index("function sortBy(key) {")]
-    strength_item_line = next(
-        line for line in js.splitlines() if line.startswith("function strengthItem(card)")
-    )
-    sync_part = js[
-        js.index("function syncRankingToggle() {") : js.index("function setRanking(ranking) {")
-    ]
-    load_part = js[
-        js.index("async function loadSavedProfile(profile) {") : js.index(
-            "function strengthField(key)"
-        )
-    ]
-    init_part = js[
-        js.index("async function initStrength() {") : js.index("// ---------- data state banner")
-    ]
-    sort_constants = "\n".join(
-        next(line for line in js.splitlines() if line.startswith(prefix))
-        for prefix in ("const PERCENTILE_SORT",)
-    )
-    script = (
-        _overall_node_prelude()
-        + sort_constants
-        + "\nStudioUI.germanError = (e) => String(e);\n"
-        + strength_item_line
-        + "\n"
-        + state_part
-        + "\n"
-        + sort_part
-        + "\n"
-        + load_part
-        + "\n"
-        + init_part
-        + "\n"
-        + """
-const fakeButton = (key) => { const attrs = {'data-ranking': key}; const cls = new Set();
-  return {disabled: true, attrs, cls, classList: {toggle: (name, on) => (on ? cls.add(name) : cls.delete(name))},
-    getAttribute: (k) => (k in attrs ? attrs[k] : null), setAttribute: (k, v) => { attrs[k] = v; }}; };
-const makeBox = () => { const buttons = [fakeButton('usage'), fakeButton('overall')]; const attrs = {};
-  return {buttons, attrs, querySelectorAll: () => buttons, setAttribute: (k, v) => { attrs[k] = v; }, removeAttribute: (k) => { delete attrs[k]; }}; };
-let box = makeBox();
-const coreLine = {textContent: '', attrs: {}, setAttribute: (k, v) => { coreLine.attrs[k] = v; }, removeAttribute: (k) => { delete coreLine.attrs[k]; }};
-const sortSel = {value: 'overall'};
-globalThis.VIEW_NAMES = {commander: 'Chulane'};
-globalThis.$ = (id) => (id === 'ranking-toggle' ? box : id === 'core-line' ? coreLine : id === 'sort' ? sortSel : id === 'overall-panel' ? null : null);
-globalThis.COMMANDER = 'Chulane, Teller of Tales';
-globalThis.withDefaults = (s) => ({...s});
-globalThis.clone = (x) => JSON.parse(JSON.stringify(x));
-globalThis.rememberStrength = () => {};
-globalThis.renderStrengthPanel = () => {};
-globalThis.renderTierBar = () => {};
-globalThis.syncRankGroupToggle = () => {};
-globalThis.render = () => {};
-globalThis.toast = () => {};
-const renderCoreLine = () => {
-  const overall = state.view !== 'global' && (state.strength.status === 'loading' ? state.ranking === 'overall' : overallActive());
-  coreLine.textContent = overall ? 'Gesamtrating' : 'Stufe';
-};
-const renderOverallPanel = () => {};
-"""
-        + sync_part
-        + """
-(async () => {
-  const card = {card_id: 'c1', name: 'Test', mana_value: 2, coverage: {present: []}};
-  const rated = {tier: 'S', index: 80, overall: {score: 77.5, rank: 1, axes: [{axis: 'D', value: 90}]}};
-  globalThis.state = {
-    view: 'global', ranking: 'overall', sortKey: 'overall', sortDir: -1,
-    universe: {name: 'u1', profiles: []},
-    strength: {meta: {recommended: {}}, status: 'ready', ticket: 0, settings: {universe_profile: 'u1'}, map: new Map([['c1', rated]]), result: {overall_meta: {available: true}}},
-  };
-  const globalVals = [overallOf(card), sortValue(card, 'overall'), sortValue(card, 'overall_rank'), sortValue(card, 'crit:D')];
-  state.view = 'commander';
-  const cmdVals = [overallOf(card) !== null, sortValue(card, 'overall'), sortValue(card, 'overall_rank'), sortValue(card, 'crit:D')];
-
-  globalThis.api = async (_path, body) => ({
-    settings: {universe_profile: 'u1', bracket: body.profile === 'b4' ? 'optimized' : 'upgraded'},
-    cards: [{card_id: 'c1', ...rated}],
-    overall_meta: body.profile === 'b4' ? {available: false, unavailable_reason: 'nur Bracket 3'} : {available: true},
-  });
-  await loadSavedProfile({name: 'b4'});
-  const afterLeave = {disabled: box.buttons[1].disabled, pressed: box.buttons[1].attrs['aria-pressed'], core: coreLine.textContent, sortKey: state.sortKey};
-  await loadSavedProfile({name: 'b3'});
-  const afterEnter = {disabled: box.buttons[1].disabled, pressed: box.buttons[1].attrs['aria-pressed'], core: coreLine.textContent};
-
-  globalThis.api = async () => { throw new Error('offline'); };
-  state.strength.status = 'loading';
-  state.strength.result = null;
-  state.strength.map = null;
-  await initStrength();
-  const afterInitFail = {status: state.strength.status, disabled: box.buttons[1].disabled, title: box.buttons[1].attrs.title, core: coreLine.textContent};
-
-  console.log(JSON.stringify({globalVals, cmdVals, afterLeave, afterEnter, afterInitFail}));
-})();
-"""
-    )
-    result = _node_json(script)
-    assert isinstance(result, dict)
-    assert result["globalVals"] == [None, None, None, None]
-    assert result["cmdVals"] == [True, 77.5, 1, 90]
-    assert result["afterLeave"] == {
-        "disabled": True,
-        "pressed": "false",
-        "core": "Stufe",
-        "sortKey": "strength",
-    }
-    assert result["afterEnter"] == {
-        "disabled": False,
-        "pressed": "true",
-        "core": "Gesamtrating",
-    }
-    assert result["afterInitFail"]["status"] == "error"
-    assert result["afterInitFail"]["disabled"] is True
-    assert "berechnet" not in result["afterInitFail"]["title"]
-    assert result["afterInitFail"]["core"] == "Stufe"
-
-
-def _render_node_prelude() -> str:
-    """Prelude of the render tests: the real overall cells, "Warum hier" box and sortValue of
-    tierliste.js run in node against a small stub of h(), table(), unknown(), neutral() and state."""
-    js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
-    cells = js[js.index("const overallMeta = ") : js.index("function overallColumns")]
-    why = js[js.index("function overallWhyBox(card) {") : js.index("// The method panel")]
-    sort_at = js.index("function sortValue(card, key) {")
-    sort_value = js[sort_at : js.index("function sortBy(key) {", sort_at)]
     stub = """
-const PERCENTILE_SORT = 'pct:';
 const h = (tag, props, ...kids) => { const node = {tag, props: props || {}, kids: [],
   append(...more) { this.kids.push(...more.flat(Infinity).filter((k) => k !== null && k !== undefined && k !== false)); }};
   node.append(...kids); return node; };
 const text = (n) => (n === null || n === undefined ? '' : typeof n === 'object' ? n.kids.map(text).join(' ') : String(n));
-const find = (n, pred, out = []) => { if (n && typeof n === 'object') { if (pred(n)) out.push(n); n.kids.forEach((k) => find(k, pred, out)); } return out; };
-const unknown = (t = 'unbekannt') => h('span', {class: 'unknown'}, t);
-const neutral = (t, title) => h('span', {class: 'badge-neutral', title}, t);
-const table = (heads, rows) => h('table', {}, ...heads, ...rows.flat());
-const axes = [
-  {axis: 'usage', value: 95.4, raw_value: 76.5, weight_effective: 0.3, contribution: 28.6},
-  {axis: 'H', value: 90, weight_effective: 0.7, contribution: 63.0}];
-const rated = (extra) => ({status: 'bewertet', score: 91.6, rank: 3, n_rated: 922, group: 'spell', rank_in_group: 3, n_group: 857,
-  flags: [], axes, stability: {rank_min: 1, rank_max: 7, unscharf: false, variants: 80}, reason: 'A big ramp.',
-  confidence: {level: 'high', uncertain: false, rater_confidence: 'high', h_sd: null, raters: 1}, ...extra});
-const noUsage = rated({flags: ['no_usage_axis'], score: 63.0, axes: [axes[1]], rank: 400});
-const unknownOverall = {status: 'unbekannt', score: null, rank: null, n_rated: 922, group: 'spell', rank_in_group: null, n_group: 857, flags: [],
-  axes: [], confidence: null, stability: null, reason: null, unknown_reason: 'keine Kartenverständnis-Bewertung'};
-const noRank = rated({rank: null, rank_in_group: null});
-const cards = {A: {card_id: 'A', tier: 'S', index: 76.5, overall: rated()}, B: {card_id: 'B', tier: 'U', index: null, overall: noUsage},
-  C: {card_id: 'C', tier: 'D', index: 0.2, overall: unknownOverall}, D: {card_id: 'D', tier: 'S', index: 70, overall: noRank},
-  E: {card_id: 'E', tier: 'S', index: 70, overall: noUsage},
-  F: {card_id: 'F', tier: 'N', index: null, note: 'nicht bewertet (Commander)', overall: noUsage}};
-const meta = {available: true, weights: {usage: 0.3, H: 0.3, F: 0.15, E: 0.1, T: 0.05, R: 0.05, D: 0.025, K: 0.025}, usage_scale: 'log',
-  noise_note: 'Unterschiede unter etwa 5 Punkten sind nicht belastbar (Rauschen des Einzelratings)', usage_axis: {included: true},
-  flags: {no_usage_axis: {count: 1, note: 'Rang nicht mit Karten mit Nutzungs-Achse vergleichbar'}}};
-const setup = (overrides = {}) => { globalThis.state = {view: 'commander', ranking: 'overall',
-  strength: {status: 'ready', map: new Map(Object.entries(cards)), result: {cards: Object.values(cards), overall_meta: {...meta, ...overrides}}}}; };
-globalThis.strengthItem = (card) => state.strength.map.get(card.card_id) || null;
+const figure = (id, wert, klasse = 'URTEIL') => ({id: 'kartenverstaendnis:' + id, bezeichnung: 'H Gesamtwert (0 bis 100)', wert,
+  einheit: 'Anzahl', n: null, N: null, bezug: null, intervall: null, klasse, kohorte: 'Chulane, Teller of Tales · Bracket 3 (Annahme der Rater)',
+  quelle: 'Rubrik v2.1 (chulane-rubric-v2.1), Modell-Rater Stufe large, 1 Bewerter', stand_datum: null,
+  hinweise: ['Rater-Vertrauen high (Selbstauskunft)', 'nicht gegen Spielergebnisse validiert']});
+const field = (zahlen, extra) => ({verfuegbar: true, grund: null, name: 'Kartenverständnis (Modellurteil)', kriterium: 'H',
+  n_bewertet: zahlen.length, n_gesamt: 3, herkunft: {version: 'v2.1', rubric: 'chulane-rubric-v2.1'}, zahlen, ...extra});
+const setup = (result, view = 'commander', status = 'ready') => { globalThis.state = {view, strength: {status, result}}; };
+const cards = [{card_id: 'A'}, {card_id: 'B'}, {card_id: 'C'}];
+const view = () => { const columns = understandingColumns();
+  return {heads: columns.map((c) => text(c.head())), cells: columns.length ? cards.map((card) => text(columns[0].cell(card))) : [],
+    hint: understandingHint().map(text).join(' ')}; };
 """
-    return _overall_node_prelude() + stub + cells + "\n" + why + "\n" + sort_value + "\nsetup();\n"
+    return (
+        _ui_helpers_prelude()
+        + zahl
+        + "\n"
+        + nf_line
+        + "\n"
+        + head_line
+        + "\n"
+        + constants
+        + "\n"
+        + block
+        + "\n"
+        + stub
+    )
 
 
-def test_overall_cells_and_why_box_render_the_honest_variants() -> None:
-    """The real render functions run in node: a card without the usage axis gets its badge and the
-    cause, an unknown card shows "unbekannt" and never 0,0, a locked usage axis is "nicht
-    eingerechnet", the rank mark carries the server's note, "Warum hier" splits and discloses."""
+def test_the_judgement_column_is_only_shown_for_chulane_with_class_urteil() -> None:
+    """Q1-b3 (#1678, E5): the column "Kartenverständnis (Modellurteil)" runs through the real
+    StudioZahl.zelle with the class URTEIL. It appears only while the server sends the field
+    (Chulane) and says it is available; a card without a figure is "unbekannt", never 0; for
+    another commander (no field), the global view and an unavailable field there is no column;
+    a figure of another class shows no number (classes are never mixed in one column)."""
     script = (
-        _render_node_prelude()
+        _understanding_node_prelude()
         + """
-const A = cards.A, B = cards.B, C = cards.C, D = cards.D;
-const lockedMeta = {usage_axis: {included: false, excluded_reason: 'der Nutzungs-Index gewichtet simulation'}};
 const out = {};
-out.aCell = text(overallCell(A)); out.bCell = text(overallCell(B)); out.cCell = text(overallCell(C));
-out.bBadge = find(overallCell(B), (n) => n.props.class === 'badge dim').map((n) => n.props.title);
-out.aBadge = find(overallCell(A), (n) => n.props.class === 'badge dim').length;
-out.cRank = text(overallRankCell(C)); out.cCrit = text(overallCriterionCell(C, 'E')); out.cConf = text(overallConfidenceCell(C));
-out.sortA = [sortValue(A, 'overall'), sortValue(A, 'overall_rank'), sortValue(A, 'crit:H')];
-out.sortC = [sortValue(C, 'overall'), sortValue(C, 'overall_rank'), sortValue(C, 'crit:H')];
-out.bMark = find(overallRankCell(B), (n) => n.props.class === 'badge warn').map((n) => [text(n), n.props.title]);
-out.aMark = find(overallRankCell(A), (n) => n.props.class === 'badge warn').length;
-out.aGroup = text(overallRankCell(A));
-out.conf = [overallConfidenceCell(A).props.class, overallConfidenceCell(A).props['aria-label']];
-setup(lockedMeta);
-out.locked = text(overallCell(cards.E)); out.lockedBadge = find(overallCell(cards.E), (n) => n.props.class === 'badge dim').map(text);
-setup();
-const why = (c) => overallWhyBox(c);
-out.whyA = text(why(A)); out.whyB = text(why(B)); out.whyC = text(why(C)); out.whyD = text(why(D));
-out.noUsageBox = find(why(B), (n) => n.props.id === 'overall-no-usage').map(text);
-out.noUsageBoxA = find(why(A), (n) => n.props.id === 'overall-no-usage').length;
-out.hint = text(overallHint()[0]);
-out.readingB = find(why(B), (n) => n.props.id === 'overall-reading').map(text);
-out.fBadge = text(overallCell(cards.F)); out.fWhy = find(why(cards.F), (n) => n.props.id === 'overall-no-usage').map(text);
-setup(lockedMeta);
-out.lockedHint = text(overallHint()[0]);
-out.lockedReading = find(why(cards.E), (n) => n.props.id === 'overall-reading').map(text);
-out.lockedNoUsage = find(why(cards.E), (n) => n.props.id === 'overall-no-usage').map(text);
-out.lockedRankMark = find(overallRankCell(cards.E), (n) => n.props.class === 'badge warn').length;
-out.lockedWhyText = text(why(cards.E));
-setup();
-setup({available: false, unavailable_reason: 'nur im Bracket 3 verfügbar'});
-out.hintOff = text(overallHint()[0]);
-state.ranking = 'usage'; setup({available: true}); state.ranking = 'usage';
-out.hintUsage = overallHint().length;
-setup({available: false}); out.hintNoReason = text(overallHint()[0]);
-state.ranking = 'usage'; out.hintOffUsage = overallHint().length;
+setup({kartenverstaendnis: field([figure('A', 90), figure('C', 0)])});
+out.chulane = view();
+setup({cards: []});
+out.other = view();
+setup({kartenverstaendnis: field([figure('A', 90)])}, 'global');
+out.global = view();
+setup({kartenverstaendnis: field([figure('A', 90)])}, 'commander', 'loading');
+out.loading = view();
+setup({kartenverstaendnis: field([], {verfuegbar: false, grund: 'Kartenverständnis gilt für Bracket 3', herkunft: null})});
+out.unavailable = view();
+setup({kartenverstaendnis: field([{...figure('A', 90, 'GEZÄHLT'), n: 9, N: 10, bezug: 'Decks (mit Karte / gesamt)'}])});
+out.mixed = view();
 console.log(JSON.stringify(out));
 """
     )
-    r = _node_json(script)
-    assert isinstance(r, dict)
-    assert (
-        "91,6" in r["aCell"]
-        and "Nutzung S 76,5" in r["aCell"]
-        and "nicht eingerechnet" not in r["aCell"]
-    )
-    assert r["aBadge"] == 0
-    assert "ohne Nutzungsdaten" in r["bCell"] and "ohne Nutzungs-Achse" in r["bCell"]
-    assert any("keine Nutzungsdaten (Stufe U" in title for title in r["bBadge"])
-    assert "unbekannt" in r["cCell"] and "0,0" not in r["cCell"] and r["cRank"] == "\u2013"
-    assert r["cCrit"] == "\u2013" and r["cConf"] == "\u2013"
-    assert r["sortA"] == [91.6, 3, 90] and r["sortC"] == [None, None, None]
-    assert r["bMark"] == [
-        ["Rang nicht vergleichbar", "Rang nicht mit Karten mit Nutzungs-Achse vergleichbar"]
-    ]
-    assert r["aMark"] == 0 and "Zauber: Rang 3 von 857" in r["aGroup"]
-    assert (
-        r["conf"][0] == "badge dim" and "Selbstauskunft" in r["conf"][1]
-    )  # never the "good" green
-    assert "Nutzung S 70,0 (nicht eingerechnet)" in r["locked"]
-    assert r["lockedBadge"] == ["Nutzung nicht eingerechnet"]
-    assert "Summe = Gesamt" in r["whyA"] and "gerundet, sodass die Summe stimmt" in r["whyA"]
-    assert "ungeprüft, keine Regelauskunft" in r["whyA"] and "Rater-Vertrauen" in r["whyA"]
-    assert "(Index 76,5)" in r["whyA"] and "null" not in r["whyA"]
-    assert "unbekannt" in r["whyC"] and "0,0" not in r["whyC"]
-    assert "ohne Rang" in r["whyD"] and "null" not in r["whyD"]
-    assert len(r["noUsageBox"]) == 1 and "keine Nutzungsdaten (Stufe U" in r["noUsageBox"][0]
-    assert "Rang nicht mit Karten mit Nutzungs-Achse vergleichbar" in r["noUsageBox"][0]
-    assert r["noUsageBoxA"] == 0
-    for needle in (
-        "Hold-out-Kriterium verfehlt",
-        "ein Lauf je Karte",
-        "nicht gegen Spielergebnisse validiert",
-        "70 % Modellurteil (ein Lauf je Karte), 30 % Nutzung (log-skaliert)",
-        "unter etwa 5 Punkten",
-    ):
-        assert needle in r["hint"], needle
-    assert "Stufe C" not in r["hint"]
-    assert "nicht verfügbar" in r["hintOff"] and "nur im Bracket 3" in r["hintOff"]
-    assert r["hintUsage"] == 0 and r["hintOffUsage"] == 0  # the default page shows no extra line
-    assert "kein Grund geliefert" in r["hintNoReason"] and "Server liefert" not in r["hintNoReason"]
-    assert r["readingB"][0].startswith("Unterschiede")
-    assert "Nominale Gewichte: 70 % Modellurteil" in r["readingB"][0]
-    assert "Stufe N: ohne Nutzungsindex" in r["fBadge"] and "ohne Nutzungsdaten" not in r["fBadge"]
-    assert "nicht bewertet (Commander)" in r["fWhy"][0]
-    assert (
-        "(Stufe N: kein Nutzungsindex)" in r["fWhy"][0]
-        and "keine Nutzungsdaten" not in r["fWhy"][0]
-    )
-    locked = r["lockedHint"]
-    assert "100 % Modellurteil" in locked and "für diese Anfrage gesperrt" in locked
-    assert "30 % Nutzung" not in locked and "überschneidet sich mit der Nutzung" not in locked
-    assert (
-        "100 % Modellurteil" in r["lockedReading"][0]
-        and "Nutzung (log" not in r["lockedReading"][0]
-    )
-    assert "untereinander vergleichbar" in r["lockedNoUsage"][0]
-    assert "keine Nutzungsdaten" not in r["lockedNoUsage"][0]
-    assert (
-        r["lockedRankMark"] == 0
-    )  # all cards lack the axis: they stay comparable among themselves
-    for text_out in (
-        r["hint"],
-        locked,
-        r["readingB"][0],
-        r["lockedReading"][0],
-        r["lockedWhyText"],
-    ):
-        assert ". ." not in text_out and ".." not in text_out.replace("...", "")
-
-
-def test_overall_reading_texts_come_from_the_data_not_from_assumptions() -> None:
-    """Runs, weights and the cause of a missing usage axis are read from the payload."""
-    script = (
-        _overall_node_prelude()
-        + """
-const card = (raters, score = 50) => ({overall: {score, confidence: {raters}}});
-const weights = {usage: 0.2, H: 0.4, F: 0.4};
-console.log(JSON.stringify({
-  none: overallRunsText([]), single: overallRunsText([card(1), card(1)]), multi: overallRunsText([card(1), card(3)]),
-  unratedOnly: overallRunsText([{overall: {score: null}}]),
-  w: overallWeightsText({weights, usage_scale: 'log'}, 'ein Lauf je Karte'), wLinear: overallWeightsText({weights}, 'x'),
-  wNone: overallWeightsText({}, 'x'), wZero: overallWeightsText({weights: {usage: 0}}, 'x'),
-  locked: overallNoUsageCause({tier: 'S'}, {usage_axis: {included: false, excluded_reason: 'Simulation gewichtet'}}),
-  n: overallNoUsageCause({tier: 'N'}, {usage_axis: {included: true}}), u: overallNoUsageCause({tier: 'U'}, null),
-  other: overallNoUsageCause({tier: 'S'}, null), lockedText: overallUsageText({tier: 'S', index: 12.3}, true),
-  lockedU: overallUsageText({tier: 'U', index: null}, true),
-}));
-"""
-    )
-    r = _node_json(script)
-    assert isinstance(r, dict)
-    assert r["none"] == "keine bewertete Karte" and r["unratedOnly"] == "keine bewertete Karte"
-    assert r["single"] == "ein Lauf je Karte" and r["multi"] == "mehrere Bewerter je Karte"
-    assert r["w"] == "Gewichte: 80 % Modellurteil (ein Lauf je Karte), 20 % Nutzung (log-skaliert)"
-    assert "log-skaliert" not in r["wLinear"] and r["wNone"] is None and r["wZero"] is None
-    assert r["locked"]["kind"] == "locked" and "Simulation gewichtet" in r["locked"]["text"]
-    assert r["n"]["kind"] == "rule" and r["u"]["kind"] == "nodata" and r["other"]["kind"] == "other"
-    assert r["lockedText"] == "Nutzung S 12,3 (nicht eingerechnet)"
-    assert r["lockedU"] == "Nutzung unbekannt"  # no index to show: not "nicht eingerechnet"
+    result = _node_json(script)
+    assert isinstance(result, dict)
+    chulane = result["chulane"]
+    assert chulane["heads"] == ["Kartenverständnis (Modellurteil)"]
+    a, b, c = chulane["cells"]
+    assert a.startswith("90") and "Modellurteil" in a and "Quelle: Rubrik v2.1" in a
+    assert "Kohorte: Chulane" in a and "nicht gegen Spielergebnisse validiert" in a
+    assert b == "unbekannt"  # no figure: unknown, never 0
+    assert c.startswith("0") and "Modellurteil" in c  # a real 0 stays a real 0
+    assert "2 von 3 Karten bewertet" in chulane["hint"] and "v2.1" in chulane["hint"]
+    assert "nicht gegen Spielergebnisse validiert" in chulane["hint"]
+    for case in ("other", "global", "loading"):
+        assert result[case] == {"heads": [], "cells": [], "hint": ""}, case
+    unavailable = result["unavailable"]
+    assert unavailable["heads"] == [] and "nicht verfügbar" in unavailable["hint"]
+    assert "Bracket 3" in unavailable["hint"]
+    mixed = result["mixed"]["cells"]
+    assert mixed[0] == "Klasse passt nicht zur Spalte" and not mixed[0].startswith("90")
     js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
-    assert "Stufe C" not in js and "OVERALL_LIMITS" not in js and "usage_scale_note" not in js
-    assert (
-        "Gesamtrating = gewichtetes Modellurteil, nicht validiert." in js
-    )  # the always visible core line
-    assert 'plainHead("Rater-Vertrauen (Selbstauskunft)"' in js
-    assert '["confidence", "Datenlage-Konfidenz des Nutzungsindex (Zähler)"]' in js
+    assert 'StudioZahl.zelle(h, understandingFigure(card), "URTEIL"' in js
 
 
 def test_kartenauswertung_renders_outcomes_cohort_and_few_data_honestly() -> None:
@@ -1479,9 +1028,11 @@ const emptyPayload = {json.dumps(empty_payload)};
 
 def test_kartenauswertung_names_deck_states_strata_and_the_unknown_stand() -> None:
     """#1657: the page shows each deck state (hash), the strata count of the stratified table
-    and "Stand unbekannt" with its own n; a not-pooled answer shows no combined row."""
+    and "Stand unbekannt" with its own n; a not-pooled answer shows no combined row.
+    #1683: every stratum names its table size; strata of 2, 3 and 4 seats stand apart and a
+    stratum without a table size is shown as "Tischgröße unbekannt" with its own n."""
     from commander_lab.studio.card_outcomes import stand_tables
-    from tests.unit.test_studio_card_outcomes import STATE_A, _simpson, _stated
+    from tests.unit.test_studio_card_outcomes import STATE_A, _simpson, _stated, _with
 
     a, b = _simpson()
     old = _stated([(["A"], i < 4) for i in range(7)] + [(["F"], False)] * 5, None, prefix="o")
@@ -1491,6 +1042,13 @@ def test_kartenauswertung_names_deck_states_strata_and_the_unknown_stand() -> No
     only_old = stand_tables(old, deck_id="deck/a", min_exposed=5)
     b_pod = _stated([(["A"], i < 5) for i in range(20)], STATE_A[::-1], prefix="p", opponent="x")
     not_pooled = stand_tables([*a, *b_pod], deck_id="deck/a", min_exposed=5)
+    sizes = [
+        *_with(_stated([(["A"], i < 2) for i in range(4)], STATE_A, prefix="s3"), table_size=3),
+        *_with(_stated([(["A"], i < 2) for i in range(5)], STATE_A, prefix="s4"), table_size=4),
+        *_stated([(["A"], i < 2) for i in range(6)], STATE_A, prefix="s2"),
+        *_with(_stated([(["A"], i < 2) for i in range(7)], STATE_A, prefix="su"), table_size=None),
+    ]
+    by_size = stand_tables(sizes, deck_id="deck/a", min_exposed=1)
     script = f"""
 global.StudioUI = {{
   num: (n, d = 0) => Number(n).toFixed(d).replace('.', ','),
@@ -1523,15 +1081,23 @@ const render = async (payload) => {{
   const pooled = await render({json.dumps(pooled)});
   const notPooled = await render({json.dumps(not_pooled)});
   const onlyOld = await render({json.dumps(only_old)});
-  console.log(JSON.stringify({{ pooled, notPooled, onlyOld }}));
+  const bySize = await render({json.dumps(by_size)});
+  const sizeTexts = [1, 4, null].map((v) => mod.outcomesTableSize(v));
+  console.log(JSON.stringify({{ pooled, notPooled, onlyOld, bySize, sizeTexts }}));
 }})();
 """
     r = _node_json(script)
     assert isinstance(r, dict)
     text = r["pooled"]["text"]
     assert "2 Deck-Stände geschichtet" in text
-    assert "Schichten (Deck-Stände): 2" in text
-    assert "Stand unbekannt: 12 Partien (getrennt gezählt, nie addiert)" in text
+    assert "Schichten (Deck-Stand und Tischgröße): 2" in text
+    assert (
+        "Stand unbekannt · Tischgröße: 2 Sitze: 12 Partien (getrennt gezählt, nie addiert)" in text
+    )
+    assert (
+        "geschichtet (je Stand eigene Differenz, gewichtet zusammengeführt) · Tischgröße: 2 Sitze"
+        in text
+    )
     assert "geschichtet über 2 Deck-Stände" in text
     assert "Anteil nur je Deck-Stand" in text
     assert f"Deck-Stand {STATE_A[:12]}…" in text
@@ -1541,7 +1107,7 @@ const render = async (payload) => {{
     # every stand, "Stand unbekannt" included, names its provenance and qualification
     assert text.count("Qualifizierung:") == 4 and text.count("Piloten:") == 4
     assert "BRIDGE_AHEAD_OF_QUALIFICATION (Bridge neuer als Qualifizierung)" in text
-    assert "Stand unbekannt: BRIDGE_AHEAD_OF_QUALIFICATION" in text  # warning at the top
+    assert "Stand unbekannt · 2 seats: BRIDGE_AHEAD_OF_QUALIFICATION" in text  # warning at the top
     old_text = r["onlyOld"]["text"]
     assert "keine Partien mit bekanntem Deck-Stand" in old_text
     assert "noch keine abgeschlossenen Partien" not in old_text
@@ -1550,6 +1116,32 @@ const render = async (payload) => {{
     assert "nicht zusammengeführt" in nt and "pod sets" in nt
     assert "geschichtet über" not in nt
     assert r["notPooled"]["details"] == 2 and r["notPooled"]["tables"] == 2
+    st = r["bySize"]["text"]
+    assert "3 Schichten (Deck-Stand und Tischgröße) nicht zusammengeführt" in st
+    assert "Schichten (Deck-Stand und Tischgröße): 3" in st
+    for size, games in ((2, 6), (3, 4), (4, 5)):
+        assert f"Deck-Stand {STATE_A[:12]}… · Tischgröße: {size} Sitze · {games} Partien" in st
+    assert (
+        f"Deck-Stand {STATE_A[:12]}… · Tischgröße unbekannt: 7 Partien (getrennt gezählt, nie addiert)"
+        in st
+    )
+    assert "Tischgröße unbekannt (Protokollkopf ohne vollständige Sitzliste) · 7 Partien" in st
+    assert "nie zu einer bekannten Schicht addiert" in st and "table size" in st
+    # the reason in German: different table sizes, different base win rates, never combined
+    assert (
+        "Nicht zusammengeführt: Die Partien stammen von verschiedenen Tischgrößen (2, 3, 4 Sitze)"
+        in st
+    )
+    assert "(bei 2 Sitzen 1/2, bei 3 Sitzen 1/3, bei 4 Sitzen 1/4)" in st
+    assert "Jede Schicht steht unten einzeln mit n/N und Herkunft" in st
+    assert "diese Ansicht kommt als Folgepaket" in st
+    assert "Nicht zusammengeführt: the strata" not in st
+    assert r["sizeTexts"] == ["Tischgröße: 1 Sitz", "Tischgröße: 4 Sitze", "Tischgröße unbekannt"]
+    assert "Nicht zusammengeführt: the deck states were played" in r["notPooled"]["text"]
+    assert "geschichtet über" not in st
+    # three known strata and "Tischgröße unbekannt", each with its own table and provenance
+    assert r["bySize"]["details"] == 4 and r["bySize"]["tables"] == 4
+    assert st.count("Qualifizierung:") == 5
 
 
 def test_static_files_send_cache_control_no_cache_and_keep_security_headers(tmp_path: Path) -> None:

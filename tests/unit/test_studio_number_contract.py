@@ -294,21 +294,69 @@ def test_inconsistent_source_data_leave_the_figure_out_instead_of_failing() -> N
 def test_pooled_outcomes_carry_no_single_state_but_the_strata() -> None:
     card = {"card": "X", "status": "MEASURED", "reason": None, "games_total": 10}
     card |= {"games_in_first_hand": 4, "rate_in": 0.5, "games_not_in_first_hand": 6}
-    stand = {"deck_id": "d", "cards": [card], "pilots": ["P"], "warnings": []}
+    stand = {"deck_id": "d", "cards": [card], "pilots": ["P"], "warnings": [], "table_size": 4}
     table = {
         **stand,
         "pooling": {"status": "POOLED", "method": "mantel_haenszel"},
         "strata": 2,
         "deck_hash": "h1",  # even a stray hash at the top never names a combined answer
         "stands": [{**stand, "deck_hash": "h1"}, {**stand, "deck_hash": "h2"}],
-        "unknown_stand": None,
+        "unknown_strata": [],
     }
     zahlen = {item["id"]: item for item in nc.outcomes_zahlen(table)}
     pooled = zahlen["outcome.X.rate_in"]
     assert pooled["stand_hash"] is None
-    assert "geschichtet über 2 Stände (mantel_haenszel)" in pooled["hinweise"]
-    assert zahlen["outcome.stand.h1.X.rate_in"]["stand_hash"] == "h1"
-    assert zahlen["outcome.stand.h2.X.rate_in"]["stand_hash"] == "h2"
+    assert (
+        "geschichtet über 2 Schichten (Deck-Stände einer Tischgröße; mantel_haenszel)"
+        in pooled["hinweise"]
+    )
+    assert zahlen["outcome.stand.h1.t4.X.rate_in"]["stand_hash"] == "h1"
+    assert zahlen["outcome.stand.h2.t4.X.rate_in"]["stand_hash"] == "h2"
+
+
+def test_outcome_figures_name_the_table_size_of_their_stratum() -> None:
+    """#1683: two strata of one deck state at 2 and 4 seats give two figure sets, each naming
+    its table size in bezug, kohorte and hinweise; a stratum without a size says so."""
+    card = {"card": "X", "status": "MEASURED", "reason": None, "games_total": 10}
+    card |= {"games_in_first_hand": 4, "rate_in": 0.5, "games_not_in_first_hand": 6}
+    card |= {"difference_pp": 5.0, "difference_ci95_pp": [-10.0, 20.0]}
+    base = {"deck_id": "d", "cards": [card], "pilots": ["P"], "warnings": []}
+    table = {
+        **base,
+        "cards": [],
+        "pooling": {"status": "NOT_POOLED", "reason": "table size"},
+        "strata": 2,
+        "stands": [
+            {**base, "deck_hash": "h1", "table_size": 2},
+            {**base, "deck_hash": "h1", "table_size": 4},
+        ],
+        "unknown_strata": [
+            {**base, "deck_hash": "h1", "table_size": None},
+            {**base, "deck_hash": None, "table_size": 3},
+        ],
+    }
+    zahlen = {item["id"]: item for item in nc.outcomes_zahlen(table)}
+    two, four = zahlen["outcome.stand.h1.t2.X.rate_in"], zahlen["outcome.stand.h1.t4.X.rate_in"]
+    assert two["bezug"].endswith("Tisch mit 2 Sitzen")
+    assert four["bezug"].endswith("Tisch mit 4 Sitzen")
+    assert two["kohorte"] != four["kohorte"] and "Tisch mit 4 Sitzen" in four["kohorte"]
+    assert "Tischgröße: Tisch mit 2 Sitzen" in two["hinweise"]
+    diff_two = zahlen["outcome.stand.h1.t2.X.difference_pp"]
+    assert diff_two["bezug"] == "Partien (verglichen / alle), Tisch mit 2 Sitzen"
+    assert zahlen["outcome.stand.h1.t4.X.difference_pp"]["bezug"].endswith("Tisch mit 4 Sitzen")
+    no_size = zahlen["outcome.unknown.h1.tunbekannt.X.rate_in"]
+    assert no_size["stand_hash"] == "h1" and no_size["N"] == 10
+    assert no_size["bezug"].endswith("Tischgröße unbekannt")
+    assert any(h.startswith("Tischgröße unbekannt (") for h in no_size["hinweise"])
+    assert not any(h.startswith("Tischgröße: ") for h in no_size["hinweise"])  # named once
+    assert zahlen["outcome.unknown.h1.tunbekannt.X.difference_pp"]["bezug"].endswith(
+        "Tischgröße unbekannt"
+    )
+    no_hash = zahlen["outcome.unknown.ohne-hash.t3.X.rate_in"]
+    assert no_hash["stand_hash"] is None
+    assert "Stand unbekannt (Protokoll ohne Deck-Hash)" in no_hash["hinweise"]
+    assert not any(i.startswith("outcome.X.") for i in zahlen)  # NOT_POOLED: no top figures
+    _assert_all_valid(list(zahlen.values()))
 
 
 def test_series_without_planned_pairs_or_result_gets_no_contract() -> None:
@@ -372,12 +420,14 @@ def test_outcomes_route_sends_simulated_contracts_per_deck_state(tmp_path: Path)
     zahlen = _assert_all_valid(body["zahlen"])
     stand_hash = body["deck_hash"]
     assert body["pooling"]["status"] == "SINGLE_STAND" and stand_hash
-    unknown = body["unknown_stand"]
+    (unknown,) = body["unknown_strata"]
     top = [
         item for item in zahlen if item["id"].startswith("outcome.") and item["id"].count(".") == 2
     ]
-    per_stand = [item for item in zahlen if item["id"].startswith(f"outcome.stand.{stand_hash}.")]
-    apart = [item for item in zahlen if item["id"].startswith("outcome.unknown.")]
+    per_stand = [
+        item for item in zahlen if item["id"].startswith(f"outcome.stand.{stand_hash}.t2.")
+    ]
+    apart = [item for item in zahlen if item["id"].startswith("outcome.unknown.ohne-hash.t2.")]
     assert len(top) == len(per_stand) == 3 * len(body["cards"])
     assert len(apart) == 3 * len(unknown["cards"]) > 0
     assert len(zahlen) == len(top) + len(per_stand) + len(apart)
@@ -701,3 +751,9 @@ def test_zahl_js_static_contract() -> None:
         assert forbidden not in js, forbidden
     for user in ("diffimpact.js", "castability.js", "deckseries.js"):
         assert "StudioZahl." in (STATIC / user).read_text(encoding="utf-8"), user
+
+
+def test_a_one_seat_table_is_named_in_the_singular() -> None:
+    assert nc._table_size_text({"table_size": 1}) == "Tisch mit 1 Sitz"
+    assert nc._table_size_text({"table_size": 3}) == "Tisch mit 3 Sitzen"
+    assert nc._table_size_text({}) == "Tischgröße unbekannt"
