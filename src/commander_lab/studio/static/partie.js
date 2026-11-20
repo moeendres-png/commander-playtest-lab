@@ -454,9 +454,10 @@ function seatPanel(player, frame) {
     frame.combat &&
     (frame.combat.attacks || []).some((atk) => {
       const tgt = atk.target || "";
+      // the engine names a player "Full Game Seat N" with N = seat + 1 (the bridge's seat names);
+      // a 0-based reading would also mark the seat after the attacked one (#1661)
       return (
         tgt === `Sitz ${player.seat + 1}` ||
-        tgt === `Full Game Seat ${player.seat}` ||
         tgt === `Full Game Seat ${player.seat + 1}` ||
         tgt === `p${player.seat}` ||
         tgt === `Seat ${player.seat}` ||
