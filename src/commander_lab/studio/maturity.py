@@ -19,7 +19,12 @@ reachable today and say why (fail-closed). No route parameter can set them.
 
 Verdict in four steps, threshold 0, two-sided, from the stored pairs: ``belegt besser``,
 ``belegt schlechter``, ``kein nachweisbarer Unterschied ab y pp`` (y = the stored detectable
-difference at 80 % power) and ``nicht auswertbar``. The test statistic is the engine lane's,
+difference at 80 % power) and ``nicht auswertbar``. The direction of a decided verdict is the
+engine lane's (``variant_only`` against ``baseline_only``, the sign test); when the mean
+difference leans the other way (fractional credit of a shared win), the series is not
+evaluable, never "belegt". Below R1 (exploration, legacy series, control) a decided step is
+only a hint ("Hinweis besser/schlechter (Erkundung, unbestätigt)"), never "belegt"; under the
+TAM lock no result text is shown. The test statistic is the engine lane's,
 reused as-is from ``commander_lab.engine.rules.full_game_comparison`` (sign test over the
 discordant pairs, seed-cluster t test, ``effective_p_value``) and the Holm step is its
 ``_apply_holm`` on the same result model, so the Studio gives the same adjusted p-values. The
@@ -137,7 +142,21 @@ def _float(value: object) -> float | None:
 PASSED, FAILED, UNRECORDED = "bestanden", "durchgefallen", "nicht erfasst (UNKNOWN)"
 
 
-def _condition(level: str, name: str, met: bool, reason: str) -> dict[str, object]:
+UNKNOWN_STATE = "unbekannt (UNKNOWN)"
+
+
+def _condition(
+    level: str, name: str, met: bool | None, reason: str, unknown_reason: str = ""
+) -> dict[str, object]:
+    """A condition met, not met, or ``None`` unknown (UNKNOWN is never met)."""
+    if met is None:
+        return {
+            "stufe": level,
+            "name": name,
+            "erfuellt": False,
+            "zustand": UNKNOWN_STATE,
+            "grund": unknown_reason or reason,
+        }
     return {
         "stufe": level,
         "name": name,
@@ -176,11 +195,31 @@ def _clustered(result: Mapping[str, object]) -> list[tuple[int, float]] | None:
     return out
 
 
+def _directions_conflict(clustered: Sequence[tuple[int, float]]) -> bool:
+    """True when the sign test leans one way and the mean difference does not lean the same way
+    (fractional credit of a shared win, ``card_outcomes._credit``): no verdict direction."""
+    variant_only = sum(1 for _, diff in clustered if diff > 0)
+    baseline_only = sum(1 for _, diff in clustered if diff < 0)
+    if variant_only == baseline_only:
+        return False
+    mean = sum(diff for _, diff in clustered) / len(clustered)
+    return mean * (variant_only - baseline_only) <= 0
+
+
+def directions_conflict(result: Mapping[str, object]) -> bool:
+    """Whether the stored pairs give a sign test and a mean difference of opposite direction."""
+    clustered = _clustered(result)
+    return clustered is not None and _directions_conflict(clustered)
+
+
 def verdict_basis(series_id: str, result: Mapping[str, object]) -> PairedVariantResult | None:
     """The engine lane's result model over the stored pairs, with the effective p-value its Holm
-    step reads; None when the series gives no verdict basis."""
+    step reads; None when the series gives no verdict basis, also when the mean difference and
+    the sign test lean different ways (the direction is the engine lane's sign-test direction)."""
     clustered = _clustered(result)
     if clustered is None or result.get("stop_reason") in _CENSORING_STOPS:
+        return None
+    if _directions_conflict(clustered):
         return None
     variant_only = sum(1 for _, diff in clustered if diff > 0)
     baseline_only = sum(1 for _, diff in clustered if diff < 0)
@@ -209,7 +248,11 @@ def verdict_basis(series_id: str, result: Mapping[str, object]) -> PairedVariant
         variant_only_wins=variant_only,
         baseline_only_wins=baseline_only,
         sign_test_p_value=sign_p,
-        verdict="NO_CLEAR_DIFFERENCE" if effective >= 1.0 else _direction(difference),
+        verdict=(
+            "NO_CLEAR_DIFFERENCE"
+            if effective >= 1.0
+            else _direction(float(variant_only - baseline_only))
+        ),
         cluster_t_statistic=cluster_t,
         cluster_t_df=cluster_df,
         effective_p_value=effective,
@@ -281,7 +324,10 @@ def verdict_of(
         return WORSE, "belegt schlechter (B gegenüber A)"
     if y_pp is None or y_pp <= 0:
         return NOT_EVALUABLE, "nicht auswertbar (nachweisbare Differenz unbekannt)"
-    return NO_DIFFERENCE, f"kein nachweisbarer Unterschied ab {y_pp:.1f} pp"
+    return (
+        NO_DIFFERENCE,
+        f"kein nachweisbarer Unterschied ab {y_pp:.1f} pp (y = nachweisbar mit 80 % Power)",
+    )
 
 
 def _stand(
@@ -346,8 +392,13 @@ def assess(
     current: Current,
     tam: bool = False,
     checks: Mapping[str, Checks] | None = None,
+    seeds_incomplete: str | None = None,
 ) -> dict[str, object]:
-    """Maturity, verdict, state relation and ``empfehlungsfähig`` of every finding (pure)."""
+    """Maturity, verdict, state relation and ``empfehlungsfähig`` of every finding (pure).
+
+    ``seeds_incomplete`` names why the history answer did not read every series (bounded folder
+    scan, newest series only): the played seeds of the unread ones are unknown, so "frische
+    Seeds" is UNKNOWN then and no confirmation reaches R1 (fail-closed)."""
     proofs = checks or {}
     bases: dict[str, PairedVariantResult | None] = {}
     levels: dict[str, float | None] = {}
@@ -400,7 +451,7 @@ def assess(
     out: dict[str, object] = {}
     for finding in findings:
         out[finding.series_id] = _one(
-            finding, bases, levels, corrected, used, hashes, current, tam, proofs
+            finding, bases, levels, corrected, used, hashes, current, tam, proofs, seeds_incomplete
         )
     return {
         "schema": SCHEMA,
@@ -422,6 +473,7 @@ def _one(
     current: Current,
     tam: bool,
     proofs: Mapping[str, Checks],
+    seeds_incomplete: str | None,
 ) -> dict[str, object]:
     sid, entry, res = finding.series_id, finding.entry, finding.result
     exp = entry.get("experiment")
@@ -430,6 +482,11 @@ def _one(
     shown = holm_entry[0] if holm_entry else bases.get(sid)
     y_pp = _float(res.get("detectable_difference_pp"))
     verdict, verdict_text = verdict_of(shown, _float(entry.get("difference_pp")), y_pp)
+    counted = bool(entry.get("counts_as_result"))
+    if shown is None and counted and directions_conflict(res):
+        verdict_text = (
+            "nicht auswertbar (Mittelwert und Vorzeichentest zeigen in verschiedene Richtungen)"
+        )
     withheld = holm_entry is not None and holm_entry[0].holm_withheld_verdict is not None
     if withheld and verdict == NO_DIFFERENCE:
         # y belongs to the uncorrected single test; after Holm the sensitivity is not known
@@ -437,7 +494,6 @@ def _one(
             "kein nachweisbarer Unterschied nach Holm (Empfindlichkeit nach Korrektur unbekannt)"
         )
         y_pp = None
-    counted = bool(entry.get("counts_as_result"))
     raw_seeds = res.get("seeds") if counted else None
     seeds = [s for s in raw_seeds if _int(s) is not None] if isinstance(raw_seeds, list) else []
     plan_seeds = exp_view.get("seeds")
@@ -457,8 +513,9 @@ def _one(
         _condition(
             R1,
             "frische Seeds (disjunkt von jeder Erkundung des Decks)",
-            _fresh_seeds(seeds, first, last, explorations),
+            None if seeds_incomplete else _fresh_seeds(seeds, first, last, explorations),
             "Seeds überschneiden eine Erkundung oder sind unbekannt",
+            f"{seeds_incomplete}: deren Seeds sind unbekannt" if seeds_incomplete else "",
         ),
         _condition(
             R1,
@@ -484,6 +541,11 @@ def _one(
             break
     if tam:
         level = None
+    proven = level in (R1, R2, R3)
+    if verdict in (BETTER, WORSE) and not proven:
+        # below R1 a decided step is a hint, never "belegt" (no confirmation, no Holm)
+        word = "besser" if verdict == BETTER else "schlechter"
+        verdict_text = f"Hinweis {word} (Erkundung, unbestätigt; B gegenüber A)"
     stand = _stand(str(entry.get("base_ref")), str(entry.get("variant_ref")), hashes, current)
     reasons: list[str] = []
     if level not in (R2, R3):
@@ -511,16 +573,28 @@ def _one(
             notes.append("Ergebnis durch Holm zurückgehalten")
     if entry.get("experiment") is None:
         notes.append("Alt-Serie ohne Plan: höchstens R0")
+    effective_p = None if shown is None else shown.effective_p_value
+    holm_p = None if holm_entry is None else holm_entry[0].holm_adjusted_p_value
+    if tam:
+        # E15 Q3: no simulation badge and no result text for TAM, only the lock
+        verdict, verdict_text, y_pp, effective_p, holm_p = (
+            NOT_EVALUABLE,
+            f"kein Ergebnis gezeigt ({TAM_LOCK})",
+            None,
+            None,
+            None,
+        )
     return {
         "stufe": level,
         "stufe_text": _level_text(level, exp_view.get("purpose")),
         "bedingungen": conditions,
         "urteil": verdict,
         "urteil_text": verdict_text,
+        "belegt": verdict in (BETTER, WORSE) and proven,
         "y_pp": y_pp,
         "niveau": holm_entry[2] if holm_entry else levels.get(sid),
-        "effektives_p": None if shown is None else shown.effective_p_value,
-        "holm_p": None if holm_entry is None else holm_entry[0].holm_adjusted_p_value,
+        "effektives_p": effective_p,
+        "holm_p": holm_p,
         "n": _int(entry.get("pairs_completed")),
         "N": _int(entry.get("pairs_planned")),
         "bezug": "Paare (abgeschlossen / geplant)",
@@ -601,6 +675,12 @@ def deck_maturity(
     main, previous = _current_main(store, deck_id)
     folder = games_folder(Path(data_folder).resolve())
     findings: list[Finding] = []
+    skipped_files = _int(series_payload.get("scan_truncated")) or 0
+    incomplete: list[str] = []
+    if skipped_files > 0:
+        incomplete.append(f"{skipped_files} ältere Ergebnisdateien nicht geprüft")
+    if series_payload.get("truncated") is True:
+        incomplete.append("nur die neuesten Serien gelesen")
     raw_series = series_payload.get("series")
     for item in raw_series if isinstance(raw_series, list) else []:
         if not isinstance(item, dict):
@@ -627,4 +707,5 @@ def deck_maturity(
         hashes=hashes,
         current=Current(main, previous, bridge_jar_sha256),
         tam=_is_tam(store, main),
+        seeds_incomplete="; ".join(incomplete) or None,
     )

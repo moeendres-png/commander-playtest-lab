@@ -9,7 +9,8 @@
 // The difference B − A is shown through the number contract (zahl.js, #1659) as SIMULIERT, with
 // n/N pairs, the deck hashes of both states and the pilot origin; without a contract the old text.
 // Q1-c (#1666): under the figures one evidence row per series from data.reifegrad (maturity.py):
-// the maturity R0-R3 only when the answer names one (no badge without proof), the four-step
+// the maturity R0-R3 only when the answer names one (no badge without proof; R0 exploration is a
+// neutral pill, only a confirmed level R1-R3 is green), the four-step
 // verdict with n/N pairs, the state the finding is about (a finding of another state is named as
 // such, never as current) and "empfehlungsfähig" only when the answer says so. Nothing is added
 // to another figure; no EDHREC, Playgroup or tournament figure shares this row.
@@ -18,7 +19,7 @@ function deckSeriesEvidence(h, befund) {
   if (!befund) return h("div", { class: "muted evidence-row" }, "Reifegrad: kein Reifegrad (kein Befund)");
   const pairs = befund.n === null || befund.N === null ? "Paare unbekannt" : `n/N ${StudioUI.num(befund.n)} / ${StudioUI.num(befund.N)} ${befund.bezug}`;
   return h("div", { class: "evidence-row" },
-    befund.stufe ? h("span", { class: "pill good" }, befund.stufe_text) : h("span", { class: "muted" }, befund.stufe_text),
+    befund.stufe ? h("span", { class: befund.stufe === "R0" ? "pill" : "pill good" }, befund.stufe_text) : h("span", { class: "muted" }, befund.stufe_text),
     h("div", {}, `Ergebnis (simuliert): ${befund.urteil_text} · ${pairs}`),
     h("div", { class: befund.stand.bezug === "aktuell" ? "" : "muted" }, befund.stand.text),
     befund.empfehlungsfaehig

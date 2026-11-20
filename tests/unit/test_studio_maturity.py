@@ -62,6 +62,7 @@ def _finding(
     difference_pp: float | None = None,
     stop_reason: str = "BUDGET_EXHAUSTED",
     extra_seeds: list[int] | None = None,
+    plan_range: list[int] | None = None,
 ) -> m.Finding:
     pairs = _pairs(wins, losses, ties, first_seed)
     n = len(pairs)
@@ -74,7 +75,7 @@ def _finding(
             "experiment_id": f"exp-{sid}",
             "purpose": purpose,
             "table_hash": table_hash,
-            "seeds": [first_seed, first_seed + n - 1],
+            "seeds": [first_seed, first_seed + n - 1] if plan_range is None else plan_range,
             "pilot_fingerprint": fingerprint,
         }
     )
@@ -311,7 +312,10 @@ def test_verdict_in_four_steps() -> None:
     )
     assert got["better"]["urteil"] == m.BETTER
     assert got["worse"]["urteil"] == m.WORSE
-    assert got["none"]["urteil_text"] == "kein nachweisbarer Unterschied ab 12.5 pp"
+    assert got["none"]["urteil_text"] == (
+        "kein nachweisbarer Unterschied ab 12.5 pp (y = nachweisbar mit 80 % Power)"
+    )
+    assert got["better"]["belegt"] is True and got["none"]["belegt"] is False
     assert got["unknown_y"]["urteil"] == m.NOT_EVALUABLE  # never "ab 0 pp"
     assert got["contradiction"]["urteil"] == m.NOT_EVALUABLE
     assert {str(v["urteil"]) for v in got.values()} <= set(m.VERDICTS)
@@ -364,6 +368,95 @@ def test_tam_gets_no_simulation_badge() -> None:
     assert befund["stufe"] is None and befund["empfehlungsfaehig"] is False
     assert out["tam_sperre"] == m.TAM_LOCK
     assert m.TAM_LOCK in befund["empfehlungsfaehig_gruende"]
+    # no result text either: only the lock, no "belegt", no p-value, no y
+    assert befund["urteil"] == m.NOT_EVALUABLE and befund["belegt"] is False
+    assert befund["urteil_text"] == f"kein Ergebnis gezeigt ({m.TAM_LOCK})"
+    assert befund["effektives_p"] is None and befund["holm_p"] is None and befund["y_pp"] is None
+
+
+# -- review round 2 (#1717): direction, plan range, boundary, hint below R1, truncated scan -----
+
+
+def _shared_wins(sid: str, purpose: str = "confirmation") -> m.Finding:
+    """20 pairs where B shares a win (credit 1/4: +0.25) and 6 pairs A wins alone (-1)."""
+    pairs = [{"seed": 500 + i, "difference": 0.25} for i in range(20)]
+    pairs += [{"seed": 520 + i, "difference": -1.0} for i in range(6)]
+    base = _finding(sid, purpose=purpose, wins=26)
+    mean_pp = 100.0 * (20 * 0.25 - 6) / 26
+    entry = {**base.entry, "difference_pp": mean_pp}
+    result = {**base.result, "pairs": pairs, "seeds": [500 + i for i in range(26)]}
+    return replace(base, entry=entry, result=result)
+
+
+@pytest.mark.parametrize("purpose", ["confirmation", "exploration"])
+def test_shared_wins_mean_and_sign_test_disagree_is_not_evaluable(purpose: str) -> None:
+    from commander_lab.engine.rules.full_game_comparison import sign_test_p_value
+
+    finding = _shared_wins("c", purpose)
+    # the sign test leans to B (20 : 6, p = 0.009355 by hand), the mean to A (-3.85 pp)
+    assert sign_test_p_value(20, 6) == pytest.approx(0.009355, abs=1e-6)
+    assert finding.entry["difference_pp"] == pytest.approx(-3.846, abs=1e-3)
+    assert m.directions_conflict(finding.result) is True
+    assert m.verdict_basis("c", finding.result) is None  # no direction: no verdict basis
+    got = _assess(finding)["c"]
+    assert got["urteil"] == m.NOT_EVALUABLE and got["belegt"] is False
+    assert got["urteil_text"] == (
+        "nicht auswertbar (Mittelwert und Vorzeichentest zeigen in verschiedene Richtungen)"
+    )
+    assert "belegt" not in str(got["urteil_text"]) and got["stufe"] is None
+    # whole credits keep the engine lane's direction: 6 : 0 is the sign test's way
+    plain = m.verdict_basis("p", _finding("p").result)
+    assert plain is not None and plain.verdict == "VARIANT_BETTER"
+
+
+def test_a_plan_range_overlapping_an_exploration_is_not_fresh() -> None:
+    # played seeds 500..505 miss the exploration 550..560, the planned range 500..600 does not
+    clean = _finding("c", plan_range=[500, 600])
+    assert _assess(clean)["c"]["stufe"] == m.R1
+    got = _assess(clean, explorations=[(100, 199), (550, 560)])["c"]
+    assert got["stufe"] == m.R0
+    fresh = next(c for c in got["bedingungen"] if c["stufe"] == m.R1 and "frische" in c["name"])  # type: ignore[attr-defined]
+    assert fresh["erfuellt"] is False
+
+
+def test_decided_only_strictly_below_the_level() -> None:
+    basis = m.verdict_basis("c", _finding("c").result)  # 6 : 0, p = 2 * 0.5**6 = 0.03125
+    assert basis is not None and basis.effective_p_value == pytest.approx(0.03125)
+    assert m.decide(basis, 0.03125).verdict == "NO_CLEAR_DIFFERENCE"  # p == alpha: not decided
+    assert m.decide(basis, 0.03126).verdict == "VARIANT_BETTER"
+
+
+def test_below_r1_a_decided_step_is_a_hint_never_belegt() -> None:
+    got = _assess(
+        _finding("explo", purpose="exploration"),
+        _finding("legacy", purpose=None, wins=0, losses=6, first_seed=600, variant="rev-old"),
+    )
+    assert got["explo"]["stufe"] == m.R0 and got["legacy"]["stufe"] == m.R0
+    assert got["explo"]["urteil_text"] == "Hinweis besser (Erkundung, unbestätigt; B gegenüber A)"
+    assert got["legacy"]["urteil_text"] == (
+        "Hinweis schlechter (Erkundung, unbestätigt; B gegenüber A)"
+    )
+    for sid in ("explo", "legacy"):
+        assert "belegt" not in str(got[sid]["urteil_text"]) and got[sid]["belegt"] is False
+
+
+def test_a_truncated_scan_makes_fresh_seeds_unknown_not_met() -> None:
+    reason = "3 ältere Ergebnisdateien nicht geprüft"
+    got = _assess(_finding("c"), seeds_incomplete=reason)["c"]
+    assert got["stufe"] == m.R0
+    fresh = next(c for c in got["bedingungen"] if "frische" in str(c["name"]))  # type: ignore[attr-defined]
+    assert fresh["erfuellt"] is False and fresh["zustand"] == "unbekannt (UNKNOWN)"
+    assert fresh["grund"] == f"{reason}: deren Seeds sind unbekannt"
+
+
+def test_a_member_undecided_at_the_family_level_is_not_withheld_by_holm() -> None:
+    # a: 6 : 0, p = 0.03125 < its own 0.05 but not below the family level 0.01: undecided there,
+    # so Holm withholds nothing (deciding it at its own level would claim a withheld verdict)
+    a = _finding("a", alpha=0.05)
+    b = _finding("b", variant="rev-var2", first_seed=600, wins=1, losses=1, ties=4, alpha=0.01)
+    got = _assess(a, b)["a"]
+    assert got["niveau"] == 0.01 and got["urteil"] == m.NO_DIFFERENCE
+    assert "Ergebnis durch Holm zurückgehalten" not in got["hinweise"]  # type: ignore[operator]
 
 
 # -- the route: production wiring, no mixing, no store write ----------------------------------
@@ -437,6 +530,19 @@ def test_route_gives_r0_and_r1_and_only_simulated_figures(
     text = json.dumps(reife, ensure_ascii=False).casefold()
     for word in ("summe", "gesamt", "total", "edhrec", "playgroup", "turnier", "gezählt"):
         assert word not in text, word
+    # a bounded folder scan leaves seeds of older series unknown: fresh seeds UNKNOWN, no R1
+    from commander_lab.studio import deck_series
+
+    played = sorted(Path(str(lab["folder"])).rglob("paired-*.paired.json"))
+    assert played, "the lab stores its series files"
+    (played[0].parent / "paired-0-unindexed.paired.json").write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(deck_series, "SCAN_LIMIT", 0)  # the unindexed file stays unscanned
+    bounded = tx._history(lab)
+    assert bounded["scan_truncated"] > 0
+    for befund in bounded["reifegrad"]["befunde"].values():
+        fresh = next(c for c in befund["bedingungen"] if "frische" in c["name"])
+        assert fresh["zustand"] == "unbekannt (UNKNOWN)" and fresh["erfuellt"] is False
+        assert "ältere Ergebnisdateien nicht geprüft" in fresh["grund"]
 
 
 def test_route_takes_no_checks_from_the_request() -> None:
@@ -477,10 +583,12 @@ const none = deckSeriesEvidence(h, base);
 const missing = deckSeriesEvidence(h, undefined);
 const r1 = deckSeriesEvidence(h, { ...base, stufe: "R1", stufe_text: "R1 bestätigt (frische Seeds, Holm)", urteil_text: "belegt besser (B gegenüber A)",
   stand: { bezug: "aktuell", text: "Befund zum aktuellen Stand" } });
+const r0 = deckSeriesEvidence(h, { ...base, stufe: "R0", stufe_text: "R0 Erkundung" });
+const r0cls = (function find(n) { if (typeof n === "string") return null; if (text(n) === "R0 Erkundung" && n.tag === "span") return n.attrs.class; for (const k of n.kids) { const c = find(k); if (c) return c; } return null; })(r0);
 const r2 = deckSeriesEvidence(h, { ...base, stufe: "R2", stufe_text: "R2 bestätigt mit Kontrollen", empfehlungsfaehig: true, empfehlungsfaehig_gruende: [],
   stand: { bezug: "aktuell", text: "Befund zum aktuellen Stand" } });
 process.stdout.write(JSON.stringify({ none: [text(none), pills(none)], missing: [text(missing), pills(missing)],
-  r1: [text(r1), pills(r1)], r2: [text(r2), pills(r2)] }));
+  r1: [text(r1), pills(r1)], r2: [text(r2), pills(r2)], r0: [text(r0), pills(r0), r0cls] }));
 """
 
 
@@ -497,6 +605,7 @@ def test_evidence_row_shows_no_badge_without_proof_and_names_other_states() -> N
     assert r["r1"][1] == ["R1 bestätigt (frische Seeds, Holm)"]
     assert "n/N 4 / 4 Paare (abgeschlossen / geplant)" in r["r1"][0]
     assert r["r2"][1] == ["R2 bestätigt mit Kontrollen", "empfehlungsfähig"]
+    assert r["r0"][1] == [] and r["r0"][2] == "pill"  # R0 exploration: neutral, never green
 
 
 def test_evidence_row_static_guards() -> None:
