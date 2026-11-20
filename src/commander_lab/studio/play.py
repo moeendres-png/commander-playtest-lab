@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import contextlib
 import copy
+import json
 import queue
 import threading
 import time
@@ -205,6 +206,36 @@ def _with_hash(deck: RulesDeckInput) -> RulesDeckInput:
     return deck.model_copy(update={"deck_hash": derived})
 
 
+def snapshot_deck_hash(path: Path) -> str | None:
+    """The ``deck_hash`` a game log header names for the deck snapshot at ``path`` (#1657).
+
+    The same hash ``load_decks`` gives the deck (its own or the one derived from its content),
+    so a simulation series can record the deck state it played. A snapshot that cannot be
+    loaded as a Commander deck gives ``None`` (no game can be played with it either).
+    """
+    try:
+        return _with_hash(load_rules_deck_snapshot(path)).deck_hash
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+
+
+def snapshot_revision_id(deck: RulesDeckInput) -> str | None:
+    """The Studio revision a deck snapshot was written from (``studio_revision_id``), if any.
+
+    A snapshot written by the deck builder (``decks.lab_snapshot``) or by a paired series names
+    its revision; a precon file names none. An unreadable file or a missing or empty field is
+    ``None``: the log then names no revision, it never guesses one.
+    """
+    if not deck.source_path:
+        return None
+    try:
+        payload = json.loads(Path(deck.source_path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    value = payload.get("studio_revision_id") if isinstance(payload, dict) else None
+    return value if isinstance(value, str) and value.strip() else None
+
+
 def load_decks(paths: list[Path]) -> tuple[RulesDeckInput, ...]:
     """Deck snapshots in seat order. Two to six decks, each with its own id."""
     if not 2 <= len(paths) <= 6:
@@ -358,15 +389,7 @@ def prepare_game(
         "decision_policy": POLICY_VERSION,
         "strategy": strategy,
         "seats": [
-            {
-                "seat": index,
-                "deck_id": deck.deck_id,
-                "commanders": list(deck.commander_names),
-                "pilot": "Mensch" if index in human_set else "KI",
-                "style": s_style,
-                "style_name": style_label(s_style),
-                "deck_plan": s_plan.as_dict(),
-            }
+            _seat_header(index, deck, s_style, s_plan.as_dict(), human_set)
             for index, (deck, s_style, s_plan) in enumerate(seat_details)
         ],
     }
@@ -374,6 +397,40 @@ def prepare_game(
         header["human_seats"] = human_set
         header["decision_timeout_seconds"] = int(decision_timeout_seconds)
     return PreparedGame(game_id, scenario, decks, tuple(pilots_list), header)
+
+
+def _seat_header(
+    index: int,
+    deck: RulesDeckInput,
+    style: float,
+    deck_plan: dict[str, object],
+    human_set: Sequence[int],
+) -> dict[str, object]:
+    """One seat of the log header. ``deck_hash`` names the deck state the seat played (#1657).
+
+    The hash is the deck's own (``load_decks`` gives every snapshot one, and the own deck's is
+    the one its scenario uses) or, for a deck handed in without one, the hash ``_with_hash``
+    derives from its content. ``studio_revision_id`` is written only when the snapshot names
+    the Studio revision it came from. Pilot and scenario are unchanged by both fields.
+    """
+    row: dict[str, object] = {
+        "seat": index,
+        "deck_id": deck.deck_id,
+        "deck_hash": _with_hash(deck).deck_hash,
+    }
+    revision_id = snapshot_revision_id(deck)
+    if revision_id is not None:
+        row["studio_revision_id"] = revision_id
+    row.update(
+        {
+            "commanders": list(deck.commander_names),
+            "pilot": "Mensch" if index in human_set else "KI",
+            "style": style,
+            "style_name": style_label(style),
+            "deck_plan": deck_plan,
+        }
+    )
+    return row
 
 
 def covered_by_sealed_epoch(qual_state: object, bridge_sha: object, covered_flag: object) -> bool:
