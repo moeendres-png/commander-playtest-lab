@@ -889,6 +889,7 @@ def pool_cards(
     with_signals: bool = True,
     strength: StrengthSettings | None = None,
     include_unowned: bool = False,
+    with_marks: bool = True,
 ) -> dict[str, object]:
     """The collection cards a deck under these commanders may use, with everything the
     builder shows per card. Without any commander the colour filter is off (all legal cards).
@@ -912,7 +913,17 @@ def pool_cards(
 
     ``with_signals`` adds the commander's stored usage signals (``card_signal``, one
     commander only) as ``signals`` per card. The older EDHREC value is used first; the
-    stored inclusion signal fills the card's ``edhrec`` entry only where that has no value."""
+    stored inclusion signal fills the card's ``edhrec`` entry only where that has no value.
+
+    ``with_marks`` False does not read the Owner's own state (``card_mark``, ``card_label``): the
+    collection cards then carry no ``favorite``, ``excluded``, ``note`` or ``labels`` key at all
+    (absent, never a false ``False``), so a reader that asks for one fails loudly instead of
+    showing an unmarked card. For callers whose answer never contains them (the strength index,
+    the evidence answer; #1561): their result depends only on imported data and the settings, so
+    a mark click does not drop their remembered answer. Not with ``include_unowned`` (the
+    unowned cards carry the marks of the wishlist and the saved decks); that raises ValueError."""
+    if include_unowned and not with_marks:
+        raise ValueError("include_unowned needs the marks")
     db = store.connection
     identity, commander_ids = commander_identity(store, commander_names)
     hits = _corpus_hits(store, commander_names)
@@ -937,7 +948,7 @@ def pool_cards(
     from .images import valid_image_url
     from .labels import card_labels as _card_labels
 
-    card_labels = _card_labels(store)
+    card_labels = _card_labels(store) if with_marks else {}
     printing_images: dict[str, tuple[str | None, str | None]] = {}
     for prow in db.execute(
         "SELECT card_id, image_front, image_back FROM card_printing WHERE image_front IS NOT NULL"
@@ -946,12 +957,14 @@ def pool_cards(
         if pf is not None:
             printing_images[str(prow["card_id"])] = (pf, valid_image_url(prow["image_back"]))
     cards: list[dict[str, object]] = []
+    mark_columns = "m.favorite, m.excluded, m.note" if with_marks else "NULL AS no_marks"
+    mark_join = "LEFT JOIN card_mark m USING (card_id) " if with_marks else ""
     owned_oracle_ids: set[str] = set()
     owned_names_cf: set[str] = set()
     for row in db.execute(
         "SELECT c.*, i.owned_lower_bound, i.available_lower_bound, i.reserved, "
-        "m.favorite, m.excluded, m.note "
-        "FROM card_fact c JOIN inventory i USING (card_id) LEFT JOIN card_mark m USING (card_id) "
+        f"{mark_columns} "
+        f"FROM card_fact c JOIN inventory i USING (card_id) {mark_join}"
         "WHERE c.commander_legal = 1 ORDER BY c.oracle_name"
     ):
         if row["oracle_id"]:
@@ -1000,10 +1013,16 @@ def pool_cards(
                 "owned": row["owned_lower_bound"],
                 "available": row["available_lower_bound"],
                 "reserved": row["reserved"],
-                "favorite": bool(row["favorite"]),
-                "excluded": bool(row["excluded"]),
-                "note": row["note"] or "",
-                "labels": card_labels.get(card_id, []),
+                **(
+                    {
+                        "favorite": bool(row["favorite"]),
+                        "excluded": bool(row["excluded"]),
+                        "note": row["note"] or "",
+                        "labels": card_labels.get(card_id, []),
+                    }
+                    if with_marks
+                    else {}
+                ),
                 "roles": roles.get(str(row["oracle_id"]), []),
                 # ``decks_known`` False: no source deck of the commander names the card under
                 # any spelling, so its count is unknown (``decks`` stays empty, kept for older
