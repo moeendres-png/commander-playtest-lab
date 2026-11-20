@@ -152,6 +152,10 @@ class Pooling(TypedDict):
     status: Literal["NO_KNOWN_STAND", "SINGLE_STAND", "POOLED", "NOT_POOLED"]
     reason: str | None
     method: str | None
+    # NOT_POOLED because an axis that must be equal differs (#1683): its field ("table_size")
+    # and its values, so the page can explain it in German; None otherwise.
+    differing_axis: NotRequired[str | None]
+    differing_values: NotRequired[list[str | int | None]]
 
 
 class CardOutcomeTable(TypedDict):
@@ -997,7 +1001,7 @@ STRATUM_AXES: tuple[StratumAxis, ...] = (
         "Tischgröße unbekannt",
         lambda game, _seat: table_size_of(game),
         lambda table: table.get("table_size"),
-        lambda value: f"{value} seats",
+        lambda value: f"{value} seat" if value == 1 else f"{value} seats",
         pooled=False,
     ),
 )
@@ -1142,6 +1146,18 @@ def _pod_set(table: CardOutcomeTable) -> tuple[tuple[str, ...], ...]:
     return tuple(sorted(tuple(pod["opponents"]) for pod in table["pods"]))
 
 
+def _differing_axis(
+    stands: Sequence[CardOutcomeTable],
+) -> tuple[StratumAxis, list[StratumValue]] | None:
+    """The first axis that must be equal but differs between the strata, with its values in
+    order (numbers numerically), or None."""
+    for axis in STRATUM_AXES:
+        seen = {axis.of_table(stand) for stand in stands}
+        if not axis.pooled and len(seen) > 1:
+            return axis, sorted(seen, key=lambda v: _stratum_order((v,)))
+    return None
+
+
 def _not_poolable(stands: Sequence[CardOutcomeTable]) -> str | None:
     """Why the strata of one deck may not be combined, or None when they may.
 
@@ -1155,11 +1171,11 @@ def _not_poolable(stands: Sequence[CardOutcomeTable]) -> str | None:
         axes = [f"{axis.label} unknown" for axis in STRATUM_AXES if axis.of_table(stand) is None]
         if axes:
             return f"a stratum has {'; '.join(axes)}: unknown is not equal, not pooled"
-    for axis in STRATUM_AXES:
-        seen = {axis.of_table(stand) for stand in stands}
-        if not axis.pooled and len(seen) > 1:
-            shown = ", ".join(str(v) for v in sorted(seen, key=str))
-            return f"the strata differ in {axis.label} ({shown}): never combined, not pooled"
+    differing = _differing_axis(stands)
+    if differing is not None:
+        axis, seen = differing
+        shown = ", ".join(str(v) for v in seen)
+        return f"the strata differ in {axis.label} ({shown}): never combined, not pooled"
     for stand in stands:
         unknown = [
             label
@@ -1267,6 +1283,10 @@ def stand_tables(
             "reason": reason,
             "method": None if reason else POOLING_METHOD,
         }
+        differing = _differing_axis(stands) if reason else None
+        if differing is not None and reason and reason.startswith("the strata differ in"):
+            pooling["differing_axis"] = differing[0].field
+            pooling["differing_values"] = differing[1]
         if reason:
             top["status"] = "NOT_POOLED"
             top["cards"] = []

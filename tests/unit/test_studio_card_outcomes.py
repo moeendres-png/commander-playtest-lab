@@ -1066,6 +1066,19 @@ def test_strata_of_another_table_size_are_never_pooled_even_with_equal_pods() ->
     assert table["strata"] == 2
     assert table["status"] == "NOT_POOLED" and table["cards"] == []
     assert "table size (2, 3)" in str(table["pooling"]["reason"])
+    assert table["pooling"].get("differing_axis") == "table_size"
+    assert table["pooling"].get("differing_values") == [2, 3]
+    # sizes are listed numerically, never as text ("10, 2"); one seat is singular
+    ten = _with(
+        _stated(_block("A", 10, 5) + _block("F", 10, 5), STATE_B, prefix="t"), table_size=10
+    )
+    tens = card_outcomes.stand_tables([*a, *ten], deck_id=DECK, min_exposed=1)
+    assert "table size (2, 10)" in str(tens["pooling"]["reason"])
+    assert tens["pooling"].get("differing_values") == [2, 10]
+    one = _with(_stated(_block("A", 2, 1), STATE_B, prefix="o"), table_size=1)
+    assert card_outcomes.stratum_label(card_outcomes.stand_tables(one, deck_id=DECK)).endswith(
+        "· 1 seat"
+    )
     same = _with(
         _stated(_block("A", 10, 5) + _block("F", 10, 5), STATE_B, prefix="c"), table_size=2
     )

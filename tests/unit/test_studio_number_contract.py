@@ -319,6 +319,7 @@ def test_outcome_figures_name_the_table_size_of_their_stratum() -> None:
     its table size in bezug, kohorte and hinweise; a stratum without a size says so."""
     card = {"card": "X", "status": "MEASURED", "reason": None, "games_total": 10}
     card |= {"games_in_first_hand": 4, "rate_in": 0.5, "games_not_in_first_hand": 6}
+    card |= {"difference_pp": 5.0, "difference_ci95_pp": [-10.0, 20.0]}
     base = {"deck_id": "d", "cards": [card], "pilots": ["P"], "warnings": []}
     table = {
         **base,
@@ -340,10 +341,17 @@ def test_outcome_figures_name_the_table_size_of_their_stratum() -> None:
     assert four["bezug"].endswith("Tisch mit 4 Sitzen")
     assert two["kohorte"] != four["kohorte"] and "Tisch mit 4 Sitzen" in four["kohorte"]
     assert "Tischgröße: Tisch mit 2 Sitzen" in two["hinweise"]
+    diff_two = zahlen["outcome.stand.h1.t2.X.difference_pp"]
+    assert diff_two["bezug"] == "Partien (verglichen / alle), Tisch mit 2 Sitzen"
+    assert zahlen["outcome.stand.h1.t4.X.difference_pp"]["bezug"].endswith("Tisch mit 4 Sitzen")
     no_size = zahlen["outcome.unknown.h1.tunbekannt.X.rate_in"]
     assert no_size["stand_hash"] == "h1" and no_size["N"] == 10
     assert no_size["bezug"].endswith("Tischgröße unbekannt")
     assert any(h.startswith("Tischgröße unbekannt (") for h in no_size["hinweise"])
+    assert not any(h.startswith("Tischgröße: ") for h in no_size["hinweise"])  # named once
+    assert zahlen["outcome.unknown.h1.tunbekannt.X.difference_pp"]["bezug"].endswith(
+        "Tischgröße unbekannt"
+    )
     no_hash = zahlen["outcome.unknown.ohne-hash.t3.X.rate_in"]
     assert no_hash["stand_hash"] is None
     assert "Stand unbekannt (Protokoll ohne Deck-Hash)" in no_hash["hinweise"]
@@ -743,3 +751,9 @@ def test_zahl_js_static_contract() -> None:
         assert forbidden not in js, forbidden
     for user in ("diffimpact.js", "castability.js", "deckseries.js"):
         assert "StudioZahl." in (STATIC / user).read_text(encoding="utf-8"), user
+
+
+def test_a_one_seat_table_is_named_in_the_singular() -> None:
+    assert nc._table_size_text({"table_size": 1}) == "Tisch mit 1 Sitz"
+    assert nc._table_size_text({"table_size": 3}) == "Tisch mit 3 Sitzen"
+    assert nc._table_size_text({}) == "Tischgröße unbekannt"

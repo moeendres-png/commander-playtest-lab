@@ -1533,7 +1533,8 @@ const render = async (payload) => {{
   const notPooled = await render({json.dumps(not_pooled)});
   const onlyOld = await render({json.dumps(only_old)});
   const bySize = await render({json.dumps(by_size)});
-  console.log(JSON.stringify({{ pooled, notPooled, onlyOld, bySize }}));
+  const sizeTexts = [1, 4, null].map((v) => mod.outcomesTableSize(v));
+  console.log(JSON.stringify({{ pooled, notPooled, onlyOld, bySize, sizeTexts }}));
 }})();
 """
     r = _node_json(script)
@@ -1577,6 +1578,17 @@ const render = async (payload) => {{
     )
     assert "Tischgröße unbekannt (Protokollkopf ohne vollständige Sitzliste) · 7 Partien" in st
     assert "nie zu einer bekannten Schicht addiert" in st and "table size" in st
+    # the reason in German: different table sizes, different base win rates, never combined
+    assert (
+        "Nicht zusammengeführt: Die Partien stammen von verschiedenen Tischgrößen (2, 3, 4 Sitze)"
+        in st
+    )
+    assert "(bei 2 Sitzen 1/2, bei 3 Sitzen 1/3, bei 4 Sitzen 1/4)" in st
+    assert "Jede Schicht steht unten einzeln mit n/N und Herkunft" in st
+    assert "diese Ansicht kommt als Folgepaket" in st
+    assert "Nicht zusammengeführt: the strata" not in st
+    assert r["sizeTexts"] == ["Tischgröße: 1 Sitz", "Tischgröße: 4 Sitze", "Tischgröße unbekannt"]
+    assert "Nicht zusammengeführt: the deck states were played" in r["notPooled"]["text"]
     assert "geschichtet über" not in st
     # three known strata and "Tischgröße unbekannt", each with its own table and provenance
     assert r["bySize"]["details"] == 4 and r["bySize"]["tables"] == 4

@@ -49,7 +49,21 @@ const outcomesShortHash = (value) =>
 
 // The table size of a stratum (#1683): read from the log header, never guessed.
 const outcomesTableSize = (value) =>
-  Number.isInteger(value) && value > 0 ? `Tischgröße: ${StudioUI.num(value, 0)} Sitze` : "Tischgröße unbekannt";
+  Number.isInteger(value) && value > 0
+    ? `Tischgröße: ${StudioUI.num(value, 0)} ${value === 1 ? "Sitz" : "Sitze"}`
+    : "Tischgröße unbekannt";
+
+// Why strata of several table sizes stay apart (#1683), in German: the base win rate differs.
+function outcomesTableSizeReason(pooling) {
+  const sizes = Array.isArray(pooling.differing_values)
+    ? pooling.differing_values.filter((v) => Number.isInteger(v) && v > 0)
+    : [];
+  const list = sizes.map((v) => StudioUI.num(v, 0)).join(", ");
+  const bases = sizes.map((v) => `bei ${StudioUI.num(v, 0)} Sitzen 1/${StudioUI.num(v, 0)}`).join(", ");
+  return `Nicht zusammengeführt: Die Partien stammen von verschiedenen Tischgrößen (${list || "unbekannt"} Sitze). `
+    + `Jede Tischgröße hat eine andere Basis-Siegrate${bases ? ` (${bases})` : ""}, deshalb werden sie nie zusammengefasst. `
+    + "Jede Schicht steht unten einzeln mit n/N und Herkunft. Deck-Stände derselben Tischgröße wären zusammenführbar; diese Ansicht kommt als Folgepaket.";
+}
 
 const outcomesUnknownStrata = (data) => (Array.isArray(data.unknown_strata) ? data.unknown_strata : []);
 
@@ -80,7 +94,8 @@ function outcomesStandNote(h, data) {
     : ["Stand oder Tischgröße unbekannt: keine Partien"];
   const pooling = data.pooling || {};
   const parts = [`Schichten (Deck-Stand und Tischgröße): ${outcomesInt(data.strata)}`, ...unknownTexts];
-  if (pooling.reason) parts.push(`Nicht zusammengeführt: ${pooling.reason}`);
+  if (pooling.differing_axis === "table_size") parts.push(outcomesTableSizeReason(pooling));
+  else if (pooling.reason) parts.push(`Nicht zusammengeführt: ${pooling.reason}`);
   if (pooling.method) parts.push(`Verfahren: ${pooling.method}`);
   return h("p", { class: "muted" }, parts.join(" · "));
 }

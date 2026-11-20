@@ -418,7 +418,9 @@ def outcomes_zahlen(table: Mapping[str, object]) -> list[dict[str, object]]:
 
 def _table_size_text(table: Mapping[str, object]) -> str:
     size = _int_or_none(table.get("table_size"))
-    return "Tischgröße unbekannt" if size is None else f"Tisch mit {size} Sitzen"
+    if size is None:
+        return "Tischgröße unbekannt"
+    return "Tisch mit 1 Sitz" if size == 1 else f"Tisch mit {size} Sitzen"
 
 
 def _outcome_table(
@@ -432,7 +434,9 @@ def _outcome_table(
     pilots = _names(table.get("pilots"))
     source = "Studio-Spielprotokolle (erste gezogene Hand)"
     size_text = _table_size_text(table)
-    table_notes = [*extra_notes, f"Tischgröße: {size_text}", *_names(table.get("warnings"))]
+    # an unknown size is already named by the stratum's own note ("Tischgröße unbekannt (…)")
+    size_note = [f"Tischgröße: {size_text}"] if _int_or_none(table.get("table_size")) else []
+    table_notes = [*extra_notes, *size_note, *_names(table.get("warnings"))]
     states = _names(table.get("bridge_qualification_states"))
     if states:
         table_notes.append(f"Bridge-Zustand: {', '.join(states)}")
