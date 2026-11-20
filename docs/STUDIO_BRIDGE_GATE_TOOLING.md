@@ -38,7 +38,7 @@ Normalization, the complete list:
 | Rule | Reason |
 | --- | --- |
 | Dropped: `timeout_millis`, `protocol_version`, `protocol_identity` (top level only) | transport, not observation: a deadline and wire-protocol version strings |
-| UUID-shaped text anywhere becomes `id#<n>` by first appearance in the game | JVM object ids differ in every run; the same pattern the transcript hash normalizes. "The same object twice" stays visible |
+| UUID-shaped text anywhere becomes `id#<n>` by first appearance in the game | JVM object ids differ in every run. The pattern is 8-4-4-4-12 hex groups bounded by non-hex characters (so `<uuid>_<uuid>` keys are caught); it is broader than the `\b` pattern the transcript hash (`_semantic_text`) uses, which is unchanged and does not match a UUID next to `_`. "The same object twice" stays visible |
 | Values of `option_id`, `decision_id`, `public_state_reference`, `private_actor_state_reference` become `id#<n>` | the bridge hashes the UUID-bearing views and requests, so these differ in every run |
 | Text leaves pass through `XmageFullGameRunner._semantic_text` | the transcript normalization itself: engine short ids (`Name [3a4]`) and `object_id=` markup attributes |
 | `pilot_state.commander_status` entries are sorted by their normalized text | the bridge builds the list from a UUID-keyed map, so its order follows the run's UUIDs |
@@ -47,6 +47,11 @@ Everything else, including the order of every other list (battlefield, hand, sta
 options), life totals and opponents' hand contents, is in the digest.
 
 ## Known blind spots
+
+- Reports carry no normalization version. Since #1716 the UUID pattern also catches ids next to
+  `_` or the letters g-z (`<uuid>_<uuid>`), which stayed raw before. Do not `compare` a report
+  taken before #1716 with one taken after it; take both gate arms with the same tool version. A
+  mixed comparison can only produce a false FAIL, never a false EQUAL.
 
 - Text the shared transcript normalization removes is not in the digest: `object_id='…'`
   attributes in prompt markup and bracketed short hex ids (`Name [3a4]`). A difference confined
