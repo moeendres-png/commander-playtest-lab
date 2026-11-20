@@ -180,6 +180,14 @@ n/N (`stands`); a log whose header names no deck state or no complete seat list 
 and never treated as equal to another unknown one. Several deck states are combined only
 stratified (Mantel-Haenszel, `strata` = number of strata) and only at one table size: strata of
 2, 3 and 4 seats are never combined, because their base win rates differ (1/2, 1/3, 1/4).
+When the known strata span several table sizes, the top level carries no card rows
+(`NOT_POOLED`), and `cohorts` holds one table per table size (#1694). Within its own table, the
+deck states of that table size are combined stratified by the same rules: never across a change
+of engine, bridge jar, pilot, decision policy or pod set, and only above `min_exposed`. A single
+stratum of another table size therefore no longer takes the stratified view away from the
+others. The page shows one section per table size, and every stratum appears once in it with its
+own n/N and provenance. `compare_logs` (paired comparison over a logs folder) refuses pairs of
+two table sizes in one answer unless `--allow-mixed` is given.
 
 What it does not say: how strong the pilots are or how a human would play the card (the pilot
 decides how the card is used); anything outside the pods that were simulated (the opponents

@@ -24,6 +24,11 @@ seat list forms the stratum "Tischgröße unbekannt" with its own n/N; it is nev
 table size, and unknown is never equal to unknown. Strata of different table sizes are never
 combined. Both axes come from one axis list (``STRATUM_AXES``), so a further axis (the pilot
 fingerprint of #1687) joins the same grouping and the same mixing check.
+
+Since #1694 the answer carries one table per value of the axes that must be equal (``cohorts``,
+today one per table size): the deck states of one table size are combined stratified inside
+their own table by the same rules, while the top level never combines two table sizes. A
+single stratum of another table size no longer takes the stratified view from all others.
 """
 
 from __future__ import annotations
@@ -46,7 +51,8 @@ from .games import LOG_SCHEMA
 from .simulations import wilson_score_interval
 
 # 3 since #1683: strata of deck state and table size; ``unknown_strata`` replaces ``unknown_stand``.
-SCHEMA = "studio-card-outcomes-3"
+# 4 since #1694: ``cohorts`` holds one combined table per table size.
+SCHEMA = "studio-card-outcomes-4"
 DATA_CLASS = "SIMULATED_RESULT"
 ESTIMAND = (
     "win rate with the card in the first dealt hand minus without; "
@@ -197,6 +203,9 @@ class CardOutcomeTable(TypedDict):
     pooling: NotRequired[Pooling]
     stands: NotRequired[list[CardOutcomeTable]]
     unknown_strata: NotRequired[list[CardOutcomeTable]]
+    # One table per value of the axes that must be equal (#1694; today the table size), each
+    # combining only its own strata; empty when the known strata share one such value.
+    cohorts: NotRequired[list[CardOutcomeTable]]
 
 
 class UnrankedCard(TypedDict):
@@ -1223,6 +1232,86 @@ def _stand_table(
     return table
 
 
+def _axis_list(labels: Sequence[str]) -> str:
+    """ "both a and b", "all of a, b and c": the axes named in one phrase."""
+    if len(labels) < 2:
+        return "".join(labels)
+    joined = f"{', '.join(labels[:-1])} and {labels[-1]}"
+    return f"both {joined}" if len(labels) == 2 else f"all of {joined}"
+
+
+def _cohort_key(key: StratumKey) -> StratumKey:
+    """The values of the axes that must be equal (the table size): strata that share them may
+    be combined, strata that differ in them never are (#1694)."""
+    return tuple(v for axis, v in zip(STRATUM_AXES, key, strict=True) if not axis.pooled)
+
+
+def cohort_label(table: CardOutcomeTable) -> str:
+    """A cohort named for the text view: one part per axis that must be equal."""
+    parts = []
+    for axis in STRATUM_AXES:
+        if not axis.pooled:
+            value = axis.of_table(table)
+            parts.append(axis.unknown if value is None else axis.shown(value))
+    return " · ".join(parts)
+
+
+def _combined(
+    groups: Sequence[list[GameExposure]],
+    stands: Sequence[CardOutcomeTable],
+    *,
+    deck_id: str,
+    min_exposed: int,
+) -> CardOutcomeTable:
+    """The known strata ``stands`` (games ``groups``) as one table: one stratum as it is,
+    several combined stratified only when :func:`_not_poolable` finds nothing; otherwise no
+    card rows (``NOT_POOLED``) and the reason. Carries ``pooling``, ``strata``, ``stands``,
+    the value of every axis that is the same for all strata and their named warnings."""
+    if len(stands) == 1:
+        top = cast(CardOutcomeTable, dict(stands[0]))
+        pooling: Pooling = {"status": "SINGLE_STAND", "reason": None, "method": None}
+    elif not stands:
+        top = empty_table(deck_id, min_exposed=min_exposed)
+        named = _axis_list([f"the {axis.label}" for axis in STRATUM_AXES])
+        pooling = {
+            "status": "NO_KNOWN_STAND",
+            "reason": f"no game names {named} of this deck",
+            "method": None,
+        }
+    else:
+        top = _pooled_table(groups, stands, deck_id=deck_id, min_exposed=min_exposed)
+        reason = _not_poolable(stands)
+        pooling = {
+            "status": "NOT_POOLED" if reason else "POOLED",
+            "reason": reason,
+            "method": None if reason else POOLING_METHOD,
+        }
+        differing = _differing_axis(stands) if reason else None
+        if differing is not None and reason and reason.startswith("the strata differ in"):
+            pooling["differing_axis"] = differing[0].field
+            pooling["differing_values"] = differing[1]
+        if reason:
+            top["status"] = "NOT_POOLED"
+            top["cards"] = []
+            top["comparisons"] = 0
+            top["expected_chance_findings"] = 0.0
+    fields = cast(dict[str, object], top)
+    for axis in STRATUM_AXES:
+        values = {axis.of_table(stand) for stand in stands}
+        fields[axis.field] = values.pop() if len(values) == 1 else None
+    top["revision_ids"] = _distinct(r for stand in stands for r in stand.get("revision_ids", []))
+    top["strata"] = len(stands)
+    top["pooling"] = pooling
+    top["stands"] = list(stands)
+    warnings = list(top["warnings"])
+    if len(stands) > 1:
+        # a table of several strata repeats every stratum's own warnings, named
+        for stand in stands:
+            warnings += [f"{stratum_label(stand)}: {w}" for w in stand["warnings"]]
+    top["warnings"] = warnings
+    return top
+
+
 def stand_tables(
     exposures: Iterable[GameExposure],
     *,
@@ -1244,6 +1333,11 @@ def stand_tables(
     decision policy and pod set agree; otherwise the top level carries no card rows
     (``NOT_POOLED``) and a reason. Mixed values inside one stratum raise as in
     :func:`aggregate` unless allowed.
+
+    ``cohorts`` (#1694): when the known strata differ in an axis that must be equal (the table
+    size), one table per value of those axes, built by the same rules from its own strata
+    only; the strata of one table size are thus still combined stratified, and two table sizes
+    never share a table. Empty when all known strata share those values.
     """
     groups: dict[StratumKey, list[GameExposure]] = {}
     for game in exposures:
@@ -1261,73 +1355,49 @@ def stand_tables(
             groups[key], deck_id=deck_id, key=key, min_exposed=min_exposed, allow_mixed=allow_mixed
         )
 
-    stands = [table_of(key) for key in known]
+    tables = {key: table_of(key) for key in known}
+    stands = [tables[key] for key in known]
     unknown = [table_of(key) for key in apart]
-    if len(stands) == 1:
-        top = cast(CardOutcomeTable, dict(stands[0]))
-        pooling: Pooling = {"status": "SINGLE_STAND", "reason": None, "method": None}
-    elif not stands:
-        top = empty_table(deck_id, min_exposed=min_exposed)
-        pooling = {
-            "status": "NO_KNOWN_STAND",
-            "reason": "no game names both the deck state and the table size of this deck",
-            "method": None,
-        }
-    else:
-        top = _pooled_table(
-            [groups[key] for key in known], stands, deck_id=deck_id, min_exposed=min_exposed
-        )
-        reason = _not_poolable(stands)
-        pooling = {
-            "status": "NOT_POOLED" if reason else "POOLED",
-            "reason": reason,
-            "method": None if reason else POOLING_METHOD,
-        }
-        differing = _differing_axis(stands) if reason else None
-        if differing is not None and reason and reason.startswith("the strata differ in"):
-            pooling["differing_axis"] = differing[0].field
-            pooling["differing_values"] = differing[1]
-        if reason:
-            top["status"] = "NOT_POOLED"
-            top["cards"] = []
-            top["comparisons"] = 0
-            top["expected_chance_findings"] = 0.0
-    sizes = {stand.get("table_size") for stand in stands}
-    top["deck_hash"] = stands[0]["deck_hash"] if len(stands) == 1 else None
-    top["table_size"] = sizes.pop() if len(sizes) == 1 else None
-    top["revision_ids"] = _distinct(r for stand in stands for r in stand.get("revision_ids", []))
+    top = _combined(
+        [groups[key] for key in known], stands, deck_id=deck_id, min_exposed=min_exposed
+    )
+    by_cohort: dict[StratumKey, list[StratumKey]] = {}
+    for key in known:
+        by_cohort.setdefault(_cohort_key(key), []).append(key)
+    cohorts: list[CardOutcomeTable] = []
+    if len(by_cohort) > 1:
+        for cohort in sorted(by_cohort, key=_stratum_order):
+            keys = by_cohort[cohort]
+            cohorts.append(
+                _combined(
+                    [groups[key] for key in keys],
+                    [tables[key] for key in keys],
+                    deck_id=deck_id,
+                    min_exposed=min_exposed,
+                )
+            )
     top["games_skipped"] = games_skipped
     top["games_skipped_unreadable"] = games_skipped_unreadable
     top["duplicate_logs_ignored"] = duplicate_logs_ignored
-    top["strata"] = len(stands)
-    top["pooling"] = pooling
-    top["stands"] = stands
     top["unknown_strata"] = unknown
+    top["cohorts"] = cohorts
     warnings = list(top["warnings"])
-    if len(stands) > 1:
-        # the top level of several strata repeats every stratum's own warnings, named
-        for stand in stands:
-            warnings += [f"{stratum_label(stand)}: {w}" for w in stand["warnings"]]
     for table in unknown:
         warnings += [f"{stratum_label(table)}: {w}" for w in table["warnings"]]
     if duplicate_logs_ignored:
         warnings.append(
             f"{duplicate_logs_ignored} duplicate log(s) with an already counted game_id ignored"
         )
-    no_stand = sum(t["games_total"] for t in unknown if t.get("deck_hash") is None)
-    if no_stand:
-        warnings.append(
-            f"{no_stand} game(s) without a deck state (Stand unbekannt) are shown apart and "
-            "never added to a known deck state"
-        )
-    no_size = sum(t["games_total"] for t in unknown if t.get("table_size") is None)
-    if no_size:
-        warnings.append(
-            f"{no_size} game(s) without a table size (Tischgröße unbekannt) are shown apart and "
-            "never added to a known table size"
-        )
-    if pooling["reason"]:
-        warnings.append(pooling["reason"])
+    for axis in STRATUM_AXES:
+        missing = sum(t["games_total"] for t in unknown if axis.of_table(t) is None)
+        if missing:
+            warnings.append(
+                f"{missing} game(s) without a {axis.label} ({axis.unknown}) are shown apart and "
+                f"never added to a known {axis.label}"
+            )
+    reason = top["pooling"]["reason"]
+    if reason:
+        warnings.append(reason)
     top["warnings"] = warnings
     return top
 
@@ -1490,7 +1560,7 @@ def format_table(table: CardOutcomeTable, *, limit: int = 15) -> str:
     if "strata" in table:
         pooling = table.get("pooling")
         lines.append(
-            f"strata (deck state x table size) {table['strata']} "
+            f"strata ({' x '.join(axis.label for axis in STRATUM_AXES)}) {table['strata']} "
             f"({pooling['status'] if pooling else '-'})"
         )
         for stand in table.get("stands", []):
@@ -1508,10 +1578,26 @@ def format_table(table: CardOutcomeTable, *, limit: int = 15) -> str:
         "ends of the list as hypotheses to re-test, not as verdicts"
     )
     lines += [f"WARNING {w}" for w in table["warnings"]]
-    rows = ranking["ranked"]
-    shown = rows[:limit] + rows[limit:][-limit:]
-    if shown:
-        lines.append("card (diff pp [lower, upper], in/not games)")
+    lines += _ranked_lines(ranking["ranked"], limit)
+    for cohort in table.get("cohorts", []):
+        # one table per table size (#1694), each from its own strata only, never one sum
+        pooling = cohort.get("pooling")
+        cohort_ranking = ranked(cohort)
+        lines.append(
+            f"cohort {cohort_label(cohort)}: strata {cohort.get('strata', 0)} "
+            f"({pooling['status'] if pooling else '-'})  games {cohort['games_total']}  "
+            f"measured {len(cohort_ranking['ranked'])}  unmeasured (INSUFFICIENT_SAMPLE) "
+            f"{len(cohort_ranking['unranked'])}"
+        )
+        if pooling and pooling["reason"]:
+            lines.append(f"  not pooled: {pooling['reason']}")
+        lines += [f"  {line}" for line in _ranked_lines(cohort_ranking["ranked"], limit)]
+    return "\n".join(lines)
+
+
+def _ranked_lines(rows: Sequence[CardOutcome], limit: int) -> list[str]:
+    shown = list(rows[:limit]) + list(rows[limit:][-limit:])
+    lines = ["card (diff pp [lower, upper], in/not games)"] if shown else []
     for row in shown:
         ci = row["difference_ci95_pp"] or [0.0, 0.0]
         lines.append(
@@ -1519,4 +1605,4 @@ def format_table(table: CardOutcomeTable, *, limit: int = 15) -> str:
             f"[{ci[0]:6.1f}, {ci[1]:6.1f}]  {row['games_in_first_hand']}/"
             f"{row['games_not_in_first_hand']}"
         )
-    return "\n".join(lines)
+    return lines

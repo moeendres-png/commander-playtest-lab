@@ -50,6 +50,7 @@ from .card_outcomes import (
     game_exposures,
     load_exposures,
     pilot_identity,
+    table_size_of,
 )
 from .games import games_folder
 
@@ -406,6 +407,15 @@ def _summarize(
     }
     involved = [game for game in exposures if game["game_id"] in pair_games]
     provenance, warnings = _check_provenance(involved, allow_mixed=allow_mixed)
+    # A pair never mixes table sizes (its key holds the other seats), but a logs folder may hold
+    # pairs of several table sizes, each with its own base win rate: their differences are never
+    # averaged into one answer unless allowed (#1694). An unknown size is not counted as one.
+    sizes = sorted({size for size in (table_size_of(game) for game in involved) if size})
+    if len(sizes) > 1:
+        shown = ", ".join(str(size) for size in sizes)
+        if not allow_mixed:
+            raise ValueError(f"mixed table sizes in one comparison: {shown}")
+        warnings.append(f"mixed table sizes pooled: {shown}")
     if any(game["engine_commit"] is None for game in involved):
         warnings.append("some paired games carry no engine commit")
     if any(not game.get("bridge_jar_sha256") for game in involved):
