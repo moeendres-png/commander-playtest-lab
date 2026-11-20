@@ -63,6 +63,7 @@ def _counted(**extra: object) -> dict[str, object]:
         "klasse": "GEZÄHLT",
         "n": 3,
         "N": 10,
+        "bezug": "Quelldecks (mit der Karte / Kohorte)",
         "wert": 0.3,
         "kohorte": "all",
     }
@@ -75,6 +76,7 @@ def _simulated(**extra: object) -> dict[str, object]:
         klasse="SIMULIERT",
         n=12,
         N=40,
+        bezug="Paare (abgeschlossen / geplant)",
         wert=2.5,
         einheit="pp",
         stand_hash="a" * 64,
@@ -93,6 +95,12 @@ CASES: list[tuple[str, dict[str, object], bool]] = [
     ("foreign class", _exakt(klasse="SCORE"), False),
     ("VORSCHLAG", _exakt(klasse="VORSCHLAG"), False),
     ("n without N", _exakt(n=3), False),
+    ("N without bezug", _counted(bezug=None), False),
+    ("share above 1", _exakt(wert=1.5), False),
+    ("share interval below 0", _exakt(intervall=[-0.1, 0.4]), False),
+    ("points may be negative", _simulated(wert=-3.0, intervall=[-9.0, 2.0]), True),
+    ("notes are texts", _simulated(hinweise=["Status MEASURED"]), True),
+    ("notes not a list", _simulated(hinweise="Status MEASURED"), False),
     ("n above N", _counted(n=11), False),
     ("counted", _counted(), True),
     ("counted without N", _counted(N=None), False),
@@ -108,6 +116,7 @@ CASES: list[tuple[str, dict[str, object], bool]] = [
     ("judgement with data class", _exakt(klasse="URTEIL", data_class="SIMULATED_RESULT"), False),
     ("value is a bool", _exakt(wert=True), False),
     ("value is text", _exakt(wert="0"), False),
+    ("huge integer", _exakt(einheit="Anzahl", wert=10**400), False),
     ("interval reversed", _exakt(intervall=[0.5, 0.1]), False),
     ("unknown key", _exakt(score=1), False),
     ("no source", _exakt(quelle=""), False),
@@ -122,13 +131,21 @@ def test_python_contract_rules(name: str, zahl: dict[str, object], valid: bool) 
 
 def test_simulated_without_state_key_and_builder_refusals() -> None:
     missing = {k: v for k, v in _simulated().items() if k != "stand_hash"}
-    assert "SIMULIERT ohne Stand-Hash (None = unbekannt)" in nc.check(missing)
+    assert "SIMULIERT ohne Stand-Hash (leer = unbekannt)" in nc.check(missing)
     with pytest.raises(ValueError, match="n ohne N"):
         nc.zahl("x", "X", 1, klasse=nc.EXAKT, einheit="Anzahl", quelle="Liste", n=1)
     with pytest.raises(ValueError, match="VORSCHLAG"):
         nc.zahl("x", "X", 1, klasse="VORSCHLAG", einheit="Anzahl", quelle="Liste")
     built = nc.zahl(
-        "s", "S", None, klasse=nc.SIMULIERT, einheit="pp", quelle="Serie", N=4, pilot="Konstante"
+        "s",
+        "S",
+        None,
+        klasse=nc.SIMULIERT,
+        einheit="pp",
+        quelle="Serie",
+        N=4,
+        bezug="Paare",
+        pilot="Konstante",
     )
     assert built["wert"] is None and built["stand_hash"] is None
     assert built["data_class"] == "SIMULATED_RESULT"
@@ -193,7 +210,7 @@ def test_diff_route_sends_valid_contracts_for_the_covered_figures(tmp_path: Path
     for key in ("overlap.shared_slots", "curve.0.base", "combos.target_complete"):
         assert zahlen[key]["klasse"] == "EXAKT"
     freq = zahlen[f"freq.added.{ids['Swarm Rat']}"]
-    assert freq["klasse"] == "GEZÄHLT" and freq["kohorte"] == "picked"
+    assert freq["klasse"] == "GEZÄHLT" and str(freq["kohorte"]).startswith("picked · ")
     assert (freq["n"], freq["N"], freq["wert"]) == (1, 1, 1.0)
     for group in ("added", "removed", "changed"):
         for item in body[group]:
@@ -236,6 +253,90 @@ def test_diff_unknown_frequency_is_unknown_never_zero() -> None:
     assert "freq.added.c:3" not in zahlen  # no cohort size: no number exists, none is made up
 
 
+def test_diff_commander_change_names_side_and_commander_in_cohort_and_source() -> None:
+    diff = {
+        "cohort": {"key": "all"},
+        "commanders": {"base": ["Old Cmd"], "target": ["New Cmd"], "same": False},
+        "added": [{"card_id": "c:1", "name": "In", "decks": 4, "of": 10}],
+        "removed": [{"card_id": "c:2", "name": "Out", "decks": 7, "of": 50}],
+        "changed": [],
+    }
+    zahlen = {item["id"]: item for item in nc.diff_zahlen(diff)}
+    added, removed = zahlen["freq.added.c:1"], zahlen["freq.removed.c:2"]
+    assert added["kohorte"] == "all · New Cmd" and "aktuell (New Cmd)" in str(added["quelle"])
+    assert removed["kohorte"] == "all · Old Cmd" and "der Basis (Old Cmd)" in str(removed["quelle"])
+    assert added["kohorte"] != removed["kohorte"] and added["quelle"] != removed["quelle"]
+    assert added["bezug"] == removed["bezug"] == "Quelldecks (mit der Karte / Kohorte)"
+
+
+def test_inconsistent_source_data_leave_the_figure_out_instead_of_failing() -> None:
+    diff = {
+        "cohort": {"key": "all"},
+        "added": [
+            {"card_id": "c:1", "name": "Too many", "decks": 12, "of": 10},
+            {"card_id": "c:2", "name": "Fine", "decks": 2, "of": 10},
+        ],
+    }
+    ids = [item["id"] for item in nc.diff_zahlen(diff)]
+    assert ids == ["freq.added.c:2"]
+    table = {
+        "deck_id": "d",
+        "cards": [
+            {"card": "Odd", "games_total": 3, "games_in_first_hand": 5, "rate_in": 0.5},
+            {"card": "Rate", "games_total": 3, "games_in_first_hand": 1, "rate_in": 1.7},
+        ],
+    }
+    kept = [item["id"] for item in nc.outcomes_zahlen(table)]
+    assert "outcome.Odd.rate_in" not in kept and "outcome.Rate.rate_in" not in kept
+    assert "outcome.Odd.rate_not" in kept  # the other figures of the card stay
+
+
+def test_series_without_planned_pairs_or_result_gets_no_contract() -> None:
+    base = {"series_id": "s", "counts_as_result": True, "pairs_completed": 4, "pilots": []}
+    payload = {
+        "series": [
+            {**base, "series_id": "unplanned", "pairs_planned": None, "difference_pp": 1.0},
+            {
+                **base,
+                "series_id": "unplanned-empty",
+                "pairs_planned": None,
+                "pairs_completed": None,
+                "difference_pp": None,
+            },
+            {**base, "series_id": "nores", "pairs_planned": 8, "counts_as_result": False},
+            {**base, "series_id": "ok", "pairs_planned": 8, "difference_pp": -1.5},
+            {**base, "series_id": "over", "pairs_planned": 2, "difference_pp": 1.0},
+        ]
+    }
+    zahlen = nc.series_zahlen(payload, {})
+    assert [item["id"] for item in zahlen] == ["series.ok.difference_pp"]
+    assert zahlen[0]["N"] == 8 and zahlen[0]["bezug"] == "Paare (abgeschlossen / geplant)"
+
+
+def test_what_if_route_only_gains_zahlen(tmp_path: Path) -> None:
+    revision, _cards, ids = _diff_fixture(tmp_path)
+    del revision
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    cmd = "card:project:0001"
+    cards = [{"card_id": cmd, "quantity": 1, "zone": "commander"}]
+    cards += [{"card_id": ids[f"Filler {i:02d}"], "quantity": 1, "zone": "main"} for i in (1, 2)]
+    body = client.post(
+        "/api/cut-lab/what-if",
+        json={"cards": cards, "cut": ids["Filler 01"], "add": ids["Filler 05"]},
+    ).json()
+    _assert_all_valid(body["zahlen"])
+    base = [RevisionCard(str(c["card_id"]), 1, str(c["zone"])) for c in cards]
+    target = [base[0], RevisionCard(ids["Filler 02"]), RevisionCard(ids["Filler 05"])]
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        direct = deck_diff.diff_impact(store, base, target)
+    finally:
+        store.close()
+    old = dict(body)
+    del old["zahlen"]
+    assert json.dumps(old, sort_keys=True) == json.dumps(direct, sort_keys=True, default=list)
+
+
 def test_outcomes_route_sends_simulated_contracts_with_state_and_pilot(tmp_path: Path) -> None:
     store = StudioStore.open(tmp_path / "studio")
     _fill(store, tmp_path)
@@ -253,6 +354,8 @@ def test_outcomes_route_sends_simulated_contracts_with_state_and_pilot(tmp_path:
         assert item["stand_hash"] is None  # the logs carry no deck hash per seat before B1
         assert item["pilot"] == "Konstante" and item["piloten"] == ["Pilot 1.0.0"]
         assert item["N"] == body["games_total"]
+        assert item["hinweise"][0].startswith("Status ")
+        assert item["bezug"].startswith("Partien (")
     by_id = {item["id"]: item for item in zahlen}
     forest = next(card for card in body["cards"] if card["card"] == "Forest")
     assert by_id["outcome.Forest.rate_in"]["n"] == forest["games_in_first_hand"]
@@ -380,15 +483,15 @@ test("a missing value renders unbekannt, never 0", () => {
     const m = Z.modell(zahl);
     assert.ok(m.ok, JSON.stringify(m.fehler));
     assert.equal(m.wert, "unbekannt");
-    assert.doesNotMatch(text(Z.knoten(h, zahl)).split("(")[0], /0/);
+    assert.equal(find(Z.knoten(h, zahl), "zahl-wert").map(text).join(""), "unbekannt");
   }
-  assert.equal(Z.modell({ ...counted, wert: null, n: null }).nN, "unbekannt / 10");
+  assert.equal(Z.modell({ ...counted, wert: null, n: null }).nN, "unbekannt / 10 Quelldecks (mit der Karte / Kohorte)");
 });
 test("GEZÄHLT and SIMULIERT never without n/N", () => {
   assert.ok(Z.pruefe({ ...counted, N: null }).includes("GEZÄHLT ohne N"));
   assert.ok(Z.pruefe({ ...counted, n: null }).includes("GEZÄHLT ohne n"));
   assert.ok(Z.pruefe({ ...simulated, N: null, n: null }).includes("SIMULIERT ohne N"));
-  assert.equal(Z.modell(counted).nN, "3 / 10");
+  assert.equal(Z.modell(counted).nN, "3 / 10 Quelldecks (mit der Karte / Kohorte)");
 });
 test("n without N is refused in every class", () => {
   for (const zahl of [{ ...exakt, n: 2 }, { ...judgement, n: 2 }]) assert.ok(Z.pruefe(zahl).includes("n ohne N"));
@@ -400,13 +503,12 @@ test("GEZÄHLT needs its cohort and shows it as origin", () => {
 test("SIMULIERT shows the deck hash and the pilot origin", () => {
   const zahl = { ...simulated, basis_hash: "b".repeat(64), piloten: ["Pilot 1.0.0"] };
   const m = Z.modell(zahl);
-  assert.equal(m.stand, `Stand ${"a".repeat(12)} gegen ${"b".repeat(12)} · Pilot: Konstante (Pilot 1.0.0)`);
-  assert.match(m.herkunft, /SIMULATED_RESULT/);
+  assert.equal(m.stand, `SIMULATED_RESULT · Stand ${"a".repeat(12)} gegen ${"b".repeat(12)} · Pilot: Konstante (Pilot 1.0.0)`);
   const node = Z.knoten(h, zahl);
   assert.equal(find(node, "zahl-stand").length, 1, "the state is visible, not only a tooltip");
 });
 test("SIMULIERT with an unknown state says so; without the state key or data class it is refused", () => {
-  assert.match(Z.modell({ ...simulated, stand_hash: null }).stand, /^Stand unbekannt · Pilot: Konstante$/);
+  assert.match(Z.modell({ ...simulated, stand_hash: null }).stand, /^SIMULATED_RESULT · Stand unbekannt · Pilot: Konstante$/);
   const missing = { ...simulated };
   delete missing.stand_hash;
   assert.ok(Z.pruefe(missing).some((e) => e.startsWith("SIMULIERT ohne Stand-Hash")));
@@ -428,6 +530,17 @@ test("de-DE display through StudioUI: share, signed points, counts and the class
   assert.equal(text(badge), "gezählt");
   assert.ok(badge.props.class.includes("zahl-gezaehlt"));
 });
+test("origin, n/N reference and notes are visible text, not only a tooltip", () => {
+  const zahl = { ...simulated, hinweise: ["Status INSUFFICIENT_SAMPLE", "zu wenige Partien"] };
+  const node = Z.knoten(h, zahl);
+  const visible = (cls) => find(node, cls).map(text).join("");
+  assert.equal(visible("zahl-herkunft"), "Quelle: Hypergeometrie");
+  assert.equal(visible("zahl-nn"), "n/N 12 / 40 Paare (abgeschlossen / geplant)");
+  assert.equal(visible("zahl-hinweise"), "Hinweise: Status INSUFFICIENT_SAMPLE · zu wenige Partien");
+  assert.match(visible("zahl-stand"), /^SIMULATED_RESULT · /);
+  assert.ok(Z.pruefe({ ...counted, bezug: null }).includes("N ohne Bezug"));
+  assert.ok(Z.pruefe({ ...exakt, wert: 1.5 }).includes("Anteil außerhalb 0..1"));
+});
 test("index keeps only valid contracts", () => {
   const found = Z.index([counted, { ...counted, id: "bad", kohorte: null }]);
   assert.deepEqual([...found.keys()], ["x"]);
@@ -439,7 +552,13 @@ test("diffimpact shows the source-deck share as a GEZÄHLT column from the contr
   const nodes = diffImpactNodes(h, diff, { open() {}, roleName: (r) => r, cohortLabel: "alle" });
   const cells = nodes.flatMap((node) => find(node, "zahl"));
   assert.equal(cells.length, 1);
-  assert.equal(text(cells[0]), "30,0 % (3 / 10) gezählt");
+  assert.equal(text(cells[0]), "30,0 % gezähltn/N 3 / 10 Quelldecks (mit der Karte / Kohorte)Quelle: Hypergeometrie · Kohorte: all");
+  // the column class is fixed GEZÄHLT: a judgement under the same id shows no number
+  const judged = { ...diff, zahlen: [{ ...CASES.find((c) => c[0] === "judgement")[1], id: "freq.added.c:1" }] };
+  const wrong = diffImpactNodes(h, judged, { open() {}, roleName: (r) => r, cohortLabel: "alle" });
+  const bad = wrong.flatMap((node) => find(node, "zahl-ungueltig"));
+  assert.equal(bad.length, 1);
+  assert.equal(text(bad[0]), "Klasse passt nicht zur Spalte");
   const plain = diffImpactNodes(h, { ...diff, zahlen: undefined }, { open() {}, roleName: (r) => r, cohortLabel: "alle" });
   assert.equal(plain.flatMap((node) => find(node, "zahl")).length, 0, "without a contract the old text stays");
 });
@@ -452,8 +571,8 @@ test("deck series show the difference as SIMULIERT with n/N, state and pilot", (
   const zahlen = Z.index([{ ...simulated, id: "series.s1.difference_pp", intervall: [-4, 9] }]);
   const cells = deckSeriesCells(h, item, "base", { open() {} }, new Map(), zahlen);
   const shown = cells.map(text).join(" | ");
-  assert.match(shown, /Differenz \(B \u2212 A\): \+2,5 pp \(12 \/ 40\) \[\u22124,0; 9,0\] pp simuliert/);
-  assert.match(shown, /Stand aaaaaaaaaaaa · Pilot: Konstante/);
+  assert.match(shown, /Differenz \(B \u2212 A\): \+2,5 pp \[\u22124,0; 9,0\] pp simuliertn\/N 12 \/ 40 Paare \(abgeschlossen \/ geplant\)/);
+  assert.match(shown, /SIMULATED_RESULT · Stand aaaaaaaaaaaa · Pilot: Konstante/);
 });
 """
 
@@ -477,12 +596,39 @@ def test_zahl_js_component_under_node_test(tmp_path: Path) -> None:
     path = tmp_path / "zahl.test.js"
     path.write_text(script, encoding="utf-8")
     done = subprocess.run(
-        [node, "--test", str(path)], capture_output=True, text=True, timeout=60, check=False
+        [node, "--test", "--test-reporter=tap", str(path)],
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
     )
     assert done.returncode == 0, done.stdout + done.stderr
-    passed = int(re.search(r"^# pass (\d+)$", done.stdout, re.MULTILINE).group(1))  # type: ignore[union-attr]
-    failed = int(re.search(r"^# fail (\d+)$", done.stdout, re.MULTILINE).group(1))  # type: ignore[union-attr]
-    assert failed == 0 and passed >= 10, done.stdout
+    counts = node_test_counts(done.stdout)
+    assert counts["fail"] == 0 and counts["pass"] >= 10, done.stdout
+
+
+def node_test_counts(output: str) -> dict[str, int]:
+    """``pass``/``fail`` of a ``node --test`` run in either reporter: TAP (``# pass 13``) or spec
+    (info sign + ``pass 13``, the default on a terminal and in some CI runners)."""
+    output = re.sub(r"\x1b\[[0-9;]*m", "", output).replace("\r", "")  # colours of a terminal
+    counts: dict[str, int] = {}
+    for key in ("pass", "fail"):
+        found = re.search(rf"^(?:#|\u2139) {key} (\d+)\s*$", output, re.MULTILINE)
+        if found is None:
+            raise AssertionError(f"no '{key}' count in the node --test output:\n{output}")
+        counts[key] = int(found.group(1))
+    return counts
+
+
+def test_node_test_counts_reads_tap_and_spec() -> None:
+    tap = "1..13\n# tests 13\n# pass 13\n# fail 0\n"
+    spec = "\u2139 tests 13\n\u2139 pass 12\n\u2139 fail 1\n"
+    assert node_test_counts(tap) == {"pass": 13, "fail": 0}
+    assert node_test_counts(spec) == {"pass": 12, "fail": 1}
+    coloured = "\x1b[34m\u2139 pass 14\x1b[39m\r\n\x1b[34m\u2139 fail 0\x1b[39m\r\n"
+    assert node_test_counts(coloured) == {"pass": 14, "fail": 0}
+    with pytest.raises(AssertionError):
+        node_test_counts("nothing")
 
 
 def test_python_and_javascript_judge_every_case_alike() -> None:
@@ -493,14 +639,14 @@ def test_python_and_javascript_judge_every_case_alike() -> None:
     script = (
         f"const Z = require({json.dumps(str(STATIC / 'zahl.js'))});\n"
         f"const cases = {json.dumps(cases, ensure_ascii=False)};\n"
-        "process.stdout.write(JSON.stringify(cases.map(([n, z]) => [n, Z.pruefe(z).length === 0])));\n"
+        "process.stdout.write(JSON.stringify(cases.map(([n, z]) => [n, Z.pruefe(z)])));\n"
     )
     done = subprocess.run(
         [node, "-e", script], capture_output=True, text=True, timeout=30, check=True
     )
     js = dict(json.loads(done.stdout))
     for name, zahl in cases:
-        assert js[name] is (nc.check(zahl) == []), name
+        assert js[name] == nc.check(zahl), name
 
 
 def test_zahl_js_static_contract() -> None:

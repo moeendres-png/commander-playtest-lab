@@ -1,20 +1,23 @@
 "use strict";
 // The number contract (B3, #1659): one component for every figure a builder route sends as
-// {id, bezeichnung, wert, einheit, n, N, intervall, klasse, kohorte, quelle, stand_datum,
-//  stand_hash, basis_hash, pilot, piloten, data_class}. Twin of number_contract.py; same rules:
+// {id, bezeichnung, wert, einheit, n, N, bezug, intervall, klasse, kohorte, quelle, stand_datum,
+//  stand_hash, basis_hash, pilot, piloten, data_class, hinweise}. Twin of number_contract.py; same
+// rules and the same messages:
 //   EXAKT      computed from the list (hypergeometry, castability, list counts)
 //   GEZÄHLT    counted in a cohort: always N and a cohort
 //   SIMULIERT  SIMULATED_RESULT: always N, the deck state (stand_hash, null = unknown) and the
 //              pilot origin (until B2 the constant "Konstante")
 //   URTEIL     a model judgement; never in the same column as GEZÄHLT
 // VORSCHLAG is no number class and is refused. A missing wert is "unbekannt", never 0; n without
-// N is refused; a figure that breaks a rule is never shown as a number. DOM only through h(),
+// N is refused; every N names what n and N count (bezug: "Paare (abgeschlossen / geplant)"); a share
+// lies in 0..1; a figure that breaks a rule is never shown as a number. Origin (Quelle, Kohorte,
+// SIMULATED_RESULT, Stand, Pilot) and the source's notes are visible text, not only a tooltip. DOM only through h(),
 // numbers only through StudioUI (read at call time, so the node tests use the real ui.js helpers).
 const StudioZahl = (() => {
   const KLASSEN = ["EXAKT", "GEZÄHLT", "SIMULIERT", "URTEIL"];
   const EINHEITEN = ["Anteil", "pp", "Anzahl"];
-  const KEYS = ["id", "bezeichnung", "wert", "einheit", "n", "N", "intervall", "klasse", "kohorte", "quelle",
-    "stand_datum", "stand_hash", "basis_hash", "pilot", "piloten", "data_class"];
+  const KEYS = ["id", "bezeichnung", "wert", "einheit", "n", "N", "bezug", "intervall", "klasse", "kohorte", "quelle",
+    "stand_datum", "stand_hash", "basis_hash", "pilot", "piloten", "data_class", "hinweise"];
   const LABEL = { EXAKT: "exakt", "GEZÄHLT": "gezählt", SIMULIERT: "simuliert", URTEIL: "Modellurteil" };
   const CSS = { EXAKT: "zahl-exakt", "GEZÄHLT": "zahl-gezaehlt", SIMULIERT: "zahl-simuliert", URTEIL: "zahl-urteil" };
   const UNKNOWN = "unbekannt";
@@ -45,13 +48,21 @@ const StudioZahl = (() => {
     if (n !== null && !isCount(n)) errors.push("n ist keine Anzahl");
     if (total !== null && !isCount(total)) errors.push("N ist keine Anzahl");
     if (n !== null && total === null) errors.push("n ohne N");
-    if (isCount(n) && isCount(total) && n > total) errors.push("n größer als N");
+    if (Number.isInteger(n) && Number.isInteger(total) && n > total) errors.push("n größer als N");
+    if (total !== null && !isText(zahl.bezug)) errors.push("N ohne Bezug");
     const ci = zahl.intervall === undefined ? null : zahl.intervall;
-    if (ci !== null && !(Array.isArray(ci) && ci.length === 2 && ci.every(isNumber) && ci[0] <= ci[1])) errors.push("intervall ist kein [unten, oben]");
-    for (const key of ["kohorte", "stand_datum", "stand_hash", "basis_hash", "pilot"]) {
+    const ciOk = Array.isArray(ci) && ci.length === 2 && ci.every(isNumber) && ci[0] <= ci[1];
+    if (ci !== null && !ciOk) errors.push("intervall ist kein [unten, oben]");
+    if (zahl.einheit === "Anteil") {
+      const values = [...(isNumber(wert) ? [wert] : []), ...(ciOk ? ci : [])];
+      if (values.some((value) => value < 0 || value > 1)) errors.push("Anteil außerhalb 0..1");
+    }
+    for (const key of ["kohorte", "bezug", "stand_datum", "stand_hash", "basis_hash", "pilot"]) {
       if (zahl[key] !== undefined && zahl[key] !== null && !isText(zahl[key])) errors.push(`${key} ist kein Text`);
     }
-    if (zahl.piloten !== undefined && zahl.piloten !== null && !(Array.isArray(zahl.piloten) && zahl.piloten.every(isText))) errors.push("piloten ist keine Namensliste");
+    for (const key of ["piloten", "hinweise"]) {
+      if (zahl[key] !== undefined && zahl[key] !== null && !(Array.isArray(zahl[key]) && zahl[key].every(isText))) errors.push(`${key} ist keine Textliste`);
+    }
     if (klasse === "GEZÄHLT" || klasse === "SIMULIERT") {
       if (total === null) errors.push(`${klasse} ohne N`);
       if (wert !== null && n === null) errors.push(`${klasse} ohne n`);
@@ -59,7 +70,7 @@ const StudioZahl = (() => {
     if (klasse === "GEZÄHLT" && !isText(zahl.kohorte)) errors.push("GEZÄHLT ohne Kohorte");
     if (klasse === "SIMULIERT") {
       if (zahl.data_class !== "SIMULATED_RESULT") errors.push("SIMULIERT ohne data_class SIMULATED_RESULT");
-      if (!has(zahl, "stand_hash")) errors.push("SIMULIERT ohne Stand-Hash (null = unbekannt)");
+      if (!has(zahl, "stand_hash")) errors.push("SIMULIERT ohne Stand-Hash (leer = unbekannt)");
       if (!isText(zahl.pilot)) errors.push("SIMULIERT ohne Pilot-Herkunft");
     } else if (zahl.data_class !== undefined && zahl.data_class !== null) {
       errors.push("data_class nur bei SIMULIERT");
@@ -89,7 +100,7 @@ const StudioZahl = (() => {
     const helpers = ui();
     if (!helpers || zahl.N === null || zahl.N === undefined) return null;
     const n = zahl.n === null || zahl.n === undefined ? UNKNOWN : helpers.num(zahl.n, 0);
-    return `${n} / ${helpers.num(zahl.N, 0)}`;
+    return `${n} / ${helpers.num(zahl.N, 0)} ${zahl.bezug}`;
   }
 
   // Deck state and pilot of a simulated figure: always shown, unknown stays "unbekannt".
@@ -98,21 +109,21 @@ const StudioZahl = (() => {
     const short = (hash) => (isText(hash) ? hash.slice(0, 12) : UNKNOWN);
     const stand = `Stand ${short(zahl.stand_hash)}${has(zahl, "basis_hash") ? ` gegen ${short(zahl.basis_hash)}` : ""}`;
     const names = Array.isArray(zahl.piloten) && zahl.piloten.length ? ` (${zahl.piloten.join(", ")})` : "";
-    return `${stand} · Pilot: ${zahl.pilot}${names}`;
+    return `SIMULATED_RESULT · ${stand} · Pilot: ${zahl.pilot}${names}`;
   }
 
   function herkunftText(zahl) {
     const parts = [`Quelle: ${zahl.quelle}`];
     if (isText(zahl.kohorte)) parts.push(`Kohorte: ${zahl.kohorte}`);
-    if (zahl.klasse === "SIMULIERT") parts.push("SIMULATED_RESULT", standText(zahl));
     if (isText(zahl.stand_datum)) parts.push(`Datenstand: ${zahl.stand_datum}`);
     return parts.join(" · ");
   }
+  const hinweisText = (zahl) => (Array.isArray(zahl.hinweise) && zahl.hinweise.length ? `Hinweise: ${zahl.hinweise.join(" · ")}` : null);
 
   // Pure view model: everything a cell shows, as text. An invalid figure shows no number.
   function modell(zahl) {
     const fehler = pruefe(zahl);
-    if (fehler.length) return { ok: false, fehler, wert: "ungültige Zahl", klasse: null, klasseText: null, nN: null, intervall: null, stand: null, herkunft: fehler.join("; ") };
+    if (fehler.length) return { ok: false, fehler, wert: "ungültige Zahl", klasse: null, klasseText: null, nN: null, intervall: null, stand: null, herkunft: fehler.join("; "), hinweise: null };
     return {
       ok: true,
       fehler: [],
@@ -123,6 +134,7 @@ const StudioZahl = (() => {
       intervall: intervallText(zahl),
       stand: standText(zahl),
       herkunft: herkunftText(zahl),
+      hinweise: hinweisText(zahl),
     };
   }
 
@@ -141,12 +153,15 @@ const StudioZahl = (() => {
   function knoten(h, zahl) {
     const m = modell(zahl);
     if (!m.ok) return h("span", { class: "zahl zahl-ungueltig", title: m.herkunft }, m.wert);
-    return h("span", { class: "zahl", title: m.herkunft },
+    const title = [m.herkunft, m.stand, m.hinweise].filter(Boolean).join(" · ");
+    return h("span", { class: "zahl", title },
       h("span", { class: "zahl-wert" }, m.wert),
-      m.nN ? h("span", { class: "zahl-nn" }, ` (${m.nN})`) : null,
       m.intervall ? h("span", { class: "zahl-ci" }, ` ${m.intervall}`) : null,
       " ", h("span", { class: `zahl-klasse ${CSS[m.klasse]}` }, m.klasseText),
-      m.stand ? h("span", { class: "zahl-stand" }, m.stand) : null);
+      m.nN ? h("span", { class: "zahl-nn" }, `n/N ${m.nN}`) : null,
+      h("span", { class: "zahl-herkunft" }, m.herkunft),
+      m.stand ? h("span", { class: "zahl-stand" }, m.stand) : null,
+      m.hinweise ? h("span", { class: "zahl-hinweise" }, m.hinweise) : null);
   }
 
   // One table cell of a column of class `klasse`: a figure of another class shows no number.

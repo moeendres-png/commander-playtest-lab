@@ -178,8 +178,8 @@ progress{width:100%;height:14px;border-radius:6px;accent-color:var(--accent)}
 .zahl-klasse.zahl-gezaehlt{border-color:var(--good)}
 .zahl-klasse.zahl-simuliert{border-color:var(--warn)}
 .zahl-klasse.zahl-urteil{border-style:dashed}
-.zahl-nn,.zahl-ci{color:var(--muted);font-variant-numeric:tabular-nums}
-.zahl-stand{display:block;color:var(--muted);font-size:12px}
+.zahl-ci{color:var(--muted);font-variant-numeric:tabular-nums}
+.zahl-nn,.zahl-herkunft,.zahl-stand,.zahl-hinweise{display:block;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
 .zahl-ungueltig{color:var(--bad)}
 .badge.status-COMPLETE{border-color:var(--good);color:var(--good)}
 .badge.status-PARTIAL{border-color:var(--warn);color:var(--warn)}

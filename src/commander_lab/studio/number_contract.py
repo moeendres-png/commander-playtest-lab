@@ -2,8 +2,8 @@
 
 Every figure a builder route shows can also be sent as one contract object::
 
-    {id, bezeichnung, wert, einheit, n, N, intervall, klasse, kohorte, quelle, stand_datum,
-     stand_hash, basis_hash, pilot, piloten, data_class}
+    {id, bezeichnung, wert, einheit, n, N, bezug, intervall, klasse, kohorte, quelle,
+     stand_datum, stand_hash, basis_hash, pilot, piloten, data_class, hinweise}
 
 Classes (``klasse``):
 
@@ -15,9 +15,14 @@ Classes (``klasse``):
 * ``URTEIL``: a model judgement (for example rubric v2 "Kartenverständnis").
 
 ``VORSCHLAG`` (E15 Q2) is not a number class and is refused. A missing ``wert`` is "unbekannt",
-never 0; ``n`` without ``N`` is refused. The JavaScript twin is ``static/zahl.js``; both apply
-the same rules. Pure functions over plain data: no store, no ``sqlite3``. The route helpers at the
-end turn existing answers into contract lists; the old fields of those answers stay unchanged.
+never 0; ``n`` without ``N`` is refused. ``n`` and ``N`` mean different things per figure (cards
+of a cohort, games, pairs), so every ``N`` comes with ``bezug``: the noun and what ``n`` and ``N``
+count, for example ``"Paare (abgeschlossen / geplant)"``. A share (``einheit`` ``Anteil``) lies
+in 0..1. ``hinweise`` carries the status and warnings of the source (sample too small, stop
+reason, bridge state) as text. The JavaScript twin is ``static/zahl.js``; both apply the same
+rules with the same messages. Pure functions over plain data: no store, no ``sqlite3``. The route
+helpers at the end turn existing answers into contract lists and leave out a figure whose source
+data are inconsistent (the route never fails over it); the old fields stay unchanged.
 """
 
 from __future__ import annotations
@@ -45,6 +50,7 @@ _KEYS = frozenset(
         "einheit",
         "n",
         "N",
+        "bezug",
         "intervall",
         "klasse",
         "kohorte",
@@ -55,16 +61,18 @@ _KEYS = frozenset(
         "pilot",
         "piloten",
         "data_class",
+        "hinweise",
     }
 )
 
 
 def _is_number(value: object) -> bool:
-    return (
-        isinstance(value, int | float)
-        and not isinstance(value, bool)
-        and math.isfinite(float(value))
-    )
+    if not isinstance(value, int | float) or isinstance(value, bool):
+        return False
+    try:
+        return math.isfinite(float(value))
+    except OverflowError:
+        return False
 
 
 def _is_count(value: object) -> bool:
@@ -73,6 +81,10 @@ def _is_count(value: object) -> bool:
 
 def _text(value: object) -> bool:
     return isinstance(value, str) and bool(value.strip())
+
+
+def _texts(value: object) -> bool:
+    return isinstance(value, list) and all(_text(item) for item in value)
 
 
 def check(zahl: object) -> list[str]:
@@ -92,7 +104,8 @@ def check(zahl: object) -> list[str]:
         errors.append("id fehlt")
     if not _text(zahl.get("bezeichnung")):
         errors.append("bezeichnung fehlt")
-    if zahl.get("einheit") not in EINHEITEN:
+    einheit = zahl.get("einheit")
+    if einheit not in EINHEITEN:
         errors.append("einheit fehlt oder unbekannt")
     if not _text(zahl.get("quelle")):
         errors.append("quelle fehlt")
@@ -108,24 +121,30 @@ def check(zahl: object) -> list[str]:
         errors.append("n ohne N")
     if isinstance(n, int) and isinstance(total, int) and n > total:
         errors.append("n größer als N")
+    if total is not None and not _text(zahl.get("bezug")):
+        errors.append("N ohne Bezug")
     intervall = zahl.get("intervall")
-    if intervall is not None and not (
-        isinstance(intervall, Sequence)
-        and not isinstance(intervall, str)
+    interval_ok = (
+        isinstance(intervall, list)
         and len(intervall) == 2
         and all(_is_number(bound) for bound in intervall)
         and float(intervall[0]) <= float(intervall[1])
-    ):
+    )
+    if intervall is not None and not interval_ok:
         errors.append("intervall ist kein [unten, oben]")
-    for key in ("kohorte", "stand_datum", "stand_hash", "basis_hash", "pilot"):
+    if einheit == "Anteil":
+        values = [wert] if _is_number(wert) else []
+        if interval_ok and isinstance(intervall, list):
+            values += intervall
+        if any(not 0.0 <= float(str(value)) <= 1.0 for value in values):
+            errors.append("Anteil außerhalb 0..1")
+    for key in ("kohorte", "bezug", "stand_datum", "stand_hash", "basis_hash", "pilot"):
         value = zahl.get(key)
         if value is not None and not _text(value):
             errors.append(f"{key} ist kein Text")
-    piloten = zahl.get("piloten")
-    if piloten is not None and not (
-        isinstance(piloten, list) and all(_text(name) for name in piloten)
-    ):
-        errors.append("piloten ist keine Namensliste")
+    for key in ("piloten", "hinweise"):
+        if zahl.get(key) is not None and not _texts(zahl.get(key)):
+            errors.append(f"{key} ist keine Textliste")
     if klasse in (GEZAEHLT, SIMULIERT):
         if total is None:
             errors.append(f"{klasse} ohne N")
@@ -137,7 +156,7 @@ def check(zahl: object) -> list[str]:
         if zahl.get("data_class") != SIMULATED_RESULT:
             errors.append("SIMULIERT ohne data_class SIMULATED_RESULT")
         if "stand_hash" not in zahl:
-            errors.append("SIMULIERT ohne Stand-Hash (None = unbekannt)")
+            errors.append("SIMULIERT ohne Stand-Hash (leer = unbekannt)")
         if not _text(zahl.get("pilot")):
             errors.append("SIMULIERT ohne Pilot-Herkunft")
     elif zahl.get("data_class") is not None:
@@ -155,6 +174,7 @@ def zahl(
     quelle: str,
     n: int | None = None,
     N: int | None = None,
+    bezug: str | None = None,
     intervall: Sequence[float] | None = None,
     kohorte: str | None = None,
     stand_datum: str | None = None,
@@ -163,6 +183,7 @@ def zahl(
     gepaart: bool = False,
     pilot: str | None = None,
     piloten: Sequence[str] | None = None,
+    hinweise: Sequence[str] | None = None,
 ) -> dict[str, object]:
     """One contract object; ``ValueError`` when it breaks a rule (never a silent 0).
 
@@ -175,6 +196,7 @@ def zahl(
         "einheit": einheit,
         "n": n,
         "N": N,
+        "bezug": bezug,
         "intervall": list(intervall) if intervall is not None else None,
         "klasse": klasse,
         "kohorte": kohorte,
@@ -189,6 +211,8 @@ def zahl(
             built["basis_hash"] = basis_hash
         if piloten:
             built["piloten"] = list(piloten)
+    if hinweise:
+        built["hinweise"] = list(hinweise)
     errors = check(built)
     if errors:
         raise ValueError(f"Zahl {id!r} verletzt den Vertrag: {'; '.join(errors)}")
@@ -196,6 +220,17 @@ def zahl(
 
 
 # --- route helpers: existing answers -> contract lists ------------------------------------
+
+
+def _try(
+    out: list[dict[str, object]], id: str, bezeichnung: str, wert: float | None, **fields: object
+) -> None:
+    """Append one contract; a figure whose source data break the contract (for example more
+    decks with the card than decks in the cohort) is left out: never shown, never a 500."""
+    try:
+        out.append(zahl(id, bezeichnung, wert, **fields))  # type: ignore[arg-type]
+    except ValueError:
+        return
 
 
 def _int_or_none(value: object) -> int | None:
@@ -227,9 +262,17 @@ def _list(value: object) -> list[object]:
     return value if isinstance(value, list) else []
 
 
+def _names(value: object) -> list[str]:
+    return [str(item) for item in _list(value) if _text(item)]
+
+
 def diff_zahlen(diff: Mapping[str, object]) -> list[dict[str, object]]:
     """Contracts for ``deck_diff.diff_impact``: list counts (EXAKT) and the source-deck share of
-    each added, removed or changed card (GEZÄHLT, only where the cohort size ``of`` is known)."""
+    each added, removed or changed card (GEZÄHLT, only where the cohort size ``of`` is known).
+
+    Removed cards are counted in the source decks of the base's commander, added and changed
+    cards in those of the current list's commander; the side and the commander stand in
+    ``kohorte`` and ``quelle``, so two populations never share one label."""
     out: list[dict[str, object]] = []
     list_source = "Deckliste (Basis und aktuell)"
     overlap = _mapping(diff.get("overlap"))
@@ -239,28 +282,26 @@ def diff_zahlen(diff: Mapping[str, object]) -> list[dict[str, object]]:
         ("target_slots", "Kartenplätze aktuell"),
     ):
         if key in overlap:
-            out.append(
-                zahl(
-                    f"overlap.{key}",
-                    label,
-                    _int_or_none(overlap.get(key)),
-                    klasse=EXAKT,
-                    einheit="Anzahl",
-                    quelle=list_source,
-                )
+            _try(
+                out,
+                f"overlap.{key}",
+                label,
+                _int_or_none(overlap.get(key)),
+                klasse=EXAKT,
+                einheit="Anzahl",
+                quelle=list_source,
             )
     for key, entry in _mapping(diff.get("curve_deltas")).items():
         sides = _mapping(entry)
         for side, label in (("base", "Basis"), ("target", "aktuell")):
-            out.append(
-                zahl(
-                    f"curve.{key}.{side}",
-                    f"Karten mit Manawert {key}{'+' if key == '7' else ''} ({label})",
-                    _int_or_none(sides.get(side)),
-                    klasse=EXAKT,
-                    einheit="Anzahl",
-                    quelle=list_source,
-                )
+            _try(
+                out,
+                f"curve.{key}.{side}",
+                f"Karten mit Manawert {key}{'+' if key == '7' else ''} ({label})",
+                _int_or_none(sides.get(side)),
+                klasse=EXAKT,
+                einheit="Anzahl",
+                quelle=list_source,
             )
     for colour, entry in _mapping(diff.get("colour_deltas")).items():
         row = _mapping(entry)
@@ -270,15 +311,14 @@ def diff_zahlen(diff: Mapping[str, object]) -> list[dict[str, object]]:
             ("base_sources", "Land-Quellen Basis"),
             ("target_sources", "Land-Quellen aktuell"),
         ):
-            out.append(
-                zahl(
-                    f"colour.{colour}.{key}",
-                    f"{label} ({colour})",
-                    _int_or_none(row.get(key)),
-                    klasse=EXAKT,
-                    einheit="Anzahl",
-                    quelle=list_source,
-                )
+            _try(
+                out,
+                f"colour.{colour}.{key}",
+                f"{label} ({colour})",
+                _int_or_none(row.get(key)),
+                klasse=EXAKT,
+                einheit="Anzahl",
+                quelle=list_source,
             )
     combo = _mapping(diff.get("combo_delta"))
     for key, listed_key, label in (
@@ -288,117 +328,112 @@ def diff_zahlen(diff: Mapping[str, object]) -> list[dict[str, object]]:
         if key in combo:
             listed = _int_or_none(combo.get(listed_key))
             complete = _int_or_none(combo.get(key))
-            out.append(
-                zahl(
-                    f"combos.{key}",
-                    label,
-                    complete,
-                    klasse=EXAKT,
-                    einheit="Anzahl",
-                    quelle="Deckliste gegen die gespeicherte Kombo-Liste",
-                    n=complete if listed else None,
-                    N=listed if listed else None,
-                )
+            _try(
+                out,
+                f"combos.{key}",
+                label,
+                complete,
+                klasse=EXAKT,
+                einheit="Anzahl",
+                quelle="Deckliste gegen die gespeicherte Kombo-Liste",
+                n=complete if listed else None,
+                N=listed if listed else None,
+                bezug="Kombos (vollständig / gelistet)" if listed else None,
             )
     cohort = _mapping(diff.get("cohort"))
     cohort_key = str(cohort.get("key") or "")
+    commanders = _mapping(diff.get("commanders"))
     for group in ("added", "removed", "changed"):
+        side, side_text = ("base", "der Basis") if group == "removed" else ("target", "aktuell")
+        names = " + ".join(_names(commanders.get(side))) or "Commander unbekannt"
         for item in _list(diff.get(group)):
             card = _mapping(item)
             of = _int_or_none(card.get("of"))
             if of is None or not cohort_key:
                 continue  # no source decks of the commander: no number exists, nothing is shown
             decks = _int_or_none(card.get("decks"))
-            out.append(
-                zahl(
-                    f"freq.{group}.{card.get('card_id')}",
-                    f"Quelldecks mit {card.get('name')}",
-                    (decks / of) if decks is not None and of else None,
-                    klasse=GEZAEHLT,
-                    einheit="Anteil",
-                    quelle="Korpus-Quelldecks des Commanders",
-                    n=decks,
-                    N=of,
-                    kohorte=cohort_key,
-                )
+            _try(
+                out,
+                f"freq.{group}.{card.get('card_id')}",
+                f"Quelldecks mit {card.get('name')}",
+                (decks / of) if decks is not None and of else None,
+                klasse=GEZAEHLT,
+                einheit="Anteil",
+                quelle=f"Korpus-Quelldecks des Commanders {side_text} ({names})",
+                n=decks,
+                N=of,
+                bezug="Quelldecks (mit der Karte / Kohorte)",
+                kohorte=f"{cohort_key} · {names}",
             )
     return out
 
 
 def outcomes_zahlen(table: Mapping[str, object]) -> list[dict[str, object]]:
-    """Contracts for ``/api/outcomes``: per card of the table the rate with and without the card in
-    the first dealt hand and their difference (SIMULIERT). The deck state is unknown (``None``)
-    until the game logs carry the deck hash per seat (B1, #1657)."""
+    """Contracts for ``/api/outcomes``: per card of the table the rate with and without the card
+    in the first dealt hand and their difference (SIMULIERT), with the card's status and reason
+    and the table's warnings as ``hinweise``. The deck state is unknown (``None``) until the
+    game logs carry the deck hash per seat (B1, #1657)."""
     out: list[dict[str, object]] = []
     deck_id = str(table.get("deck_id") or "")
-    pilots = [str(name) for name in _list(table.get("pilots")) if _text(name)]
+    pilots = _names(table.get("pilots"))
     source = "Studio-Spielprotokolle (erste gezogene Hand)"
+    table_notes = _names(table.get("warnings"))
+    states = _names(table.get("bridge_qualification_states"))
+    if states:
+        table_notes.append(f"Bridge-Zustand: {', '.join(states)}")
     for item in _list(table.get("cards")):
         card = _mapping(item)
         name = str(card.get("card") or "")
         total = _int_or_none(card.get("games_total"))
         if not name or total is None:
             continue
-        cohort = f"Deck {deck_id}" if deck_id else None
-
-        def simulated(
-            key: str,
-            label: str,
-            value: float | None,
-            unit: str,
-            n: int | None,
-            interval: list[float] | None,
-            *,
-            name: str = name,
-            total: int = total,
-            cohort: str | None = cohort,
-        ) -> dict[str, object]:
-            return zahl(
-                f"outcome.{name}.{key}",
-                label,
-                value,
-                klasse=SIMULIERT,
-                einheit=unit,
-                quelle=source,
-                n=n,
-                N=total,
-                intervall=interval,
-                kohorte=cohort,
-                stand_hash=None,
-                pilot=PILOT_KONSTANTE,
-                piloten=pilots,
-            )
-
+        notes = [f"Status {card.get('status')}"] if _text(card.get("status")) else []
+        if _text(card.get("reason")):
+            notes.append(str(card.get("reason")))
+        notes += table_notes
+        common: dict[str, object] = {
+            "klasse": SIMULIERT,
+            "quelle": source,
+            "N": total,
+            "kohorte": f"Deck {deck_id}" if deck_id else None,
+            "stand_hash": None,
+            "pilot": PILOT_KONSTANTE,
+            "piloten": pilots,
+            "hinweise": notes,
+        }
+        _try(
+            out,
+            f"outcome.{name}.rate_in",
+            f"Siegquote mit {name} in der ersten Hand",
+            _float_or_none(card.get("rate_in")),
+            einheit="Anteil",
+            n=_int_or_none(card.get("games_in_first_hand")),
+            bezug="Partien (mit der Karte in der ersten Hand / alle)",
+            intervall=_interval(card.get("rate_in_ci95")),
+            **common,
+        )
+        _try(
+            out,
+            f"outcome.{name}.rate_not",
+            f"Siegquote ohne {name} in der ersten Hand",
+            _float_or_none(card.get("rate_not")),
+            einheit="Anteil",
+            n=_int_or_none(card.get("games_not_in_first_hand")),
+            bezug="Partien (ohne die Karte in der ersten Hand / alle)",
+            intervall=_interval(card.get("rate_not_ci95")),
+            **common,
+        )
         difference = _float_or_none(card.get("difference_pp"))
-        out.append(
-            simulated(
-                "rate_in",
-                f"Siegquote mit {name} in der ersten Hand",
-                _float_or_none(card.get("rate_in")),
-                "Anteil",
-                _int_or_none(card.get("games_in_first_hand")),
-                _interval(card.get("rate_in_ci95")),
-            )
-        )
-        out.append(
-            simulated(
-                "rate_not",
-                f"Siegquote ohne {name} in der ersten Hand",
-                _float_or_none(card.get("rate_not")),
-                "Anteil",
-                _int_or_none(card.get("games_not_in_first_hand")),
-                _interval(card.get("rate_not_ci95")),
-            )
-        )
-        out.append(
-            simulated(
-                "difference_pp",
-                f"Differenz mit/ohne {name} in der ersten Hand",
-                difference,
-                "pp",
-                total if difference is not None else None,
-                _interval(card.get("difference_ci95_pp")),
-            )
+        _try(
+            out,
+            f"outcome.{name}.difference_pp",
+            f"Differenz mit/ohne {name} in der ersten Hand",
+            difference,
+            einheit="pp",
+            n=total if difference is not None else None,
+            bezug="Partien (verglichen / alle)",
+            intervall=_interval(card.get("difference_ci95_pp")),
+            **common,
         )
     return out
 
@@ -414,32 +449,35 @@ def series_zahlen(
     for item in _list(payload.get("series")):
         series = _mapping(item)
         planned = _int_or_none(series.get("pairs_planned"))
-        done = _int_or_none(series.get("pairs_completed"))
         if not series.get("counts_as_result") or planned is None:
             continue
-        if done is not None and done > planned:
-            continue  # inconsistent file: shown by the old fields, never as a contract
         created = series.get("created_at")
-        difference = _float_or_none(series.get("difference_pp"))
-        out.append(
-            zahl(
-                f"series.{series.get('series_id')}.difference_pp",
-                "Differenz (B - A) der Paar-Serie",
-                difference,
-                klasse=SIMULIERT,
-                einheit="pp",
-                quelle="gespeicherte Paar-Serie (gleiche Seeds, Sitze und Gegner-Tisch)",
-                n=done,
-                N=planned,
-                intervall=_interval(series.get("difference_ci95_pp")),
-                kohorte=f"Tisch {series.get('pod')}" if _text(series.get("pod")) else None,
-                stand_datum=created[:10] if isinstance(created, str) and created else None,
-                stand_hash=hashes.get(str(series.get("variant_ref"))),
-                basis_hash=hashes.get(str(series.get("base_ref"))),
-                gepaart=True,
-                pilot=PILOT_KONSTANTE,
-                piloten=[str(name) for name in _list(series.get("pilots")) if _text(name)],
-            )
+        notes = [f"Stopp: {series.get('stop_reason')}"] if _text(series.get("stop_reason")) else []
+        if _text(series.get("slot_alignment_state")):
+            notes.append(f"Ausrichtung: {series.get('slot_alignment_state')}")
+        states = _names(series.get("bridge_qualification_states"))
+        if states:
+            notes.append(f"Bridge-Zustand: {', '.join(states)}")
+        _try(
+            out,
+            f"series.{series.get('series_id')}.difference_pp",
+            "Differenz (B - A) der Paar-Serie",
+            _float_or_none(series.get("difference_pp")),
+            klasse=SIMULIERT,
+            einheit="pp",
+            quelle="gespeicherte Paar-Serie (gleiche Seeds, Sitze und Gegner-Tisch)",
+            n=_int_or_none(series.get("pairs_completed")),
+            N=planned,
+            bezug="Paare (abgeschlossen / geplant)",
+            intervall=_interval(series.get("difference_ci95_pp")),
+            kohorte=f"Tisch {series.get('pod')}" if _text(series.get("pod")) else None,
+            stand_datum=created[:10] if isinstance(created, str) and created else None,
+            stand_hash=hashes.get(str(series.get("variant_ref"))),
+            basis_hash=hashes.get(str(series.get("base_ref"))),
+            gepaart=True,
+            pilot=PILOT_KONSTANTE,
+            piloten=_names(series.get("pilots")),
+            hinweise=notes,
         )
     return out
 
@@ -455,27 +493,25 @@ def castability_zahlen(payload: Mapping[str, object]) -> list[dict[str, object]]
             ("p_land_drops", "Land-Drops bis Zug"),
             ("p_colours_given_lands", "Farben bei genug Land-Drops"),
         ):
-            out.append(
-                zahl(
-                    f"cast.{key}.{field}",
-                    f"{label} ({requirement.get('label')}, Zug {requirement.get('turn')})",
-                    _float_or_none(requirement.get(field)),
-                    klasse=EXAKT,
-                    einheit="Anteil",
-                    quelle=source,
-                )
-            )
-    hand = _mapping(payload.get("opening_hand"))
-    if hand:
-        out.append(
-            zahl(
-                "cast.opening_hand.p_keepable",
-                "Spielbare Starthand",
-                _float_or_none(hand.get("p_keepable")),
+            _try(
+                out,
+                f"cast.{key}.{field}",
+                f"{label} ({requirement.get('label')}, Zug {requirement.get('turn')})",
+                _float_or_none(requirement.get(field)),
                 klasse=EXAKT,
                 einheit="Anteil",
                 quelle=source,
             )
+    hand = _mapping(payload.get("opening_hand"))
+    if hand:
+        _try(
+            out,
+            "cast.opening_hand.p_keepable",
+            "Spielbare Starthand",
+            _float_or_none(hand.get("p_keepable")),
+            klasse=EXAKT,
+            einheit="Anteil",
+            quelle=source,
         )
     roles = _mapping(payload.get("hand_roles"))
     for item in _list(roles.get("roles")):
@@ -483,15 +519,13 @@ def castability_zahlen(payload: Mapping[str, object]) -> list[dict[str, object]]
         for hand_item in _list(role.get("hands")):
             draws = _mapping(hand_item)
             for field, label in (("p_at_least_1", "mindestens eine"), ("p_none", "keine")):
-                out.append(
-                    zahl(
-                        f"cast.role.{role.get('role')}.{draws.get('draws')}.{field}",
-                        f"{label} Karte der Rolle {role.get('role')} in "
-                        f"{draws.get('draws')} Karten",
-                        _float_or_none(draws.get(field)),
-                        klasse=EXAKT,
-                        einheit="Anteil",
-                        quelle="Exakte Hypergeometrie aus der Deckliste und den Rollen-Marken",
-                    )
+                _try(
+                    out,
+                    f"cast.role.{role.get('role')}.{draws.get('draws')}.{field}",
+                    f"{label} Karte der Rolle {role.get('role')} in {draws.get('draws')} Karten",
+                    _float_or_none(draws.get(field)),
+                    klasse=EXAKT,
+                    einheit="Anteil",
+                    quelle="Exakte Hypergeometrie aus der Deckliste und den Rollen-Marken",
                 )
     return out
