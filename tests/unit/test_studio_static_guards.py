@@ -307,8 +307,10 @@ def test_the_word_urteil_only_appears_in_negations() -> None:
 def test_partie_loads_one_page_at_a_time_and_reloads_when_hands_are_revealed() -> None:
     js = (STATIC / "partie.js").read_text(encoding="utf-8")
     # loads run one after the other, never two with the same start
-    assert "loadTail = run.catch(" in js and "loadTail.then(() => loadMoreOnce(hold))" in js
-    once = js.split("async function loadMoreOnce(hold) {", 1)[1].split(
+    # a state sent with an own answer (#1578) rides in the same queue, it never skips it
+    assert "loadTail = run.catch(" in js
+    assert "loadTail.then(() => loadMoreOnce(hold, prefetched))" in js
+    once = js.split("async function loadMoreOnce(hold, prefetched) {", 1)[1].split(
         "async function openGame", 1
     )[0]
     assert "page.start !== requestedStart" in once  # a page for another position is dropped
