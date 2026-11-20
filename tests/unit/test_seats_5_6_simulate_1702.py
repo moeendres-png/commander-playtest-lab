@@ -561,6 +561,11 @@ function h(tag, props, ...children) {
     if (child === null || child === undefined || child === false) continue;
     el.append(child.nodeType ? child : document.createTextNode(String(child)));
   }
+  // a browser select shows its first option until another is chosen; the stand-in does the same
+  if (tag === 'select' && !el.value) {
+    const first = el.children.find((c) => c.tagName === 'OPTION');
+    if (first) el.value = first.value || first.attrs.value || '';
+  }
   return el;
 }
 const flush = () => new Promise((r) => setImmediate(r));
@@ -617,9 +622,7 @@ def _paired_node(script: str, plans: dict[str, object], *, release: bool = False
     return json.loads(done.stdout)
 
 
-def _plans(
-    client: TestClient, combos: list[tuple[int, int, bool, str]]
-) -> dict[str, object]:
+def _plans(client: TestClient, combos: list[tuple[int, int, bool, str]]) -> dict[str, object]:
     plans: dict[str, object] = {}
     for seats, budget, rotate, pod in combos:
         url = (
@@ -637,7 +640,9 @@ def test_series_dialog_offers_two_to_six_seats_locks_five_and_six_and_says_why(
 ) -> None:
     client = lab["client"]
     assert isinstance(client, TestClient)
-    plans = _plans(client, [(4, 40, True, "precon"), (6, 36, True, "precon"), (6, 40, True, "precon")])
+    plans = _plans(
+        client, [(4, 40, True, "precon"), (6, 36, True, "precon"), (6, 40, True, "precon")]
+    )
     out = _paired_node(
         """
 const page = mount(RELEASE, PLANS);
@@ -649,6 +654,8 @@ await pick(page, 'paired-table-size-select', 6);
 const six = { rotate: page.byId('paired-rotate-text').textContent, disabled: page.byId('paired-start-btn').disabled,
   budgets: opts(page.byId('paired-budget-select')), budget: page.byId('paired-budget-select').value,
   plan: page.byId('paired-plan').textContent, estimate: page.byId('paired-estimate').textContent };
+page.byId('paired-base-select').value = 'rev@base';
+page.byId('paired-variant-select').value = 'rev@one';
 page.byId('paired-start-btn').parent.fire('submit');
 await flush();
 await pick(page, 'paired-budget-select', 40);
@@ -667,13 +674,13 @@ console.log(JSON.stringify({ first, six, sixIncomplete, posts: page.calls.filter
         "6 Sitze (nicht freigegeben)",
     ]
     assert "5 und 6 Sitze sind nicht freigegeben" in first["note"]
-    assert first["rotate"] == "Sitze 1–4 rotieren" and first["disabled"] is False
+    assert first["rotate"] == "Sitze 1\u20134 rotieren" and first["disabled"] is False
     assert first["budget"] == "40"
     assert first["url"] == (
         "/api/simulations/paired-plan?budget_pairs=40&table_size=4&rotate_seats=true&pod=precon"
     )
     # six seats: plannable, not startable
-    assert six["rotate"] == "Sitze 1–6 rotieren" and six["disabled"] is True
+    assert six["rotate"] == "Sitze 1\u20136 rotieren" and six["disabled"] is True
     values = [o["value"] for o in six["budgets"]]
     assert {"36", "72", "144"} <= set(values) and six["budget"] == "36"
     assert "Tisch mit 6 Sitzen" in six["plan"]
@@ -736,7 +743,10 @@ console.log(JSON.stringify({ plan: page.byId('paired-plan').textContent }));
         plans,
     )
     assert isinstance(out, dict)
-    assert out["plan"] == "Planung nicht verfügbar (unbekannt): Der Gegnertisch mixed nennt nur 3 Decks"
+    assert (
+        out["plan"]
+        == "Planung nicht verfügbar (unbekannt): Der Gegnertisch mixed nennt nur 3 Decks"
+    )
 
 
 def test_series_dialog_duration_is_measured_for_four_seats_only_and_monitor_names_the_table() -> (
@@ -765,7 +775,16 @@ console.log(JSON.stringify({
     assert out["mon5"] == "Tisch: 5 Sitze, getestete Sitze: 5."
     assert out["monOld"] == "Tisch: Sitzzahl unbekannt (ältere Serie)."
     assert out["opts"] == [[2, False], [3, False], [4, False], [5, True], [6, True]]
-    assert out["b5"] == [20, 25, 40, 50, 60, 100, 200] and out["b4"] == [16, 20, 32, 40, 60, 64, 100, 200]
+    assert out["b5"] == [20, 25, 40, 50, 60, 100, 200] and out["b4"] == [
+        16,
+        20,
+        32,
+        40,
+        60,
+        64,
+        100,
+        200,
+    ]
 
 
 def test_series_dialog_lock_line_follows_the_server_constant_and_the_script_stays_clean() -> None:
