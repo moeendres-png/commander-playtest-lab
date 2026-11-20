@@ -15,7 +15,7 @@ const SPEEDS = [[2000, "langsam"], [1000, "1 pro Sekunde"], [500, "2 pro Sekunde
 const POOL_COLORS = { white: "Weiß", blue: "Blau", black: "Schwarz", red: "Rot", green: "Grün", colorless: "Farblos" };
 const OPTION_TYPES = { pass_priority: "Passen", play_land: "Land spielen", cast_spell: "Zauber wirken", activated_ability: "Fähigkeit aktivieren", mana_ability: "Mana-Fähigkeit", special_action: "Sonderaktion", target: "Ziel", choose_object: "Objekt wählen", attacker: "Angreifer", blocker: "Blocker", mode: "Modus", choice: "Auswahl", mana_payment: "Mana", trigger_order: "Auslöser", yes: "Ja", no: "Nein" };
 
-const state = { click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
+const state = { click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
 
 const $ = (id) => document.getElementById(id);
 function h(tag, props, ...children) {
@@ -693,24 +693,31 @@ function pilotStateToFrame(pending) {
 
 // opts.autoPassReason marks an automatic pass: its log line is written only after the engine
 // accepted the answer (play_p1a.js submitAnswer), a refused pass leaves no line.
+// The answer asks for the state from the frames the page holds (start, #1578): the server sends it
+// with its acceptance, built like a state request, so no second request follows. The follow loop is
+// stopped first, so its held request cannot take those frames in between; it starts again once no
+// further answer is on its way.
 async function submitHumanChoice(payload, opts) {
   if (!state.gameId || !state.pendingDecision || state.submitting) return;
   if (!state.ff.on) ffStatus("");
   state.submitting = true;
+  clearTimeout(state.poll); state.followGen += 1; abortHeldRequest();
   renderHumanDecision();
+  let reply = null;
+  const sent = Object.assign({}, payload, { start: state.frames.length });
   try {
     await StudioPlayP1a.submitAnswer({
       getPendingDecision: () => state.pendingDecision,
       post: (body) => api(`/api/play/${encodeURIComponent(state.gameId)}/decision`, "POST", body),
       getLedger: () => state.ownCombat,
       setLedger: (ledger) => { state.ownCombat = ledger; },
-      logAutoPass: appendAutoPassLog
-    }, payload, opts);
+      logAutoPass: appendAutoPassLog,
+      keepReply: (answer) => { reply = answer; }
+    }, sent, opts);
     state.selectedOptions = [];
     state.orderList = [];
-    await loadMore();
+    await loadMore({ prefetched: reply && reply.state });
     go(Math.max(0, state.frames.length - 1));
-    follow();
   } catch (error) {
     // A click or button that arrives after the decision moved on (or that the engine refuses) is
     // never silent: say what happened, then show the table as the engine has it now.
@@ -724,6 +731,9 @@ async function submitHumanChoice(payload, opts) {
   } finally {
     state.submitting = false;
     render();
+    // the drawing may already have sent the next answer (fast-forward, auto-pass): that answer
+    // starts the follow loop when it is done, a held request now would take its frames
+    if (!state.submitting) follow();
   }
 }
 
@@ -1171,7 +1181,24 @@ function renderStackRail(frame, atLiveTail) {
   }
 }
 
+// Draws the page and notes what it drew (#1578): the follow loop compares StudioFollow.viewKey of
+// the state with the note and skips a drawing that would show the same again.
 function render() {
+  renderView();
+  state.renderedKey = StudioFollow.viewKey(viewState());
+}
+function viewState() {
+  return {
+    gameId: state.gameId, revision: state.revision, frames: state.frames.length, index: state.index,
+    running: state.running, interactive: state.interactive,
+    pendingDecisionId: state.pendingDecision ? state.pendingDecision.decision_id : null,
+    handsRevealed: state.handsRevealed, canConcede: state.canConcede,
+    resultStatus: state.result ? state.result.status || "?" : null,
+    fastForward: state.ff.on, autoPassAttempt: state.autoPassAttempt, submitting: state.submitting,
+    playing: state.playing
+  };
+}
+function renderView() {
   renderBridgeBanner();
   if (state.ff.on && !state.running) endFastForward("die Partie ist zu Ende");
   renderHumanDecision();
@@ -1384,10 +1411,13 @@ let loadTail = Promise.resolve();
 // opts.hold: the follow loop asks the server to hold the request until the game changed (#1593).
 // Every other load (after an own answer, a concede, a reload) is wanted now, so it ends a held
 // request that is still waiting, and a held request that has not started yet is asked plainly.
+// opts.prefetched: a state the server already sent (with an own answer); used instead of the first
+// request when StudioFollow.usableAnswerState accepts it, otherwise the page asks as before.
 function loadMore(opts) {
   const hold = Boolean(opts && opts.hold);
+  const prefetched = (opts && opts.prefetched) || null;
   if (!hold) { state.foreground += 1; abortHeldRequest(); }
-  const run = loadTail.then(() => loadMoreOnce(hold));
+  const run = loadTail.then(() => loadMoreOnce(hold, prefetched));
   loadTail = run.catch(() => { /* the caller of this load sees the error */ });
   if (!hold) { const done = () => { state.foreground -= 1; }; run.then(done, done); }
   return run;
@@ -1399,21 +1429,27 @@ function resetFrames() {
   Object.assign(state, { frames: [], lines: [], seatKeys: [] });
   $("log").textContent = ""; $("table").textContent = ""; delete $("table").dataset.banner;
 }
-async function loadMoreOnce(hold) {
+async function loadMoreOnce(hold, prefetched) {
   let added = false;
   const gameId = state.gameId;
   let holdThis = Boolean(hold) && state.foreground === 0;
+  let ready = prefetched || null;
   for (;;) {
     const requestedStart = state.frames.length;
-    const endpoint = StudioFollow.statePath(gameId, requestedStart, state.interactive, state.revision, holdThis);
-    let controller = null;
-    if (holdThis && state.interactive && state.revision !== null) { controller = new AbortController(); state.pollAbort = controller; }
     let page;
-    try {
-      page = await api(endpoint, "GET", undefined, controller ? controller.signal : undefined);
-    } finally {
-      if (controller && state.pollAbort === controller) state.pollAbort = null;
+    if (ready && StudioFollow.usableAnswerState(ready, gameId, requestedStart, state.revision)) {
+      page = ready;
+    } else {
+      const endpoint = StudioFollow.statePath(gameId, requestedStart, state.interactive, state.revision, holdThis);
+      let controller = null;
+      if (holdThis && state.interactive && state.revision !== null) { controller = new AbortController(); state.pollAbort = controller; }
+      try {
+        page = await api(endpoint, "GET", undefined, controller ? controller.signal : undefined);
+      } finally {
+        if (controller && state.pollAbort === controller) state.pollAbort = null;
+      }
     }
+    ready = null; // a state sent with an answer is used once, for the first page only
     holdThis = false; // the pages after the first one are asked for at once
     if (state.gameId !== gameId) return false; // another game was opened meanwhile
     const hasHumans = Boolean(page.interactive || (page.header && Array.isArray(page.header.human_seats) && page.header.human_seats.length));
@@ -1538,7 +1574,7 @@ async function followTick(generation) {
     state.pollFailures = 0;
     showConnectionLost(0, "");
     if (added && atEnd && !state.playing) go(Math.max(0, state.frames.length - 1));
-    else render();
+    else if (StudioFollow.viewKey(viewState()) !== state.renderedKey) render();
   }
   if (!state.running) { refreshTitles(); return; }
   if (generation !== state.followGen) return; // a newer follow loop took over

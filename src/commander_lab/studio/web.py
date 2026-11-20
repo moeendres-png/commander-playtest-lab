@@ -287,6 +287,9 @@ class PlayDecisionBody(BaseModel):
     ordering: list[str] = Field(default_factory=list, max_length=200)
     numeric_choice: int | None = None
     numeric_choices: list[int] | None = None
+    # The number of frames the page already holds (#1578). Given, the answer also carries the
+    # state of the game from that frame on, built exactly like ``GET /api/play`` builds it.
+    start: int | None = Field(default=None, ge=0)
 
 
 class PlayConcedeBody(BaseModel):
@@ -2622,7 +2625,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         if session is None:
             raise HTTPException(404, "no active interactive game")
         try:
-            return session.submit_decision(
+            accepted = session.submit_decision(
                 {
                     "decision_id": body.decision_id,
                     "selected_option_ids": body.selected_option_ids,
@@ -2637,6 +2640,16 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             raise HTTPException(504, str(error)) from error
         except RuntimeError as error:
             raise HTTPException(409, str(error)) from error
+        if body.start is None:
+            return accepted
+        # One request instead of two (#1578): the state the page would fetch next, from the same
+        # call as ``GET /api/play`` (redacted while the game runs, never held), so nothing reaches
+        # the page here that the GET would not show it.
+        try:
+            state = play_manager.snapshot(games_home(), game_id, start=body.start, count=1000)
+        except (KeyError, ValueError):
+            return accepted
+        return {**accepted, "state": state}
 
     @app.post("/api/play/{game_id}/concede")
     def concede_interactive_game(

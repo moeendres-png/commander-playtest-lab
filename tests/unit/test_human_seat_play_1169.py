@@ -3553,6 +3553,20 @@ def test_snapshot_taken_earlier_stays_as_it_was_when_the_game_moves_on(tmp_path:
         assert _dump(early) == early_text
         mid = session.snapshot()
         mid_text = _dump(mid)
+        assert mid["frames"], "the held answer must carry frames for this check"
+        # One more decision is recorded (review of #1644): the frames delivered earlier must not
+        # change under the held answer. The fake offers ``dec-h-2`` again after this answer, so the
+        # wait is on the frame count, not on the decision id.
+        answered = client.post(
+            "/api/play/snap-2/decision",
+            json={"decision_id": "dec-h-2", "selected_option_ids": ["tgt-1"], "ordering": []},
+        )
+        assert answered.status_code == 200
+        deadline = time.monotonic() + 5.0
+        while session.snapshot()["total"] < 3 and time.monotonic() < deadline:
+            time.sleep(0.02)
+        assert session.snapshot()["total"] == 3
+        assert _dump(mid) == mid_text and _dump(early) == early_text
         assert client.post("/api/play/snap-2/concede", json={}).status_code == 200
         done = _wait_finished(client, "snap-2")
         assert _dump(mid) == mid_text and _dump(early) == early_text
@@ -3561,3 +3575,362 @@ def test_snapshot_taken_earlier_stays_as_it_was_when_the_game_moves_on(tmp_path:
         assert _dump(session.snapshot()) == _dump(_snapshot_as_before(session, 0, 200))
     finally:
         app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+# ---- POST /decision carries the state, the page draws only what changed (#1578 P-B) -------------
+
+
+class _EndingFakeClient(_FakeInteractiveClient):
+    """The second answer of the human ends the game (the engine reports it as terminal)."""
+
+    def _status(self) -> dict[str, object]:
+        if self.phase >= 3:
+            self.conceded = True
+        return super()._status()
+
+
+def _post_answer(
+    client: TestClient, game_id: str, decision_id: str, option: str, start: int | None
+) -> dict[str, object]:
+    body: dict[str, object] = {
+        "decision_id": decision_id,
+        "selected_option_ids": [option],
+        "ordering": [],
+    }
+    if start is not None:
+        body["start"] = start
+    posted = client.post(f"/api/play/{game_id}/decision", json=body)
+    assert posted.status_code == 200, posted.text
+    answer = posted.json()
+    assert isinstance(answer, dict)
+    return answer
+
+
+def test_post_decision_with_start_carries_the_get_state_and_no_hidden_card(tmp_path: Path) -> None:
+    app, client = _start_fake_session(tmp_path, "post-1", _FakeInteractiveClient())
+    try:
+        _wait_for_pending(client, "post-1", "dec-h-1")
+        # Without ``start`` the answer is the one of before: only the acceptance.
+        plain_app, plain_client = _start_fake_session(
+            tmp_path / "plain", "post-plain", _FakeInteractiveClient()
+        )
+        try:
+            _wait_for_pending(plain_client, "post-plain", "dec-h-1")
+            assert _post_answer(plain_client, "post-plain", "dec-h-1", "pass-1", None) == {
+                "accepted": True
+            }
+        finally:
+            plain_app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+        first = _post_answer(client, "post-1", "dec-h-1", "pass-1", 0)
+        assert first["accepted"] is True
+        state = first["state"]
+        assert isinstance(state, dict)
+        assert state["game_id"] == "post-1" and state["start"] == 0
+        assert state["hands_revealed"] is False and state["running"] is True
+        assert type(state["revision"]) is int
+        # Hidden information (AGENTS.md section 5): the hand of the AI seat appears nowhere in the
+        # answer of a running game, neither in the frames nor in an open decision.
+        assert _FakeInteractiveClient.SECRET_CARD not in json.dumps(first)
+        parked = _wait_for_pending(client, "post-1", "dec-h-2")
+        held = int(parked["total"])  # type: ignore[call-overload]
+        assert held == 2
+
+        # The game waits for the human again after this answer (the fake offers dec-h-2 once
+        # more), so the state sent with the answer and a GET right after must be byte-equal.
+        second = _post_answer(client, "post-1", "dec-h-2", "tgt-1", held)
+        get = client.get(f"/api/play/post-1?start={held}&count=1000").json()
+        assert _dump(second["state"]) == _dump(get)
+        sent = second["state"]
+        assert isinstance(sent, dict)
+        assert sent["start"] == held and sent["total"] == 3 and len(sent["frames"]) == 1
+        assert sent["revision"] > state["revision"]
+        assert _FakeInteractiveClient.SECRET_CARD not in json.dumps(second)
+        pending = sent["pending_decision"]
+        assert isinstance(pending, dict) and pending["decision_id"] == "dec-h-2"
+        assert "hand" not in pending["pilot_state"]["players"][1]
+        # A refused answer sends no state at all.
+        refused = client.post(
+            "/api/play/post-1/decision",
+            json={"decision_id": "stale", "selected_option_ids": ["tgt-1"], "start": 0},
+        )
+        assert refused.status_code == 422 and "state" not in refused.json()
+        bad_start = client.post(
+            "/api/play/post-1/decision",
+            json={"decision_id": "dec-h-2", "selected_option_ids": ["tgt-1"], "start": -1},
+        )
+        assert bad_start.status_code == 422
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def test_post_decision_that_ends_the_game_reveals_only_with_the_closing_result(
+    tmp_path: Path,
+) -> None:
+    app, client = _start_fake_session(tmp_path, "post-end", _EndingFakeClient())
+    try:
+        _wait_for_pending(client, "post-end", "dec-h-1")
+        _post_answer(client, "post-end", "dec-h-1", "pass-1", 0)
+        _wait_for_pending(client, "post-end", "dec-h-2")
+        last = _post_answer(client, "post-end", "dec-h-2", "tgt-1", 0)
+        state = last["state"]
+        assert isinstance(state, dict)
+        # Owner decision 2026-11-17: the AI hands are shown once the game has its closing result,
+        # never before. The answer follows the same rule as the GET.
+        revealed = state["running"] is False and state["result"] is not None
+        assert state["hands_revealed"] is revealed
+        if not revealed:
+            assert _FakeInteractiveClient.SECRET_CARD not in json.dumps(last)
+        assert state["pending_decision"] is None
+        done = _wait_finished(client, "post-end")
+        assert done["hands_revealed"] is True
+        assert _FakeInteractiveClient.SECRET_CARD in json.dumps(done["frames"])
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def test_follow_module_view_key_and_prefetched_state() -> None:
+    script = (
+        _FOLLOW_PRELUDE
+        + """
+const view = {gameId: 'g', revision: 4, frames: 10, index: 9, running: true, interactive: true,
+  pendingDecisionId: 'd1', handsRevealed: false, canConcede: true, resultStatus: null,
+  fastForward: false, autoPassAttempt: null, submitting: false, playing: false};
+const key = F.viewKey(view);
+const changes = {revision: 5, frames: 11, index: 3, running: false, interactive: false,
+  pendingDecisionId: 'd2', handsRevealed: true, canConcede: false, resultStatus: 'finished',
+  fastForward: true, autoPassAttempt: 'd1', submitting: true, playing: true, gameId: 'h'};
+const differs = {};
+for (const [field, value] of Object.entries(changes)) {
+  differs[field] = F.viewKey(Object.assign({}, view, {[field]: value})) !== key;
+}
+const page = {game_id: 'g', start: 10, frames: [], revision: 7};
+const use = (over, gameId, held, revision) => F.usableAnswerState(Object.assign({}, page, over), gameId, held, revision);
+console.log(JSON.stringify({
+  same: F.viewKey(Object.assign({}, view)) === key,
+  differs,
+  prefetch: {
+    ok: use({}, 'g', 10, 7), newer: use({}, 'g', 10, 6), unknownHeld: use({}, 'g', 10, null),
+    otherGame: use({}, 'h', 10, 7), otherStart: use({}, 'g', 9, 7), older: use({}, 'g', 10, 8),
+    noRevision: use({revision: undefined}, 'g', 10, null), noFrames: use({frames: undefined}, 'g', 10, 7),
+    none: F.usableAnswerState(null, 'g', 10, 7), missing: F.usableAnswerState(undefined, 'g', 10, 7)
+  }
+}));
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    assert out["same"] is True
+    assert out["differs"] == {field: True for field in out["differs"]} and len(out["differs"]) == 14
+    assert out["prefetch"] == {
+        "ok": True,
+        "newer": True,
+        "unknownHeld": True,
+        "otherGame": False,
+        "otherStart": False,
+        "older": False,
+        "noRevision": False,
+        "noFrames": False,
+        "none": False,
+        "missing": False,
+    }
+
+
+_SUBMIT_PRELUDE = f"""
+const F = require('./follow.js');
+const P1a = require('./play_p1a.js');
+const SRC = require('fs').readFileSync({json.dumps((STATIC / "partie.js").as_posix())}, 'utf8');
+const grab = (name) => {{
+  const start = SRC.indexOf('function ' + name + '(');
+  if (start < 0) throw new Error('missing ' + name);
+  let depth = 0, i = SRC.indexOf('{{', start);
+  for (; i < SRC.length; i += 1) {{ if (SRC[i] === '{{') depth += 1; else if (SRC[i] === '}}' && --depth === 0) break; }}
+  const head = SRC.lastIndexOf('async ', start) === start - 6 ? 'async ' : '';
+  return head + SRC.slice(start, i + 1);
+}};
+const NAMES = ['submitHumanChoice', 'loadMore', 'abortHeldRequest', 'loadMoreOnce', 'render', 'viewState',
+  'followTick'];
+const pending = (id) => ({{decision_id: id, seat: 0, decision_class: 'priority',
+  legal_options: [{{option_id: 'pass-' + id, option_type: 'pass_priority', label: 'Pass'}}],
+  pilot_state: {{turn_number: 3, players: []}}}});
+const frame = (n) => ({{n, seat: 1, players: []}});
+// reply(body) builds what the server answers the POST; gets(path) what a state request returns
+async function run(opts) {{
+  const calls = {{requests: [], renders: 0, follows: 0, toasts: [], followWhileSending: []}};
+  const state = {{gameId: 'g', interactive: true, running: true, revision: 4, frames: [frame(1), frame(2)],
+    index: 1, pendingDecision: pending('d1'), selectedOptions: [], orderList: [], submitting: false,
+    ff: {{on: false}}, autoPassAttempt: null, foreground: 0, pollAbort: null, followGen: 0, poll: 0,
+    pollFailures: 0, playing: false, handsRevealed: false, canConcede: true, result: null, renderedKey: null,
+    ownCombat: P1a.emptyCombatLedger(), humanSeats: [0], header: {{}}}};
+  const api = async (path, method, body) => {{
+    calls.requests.push({{method, path, body: body || null}});
+    if (method === 'POST') return opts.reply(body, state);
+    return opts.get(path, state);
+  }};
+  const body = 'let loadTail = Promise.resolve();\\n' + NAMES.map(grab).join('\\n');
+  const make = new Function('state', 'api', 'StudioPlayP1a', 'StudioFollow', 'calls', '$', 'ffStatus',
+    'renderHumanDecision', 'appendAutoPassLog', 'toast', 'endFastForward', 'go', 'follow', 'renderView',
+    'adoptPendingDecision', 'loadFacts', 'appendLog', 'resetFrames', 'armFollow', 'showConnectionLost',
+    'refreshTitles', 'performance',
+    body + '; return {{' + NAMES.join(',') + '}};');
+  const fns = make(state, api, P1a, F, calls, () => ({{max: '0'}}), () => {{}}, () => {{}}, () => {{}},
+    (text) => calls.toasts.push(text), () => {{}}, (i) => {{ state.index = i; fns.render(); }},
+    () => {{ calls.follows += 1; calls.followWhileSending.push(state.submitting); }},
+    () => {{ calls.renders += 1; if (opts.onRender) opts.onRender(state, fns); }},
+    (next) => {{ state.pendingDecision = next; }}, async () => {{}}, () => {{}}, () => {{}}, () => {{}},
+    () => {{}}, () => {{}}, {{now: () => 0}});
+  return {{state, calls, fns}};
+}}
+const parked = (state, start, extra) => Object.assign({{game_id: 'g', interactive: true, running: true,
+  revision: 6, header: {{}}, human_seats: [0], pending_decision: pending('d2'), can_concede: true,
+  hands_revealed: false, result: null, frames: [frame(3)], start, total: 3}}, extra || {{}});
+"""
+
+
+def test_page_answer_takes_the_state_from_the_post_and_asks_again_only_when_unusable() -> None:
+    script = (
+        _SUBMIT_PRELUDE
+        + """
+(async () => {
+  const rows = {};
+  const variants = {
+    usable: (body, state) => ({accepted: true, state: parked(state, body.start)}),
+    noState: () => ({accepted: true}),
+    otherGame: (body, state) => ({accepted: true, state: parked(state, body.start, {game_id: 'other'})}),
+    otherStart: (body, state) => ({accepted: true, state: parked(state, body.start + 1)}),
+    older: (body, state) => ({accepted: true, state: parked(state, body.start, {revision: 3})}),
+  };
+  for (const [name, reply] of Object.entries(variants)) {
+    const page = await run({reply, get: (path, state) => parked(state, state.frames.length)});
+    await page.fns.submitHumanChoice({decision_id: 'd1', selected_option_ids: ['pass-d1'], ordering: []}, {});
+    rows[name] = {
+      requests: page.calls.requests.map((r) => r.method + ' ' + r.path),
+      body: page.calls.requests[0].body,
+      frames: page.state.frames.map((f) => f.n), pending: page.state.pendingDecision.decision_id,
+      revision: page.state.revision, follows: page.calls.follows, submitting: page.state.submitting,
+      followGen: page.state.followGen
+    };
+  }
+  // a refused answer: no state, one plain reload, the follow loop starts again
+  const refused = await run({reply: () => { const e = new Error('stale'); e.status = 422; throw e; },
+    get: (path, state) => parked(state, state.frames.length)});
+  await refused.fns.submitHumanChoice({decision_id: 'd1', selected_option_ids: ['pass-d1'], ordering: []}, {});
+  rows.refused = {requests: refused.calls.requests.map((r) => r.method + ' ' + r.path),
+    follows: refused.calls.follows, toasts: refused.calls.toasts.length};
+  console.log(JSON.stringify(rows));
+})();
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    post = "POST /api/play/g/decision"
+    plain = "GET /api/play/g?start=2&count=1000"
+    usable = out["usable"]
+    # one request per answer: the state came with the acceptance, no state request follows
+    assert usable["requests"] == [post]
+    assert usable["body"] == {
+        "decision_id": "d1",
+        "selected_option_ids": ["pass-d1"],
+        "ordering": [],
+        "start": 2,
+    }
+    assert usable["frames"] == [1, 2, 3] and usable["pending"] == "d2" and usable["revision"] == 6
+    assert usable["follows"] == 1 and usable["submitting"] is False
+    assert usable["followGen"] == 1  # the follow loop was stopped before the post
+    # every unusable state: exactly one plain request, as before, with the same result
+    for name in ("noState", "otherGame", "otherStart", "older"):
+        row = out[name]
+        assert row["requests"] == [post, plain], name
+        assert row["frames"] == [1, 2, 3] and row["pending"] == "d2", name
+        assert row["follows"] == 1, name
+    refused = out["refused"]
+    assert refused["requests"] == [post, plain] and refused["follows"] == 1
+    assert refused["toasts"] == 1
+
+
+def test_follow_tick_draws_only_when_the_view_changed() -> None:
+    script = (
+        _SUBMIT_PRELUDE
+        + """
+(async () => {
+  const rows = {};
+  const tick = async (name, get, prepare, drawn) => {
+    const page = await run({reply: () => ({}), get});
+    page.state.index = 0;            // the viewer looks at an earlier frame (no jump to the end)
+    if (drawn) drawn(page.state);
+    page.fns.render();               // the drawing the page holds
+    if (prepare) prepare(page.state);
+    const before = page.calls.renders;
+    await page.fns.followTick(page.state.followGen);
+    rows[name] = page.calls.renders - before;
+  };
+  const same = (path, state) => parked(state, state.frames.length,
+    {revision: state.revision, frames: [], total: state.frames.length, pending_decision: state.pendingDecision});
+  await tick('unchanged', same);
+  await tick('revision', (path, state) => Object.assign(same(path, state), {revision: state.revision + 1}));
+  await tick('decision', (path, state) => Object.assign(same(path, state), {pending_decision: pending('d9')}));
+  await tick('ended', (path, state) => Object.assign(same(path, state), {running: false}));
+  await tick('frames', (path, state) => parked(state, state.frames.length, {revision: state.revision}));
+  // fast-forward stopped and its pass attempt cleared since the last drawing: draw again
+  await tick('ffStopped', same, (state) => { state.autoPassAttempt = null; state.ff = {on: false}; },
+    (state) => { state.autoPassAttempt = 'd1'; state.ff = {on: true}; });
+  // only fast-forward was switched off (no pass attempt pending): draw again as well
+  await tick('ffOnly', same, (state) => { state.ff = {on: false}; }, (state) => { state.ff = {on: true}; });
+  // only the pass attempt was cleared (fast-forward was already off): draw again as well
+  await tick('passCleared', same, (state) => { state.autoPassAttempt = null; },
+    (state) => { state.autoPassAttempt = 'd1'; });
+  console.log(JSON.stringify(rows));
+})();
+"""
+    )
+    out = _node_json(script)
+    assert out == {
+        "unchanged": 0,
+        "revision": 1,
+        "decision": 1,
+        "ended": 1,
+        "frames": 1,
+        "ffStopped": 1,
+        "passCleared": 1,
+        "ffOnly": 1,
+    }
+
+
+def test_fast_forward_chain_sends_one_request_per_pass_and_follows_only_at_its_end() -> None:
+    script = (
+        _SUBMIT_PRELUDE
+        + """
+(async () => {
+  // fast-forward: the drawing after an accepted pass sends the next pass at once (as
+  // maybeAutoPassHuman does); the follow loop must stay off until the last answer is done
+  let nested = null;
+  const replies = {d1: 'd2', d2: 'd3'};
+  const page = await run({
+    reply: (body, state) => ({accepted: true, state: Object.assign(parked(state, body.start), {
+      pending_decision: pending(replies[body.decision_id]), revision: state.revision + 1,
+      total: state.frames.length + 1, frames: [frame(state.frames.length + 1)]})}),
+    get: (path, state) => parked(state, state.frames.length),
+    onRender: (state, fns) => {
+      if (!state.submitting && !nested && state.pendingDecision.decision_id === 'd2') {
+        nested = fns.submitHumanChoice({decision_id: 'd2', selected_option_ids: ['pass-d2'], ordering: []}, {});
+      }
+    }
+  });
+  await page.fns.submitHumanChoice({decision_id: 'd1', selected_option_ids: ['pass-d1'], ordering: []}, {});
+  await nested;
+  console.log(JSON.stringify({
+    requests: page.calls.requests.map((r) => r.method + ' ' + r.path),
+    starts: page.calls.requests.map((r) => r.body && r.body.start),
+    follows: page.calls.follows, whileSending: page.calls.followWhileSending,
+    frames: page.state.frames.map((f) => f.n), pending: page.state.pendingDecision.decision_id
+  }));
+})();
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    post = "POST /api/play/g/decision"
+    assert out["requests"] == [post, post]  # two passes, two requests, no state request between
+    assert out["starts"] == [2, 3]
+    assert out["follows"] == 1 and out["whileSending"] == [False]
+    assert out["frames"] == [1, 2, 3, 4] and out["pending"] == "d3"

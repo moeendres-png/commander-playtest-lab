@@ -60,6 +60,7 @@ _STDERR_TAIL_LINES = 40
 #: Windows has no process groups to signal; a worker's process tree is ended with ``taskkill``.
 _WINDOWS = os.name == "nt"
 _TASKKILL_WAIT_SECONDS = 30.0
+_EXIT_POLL_SECONDS = 0.05
 
 
 def series_pool_enabled() -> bool:
@@ -276,6 +277,9 @@ class _ProcessWorker:
         self.stderr_tail: deque[str] = deque(maxlen=_STDERR_TAIL_LINES)
         self.killed = False
         self.said_bye = False
+        #: found ended while idle and already killed with its tree and reaped; its queued events
+        #: (``jvm_exit``, ``bye``, the end of its stdout) are still read before it is given up
+        self.ended = False
         # POSIX: the worker leads a process group of its own, which its bridge JVM joins (the
         # JVM is started without a session of its own), so killing the group ends both (#1584).
         # A worker started this way no longer gets the terminal's Ctrl+C; the supervisor ends it.
@@ -314,9 +318,16 @@ class _ProcessWorker:
             for line in stream:
                 self.stderr_tail.append(line.rstrip("\n"))
 
-    @property
-    def alive(self) -> bool:
-        return self.proc.poll() is None
+    def end_if_exited(self) -> bool:
+        """Whether the worker process has ended; an ended worker is killed with its tree first.
+
+        Never ``poll()`` here: reaping a worker that died on its own would leave its JVM out of
+        reach of the group kill (#1652).
+        """
+        if self.ended:
+            return True
+        self.ended = reap_ended_process(self.proc, windows=_WINDOWS)
+        return self.ended
 
     def send(self, message: Mapping[str, object]) -> bool:
         stdin = self.proc.stdin
@@ -336,9 +347,11 @@ class _ProcessWorker:
         if stdin is not None:
             with contextlib.suppress(OSError, ValueError):
                 stdin.close()
-        try:
-            self.proc.wait(timeout=wait_seconds)
-        except subprocess.TimeoutExpired:
+        if _wait_for_exit(self.proc, wait_seconds, windows=_WINDOWS):
+            # ended: what it left in its group (the JVM of a worker that had died) goes before
+            # the reap; after a clean retire the group is empty and the signal reaches nobody
+            reap_ended_process(self.proc, windows=_WINDOWS)
+        else:
             self.kill()
         self._out.join(timeout=2)
         self._err.join(timeout=2)
@@ -347,6 +360,49 @@ class _ProcessWorker:
         """End the worker and every process it started (its bridge JVM), then reap it."""
         self.killed = True
         kill_process_tree(self.proc, windows=_WINDOWS)
+
+
+def _exited(proc: subprocess.Popen[str], *, windows: bool) -> bool:
+    """Whether ``proc`` has ended, without reaping it on POSIX.
+
+    POSIX: ``waitid`` with ``WNOWAIT`` leaves an ended worker a zombie, so its id still names
+    its process group and ``killpg`` still reaches what it started. Windows: ``poll()``; the
+    ``Popen`` handle keeps the id from being reused.
+    """
+    if proc.returncode is not None:
+        return True
+    if windows or sys.platform == "win32":
+        return proc.poll() is not None
+    try:
+        state = os.waitid(os.P_PID, proc.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+    except ChildProcessError:
+        # reaped elsewhere: ``poll()`` sets ``returncode``, so no group signal can follow
+        proc.poll()
+        return True
+    return state is not None
+
+
+def _wait_for_exit(proc: subprocess.Popen[str], timeout: float, *, windows: bool) -> bool:
+    """Wait up to ``timeout`` seconds for ``proc`` to end, without reaping it on POSIX."""
+    deadline = time.monotonic() + timeout
+    while not _exited(proc, windows=windows):
+        if time.monotonic() >= deadline:
+            return False
+        time.sleep(_EXIT_POLL_SECONDS)
+    return True
+
+
+def reap_ended_process(proc: subprocess.Popen[str], *, windows: bool) -> bool:
+    """If ``proc`` has ended: kill its tree, then reap it; returns whether it had ended.
+
+    A worker that died on its own leaves its JVM in its process group. The group is reachable
+    only while the worker is not reaped, so the order is: see the end (``WNOWAIT``), kill the
+    group, reap (#1652). Windows: ``taskkill /T /F`` (UNKNOWN, not run on Windows).
+    """
+    if not _exited(proc, windows=windows):
+        return False
+    kill_process_tree(proc, windows=windows)
+    return True
 
 
 def kill_process_tree(proc: subprocess.Popen[str], *, windows: bool) -> None:
@@ -446,9 +502,11 @@ class GamePool:
         for worker in list(self._workers):
             if worker.task is not None:
                 continue
-            if worker.alive:
+            if not worker.end_if_exited():
                 return worker
-            self._drop(worker)  # it ended between two windows; a fresh one takes its place
+            # it ended while idle (between two windows, or just after its last game): its tree
+            # is killed and it is reaped; the end of its stdout gives it up (``_lose``), and a
+            # fresh worker takes its place
         if len(self._workers) < limit:
             return self._spawn()
         return None
@@ -565,6 +623,9 @@ class GamePool:
             self._record_lost_life(worker, failure_class)
             if finish is not None:
                 finish(worker, self._lost_game_summary(worker.task, failure_class))
+        elif not worker.said_bye:
+            # died while idle: its open JVM life never reported its end (#1652)
+            self._record_lost_life(worker, failure_class)
 
     def _record_lost_life(self, worker: _ProcessWorker, reason: str) -> None:
         """A JVM life that ended without its ``jvm_exit``: id and games played are unknown."""
@@ -626,9 +687,10 @@ class GamePool:
             elif message is not None and message.get("ev") == "bye":
                 sender.said_bye = True
         for worker in workers:
-            # killed while ending its JVM, before it reported every life: one life is unknown
-            if worker.killed and worker.ready and not worker.said_bye:
-                self._record_lost_life(worker, "RetireTimeout")
+            # ended before it reported every life: killed while ending its JVM, or died while
+            # idle before ``close``; one life is unknown
+            if worker.ready and not worker.said_bye:
+                self._record_lost_life(worker, "RetireTimeout" if worker.killed else "WorkerExited")
 
     def __enter__(self) -> GamePool:
         return self
