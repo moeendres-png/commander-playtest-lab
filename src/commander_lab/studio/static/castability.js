@@ -1,6 +1,7 @@
 "use strict";
 // Colour castability (#1415, #1404 option 2): exact, conditioned on land drops (Karsten).
 // Every probability names its condition; no land count advice. Rendered from renderNumbers.
+// The opening-hand figure is shown through the number contract (zahl.js, #1659) as EXAKT.
 
 function castPct(value) { return value === null || value === undefined ? "unbekannt" : StudioUI.pct(value, 1); }
 
@@ -40,6 +41,7 @@ function castabilityNodes(h, data, open, roleName) {
     h("tr", { class: "facts-basis" }, h("td", { colspan: 4, class: "note" }, names(item.cards))),
   ]);
   const hand = data.opening_hand;
+  const keepable = StudioZahl.index(data.zahlen).get("cast.opening_hand.p_keepable");
   const notes = [];
   if (data.lands_without_coloured_mana) notes.push(`${StudioUI.num(data.lands_without_coloured_mana, 0)} Länder erzeugen laut Kartendaten kein farbiges Mana (z. B. Fetch-Länder) und zählen nicht als Quelle.`);
   if (data.lands_unknown_colours) notes.push(`${StudioUI.num(data.lands_unknown_colours, 0)} Länder ohne Kartendaten: Farben unbekannt, nicht als Quelle gezählt – die Farbwerte sind darum eher zu niedrig.`);
@@ -53,7 +55,7 @@ function castabilityNodes(h, data, open, roleName) {
         h("th", { class: "num" }, "Land-Drops"), h("th", { class: "num", title: "nur unter den Ziehungen mit genug Land-Drops" }, "Farben*"))),
       h("tbody", {}, rows))),
     h("p", { class: "note" }, "* Farben: Anteil mit den nötigen farbigen Quellen unter den Ziehungen, die bis zum Zug genug Länder haben. Quellen: nur Länder."),
-    h("p", { id: "opening-hand" }, `Spielbare Starthand (${hand.rule}): ${castPct(hand.p_keepable)} – aus ${StudioUI.num(hand.lands, 0)} Ländern, ${StudioUI.num(hand.early_actions, 0)} frühen Aktionen und ${StudioUI.num(hand.other_cards, 0)} weiteren Karten, 7 Karten, ohne Mulligan.`),
+    h("p", { id: "opening-hand" }, `Spielbare Starthand (${hand.rule}): `, keepable ? StudioZahl.knoten(h, keepable) : castPct(hand.p_keepable), ` – aus ${StudioUI.num(hand.lands, 0)} Ländern, ${StudioUI.num(hand.early_actions, 0)} frühen Aktionen und ${StudioUI.num(hand.other_cards, 0)} weiteren Karten, 7 Karten, ohne Mulligan.`),
     notes.length ? h("ul", { class: "note" }, notes.map((text) => h("li", {}, text))) : "",
     ...(data.hand_roles ? handRoleNodes(h, data.hand_roles, roleName || ((key) => key)) : []),
     h("p", { class: "note" }, data.method + " ", h("a", { href: data.source, target: "_blank", rel: "noreferrer noopener", referrerpolicy: "no-referrer" }, "Methodik (Karsten 2022)")),

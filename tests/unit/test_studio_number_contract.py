@@ -1,0 +1,522 @@
+"""The number contract EXAKT / GEZÄHLT / SIMULIERT / URTEIL (B3, #1659).
+
+``number_contract.py`` (Python) and ``static/zahl.js`` (the UI component) apply the same rules;
+the builder routes Diff-Wirkung, ``/api/outcomes``, deck series and castability send their
+figures additionally as ``zahlen``, the old fields stay unchanged.
+
+A new file rather than an extension of ``test_studio_static_guards.py``: that file is changed by
+two open pull requests (#1671, #1669). The JavaScript cases run with ``node --test`` against the
+real ``zahl.js`` and the real de-DE helpers of ``ui.js``; without node they are skipped, which is
+NOT_RUN, not a pass.
+"""
+
+from __future__ import annotations
+
+import ast
+import copy
+import json
+import re
+import shutil
+import subprocess
+from pathlib import Path
+
+import pytest
+from fastapi.testclient import TestClient
+
+from commander_lab.studio import StudioStore, card_outcomes, castability, deck_diff, deck_series
+from commander_lab.studio import number_contract as nc
+from commander_lab.studio.decks import RevisionCard, create_revision, list_rows
+from commander_lab.studio.web import create_app
+from tests.unit.test_studio_builder import _fill
+from tests.unit.test_studio_card_outcomes import DECK, _simple_frames, _write_log
+from tests.unit.test_studio_db_c_paired_readiness import (
+    _make_store,
+    _stored_series,
+    _write_series,
+)
+
+ROOT = Path(__file__).resolve().parents[2]
+STATIC = ROOT / "src" / "commander_lab" / "studio" / "static"
+MODULE = ROOT / "src" / "commander_lab" / "studio" / "number_contract.py"
+
+
+def _exakt(**extra: object) -> dict[str, object]:
+    base: dict[str, object] = {
+        "id": "x",
+        "bezeichnung": "Spielbare Starthand",
+        "wert": 0.25,
+        "einheit": "Anteil",
+        "n": None,
+        "N": None,
+        "intervall": None,
+        "klasse": "EXAKT",
+        "kohorte": None,
+        "quelle": "Hypergeometrie",
+        "stand_datum": None,
+    }
+    base.update(extra)
+    return base
+
+
+def _counted(**extra: object) -> dict[str, object]:
+    values: dict[str, object] = {
+        "klasse": "GEZÄHLT",
+        "n": 3,
+        "N": 10,
+        "wert": 0.3,
+        "kohorte": "all",
+    }
+    values.update(extra)
+    return _exakt(**values)
+
+
+def _simulated(**extra: object) -> dict[str, object]:
+    base = _exakt(
+        klasse="SIMULIERT",
+        n=12,
+        N=40,
+        wert=2.5,
+        einheit="pp",
+        stand_hash="a" * 64,
+        pilot="Konstante",
+        data_class="SIMULATED_RESULT",
+    )
+    base.update(extra)
+    return base
+
+
+# Python and JavaScript judge every case alike (validity); ``True`` = a valid contract.
+CASES: list[tuple[str, dict[str, object], bool]] = [
+    ("exakt", _exakt(), True),
+    ("exakt unknown value", _exakt(wert=None), True),
+    ("no class", {k: v for k, v in _exakt().items() if k != "klasse"}, False),
+    ("foreign class", _exakt(klasse="SCORE"), False),
+    ("VORSCHLAG", _exakt(klasse="VORSCHLAG"), False),
+    ("n without N", _exakt(n=3), False),
+    ("n above N", _counted(n=11), False),
+    ("counted", _counted(), True),
+    ("counted without N", _counted(N=None), False),
+    ("counted value without n", _counted(n=None), False),
+    ("counted unknown value, N known", _counted(n=None, wert=None), True),
+    ("counted without cohort", _counted(kohorte=None), False),
+    ("simulated", _simulated(), True),
+    ("simulated unknown state", _simulated(stand_hash=None), True),
+    ("simulated without N", _simulated(N=None, n=None), False),
+    ("simulated without data class", _simulated(data_class=None), False),
+    ("simulated without pilot", _simulated(pilot=None), False),
+    ("judgement", _exakt(klasse="URTEIL", einheit="Anzahl", wert=71), True),
+    ("judgement with data class", _exakt(klasse="URTEIL", data_class="SIMULATED_RESULT"), False),
+    ("value is a bool", _exakt(wert=True), False),
+    ("value is text", _exakt(wert="0"), False),
+    ("interval reversed", _exakt(intervall=[0.5, 0.1]), False),
+    ("unknown key", _exakt(score=1), False),
+    ("no source", _exakt(quelle=""), False),
+    ("no unit", _exakt(einheit="Punkte"), False),
+]
+
+
+@pytest.mark.parametrize(("name", "zahl", "valid"), CASES, ids=[case[0] for case in CASES])
+def test_python_contract_rules(name: str, zahl: dict[str, object], valid: bool) -> None:
+    assert (nc.check(zahl) == []) is valid, (name, nc.check(zahl))
+
+
+def test_simulated_without_state_key_and_builder_refusals() -> None:
+    missing = {k: v for k, v in _simulated().items() if k != "stand_hash"}
+    assert "SIMULIERT ohne Stand-Hash (None = unbekannt)" in nc.check(missing)
+    with pytest.raises(ValueError, match="n ohne N"):
+        nc.zahl("x", "X", 1, klasse=nc.EXAKT, einheit="Anzahl", quelle="Liste", n=1)
+    with pytest.raises(ValueError, match="VORSCHLAG"):
+        nc.zahl("x", "X", 1, klasse="VORSCHLAG", einheit="Anzahl", quelle="Liste")
+    built = nc.zahl(
+        "s", "S", None, klasse=nc.SIMULIERT, einheit="pp", quelle="Serie", N=4, pilot="Konstante"
+    )
+    assert built["wert"] is None and built["stand_hash"] is None
+    assert built["data_class"] == "SIMULATED_RESULT"
+
+
+def test_number_contract_module_has_no_store_or_sqlite_import() -> None:
+    tree = ast.parse(MODULE.read_text(encoding="utf-8"))
+    imported = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imported.update(alias.name for alias in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            imported.add(("." * node.level) + (node.module or ""))
+    assert imported <= {"__future__", "math", "collections.abc"}, imported
+
+
+# --- routes: every figure sent as ``zahlen`` is a valid contract; old fields unchanged -------
+
+
+def _assert_all_valid(zahlen: object) -> list[dict[str, object]]:
+    assert isinstance(zahlen, list) and zahlen
+    for item in zahlen:
+        assert nc.check(item) == [], (item, nc.check(item))
+    ids = [item["id"] for item in zahlen]
+    assert len(ids) == len(set(ids)), "ids are unique within an answer"
+    return zahlen
+
+
+def _diff_fixture(tmp_path: Path) -> tuple[str, list[dict[str, object]], dict[str, str]]:
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    ids = {
+        str(row["oracle_name"]): str(row["card_id"])
+        for row in store.connection.execute("SELECT card_id, oracle_name FROM card_fact")
+    }
+    cmd = RevisionCard("card:project:0001", 1, "commander")
+    revision = create_revision(
+        store, deck_id="d", name="D", cards=[cmd, RevisionCard(ids["Filler 01"])]
+    )
+    store.close()
+    cards: list[dict[str, object]] = [
+        {"card_id": "card:project:0001", "quantity": 1, "zone": "commander"},
+        {"card_id": ids["Swarm Rat"], "quantity": 1, "zone": "main"},
+    ]
+    return revision, cards, ids
+
+
+def test_diff_route_sends_valid_contracts_for_the_covered_figures(tmp_path: Path) -> None:
+    revision, cards, ids = _diff_fixture(tmp_path)
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    body = client.post(
+        "/api/diff", json={"base_revision_id": revision, "cards": cards, "cohort": "picked"}
+    ).json()
+    zahlen = {item["id"]: item for item in _assert_all_valid(body["zahlen"])}
+    # covered paths: overlap (3), curve base/target per mana value (16), every colour row (4
+    # each), the two combo counts and the source-deck share of every card with a known cohort
+    assert {f"overlap.{k}" for k in ("shared_slots", "base_slots", "target_slots")} <= set(zahlen)
+    assert sum(1 for key in zahlen if key.startswith("curve.")) == 16
+    colour_rows = len(body["colour_deltas"])
+    assert sum(1 for key in zahlen if key.startswith("colour.")) == 4 * colour_rows
+    assert {"combos.base_complete", "combos.target_complete"} <= set(zahlen)
+    for key in ("overlap.shared_slots", "curve.0.base", "combos.target_complete"):
+        assert zahlen[key]["klasse"] == "EXAKT"
+    freq = zahlen[f"freq.added.{ids['Swarm Rat']}"]
+    assert freq["klasse"] == "GEZÄHLT" and freq["kohorte"] == "picked"
+    assert (freq["n"], freq["N"], freq["wert"]) == (1, 1, 1.0)
+    for group in ("added", "removed", "changed"):
+        for item in body[group]:
+            if item["of"] is not None:
+                assert f"freq.{group}.{item['card_id']}" in zahlen
+    # the old fields are byte-for-byte what diff_impact gives: the answer only gained `zahlen`
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        base = [
+            RevisionCard(str(r["card_id"]), int(r["quantity"]), str(r["zone"]))
+            for r in store.connection.execute(
+                "SELECT card_id, quantity, zone FROM deck_revision_card WHERE revision_id = ?",
+                (revision,),
+            )
+        ]
+        target = [
+            RevisionCard(str(c["card_id"]), int(str(c["quantity"])), str(c["zone"])) for c in cards
+        ]
+        direct = deck_diff.diff_impact(store, base, target, cohort="picked")
+    finally:
+        store.close()
+    old = dict(body)
+    del old["zahlen"]
+    assert json.dumps(old, sort_keys=True) == json.dumps(direct, sort_keys=True, default=list)
+
+
+def test_diff_unknown_frequency_is_unknown_never_zero() -> None:
+    diff = {
+        "cohort": {"key": "all"},
+        "added": [
+            {"card_id": "c:1", "name": "Known", "decks": 4, "of": 10},
+            {"card_id": "c:2", "name": "Unnamed", "decks": None, "of": 10},
+            {"card_id": "c:3", "name": "No cohort", "decks": None, "of": None},
+        ],
+    }
+    zahlen = {item["id"]: item for item in nc.diff_zahlen(diff)}
+    assert zahlen["freq.added.c:1"]["wert"] == 0.4
+    unknown = zahlen["freq.added.c:2"]
+    assert unknown["wert"] is None and unknown["n"] is None and unknown["N"] == 10
+    assert "freq.added.c:3" not in zahlen  # no cohort size: no number exists, none is made up
+
+
+def test_outcomes_route_sends_simulated_contracts_with_state_and_pilot(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    assert store.path is not None
+    folder = store.path.parent
+    store.close()
+    _write_log(folder / "games", "g1", _simple_frames(["Forest", "Spell"]))
+    _write_log(folder / "games", "g2", _simple_frames(["Forest", "Other"]), winners=(1,), seed=2)
+    with TestClient(create_app(folder), headers={"X-Studio": "1"}) as client:
+        body = client.get("/api/outcomes", params={"deck_id": DECK, "min_exposed": 1}).json()
+    zahlen = _assert_all_valid(body["zahlen"])
+    assert len(zahlen) == 3 * len(body["cards"])
+    for item in zahlen:
+        assert item["klasse"] == "SIMULIERT" and item["data_class"] == "SIMULATED_RESULT"
+        assert item["stand_hash"] is None  # the logs carry no deck hash per seat before B1
+        assert item["pilot"] == "Konstante" and item["piloten"] == ["Pilot 1.0.0"]
+        assert item["N"] == body["games_total"]
+    by_id = {item["id"]: item for item in zahlen}
+    forest = next(card for card in body["cards"] if card["card"] == "Forest")
+    assert by_id["outcome.Forest.rate_in"]["n"] == forest["games_in_first_hand"]
+    assert by_id["outcome.Forest.rate_not"]["n"] == forest["games_not_in_first_hand"]
+    old = dict(body)
+    del old["zahlen"]
+    direct = card_outcomes.outcomes_for_folder(folder / "games", deck_id=DECK, min_exposed=1)
+    assert old == json.loads(json.dumps(direct))
+
+
+def test_series_route_sends_simulated_contracts_with_both_deck_hashes(tmp_path: Path) -> None:
+    store, folder = _make_store(tmp_path)
+    try:
+        cards = [RevisionCard("cid-chulane", 1, "commander"), RevisionCard("cid-forest", 99)]
+        rev_a = create_revision(store, deck_id="chulane-s", name="Chulane S", cards=cards)
+        rev_b = create_revision(
+            store,
+            deck_id="chulane-s",
+            name="Chulane S",
+            cards=[RevisionCard("cid-chulane", 1, "commander"), RevisionCard("cid-forest", 98)],
+            parent_revision_id=rev_a,
+        )
+        hashes = deck_series.revision_hashes(store, [rev_a, rev_b, "repo:x"])
+    finally:
+        store.close()
+    assert set(hashes) == {rev_a, rev_b}
+    games = folder / "games"
+    _write_series(games, _stored_series("paired-1-1-aaaaaaaa", rev_a, rev_b))
+    _write_series(games, _stored_series("paired-2-1-bbbbbbbb", "repo:x", rev_b))
+    running = _stored_series("paired-3-1-cccccccc", rev_a, rev_b, status="cancelled")
+    _write_series(games, running)
+    body = TestClient(create_app(folder)).get("/api/decks/chulane-s/series").json()
+    zahlen = {item["id"]: item for item in _assert_all_valid(body["zahlen"])}
+    counted = [item["series_id"] for item in body["series"] if item["counts_as_result"]]
+    assert set(zahlen) == {f"series.{sid}.difference_pp" for sid in counted}
+    assert "series.paired-3-1-cccccccc.difference_pp" not in zahlen  # no result, no number
+    first = zahlen["series.paired-1-1-aaaaaaaa.difference_pp"]
+    assert (first["stand_hash"], first["basis_hash"]) == (hashes[rev_b], hashes[rev_a])
+    assert (first["n"], first["N"], first["wert"]) == (40, 40, 2.5)
+    assert first["intervall"] == [-4.0, 9.0] and first["stand_datum"] == "2026-11-10"
+    assert first["pilot"] == "Konstante" and first["data_class"] == "SIMULATED_RESULT"
+    reference = zahlen["series.paired-2-1-bbbbbbbb.difference_pp"]
+    assert reference["basis_hash"] is None  # a reference deck has no stored hash: unknown
+    old = dict(body)
+    del old["zahlen"]
+    assert old == json.loads(json.dumps(deck_series.deck_series(folder, [rev_b, rev_a])))
+
+
+def test_castability_route_sends_exact_contracts_for_every_probability(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    store.close()
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    cards = [{"card_id": "card:project:0001", "quantity": 1, "zone": "commander"}]
+    cards += [
+        {"card_id": f"card:project:{100 + i:04d}", "quantity": 1, "zone": "main"} for i in range(70)
+    ]
+    cards.append({"card_id": "card:project:0002", "quantity": 29, "zone": "main"})
+    body = client.post("/api/castability", json={"cards": cards}).json()
+    zahlen = _assert_all_valid(body["zahlen"])
+    assert all(item["klasse"] == "EXAKT" for item in zahlen)
+    role_hands = sum(len(role["hands"]) for role in body["hand_roles"]["roles"])
+    assert len(zahlen) == 2 * len(body["requirements"]) + 1 + 2 * role_hands
+    keep = next(item for item in zahlen if item["id"] == "cast.opening_hand.p_keepable")
+    assert keep["wert"] == body["opening_hand"]["p_keepable"]
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        rows = [
+            dict(row)
+            for row in list_rows(
+                store,
+                [
+                    RevisionCard(str(c["card_id"]), int(str(c["quantity"])), str(c["zone"]))
+                    for c in cards
+                ],
+            )
+        ]
+    finally:
+        store.close()
+    old = dict(body)
+    del old["zahlen"], old["hand_roles"]
+    assert old == json.loads(json.dumps(castability.deck_castability(rows)))
+
+
+# --- the UI component under node --test ---------------------------------------------------
+
+
+def _ui_prelude() -> str:
+    ui = (STATIC / "ui.js").read_text(encoding="utf-8")
+    part = ui[ui.index("function _formatDe(n, opts) {") : ui.index("// Simulator readiness codes")]
+    return "globalThis.StudioUI = (() => {" + part + "return {num, pct, numFlex, numSig}; })();\n"
+
+
+JS_TESTS = r"""
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const vm = require("node:vm");
+const fs = require("node:fs");
+__PRELUDE__
+const Z = require(__ZAHL__);
+globalThis.StudioZahl = Z;
+const h = (tag, props, ...kids) => ({ tag, props: props || {}, kids: kids.flat(Infinity).filter((k) => k !== null && k !== undefined && k !== "") });
+const text = (node) => (typeof node === "string" || typeof node === "number" ? String(node) : node.kids.map(text).join(""));
+const find = (node, cls, out = []) => { if (node && typeof node === "object") { if (String(node.props.class || "").split(" ").includes(cls)) out.push(node); node.kids.forEach((kid) => find(kid, cls, out)); } return out; };
+const CASES = __CASES__;
+const exakt = CASES.find((c) => c[0] === "exakt")[1];
+const counted = CASES.find((c) => c[0] === "counted")[1];
+const simulated = CASES.find((c) => c[0] === "simulated")[1];
+const judgement = CASES.find((c) => c[0] === "judgement")[1];
+
+test("every number carries a class: no class or a foreign class is refused and shows no number", () => {
+  for (const name of ["no class", "foreign class"]) {
+    const zahl = CASES.find((c) => c[0] === name)[1];
+    assert.ok(Z.pruefe(zahl).includes("Zahl ohne gültige Klasse"), name);
+    const shown = text(Z.knoten(h, zahl));
+    assert.equal(shown, "ungültige Zahl");
+    assert.doesNotMatch(shown, /\d/);
+  }
+});
+test("VORSCHLAG is no number class", () => {
+  assert.ok(Z.pruefe({ ...exakt, klasse: "VORSCHLAG" }).includes("VORSCHLAG ist keine Zahl-Klasse"));
+});
+test("a missing value renders unbekannt, never 0", () => {
+  for (const zahl of [{ ...exakt, wert: null }, { ...counted, wert: null, n: null }, { ...simulated, wert: null, n: null }]) {
+    const m = Z.modell(zahl);
+    assert.ok(m.ok, JSON.stringify(m.fehler));
+    assert.equal(m.wert, "unbekannt");
+    assert.doesNotMatch(text(Z.knoten(h, zahl)).split("(")[0], /0/);
+  }
+  assert.equal(Z.modell({ ...counted, wert: null, n: null }).nN, "unbekannt / 10");
+});
+test("GEZÄHLT and SIMULIERT never without n/N", () => {
+  assert.ok(Z.pruefe({ ...counted, N: null }).includes("GEZÄHLT ohne N"));
+  assert.ok(Z.pruefe({ ...counted, n: null }).includes("GEZÄHLT ohne n"));
+  assert.ok(Z.pruefe({ ...simulated, N: null, n: null }).includes("SIMULIERT ohne N"));
+  assert.equal(Z.modell(counted).nN, "3 / 10");
+});
+test("n without N is refused in every class", () => {
+  for (const zahl of [{ ...exakt, n: 2 }, { ...judgement, n: 2 }]) assert.ok(Z.pruefe(zahl).includes("n ohne N"));
+});
+test("GEZÄHLT needs its cohort and shows it as origin", () => {
+  assert.ok(Z.pruefe({ ...counted, kohorte: null }).includes("GEZÄHLT ohne Kohorte"));
+  assert.match(Z.modell(counted).herkunft, /Kohorte: all/);
+});
+test("SIMULIERT shows the deck hash and the pilot origin", () => {
+  const zahl = { ...simulated, basis_hash: "b".repeat(64), piloten: ["Pilot 1.0.0"] };
+  const m = Z.modell(zahl);
+  assert.equal(m.stand, `Stand ${"a".repeat(12)} gegen ${"b".repeat(12)} · Pilot: Konstante (Pilot 1.0.0)`);
+  assert.match(m.herkunft, /SIMULATED_RESULT/);
+  const node = Z.knoten(h, zahl);
+  assert.equal(find(node, "zahl-stand").length, 1, "the state is visible, not only a tooltip");
+});
+test("SIMULIERT with an unknown state says so; without the state key or data class it is refused", () => {
+  assert.match(Z.modell({ ...simulated, stand_hash: null }).stand, /^Stand unbekannt · Pilot: Konstante$/);
+  const missing = { ...simulated };
+  delete missing.stand_hash;
+  assert.ok(Z.pruefe(missing).some((e) => e.startsWith("SIMULIERT ohne Stand-Hash")));
+  assert.ok(Z.pruefe({ ...simulated, data_class: null }).includes("SIMULIERT ohne data_class SIMULATED_RESULT"));
+});
+test("URTEIL never in the same column as GEZÄHLT", () => {
+  assert.equal(Z.spalte("GEZÄHLT", [counted, judgement]).ok, false);
+  assert.equal(Z.spalte("GEZÄHLT", [counted, null, counted]).ok, true);
+  const cell = Z.zelle(h, judgement, "GEZÄHLT", { class: "num" });
+  assert.equal(text(cell), "Klasse passt nicht zur Spalte");
+  assert.doesNotMatch(text(cell), /71/);
+});
+test("de-DE display through StudioUI: share, signed points, counts and the class badge", () => {
+  assert.equal(Z.modell({ ...exakt, wert: 0.253 }).wert, "25,3 %");
+  assert.equal(Z.modell({ ...simulated, wert: -2.5 }).wert, "\u22122,5 pp");
+  assert.equal(Z.modell({ ...simulated, wert: 2.5, intervall: [-4, 9] }).intervall, "[\u22124,0; 9,0] pp");
+  assert.equal(Z.modell(judgement).klasseText, "Modellurteil");
+  const badge = find(Z.knoten(h, counted), "zahl-klasse")[0];
+  assert.equal(text(badge), "gezählt");
+  assert.ok(badge.props.class.includes("zahl-gezaehlt"));
+});
+test("index keeps only valid contracts", () => {
+  const found = Z.index([counted, { ...counted, id: "bad", kohorte: null }]);
+  assert.deepEqual([...found.keys()], ["x"]);
+});
+test("diffimpact shows the source-deck share as a GEZÄHLT column from the contract", () => {
+  vm.runInThisContext(fs.readFileSync(__DIFF__, "utf8"));
+  const item = { card_id: "c:1", name: "Card", quantity: 1, mana_value: 2, roles: [], decks: 3, of: 10 };
+  const diff = { added: [item], removed: [], changed: [], zahlen: [{ ...counted, id: "freq.added.c:1" }] };
+  const nodes = diffImpactNodes(h, diff, { open() {}, roleName: (r) => r, cohortLabel: "alle" });
+  const cells = nodes.flatMap((node) => find(node, "zahl"));
+  assert.equal(cells.length, 1);
+  assert.equal(text(cells[0]), "30,0 % (3 / 10) gezählt");
+  const plain = diffImpactNodes(h, { ...diff, zahlen: undefined }, { open() {}, roleName: (r) => r, cohortLabel: "alle" });
+  assert.equal(plain.flatMap((node) => find(node, "zahl")).length, 0, "without a contract the old text stays");
+});
+test("deck series show the difference as SIMULIERT with n/N, state and pilot", () => {
+  vm.runInThisContext(fs.readFileSync(__SERIES__, "utf8"));
+  const item = { series_id: "s1", base_ref: "r1", variant_ref: "r2", counts_as_result: true, pairs_planned: 40,
+    pairs_completed: 12, pairs_attempted: 12, difference_pp: 2.5, difference_ci95_pp: [-4, 9], decision_ci_pp: null,
+    decision_level_pct: null, seeds: [], tested_seats: [], bridge_jar_sha256s: [], bridge_qualification_states: [],
+    covered_by_sealed_epoch: null, pilots: [], status: "completed", status_text: "abgeschlossen", created_at: null };
+  const zahlen = Z.index([{ ...simulated, id: "series.s1.difference_pp", intervall: [-4, 9] }]);
+  const cells = deckSeriesCells(h, item, "base", { open() {} }, new Map(), zahlen);
+  const shown = cells.map(text).join(" | ");
+  assert.match(shown, /Differenz \(B \u2212 A\): \+2,5 pp \(12 \/ 40\) \[\u22124,0; 9,0\] pp simuliert/);
+  assert.match(shown, /Stand aaaaaaaaaaaa · Pilot: Konstante/);
+});
+"""
+
+
+def _node() -> str:
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("node is not installed: zahl.js tests NOT_RUN, not a pass")
+    return node
+
+
+def test_zahl_js_component_under_node_test(tmp_path: Path) -> None:
+    node = _node()
+    script = (
+        JS_TESTS.replace("__PRELUDE__", _ui_prelude())
+        .replace("__ZAHL__", json.dumps(str(STATIC / "zahl.js")))
+        .replace("__DIFF__", json.dumps(str(STATIC / "diffimpact.js")))
+        .replace("__SERIES__", json.dumps(str(STATIC / "deckseries.js")))
+        .replace("__CASES__", json.dumps([[n, z, v] for n, z, v in CASES], ensure_ascii=False))
+    )
+    path = tmp_path / "zahl.test.js"
+    path.write_text(script, encoding="utf-8")
+    done = subprocess.run(
+        [node, "--test", str(path)], capture_output=True, text=True, timeout=60, check=False
+    )
+    assert done.returncode == 0, done.stdout + done.stderr
+    passed = int(re.search(r"^# pass (\d+)$", done.stdout, re.MULTILINE).group(1))  # type: ignore[union-attr]
+    failed = int(re.search(r"^# fail (\d+)$", done.stdout, re.MULTILINE).group(1))  # type: ignore[union-attr]
+    assert failed == 0 and passed >= 10, done.stdout
+
+
+def test_python_and_javascript_judge_every_case_alike() -> None:
+    node = _node()
+    cases = copy.deepcopy([[name, zahl] for name, zahl, _valid in CASES])
+    missing = {k: v for k, v in _simulated().items() if k != "stand_hash"}
+    cases.append(["simulated without state key", missing])
+    script = (
+        f"const Z = require({json.dumps(str(STATIC / 'zahl.js'))});\n"
+        f"const cases = {json.dumps(cases, ensure_ascii=False)};\n"
+        "process.stdout.write(JSON.stringify(cases.map(([n, z]) => [n, Z.pruefe(z).length === 0])));\n"
+    )
+    done = subprocess.run(
+        [node, "-e", script], capture_output=True, text=True, timeout=30, check=True
+    )
+    js = dict(json.loads(done.stdout))
+    for name, zahl in cases:
+        assert js[name] is (nc.check(zahl) == []), name
+
+
+def test_zahl_js_static_contract() -> None:
+    js = (STATIC / "zahl.js").read_text(encoding="utf-8")
+    index = (STATIC / "index.html").read_text(encoding="utf-8")
+    assert '<script src="zahl.js"></script>' in index
+    assert index.index("ui.js") < index.index("zahl.js") < index.index("diffimpact.js")
+    for forbidden in (
+        "innerHTML",
+        "outerHTML",
+        "style:",
+        "style=",
+        ".toFixed(",
+        "toLocaleString",
+        "eval(",
+    ):
+        assert forbidden not in js, forbidden
+    for user in ("diffimpact.js", "castability.js", "deckseries.js"):
+        assert "StudioZahl." in (STATIC / user).read_text(encoding="utf-8"), user
