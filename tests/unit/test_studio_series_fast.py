@@ -75,11 +75,50 @@ def test_chunks_respect_games_per_jvm_and_use_every_worker() -> None:
 
 def test_settings_defaults_and_ranges() -> None:
     workers, per_jvm = launch.checked_series_settings(None, None)
-    assert 1 <= workers <= 4 and per_jvm == 6
+    assert 1 <= workers <= 4 and per_jvm == 16 == launch.DEFAULT_GAMES_PER_JVM  # #1587
     assert launch.checked_series_settings(16, 24) == (16, 24)
+    # the edges of the range stay selectable: 1 (isolated), 6 (the old default), 24 (the maximum)
+    for edge in (1, 6, 24):
+        assert launch.checked_series_settings(2, edge) == (2, edge)
     for bad in ((0, 6), (17, 6), (2, 0), (2, 25)):
         with pytest.raises(ValueError):
             launch.checked_series_settings(*bad)
+
+
+def test_default_games_per_jvm_is_within_range_and_the_studio_budget() -> None:
+    from commander_lab.engine.rules.full_game_series import SERIES_JVM_GAME_CAP
+
+    assert launch.MIN_GAMES_PER_JVM <= launch.DEFAULT_GAMES_PER_JVM <= launch.MAX_GAMES_PER_JVM
+    assert launch.MAX_GAMES_PER_JVM == 24  # 24 stays an option, never the default
+    # Owner decision E9: the Studio budget is at most 56 games per JVM, above the whole range
+    assert launch.MAX_GAMES_PER_JVM <= SERIES_JVM_GAME_CAP == 56
+
+
+def test_series_engine_with_the_default_asks_the_bridge_for_16_games(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    jar = tmp_path / "bridge.jar"
+    jar.write_bytes(b"x")
+    monkeypatch.setenv(launch.ENGINE_COMMAND_ENV, f"java -Xmx3g -jar {jar} full-game")
+    _, per_jvm = launch.checked_series_settings(None, None)
+    engine = launch.series_engine(tmp_path, per_jvm)
+    assert engine is not None and engine.games_per_jvm == 16
+    assert "-Dcommanderlab.fullGame.gamesPerJvm=16" in engine.jvm_flags
+
+
+def test_default_games_per_jvm_only_regroups_chunks_never_the_seeds() -> None:
+    """#1587: 16 instead of 6 changes how many games one JVM plays, not which seeds are played."""
+    seeds = list(range(1000, 1048))
+    for workers in (1, 2, 4, 7):
+        old = plan_chunks(seeds, workers, 6)
+        new = plan_chunks(seeds, workers, launch.DEFAULT_GAMES_PER_JVM)
+        assert [s for chunk in old for s in chunk] == seeds
+        assert [s for chunk in new for s in chunk] == seeds
+        assert max(map(len, new)) <= launch.DEFAULT_GAMES_PER_JVM
+        assert len(new) >= min(workers, len(seeds))
+    # the plan itself does change for a long series, which is the point of the new default
+    assert plan_chunks(seeds, 4, 6) != plan_chunks(seeds, 4, 16)
+    assert [len(c) for c in plan_chunks(seeds, 4, 16)] == [12, 12, 12, 12]
 
 
 def test_series_engine_adds_fast_flags_and_archive_only_when_present(

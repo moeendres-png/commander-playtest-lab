@@ -37,7 +37,15 @@ MIN_SEATS, MAX_SEATS = 2, 6  # what the engine can seat (series and the CLI comp
 MAX_RELEASED_SEATS = 4
 START_WAIT_SECONDS = 20.0
 MIN_WORKERS, MAX_WORKERS = 1, 16
-MIN_GAMES_PER_JVM, MAX_GAMES_PER_JVM, DEFAULT_GAMES_PER_JVM = 1, 24, 6
+MIN_GAMES_PER_JVM, MAX_GAMES_PER_JVM = 1, 24
+# Studio series default (#1587): 16 games per bridge JVM, up from 6. Source: Owner-PC throughput
+# measurement #1588 (docs/analysis-reports/owner_pc_throughput_1588_20261120.md), WSL2, Ryzen 7
+# 7700, SIMULATED_RESULT: against 8 games per JVM, 6 workers gained +10.5 % and 7 workers +13.6 %
+# games/hour at 16, peak RSS per JVM unchanged (about 1.06 GB), swap 0, 168 of 168 repeated seeds
+# semantically identical. Native Windows (without WSL2) is UNKNOWN. 24 stays selectable (+19 to
+# 20 %) but is not the default: at 24 a 48-game series fills only two JVMs. The Studio budget of
+# at most 56 games per JVM (Owner decision E9, ``SERIES_JVM_GAME_CAP``) stays above the maximum.
+DEFAULT_GAMES_PER_JVM = 16
 POD_PRESETS: dict[str, tuple[str, str, str]] = {
     "precon": (
         "precon/2026/lorehold_spirit",

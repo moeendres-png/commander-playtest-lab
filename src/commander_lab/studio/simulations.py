@@ -1405,7 +1405,7 @@ class SimulationBatchManager:
         """Prepare and start a new batch simulation in a background thread.
 
         ``workers`` (1..16, default ``min(4, cpu count - 1)``) chunks of games run at once; one
-        engine process plays up to ``games_per_jvm`` (1..24, default 6) games of its chunk.
+        engine process plays up to ``games_per_jvm`` (1..24, default 16) games of its chunk.
         """
         data_path = Path(data_folder).resolve()
         used_workers, used_games_per_jvm = checked_series_settings(workers, games_per_jvm)

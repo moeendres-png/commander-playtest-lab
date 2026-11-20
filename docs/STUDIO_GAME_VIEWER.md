@@ -98,7 +98,13 @@ names in the API body):
 | Option | Range | Default |
 | --- | --- | --- |
 | `workers` | 1 to 16 | `min(4, cpu count - 1)`, at least 1 |
-| `games_per_jvm` | 1 to 24 | 6 |
+| `games_per_jvm` | 1 to 24 | 16 |
+
+The default of 16 (6 before #1587) rests on the Owner-PC throughput measurement of #1588 (WSL2,
+`SIMULATED_RESULT`; `docs/analysis-reports/owner_pc_throughput_1588_20261120.md`): +10.5 % to
++13.6 % games per hour against 8 games per JVM, peak memory per JVM unchanged, identical seeds.
+Native Windows is `UNKNOWN`. 24 stays selectable but is not the default; the Studio budget stays
+at most 56 games per JVM (Owner decision E9).
 
 A chunk is never larger than `games_per_jvm`; there are at least `workers` chunks (as far as
 there are games), so a short series still uses every worker. The bridge starts with the fast
