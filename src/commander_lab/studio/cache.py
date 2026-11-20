@@ -153,8 +153,12 @@ KIND_LIMITS: dict[str, tuple[int, int | None]] = {
 
 _ANSWER = Kind(seal="bytes", limit="answer")
 
-# The register. Only ``land_source_groups`` is narrowed so far (#1561, proven by its tracer);
-# every other kind reads all groups until its own declaration and tracer exist (P2).
+# The register. Narrowed so far, each proven by its tracer in the tests (#1561):
+# ``land_source_groups`` (imports only) and, since ``pool_cards(with_marks=False)``, the strength figures (imports, the
+# universe and strength profiles, the tier snapshot) and the evidence answer (imports, the universe
+# profiles the pool's counted universe reads, the simulation tables): none of them reads the marks, so a favorite or mark click keeps them.
+# Every other kind reads all groups until its own declaration and tracer exist (P2).
+_STRENGTH_READS = frozenset({Group.IMPORT, Group.PROFILES, Group.SNAPSHOT})
 KINDS: Final[Mapping[str, Kind]] = MappingProxyType(
     {
         "card_name_index": Kind(),
@@ -176,15 +180,20 @@ KINDS: Final[Mapping[str, Kind]] = MappingProxyType(
         "slot_catalog": Kind(limit="slot_catalog"),
         "spelling_owners": Kind(),
         "status_store_part": Kind(seal="copy"),
-        "strength": Kind(),
-        "strength_understanding": Kind(),
+        "strength": Kind(reads=_STRENGTH_READS),
+        # the strength answer plus the card-understanding field (only ``card``, an import table)
+        "strength_understanding": Kind(reads=_STRENGTH_READS),
         "universe_context": Kind(),
         # One kind per remembered route answer (``answer_cache.json_answer``): a shared kind
         # could never carry one declaration (``pool`` reads the marks, ``deck_browser`` the deck
         # labels). They share one size limit.
         "answer:corpus_audit": _ANSWER,
         "answer:deck_browser": _ANSWER,
-        "answer:evidence": _ANSWER,
+        "answer:evidence": Kind(
+            reads=frozenset({Group.IMPORT, Group.PROFILES, Group.SIMULATION}),
+            seal="bytes",
+            limit="answer",
+        ),
         "answer:pool": _ANSWER,
         "answer:role_audit": _ANSWER,
         "answer:universe_counted": _ANSWER,

@@ -443,7 +443,10 @@ def _parser() -> argparse.ArgumentParser:
     compare.add_argument(
         "--allow-unreleased-seats",
         action="store_true",
-        help="allow 5 or 6 seats (unreleased outside Owner qualification)",
+        help=(
+            "allow 5 or 6 seats: they are locked for the Studio until the Owner releases them "
+            "(E15 Q5); this switch is for qualification and planning runs only"
+        ),
     )
     compare.add_argument(
         "--workers",

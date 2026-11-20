@@ -981,10 +981,11 @@ def test_f8_series_manager_plans_seeds_for_whole_rotations(
     assert plan["assumptions"]["degrees_of_freedom"] == count - 1  # type: ignore[index]
     floor = paired_series.estimate_series_duration(budget, seats_per_seed=count)
     assert floor["max_games"] == 2 * budget and floor["minimum_is_lower_bound"] is True
-    source = (ROOT / "src/commander_lab/studio/paired_series.py").read_text(encoding="utf-8")
-    assert "tested_seats = list(range(table_size)) if rotate_seats else [0]" in source
-    assert "needed_seeds = -(-budget_pairs // len(tested_seats))" in source
-    assert "seats_per_seed=len(tested_seats)" in source
+    # the source-text checks of Part A became behaviour: ``rotation_plan`` is the one place that
+    # seats the rotation, and ``start_series`` uses it (tests/unit/test_seats_5_6_simulate_1702.py)
+    rotation = paired_series.rotation_plan(count, budget)
+    assert rotation["tested_seats"] == tested_seats
+    assert rotation["seeds_planned"] == needed and rotation["rotation_complete"] is True
 
 
 # ---- the play page at five and six seats (DOM stand-in, release simulated in memory) ----------
