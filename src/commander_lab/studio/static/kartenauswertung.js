@@ -9,6 +9,9 @@
 // Per table size (#1683): a stratum is (deck state, table size); every stratum names its table
 // size, strata of another table size are never combined, and logs without a table size stand
 // apart as "Tischgröße unbekannt" with their own n/N (unknown_strata).
+// Per table size (#1694): the answer carries one table per table size (cohorts); the deck states
+// of one table size are combined stratified in their own section, two table sizes never share
+// one. Every stratum is shown once, inside the section of its table size.
 
 const OUTCOMES_CARD_ORDER = { MEASURED: 0, INSUFFICIENT_SAMPLE: 1 };
 
@@ -62,7 +65,47 @@ function outcomesTableSizeReason(pooling) {
   const bases = sizes.map((v) => `bei ${StudioUI.num(v, 0)} Sitzen 1/${StudioUI.num(v, 0)}`).join(", ");
   return `Nicht zusammengeführt: Die Partien stammen von verschiedenen Tischgrößen (${list || "unbekannt"} Sitze). `
     + `Jede Tischgröße hat eine andere Basis-Siegrate${bases ? ` (${bases})` : ""}, deshalb werden sie nie zusammengefasst. `
-    + "Jede Schicht steht unten einzeln mit n/N und Herkunft. Deck-Stände derselben Tischgröße wären zusammenführbar; diese Ansicht kommt als Folgepaket.";
+    + "Jede Schicht steht unten einzeln mit n/N und Herkunft. Deck-Stände derselben Tischgröße werden unten je Tischgröße in einem eigenen Abschnitt geschichtet zusammengeführt.";
+}
+
+const outcomesCohorts = (data) => (Array.isArray(data.cohorts) ? data.cohorts : []);
+
+// The base win rate of a table size in words (#1694): 1/n with n seats.
+const outcomesBaseRate = (size) =>
+  Number.isInteger(size) && size > 0
+    ? `Basis-Siegrate bei ${StudioUI.num(size, 0)} ${size === 1 ? "Sitz" : "Sitzen"}: 1/${StudioUI.num(size, 0)}`
+    : "Basis-Siegrate unbekannt";
+
+// One table size as its own section (#1694): its own strata only, combined stratified when
+// they may be, never together with another table size. Every stratum of the table size keeps
+// its own section with n/N and provenance; a single stratum is not shown twice.
+function outcomesCohortSection(h, cohort, deps) {
+  const stands = Array.isArray(cohort.stands) ? cohort.stands : [];
+  const pooling = cohort.pooling || {};
+  const pooled = pooling.status === "POOLED";
+  const count = StudioUI.num(stands.length, 0);
+  const what = pooled
+    ? `${count} Deck-Stände geschichtet (je Stand eigene Differenz, gewichtet zusammengeführt)`
+    : stands.length === 1
+      ? "1 Deck-Stand"
+      : `${count} Deck-Stände nicht zusammengeführt`;
+  const sizeLabel = outcomesTableSize(cohort.table_size);
+  const parts = [
+    `Schichten dieser Tischgröße: ${outcomesInt(cohort.strata)}`,
+    `Partien: ${outcomesInt(cohort.games_total)}`,
+    `${outcomesBaseRate(cohort.table_size)}, nie mit einer anderen Tischgröße gemischt`,
+  ];
+  if (pooling.reason) parts.push(`Nicht zusammengeführt: ${pooling.reason}`);
+  if (pooling.method) parts.push(`Verfahren: ${pooling.method}`);
+  const cards = Array.isArray(cohort.cards) ? cohort.cards : [];
+  return h("section", {},
+    h("h4", {}, `${sizeLabel} · ${what}`),
+    h("p", { class: "muted" }, parts.join(" · ")),
+    ...(pooled ? outcomesMetadataNodes(h, cohort, `${sizeLabel} · ${what}`, { skipped: false }) : []),
+    pooled && cards.length
+      ? outcomesCardTable(h, cards, deps, `Karten-Auswertung geschichtet für ${sizeLabel}`)
+      : null,
+    ...stands.map((stand) => outcomesStandSection(h, stand, deps)));
 }
 
 const outcomesUnknownStrata = (data) => (Array.isArray(data.unknown_strata) ? data.unknown_strata : []);
@@ -276,15 +319,21 @@ async function renderCardOutcomes(slot, deps) {
   const meta = outcomesMetadataNodes(h, data, label);
   const standNote = perStand ? outcomesStandNote(h, data) : null;
   const sections = [];
+  const cohorts = perStand ? outcomesCohorts(data) : [];
   if (perStand) {
-    if (data.stands.length > 1) data.stands.forEach((stand) => sections.push(outcomesStandSection(h, stand, deps)));
+    // Several table sizes (#1694): one section per table size holds its strata; otherwise the
+    // strata stand in one list as before.
+    if (cohorts.length) cohorts.forEach((cohort) => sections.push(outcomesCohortSection(h, cohort, deps)));
+    else if (data.stands.length > 1) data.stands.forEach((stand) => sections.push(outcomesStandSection(h, stand, deps)));
     outcomesUnknownStrata(data).forEach((stratum) => sections.push(outcomesStandSection(h, stratum, deps)));
   }
 
   if (data.status === "NOT_POOLED") {
     slot.replaceChildren(...StudioUI.kids(
       h("h3", {}, title), fixedNote, dirtyNote, ...meta, standNote,
-      h("p", { class: "muted" }, "Die Schichten (Deck-Stand und Tischgröße) werden nicht zusammengeführt (siehe Grund); jede Schicht steht unten mit eigener Zahl."),
+      h("p", { class: "muted" }, cohorts.length
+        ? `Die Tischgrößen werden nie zusammengeführt: Unten steht je Tischgröße ein eigener Abschnitt (${StudioUI.num(cohorts.length, 0)} Tischgrößen) mit eigener Tabelle, eigener Zahl und Herkunft.`
+        : "Die Schichten (Deck-Stand und Tischgröße) werden nicht zusammengeführt (siehe Grund); jede Schicht steht unten mit eigener Zahl."),
       ...sections));
     return;
   }
@@ -311,6 +360,7 @@ if (typeof module !== "undefined" && module.exports) {
     outcomesPctInterval,
     outcomesRatio,
     outcomesShortHash,
+    outcomesBaseRate,
     outcomesStandLabel,
     outcomesTableSize,
     renderCardOutcomes,

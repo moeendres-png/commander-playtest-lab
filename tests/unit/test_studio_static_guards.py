@@ -1158,7 +1158,9 @@ const render = async (payload) => {{
     )
     assert "(bei 2 Sitzen 1/2, bei 3 Sitzen 1/3, bei 4 Sitzen 1/4)" in st
     assert "Jede Schicht steht unten einzeln mit n/N und Herkunft" in st
-    assert "diese Ansicht kommt als Folgepaket" in st
+    # #1694: one section per table size replaces the former "Folgepaket" note
+    assert "diese Ansicht kommt als Folgepaket" not in st
+    assert "werden unten je Tischgröße in einem eigenen Abschnitt geschichtet" in st
     assert "Nicht zusammengeführt: the strata" not in st
     assert r["sizeTexts"] == ["Tischgröße: 1 Sitz", "Tischgröße: 4 Sitze", "Tischgröße unbekannt"]
     assert "Nicht zusammengeführt: the deck states were played" in r["notPooled"]["text"]

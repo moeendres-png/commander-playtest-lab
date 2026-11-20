@@ -314,6 +314,58 @@ def test_pooled_outcomes_carry_no_single_state_but_the_strata() -> None:
     assert zahlen["outcome.stand.h2.t4.X.rate_in"]["stand_hash"] == "h2"
 
 
+def test_each_pooled_table_size_has_its_own_figures_and_none_spans_two() -> None:
+    """#1694: a table size whose deck states are combined stratified gets its own figures
+    (``outcome.kohorte.t<size>``) without a single state; a table size of one stratum gets none
+    of its own; the top level over two table sizes (NOT_POOLED) has no figures."""
+    card = {"card": "X", "status": "MEASURED", "reason": None, "games_total": 10}
+    card |= {"games_in_first_hand": 4, "rate_in": 0.5, "games_not_in_first_hand": 6}
+    card |= {"difference_pp": 5.0, "difference_ci95_pp": [-10.0, 20.0]}
+    base = {"deck_id": "d", "cards": [card], "pilots": ["P"], "warnings": []}
+    s1 = {**base, "deck_hash": "h1", "table_size": 2}
+    s2 = {**base, "deck_hash": "h2", "table_size": 2}
+    s3 = {**base, "deck_hash": "h1", "table_size": 3}
+    two = {
+        **base,
+        "deck_hash": None,
+        "table_size": 2,
+        "strata": 2,
+        "pooling": {"status": "POOLED", "method": "mantel_haenszel"},
+        "stands": [s1, s2],
+    }
+    three = {**s3, "strata": 1, "pooling": {"status": "SINGLE_STAND"}, "stands": [s3]}
+    table = {
+        **base,
+        "cards": [],
+        "deck_hash": "h1",
+        "table_size": None,
+        "pooling": {"status": "NOT_POOLED", "reason": "table size"},
+        "strata": 3,
+        "stands": [s1, s2, s3],
+        "unknown_strata": [],
+        "cohorts": [two, three],
+    }
+    zahlen = {item["id"]: item for item in nc.outcomes_zahlen(table)}
+    assert not [i for i in zahlen if i.count(".") == 2]  # the top level: nothing over two sizes
+    cohort = zahlen["outcome.kohorte.t2.X.difference_pp"]
+    assert cohort["stand_hash"] is None
+    assert cohort["bezug"] == "Partien (verglichen / alle), Tisch mit 2 Sitzen"
+    assert "Tisch mit 2 Sitzen" in cohort["kohorte"]
+    assert (
+        "geschichtet über 2 Schichten (Deck-Stände einer Tischgröße; mantel_haenszel)"
+        in cohort["hinweise"]
+    )
+    assert (
+        "eigene Tabelle je Tischgröße, nie mit einer anderen Tischgröße zusammengefasst"
+        in cohort["hinweise"]
+    )
+    assert not [i for i in zahlen if i.startswith("outcome.kohorte.t3.")]
+    assert zahlen["outcome.stand.h1.t3.X.rate_in"]["bezug"].endswith("Tisch mit 3 Sitzen")
+    assert len(zahlen) == 3 * 4  # three strata and one pooled table size, three figures each
+    for item in zahlen.values():
+        assert nc.check(item) == []
+
+
 def test_outcome_figures_name_the_table_size_of_their_stratum() -> None:
     """#1683: two strata of one deck state at 2 and 4 seats give two figure sets, each naming
     its table size in bezug, kohorte and hinweise; a stratum without a size says so."""
