@@ -1255,8 +1255,18 @@ def test_unowned_corpus_threshold_counts_decks_over_the_bound_corpus(
         studio, oracle_id="o-one", name="One Deck Card", colors="G", type_line="Instant"
     )
     _corpus_card(studio, "d1", "One Deck Card", "o-one")
+    # A deck bound to no commander counts neither in n nor in N (N is the bound corpus).
+    studio.connection.execute(
+        "INSERT INTO corpus_deck(deck_id, cohort, url, platform, play_group, deck_date, tags, "
+        "fingerprint, duplicate_of, legality_audit, source_id) VALUES ('loose', 'all', "
+        "'https://example.invalid/loose', 'test', 'community', NULL, '', 'fp-loose', NULL, "
+        "'{}', ?)",
+        (_source_id(studio),),
+    )
+    _corpus_card(studio, "loose", "One Deck Card", "o-one")
     studio.connection.commit()
     total = builder.cohort_sizes(studio, [COMMANDER])[builder.ALL_DECKS]
+    assert builder.corpus_binding(studio, [COMMANDER])["unbound_decks"] >= 1
     assert total >= 2
     # One deck of N: in exactly when 1 * 100 >= pct * N (integers, no rounding).
     monkeypatch.setattr(builder, "UNOWNED_MIN_CORPUS_PCT", 100 // total)
@@ -1298,6 +1308,15 @@ def test_unowned_edhrec_needs_a_denominator_of_thirty(studio: StudioStore) -> No
         _insert_scryfall(studio, oracle_id=oracle_id, name=name, colors="U", type_line="Sorcery")
     _observation(studio, "Obs Twentynine", cohort, 10, 29)
     _observation(studio, "Obs Thirty", cohort, 10, 30)
+    # an observation of another commander's cohort selects nothing here
+    _insert_scryfall(
+        studio, oracle_id="o-foreign", name="Foreign Obs", colors="U", type_line="Sorcery"
+    )
+    studio.connection.execute(
+        "INSERT INTO commander_binding(kind, key, commander_name, basis) "
+        "VALUES ('observation_cohort', 'edhrec:other', 'Other Commander', 'IMPORT_DECLARED')"
+    )
+    _observation(studio, "Foreign Obs", "edhrec:other", 20, 400)
     _signal(studio, "Sig Twentynine", "edhrec_commander_inclusion", 0.5, 14, 29)
     _signal(studio, "Sig Thirty", "edhrec_commander_inclusion", 0.5, 15, 30)
     _signal(studio, "Sig Thirty", "edhrec_commander_synergy", 0.25, None, None)
@@ -1307,6 +1326,7 @@ def test_unowned_edhrec_needs_a_denominator_of_thirty(studio: StudioStore) -> No
     assert "Obs Twentynine" not in unowned
     assert "Sig Twentynine" not in unowned
     assert "Synergy Only" not in unowned  # only an inclusion figure selects a card
+    assert "Foreign Obs" not in unowned  # bound to another commander
     assert unowned["Obs Thirty"]["selected_by"] == ["edhrec"]
     assert unowned["Obs Thirty"]["edhrec"]["denominator"] == 30  # type: ignore[index]
     sig = unowned["Sig Thirty"]
@@ -1392,3 +1412,32 @@ def test_unowned_card_in_a_counted_scope_is_unknown_over_the_scope_denominator(
         c.get("universe", {}).get("reason") != builder.UNOWNED_NOT_COUNTED  # type: ignore[union-attr]
         for c in plain["cards"]  # type: ignore[union-attr]
     )
+
+
+def test_saved_deck_criterion_is_bound_to_the_commander_and_ignores_history(
+    studio: StudioStore,
+) -> None:
+    for oracle_id, name in (("o-foreign-pick", "Foreign Pick"), ("o-old-pick", "Old Pick")):
+        _insert_scryfall(studio, oracle_id=oracle_id, name=name, colors="G", type_line="Instant")
+    studio.connection.commit()
+    before = builder.pool_cards(studio, [COMMANDER], include_unowned=True)
+    # A deck under another commander (another commander-zone card) with a green pick.
+    other = [RevisionCard("card:project:0101", 1, "commander")]
+    other += [RevisionCard(f"card:project:{110 + i:04d}") for i in range(10)]
+    revision = create_revision(studio, deck_id="other", name="Other", cards=other)
+    builder.write_draft(
+        studio, "other", "main", [*other, RevisionCard("scryfall:o-foreign-pick", 1)], revision
+    )
+    # A deck of this commander whose OLD revision held a pick that the head dropped.
+    first = create_revision(
+        studio,
+        deck_id="mine",
+        name="Mine",
+        cards=[*_deck(), RevisionCard("scryfall:o-old-pick", 1)],
+    )
+    create_revision(studio, deck_id="mine", name="Mine", cards=_deck(), parent_revision_id=first)
+    after = builder.pool_cards(studio, [COMMANDER], include_unowned=True)
+    assert "Foreign Pick" not in _unowned(after)
+    assert "Old Pick" not in _unowned(after)
+    assert after["unowned_selection"] == before["unowned_selection"]
+    assert len(_unowned(after)) == len(_unowned(before))

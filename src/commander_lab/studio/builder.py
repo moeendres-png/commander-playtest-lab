@@ -623,27 +623,54 @@ def build_wishlist(
     }
 
 
-def _saved_deck_card_ids(db: sqlite3.Connection) -> set[str]:
-    """Card ids in a deck draft or in the head revision of a deck branch (not the history):
-    cards the Owner already chose, which the Zukauf pool keeps so a draft never loses them."""
-    found = {
-        str(row[0])
-        for row in db.execute(
-            "SELECT DISTINCT rc.card_id FROM deck_branch b "
-            "JOIN deck_revision_card rc ON rc.revision_id = b.revision_id"
-        )
+def _saved_deck_card_ids(db: sqlite3.Connection, commander_ids: Sequence[str]) -> set[str]:
+    """Card ids in a deck draft or in the head revision of a deck branch (not the history) of
+    a deck under exactly these commanders: cards the Owner already chose for this commander,
+    which the Zukauf pool keeps so a draft never loses them. A deck's commanders are its
+    commander-zone cards (of the draft, else of the branch head); ``card_id`` and
+    ``scryfall:<oracle_id>`` name the same card."""
+    oracle_of = {
+        str(row[0]): str(row[1])
+        for row in db.execute("SELECT card_id, oracle_id FROM card WHERE oracle_id IS NOT NULL")
     }
-    for (raw,) in db.execute("SELECT cards FROM deck_draft"):
+
+    def same_card(card_id: str) -> str:
+        if card_id.startswith("scryfall:"):
+            return card_id.removeprefix("scryfall:")
+        return oracle_of.get(card_id, card_id)
+
+    wanted = frozenset(same_card(str(card_id)) for card_id in commander_ids)
+    if not wanted:
+        return set()
+    heads: dict[tuple[str, ...], list[tuple[str, str]]] = {}
+    for row in db.execute(
+        "SELECT b.deck_id, b.branch, rc.card_id, rc.zone FROM deck_branch b "
+        "JOIN deck_revision_card rc ON rc.revision_id = b.revision_id"
+    ):
+        heads.setdefault((str(row[0]), str(row[1])), []).append((str(row[2]), str(row[3])))
+    lists: dict[tuple[str, ...], list[tuple[str, str]]] = dict(heads)
+    for row in db.execute("SELECT deck_id, branch, cards FROM deck_draft"):
         try:
-            entries = json.loads(raw)
+            entries = json.loads(row[2])
         except (TypeError, ValueError):
             continue
-        if isinstance(entries, list):
-            found.update(
-                str(entry["card_id"])
-                for entry in entries
-                if isinstance(entry, dict) and entry.get("card_id")
-            )
+        if not isinstance(entries, list):
+            continue
+        cards = [
+            (str(entry["card_id"]), str(entry.get("zone") or "main"))
+            for entry in entries
+            if isinstance(entry, dict) and entry.get("card_id")
+        ]
+        key = (str(row[0]), str(row[1]))
+        if not any(zone == "commander" for _card, zone in cards):
+            # a draft without commander-zone entries keeps the commanders of its branch head
+            cards += [item for item in heads.get(key, []) if item[1] == "commander"]
+        lists[(*key, "draft")] = cards
+    found: set[str] = set()
+    for cards in lists.values():
+        commanders = frozenset(same_card(card) for card, zone in cards if zone == "commander")
+        if commanders == wanted:
+            found.update(card for card, _zone in cards)
     return found
 
 
@@ -690,6 +717,7 @@ def _unowned_pool_cards(
     commander_names: Sequence[str],
     identity: frozenset[str],
     *,
+    commander_ids: Sequence[str],
     owned_oracle_ids: set[str],
     owned_names_cf: set[str],
     hits: dict[str, dict[str, int]],
@@ -707,7 +735,8 @@ def _unowned_pool_cards(
         stored ``edhrec_commander_inclusion`` signal) over at least
         ``UNOWNED_MIN_EDHREC_DENOMINATOR`` decks;
     (c) ``planeswalker`` / ``proliferate``: the literal type line or Oracle text;
-    (d) ``in_saved_deck``: already in a deck draft or branch head (keeps the Owner's choice).
+    (d) ``in_saved_deck``: already in a deck draft or branch head of a deck under exactly these
+        commanders (keeps the Owner's choice; the history does not count).
 
     Returns the cards (each with ``selected_by``) and the ``unowned_selection`` block (the
     limits, N and the number of cards per criterion). No prices, no subjective ratings."""
@@ -727,7 +756,7 @@ def _unowned_pool_cards(
     ):
         edhrec_by_name.setdefault(str(obs["card_name"]).casefold(), obs)
     signals_by_name = _signals_by_name(db, commander_names)
-    saved_ids = _saved_deck_card_ids(db)
+    saved_ids = _saved_deck_card_ids(db, commander_ids)
     card_labels_map = _card_labels(store)
 
     def wide_enough(denominator: object) -> bool:
@@ -1003,6 +1032,7 @@ def pool_cards(
             store,
             commander_names,
             identity,
+            commander_ids=commander_ids,
             owned_oracle_ids=owned_oracle_ids,
             owned_names_cf=owned_names_cf,
             hits=hits,
