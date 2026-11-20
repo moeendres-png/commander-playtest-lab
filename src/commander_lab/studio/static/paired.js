@@ -437,7 +437,7 @@ function renderPairedComparisonSection(body, deps) {
   const seedInput = h("input", { type: "number", value: "1000", class: "seed-input", id: "paired-seed-input" });
   const thresholdInput = h("input", { type: "number", value: "0", step: "0.5", class: "seed-input", id: "paired-threshold-input" });
   const workersInput = h("input", { type: "number", value: "4", min: "1", max: "16", class: "seed-input", id: "paired-workers-input" });
-  const gamesPerJvmInput = h("input", { type: "number", value: "6", min: "1", max: "24", class: "seed-input", id: "paired-games-per-jvm-input" });
+  const gamesPerJvmInput = h("input", { type: "number", value: "16", min: "1", max: "24", class: "seed-input", id: "paired-games-per-jvm-input" });
   const rotateCheck = h("input", { type: "checkbox", checked: true, id: "paired-rotate-check" });
 
   const estLine = h("p", { class: "note", id: "paired-estimate" }, estimatePairedText(budgetSelect.value, workersInput.value));
@@ -489,7 +489,7 @@ function renderPairedComparisonSection(body, deps) {
           rotate_seats: rotateCheck.checked,
           threshold_pp: parseFloat(thresholdInput.value) || 0.0,
           workers: Math.max(1, Math.min(16, parseInt(workersInput.value, 10) || 4)),
-          games_per_jvm: Math.max(1, Math.min(24, parseInt(gamesPerJvmInput.value, 10) || 6)),
+          games_per_jvm: Math.max(1, Math.min(24, parseInt(gamesPerJvmInput.value, 10) || 16)),
         });
         deps.setActivePaired(res);
         refreshPairedSlots(deps);

@@ -888,6 +888,40 @@ def test_paired_comparison_and_card_outcomes_never_import_strength_or_tiers() ->
     assert offending == []
 
 
+def test_look_window_chunk_plan_keeps_seeds_and_assignment_when_games_per_jvm_changes() -> None:
+    """#1587: the default 16 (was 6) only regroups the games of a look window into chunks.
+
+    Every game is keyed by (arm, seat, seed), its game id by series, arm, seed and seat, never by
+    the chunk it sits in; so the set of games, the seat of each seed and the seed order inside one
+    (arm, seat) are the same for every ``games_per_jvm``.
+    """
+    units = [(seed, seat) for seed in range(1000, 1010) for seat in (0, 1, 2, 3)]
+
+    def games_of(plan: list[tuple[str, int, list[int]]]) -> list[tuple[str, int, int]]:
+        return [(arm, seat, seed) for arm, seat, seeds in plan for seed in seeds]
+
+    plans = {
+        per_jvm: paired_comparison.plan_look_window_chunks(units, workers=4, games_per_jvm=per_jvm)
+        for per_jvm in (1, 6, 16, 24)
+    }
+    expected = sorted((arm, seat, seed) for arm in paired_comparison.ARMS for seed, seat in units)
+    for per_jvm, plan in plans.items():
+        assert sorted(games_of(plan)) == expected, per_jvm
+        assert all(len(seeds) <= per_jvm for _arm, _seat, seeds in plan)
+        for arm in paired_comparison.ARMS:
+            for seat in (0, 1, 2, 3):
+                in_cell = [seed for a, st, seed in games_of(plan) if (a, st) == (arm, seat)]
+                assert in_cell == sorted(in_cell) == [s for s, u_seat in units if u_seat == seat]
+    # the chunk plan itself does change: that is the whole effect of the new default
+    assert plans[6] != plans[16]
+    assert games_of(plans[16]) != [] and len(plans[16]) < len(plans[6])
+    # a short window is capped by ceil(games / workers), so 16 and 24 give the same chunks there
+    short = [(seed, seat) for seed in (1, 2, 3) for seat in (0, 1)]
+    assert paired_comparison.plan_look_window_chunks(
+        short, workers=4, games_per_jvm=16
+    ) == paired_comparison.plan_look_window_chunks(short, workers=4, games_per_jvm=24)
+
+
 def test_parallel_window_player_matches_sequential_statistics_and_early_stops(
     tmp_path: Path,
 ) -> None:

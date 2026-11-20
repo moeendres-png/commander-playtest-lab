@@ -202,9 +202,9 @@ des Owners R1 oder eine Studio-Serie (`POST /api/simulations/batch`, `base_seed`
   Prüfen: 36 Spiele fertig, keine fehlgeschlagen oder fehlend; Gesamtlaufzeit (Wanduhr) und
   JAR-SHA-256 notieren.
 - **Weg B, Studio-Serie:** Seite „Simulieren“, Chulane-Revision, Pod, `games_count` 36, Basis-Seed 1,
-  Schrittweite 1, Arbeiter und Spiele je JVM notieren (Standard: Arbeiter `min(4, Kerne-1)`, 6
-  Spiele je JVM; `launch.default_workers`, `DEFAULT_GAMES_PER_JVM`). Fortschritt „x von n“, am Ende
-  Status und Ergebnis `SIMULATED_RESULT` (`games\<batch_id>.series.json`).
+  Schrittweite 1, Arbeiter und Spiele je JVM notieren (Standard: Arbeiter `min(4, Kerne-1)`, 16
+  Spiele je JVM seit #1587, vorher 6; `launch.default_workers`, `DEFAULT_GAMES_PER_JVM`). Fortschritt
+  „x von n“, am Ende Status und Ergebnis `SIMULATED_RESULT` (`games\<batch_id>.series.json`).
 - **Gepaarte Serien (SIMULATE A1, PR #1516):** `python -m commander_lab.studio compare-decks` bzw.
   die gepaarte Serien-Ansicht in der Oberfläche nutzen Slot-Ausrichtung, MDE-Planung und Seed-Plan.
   Die 5/6-Sitz-Sperre in den Serien-Routen und `compare-decks` ist als eigenes Paket (#1520) noch

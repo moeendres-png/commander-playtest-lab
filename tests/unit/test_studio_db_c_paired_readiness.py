@@ -945,6 +945,21 @@ def test_paired_js_csp_and_in_place_slot_refresh() -> None:
     assert "refreshPairedSlots(" in app_js
 
 
+def test_paired_js_games_per_jvm_input_default_follows_the_launch_default() -> None:
+    """#1587: the page's field and its fallback show the same default as the server."""
+    import re
+
+    from commander_lab.studio.launch import DEFAULT_GAMES_PER_JVM, MAX_GAMES_PER_JVM
+
+    paired_js = (STATIC_DIR / "paired.js").read_text(encoding="utf-8")
+    field = re.search(r'const gamesPerJvmInput = h\("input", \{([^}]*)\}', paired_js)
+    assert field is not None
+    assert f'value: "{DEFAULT_GAMES_PER_JVM}"' in field.group(1)
+    assert f'max: "{MAX_GAMES_PER_JVM}"' in field.group(1)
+    assert f"parseInt(gamesPerJvmInput.value, 10) || {DEFAULT_GAMES_PER_JVM})" in paired_js
+    assert f"Math.min({MAX_GAMES_PER_JVM}," in paired_js
+
+
 def _paired_js(calls: str) -> object:
     """Run paired.js under node with a German number stub and return ``calls`` as JSON."""
     import shutil
