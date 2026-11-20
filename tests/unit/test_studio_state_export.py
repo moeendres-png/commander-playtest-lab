@@ -7,7 +7,9 @@ from __future__ import annotations
 
 import gzip
 import json
+import os
 import sqlite3
+import sys
 import time
 from collections.abc import Callable
 from pathlib import Path
@@ -486,10 +488,10 @@ def test_a_fresh_heartbeat_of_a_dead_pid_counts_as_stale(tmp_path: Path) -> None
         json.dumps({"pid": 2**22 + 12345, "token": "old", "heartbeat_epoch": time.time()}),
         encoding="utf-8",
     )
-    if not hasattr(__import__("os"), "getuid"):
+    if sys.platform == "win32":
         pytest.skip("PID probe is not used on Windows (UNKNOWN there)")
-    with InstanceLock(tmp_path) as lock:
-        assert lock.held
+    with InstanceLock(tmp_path):
+        assert json.loads((tmp_path / LOCK_NAME).read_text())["pid"] == os.getpid()
 
 
 def test_an_unreadable_fresh_lock_counts_as_live(tmp_path: Path) -> None:
