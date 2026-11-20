@@ -562,6 +562,8 @@ def test_series_route_sends_simulated_contracts_with_both_deck_hashes(tmp_path: 
     assert reference["basis_hash"] is None  # a reference deck has no stored hash: unknown
     old = dict(body)
     del old["zahlen"]
+    # Q1-c (#1666): the maturity sits beside the stored fields and changes none of them
+    assert old.pop("reifegrad")["data_class"] == "SIMULATED_RESULT"
     assert old == json.loads(json.dumps(deck_series.deck_series(folder, [rev_b, rev_a])))
 
 
