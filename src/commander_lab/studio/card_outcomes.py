@@ -26,9 +26,17 @@ combined. Both axes come from one axis list (``STRATUM_AXES``), so a further axi
 fingerprint of #1687) joins the same grouping and the same mixing check.
 
 Since #1694 the answer carries one table per value of the axes that must be equal (``cohorts``,
-today one per table size): the deck states of one table size are combined stratified inside
-their own table by the same rules, while the top level never combines two table sizes. A
-single stratum of another table size no longer takes the stratified view from all others.
+one per cell of table size and pilot fingerprint): the deck states of one cell are combined
+stratified inside their own table by the same rules, while the top level never combines two
+cells. A single stratum of another cell no longer takes the stratified view from all others.
+
+Since #1687 a stratum is (deck state, table size, pilot fingerprint): a change of the pilot at
+one deck state gives separate strata instead of refusing the whole answer. A log whose header
+names no fingerprint (written before #1658) forms the stratum "Pilot unbekannt" with its own
+n/N; it is never added to a known fingerprint, and unknown is never equal to unknown. Strata of
+different fingerprints are never combined. ``MixedPilotError`` remains only where games would
+really be counted together: inside "Pilot unbekannt", when its logs name different pilot
+versions.
 """
 
 from __future__ import annotations
@@ -52,7 +60,9 @@ from .simulations import wilson_score_interval
 
 # 3 since #1683: strata of deck state and table size; ``unknown_strata`` replaces ``unknown_stand``.
 # 4 since #1694: ``cohorts`` holds one combined table per table size.
-SCHEMA = "studio-card-outcomes-4"
+# 5 since #1687: the pilot fingerprint is an axis (``pilot_fingerprint`` per stratum, cohorts per
+# table size and fingerprint, ``pooling.differing_axes``); a pilot change no longer refuses.
+SCHEMA = "studio-card-outcomes-5"
 DATA_CLASS = "SIMULATED_RESULT"
 ESTIMAND = (
     "win rate with the card in the first dealt hand minus without; "
@@ -68,17 +78,13 @@ CACHE_DIR = ".outcomes-cache"
 # 3 since #1657: a seat carries the deck state (``deck_hash``, ``revision_id``) of the header;
 # a version-2 entry knows no hash and is read again from its log. 4 since #1658: a game
 # carries the pilot fingerprint of the header. 5 since #1683: a game carries the table size of
-# the header; a version-4 entry knows none and is read again from its log.
+# the header; a version-4 entry knows none and is read again from its log. #1687 groups by the
+# pilot fingerprint the entry has carried since version 4, so the cached structure is unchanged.
 CACHE_VERSION = 5
 PARALLEL_MIN_LOGS = 8  # cold logs before a process pool pays for itself
 MAX_WORKERS = 4
 CHANCE_RATE = 0.05
 _DECK_HASH = re.compile(r"[0-9a-f]{64}")
-POOLING_METHOD = (
-    "stratified by deck state (one table size only): Mantel-Haenszel risk difference (weights "
-    "n_in*n_not/n per stand), 95 % Wald interval with the Sato variance; rates are given per "
-    "stand only"
-)
 # The scalar keys that open every frame line; None groups mean JSON ``null``.
 _FRAME_HEAD = re.compile(
     rb'\{\s*"kind"\s*:\s*"frame"\s*,[^{}\[\]]{0,300}?"turn"\s*:\s*(-?\d+|null)\s*,'
@@ -154,14 +160,21 @@ class PodCount(TypedDict):
     games: int
 
 
+class DifferingAxis(TypedDict):
+    field: str
+    values: list[str | int | None]
+
+
 class Pooling(TypedDict):
     status: Literal["NO_KNOWN_STAND", "SINGLE_STAND", "POOLED", "NOT_POOLED"]
     reason: str | None
     method: str | None
-    # NOT_POOLED because an axis that must be equal differs (#1683): its field ("table_size")
-    # and its values, so the page can explain it in German; None otherwise.
+    # NOT_POOLED because an axis that must be equal differs (#1683): the first such axis by its
+    # field ("table_size", "pilot_fingerprint") and its values, so the page can explain it in
+    # German; ``differing_axes`` (#1687) lists every such axis in ``STRATUM_AXES`` order.
     differing_axis: NotRequired[str | None]
     differing_values: NotRequired[list[str | int | None]]
+    differing_axes: NotRequired[list[DifferingAxis]]
 
 
 class CardOutcomeTable(TypedDict):
@@ -192,10 +205,12 @@ class CardOutcomeTable(TypedDict):
     commanders_excluded: list[str]
     warnings: list[str]
     cards: list[CardOutcome]
-    # One stratum (#1657, #1683): its deck state (None = "Stand unbekannt"), its table size
-    # (None = "Tischgröße unbekannt") and the Studio revisions the logs name for it.
+    # One stratum (#1657, #1683, #1687): its deck state (None = "Stand unbekannt"), its table
+    # size (None = "Tischgröße unbekannt"), its pilot fingerprint (None = "Pilot unbekannt")
+    # and the Studio revisions the logs name for it.
     deck_hash: NotRequired[str | None]
     table_size: NotRequired[int | None]
+    pilot_fingerprint: NotRequired[str | None]
     revision_ids: NotRequired[list[str]]
     # The answer for a deck (``stand_tables``): the strata whose every axis is known, the
     # strata with an unknown axis apart, each with its own n/N.
@@ -203,8 +218,8 @@ class CardOutcomeTable(TypedDict):
     pooling: NotRequired[Pooling]
     stands: NotRequired[list[CardOutcomeTable]]
     unknown_strata: NotRequired[list[CardOutcomeTable]]
-    # One table per value of the axes that must be equal (#1694; today the table size), each
-    # combining only its own strata; empty when the known strata share one such value.
+    # One table per value of the axes that must be equal (#1694, #1687: table size and pilot
+    # fingerprint), each combining only its own strata; empty when the known strata share them.
     cohorts: NotRequired[list[CardOutcomeTable]]
 
 
@@ -766,7 +781,11 @@ def _card_row(
 
 
 class MixedPilotError(ValueError):
-    """One aggregate would count games of two pilots (fingerprints) together (#1658)."""
+    """One aggregate would count games of two pilots together (#1658).
+
+    Since #1687 games of different fingerprints form different strata, so in the answer of a
+    deck this is raised only inside "Pilot unbekannt", by logs that name different pilot versions.
+    """
 
 
 def pilot_identity(game: GameExposure) -> str | None:
@@ -972,6 +991,15 @@ def table_size_of(game: GameExposure) -> int | None:
     return game.get("table_size")
 
 
+def pilot_fingerprint_of(game: GameExposure) -> str | None:
+    """The pilot fingerprint a game is counted under (#1687): the header's, or None.
+
+    ``None`` is the stratum "Pilot unbekannt" (a log written before the header named a
+    fingerprint); it is never equal to a known fingerprint or to another unknown one.
+    """
+    return game.get("pilot_fingerprint")
+
+
 StratumValue = str | int | None
 
 
@@ -981,8 +1009,9 @@ class StratumAxis(NamedTuple):
     ``pooled`` axes may differ between strata that are combined stratified (the deck state);
     every other axis must be known and equal, or the strata are not combined. ``unknown`` is
     the label of the stratum whose value is missing, ``shown`` names a known value, ``field``
-    is the key of the stratum table that carries the value. A further axis (the pilot fingerprint of
-    #1687) is one more entry here, read by the same grouping and the same mixing check.
+    is the key of the stratum table that carries the value. The pilot fingerprint (#1687) is one
+    such entry, read by the same grouping and the same mixing check. ``number_contract`` and
+    ``kartenauswertung.js`` name the axes in the same order; a test pins both to this list.
     """
 
     field: str
@@ -1013,8 +1042,37 @@ STRATUM_AXES: tuple[StratumAxis, ...] = (
         lambda value: f"{value} seat" if value == 1 else f"{value} seats",
         pooled=False,
     ),
+    StratumAxis(
+        "pilot_fingerprint",
+        "pilot fingerprint",
+        "Pilot unbekannt",
+        lambda game, _seat: pilot_fingerprint_of(game),
+        lambda table: table.get("pilot_fingerprint"),
+        lambda value: f"pilot {str(value)[:12]}",
+        pooled=False,
+    ),
 )
 StratumKey = tuple[StratumValue, ...]
+
+
+def _axis_list(labels: Sequence[str]) -> str:
+    """ "both a and b", "all of a, b and c": the axes named in one phrase."""
+    if len(labels) < 2:
+        return "".join(labels)
+    joined = f"{', '.join(labels[:-1])} and {labels[-1]}"
+    return f"both {joined}" if len(labels) == 2 else f"all of {joined}"
+
+
+def _and(labels: Sequence[str]) -> str:
+    return labels[0] if len(labels) == 1 else f"{', '.join(labels[:-1])} and {labels[-1]}"
+
+
+POOLING_METHOD = (
+    f"stratified by {_and([a.label for a in STRATUM_AXES if a.pooled])} (one "
+    f"{_and([a.label for a in STRATUM_AXES if not a.pooled])} only): Mantel-Haenszel risk "
+    "difference (weights n_in*n_not/n per stand), 95 % Wald interval with the Sato variance; "
+    "rates are given per stand only"
+)
 
 
 def stratum_of(game: GameExposure, seat: SeatExposure) -> StratumKey:
@@ -1155,36 +1213,44 @@ def _pod_set(table: CardOutcomeTable) -> tuple[tuple[str, ...], ...]:
     return tuple(sorted(tuple(pod["opponents"]) for pod in table["pods"]))
 
 
-def _differing_axis(
+def _differing_axes(
     stands: Sequence[CardOutcomeTable],
-) -> tuple[StratumAxis, list[StratumValue]] | None:
-    """The first axis that must be equal but differs between the strata, with its values in
-    order (numbers numerically), or None."""
+) -> list[tuple[StratumAxis, list[StratumValue]]]:
+    """Every axis that must be equal but differs between the strata, in ``STRATUM_AXES``
+    order, each with its values in order (numbers numerically)."""
+    out = []
     for axis in STRATUM_AXES:
         seen = {axis.of_table(stand) for stand in stands}
         if not axis.pooled and len(seen) > 1:
-            return axis, sorted(seen, key=lambda v: _stratum_order((v,)))
-    return None
+            out.append((axis, sorted(seen, key=lambda v: _stratum_order((v,)))))
+    return out
+
+
+def _value_text(value: StratumValue) -> str:
+    """A value in a reason: a number as it is, a hash by its first 12 digits."""
+    return str(value)[:12] if isinstance(value, str) else str(value)
 
 
 def _not_poolable(stands: Sequence[CardOutcomeTable]) -> str | None:
     """Why the strata of one deck may not be combined, or None when they may.
 
     An unknown value is never equal to another unknown value: a stratum with an unknown axis
-    (deck state, table size), or whose games (or some of them) carry no engine commit, bridge
-    jar, pilot or decision policy is not pooled. Strata are combined only across deck states:
-    every other axis of ``STRATUM_AXES`` (the table size) must be equal; that is checked first,
-    so the reason names the axis even when the pod sets differ as well.
+    (deck state, table size, pilot fingerprint), or whose games (or some of them) carry no
+    engine commit, bridge jar, pilot or decision policy is not pooled. Strata are combined only
+    across deck states: every other axis of ``STRATUM_AXES`` (table size, pilot fingerprint)
+    must be equal; that is checked first, so the reason names every differing axis even when
+    the pod sets differ as well.
     """
     for stand in stands:
         axes = [f"{axis.label} unknown" for axis in STRATUM_AXES if axis.of_table(stand) is None]
         if axes:
             return f"a stratum has {'; '.join(axes)}: unknown is not equal, not pooled"
-    differing = _differing_axis(stands)
-    if differing is not None:
-        axis, seen = differing
-        shown = ", ".join(str(v) for v in seen)
-        return f"the strata differ in {axis.label} ({shown}): never combined, not pooled"
+    differing = _differing_axes(stands)
+    if differing:
+        named = " and ".join(
+            f"{axis.label} ({', '.join(_value_text(v) for v in seen)})" for axis, seen in differing
+        )
+        return f"the strata differ in {named}: never combined, not pooled"
     for stand in stands:
         unknown = [
             label
@@ -1232,17 +1298,9 @@ def _stand_table(
     return table
 
 
-def _axis_list(labels: Sequence[str]) -> str:
-    """ "both a and b", "all of a, b and c": the axes named in one phrase."""
-    if len(labels) < 2:
-        return "".join(labels)
-    joined = f"{', '.join(labels[:-1])} and {labels[-1]}"
-    return f"both {joined}" if len(labels) == 2 else f"all of {joined}"
-
-
 def _cohort_key(key: StratumKey) -> StratumKey:
-    """The values of the axes that must be equal (the table size): strata that share them may
-    be combined, strata that differ in them never are (#1694)."""
+    """The values of the axes that must be equal (table size, pilot fingerprint): strata that
+    share them may be combined, strata that differ in them never are (#1694, #1687)."""
     return tuple(v for axis, v in zip(STRATUM_AXES, key, strict=True) if not axis.pooled)
 
 
@@ -1286,10 +1344,13 @@ def _combined(
             "reason": reason,
             "method": None if reason else POOLING_METHOD,
         }
-        differing = _differing_axis(stands) if reason else None
-        if differing is not None and reason and reason.startswith("the strata differ in"):
-            pooling["differing_axis"] = differing[0].field
-            pooling["differing_values"] = differing[1]
+        differing = _differing_axes(stands) if reason else []
+        if differing and reason and reason.startswith("the strata differ in"):
+            pooling["differing_axis"] = differing[0][0].field
+            pooling["differing_values"] = differing[0][1]
+            pooling["differing_axes"] = [
+                {"field": axis.field, "values": values} for axis, values in differing
+            ]
         if reason:
             top["status"] = "NOT_POOLED"
             top["cards"] = []
@@ -1322,22 +1383,24 @@ def stand_tables(
     games_skipped_unreadable: int = 0,
     duplicate_logs_ignored: int = 0,
 ) -> CardOutcomeTable:
-    """The card answer for one deck, counted per stratum (deck state #1657, table size #1683).
+    """The card answer for one deck, counted per stratum (deck state #1657, table size #1683,
+    pilot fingerprint #1687).
 
     ``stands`` holds one :func:`aggregate` table per stratum whose every axis is known (a
-    ``deck_hash`` and a ``table_size``); ``unknown_strata`` holds one table per stratum with an
-    unknown axis ("Stand unbekannt", "Tischgröße unbekannt"), each with its own n/N, never
-    added to a known stratum. The top level counts the known strata only: one is shown as it
-    is; several are combined only stratified (``strata`` = number of known strata, rows from
-    :func:`mantel_haenszel_difference`) and only when table size, engine, bridge jar, pilot,
-    decision policy and pod set agree; otherwise the top level carries no card rows
-    (``NOT_POOLED``) and a reason. Mixed values inside one stratum raise as in
-    :func:`aggregate` unless allowed.
+    ``deck_hash``, a ``table_size`` and a ``pilot_fingerprint``); ``unknown_strata`` holds one
+    table per stratum with an unknown axis ("Stand unbekannt", "Tischgröße unbekannt", "Pilot
+    unbekannt"), each with its own n/N, never added to a known stratum. The top level counts
+    the known strata only: one is shown as it is; several are combined only stratified
+    (``strata`` = number of known strata, rows from :func:`mantel_haenszel_difference`) and only
+    when table size, pilot fingerprint, engine, bridge jar, pilot, decision policy and pod set
+    agree; otherwise the top level carries no card rows (``NOT_POOLED``) and a reason. Mixed
+    values inside one stratum raise as in :func:`aggregate` unless allowed; since a stratum
+    holds one fingerprint, mixed pilots can only raise inside "Pilot unbekannt".
 
-    ``cohorts`` (#1694): when the known strata differ in an axis that must be equal (the table
-    size), one table per value of those axes, built by the same rules from its own strata
-    only; the strata of one table size are thus still combined stratified, and two table sizes
-    never share a table. Empty when all known strata share those values.
+    ``cohorts`` (#1694): when the known strata differ in an axis that must be equal (table
+    size, pilot fingerprint), one table per value of those axes, built by the same rules from
+    its own strata only; the strata of one cell are thus still combined stratified, and two
+    cells never share a table. Empty when all known strata share those values.
     """
     groups: dict[StratumKey, list[GameExposure]] = {}
     for game in exposures:

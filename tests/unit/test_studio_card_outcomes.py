@@ -44,6 +44,11 @@ def _hash(label: str) -> str:
     return hashlib.sha256(label.encode("utf-8")).hexdigest()
 
 
+# The pilot fingerprint every fixture game names unless told otherwise (#1658, #1687): a game
+# without one forms the stratum "Pilot unbekannt".
+PILOT_FP = _hash("pilot")
+
+
 def _frame(
     n: int,
     seat: int,
@@ -89,13 +94,15 @@ def _write_log(
     gz: bool = True,
     deck_hashes: object = _DEFAULT,
     revisions: tuple[str | None, str | None] = (None, None),
-    fingerprint: str | None = None,
+    fingerprint: object = _DEFAULT,
     extra_seats: Sequence[object] = (),
     bridge_jar: str | None = None,
 ) -> Path:
     """One game log. Every seat names a deck state derived from its deck id unless
     ``deck_hashes`` gives others; ``deck_hashes=None`` writes a log of before #1657.
-    ``extra_seats`` are further header seat rows (a bigger table, or a damaged seat list)."""
+    ``extra_seats`` are further header seat rows (a bigger table, or a damaged seat list).
+    The header names ``PILOT_FP`` unless ``fingerprint`` gives another; ``fingerprint=None``
+    writes a log of before #1658 ("Pilot unbekannt")."""
     hashes: tuple[str | None, str | None] = (
         (_hash(decks[0]), _hash(decks[1]))
         if deck_hashes is _DEFAULT
@@ -121,8 +128,9 @@ def _write_log(
         "decision_policy": "policy-1",
         "seats": header_seats,
     }
-    if fingerprint is not None:
-        header["pilot_fingerprint"] = fingerprint
+    named = PILOT_FP if fingerprint is _DEFAULT else fingerprint
+    if named is not None:
+        header["pilot_fingerprint"] = named
     if bridge_jar is not None:
         header["bridge_jar_sha256"] = bridge_jar
     lines: list[dict[str, object]] = [header, *frames]
@@ -252,7 +260,11 @@ def _seat(seat: int, deck_id: str, hand: list[str], credit: float) -> SeatExposu
 
 
 def _synthetic(
-    games: list[tuple[list[str], bool]], *, commit: str = COMMIT, pilot: str = "P1"
+    games: list[tuple[list[str], bool]],
+    *,
+    commit: str = COMMIT,
+    pilot: str = "P1",
+    fingerprint: str | None = PILOT_FP,
 ) -> list[GameExposure]:
     out: list[GameExposure] = []
     for index, (hand, won) in enumerate(games):
@@ -262,6 +274,7 @@ def _synthetic(
                 "seed": index,
                 "engine_commit": commit,
                 "pilot": pilot,
+                "pilot_fingerprint": fingerprint,
                 "decision_policy": "policy-1",
                 "table_size": 2,
                 "winner_seats": [0] if won else [1],
@@ -329,7 +342,7 @@ def test_table_carries_provenance_and_pods() -> None:
     table = aggregate(_synthetic(_block("A", 5, 2)), deck_id=DECK, min_exposed=100)
     assert table["data_class"] == DATA_CLASS == "SIMULATED_RESULT"
     assert "first dealt hand" in table["estimand"]
-    assert table["engine_commits"] == [COMMIT] and table["pilots"] == ["P1"]
+    assert table["engine_commits"] == [COMMIT] and table["pilots"] == [f"fp:{PILOT_FP}"]
     assert table["seeds"] == 5
     assert table["pods"] == [{"opponents": [OTHER], "games": 5}]
     assert any("only 5 games" in w for w in table["warnings"])
@@ -342,39 +355,181 @@ def test_mixed_engine_commits_or_pilots_are_refused_unless_allowed() -> None:
     pooled = aggregate(mixed, deck_id=DECK, allow_mixed=True)
     assert len(pooled["engine_commits"]) == 2
     assert any("mixed engine commits" in w for w in pooled["warnings"])
-    pilots = _synthetic(_block("A", 3, 1)) + _synthetic(_block("A", 3, 1), pilot="P2")
-    with pytest.raises(ValueError, match="mixed pilot versions"):
+    # logs without a fingerprint (before #1658) compare their pilot version strings
+    pilots = _synthetic(_block("A", 3, 1), fingerprint=None) + _synthetic(
+        _block("A", 3, 1), pilot="P2", fingerprint=None
+    )
+    with pytest.raises(card_outcomes.MixedPilotError, match="mixed pilot versions"):
         aggregate(pilots, deck_id=DECK)
 
 
 def test_the_pilot_fingerprint_is_the_identity_and_unknown_never_pools(tmp_path: Path) -> None:
-    """#1658: games of one deck state with two fingerprints, or with and without one, are
-    refused like mixed pilot versions; the same fingerprint counts together."""
+    """#1658, #1687: games of one deck state with two fingerprints, or with and without one,
+    are never counted together: each fingerprint is a stratum of its own and a log without one
+    sits only in "Pilot unbekannt"; the same fingerprint counts together."""
     frames = [_frame(1, 0, "mulligan", hand=["A"], chosen=["Keep hand"])]
     fp_a, fp_b = _hash("pilot-a"), _hash("pilot-b")
     _write_log(tmp_path, "g1", frames, seed=1, fingerprint=fp_a)
     _write_log(tmp_path, "g2", frames, seed=2, fingerprint=fp_a)
     table = outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
-    assert table["pilots"] == [f"fp:{fp_a}"]
-    for game_id, fingerprint in (("g3", None), ("g3", fp_b)):
-        _write_log(tmp_path, game_id, frames, seed=3, fingerprint=fingerprint)
-        with pytest.raises(ValueError, match="mixed pilot versions"):
-            outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
+    assert table["pilots"] == [f"fp:{fp_a}"] and table["pilot_fingerprint"] == fp_a
+    assert table["games_total"] == 2 and table["strata"] == 1
+    _write_log(tmp_path, "g3", frames, seed=3, fingerprint=None)
+    with_old = outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
+    assert with_old["strata"] == 1 and with_old["games_total"] == 2  # never 3
+    (unknown,) = with_old["unknown_strata"]
+    assert unknown["pilot_fingerprint"] is None and unknown["games_total"] == 1
+    assert unknown["pilots"] == ["Pilot 1.0.0"]  # the version string of the old log
+    assert any(
+        "1 game(s) without a pilot fingerprint (Pilot unbekannt)" in w for w in with_old["warnings"]
+    )
+    _write_log(tmp_path, "g4", frames, seed=4, fingerprint=fp_b)
+    both = outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
+    assert both["strata"] == 2 and both["status"] == "NOT_POOLED" and both["cards"] == []
+    by_print = {s["pilot_fingerprint"]: s["games_total"] for s in both["stands"]}
+    assert by_print == {fp_a: 2, fp_b: 1}
+    assert [s["pilots"] for s in both["stands"]] == [[f"fp:{fp_a}"], [f"fp:{fp_b}"]]
+    assert [t["games_total"] for t in both["unknown_strata"]] == [1]
 
 
-def test_the_card_page_explains_a_pilot_change_in_german(tmp_path: Path) -> None:
-    """Review #1685 P2-2: the 409 names cause and way out in German, and counts nothing."""
+def test_two_fingerprints_at_one_stand_are_separate_strata_not_a_409(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Acceptance #1687 over the route: a pilot change at one deck state answers 200 with one
+    stratum per fingerprint, each with its own n/N, never combined, and a log without a
+    fingerprint only in "Pilot unbekannt"; the figures name the fingerprint of their stratum."""
+    monkeypatch.setenv("COMMANDER_LAB_CACHE_CHECK", "1")
+    games = tmp_path / "games"
+    fp_a, fp_b = _hash("pilot-a"), _hash("pilot-b")
+    for fingerprint, count, base in ((fp_a, 6, 0), (fp_b, 4, 100), (None, 3, 200)):
+        for n in range(count):
+            _write_log(
+                games,
+                f"g{base + n}",
+                _simple_frames(["Sol Ring"] if n % 2 == 0 else ["Forest"]),
+                winners=(0,) if n % 3 == 0 else (1,),
+                seed=base + n,
+                fingerprint=fingerprint,
+                bridge_jar="d" * 64,
+            )
+    with TestClient(create_app(tmp_path)) as client:
+        response = client.get("/api/outcomes", params={"deck_id": DECK, "min_exposed": 1})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["schema"] == "studio-card-outcomes-5"
+    assert body["strata"] == 2 and body["status"] == "NOT_POOLED" and body["cards"] == []
+    assert body["games_total"] == 10  # 6 + 4: "Pilot unbekannt" is never added
+    pooling = body["pooling"]
+    assert pooling["differing_axis"] == "pilot_fingerprint"
+    assert pooling["differing_values"] == sorted([fp_a, fp_b])
+    assert pooling["differing_axes"] == [
+        {"field": "pilot_fingerprint", "values": sorted([fp_a, fp_b])}
+    ]
+    assert "pilot fingerprint (" in pooling["reason"] and "table size" not in pooling["reason"]
+    stands = {s["pilot_fingerprint"]: s for s in body["stands"]}
+    assert {k: v["games_total"] for k, v in stands.items()} == {fp_a: 6, fp_b: 4}
+    assert {s["deck_hash"] for s in body["stands"]} == {_hash(DECK)}
+    (apart,) = body["unknown_strata"]
+    assert apart["pilot_fingerprint"] is None and apart["games_total"] == 3
+    assert apart["deck_hash"] == _hash(DECK) and apart["table_size"] == 2
+    # one section per fingerprint (cell of table size and pilot), each a single stratum
+    assert [(c["pilot_fingerprint"], c["games_total"]) for c in body["cohorts"]] == sorted(
+        [(fp_a, 6), (fp_b, 4)]
+    )
+    ids = [item["id"] for item in body["zahlen"]]
+    assert len(ids) == len(set(ids))  # two fingerprints of one stand never share an id
+    for fingerprint, stand in stands.items():
+        mine = [
+            z
+            for z in body["zahlen"]
+            if z["id"].startswith(f"outcome.stand.{_hash(DECK)}.t2.p{fingerprint}.")
+        ]
+        assert len(mine) == 3 * len(stand["cards"]) > 0
+        for item in mine:
+            assert item["pilot"] == f"Pilot-Fingerabdruck {fingerprint[:12]}"
+            assert item["piloten"] == [f"fp:{fingerprint}"] and item["N"] == stand["games_total"]
+            assert item["bezug"].endswith(
+                f"Tisch mit 2 Sitzen, Pilot-Fingerabdruck {fingerprint[:12]}"
+            )
+            assert f"Pilot-Fingerabdruck {fingerprint[:12]}" in item["kohorte"]
+            assert f"Pilot-Fingerabdruck: {fingerprint}" in item["hinweise"]
+    old = [
+        z
+        for z in body["zahlen"]
+        if z["id"].startswith(f"outcome.unknown.{_hash(DECK)}.t2.punbekannt.")
+    ]
+    assert len(old) == 3 * len(apart["cards"]) > 0
+    for item in old:
+        assert item["pilot"] == "Pilot unbekannt" and item["N"] == 3
+        assert "Pilot unbekannt (Protokollkopf ohne Pilot-Fingerabdruck)" in item["hinweise"]
+    assert not [i for i in ids if i.count(".") == 2]  # NOT_POOLED: no figure over two pilots
+
+
+def test_table_size_and_pilot_cells_pool_only_inside_one_cell() -> None:
+    """#1687 with #1694: strata of (table size x pilot fingerprint) cells. Deck states of one
+    cell are combined stratified in their own table; two cells never; the reason names both
+    axes when both differ."""
+    fp_b = _hash("pilot-b")
+    a2 = _stated(_block("A", 10, 6) + _block("F", 10, 4), STATE_A, prefix="a")
+    b2 = _stated(_block("A", 10, 5) + _block("F", 10, 3), STATE_B, prefix="b")
+    a2b = _with(
+        _stated(_block("A", 6, 3) + _block("F", 6, 2), STATE_A, prefix="c"), pilot_fingerprint=fp_b
+    )
+    b2b = _with(
+        _stated(_block("A", 6, 2) + _block("F", 6, 2), STATE_B, prefix="d"), pilot_fingerprint=fp_b
+    )
+    a3 = _with(_stated(_block("A", 4, 1) + _block("F", 4, 2), STATE_A, prefix="e"), table_size=3)
+    table = card_outcomes.stand_tables([*a2, *b2, *a2b, *b2b, *a3], deck_id=DECK, min_exposed=1)
+    assert table["strata"] == 5 and table["status"] == "NOT_POOLED" and table["cards"] == []
+    assert [d["field"] for d in table["pooling"]["differing_axes"]] == [
+        "table_size",
+        "pilot_fingerprint",
+    ]
+    reason = str(table["pooling"]["reason"])
+    assert "table size (2, 3) and pilot fingerprint (" in reason
+    cells = {(c["table_size"], c["pilot_fingerprint"]): c for c in table["cohorts"]}
+    assert set(cells) == {(2, PILOT_FP), (2, fp_b), (3, PILOT_FP)}
+    own, other, three = cells[(2, PILOT_FP)], cells[(2, fp_b)], cells[(3, PILOT_FP)]
+    assert own["pooling"]["status"] == "POOLED" and own["games_total"] == 40
+    assert other["pooling"]["status"] == "POOLED" and other["games_total"] == 24
+    assert three["pooling"]["status"] == "SINGLE_STAND" and three["games_total"] == 8
+    # Mantel-Haenszel only inside a cell: weights 5/5 (own) and 3/3 (other), by hand
+    own_row = {r["card"]: r for r in own["cards"]}["A"]
+    other_row = {r["card"]: r for r in other["cards"]}["A"]
+    assert own_row["strata"] == 2 and own_row["difference_pp"] == pytest.approx(20.0)
+    assert other_row["strata"] == 2 and other_row["difference_pp"] == pytest.approx(8.333, abs=1e-3)
+    assert (own_row["games_in_first_hand"], other_row["games_in_first_hand"]) == (20, 12)
+    for cell in table["cohorts"]:
+        assert {(s["table_size"], s["pilot_fingerprint"]) for s in cell["stands"]} == {
+            (cell["table_size"], cell["pilot_fingerprint"])
+        }
+    assert sum(c["strata"] for c in table["cohorts"]) == table["strata"]
+    text = format_table(table)
+    assert "strata (deck state x table size x pilot fingerprint) 5" in text
+    assert f"cohort 2 seats · pilot {fp_b[:12]}: strata 2 (POOLED)  games 24" in text
+
+
+def test_logs_without_a_fingerprint_with_two_pilot_versions_still_refuse(tmp_path: Path) -> None:
+    """#1687: the 409 stays only where games would really be counted together: logs without a
+    fingerprint ("Pilot unbekannt") at one deck state that name two pilot versions."""
     games_dir = tmp_path / "studio" / "games"
     games_dir.mkdir(parents=True)
     frames = [_frame(1, 0, "mulligan", hand=["A"], chosen=["Keep hand"])]
     _write_log(games_dir, "g1", frames, seed=1, fingerprint=_hash("pilot-a"))
     _write_log(games_dir, "g2", frames, seed=2, fingerprint=None)
+    path = _write_log(games_dir, "g3", frames, seed=3, fingerprint=None, gz=False)
+    path.write_text(
+        path.read_text(encoding="utf-8").replace("Pilot 1.0.0", "Pilot 0.9.0"), encoding="utf-8"
+    )
+    with pytest.raises(card_outcomes.MixedPilotError, match="mixed pilot versions"):
+        outcomes_for_folder(games_dir, deck_id=DECK, min_exposed=1)
     with TestClient(create_app(tmp_path / "studio")) as client:
         response = client.get("/api/outcomes", params={"deck_id": DECK, "min_exposed": 1})
     assert response.status_code == 409
     detail = response.json()["detail"]
     assert "Pilot-Fingerabdruck" in detail and "nie zusammengezählt" in detail
     assert "unbekannt, nicht 0" in detail and "mixed" not in detail
+    assert "eigene Schicht" in detail and "folgt" not in detail
 
 
 # --- API and CLI -----------------------------------------------------------------------
@@ -866,7 +1021,7 @@ def test_api_answers_per_deck_state(tmp_path: Path, monkeypatch: pytest.MonkeyPa
     with TestClient(create_app(tmp_path)) as client:
         body = client.get("/api/outcomes", params={"deck_id": DECK, "min_exposed": 1}).json()
         decks = {r["deck_id"]: r for r in client.get("/api/outcomes/decks").json()["decks"]}
-    assert body["schema"] == "studio-card-outcomes-4"
+    assert body["schema"] == "studio-card-outcomes-5"
     assert body["strata"] == 2 and body["games_total"] == 2
     assert sorted(s["deck_hash"] for s in body["stands"]) == sorted([STATE_A, STATE_B])
     assert [t["games_total"] for t in body["unknown_strata"]] == [1]
@@ -892,13 +1047,15 @@ def test_unknown_stand_names_its_provenance_and_bridge_ahead() -> None:
     )
     table = card_outcomes.stand_tables(old, deck_id=DECK, min_exposed=1)
     (unknown,) = table["unknown_strata"]
-    assert unknown["pilots"] == ["P1"] and unknown["engine_commits"] == [COMMIT]
+    assert unknown["pilots"] == [f"fp:{PILOT_FP}"] and unknown["engine_commits"] == [COMMIT]
     assert unknown["bridge_jar_sha256s"] == ["c" * 64]
     assert unknown["bridge_qualification_states"] == ["BRIDGE_AHEAD_OF_QUALIFICATION"]
     assert any(w.startswith("BRIDGE_AHEAD_OF_QUALIFICATION") for w in unknown["warnings"])
     # the top level (no known stand) repeats the unknown stand's warnings, named
     assert any(
-        w.startswith("Stand unbekannt · 2 seats: BRIDGE_AHEAD_OF_QUALIFICATION")
+        w.startswith(
+            f"Stand unbekannt · 2 seats · pilot {PILOT_FP[:12]}: BRIDGE_AHEAD_OF_QUALIFICATION"
+        )
         for w in table["warnings"]
     )
 
@@ -918,13 +1075,15 @@ def test_unknown_provenance_is_never_equal_and_warnings_reach_the_top() -> None:
     assert table["status"] == "NOT_POOLED" and table["cards"] == []
     assert "unknown provenance" in str(table["pooling"]["reason"])
     assert any("BRIDGE_AHEAD_OF_QUALIFICATION" in w for w in table["warnings"])
-    assert any(f"deck state {STATE_A[:12]} · 2 seats:" in w for w in table["warnings"])
+    assert any(
+        f"deck state {STATE_A[:12]} · 2 seats · pilot {PILOT_FP[:12]}:" in w
+        for w in table["warnings"]
+    )
 
 
 @pytest.mark.parametrize(
     ("field", "other", "label"),
     [
-        ("pilot", "P2", "pilot version"),
         ("engine_commit", "b" * 40, "engine commit"),
         ("bridge_jar_sha256", "e" * 64, "bridge jar SHA-256"),
         ("decision_policy", "policy-2", "decision polic"),
@@ -1055,10 +1214,11 @@ def test_two_three_and_four_seat_logs_of_one_stand_are_separate_strata(tmp_path:
         "5 game(s) without a table size (Tischgröße unbekannt)" in w for w in table["warnings"]
     )
     text = format_table(table)
-    assert "strata (deck state x table size) 3" in text
-    assert f"deck state {_hash(DECK)[:12]} · Tischgröße unbekannt  games 5" in text
+    assert "strata (deck state x table size x pilot fingerprint) 3" in text
+    pilot = f"pilot {PILOT_FP[:12]}"
+    assert f"deck state {_hash(DECK)[:12]} · Tischgröße unbekannt · {pilot}  games 5" in text
     for size in (2, 3, 4):
-        assert f"deck state {_hash(DECK)[:12]} · {size} seats  games {size}" in text
+        assert f"deck state {_hash(DECK)[:12]} · {size} seats · {pilot}  games {size}" in text
 
 
 def test_strata_of_another_table_size_are_never_pooled_even_with_equal_pods() -> None:
@@ -1080,7 +1240,7 @@ def test_strata_of_another_table_size_are_never_pooled_even_with_equal_pods() ->
     assert tens["pooling"].get("differing_values") == [2, 10]
     one = _with(_stated(_block("A", 2, 1), STATE_B, prefix="o"), table_size=1)
     assert card_outcomes.stratum_label(card_outcomes.stand_tables(one, deck_id=DECK)).endswith(
-        "· 1 seat"
+        f"· 1 seat · pilot {PILOT_FP[:12]}"
     )
     same = _with(
         _stated(_block("A", 10, 5) + _block("F", 10, 5), STATE_B, prefix="c"), table_size=2
@@ -1210,8 +1370,9 @@ def test_one_table_size_is_pooled_in_its_own_table_and_another_stands_apart() ->
     assert in_cohorts == sorted((str(s["deck_hash"]), s["table_size"]) for s in table["stands"])
     # the text view prints both tables apart
     text = format_table(table)
-    assert "cohort 2 seats: strata 2 (POOLED)  games 40" in text
-    assert "cohort 3 seats: strata 1 (SINGLE_STAND)  games 8" in text
+    pilot = f"pilot {PILOT_FP[:12]}"
+    assert f"cohort 2 seats · {pilot}: strata 2 (POOLED)  games 40" in text
+    assert f"cohort 3 seats · {pilot}: strata 1 (SINGLE_STAND)  games 8" in text
 
 
 def test_one_table_size_gives_no_cohorts_and_a_cohort_keeps_its_own_reason() -> None:
@@ -1232,7 +1393,7 @@ def test_one_table_size_gives_no_cohorts_and_a_cohort_keeps_its_own_reason() -> 
     old = _stated(_block("A", 3, 1), None, prefix="o")
     none_known = card_outcomes.stand_tables(old, deck_id=DECK, min_exposed=1)
     assert none_known["pooling"]["reason"] == (
-        "no game names both the deck state and the table size of this deck"
+        "no game names all of the deck state, the table size and the pilot fingerprint of this deck"
     )
     assert none_known["cohorts"] == []
 
@@ -1263,7 +1424,7 @@ def test_api_pools_each_table_size_on_its_own_from_real_logs(
             )
     with TestClient(create_app(tmp_path)) as client:
         body = client.get("/api/outcomes", params={"deck_id": DECK, "min_exposed": 1}).json()
-    assert body["schema"] == "studio-card-outcomes-4"
+    assert body["schema"] == "studio-card-outcomes-5"
     assert body["status"] == "NOT_POOLED" and body["cards"] == [] and body["strata"] == 3
     two, three = body["cohorts"]
     assert (two["table_size"], two["pooling"]["status"], two["games_total"]) == (2, "POOLED", 12)
@@ -1271,13 +1432,17 @@ def test_api_pools_each_table_size_on_its_own_from_real_logs(
     assert three["games_total"] == 4
     assert {r["card"]: r for r in two["cards"]}["Sol Ring"]["strata"] == 2
     ids = [item["id"] for item in body["zahlen"]]
-    assert any(i.startswith("outcome.kohorte.t2.Sol Ring.") for i in ids)
+    p = f"p{PILOT_FP}"
+    assert any(i.startswith(f"outcome.kohorte.t2.{p}.Sol Ring.") for i in ids)
     assert not any(i.startswith("outcome.kohorte.t3.") for i in ids)  # its stratum's figures
-    assert any(i.startswith(f"outcome.stand.{STATE_A}.t3.Sol Ring.") for i in ids)
+    assert any(i.startswith(f"outcome.stand.{STATE_A}.t3.{p}.Sol Ring.") for i in ids)
     assert not [i for i in ids if i.count(".") == 2]  # no figure over two table sizes
     for item in body["zahlen"]:
         if item["id"].startswith("outcome.kohorte.t2."):
-            assert item["stand_hash"] is None and item["bezug"].endswith("Tisch mit 2 Sitzen")
+            assert item["stand_hash"] is None
+            assert item["bezug"].endswith(
+                f"Tisch mit 2 Sitzen, Pilot-Fingerabdruck {PILOT_FP[:12]}"
+            )
             assert "Tisch mit 2 Sitzen" in item["kohorte"]
 
 
@@ -1287,6 +1452,15 @@ def test_card_page_shows_one_section_per_table_size_never_one_table() -> None:
     from tests.unit.test_studio_static_guards import _node_json
 
     table = card_outcomes.stand_tables(_acceptance_1694(), deck_id=DECK, min_exposed=1)
+    fp_b = _hash("pilot-b")
+    a = _stated(_block("A", 10, 6) + _block("F", 10, 4), STATE_A, prefix="a")
+    b = _with(
+        _stated(_block("A", 6, 3) + _block("F", 6, 2), STATE_A, prefix="c"), pilot_fingerprint=fp_b
+    )
+    old = _with(
+        _stated(_block("A", 3, 1) + _block("F", 3, 2), STATE_A, prefix="o"), pilot_fingerprint=None
+    )
+    pilots = card_outcomes.stand_tables([*a, *b, *old], deck_id=DECK, min_exposed=1)
     script = f"""
 global.StudioUI = {{
   num: (n, d = 0) => Number(n).toFixed(d).replace('.', ','),
@@ -1307,45 +1481,57 @@ const count = (node, tag) => {{
 }};
 const h = (tag, attrs, ...kids) => ({{ tag, attrs: attrs || {{}}, kids: kids.flat(Infinity) }});
 const slot = {{ children: [], replaceChildren(...kids) {{ this.children = kids; }} }};
-(async () => {{
+const render = async (payload) => {{
   await mod.renderCardOutcomes(slot, {{
     h, deckId: 'deck/a', baseRevision: 'deck/a@aaaa', dirty: false,
-    api: async (url) => (url === '/api/outcomes/decks' ? {{ decks: [] }} : {json.dumps(table)}),
+    api: async (url) => (url === '/api/outcomes/decks' ? {{ decks: [] }} : payload),
   }});
   const sections = slot.children.filter((n) => n && n.tag === 'section');
-  console.log(JSON.stringify({{
+  return {{
     text: textOf(slot.children),
     details: count(slot.children, 'details'),
     tables: count(slot.children, 'table'),
     sections: sections.map((s) => ({{
       text: textOf(s), details: count(s, 'details'), tables: count(s, 'table'),
     }})),
-    base: [2, 1, null].map((v) => mod.outcomesBaseRate(v)),
-  }}));
+  }};
+}};
+(async () => {{
+  const sizes = await render({json.dumps(table)});
+  const pilots = await render({json.dumps(pilots)});
+  const base = [2, 1, null].map((v) => mod.outcomesBaseRate(v));
+  console.log(JSON.stringify({{ ...sizes, pilots, base }}));
 }})();
 """
     r = _node_json(script)
     assert isinstance(r, dict)
     text = r["text"]
-    assert "Die Tischgrößen werden nie zusammengeführt" in text
+    pilot = f"Pilot-Fingerabdruck {PILOT_FP[:12]}…"
+    assert (
+        "Verschiedene Werte von Tischgröße und Pilot-Fingerabdruck werden nie zusammengeführt: "
+        "Unten steht je Kombination ein eigener Abschnitt (2 Abschnitte)"
+    ) in text
     assert "(bei 2 Sitzen 1/2, bei 3 Sitzen 1/3)" in text
     assert "diese Ansicht kommt als Folgepaket" not in text
+    assert "Der Pilot-Fingerabdruck wechselte" not in text  # only the table size differs
     two, three = r["sections"]
     assert two["text"].startswith(
-        "Tischgröße: 2 Sitze · 2 Deck-Stände geschichtet (je Stand eigene Differenz"
+        f"Tischgröße: 2 Sitze · {pilot} · 2 Deck-Stände geschichtet (je Stand eigene Differenz"
     )
     assert (
-        "Basis-Siegrate bei 2 Sitzen: 1/2, nie mit einer anderen Tischgröße gemischt"
-        in (two["text"])
-    )
+        "Basis-Siegrate bei 2 Sitzen: 1/2, nie mit einer anderen Tischgröße oder einem anderen "
+        "Pilot-Fingerabdruck gemischt"
+    ) in two["text"]
     assert "geschichtet über 2 Deck-Stände" in two["text"]
     assert two["details"] == 2 and two["tables"] == 3  # stratified table and one per state
-    assert f"Deck-Stand {STATE_A[:12]}… · Tischgröße: 2 Sitze · 20 Partien" in two["text"]
-    assert f"Deck-Stand {STATE_B[:12]}… · Tischgröße: 2 Sitze · 20 Partien" in two["text"]
+    assert f"Deck-Stand {STATE_A[:12]}… · Tischgröße: 2 Sitze · {pilot} · 20 Partien" in two["text"]
+    assert f"Deck-Stand {STATE_B[:12]}… · Tischgröße: 2 Sitze · {pilot} · 20 Partien" in two["text"]
     assert "Tischgröße: 3 Sitze" not in two["text"]
-    assert three["text"].startswith("Tischgröße: 3 Sitze · 1 Deck-Stand")
+    assert three["text"].startswith(f"Tischgröße: 3 Sitze · {pilot} · 1 Deck-Stand")
     assert three["details"] == 1 and three["tables"] == 1  # a single stratum is shown once
-    assert f"Deck-Stand {STATE_A[:12]}… · Tischgröße: 3 Sitze · 8 Partien" in three["text"]
+    assert (
+        f"Deck-Stand {STATE_A[:12]}… · Tischgröße: 3 Sitze · {pilot} · 8 Partien" in three["text"]
+    )
     assert "Tischgröße: 2 Sitze" not in three["text"] and STATE_B[:12] not in three["text"]
     # every stratum once in the page, each with its own provenance
     assert r["details"] == 3 and r["tables"] == 4
@@ -1355,3 +1541,48 @@ const slot = {{ children: [], replaceChildren(...kids) {{ this.children = kids; 
         "Basis-Siegrate bei 1 Sitz: 1/1",
         "Basis-Siegrate unbekannt",
     ]
+    # #1687: a pilot change at one deck state: what happened, each stratum with n/N and its
+    # fingerprint (short hash), why it is not combined, and "Pilot unbekannt" apart
+    pt = r["pilots"]["text"]
+    fp_a, fp_b = PILOT_FP[:12], _hash("pilot-b")[:12]
+    assert f"Nicht zusammengeführt: Der Pilot-Fingerabdruck wechselte ({fp_a}…, {fp_b}…)" in pt
+    assert "Partien verschiedener Piloten nie zusammengezählt" in pt
+    assert "steht jeder Pilot-Fingerabdruck als eigene Schicht da" in pt
+    assert "Jede Schicht steht unten einzeln mit n/N und Herkunft" in pt
+    assert "verschiedenen Tischgrößen" not in pt  # only the pilot differs
+    for short, games in ((fp_a, 20), (fp_b, 12)):
+        line = f"Deck-Stand {STATE_A[:12]}… · Tischgröße: 2 Sitze · Pilot-Fingerabdruck {short}… · {games} Partien"
+        assert line in pt
+    assert (
+        f"Deck-Stand {STATE_A[:12]}… · Tischgröße: 2 Sitze · Pilot unbekannt: 6 Partien "
+        "(getrennt gezählt, nie addiert)"
+    ) in pt
+    assert "Pilot unbekannt (Protokollkopf ohne Pilot-Fingerabdruck" in pt
+    assert "Unbekannt ist nicht gleich" in pt
+    assert f"Piloten: Pilot-Fingerabdruck {fp_b}…" in pt and "fp:" not in pt
+    assert "Schichten (Deck-Stand, Tischgröße und Pilot-Fingerabdruck): 2" in pt
+    assert len(r["pilots"]["sections"]) == 2 and r["pilots"]["details"] == 3
+    assert pt.count("Qualifizierung:") == 4  # top and each of the three strata
+
+
+def test_the_axes_of_page_and_number_contract_follow_stratum_axes() -> None:
+    """#1687: the page (``OUTCOMES_AXES``) and the number contract (``_STRATUM_PARTS``) name the
+    strata axes of ``STRATUM_AXES`` in its order, with the same unknown label and pooling; a
+    further axis that one of them does not know turns this red."""
+    from commander_lab.studio import number_contract
+    from tests.unit.test_studio_static_guards import _node_json
+
+    axes = [(a.field, a.unknown, a.pooled) for a in card_outcomes.STRATUM_AXES]
+    assert axes == [
+        ("deck_hash", "Stand unbekannt", True),
+        ("table_size", "Tischgröße unbekannt", False),
+        ("pilot_fingerprint", "Pilot unbekannt", False),
+    ]
+    parts = [(field, pooled) for field, pooled, *_rest in number_contract._STRATUM_PARTS]
+    assert parts == [(field, pooled) for field, _unknown, pooled in axes]
+    script = """
+global.StudioUI = { num: (n) => String(n), pct: (r) => String(r), kids: (...a) => a.flat() };
+const mod = require('./kartenauswertung.js');
+console.log(JSON.stringify(mod.OUTCOMES_AXES.map((a) => [a.field, a.unknown, a.pooled])));
+"""
+    assert [tuple(a) for a in _node_json(script)] == axes

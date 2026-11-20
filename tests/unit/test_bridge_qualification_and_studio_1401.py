@@ -97,6 +97,10 @@ def _make_deck(deck_id: str, commander: str) -> RulesDeckInput:
     )
 
 
+# The pilot fingerprint of the outcome logs (#1658): one pilot for all games.
+PILOT_FP = hashlib.sha256(b"pilot").hexdigest()
+
+
 def _write_outcome_log(
     folder: Path,
     game_id: str,
@@ -110,6 +114,7 @@ def _write_outcome_log(
     covered: bool,
     commit: str = "f" * 40,
     with_deck_hash: bool = True,
+    fingerprint: str | None = PILOT_FP,
 ) -> Path:
     path = folder / f"{game_id}.jsonl.gz"
     header: dict[str, object] = {
@@ -120,6 +125,9 @@ def _write_outcome_log(
         "engine_commit": commit,
         "pilot": "GenericCommanderPilot 1.0.0",
         "decision_policy": "xmage-full-game-policy-1.0.0",
+        # every log since #1658 names its pilot fingerprint; None writes one of before
+        # ("Pilot unbekannt", #1687)
+        **({"pilot_fingerprint": fingerprint} if fingerprint is not None else {}),
         # each seat names its deck state, as every log since #1657 does; with_deck_hash=False
         # writes a log of before #1657 ("Stand unbekannt")
         "seats": [
@@ -800,7 +808,7 @@ def test_logs_without_deck_hash_keep_bridge_provenance_and_warnings(tmp_path: Pa
     assert unknown["covered_by_sealed_epoch"] is False
     assert any("BRIDGE_AHEAD_OF_QUALIFICATION" in w for w in unknown["warnings"])
     assert any(
-        w.startswith(f"Stand unbekannt · {len(decks)} seats: BRIDGE_AHEAD")
+        w.startswith(f"Stand unbekannt · {len(decks)} seats · pilot {PILOT_FP[:12]}: BRIDGE_AHEAD")
         for w in mixed["warnings"]
     )
 
@@ -820,6 +828,7 @@ def test_logs_without_deck_hash_keep_bridge_provenance_and_warnings(tmp_path: Pa
     )
     res = card_outcomes.outcomes_for_folder(no_sha, deck_id="base")
     assert any(
-        f"Stand unbekannt · {len(decks)} seats: some games carry no bridge jar SHA-256" in w
+        f"Stand unbekannt · {len(decks)} seats · pilot {PILOT_FP[:12]}: "
+        "some games carry no bridge jar SHA-256" in w
         for w in res["warnings"]
     )
