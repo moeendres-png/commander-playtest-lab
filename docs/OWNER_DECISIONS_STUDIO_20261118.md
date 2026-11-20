@@ -368,6 +368,64 @@ nie gemischt; Chulane-Daten bleiben von TAM-Daten strikt getrennt (`commander_bi
 Überholt (E10, 2026-11-19): „kein Kaufmodus“ (B1) und „Multi-Commander über den Chulane-Fokus
 hinaus“ (B2) gelten für BUILD nicht mehr in dieser Form.
 
+### E15: Charta v2 (Brownfield 2), Q1 bis Q11 (2026-11-20)
+
+Owner, 2026-11-20 (Session-Chat, Wortlaut festgehalten in #1612, Kommentar 7031156076): „Go Q1–Q11“,
+auf die Vorlage `docs/STUDIO_CHARTA_V2.md` §5 (Empfehlung jeweils: ja; Abweichungen hat der Owner
+nicht genannt). **Der Go gilt nur für Q1 bis Q11 (§5 der Charta).** Der Paketplan (§4 der Charta)
+ist die Planung des Co-Lead im Rahmen von `AGENTS.md` §8 und seiner Entscheidungsbefugnis, kein
+Owner-Entscheid; Owner-Vorbehalte (Abschnitt 5 dieser Datei, `AGENTS.md` §8) bleiben unberührt.
+
+- **Q1 Entfernen:** Gesamtrating v1, Rubrik-v1-Signale, Rating-Layers, Turnier-Conversion und die
+  zweite S–D-Skala fallen weg; das Gewicht `simulation` verlässt den Tierlisten-Index und Stufe 2;
+  Simulation erscheint als Evidenz mit Reifegrad R0–R3 im Deckbauer; Rubrik v2 bleibt als
+  „Kartenverständnis (Modellurteil)“ nur für Chulane. Ändert E6, O3/E2/B11 (G-SIM wird vom Tor zum
+  Reifegrad). Umsetzung in eigenen Paketen mit Review, nicht in einem Zug.
+- **Q2 Vorschläge:** Der Builder darf Vorschläge machen (Klasse VORSCHLAG, getrennt von den
+  Zahlen); der Klick „Übernehmen“ gilt als Owner-Entscheid zur Chulane-Basis. Ändert A4.
+- **Q3 TAM:** Standardkohorte `tam:active_91` (daneben `tam:curated_b2_4`, nie addiert);
+  Datensammlung für TAM gezielt fortsetzen, für Chulane zurückstellen; TAM-Simulation erst nach
+  Zählung der Sim-Bereitschaft je Kohorte (Angleichung von `STUDIO_SCOPE.md` mit E14 erledigt).
+- **Q4 Experimente:** eine Nacht je Frage (5.400 Partien); rundenbegrenzte Frühphasen-Serie (L1) als
+  eigener Experiment-Typ nach einem Messversuch.
+- **Q5 Sitze:** Qualifikation 5/6 jetzt (die acht Prüfpunkte aus `docs/research/SEATS_5_6_QUALIFICATION_PLAN.md` §2, in der Charta „F1–F8“ genannt);
+  **die Freigabe selbst bleibt eine eigene Owner-Entscheidung nach dem Nachweis** (`AGENTS.md` §8)
+  und gilt dann für SIMULATE und PLAY. **Die technische Sperre (`launch.MAX_RELEASED_SEATS = 4`, §3) und
+  „aktiv sind 2 bis 4 Sitze“ (§4) bleiben bis zur Owner-Freigabe unverändert;** „PLAY bis dahin ‚nicht
+  qualifiziert‘ sichtbar“ heißt nur: die Oberfläche weist darauf hin, dass 5/6 noch nicht freigegeben
+  sind, sie macht 5/6 nicht spielbar. 7/8 zurückgestellt bis zur 6er-Messung.
+- **Q6 Gegner:** beliebige Studio-Deck-Stände als Gegner-Sitze (Chulane bleibt das einzige
+  optimierte Deck); Korpus-Gegner in PLAY v1 später.
+- **Q7 PLAY:** Zahlungs-Vorschlag aus dem Piloten-Planer, vom Menschen ausgelöst, nur angebotene
+  Optionen, im Protokoll markiert (Auslegung `AGENTS.md` §2: der Mensch entscheidet, XMage bietet
+  an; Wortlaut im PLAY-Paket mit Frischkontext-Review nach §8: der Vorschlag ist beim Öffnen einer
+  Entscheidung nicht vorbelegt, der Planer sieht nur, was der menschliche Sitz sieht (§5), die Seite
+  sendet nur eine `option_id` aus `legal_options`, vom Piloten vorgeschlagene Zahlungen werden
+  markiert und in der Mensch-Kohorte nicht als menschliche Entscheidung gezählt); Speichern/Fortsetzen zurückgestellt; der Owner spielt vor
+  dem Bedienungs-Paket eine ganze Partie.
+- **Q8 Piloten:** Vorausschau (S5) nicht als Serien-Pilot; Pilot-Änderungen nur mit gepaartem
+  Nachweis; Pilot-Audit nach der ersten Nachtserie.
+- **Q9 Daten:** Schema 22 als Dateischnitt (drei Dateien: `reference`, `studio`, `simulate`) mit
+  Migration über die Export-Datei des Nutzerzustands (Sicherung, am echten Zustand vorab bewiesen,
+  keine eigene Owner-Sitzung); Decks dürfen Karten ohne Besitz enthalten (TAM-Zukauf, Besitz als
+  Merkmal; Preise bleiben Owner-Vorbehalt; Chulane bleibt Standard „nur Sammlung“, `include_unowned` aus, E14). Die
+  Export-Datei mit dem echten Nutzerzustand gehört nicht ins öffentliche Repository und nicht in die CI
+  (`AGENTS.md` §12).
+- **Q10 Governance:** MATERIAL teilt sich in Inhalt (Klasse A: Kreuz-Review) und bloße Größe
+  (Klasse B); „Studio-Daten-Gate“ für Schema-Änderungen; die Charta mit Entscheid-Register ersetzt
+  die Pflichtlektüre. Ändert E7/C7; **bis zu diesem Governance-PR gelten `AGENTS.md` §1 (inklusive Gesamtrating-/G-SIM-Aussagen) und §10
+  unverändert**: jeder MATERIAL-PR braucht weiter ein Frischkontext-Review (bei zwei parallel
+  arbeitenden Agenten zusätzlich ein Kreuz-Review); ob Klasse B das Frischkontext-Review behält, legt
+  der Governance-PR fest. Auch die Texte zu Q1 (Gesamtrating, Gewicht `simulation`) ändern sich in
+  `AGENTS.md` §1 erst mit dem jeweiligen Paket.
+- **Q11 Ältere Lanes** werden erst mit der Abschluss-Epoche entfernt (PB-03, `qualification/`);
+  Release-Archiv lokal ablegen statt dauerhaftem GitHub-Release, solange #1108 offen ist.
+
+Grenzen: Der Go deckt Q1 bis Q11, nicht die Owner-Vorbehalte aus Abschnitt 5 (insbesondere
+Freigabe 5/6 Sitze, Fork, Siegel/`qualification/`/WS17, Preise, #1108, Bezahldienste,
+Kollektionstrennung). Der Owner spielt vor dem PLAY-Bedienungs-Paket selbst eine ganze Partie;
+Abbruchkriterien in der Charta §6.
+
 ## 3. Was aufgehoben, geändert oder neu ist
 
 | Bisher | Jetzt | Quelle |
@@ -384,6 +442,7 @@ hinaus“ (B2) gelten für BUILD nicht mehr in dieser Form.
 | Review eines MATERIAL-PR aus frischem Kontext | zusätzlich Kreuz-Review durch den jeweils anderen Agenten, soweit zwei parallel arbeiten | E7, C7 |
 | Owner-Entscheidung 2026-10-15 (`owner_decision_20261015_batch_games_per_jvm`): jedes Ergebnis ruht auf dem sauberen Herunterfahren des Prozesses | gilt nur für `run_batch` und die Konformanz-Evidenz; für Studio-Serien ruht das Ergebnis auf dem bestätigten `shutdown_game` je Partie in eigenem Ergebnistyp (E9) | Owner 2026-11-19, #1612 |
 | „Keine Preise, kein Kaufmodus“ (B1) und „kein Multi-Commander über den Chulane-Fokus hinaus“ (B2), soweit BUILD betroffen | Zukauf-Modus im BUILD ohne Preise und TAM als zweiter Commander im BUILD erlaubt; Preise bleiben Owner-Vorbehalt, Chulane bleibt Standard (E14) | Owner 2026-11-19, #1187 |
+| E6 (Gesamtrating mit Rubrik und Tierlisten-Gewichte), B11/E2 (Gewicht `simulation` 0 bis G-SIM), A4 („nur objektive Daten“), E7/C7 (jeder MATERIAL-PR mit Kreuz-Review), Rundenlimit nur nach Owner-Entscheid (`STUDIO_SCOPE.md:103`, `:267`), 5/6 Sitze (E15 Q5), Datei-Schnitt Schema 21 → 22 | beschlossen, aber erst mit den jeweiligen Paketen wirksam: Gesamtrating v1/Layers/Tierlisten-Skala entfallen und Simulation wird Evidenz R0–R3 (Q1), Vorschläge als eigene Klasse (Q2), MATERIAL in A/B (Q10, erst nach Governance-PR), rundenbegrenzte Frühphasen-Serie als Experiment-Typ nach Messversuch (Q4: gilt als Owner-Entscheid für dieses Rundenlimit, weiterhin mit vollen Piloten, kein Goldfish-/Passiv-Modus, `STUDIO_SCOPE.md:266-267`), Qualifikation 5/6 (Q5, Sperre bleibt), Gegner aus Studio-Deck-Ständen (Q6), Pilot-Regeln (Q8), drei Dateien (Q9), Ältere Lanes bleiben (Q11) | Owner 2026-11-20 (E15) |
 | Entscheid-Dokumente: „fortgeschrieben, nie gelöscht“ (diese Datei, `AGENTS.md` §9 „archived, never deleted“) | überholter Wortlaut darf mit Begründung, Datum und Verweis im PR ersetzt oder entfernt werden; Git-Historie bleibt Quelle (E10) | Owner 2026-11-19, #1612 |
 
 ## 4. Gilt unverändert
