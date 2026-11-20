@@ -905,7 +905,9 @@ def test_a_rewrite_with_the_same_size_and_time_is_seen_by_the_remembered_answer(
             calls.append(1)
             return {"combos": json.loads(combo_file.read_text(encoding="utf-8"))["combos"]}
 
-        return bytes(answer_cache.json_answer(store, "probe", (), compute, files=(combo_file,)).body)
+        return bytes(
+            answer_cache.json_answer(store, "probe", (), compute, files=(combo_file,)).body
+        )
 
     first = ask()
     assert ask() == first and len(calls) == 1
