@@ -5,6 +5,7 @@ made cheaper; they stay here only to pin the output."""
 
 from __future__ import annotations
 
+import csv
 import json
 import random
 import sqlite3
@@ -575,6 +576,85 @@ def _preset_items(presets: dict[str, object]) -> list[tuple[str, dict[str, objec
 # -- remembered answers of the read routes (#1563) ---------------------------------------
 
 
+def _write_deck_csv(
+    path: Path,
+    decks: list[dict[str, object]],
+) -> None:
+    fieldnames = [
+        "tournament",
+        "date",
+        "player",
+        "wins",
+        "draws",
+        "losses",
+        "card_name",
+        "quantity",
+        "section",
+        "top_cut",
+        "wins_bracket",
+        "losses_bracket",
+    ]
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        for deck in decks:
+            commanders = deck.get("commanders", ["Test Commander"])
+            assert isinstance(commanders, list)
+            for cmd in commanders:
+                writer.writerow(
+                    {
+                        "tournament": deck["tournament"],
+                        "date": deck["date"],
+                        "player": deck["player"],
+                        "wins": deck.get("wins", 2),
+                        "draws": deck.get("draws", 0),
+                        "losses": deck.get("losses", 1),
+                        "card_name": cmd,
+                        "quantity": 1,
+                        "section": "commander",
+                        "top_cut": deck.get("top_cut", 4),
+                        "wins_bracket": deck.get("wins_bracket", ""),
+                        "losses_bracket": deck.get("losses_bracket", ""),
+                    }
+                )
+            cards = deck.get("cards", [])
+            assert isinstance(cards, list)
+            for card in cards:
+                writer.writerow(
+                    {
+                        "tournament": deck["tournament"],
+                        "date": deck["date"],
+                        "player": deck["player"],
+                        "wins": deck.get("wins", 2),
+                        "draws": deck.get("draws", 0),
+                        "losses": deck.get("losses", 1),
+                        "card_name": card,
+                        "quantity": 1,
+                        "section": "main",
+                        "top_cut": deck.get("top_cut", 4),
+                        "wins_bracket": deck.get("wins_bracket", ""),
+                        "losses_bracket": deck.get("losses_bracket", ""),
+                    }
+                )
+            for sb_card in deck.get("sideboard", []):  # type: ignore[union-attr]
+                writer.writerow(
+                    {
+                        "tournament": deck["tournament"],
+                        "date": deck["date"],
+                        "player": deck["player"],
+                        "wins": deck.get("wins", 2),
+                        "draws": deck.get("draws", 0),
+                        "losses": deck.get("losses", 1),
+                        "card_name": sb_card,
+                        "quantity": 1,
+                        "section": "sideboard",
+                        "top_cut": deck.get("top_cut", 4),
+                        "wins_bracket": deck.get("wins_bracket", ""),
+                        "losses_bracket": deck.get("losses_bracket", ""),
+                    }
+                )
+
+
 @pytest.fixture
 def _fresh_answers() -> Iterator[None]:
     """Module-level memories must not leak from one test into the next."""
@@ -608,7 +688,6 @@ _ANSWER_ROUTES: list[tuple[str, dict[str, object], str]] = [
         {"must_contain": ["Sol Ring"], "must_not_contain": ["Forest"], "include_unowned": True},
         "object",
     ),
-    ("/api/tournament-conversion", {"commander": "Test Commander"}, "object"),
 ]
 
 
@@ -644,7 +723,6 @@ def test_remembered_answers_are_the_bytes_the_plain_routes_send(
     from commander_lab.studio.web import create_app
 
     _big_store(tmp_path).close()
-    monkeypatch.setenv("COMMANDER_LAB_TOPDECK_DIR", str(tmp_path / "topdeck"))
     computed: list[object] = []
     real_dump = answer_cache.dump
 
@@ -789,16 +867,12 @@ def test_a_changed_data_file_is_seen_by_the_next_remembered_answer(
 
     from commander_lab.studio import evidence as evidence_model
     from commander_lab.studio.web import create_app
-    from tests.unit.test_tournament_conversion_1412 import _write_deck_csv
 
     _big_store(tmp_path).close()
     combo_file = tmp_path / "spellbook_combos.json"
     combo_file.write_text(json.dumps({"combos": []}), encoding="utf-8")
     monkeypatch.setattr(evidence_model, "_COMBOS_PATH", combo_file)
     monkeypatch.setattr(evidence_model, "ANSWER_FILES", (combo_file,))
-    topdeck = tmp_path / "topdeck"
-    topdeck.mkdir()
-    monkeypatch.setenv("COMMANDER_LAB_TOPDECK_DIR", str(topdeck))
     client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
     params = {"view": "commander", "commander": COMMANDER}
     before = client.get("/api/evidence", params=params).content
@@ -811,14 +885,37 @@ def test_a_changed_data_file_is_seen_by_the_next_remembered_answer(
     )
     assert client.get("/api/evidence", params=params).content != before
 
-    empty = client.get("/api/tournament-conversion", params={"commander": "Test Commander"})
-    assert empty.json()["total_decks"] == 0
+
+def test_an_answer_kept_per_file_state_is_recomputed_when_a_file_changes(
+    tmp_path: Path, _fresh_answers: None
+) -> None:
+    """``file_answer`` keeps an answer per folder state: a new file in the folder makes the
+    next call recompute. Its only route (``/api/tournament-conversion``) left with Q1-b1
+    (#1676), so the helper is checked directly here."""
+    from commander_lab.studio import answer_cache
+
+    topdeck = tmp_path / "topdeck"
+    topdeck.mkdir()
+    calls: list[int] = []
+
+    def ask() -> bytes:
+        def compute() -> dict[str, object]:
+            calls.append(1)
+            files = sorted(path.name for path in topdeck.iterdir())
+            return {"files": files}
+
+        stamps = answer_cache.folder_stamp(topdeck)
+        return bytes(answer_cache.file_answer("files", ("x",), stamps, compute).body)
+
+    empty = ask()
+    assert ask() == empty and len(calls) == 1
     _write_deck_csv(
         topdeck / "topdeck_test_decks.csv",
         [{"tournament": "T1", "date": "2026-01-01", "player": "P1", "cards": ["Sol Ring"]}],
     )
-    filled = client.get("/api/tournament-conversion", params={"commander": "Test Commander"})
-    assert filled.json()["total_decks"] == 1
+    filled = ask()
+    assert filled != empty and len(calls) == 2
+    assert json.loads(filled) == {"files": ["topdeck_test_decks.csv"]}
 
 
 def test_the_status_route_reads_the_bridge_state_on_every_call(
