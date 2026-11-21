@@ -19,16 +19,15 @@ and bridge are fit for this; it is never edited.
 | Document | What it is |
 |---|---|
 | `PROJECT_MISSION.md` | Governing mission and gates |
-| `STUDIO_SCOPE.md` | Binding Studio scope (BUILD, PLAY, SIMULATE, bridge, release) up to project completion |
+| `STUDIO_CHARTA_V2.md` | Studio charter v2 (the Owner accepted only its §5, Q1 to Q11); required reading with the decision register |
 | `STUDIO_AGENT_ONBOARDING.md` | Entry page for another agent: reading order, surface map, shared files, checks, traps, handover |
-| `OWNER_DECISIONS_STUDIO_20261118.md`, `OWNER_DECISIONS_STUDIO_20261112.md`, `OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`, `OWNER_DECISION_SIX_PLAYER_MAX_20261108.md` | Owner decisions for the Studio (maximum 6 players, default 4; simulation in the tier list only after G-SIM, a proposal with thresholds open) |
+| `OWNER_DECISIONS_STUDIO_20261118.md`, `OWNER_DECISIONS_STUDIO_20261112.md`, `OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`, `OWNER_DECISION_SIX_PLAYER_MAX_20261108.md` | Owner decisions for the Studio; `OWNER_DECISIONS_STUDIO_20261118.md` with its older part `OWNER_DECISIONS_STUDIO_20261112.md` is the decision register (required reading), its section 6 holds the rules carried over from the archived scope, plan and roadmap (maximum 6 players, default 4, two to four active; simulation never a tier-list weight, evidence with maturity R0–R3, E15 Q1) |
 | `OWNER_DECK_FOCUS_CURRENT.md` | Owner-deck work focus: Chulane only |
-| `STUDIO_ROADMAP_20261112.md`, `STUDIO_PLAN_SIMULATOR.md` | Studio plan, and what stays and goes around the simulator |
-| `STUDIO_TARGET_SCOPE.md` | Target scope merged with PR #1510; superseded by `STUDIO_SCOPE.md` |
+| `STUDIO_TARGET_SCOPE.md` | Target scope merged with PR #1510; superseded by the scope (now archived) and the decision register |
 | `STUDIO_DECKBUILDER.md`, `STUDIO_GAME_VIEWER.md`, `DECKBUILDER_DATA_1205.md`, `DECKBUILDER_TIERLIST_DESIGN.md` | Deck builder, spectator page, data and tier-list design |
 | `STUDIO_OWNER_PC_SETUP.md`, `STUDIO_ABNAHME_PROTOKOLL.md` | Owner-PC setup prerequisites, preflight and fillable acceptance protocol (AK-1 to AK-8) |
 | `STUDIO_STATE_EXPORT_FORMAT.md` | Export format `studio-user-state-1` of the Studio user state: backup, migration path, round-trip check (#1668) |
-| `STUDIO_BRIDGE_GATE_TOOLING.md` | Bridge and gate tooling used by the Studio |
+| `STUDIO_BRIDGE_GATE_TOOLING.md` | Bridge and gate tooling used by the Studio, with the fixed reference set of the Studio bridge gate |
 | `CURRENT_EXECUTION_AUTHORITY.md` | Who runs what, at which effort (with `AGENTS.md` §6–§8) |
 | `CI_WHICH_CHECK_RUNS_WHEN.md`, `CI_GATES_IMPROVEMENT_PLAN_20261112.md` | Which check starts when; open CI points |
 | `claude/REPIN_RUNBOOK.md` | How the engine pin is moved |
@@ -56,6 +55,11 @@ guidance. `orientation` pages kept for a test (`architecture.md`, `REPOSITORY_TR
 `superseded`, `artifacts-history` (generated outputs moved from `artifacts/`), plus the older
 dated packets directly under `archive/`. Each topic folder has a
 README with why it was archived and the last commit at which the described code existed.
+`archive/superseded/` also holds the former binding Studio scope, the simulator plan and the
+roadmap of 2026-11-12 (`archive/superseded/STUDIO_SCOPE.md`,
+`archive/superseded/STUDIO_PLAN_SIMULATOR.md`,
+`archive/superseded/STUDIO_ROADMAP_20261112.md`), archived by the Owner answer 8a of
+2026-11-21; their binding rules are in `OWNER_DECISIONS_STUDIO_20261118.md`, section 6.
 
 Selection is reproducible: `python scripts/classify_docs.py` (plan),
 `--inventory FILE` (every document with class and anchor) and `--check`.
