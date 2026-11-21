@@ -171,7 +171,8 @@ Die konkreten Prüfpunkte und Felder stehen in `docs/STUDIO_ABNAHME_PROTOKOLL.md
 
 ## 7. Abnahme Serie: 36-Seed-Referenzserie und gepaarte Serien
 
-Im Repository heißt die Referenz R1: das echte Vier-Spieler-Pod von
+Im Repository heißt die Referenz R1 (der Referenzsatz; nicht der Reifegrad R1 der Simulations-Evidenz
+und nicht die Register-Regel SR1): das echte Vier-Spieler-Pod von
 `scripts/run_real_4p_full_game_smoke.py`, Seeds 1 bis 36 (`docs/STUDIO_BRIDGE_GATE_TOOLING.md`,
 „Reference set“; `docs/performance/XMAGE_EFFICIENCY_OFFENSIVE_2026-10-21.md`). Dort gemessen
 (andere Maschine, 4 Kerne, 16 GB, JDK 21): 408 s mit 4 Arbeitern und 9 Spielen je JVM, 36/36
@@ -227,7 +228,7 @@ des Owners R1 oder eine Studio-Serie (`POST /api/simulations/batch`, `base_seed`
    Owner-PC optisch zu prüfen).
 6. Drei vollständige Vierer-Partien mit Mensch auf Sitz 1 nach AK-1 bis AK-8 inkl. Störfällen
    (`docs/STUDIO_ABNAHME_PROTOKOLL.md`, Blöcke B und C).
-7. Was mit „36-Seed-Referenzserie“ gemeint ist (R1-Benchmark oder Studio-Serie) und welche Laufzeit
+7. Was mit „36-Seed-Referenzserie“ gemeint ist (R1-Benchmark, also der Referenzsatz, oder Studio-Serie) und welche Laufzeit
    am Owner-PC akzeptabel gilt; der Repo-Messwert 408 s stammt von anderer Hardware.
 8. Identitätsnachweis, Pilotblock und Kreislauf Deck-Stand → Partie → Serie → Verlauf
    (`docs/STUDIO_ABNAHME_PROTOKOLL.md`, Blöcke D–F, nach #1521 / #1531).

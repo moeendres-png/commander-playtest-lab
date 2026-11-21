@@ -11,7 +11,9 @@ the Owner answer 8a of 2026-11-21 (#1667, `docs/OWNER_DECISIONS_STUDIO_20261118.
 `AGENTS.md` §10 points here for the reference set and the commands. Inside that moved text, the
 pointer to this page for the frame-digest tooling and the sentence "No tool does that yet: the
 first `NEUTRAL` PR adds the normalized frame digest …" are the plan's history and stay verbatim;
-the tool exists, and the opening paragraph of this page applies.
+the tool exists, and the opening paragraph of this page applies. "R1" in the moved text names this
+reference set (36 seeds of the real pod); it is not the maturity level R1 of simulation evidence
+and not the register's carried-over scope rule SR1.
 
 ## Commands
 
