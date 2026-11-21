@@ -39,6 +39,25 @@ OTHER = "deck/b"
 _DEFAULT = object()
 
 
+# The page tests below run against the REAL ``static/ui.js`` (a JS snippet for node, run in
+# ``static/``), never a ``StudioUI`` of their own: a stub with its own ``kids`` hid that
+# ``StudioUI.kids`` was not exported and the card evaluation stayed at "lädt …" (#1404, WP-1).
+_REAL_UI_JS = """
+const RealUI = (() => {
+  const vm = require("vm");
+  const ctx = {
+    console, Promise, Map, Set, Error, Number, Math, Array, Object, String, Boolean, JSON, Intl,
+    localStorage: { getItem: () => null, setItem() {} }, location: { pathname: "/index.html" },
+    window: { matchMedia: () => ({ matches: false }) },
+    document: { documentElement: { dataset: {} }, addEventListener() {}, querySelectorAll: () => [] },
+  };
+  vm.createContext(ctx);
+  vm.runInContext(require("fs").readFileSync("ui.js", "utf8") + "\\nglobalThis.StudioUI = StudioUI;", ctx);
+  return ctx.StudioUI;
+})();
+"""
+
+
 def _hash(label: str) -> str:
     """A 64-hex deck state of the fixtures (the header names one per seat since #1657)."""
     return hashlib.sha256(label.encode("utf-8")).hexdigest()
@@ -1468,12 +1487,8 @@ def test_card_page_shows_one_section_per_table_size_never_one_table() -> None:
         _stated(_block("A", 3, 1) + _block("F", 3, 2), STATE_A, prefix="o"), pilot_fingerprint=None
     )
     pilots = card_outcomes.stand_tables([*a, *b, *old], deck_id=DECK, min_exposed=1)
-    script = f"""
-global.StudioUI = {{
-  num: (n, d = 0) => Number(n).toFixed(d).replace('.', ','),
-  pct: (r) => `${{(Number(r) * 100).toFixed(1).replace('.', ',')}} %`,
-  kids: (...a) => a.flat(Infinity).filter((x) => x !== null && x !== undefined && x !== false),
-}};
+    script = f"""{_REAL_UI_JS}
+global.StudioUI = RealUI;
 const mod = require('./kartenauswertung.js');
 const textOf = (node) => {{
   if (node === null || node === undefined) return '';
@@ -1590,12 +1605,8 @@ def test_a_deck_with_only_logs_before_the_fingerprint_explains_what_to_do() -> N
     table = card_outcomes.stand_tables(old, deck_id=DECK, min_exposed=1)
     assert table["pooling"]["status"] == "NO_KNOWN_STAND" and table["cards"] == []
     assert [t["games_total"] for t in table["unknown_strata"]] == [20, 20]
-    script = f"""
-global.StudioUI = {{
-  num: (n, d = 0) => Number(n).toFixed(d).replace('.', ','),
-  pct: (r) => `${{(Number(r) * 100).toFixed(1).replace('.', ',')}} %`,
-  kids: (...a) => a.flat(Infinity).filter((x) => x !== null && x !== undefined && x !== false),
-}};
+    script = f"""{_REAL_UI_JS}
+global.StudioUI = RealUI;
 const mod = require('./kartenauswertung.js');
 const textOf = (node) => {{
   if (node === null || node === undefined) return '';
@@ -1661,11 +1672,14 @@ def test_the_axes_of_page_and_number_contract_follow_stratum_axes() -> None:
     ]
     parts = [(field, pooled) for field, pooled, *_rest in number_contract._STRATUM_PARTS]
     assert parts == [(field, pooled) for field, _unknown, pooled in axes]
-    script = """
-global.StudioUI = { num: (n) => String(n), pct: (r) => String(r), kids: (...a) => a.flat() };
+    script = (
+        _REAL_UI_JS
+        + """
+global.StudioUI = RealUI;
 const mod = require('./kartenauswertung.js');
 console.log(JSON.stringify(mod.OUTCOMES_AXES.map((a) => [a.field, a.unknown, a.pooled])));
 """
+    )
     assert [tuple(a) for a in _node_json(script)] == axes
 
 
@@ -1891,8 +1905,10 @@ def test_simulation_telemetry_never_reads_a_played_game(tmp_path: Path) -> None:
 def test_card_page_names_played_games_apart_and_unknown_never_zero() -> None:
     from tests.unit.test_studio_static_guards import _node_json
 
-    script = """
-global.StudioUI = { num: (n, d = 0) => Number(n).toFixed(d) };
+    script = (
+        _REAL_UI_JS
+        + """
+global.StudioUI = RealUI;
 const mod = require('./kartenauswertung.js');
 const h = (tag, attrs, ...kids) => ({ tag, kids: kids.flat(Infinity) });
 const text = (data) => mod.outcomesPlayedNote(h, data).kids.join('');
@@ -1903,6 +1919,7 @@ console.log(JSON.stringify([
   text({}),
 ]));
 """
+    )
     known, unknown, missing = _node_json(script)  # type: ignore[misc]
     assert known == (
         "Mensch-Partien (PLAYED_GAME, je Spiel-ID, jeder Status): n = 3 (beendet 2, nicht "
@@ -1931,12 +1948,8 @@ def test_card_page_shows_played_games_in_the_ok_and_no_games_answers(tmp_path: P
     ok = outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
     none = outcomes_for_folder(tmp_path, deck_id="deck/h", min_exposed=1)
     assert ok["status"] == "OK" and ok["cards"] and none["status"] == "NO_GAMES"
-    script = f"""
-global.StudioUI = {{
-  num: (n, d = 0) => Number(n).toFixed(d),
-  pct: (r) => `${{(Number(r) * 100).toFixed(1)}} %`,
-  kids: (...a) => a.flat(Infinity).filter((x) => x !== null && x !== undefined && x !== false),
-}};
+    script = f"""{_REAL_UI_JS}
+global.StudioUI = RealUI;
 const mod = require('./kartenauswertung.js');
 const textOf = (node) => {{
   if (node === null || node === undefined) return '';

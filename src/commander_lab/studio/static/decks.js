@@ -3,8 +3,8 @@
 const $ = (id) => document.getElementById(id);
 const h = StudioUI.h;
 const api = StudioUI.api;
-// replaceChildren passes null straight to the DOM (it would show the text "null"): drop empty children.
-const kids = (...items) => items.filter((item) => item !== null && item !== undefined && item !== false);
+// replaceChildren passes null straight to the DOM (it would show the text "null"): StudioUI.kids drops empty children.
+const kids = StudioUI.kids;
 
 const state = {
   commander: "",

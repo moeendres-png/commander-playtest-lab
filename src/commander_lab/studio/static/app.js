@@ -42,14 +42,14 @@ const state = {
   activePaired: null, pairedPollTimer: null, pairedHistory: [], readinessAudit: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
   subset: null, subsetNames: [], subsetWanted: null, strength: null, showTier: true, changeSeq: 0, savedSeq: 0, layers: null, diffDefault: null,
-  includeUnowned: false, superfriendsFilter: "",
+  includeUnowned: false, superfriendsFilter: "", autoDeck: null,
   cardTrend: null, cardTrendDays: 180, cardTrendBracket: "", cardTrendSource: "edhrec", cardTrendReq: null,
   colors: new Set(), columns: new Set(["img", "name", "mana_cost", "type_line", "available", "freq", "edhrec"]),
 };
 
 const $ = (id) => document.getElementById(id);
-// replaceChildren shows a null argument as the text "null": drop empty children.
-const kids = (...items) => items.filter((item) => item !== null && item !== undefined && item !== false);
+// replaceChildren shows a null argument as the text "null": StudioUI.kids drops empty children.
+const kids = StudioUI.kids;
 function h(tag, props, ...children) {
   const el = document.createElement(tag);
   for (const [key, value] of Object.entries(props || {})) {
@@ -567,6 +567,24 @@ function renderHeader() {
   pill.className = "pill " + (errors ? "bad" : warnings ? "warn" : "good");
   $("save").disabled = !state.dirty;
   renderPlayButton();
+  renderAutoDeckNote();
+}
+// Choosing a commander without a deck creates a saved deck of just the commander (the deck list,
+// the variants and the draft all need a deck to belong to). That is not an action the person
+// took, so the page says it, until a card is added, another deck is chosen or it is dismissed.
+function renderAutoDeckNote() {
+  const box = $("auto-deck-note");
+  if (!box) return;
+  const auto = state.autoDeck;
+  const deck = auto ? state.decks.find((item) => item.deck_id === auto.deckId) : null;
+  if (!deck || state.deckId !== auto.deckId || deckTotal() > state.commanderIds.length) {
+    box.hidden = true; box.replaceChildren();
+    return;
+  }
+  box.hidden = false;
+  box.replaceChildren(
+    h("span", {}, `Automatisch angelegt, nicht von dir: Für ${StudioCommander.shortName(COMMANDER)} gab es noch kein Deck, darum ist „${deck.name}“ jetzt gespeichert (nur der Commander, ${StudioUI.num(deckTotal(), 0)} / 100).`),
+    h("button", { type: "button", class: "ghost", onclick: () => { state.autoDeck = null; renderAutoDeckNote(); } }, "Verstanden"));
 }
 // The Partien page takes the saved revision, never the draft: an unsaved draft says so on the
 // button instead of silently playing an older state.
@@ -2253,6 +2271,7 @@ function renderOverview(body) {
     reference,
     deckRoles: state.deckRoles,
     pool: state.pool,
+    includeUnowned: Boolean(state.includeUnowned),
     small: state.small,
     cohort: state.cohort,
     combos: state.combos,
@@ -2971,6 +2990,7 @@ async function loadDecks() {
   if (!state.decks.length) {
     const created = await api("/api/decks", "POST", { name: StudioCommander.shortName(COMMANDER), commander_card_ids: state.commanderIds });
     state.deckId = created.deck_id; state.decks = mine(await api("/api/decks"));
+    state.autoDeck = { deckId: created.deck_id }; // not asked for by the person: renderAutoDeckNote says so
   }
   if (!state.deckId) { // first load after opening the page: reopen the variant that was open
     const wantedDeck = StudioUI.recall(variantKey("deck"), "");
