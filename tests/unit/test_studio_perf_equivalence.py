@@ -687,6 +687,7 @@ _ANSWER_ROUTES: list[tuple[str, dict[str, object], str]] = [
         {"must_contain": ["Sol Ring"], "must_not_contain": ["Forest"], "include_unowned": True},
         "object",
     ),
+    ("/api/corpus-audit", {}, "object"),
 ]
 
 
@@ -1950,3 +1951,154 @@ def test_the_deck_browser_answer_is_kept_per_label_and_card_limit(
     for params in asked + asked:
         assert client.get("/api/deck-browser", params=params).status_code == 200
     assert seen == [("", 60), ("probe", 60), ("", 1), ("probe", 1)]  # each once, then kept
+
+
+# -- documented response models of the six remembered routes (#1615 point 5) ------------------
+
+_DOCUMENTED = {
+    "/api/pool": "PoolAnswer",
+    "/api/evidence": "EvidenceAnswer",
+    "/api/roles/audit": "RoleAuditAnswer",
+    "/api/universe/counted": "array of CountedUniverseItem",
+    "/api/deck-browser": "DeckBrowserAnswer",
+    "/api/corpus-audit": "CorpusAuditAnswer",
+}
+
+
+def test_the_six_remembered_routes_name_their_response_model_in_openapi(tmp_path: Path) -> None:
+    """The OpenAPI document builds and lists a schema for the 200 answer of each route: the
+    models are documentation only (the bytes test above pins that they change no byte)."""
+    from commander_lab.studio.web import create_app
+
+    app = create_app(tmp_path / "studio")
+    paths = app.openapi()["paths"]  # the app serves no /openapi.json route, the builder runs
+    assert len(_DOCUMENTED) == 6
+    for path, expected in _DOCUMENTED.items():
+        schema = paths[path]["get"]["responses"]["200"]["content"]["application/json"]["schema"]
+        if expected.startswith("array of "):
+            assert schema["type"] == "array", path
+            assert schema["items"]["$ref"].endswith("/" + expected.removeprefix("array of ")), path
+        else:
+            assert schema["$ref"].endswith("/" + expected), path
+
+
+def _assert_model_describes(client: object, path: str, params: dict[str, object]) -> bytes:
+    """The answer validates against its documented model (no key the model does not name, no
+    wrong type) and the model gives every value back unchanged."""
+    import json
+
+    from fastapi.testclient import TestClient
+    from pydantic import BaseModel, TypeAdapter
+
+    from commander_lab.studio import answer_models as models
+
+    assert isinstance(client, TestClient)
+    answer = client.get(path, params=params)
+    assert answer.status_code == 200, (path, params, answer.text[:200])
+    one: dict[str, type[BaseModel]] = {
+        "/api/pool": models.PoolAnswer,
+        "/api/evidence": models.EvidenceAnswer,
+        "/api/roles/audit": models.RoleAuditAnswer,
+        "/api/deck-browser": models.DeckBrowserAnswer,
+        "/api/corpus-audit": models.CorpusAuditAnswer,
+    }
+    if path == "/api/universe/counted":
+        adapter = TypeAdapter(list[models.CountedUniverseItem])
+        parsed = adapter.validate_json(answer.content)
+        again = adapter.dump_json(parsed, by_alias=True, exclude_unset=True)
+    else:
+        model = one[path].model_validate_json(answer.content)
+        again = model.model_dump_json(by_alias=True, exclude_unset=True).encode()
+    assert json.loads(again) == json.loads(answer.content), (path, params)
+    return answer.content
+
+
+def test_the_documented_models_describe_the_real_answers(
+    tmp_path: Path, _fresh_answers: None
+) -> None:
+    """Every variant the six routes send (n answers over four synthetic stores) validates against
+    its model; the variants that add keys (Zukauf cards, counted universe, band universe, saved
+    decks, audited decks) are all among them."""
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio.web import create_app
+    from tests.unit import test_studio_corpus_audit as audit
+    from tests.unit import test_studio_counted_universe as counted
+    from tests.unit.test_studio_builder import _fill, _insert_scryfall
+    from tests.unit.test_studio_similar_decks import COMMANDER as SAVED_COMMANDER
+    from tests.unit.test_studio_similar_decks import _seed_store
+    from tests.unit.test_studio_strength import _write_signals
+
+    seen: set[str] = set()
+    n = 0
+
+    def check(client: TestClient, path: str, params: dict[str, object]) -> None:
+        nonlocal n
+        import json
+
+        body = json.loads(_assert_model_describes(client, path, params))
+        n += 1
+        if path == "/api/pool":
+            seen.update(f"pool.{key}" for key in body)
+            for card in body["cards"]:
+                seen.update(f"card.{key}" for key in card)
+        if path == "/api/deck-browser":
+            seen.update(f"deck.{deck['origin']}" for deck in body["decks"])
+
+    big = tmp_path / "big"
+    big_store = _big_store(big)
+    _insert_scryfall(  # a Zukauf card: outside the collection, selected by two criteria
+        big_store,
+        oracle_id="o-zukauf",
+        name="Zukauf Walker",
+        colors="G",
+        type_line="Legendary Planeswalker — Zukauf",
+        oracle_text="Proliferate.",
+    )
+    big_store.connection.commit()
+    big_store.close()
+    client = TestClient(create_app(big / "studio"), headers={"X-Studio": "1"})
+    for path, params, _shape in _ANSWER_ROUTES:
+        check(client, path, params)
+    check(client, "/api/pool", {"commander": COMMANDER, "include_unowned": True})
+    check(client, "/api/pool", {"commander": COMMANDER, "gc_band": "gc_band:0"})
+
+    saved = tmp_path / "saved"
+    _seed_store(saved, num_source_decks=20)
+    saved_client = TestClient(create_app(saved / "studio"))
+    for params in ({}, {"commander": SAVED_COMMANDER}, {"origin": "saved"}):
+        check(saved_client, "/api/deck-browser", params)
+
+    folder = tmp_path / "counted"
+    folder.mkdir()
+    store = StudioStore.open(folder / "studio")
+    _fill(store, folder)
+    _write_signals(folder / "signals")
+    counted._import_counted(store, counted._write_counted(folder / "c", counted._both()))
+    store.close()
+    counted_client = TestClient(create_app(folder / "studio"))
+    asked = {"commander": counted.COMMANDER}
+    check(counted_client, "/api/universe/counted", asked)
+    check(counted_client, "/api/pool", asked)
+    check(counted_client, "/api/evidence", {"view": "commander", **asked})
+
+    audited = tmp_path / "audited"
+    audit_store = audit._store(audited)
+    audit._build(audit_store)
+    audit_store.connection.commit()
+    audit_store.close()
+    check(TestClient(create_app(audited / "studio")), "/api/corpus-audit", {})
+
+    assert n == 20
+    for variant in (
+        "pool.counted_universe",
+        "pool.universe",
+        "pool.unowned_selection",
+        "card.counted",
+        "card.universe",
+        "card.in_collection",
+        "card.selected_by",
+        "deck.saved",
+        "deck.source",
+    ):
+        assert variant in seen, variant
