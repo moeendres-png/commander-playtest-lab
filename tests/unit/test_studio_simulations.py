@@ -380,9 +380,13 @@ def test_simulation_web_endpoints(tmp_path: Path) -> None:
         assert "Engine" in res.json()["detail"] or "Java" in res.json()["detail"]
 
 
-def test_batch_series_rejects_five_and_six_seats_via_api_and_manager(tmp_path: Path) -> None:
+def test_batch_series_rejects_five_and_six_seats_via_api_and_manager_while_the_lock_is_four(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.studio import launch
     from commander_lab.studio.web import BatchSimulationBody
 
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)  # the old lock, set back in memory
     assert "allow_unreleased_seats" not in BatchSimulationBody.model_fields
 
     store = StudioStore.open(tmp_path)
@@ -461,10 +465,14 @@ def test_batch_never_seats_a_stand_in_opponent_and_refuses_seed_step(tmp_path: P
     assert "seed_step" in res.text
 
 
-def test_paired_series_rejects_five_and_six_seats_via_api_and_manager(tmp_path: Path) -> None:
+def test_paired_series_rejects_five_and_six_seats_via_api_and_manager_while_the_lock_is_four(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.studio import launch
     from commander_lab.studio.paired_series import PairedSeriesManager
     from commander_lab.studio.web import PairedSeriesBody
 
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)  # the old lock, set back in memory
     assert "allow_unreleased_seats" not in PairedSeriesBody.model_fields
 
     store = StudioStore.open(tmp_path)
@@ -501,11 +509,47 @@ def test_paired_series_rejects_five_and_six_seats_via_api_and_manager(tmp_path: 
         store.close()
 
 
-def test_compare_decks_cli_rejects_five_and_six_seats_by_default(
-    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+def test_compare_decks_cli_accepts_five_and_six_seats_under_the_shipped_lock(
+    tmp_path: Path,
 ) -> None:
+    """The seat check passes without the switch (the files are missing, so the run stops later)."""
     from commander_lab.studio.__main__ import main as studio_main
 
+    for opp_count in (4, 5):
+        argv = [
+            "--data", str(tmp_path), "compare-decks",
+            "--base-deck", str(tmp_path / "missing_base.json"),
+            "--variant-deck", str(tmp_path / "missing_var.json"),
+        ]  # fmt: skip
+        for idx in range(opp_count):
+            argv.extend(["--opponent", str(tmp_path / f"opp{idx}.json")])
+        with pytest.raises(FileNotFoundError):
+            studio_main(argv)
+
+
+def test_opponent_paths_follow_the_simulate_lock_in_both_states(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from commander_lab.studio import launch
+
+    ids = list(launch.pod_opponent_ids("precon", 5))
+    for count in (4, 5):  # shipped lock (six): the table resolves
+        assert len(launch.resolve_opponent_paths("precon", ids[:count])) == count
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)  # the old lock, set back in memory
+    for count in (4, 5):
+        with pytest.raises(ValueError, match=f"tables of {count + 1} seats are locked"):
+            launch.resolve_opponent_paths("precon", ids[:count])
+        paths = launch.resolve_opponent_paths("precon", ids[:count], allow_unreleased_seats=True)
+        assert len(paths) == count
+
+
+def test_compare_decks_cli_rejects_five_and_six_seats_while_the_lock_is_four(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.studio import launch
+    from commander_lab.studio.__main__ import main as studio_main
+
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)  # the old lock, set back in memory
     for opp_count in (4, 5):
         seats = 1 + opp_count
         argv = [

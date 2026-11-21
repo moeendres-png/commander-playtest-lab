@@ -1,7 +1,7 @@
 """Five and six seats, part A (#1661): what can be shown without the real engine.
 
-The release itself is not here: ``launch.MAX_RELEASED_SEATS`` stays 4 and the page offers two to
-four players. These tests show that (a) a running game never hands a hidden card of another seat
+The PLAY release is not here: ``launch.MAX_RELEASED_PLAY_SEATS`` stays 4 and the page offers two
+to four players (the SIMULATE lock, ``MAX_RELEASED_SEATS``, is a separate decision). These tests show that (a) a running game never hands a hidden card of another seat
 to the human at five or six seats, wherever the human sits (F4), (b) the Studio side of the eight
 rule points of ``docs/research/SEATS_5_6_QUALIFICATION_PLAN.md`` section 2 carries five and six
 seats (F5: interface only; the rules themselves are XMage's and need real games, part B), (c) the
@@ -588,13 +588,14 @@ def _precon_ids(count: int) -> list[str]:
 
 
 @pytest.mark.parametrize(("count", "human"), [(5, 0), (6, 0), (6, 5)])
-def test_release_constant_is_the_only_seat_hurdle_on_the_play_route(
+def test_play_lock_constant_is_the_only_seat_hurdle_on_the_play_route(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, count: int, human: int
 ) -> None:
-    """With the lock as it is (4), five and six seats are refused; with only the constant raised
-    (simulated in memory, the file stays at 4), the same request plays a whole game on the test
-    bridge through the real route: seat validation, deck paths, game setup, live play, end."""
-    assert launch.MAX_RELEASED_SEATS == 4
+    """With the PLAY lock as it is (4), five and six seats are refused, also while the SIMULATE
+    lock is six; with only the PLAY constant raised (in memory, the file stays at 4), the same
+    request plays a whole game on the test bridge through the real route: seat validation, deck
+    paths, game setup, live play, end."""
+    assert launch.MAX_RELEASED_PLAY_SEATS == 4
     made = _patch_play_route(monkeypatch, lambda _n: SeatBridge(count, human, rounds=1))
     client = TestClient(create_app(tmp_path), headers={"X-Studio": "1"})
     body = {
@@ -608,7 +609,7 @@ def test_release_constant_is_the_only_seat_hurdle_on_the_play_route(
     refused = client.post("/api/games", json=body)
     assert refused.status_code == 422 and "locked" in refused.text and not made
 
-    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)
+    monkeypatch.setattr(launch, "MAX_RELEASED_PLAY_SEATS", 6)
     started = client.post("/api/games", json=body)
     assert started.status_code == 200, started.text
     game_id = started.json()["game_id"]
@@ -647,14 +648,15 @@ def test_release_constant_is_the_only_seat_hurdle_on_the_play_route(
 def test_studio_refuses_five_and_six_seats_at_the_seat_rule_and_the_play_route(
     tmp_path: Path,
 ) -> None:
-    """Issue #1661 acceptance: without the Owner's release five (and six) seats stay refused, at
-    the seat rule itself and on the play route; the CLI switch exists only for measurement."""
-    assert launch.MAX_RELEASED_SEATS == 4
+    """Issue #1661 acceptance: without the Owner's PLAY release five (and six) seats stay refused,
+    at the seat rule itself (``play=True``) and on the play route; the switch exists only for
+    measurement. The SIMULATE lock (six) does not lift the PLAY lock."""
+    assert launch.MAX_RELEASED_PLAY_SEATS == 4 and launch.MAX_RELEASED_SEATS >= 5
     for opponents in (4, 5):
         with pytest.raises(ValueError, match=f"tables of {opponents + 1} seats are locked"):
-            launch.validate_released_seat_count(opponents)
+            launch.validate_released_seat_count(opponents, play=True)
         assert (
-            launch.validate_released_seat_count(opponents, allow_unreleased_seats=True)
+            launch.validate_released_seat_count(opponents, play=True, allow_unreleased_seats=True)
             == opponents + 1
         )
     client = TestClient(create_app(tmp_path), headers={"X-Studio": "1"})

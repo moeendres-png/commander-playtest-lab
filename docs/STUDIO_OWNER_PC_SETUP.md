@@ -118,8 +118,8 @@ auf diesem Rechner noch nicht eingerichtet.“ plus den Grund. Gründe (`launch.
 Beim Start einer Partie (`prepare_table_deck_paths`) kommen weitere Ablehnungen:
 „Die Regeln-Engine XMage unterstützt diese Karten noch nicht: ...“,
 „Das Kartenwissen der KI kennt diese Karten noch nicht: ...“ (`launch.py`),
-die Sitz-Sperre (`MAX_RELEASED_SEATS = 4`: 2 bis 4 Sitze aktiv, 5 und 6 technisch gesperrt,
-`launch.py`, PR #1515) und
+die Sitz-Sperre für PLAY und beobachtete Partien (`MAX_RELEASED_PLAY_SEATS = 4`: 2 bis 4 Sitze aktiv,
+5 und 6 technisch gesperrt; SIMULATE hat eine eigene Sperre, `MAX_RELEASED_SEATS = 6`; `launch.py`, PR #1515) und
 „Die Partie konnte nicht gestartet werden: <letzte 5 Zeilen von games\<id>.out>“, wenn innerhalb von
 20 Sekunden kein Spiellog entsteht. Daher ist `games\<id>.out` die erste Log-Datei, die ein
 Befund beilegen soll.
@@ -153,7 +153,7 @@ von XMage nicht unterstützt sind, für eine Deck-Revision oder die ganze Sammlu
 Verbindliche Abnahme-Definition ist AK-1 bis AK-8 (`docs/OWNER_DECISIONS_STUDIO_20261118.md`, E4;
 `docs/STUDIO_SCOPE.md`, PLAY P0). Auf `main` ist PLAY P0 gemergt (PR #1515): Brett-Klick für
 Ziel, Angreifer, Blocker, Karte aus der Hand und Fähigkeit eines Permanents (`static/boardclick.js`,
-Listen bleiben als Ausweichweg), Sitz-Sperre 2–4 im Startpfad (`launch.MAX_RELEASED_SEATS = 4`),
+Listen bleiben als Ausweichweg), Sitz-Sperre 2–4 im Startpfad (`launch.MAX_RELEASED_PLAY_SEATS = 4`; SIMULATE: `launch.MAX_RELEASED_SEATS = 6`),
 kein Timeout für den Mensch-Sitz (`decision_timeout_seconds = 0`, `studio/play.py`), KI-Hände live
 verborgen und nach Spielende aufgedeckt (`docs/STUDIO_GAME_VIEWER.md`), Vorspulen ausschließlich
 über die Pass-Option auf Prioritätsabfragen (`static/vorspulen.js`).

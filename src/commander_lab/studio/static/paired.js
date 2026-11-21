@@ -8,12 +8,12 @@
 // (paired_series.MEASURED_BATCH_GAMES_PER_HOUR, assumed_games_per_hour_unmeasured).
 const PAIRED_MEASURED_BATCH_GAMES_PER_HOUR = 541.2;
 const PAIRED_MEASURED_BATCH_WORKERS = 6;
-// Table sizes of a series (#1702): two to six seats. The seat lock (launch.MAX_RELEASED_SEATS) lets the
-// Studio start two to four; five and six can be planned here but not started, and the server refuses
-// them too. Freigabe nur per Owner-Entscheid: raise PAIRED_RELEASED_SEATS (and partie.js) only then.
+// Table sizes of a series (#1702): two to six seats. PAIRED_RELEASED_SEATS mirrors the SIMULATE seat lock
+// (launch.MAX_RELEASED_SEATS, now six); a size above it can be planned here but not started, and the
+// server refuses it too. PLAY has its own lock (launch.MAX_RELEASED_PLAY_SEATS, partie.js), not this one.
 const PAIRED_MIN_SEATS = 2;
 const PAIRED_MAX_SEATS = 6;
-const PAIRED_RELEASED_SEATS = 4;
+const PAIRED_RELEASED_SEATS = 6;
 const PAIRED_DEFAULT_SEATS = 4;
 // The one table size the rate above was measured at; for any other size the duration is UNKNOWN.
 const PAIRED_MEASURED_TABLE_SEATS = 4;
@@ -28,6 +28,8 @@ function pairedTableOptions() {
 }
 
 function pairedLockNote() {
+  if (PAIRED_RELEASED_SEATS >= PAIRED_MAX_SEATS) return "";
+  if (PAIRED_RELEASED_SEATS + 1 === PAIRED_MAX_SEATS) return `${PAIRED_MAX_SEATS} Sitze sind nicht freigegeben (Owner-Entscheid, E15 Q5): Sie lassen sich hier planen, aber nicht starten; der Server lehnt sie ab.`;
   return `${PAIRED_RELEASED_SEATS + 1} und ${PAIRED_MAX_SEATS} Sitze sind nicht freigegeben (Owner-Entscheid, E15 Q5): Sie lassen sich hier planen, aber nicht starten; der Server lehnt sie ab.`;
 }
 
@@ -527,7 +529,7 @@ function renderPairedComparisonSection(body, deps) {
   const gamesPerJvmInput = h("input", { type: "number", value: "16", min: "1", max: "24", class: "seed-input", id: "paired-games-per-jvm-input" });
   const rotateCheck = h("input", { type: "checkbox", checked: true, id: "paired-rotate-check" });
   const rotateText = h("span", { id: "paired-rotate-text" }, `Sitze 1–${PAIRED_DEFAULT_SEATS} rotieren`);
-  const tableNote = h("p", { class: "note note-compact", id: "paired-table-note" }, pairedLockNote());
+  const tableNote = pairedLockNote() ? h("p", { class: "note note-compact", id: "paired-table-note" }, pairedLockNote()) : null;
   const startBtn = h("button", { type: "submit", class: "primary", id: "paired-start-btn" }, "Nachtlauf starten");
 
   const tableSeats = () => Math.max(PAIRED_MIN_SEATS, Math.min(PAIRED_MAX_SEATS, parseInt(tableSelect.value, 10) || PAIRED_DEFAULT_SEATS));
@@ -622,7 +624,7 @@ function renderPairedComparisonSection(body, deps) {
 
   const monSlot = h("div", { id: "paired-monitor-slot" });
   const histSlot = h("div", { id: "paired-history-slot" });
-  pBox.append(form, tableNote, estLine, planBox, monSlot, histSlot);
+  pBox.append(form, ...(tableNote ? [tableNote] : []), estLine, planBox, monSlot, histSlot);
 
   body.append(pBox, renderReadinessAuditBox(h, deps));
   refreshPairedSlots(deps);

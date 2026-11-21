@@ -1019,11 +1019,12 @@ def test_web_refuses_a_time_limit_for_a_human_seat(
 def test_server_refuses_five_and_six_seat_tables_with_a_clear_reason(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """AGENTS.md: two to four seats are active; five and six stay locked until a qualification and
-    an explicit Owner decision. The Studio start refuses them, with and without a human seat."""
+    """AGENTS.md: two to four seats are active for PLAY; five and six stay locked until a
+    qualification and an explicit Owner decision. The Studio start (``/api/games``) refuses them,
+    with and without a human seat, also while the SIMULATE lock is six."""
     from commander_lab.studio import launch
 
-    assert (launch.MIN_SEATS, launch.MAX_RELEASED_SEATS) == (2, 4)
+    assert (launch.MIN_SEATS, launch.MAX_RELEASED_PLAY_SEATS) == (2, 4)
     client = TestClient(create_app(tmp_path), headers={"X-Studio": "1"})
     for others in (4, 5):
         for human in (None, [0]):

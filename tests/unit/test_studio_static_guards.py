@@ -396,15 +396,16 @@ def test_boardclick_script_only_maps_engine_options_and_holds_no_rules() -> None
     assert "SEAT_NAME = /^Full Game Seat (\\d+)$/" in script
 
 
-def test_new_game_dialog_offers_only_the_released_table_sizes() -> None:
+def test_new_game_dialog_offers_only_the_table_sizes_released_for_play() -> None:
     from commander_lab.studio import launch
 
     js = (STATIC / "partie.js").read_text(encoding="utf-8")
     declared = re.search(r"const OPPONENT_COUNTS = \[([0-9, ]+)\];", js)
     assert declared is not None
     counts = [int(n) for n in declared.group(1).split(",")]
-    # two to four players: one to three opponents, never five or six seats
-    assert counts == list(range(launch.MIN_SEATS - 1, launch.MAX_RELEASED_SEATS))
+    # PLAY and watched games: two to four players (the PLAY lock, not the SIMULATE lock): one to
+    # three opponents, never five or six seats
+    assert counts == list(range(launch.MIN_SEATS - 1, launch.MAX_RELEASED_PLAY_SEATS))
     assert "OPPONENT_COUNTS.map(" in js and "[1, 2, 3, 4, 5].map" not in js
 
 
