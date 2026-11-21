@@ -76,7 +76,11 @@ SPREAD: Final[dict[str, object]] = {
     "oben": 8,
     "einheit": "Punkte",
     "laeufe_je_karte": 1,
-    "art": "typische Streuung eines Einzelwerts, kein gemessenes Intervall je Karte",
+    "art": (
+        "typische Streuung eines Einzelwerts, kein gemessenes Intervall je Karte; sie wächst mit H "
+        "(Rating-Audit A §4: etwa \u00b15 bei H bis 10, etwa \u00b110 bei H 40 bis 55, ab H 60 "
+        "asymmetrisch etwa \u221215 bis +5)"
+    ),
     "quellen": [
         {
             "name": "Drift-Test: zweiter Lauf derselben Rater-Stufe",

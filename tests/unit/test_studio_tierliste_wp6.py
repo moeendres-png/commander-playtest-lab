@@ -85,8 +85,14 @@ def test_the_spread_constants_are_recomputed_from_the_raw_research_files() -> No
     assert "7,9" in sources[1]["kennzahl"] and "7 bis 8" in sources[2]["kennzahl"]
     report = (RESEARCH / "PILOT_REPORT.md").read_text(encoding="utf-8")
     assert "**5,10**" in report and "13 von 70 = 18,6 %" in report
-    # no source names a model, only the rater tier or "another model family"
-    assert not re.search(r"(?i)claude|gpt|gemini|opus|sonnet|haiku", json.dumps(spread))
+    # every source names a rater tier, another model family or the audit, never a model
+    assert [q["name"].split(":")[0].split(" (")[0] for q in sources] == [
+        "Drift-Test",
+        "Unabhängiger Rater aus einer anderen Modellfamilie",
+        "Rating-Audit A",
+    ]
+    assert "H \u2264 10: etwa \u00b15. H 40\u201355: etwa \u00b110" in audit
+    assert "\u00b110 bei H 40 bis 55" in str(spread["art"])
 
 
 # ---------- T3 / T5 on the real data set ----------
