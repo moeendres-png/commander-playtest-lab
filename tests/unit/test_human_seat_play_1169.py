@@ -835,9 +835,14 @@ def test_delete_during_slow_startup_discards_without_orphan_gz(tmp_path: Path) -
     release_gate = threading.Event()
 
     class _SlowStartupClient(_FakeInteractiveClient):
+        def __init__(self) -> None:
+            super().__init__()
+            self.methods: list[str] = []
+
         def request(
             self, method: str, payload: dict[str, object] | None = None
         ) -> dict[str, object]:
+            self.methods.append(method)
             if method == "start_engine":
                 started_gate.set()
                 release_gate.wait(timeout=2.0)
@@ -861,8 +866,9 @@ def test_delete_during_slow_startup_discards_without_orphan_gz(tmp_path: Path) -
         human_seats=[0],
         decision_timeout_seconds=0,
         command=("fake-bridge",),
-        client_factory=lambda *_a, **_kw: _SlowStartupClient(),
+        client_factory=lambda *_a, **_kw: slow,
     )
+    slow = _SlowStartupClient()
     with app.state.play_manager._lock:
         app.state.play_manager._sessions["slow-delete"] = session
     session._thread.start()
@@ -874,6 +880,8 @@ def test_delete_during_slow_startup_discards_without_orphan_gz(tmp_path: Path) -
         release_gate.set()
         session._thread.join(timeout=2.0)
         assert deleted.status_code == 200
+        # the stop is seen between the deck imports: no deck is imported, no game is created
+        assert "import_deck" not in slow.methods and "create_full_game" not in slow.methods
         assert not (games.games_folder(tmp_path) / "slow-delete.jsonl").exists()
         assert not (games.games_folder(tmp_path) / "slow-delete.jsonl.gz").exists()
     finally:
