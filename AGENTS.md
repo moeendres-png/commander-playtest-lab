@@ -447,7 +447,7 @@ Collection, deck, store and ownership card data may leave the Owner's machine (O
 lists in agent environments and fetch card images and public MTG metadata from public sources (such
 as Scryfall, EDHREC, Commander Spellbook, playgroup.gg, Archidekt). Studio web image requests carry
 no referrer or credentials (`referrerpolicy="no-referrer"`). The Studio sends no usage or
-measurement data outward (no telemetry, register E7 C5): outward go only fetches of public card
+measurement data outward (no telemetry, register E7 C5 and section 6.5, SR39): outward go only fetches of public card
 images and card data and, for TAM prices, fetches from a source in the source register (below).
 Purchase data and card prices are never collected or committed unless the Owner orders price data
 (E14, T3). On 2026-11-21 the Owner allowed prices for TAM purchases (Zukauf, above all

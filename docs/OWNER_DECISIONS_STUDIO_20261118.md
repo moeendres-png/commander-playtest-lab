@@ -105,7 +105,7 @@ ist **und** der Owner das konkrete Gewicht und die Darstellung bestätigt hat. B
   Standfestigkeit, Sieg-Abstand, Großpod) tragen kein Gewicht, auch nicht im Gesamtrating; sie
   werden nur getrennt angezeigt.
 - Ergebnisse aus SIMULATE erscheinen bis dahin nur im Deckbauer und im Deck-Verlauf als eigene
-  Kohorte `SIMULATED_RESULT` (Abschnitt 6.3).
+  Kohorte `SIMULATED_RESULT` (SC:91-92; Spaltenregel SR9 in Abschnitt 6.3).
 
 **G-SIM.** „Perfekt“ ist nicht prüfbar; G-SIM ersetzt es durch messbare Größen. Ursprünglich ein
 Vorschlag der Lead-Sitzung. Punkt 2, Punkt 5 und die Stufen zur Tierliste hat der Owner am
@@ -271,7 +271,7 @@ deinem Empfehlungen bitte so in den issues hinterlegen damit gemini das auch ric
 - **C4** PLAY P1 geteilt in P1a (nur Seite) und P1b (neuer Frame-Inhalt unter dem
   Studio-Bridge-Gate) (Abschnitt 6.2).
 - **C5** Betrieb: Owner-PC Windows, Release-Artefakt, Backup, keine Telemetrie nach außen
-  (Abschnitt 6.5).
+  (Wortlaut SR39 in Abschnitt 6.5).
 - **C6** Tierliste: Standard bleibt „Nutzung“; Guide v2.2 wird nicht ausgerollt; Ankerfrage 7 gilt
   als gewolltes Urteil; eine menschliche Referenz ist optional.
 - **C7** Kreuz-Review: Arbeiten zwei Agenten parallel, wird ein MATERIAL-PR von einer Sitzung des
@@ -532,7 +532,9 @@ der TAM-Zukauf-Liste, Kennzeichnung als Richtwert. Preise fließen nie in Vorsch
 Evidenz/Reife, Rating, Tierliste, Ranking oder Simulationszahlen. Nicht erlaubt sind außerdem
 Kaufabschluss und Kaufabwicklung, Bezahldienste und Scraping einer Seite ohne öffentliche API
 (`AGENTS.md` §8). Preise werden nur aus einer Quelle gesammelt, die im Quellregister
-(`src/commander_lab/studio/sources.py`, mit Zugangsstatus) geführt ist. Jeder Preis trägt eine
+(`src/commander_lab/studio/sources.py`, mit Zugangsstatus) geführt ist; diese Preisabrufe sind die
+einzige Ausnahme zu SR39 („nach außen gehen nur Abrufe öffentlicher Kartenbilder und
+Kartendaten“, `AGENTS.md` §12). Jeder Preis trägt eine
 ehrliche Quelle und einen Zeitstempel, ein fehlender Preis heißt „unbekannt“, nie 0 €. Ein
 Cardmarket-API-Schlüssel bleibt `LOCAL_ONLY` beim Owner und kommt nie ins Repository
 (`AGENTS.md` §12, Secrets). TAM-Preis-Schnappschüsse bleiben im lokalen Studio-Store und kommen
@@ -691,8 +693,8 @@ eingeführt hat (Refs #1667).
 `aef76b8e0b345ab61c216bfeb7890bf2d7b9998f`, „PL“ `STUDIO_PLAN_SIMULATOR.md` und „RM“
 `STUDIO_ROADMAP_20261112.md` am Commit `41938a58dc8489aa3121a98bab3c64990ac9a7c3`; die Zahl nach
 dem Doppelpunkt ist die Zeile dort. Diese Stände sind die letzten auf `main` vor der Archivierung.
-SR37 und SR38 sind nach dem ersten Review nachgetragen (zwei Reste, die zunächst als „schon vorhanden“ galten) und stehen bei ihrem Thema, nicht am Ende der Nummernfolge.
-„SR“ steht für eine übernommene Scope-Regel (bis zur Review-Runde zu PR #1741 hießen sie R1 bis R38); SR1 bis SR38 sind nicht die Reifegrade R0 bis R3 der Simulations-Evidenz (E15 Q1, `AGENTS.md` §1).
+SR37, SR38 und SR39 sind nach den Reviews nachgetragen (Reste, die zunächst als „schon vorhanden“ galten) und stehen bei ihrem Thema, nicht am Ende der Nummernfolge.
+„SR“ steht für eine übernommene Scope-Regel (bis zur Review-Runde zu PR #1741 hießen sie R1 bis R39); SR1 bis SR39 sind nicht die Reifegrade R0 bis R3 der Simulations-Evidenz (E15 Q1, `AGENTS.md` §1).
 
 **Lesart (Einordnung des Co-Leads, Einspruch des Owners jederzeit möglich).** Die Regeln in den
 Tabellen sind wortlautnah übernommen und nicht neu gefasst; Einordnungen außerhalb der Tabellen
@@ -728,7 +730,7 @@ an diesem Abschnitt gilt dasselbe wie für die übrigen Owner-Entscheide (SR33).
 | SR8 | Der Serienplan liegt als Datei vor dem ersten Spiel vor. Die Konsistenz-Tafel trennt drei Herkunftsklassen (exakt gerechnet; in der Engine gemessen und pilotunabhängig; in der Engine gemessen und pilotabhängig). Jedes Ergebnis trägt den Gültigkeitsblock (Sitzkurve neben der Playgroup-Referenz, Zählung der Pilot-Auslassungen nach E3, fester Satz zur KI-Gültigkeit). | SC:79 |
 | SR9 | Simulationsergebnisse stehen nie in einer Spalte mit EDHREC-, Playgroup- oder TopDeck-Zahlen und werden nie über Commander oder Deck-Stände summiert. Eine Serie zu einem anderen Deck-Stand wird nie als Ergebnis des aktuellen Standes gezeigt. | SC:92-94, RM:61 |
 | SR10 | SIMULATE entscheidet Pakete und Bauachsen (Landzahl, Ramp-, Schutzpaket), nicht einzelne Kartentausche; die Oberfläche sagt das. | SC:98-99 |
-| SR38 | Später, nur bei Bedarf (A3): rundenbegrenzte Serien mit vollen Piloten, Kontrollgrößen, Zufalls-Pods, Vorausschau-Piloten (S5, #1265). Rundenlimit, neue Abhängigkeiten und 5/6 Sitze brauchen einen Owner-Entscheid. | SC:100-102 |
+| SR38 | Später, nur bei Bedarf (A3): rundenbegrenzte Serien mit vollen Piloten, Kontrollgrößen, Zufalls-Pods, Vorausschau-Piloten (S5, #1265; Vorausschau nicht als Serien-Pilot, E15 Q8). Rundenlimit (E15 Q4), neue Abhängigkeiten und 5/6 Sitze brauchen einen Owner-Entscheid. | SC:100-102 |
 
 ### 6.4 Engine, Bridge und Aufräumen
 
@@ -749,6 +751,7 @@ an diesem Abschnitt gilt dasselbe wie für die übrigen Owner-Entscheide (SR33).
 | SR37 | Plattform: Der Owner-PC ist Windows; Start über `scripts/studio_start.ps1`, Datenordner standardmäßig `%LOCALAPPDATA%\CommanderStudio` (`docs/STUDIO_OWNER_PC_SETUP.md`). Linux/WSL (`scripts/studio_start.sh`) ist nur Ausweichweg; ob am Owner-PC WSL vorhanden ist: `UNKNOWN`. | SC:119-121 |
 | SR18 | Messwerkzeuge für Bridge-Gate und Serien-Identität müssen unter Windows laufen. | SC:122-124, SC:158 (S1, Abnahme 4) |
 | SR19 | Das Release-Artefakt (`.github/workflows/release-artifacts.yml`, mit `xmage-engine-bridge.jar`, dessen `.sha256` und `ENGINE_PIN.txt`; `retention-days: 30`) wird vor dem Abschluss neu erzeugt. Ein dauerhaftes GitHub-Release ist eine Veröffentlichung und Owner-Entscheid (E15 Q11, `AGENTS.md` §8). | SC:125-128 |
+| SR39 | Backup und Telemetrie: Der Studio-Datenordner (Deck-Verlauf, Markierungen, Serien, Partien) liegt nur auf dem Owner-PC; Sicherung und Rückspiel sind eine Anforderung, noch nicht gebaut (eigenes Paket). Das Studio sendet keine Nutzungs- oder Messdaten nach außen; nach außen gehen nur Abrufe öffentlicher Kartenbilder und Kartendaten (`AGENTS.md` §12). Messwerte der Abnahme kommen als Dateien zurück. | SC:129-133 |
 | SR20 | Zum Abschluss: neue Qualifikations-Epoche (Versiegeln braucht das Owner-Go) oder dauerhaft sichtbar „vor Qualifikation“. | SC:134-135 |
 | SR21 | Die Owner-PC-Seite (`docs/STUDIO_OWNER_PC_SETUP.md`) wird einmal von null in sauberer Umgebung durchgespielt; jede Abweichung ist ein Befund. | SC:158 (S1, Abnahme 5) |
 
