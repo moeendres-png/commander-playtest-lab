@@ -32,7 +32,7 @@ from commander_lab.qualification.current_boundary.bridge_launcher import canonic
 
 from . import cache
 from .decks import lab_snapshot
-from .games import games_folder, read_game
+from .games import COHORT_PLAYED, COHORT_SIMULATED, game_cohort, games_folder, read_game
 from .launch import (
     ENGINE_COMMAND_ENV,
     POD_PRESETS,
@@ -315,6 +315,17 @@ def extract_game_log_telemetry(
     hdr_raw = data.get("header")
     hdr = hdr_raw if isinstance(hdr_raw, dict) else {}
     seed = _as_int(hdr.get("seed"), 0)
+    cohort = game_cohort(hdr)
+    if cohort != COHORT_SIMULATED:
+        # A game with a human seat (#1662), or of unreadable cohort, is never a simulated game:
+        # it enters no batch summary, card telemetry or stored simulation run.
+        return GameSummary(
+            game_id=game_id,
+            seed=seed,
+            status="failed",
+            failure_class="PlayedGameExcluded" if cohort == COHORT_PLAYED else "CohortUnknown",
+            failure_message=f"game log of cohort {cohort}, not {COHORT_SIMULATED}",
+        )
     result_raw = data.get("result")
     result = result_raw if isinstance(result_raw, dict) else {}
     status = str(result.get("status") or ("running" if data.get("running") else "failed"))

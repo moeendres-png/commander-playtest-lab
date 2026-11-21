@@ -7,7 +7,9 @@ Nothing here decides a rule, and nothing here is played back into the engine.
 
 The log is a line-per-entry JSON file in ``games/`` of the Studio data folder (outside the
 repository). A game log is a ``SIMULATED_RESULT``: one seed, one set of pilots. It says
-what happened in this game, not how strong a deck is.
+what happened in this game, not how strong a deck is. A game with a human seat (``human_seats``
+in the header) is a ``PLAYED_GAME`` (#1662): its own cohort, which no simulation figure, card
+evaluation or aggregate counts (``game_cohort``).
 """
 
 from __future__ import annotations
@@ -36,6 +38,14 @@ _TAG = re.compile(r"<[^>]{0,400}>")
 _SPACE = re.compile(r"\s+")
 _UUID = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", re.IGNORECASE)
 _COLORS = ("white", "blue", "black", "red", "green", "colorless")
+
+
+# The cohorts a game log can belong to (#1662). ``UNKNOWN``: the header's cohort fields cannot be
+# read; such a log is counted in neither cohort (fail-closed) and is shown apart.
+COHORT_SIMULATED = DataClass.SIMULATED_RESULT.value
+COHORT_PLAYED = DataClass.PLAYED_GAME.value
+COHORT_UNKNOWN = DataClass.UNKNOWN.value
+HUMAN_PILOT_LABEL = "Mensch"
 
 
 class DecisionPolicy(Protocol):
@@ -341,6 +351,39 @@ def frame_of(
     )
 
 
+def game_cohort(header: object) -> str:
+    """The cohort of a game log from its header: ``SIMULATED_RESULT``, ``PLAYED_GAME`` or ``UNKNOWN``.
+
+    A game is ``PLAYED_GAME`` when its header says so (``data_class``), names a human seat
+    (``human_seats`` a non-empty list of seat numbers) or seats a human pilot (a seat row with
+    ``pilot`` "Mensch"). The last two also recognise logs written before #1662, whose header
+    still says ``SIMULATED_RESULT``: no backfill is needed. ``human_seats: []`` (written for a
+    non-default timeout without a human) is no human seat. A header whose cohort fields cannot
+    be read (no mapping, ``human_seats`` not a list of seat numbers, a seat list that is no list,
+    a ``data_class`` that is neither cohort) is ``UNKNOWN`` and never read as a simulation. A
+    header without ``data_class`` and without a human seat stays a simulation (older logs).
+    """
+    if not isinstance(header, Mapping):
+        return COHORT_UNKNOWN
+    data_class = header.get("data_class")
+    if data_class == COHORT_PLAYED:
+        return COHORT_PLAYED
+    unknown = data_class is not None and data_class != COHORT_SIMULATED
+    raw_humans = header.get("human_seats")
+    if raw_humans is not None:
+        if not isinstance(raw_humans, list) or any(type(s) is not int for s in raw_humans):
+            unknown = True
+        elif raw_humans:
+            return COHORT_PLAYED
+    raw_seats = header.get("seats")
+    if raw_seats is not None and not isinstance(raw_seats, list):
+        unknown = True
+    for row in raw_seats if isinstance(raw_seats, list) else []:
+        if isinstance(row, Mapping) and row.get("pilot") == HUMAN_PILOT_LABEL:
+            return COHORT_PLAYED
+    return COHORT_UNKNOWN if unknown else COHORT_SIMULATED
+
+
 class GameRecorder:
     """Writes one game log.
 
@@ -376,17 +419,21 @@ class GameRecorder:
         self._events: list[dict[str, object]] = []
         buffering = -1 if self.flush_each_frame else SERIES_BUFFER_BYTES
         self._handle: IO[str] | None = self.path.open("w", encoding="utf-8", buffering=buffering)
-        self._write(
-            {
-                "kind": "header",
-                "schema": LOG_SCHEMA,
-                "game_id": self.game_id,
-                "data_class": DataClass.SIMULATED_RESULT.value,
-                "rules_authority": "xmage",
-                "started_at": now_utc(),
-                **header,
-            }
+        entry: dict[str, object] = {
+            "kind": "header",
+            "schema": LOG_SCHEMA,
+            "game_id": self.game_id,
+            "data_class": COHORT_SIMULATED,
+            "rules_authority": "xmage",
+            "started_at": now_utc(),
+            **header,
+        }
+        # A game with a human seat is its own cohort (#1662), never a simulation; the class is
+        # set after the caller's header so no header field can turn it back.
+        entry["data_class"] = (
+            COHORT_PLAYED if game_cohort(entry) == COHORT_PLAYED else COHORT_SIMULATED
         )
+        self._write(entry)
 
     def _write(self, entry: Mapping[str, object]) -> None:
         if self._handle is None:

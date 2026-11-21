@@ -2575,7 +2575,9 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         ``games`` counts finished logs of the deck over all its deck states; it is a log
         count, not an evaluation. ``stands`` is the number of known deck states and
         ``games_unknown_stand`` the logs without one (#1657), which ``/api/outcomes`` shows
-        apart and never adds to a known state.
+        apart and never adds to a known state. ``played_games`` counts the logs with a human seat
+        (``PLAYED_GAME``) and ``games_cohort_unknown`` those of unreadable cohort (#1662): their
+        own numbers, never part of ``games`` or ``games_skipped``.
         """
         report = card_outcomes.load_exposures(games.games_folder(games_home()))
         finished: dict[str, int] = {}
@@ -2598,6 +2600,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                     "games_skipped": report["skipped_with_deck"].get(deck_id, 0),
                     "stands": len(stands.get(deck_id, ())),
                     "games_unknown_stand": unknown.get(deck_id, 0),
+                    "played_games": report["played_with_deck"].get(deck_id, 0),
+                    "games_cohort_unknown": report["cohort_unknown_with_deck"].get(deck_id, 0),
                 }
                 for deck_id in card_outcomes.deck_ids_in(report)
             ]
