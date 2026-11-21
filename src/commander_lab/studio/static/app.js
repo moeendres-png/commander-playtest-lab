@@ -444,6 +444,17 @@ function entries() {
 let saveTimer = 0;
 function renderSaveState() {
   const box = $("save-state");
+  // #1727: a failed load blocks saving and discarding until a load succeeds; while a load runs
+  // the editor still shows the previous variant, so its notices are hidden
+  if (loadFailed) {
+    box.replaceChildren(
+      h("span", { class: "pill bad" }, "Laden fehlgeschlagen: nichts gespeichert. Speichern und Verwerfen sind gesperrt, bis die Variante geladen ist"),
+      " ",
+      h("button", { type: "button", class: "small", onclick: () => loadDecks().then(() => loadBranch()).catch((error) => fail(error)) }, "Erneut laden"),
+    );
+    return;
+  }
+  if (branchLoading > 0) { box.textContent = "Variante lädt …"; return; }
   // B2b (#1658), #1727: the saved state under this draft moved (an adoption, another tab):
   // saving into this variant is refused; the work can be kept as a new variant, or the draft is
   // discarded and the current state loaded. The notice stays until one of the two is done.
@@ -463,7 +474,7 @@ function renderSaveState() {
       " ",
       h("button", { type: "button", class: "small", onclick: () => {
         if (committing) { toast("Speichern läuft schon, bitte warten."); return; } // a load now would be dropped by the save
-        loadDecks().then(loadBranch).catch((error) => fail(error));
+        loadDecks().then(() => loadBranch()).catch((error) => fail(error));
       } }, "Aktuellen Stand laden"),
     );
     return;
@@ -485,7 +496,7 @@ async function syncDraftNow() {
   const seq = state.changeSeq; // the list as of this change is what this call saves
   try {
     const cards = entries();
-    const shouldPut = state.needsDraftPut && state.dirty;
+    const shouldPut = state.needsDraftPut && state.dirty && branchLoading === 0 && !loadFailed; // never while a load runs (#1727)
     const [result, putRes] = await Promise.all([
       api("/api/check", "POST", { cards, owned_only: !state.includeUnowned }),
       shouldPut
@@ -2849,10 +2860,11 @@ function openNewDeckModal() {
       const trimmed = (name || "").trim();
       if (!trimmed) { toast("Bitte einen Decknamen eingeben."); return; }
       const created = await api("/api/decks", "POST", { name: trimmed.slice(0, 80), commander_card_ids: state.commanderIds });
-      state.deckId = created.deck_id; state.branch = "main";
       closeModal();
-      await loadDecks(); await loadBranch();
-      toast(`Deck „${trimmed}“ angelegt.`);
+      try {
+        await loadDecks(); await loadBranch({ deckId: created.deck_id, branch: "main" });
+        toast(`Deck „${trimmed}“ angelegt.`);
+      } catch (error) { fail(error); }
     },
   });
 }
@@ -2948,6 +2960,11 @@ async function loadDecks() {
   if (!state.decks.some((deck) => deck.deck_id === state.deckId)) state.deckId = state.decks[0].deck_id;
   const deck = state.decks.find((item) => item.deck_id === state.deckId);
   if (!deck.branches.some((item) => item.branch === state.branch)) state.branch = deck.branches[0].branch;
+  renderDeckSelects();
+}
+function renderDeckSelects() {
+  const deck = state.decks.find((item) => item.deck_id === state.deckId);
+  if (!deck) return;
   renderDeckLabels();
   $("deck-select").replaceChildren(...state.decks.map((item) => h("option", { value: item.deck_id, selected: item.deck_id === state.deckId }, item.name)));
   $("branch-select").replaceChildren(...deck.branches.map((item) => h("option", { value: item.branch, selected: item.branch === state.branch }, `${item.branch} (${StudioUI.num(item.cards, 0)})${item.has_draft ? " *" : ""}`)));
@@ -2978,7 +2995,7 @@ let discardingStaleDraft = false;
 async function discardStaleDraft() {
   if (discardingStaleDraft) return; // one DELETE per click series
   if (committing) { toast("Speichern läuft schon, bitte warten."); return; } // the save decides first
-  if (branchLoading > 0) { toast("Die Variante lädt noch: nichts verworfen, bitte kurz warten."); return; }
+  if (loadRefused("verworfen")) return;
   discardingStaleDraft = true;
   try {
     await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "DELETE");
@@ -2988,34 +3005,80 @@ async function discardStaleDraft() {
     discardingStaleDraft = false;
   }
 }
-// #1727: while a deck or variant is loading, `state.branch` and `state.baseRevision` already name
-// the new one but the list is still the old one: saving or discarding then would act on the
-// wrong variant. Every load counts here; save and discard refuse until all loads are done.
+// #1727: switching deck or variant is a transaction. The new deck, variant, base and list are
+// set together, only after their GETs answered, and only by the latest load (a late answer of
+// an earlier switch is dropped). A failed load changes nothing and blocks saving and discarding
+// until a load succeeds; while any load runs both refuse as well.
 let branchLoading = 0;
+let loadSeq = 0;
+let loadFailed = false;
+function loadRefused(what) {
+  if (loadFailed) { toast(`Laden fehlgeschlagen: nichts ${what}. Bitte die Variante erneut laden.`); return true; }
+  if (branchLoading > 0) { toast(`Die Variante lädt noch: nichts ${what}, bitte kurz warten.`); return true; }
+  return false;
+}
 async function onDeckSelect() {
-  branchLoading += 1;
-  try { state.deckId = $("deck-select").value; await loadDecks(); await loadBranch(); } finally { branchLoading -= 1; }
+  const deckId = $("deck-select").value;
+  branchLoading += 1; // the deck list is read first: that counts as loading too
+  try {
+    await loadDecks();
+    await loadBranch({ deckId, branch: null });
+  } catch (error) {
+    $("deck-select").value = state.deckId;
+    fail(error);
+  } finally {
+    branchLoading -= 1;
+    renderSaveState();
+  }
 }
 async function onBranchSelect() {
-  branchLoading += 1;
-  try { state.branch = $("branch-select").value; await loadBranch(); } finally { branchLoading -= 1; }
+  const branch = $("branch-select").value;
+  try {
+    await loadBranch({ deckId: state.deckId, branch });
+  } catch (error) {
+    $("branch-select").value = state.branch;
+    fail(error);
+  }
 }
-async function loadBranch() {
+// Loads `target` (default: the open deck and variant); throws when a GET fails.
+async function loadBranch(target = {}) {
+  const token = (loadSeq += 1);
   branchLoading += 1;
-  try { await loadBranchNow(); } finally { branchLoading -= 1; }
+  renderSaveState();
+  let applied = false;
+  try {
+    const deckId = target.deckId || state.deckId;
+    const branchName = target.branch === undefined ? state.branch : target.branch;
+    applied = await loadBranchNow(token, deckId, branchName);
+  } catch (error) {
+    if (token === loadSeq) loadFailed = true; // only the latest load decides
+    throw error;
+  } finally {
+    branchLoading -= 1;
+    renderSaveState();
+  }
+  if (applied && token === loadSeq) await syncDraft();
 }
-async function loadBranchNow() {
-  const deck = state.decks.find((item) => item.deck_id === state.deckId);
-  const branch = deck.branches.find((item) => item.branch === state.branch);
-  state.baseRevision = branch.revision_id;
-  state.baseStale = false;
-  renderSaveState(); // the notice of the old variant goes at once, not after the GETs
-  state.diffBaseRev = null;
-  rememberVariant();
+// The GETs of one load; the editor's state changes only at the end and only for the latest
+// load. Returns whether this load was applied.
+async function loadBranchNow(token, deckId, branchName) {
+  const deck = state.decks.find((item) => item.deck_id === deckId);
+  if (!deck || !deck.branches.length) throw Object.assign(new Error("unbekanntes Deck"), { detail: "Deck oder Variante nicht gefunden" });
+  const branch = deck.branches.find((item) => item.branch === branchName) || deck.branches[0];
   const [revision, draft] = await Promise.all([
     api(`/api/revisions/${encodeURIComponent(branch.revision_id)}`),
-    api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`),
+    api(`/api/decks/${encodeURIComponent(deckId)}/branches/${encodeURIComponent(branch.branch)}/draft`),
   ]);
+  if (token !== loadSeq) return false;
+  const cards = draft.draft ? draft.draft.cards : revision.cards;
+  await ensureUnownedLoadedFor(cards);
+  if (token !== loadSeq) return false;
+  // one step: deck, variant, base and list of the new variant together
+  state.deckId = deckId;
+  state.branch = branch.branch;
+  state.baseRevision = branch.revision_id;
+  state.baseStale = false;
+  state.diffBaseRev = null;
   state.savedSeq = state.changeSeq; // the list comes from the server: nothing of this tab is unsent
   state.draftConflict = false;
   state.needsDraftPut = false;
@@ -3027,15 +3090,17 @@ async function loadBranchNow() {
       state.baseStale = true;
     }
     state.draftUpdatedAt = draft.draft.updated_at || "";
-    await ensureUnownedLoadedFor(draft.draft.cards);
     useCards(draft.draft.cards); state.dirty = true;
   } else {
     state.draftUpdatedAt = "";
-    await ensureUnownedLoadedFor(revision.cards);
     useCards(revision.cards); state.dirty = false; state.issues = revision.issues; state.shape = revision.shape; state.deckRoles = revision.roles || {}; state.combos = revision.combos || null;
   }
+  loadFailed = false;
+  rememberVariant();
+  renderDeckSelects();
   renderSaveState();
-  renderAll(); await syncDraft();
+  renderAll();
+  return true;
 }
 // The saved state of `branch` now, from the server; null when the branch does not exist yet.
 async function currentBranchRevision(branch, deckId = state.deckId) {
@@ -3060,7 +3125,7 @@ function setSwitchLocked(locked) {
 // open once an answer arrives, that editor state is left as it is and only the list refreshes.
 async function commitRevision(branch = state.branch, note = "") {
   if (committing) { toast("Speichern läuft schon, bitte warten."); return; } // one POST per click series
-  if (branchLoading > 0) { toast("Die Variante lädt noch: nichts gespeichert, bitte kurz warten."); return; }
+  if (loadRefused("gespeichert")) return;
   committing = true;
   setSwitchLocked(true);
   const seq = state.changeSeq;
@@ -3448,8 +3513,8 @@ function setupControls() {
   if ($("new-deck")) $("new-deck").addEventListener("click", openNewDeckModal);
   if ($("import-text")) $("import-text").addEventListener("click", openImportDecklistModal);
   $("new-branch").addEventListener("click", openNewBranchModal);
-  $("deck-select").addEventListener("change", onDeckSelect);
-  $("branch-select").addEventListener("change", onBranchSelect);
+  $("deck-select").addEventListener("change", () => onDeckSelect().catch((error) => fail(error)));
+  $("branch-select").addEventListener("change", () => onBranchSelect().catch((error) => fail(error)));
   $("modal").addEventListener("click", (event) => { if (event.target === $("modal")) closeModal(); });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeModal(); });
 }
