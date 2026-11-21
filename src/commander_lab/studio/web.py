@@ -12,6 +12,7 @@ from __future__ import annotations
 import copy
 import json
 import re
+import sqlite3
 import threading
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterable
 from contextlib import asynccontextmanager
@@ -131,6 +132,19 @@ def _with_catalog(
 STATIC = Path(__file__).resolve().parent / "static"
 _LOCAL_HOSTS = frozenset({"127.0.0.1", "localhost", "[::1]", "testserver"})
 _SLUG = re.compile(r"[^a-z0-9]+")
+STORE_BUSY_MESSAGE = "Speicher belegt, bitte erneut versuchen."
+DRAFT_KEPT_MESSAGE = (
+    "Stand gespeichert; der Entwurf konnte nicht verworfen werden. "
+    "Verwirf ihn bitte von Hand oder lade neu."
+)
+
+
+def _store_busy(error: sqlite3.OperationalError) -> bool:
+    """The write lock was not free in time (another process writes): worth a retry, not a 500."""
+    text = str(error).casefold()
+    return "locked" in text or "busy" in text
+
+
 _CSP = (
     "default-src 'self'; img-src 'self' data: https://cards.scryfall.io; style-src 'self'; "
     "script-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
@@ -1784,6 +1798,10 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             raise HTTPException(
                 409, "Das Deck wurde gleichzeitig angelegt; bitte erneut anlegen."
             ) from error
+        except sqlite3.OperationalError as error:
+            if _store_busy(error):
+                raise HTTPException(503, STORE_BUSY_MESSAGE) from error
+            raise
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         finally:
@@ -1990,10 +2008,26 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                         else UNCHECKED
                     ),
                 )
-                builder.drop_draft(store, deck_id, body.branch)
-            return {"revision_id": revision_id}
+                draft_dropped = True
+                try:
+                    builder.drop_draft(store, deck_id, body.branch)
+                except sqlite3.Error:
+                    # the revision is committed already: report it, never a 500 (#1727)
+                    draft_dropped = False
+            answer: dict[str, object] = {"revision_id": revision_id}
+            if not draft_dropped:
+                answer["draft_dropped"] = False
+                answer["hinweis"] = DRAFT_KEPT_MESSAGE
+            if "expected_parent" not in body.model_fields_set:
+                # old client: saved unchecked as before; the answer says so (#1727)
+                answer["expected_parent_missing"] = True
+            return answer
         except StaleParent as error:
             raise HTTPException(409, str(error)) from error
+        except sqlite3.OperationalError as error:
+            if _store_busy(error):
+                raise HTTPException(503, STORE_BUSY_MESSAGE) from error
+            raise
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         finally:
@@ -2091,6 +2125,10 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 )
         except StaleParent as error:
             raise HTTPException(409, str(error)) from error
+        except sqlite3.OperationalError as error:
+            if _store_busy(error):
+                raise HTTPException(503, STORE_BUSY_MESSAGE) from error
+            raise
         except KeyError as error:
             raise HTTPException(404, "unknown deck or module") from error
         except ValueError as error:

@@ -97,6 +97,13 @@ def branch_head(db: sqlite3.Connection, deck_id: str, branch: str) -> str | None
     return None if row is None else str(row[0])
 
 
+def _stored_parent(db: sqlite3.Connection, revision_id: str) -> str | None:
+    row = db.execute(
+        "SELECT parent_revision_id FROM deck_revision WHERE revision_id = ?", (revision_id,)
+    ).fetchone()
+    return None if row is None or row[0] is None else str(row[0])
+
+
 def create_revision(
     store: StudioStore,
     *,
@@ -119,7 +126,8 @@ def create_revision(
     ``branch``; ``None`` means the writer creates a new branch. When the current head differs,
     ``StaleParent`` is raised and neither the revision, the deck nor the branch pointer is
     written. The check and the writes share one write transaction (``BEGIN IMMEDIATE``), so no
-    other writer can move the branch in between. Left out, the branch moves unchecked.
+    other writer can move the branch in between. Left out, the branch moves unchecked. A save
+    sent twice (the head already is this revision with the same parent) succeeds unwritten.
     """
     merged = _merge(cards)
     digest = deck_hash(merged)
@@ -142,6 +150,11 @@ def create_revision(
         if expected_parent is not UNCHECKED:
             head = branch_head(db, deck_id, branch)
             if head != expected_parent:
+                if head == revision_id and _stored_parent(db, revision_id) == parent_revision_id:
+                    # the same save sent again (double click, retry after a lost answer): the
+                    # branch already holds exactly this state; succeed without writing
+                    db.commit()
+                    return revision_id
                 raise StaleParent(
                     NEW_BRANCH_EXISTS_MESSAGE if expected_parent is None else STALE_PARENT_MESSAGE
                 )

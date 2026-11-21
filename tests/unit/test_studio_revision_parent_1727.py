@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import threading
+import time
 from pathlib import Path
 
 import pytest
@@ -24,6 +26,7 @@ from commander_lab.studio import (
     decks,
     import_all,
     importers,
+    web,
 )
 from commander_lab.studio.decks import (
     NEW_BRANCH_EXISTS_MESSAGE,
@@ -182,6 +185,8 @@ def test_an_old_client_without_the_field_still_moves_the_branch(folder: Path) ->
     with TestClient(create_app(folder)) as client:
         first = client.post(url, json={"cards": _json(_deck())}, headers=MARKER)
         assert first.status_code == 200
+        # unchecked as before, and the answer says the field was missing (#1727)
+        assert first.json()["expected_parent_missing"] is True
         # stale parent, no expected_parent: moved unchecked as before #1727
         stale = client.post(
             url,
@@ -321,8 +326,21 @@ def test_module_compile_refuses_a_stale_expected_parent(folder: Path) -> None:
         assert stale.status_code == 409
         assert STALE in stale.json()["detail"]
         assert _state(folder) == before
-        taken = client.post(compile_url, json={**body, "expected_parent": None}, headers=MARKER)
+        # main already holds exactly the compiled list with no parent: the same save, not a
+        # conflict (idempotent); a different list under "new branch" is refused
+        same = client.post(compile_url, json={**body, "expected_parent": None}, headers=MARKER)
+        assert same.status_code == 200, same.text
+        assert _state(folder) == before
+        store = StudioStore.open(folder)
+        try:
+            create_revision(store, deck_id="mein-deck", name="x", cards=_deck()[:5], branch="x2")
+        finally:
+            store.close()
+        taken = client.post(
+            compile_url, json={**body, "branch": "x2", "expected_parent": None}, headers=MARKER
+        )
         assert taken.status_code == 409
+        assert taken.json()["detail"] == NEW_BRANCH_EXISTS_MESSAGE
         ok = client.post(compile_url, json={**body, "expected_parent": full}, headers=MARKER)
         assert ok.status_code == 200, ok.text
         assert ok.json()["saved"] is True
@@ -415,3 +433,125 @@ def test_repo_seed_keeps_a_deck_created_since_its_check(
     assert _state(folder, "seed-deck-current")["branches"] == [
         ("main", _rev_id("seed-deck-current", _deck()))
     ]
+
+
+def test_a_writer_waiting_for_the_lock_reads_the_new_head_and_gets_409(folder: Path) -> None:
+    """Another process holds the write lock with an uncommitted move of ``main`` before the
+    save starts. The save must wait for the lock (``BEGIN IMMEDIATE``), then see the moved head
+    and refuse; a deferred ``BEGIN`` reads the old head and fails with "database is locked"."""
+    store = StudioStore.open(folder)
+    head0 = decks.branch_head(store.connection, "mein-deck", "main")
+    other = create_revision(store, deck_id="mein-deck", name="x", cards=_deck()[:3], branch="x")
+    path = str(store.path)
+    store.close()
+    intruder = sqlite3.connect(path, timeout=30, isolation_level=None)
+    intruder.execute("BEGIN IMMEDIATE")
+    intruder.execute(
+        "UPDATE deck_branch SET revision_id = ? WHERE deck_id = 'mein-deck' AND branch = 'main'",
+        (other,),
+    )
+    outcome: dict[str, object] = {}
+
+    def save() -> None:
+        writer = StudioStore.open(folder)
+        try:
+            outcome["rev"] = create_revision(
+                writer, deck_id="mein-deck", name="x", cards=_deck(), expected_parent=head0
+            )
+        except BaseException as error:
+            outcome["error"] = error
+        finally:
+            writer.close()
+
+    thread = threading.Thread(target=save)
+    thread.start()
+    time.sleep(0.7)
+    intruder.execute("COMMIT")
+    intruder.close()
+    thread.join(40)
+    assert not thread.is_alive()
+    assert isinstance(outcome.get("error"), StaleParent), outcome
+    assert _head(folder) == other
+
+
+def test_the_same_save_sent_twice_succeeds_twice_with_the_same_answer(folder: Path) -> None:
+    head0 = _head(folder)
+    url = "/api/decks/mein-deck/revisions"
+    body = {"cards": _json(_deck()), "expected_parent": head0}
+    draft_url = "/api/decks/mein-deck/branches/main/draft"
+    with TestClient(create_app(folder)) as client:
+        first = client.post(url, json=body, headers=MARKER)
+        assert first.status_code == 200, first.text
+        draft = {"cards": _json(_deck()[:10]), "base_revision_id": first.json()["revision_id"]}
+        assert client.put(draft_url, json=draft, headers=MARKER).status_code == 200
+        before = _state(folder)
+        second = client.post(url, json=body, headers=MARKER)
+        assert second.status_code == 200, second.text
+        assert second.json() == first.json()
+        # same content but a different parent is not the same save
+        other_parent = client.post(
+            url, json={**body, "parent_revision_id": "mein-deck@1111111111111111"}, headers=MARKER
+        )
+        assert other_parent.status_code == 409
+    after = _state(folder)
+    assert after["drafts"] == []  # the repeated save drops the draft as well
+    assert {k: v for k, v in after.items() if k != "drafts"} == {
+        k: v for k, v in before.items() if k != "drafts"
+    }
+
+
+def test_a_failing_draft_drop_after_the_commit_reports_the_saved_state(
+    folder: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    head0 = _head(folder)
+    url = "/api/decks/mein-deck/revisions"
+    body = {"cards": _json(_deck()), "expected_parent": head0}
+    real_drop = builder.drop_draft
+
+    def locked(*_args: object, **_kwargs: object) -> None:
+        raise sqlite3.OperationalError("database is locked")
+
+    monkeypatch.setattr(builder, "drop_draft", locked)
+    with TestClient(create_app(folder), raise_server_exceptions=False) as client:
+        saved = client.post(url, json=body, headers=MARKER)
+        assert saved.status_code == 200, saved.text
+        assert saved.json()["draft_dropped"] is False
+        assert "Stand gespeichert" in saved.json()["hinweis"]
+        assert _head(folder) == saved.json()["revision_id"]
+        monkeypatch.setattr(builder, "drop_draft", real_drop)
+        retry = client.post(url, json=body, headers=MARKER)
+        assert retry.status_code == 200, retry.text
+        assert retry.json() == {"revision_id": saved.json()["revision_id"]}
+
+
+def test_a_failure_in_the_middle_of_the_writes_leaves_nothing(folder: Path) -> None:
+    before = _state(folder)
+    store = StudioStore.open(folder)
+    store.connection.execute(
+        "CREATE TEMP TRIGGER fail_1727 BEFORE INSERT ON deck_branch "
+        "BEGIN SELECT RAISE(ABORT, 'fail_1727'); END"
+    )
+    try:
+        with pytest.raises(sqlite3.IntegrityError):
+            create_revision(
+                store, deck_id="mein-deck", name="x", cards=_deck(), expected_parent=_head(folder)
+            )
+        assert not store.connection.in_transaction
+    finally:
+        store.close()
+    assert _state(folder) == before  # no revision, no cards, the branch unmoved
+
+
+def test_a_busy_store_answers_503_not_500(folder: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    def busy(*_args: object, **_kwargs: object) -> str:
+        raise sqlite3.OperationalError("database is locked")
+
+    monkeypatch.setattr(web, "create_revision", busy)
+    with TestClient(create_app(folder), raise_server_exceptions=False) as client:
+        answer = client.post(
+            "/api/decks/mein-deck/revisions",
+            json={"cards": _json(_deck()), "expected_parent": None},
+            headers=MARKER,
+        )
+    assert answer.status_code == 503
+    assert answer.json()["detail"] == web.STORE_BUSY_MESSAGE
