@@ -2234,7 +2234,8 @@ const h = (tag, attrs, ...kids) => ({ tag, attrs: attrs || {}, kids });
 let modalOpened = 0; const openNewBranchModal = () => { modalOpened += 1; };
 const StudioUI = { germanError: (e) => String(e && e.detail) };
 let usedCards = [];
-const ensureUnownedLoadedFor = async () => {}; const useCards = (cards) => { usedCards.push(cards.map((c) => c.card_id)); }; const renderAll = () => {}; const syncDraft = async () => {};
+let ensureCalls = []; let ensureHold = null;
+const ensureUnownedLoadedFor = async (cards) => { ensureCalls.push(cards.map((c) => c.card_id)); if (ensureHold) { const hold = ensureHold; ensureHold = null; await hold; } }; const useCards = (cards) => { usedCards.push(cards.map((c) => c.card_id)); }; const renderAll = () => {}; const syncDraft = async () => {};
 const state = { deckId: "d", branch: "main", baseRevision: "deck@v", baseStale: false, changeSeq: 1, savedSeq: 0, dirty: true,
   decks: [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }] };
 const set = (o) => Object.assign(state, { baseStale: false, ...o });
@@ -2393,13 +2394,31 @@ eval(code + "\n" + cut("async function loadBranch(", "// The saved state of `bra
   await commitRevision("main", "");
   out.loadRecovered = [state.branch, posts.map((p) => [p.branch, p.expected_parent])];
   // test -> main -> c quickly; main's late answer is dropped, the editor shows c
-  resetAll(); set({ branch: "test", baseRevision: "deck@t" }); server.test = "deck@t"; server.c = "deck@c"; usedCards = [];
+  resetAll(); set({ branch: "test", baseRevision: "deck@t" }); server.test = "deck@t"; server.c = "deck@c"; usedCards = []; ensureCalls = [];
   state.decks = [{ deck_id: "d", branches: branches3 }]; revCards["deck@c"] = [{ card_id: "C1", zone: "main", quantity: 1 }];
   let releaseMain; revHold["deck@v"] = new Promise((r) => { releaseMain = r; });
   $("branch-select").value = "main"; const toMain = onBranchSelect();
   $("branch-select").value = "c"; const toC = onBranchSelect();
   await toC; releaseMain(); await toMain;
-  out.lateAnswer = [state.branch, state.baseRevision, usedCards.at(-1), usedCards.length];
+  out.lateAnswer = [state.branch, state.baseRevision, usedCards.at(-1), usedCards.length, ensureCalls.length];
+  // main's cards arrive, then c is applied while main still loads its pool: main is dropped
+  resetAll(); set({ branch: "test", baseRevision: "deck@t" }); usedCards = []; ensureCalls = [];
+  state.decks = [{ deck_id: "d", branches: branches3 }];
+  let releasePool; ensureHold = new Promise((r) => { releasePool = r; });
+  $("branch-select").value = "main"; const slowMain = onBranchSelect();
+  await new Promise((r) => setTimeout(r, 5));
+  $("branch-select").value = "c"; await onBranchSelect();
+  releasePool(); await slowMain;
+  out.latePool = [state.branch, state.baseRevision, usedCards.length];
+  // an earlier load that fails after a later one succeeded does not block saving
+  resetAll(); set({ branch: "test", baseRevision: "deck@t" }); server.c = "deck@c";
+  state.decks = [{ deck_id: "d", branches: branches3 }];
+  let releaseFail; revHold["deck@v"] = new Promise((r) => { releaseFail = r; }); revFail = "deck@v";
+  $("branch-select").value = "main"; const failingMain = onBranchSelect();
+  $("branch-select").value = "c"; await onBranchSelect();
+  releaseFail(); await failingMain; revFail = null;
+  await commitRevision("c", "");
+  out.lateFail = [state.branch, posts.map((p) => p.branch), toasts.some((t) => t.includes("Laden fehlgeschlagen"))];
   // no draft PUT while a load runs: the old list never lands in the new variant
   resetAll(); set({ branch: "test", baseRevision: "deck@t", dirty: true, needsDraftPut: true });
   state.decks = [{ deck_id: "d", branches: branches3 }];
@@ -2572,7 +2591,10 @@ def test_saving_sends_expected_parent_and_never_overwrites_a_moved_branch() -> N
     assert "Laden fehlgeschlagen: nichts gespeichert" in r["loadFailBox"]
     assert "Erneut laden" in r["loadFailBox"]
     assert r["loadRecovered"] == ["main", [["main", "deck@v"]]]
-    assert r["lateAnswer"] == ["c", "deck@c", ["C1"], 1]  # main's late answer never applied
+    # main's late answer is never applied and loads nothing (no pool load for a dropped answer)
+    assert r["lateAnswer"] == ["c", "deck@c", ["C1"], 1, 1]
+    assert r["latePool"] == ["c", "deck@c", 1]
+    assert r["lateFail"] == ["c", ["c"], False]
     assert r["putWhileLoading"] == []
     assert r["nameRace"] == [1, False, True, "main"]
     assert r["load"] == [True, "deck@b"] and r["afterLoad"] == [0, True]
