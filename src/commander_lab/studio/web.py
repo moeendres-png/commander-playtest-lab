@@ -80,7 +80,9 @@ from .decklist_import import COMMANDER_NAME
 from .decks import (
     EXPORT_TEXT_FORMATS,
     MAX_PRIMER_CHARS,
+    UNCHECKED,
     RevisionCard,
+    StaleParent,
     baseline_decks_for_commander,
     color_set,
     create_revision,
@@ -235,6 +237,9 @@ class RevisionBody(BaseModel):
     branch: str = Field(default="main", min_length=1, max_length=60)
     note: str = Field(default="", max_length=500)
     parent_revision_id: str | None = None
+    # #1727: the head of ``branch`` the client last saw; ``null`` = the client creates a new
+    # branch. Left out (old clients), the branch moves unchecked.
+    expected_parent: str | None = Field(default=None, min_length=1, max_length=200)
 
 
 class DeckBody(BaseModel):
@@ -263,6 +268,7 @@ class ModuleCompileBody(BaseModel):
     save: bool = False
     branch: str | None = Field(default=None, max_length=60)
     note: str = Field(default="", max_length=500)
+    expected_parent: str | None = Field(default=None, min_length=1, max_length=200)
 
 
 class PrimerBody(BaseModel):
@@ -1769,8 +1775,15 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 number += 1
             cards = [RevisionCard(card_id, 1, "commander") for card_id in body.commander_card_ids]
             with cache.write(store, _with_catalog(_DECKS, body.commander_card_ids)):
-                revision_id = create_revision(store, deck_id=deck_id, name=body.name, cards=cards)
+                # the free id was read above; a parallel request may have taken it since
+                revision_id = create_revision(
+                    store, deck_id=deck_id, name=body.name, cards=cards, expected_parent=None
+                )
             return {"deck_id": deck_id, "revision_id": revision_id}
+        except StaleParent as error:
+            raise HTTPException(
+                409, "Das Deck wurde gleichzeitig angelegt; bitte erneut anlegen."
+            ) from error
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         finally:
@@ -1971,9 +1984,16 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                     parent_revision_id=body.parent_revision_id,
                     note=body.note,
                     branch=body.branch,
+                    expected_parent=(
+                        body.expected_parent
+                        if "expected_parent" in body.model_fields_set
+                        else UNCHECKED
+                    ),
                 )
                 builder.drop_draft(store, deck_id, body.branch)
             return {"revision_id": revision_id}
+        except StaleParent as error:
+            raise HTTPException(409, str(error)) from error
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         finally:
@@ -2063,7 +2083,14 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                     save=body.save,
                     branch=body.branch,
                     note=body.note,
+                    expected_parent=(
+                        body.expected_parent
+                        if "expected_parent" in body.model_fields_set
+                        else UNCHECKED
+                    ),
                 )
+        except StaleParent as error:
+            raise HTTPException(409, str(error)) from error
         except KeyError as error:
             raise HTTPException(404, "unknown deck or module") from error
         except ValueError as error:

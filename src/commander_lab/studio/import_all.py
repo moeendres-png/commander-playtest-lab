@@ -598,14 +598,19 @@ def _seed_repo_deck(
     )
     if sum(c.quantity for c in cards if c.zone == "main") <= 0:
         return {"seeded": 0}
-    decks.create_revision(
-        store,
-        deck_id=deck_id,
-        name=commander,
-        cards=cards,
-        note=f"Repo-Startdeck aus {deck_path.name}",
-        branch="main",
-    )
+    try:
+        # ``main`` must still be new: a deck created since the check above is kept (#1727)
+        decks.create_revision(
+            store,
+            deck_id=deck_id,
+            name=commander,
+            cards=cards,
+            note=f"Repo-Startdeck aus {deck_path.name}",
+            branch="main",
+            expected_parent=None,
+        )
+    except decks.StaleParent:
+        return {"seeded": 0, "already_present": 1}
     return {"seeded": 1, "cards": sum(c.quantity for c in cards)}
 
 
