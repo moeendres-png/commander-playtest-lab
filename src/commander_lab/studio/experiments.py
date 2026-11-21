@@ -22,7 +22,6 @@ import contextlib
 import itertools
 import json
 import os
-import re
 import shutil
 import threading
 import time
@@ -34,6 +33,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from . import paired_comparison, paired_series
 from .deck_series import (
+    EXPERIMENT_ID_PATTERN,
     EXPERIMENT_SELECT,
     entry_for_experiment,
     experiments_folder,
@@ -53,7 +53,7 @@ SCHEMA_DECISION = "studio-experiment-decision-1"
 DATA_CLASS = "SIMULATED_RESULT"
 LEGACY_QUESTION = "Alt-Serie ohne Plan (vor #1658)"
 MAX_FILE_BYTES = 2_000_000
-_SAFE_ID = re.compile(r"^exp-[A-Za-z0-9_-]{1,90}$")
+_SAFE_ID = EXPERIMENT_ID_PATTERN
 _SEQ = itertools.count(1)
 _SEQ_LOCK = threading.Lock()
 
@@ -335,11 +335,27 @@ def start_experiment(
         },
     }
     folder = experiments_folder(data_path) / experiment_id
-    _write_json(folder / "plan.json", record)
-    row, arms = _row_from_record(record)
+    taken = store.connection.execute(
+        "SELECT 1 FROM experiment WHERE experiment_id = ?", (experiment_id,)
+    ).fetchone()
     try:
+        if taken is not None:
+            raise FileExistsError(experiment_id)
+        folder.parent.mkdir(parents=True, exist_ok=True)
+        # exclusive: an id that already exists (two processes, same second, same plan) never
+        # overwrites the plan, run or decision files of the existing experiment
+        folder.mkdir(exist_ok=False)
+    except FileExistsError as error:
+        raise RuntimeError(
+            f"Experiment {experiment_id} existiert schon; nichts überschrieben, bitte neu starten"
+        ) from error
+    row, arms = _row_from_record(record)
+    inserted = False
+    try:
+        _write_json(folder / "plan.json", record)
         _insert(store, row, arms)
         store.connection.commit()
+        inserted = True
         starter = start_series or _default_starter(store, data_path)
         job = starter(
             dict(
@@ -363,13 +379,14 @@ def start_experiment(
         )
     except Exception:
         store.connection.rollback()
-        with store.connection:
-            store.connection.execute(
-                "DELETE FROM experiment_arm WHERE experiment_id = ?", (experiment_id,)
-            )
-            store.connection.execute(
-                "DELETE FROM experiment WHERE experiment_id = ?", (experiment_id,)
-            )
+        if inserted:  # only rows and files this call created are removed again
+            with store.connection:
+                store.connection.execute(
+                    "DELETE FROM experiment_arm WHERE experiment_id = ?", (experiment_id,)
+                )
+                store.connection.execute(
+                    "DELETE FROM experiment WHERE experiment_id = ?", (experiment_id,)
+                )
         shutil.rmtree(folder, ignore_errors=True)
         raise
     _write_json(folder / "run.json", {"experiment_id": experiment_id, "series_id": job.series_id})

@@ -16,6 +16,7 @@ found by the bounded folder scan, so nothing the Owner played disappears.
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 from collections.abc import Mapping
 from pathlib import Path
@@ -24,6 +25,9 @@ from .games import games_folder
 from .paired_series import SCHEMA_PAIRED_JOB, validate_series_id
 from .store import StudioStore
 from .table_spec import sha256_of
+
+#: An experiment id as ``experiments`` writes it; a legacy row's id is its series id.
+EXPERIMENT_ID_PATTERN = re.compile(r"^exp-[A-Za-z0-9_-]{1,90}$")
 
 #: An index row with its variant (``variant_revision_id``), as every reader of the index needs.
 EXPERIMENT_SELECT = (
@@ -415,4 +419,129 @@ def deck_series(
         "truncated": len(found) > SERIES_LIMIT,
         "scan_limit": SCAN_LIMIT,
         "scan_truncated": max(0, len(every) - SCAN_LIMIT),
+        # n/N of the bounded legacy scan (#1658 B2b): files read of the files present, series
+        # shown of the series found in the files read (series in unread files stay unknown)
+        "scan_files_read": len(files),
+        "scan_files_total": len(every),
+        "legacy_series_shown": len(scanned),
+        "legacy_series_found": len(found),
+    }
+
+
+def valid_index_id(value: str) -> bool:
+    """An id the index can hold: an experiment id or, for a legacy row, a series id."""
+    if EXPERIMENT_ID_PATTERN.fullmatch(value):
+        return True
+    try:
+        validate_series_id(value)
+    except ValueError:
+        return False
+    return True
+
+
+def _plan_state(record: Mapping[str, object] | None, row_sha: object) -> str:
+    """Whether the plan file is there and its own SHA is the one the index names."""
+    if row_sha is None:
+        return "legacy"
+    if record is None:
+        return "missing"
+    plan, resolved = record.get("plan"), record.get("resolved")
+    if not isinstance(plan, dict) or not isinstance(resolved, dict):
+        return "mismatch"
+    sha = plan_sha(plan, resolved)
+    return "intact" if record.get("plan_sha") == sha == row_sha else "mismatch"
+
+
+_PLAN_FIELDS = (
+    "question",
+    "question_kind",
+    "purpose",
+    "budget_pairs",
+    "look_every_pairs",
+    "threshold_pp",
+    "significance_level",
+    "stop_rule",
+    "first_seed",
+    "table",
+)
+
+
+def experiment_detail(
+    store: StudioStore, data_folder: str | Path, experiment_id: str
+) -> dict[str, object] | None:
+    """One indexed experiment (or legacy series) as stored: plan, arms, seeds, provenance,
+    decision and the history entry of its result. Read-only: it writes no row and no file.
+    None for an id the index does not hold. Files are only opened under the id of the row.
+
+    What is not stored stays ``None`` (unknown), never 0. The maturity is not computed here;
+    the route takes it from the same computation as ``/api/decks/{id}/series``."""
+    db = store.connection
+    row = db.execute(f"{EXPERIMENT_SELECT} WHERE e.experiment_id = ?", (experiment_id,)).fetchone()
+    if row is None:
+        return None
+    own_id = str(row["experiment_id"])
+    record = plan_record(data_folder, own_id) if row["plan_sha"] is not None else None
+    state = _plan_state(record, row["plan_sha"])
+    raw_plan = record.get("plan") if record and state == "intact" else None
+    raw_resolved = record.get("resolved") if record and state == "intact" else None
+    plan = {key: raw_plan.get(key) for key in _PLAN_FIELDS} if isinstance(raw_plan, dict) else None
+    resolved = raw_resolved if isinstance(raw_resolved, dict) else {}
+    seeds = resolved.get("seeds")
+    arms = [
+        {
+            "role": str(a["role"]),
+            "revision_id": str(a["revision_id"]),
+            "deck_hash": a["deck_hash"],
+        }
+        for a in db.execute(
+            "SELECT role, revision_id, deck_hash FROM experiment_arm WHERE experiment_id = ? "
+            "ORDER BY CASE role WHEN 'base' THEN 0 ELSE 1 END, revision_id",
+            (own_id,),
+        )
+    ]
+    first, last = row["first_seed"], row["last_seed"]
+    deck_id = str(row["deck_id"])
+    main = (
+        db.execute(
+            "SELECT revision_id FROM deck_branch WHERE deck_id = ? AND branch = 'main'",
+            (deck_id,),
+        ).fetchone()
+        if deck_id
+        else None
+    )
+    return {
+        "schema": "studio-experiment-detail-1",
+        "data_class": "SIMULATED_RESULT",
+        "experiment_id": own_id,
+        "deck_id": deck_id or None,
+        "legacy": row["plan_sha"] is None,
+        "question": str(row["question"]),
+        "purpose": str(row["purpose"]),
+        "created_at": str(row["created_at"]) or None,
+        "plan_state": state,
+        "plan": plan,
+        "table_hash": row["table_hash"],
+        "table": resolved.get("table") if isinstance(resolved.get("table"), dict) else None,
+        "tested_seats": _int_list(resolved.get("tested_seats")) or None,
+        "arms": arms,
+        "seeds": {
+            "first": first,
+            "last": last,
+            "count": None if first is None or last is None else int(last) - int(first) + 1,
+            "rule": seeds.get("rule") if isinstance(seeds, dict) else None,
+        },
+        "provenance": {
+            "engine_pin": row["engine_pin"],
+            "bridge_jar_sha256": row["bridge_jar_sha256"],
+            "bridge_state": row["bridge_state"],
+            "pilot_fingerprint": row["pilot_fingerprint"],
+        },
+        "experiment": experiment_view(row),
+        "current_main_revision_id": None if main is None else str(main[0]),
+        "result": entry_for_experiment(data_folder, row),
+        "sources": {
+            "plan": f"games/experiments/{own_id}/plan.json" if row["plan_sha"] else None,
+            "result": f"games/{row['series_id']}.paired.json" if row["series_id"] else None,
+            "index": "Studio-Store, Tabellen experiment/experiment_arm",
+        },
     }
