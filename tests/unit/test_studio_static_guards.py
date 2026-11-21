@@ -1834,7 +1834,9 @@ def test_experiment_view_shows_route_fields_and_decides_only_on_confirmation() -
     text = r["text"]
     # maturity only from the route: no badge without a level, the route's text as it is
     assert ["pill", "kein Reifegrad (Beleg fehlt)"] not in r["pills"]
-    assert "kein Reifegrad (Beleg fehlt)" in text and "Hinweis besser (Erkundung, unbestätigt)" in text
+    assert (
+        "kein Reifegrad (Beleg fehlt)" in text and "Hinweis besser (Erkundung, unbestätigt)" in text
+    )
     assert "n/N 4 / 4 Paare (abgeschlossen / geplant)" in text
     assert "Erkundung" in text and "Plan intakt" in text and "Stand B" in text and "Stand V" in text
     assert "SIMULATED_RESULT" in text and "anderer Stand" not in text
@@ -1875,11 +1877,25 @@ def test_experiment_view_static_guards() -> None:
     js = (STATIC / "experiments.js").read_text(encoding="utf-8")
     app = (STATIC / "app.js").read_text(encoding="utf-8")
     html = (STATIC / "index.html").read_text(encoding="utf-8")
-    assert html.index('src="zahl.js"') < html.index('src="experiments.js"') < html.index('src="app.js"')
+    assert (
+        html.index('src="zahl.js"')
+        < html.index('src="experiments.js"')
+        < html.index('src="app.js"')
+    )
     assert 'typeof renderExperiments === "function"' in app and 'id: "experiment-slot"' in app
     for forbidden in (
-        "innerHTML", "outerHTML", "style", "eval(", "document.", "window.", "fetch(",
-        "localStorage", ".toFixed(", "Preis", "€", "confirm(",
+        "innerHTML",
+        "outerHTML",
+        "style",
+        "eval(",
+        "document.",
+        "window.",
+        "fetch(",
+        "localStorage",
+        ".toFixed(",
+        "Preis",
+        "€",
+        "confirm(",
     ):
         assert forbidden not in js, forbidden
     # the maturity is shown, never computed: no level literal, no rule on the figures
