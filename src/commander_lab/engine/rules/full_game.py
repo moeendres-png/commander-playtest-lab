@@ -17,6 +17,7 @@ import uuid
 import weakref
 from collections import Counter, deque
 from collections.abc import Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, TextIO, TypedDict, cast
 
@@ -206,6 +207,20 @@ def audit_actor_scoped_frame(decision: dict[str, Any]) -> tuple[int, int, list[s
                 f"seat {public_seat} carries the unlisted row key {shown} for another principal"
             )
     return rows, visible, violations
+
+
+def _audit_decision_frame(
+    audit: FullGameHiddenInformationAudit, decision: dict[str, Any], number: int
+) -> None:
+    """Audit one decision frame into ``audit``; fail closed on a leak (``number`` names it)."""
+    rows, visible, violations = audit_actor_scoped_frame(decision)
+    if violations:
+        raise FullGameConformanceError(
+            f"hidden information not actor-scoped at decision {number}: " + "; ".join(violations)
+        )
+    audit.frames_audited += 1
+    audit.non_actor_rows_audited += rows
+    audit.non_actor_rows_engine_visible += visible
 
 
 class FullGameConformanceResult(_StrictModel):
@@ -1667,15 +1682,7 @@ class XmageFullGameRunner:
                     observed.append(decision_class)
                 audit = self._hidden_audit
                 if audit is not None:
-                    rows, visible, violations = audit_actor_scoped_frame(decision)
-                    if violations:
-                        raise FullGameConformanceError(
-                            "hidden information not actor-scoped at decision "
-                            f"{decision_count}: " + "; ".join(violations)
-                        )
-                    audit.frames_audited += 1
-                    audit.non_actor_rows_audited += rows
-                    audit.non_actor_rows_engine_visible += visible
+                    _audit_decision_frame(audit, decision, decision_count)
                 response = policy.decide(decision)
                 status = client.request(
                     "submit_full_game_decision",
@@ -2022,12 +2029,23 @@ def full_game_protocol_id(scenario: FutureXmageScenario) -> str:
     return f"{scenario.scenario_id}:{scenario.candidate_id}:{scenario.seed}"
 
 
+@dataclass(frozen=True)
+class FullGameEventPage:
+    """Public engine events after an offset, and the offset after the last of them."""
+
+    events: tuple[object, ...]
+    latest_offset: int
+
+
 class FullGameMatch:
     """One created game in a :class:`FullGameBridgeSession`: the public steps of its protocol.
 
     ``drive`` lets the pilots answer every decision (the runner's own loop); ``start``,
-    ``next_decision`` and ``answer`` let a caller answer decisions itself, one at a time. The
-    engine decides every rule; these steps only carry questions and answers.
+    ``next_decision`` and ``answer`` let a caller answer decisions itself, one at a time. A game
+    is played one way: ``drive`` after ``start`` (or ``start`` twice) is refused, because both
+    send ``start_full_game``. The engine decides every rule; these steps only carry questions
+    and answers. Every decision frame either way passes the actor-scoped hidden-information
+    audit into :attr:`hidden_audit`; a leaking frame raises ``FullGameConformanceError``.
     """
 
     def __init__(
@@ -2043,6 +2061,8 @@ class FullGameMatch:
         self.provider = provider
         self.game_id = full_game_protocol_id(scenario)
         self.hidden_audit = FullGameHiddenInformationAudit()
+        self._started = False
+        self._frames_seen = 0
 
     def drive(
         self,
@@ -2057,6 +2077,7 @@ class FullGameMatch:
         Every decision frame is checked for actor-scoped hidden information on the way
         (:attr:`hidden_audit`), as in :meth:`XmageFullGameRunner.run`.
         """
+        self._mark_started()
         runner = self._session.runner
         runner._hidden_audit = self.hidden_audit
         try:
@@ -2071,32 +2092,58 @@ class FullGameMatch:
         finally:
             runner._hidden_audit = None
 
+    def _mark_started(self) -> None:
+        if self._started:
+            raise FullGameConformanceError("full game already started in this match")
+        self._started = True
+
     def _request(
         self, message_type: str, payload: dict[str, object] | None = None
     ) -> dict[str, object]:
         return self._session.client.request(message_type, payload)
 
+    def _audited(self, status: dict[str, object]) -> dict[str, object]:
+        decision = status.get("decision")
+        if isinstance(decision, dict):
+            self._frames_seen += 1
+            _audit_decision_frame(self.hidden_audit, decision, self._frames_seen)
+        return status
+
     def start(self) -> dict[str, object]:
-        """Start play; the status with the first open decision (or terminal)."""
-        return self._request("start_full_game")
+        """Start play; the status with the first open decision (or terminal), audited."""
+        self._mark_started()
+        return self._audited(self._request("start_full_game"))
 
     def next_decision(self) -> dict[str, object]:
-        """The current status: the open decision, terminal or failure."""
-        return self._request("get_full_game_decision")
+        """The current status: the open decision (audited), terminal or failure."""
+        return self._audited(self._request("get_full_game_decision"))
 
     def answer(self, response: dict[str, object]) -> dict[str, object]:
-        """Submit the answer to the open decision; the status after it."""
-        return self._request("submit_full_game_decision", {"response": response})
+        """Submit the answer to the open decision; the status after it, audited."""
+        return self._audited(self._request("submit_full_game_decision", {"response": response}))
 
-    def events(self, offset: int = 0) -> list[object]:
-        """The engine's event log from position ``offset`` on (empty past the end)."""
-        if offset < 0:
-            raise ValueError("offset must not be negative")
-        raw = self._request("export_event_log")
-        events = raw.get("events") if isinstance(raw, dict) else None
-        if not isinstance(events, list):
-            return []
-        return list(events[offset:])
+    def events(self, offset: int = 0) -> FullGameEventPage:
+        """The engine's public event log after its first ``offset`` events.
+
+        The engine cuts the log (``after_offset``) and refuses an offset past its end
+        (``INVALID_EVENT_OFFSET``); a missing or malformed answer is an error, never an empty
+        page. Not the qualification harness's ``client.events(offset)`` of the mid-game lane,
+        which reads another bridge.
+        """
+        if type(offset) is not int or offset < 0:
+            raise ValueError("offset must be a non-negative integer")
+        raw = self._request("export_event_log", {"after_offset": offset})
+        events = raw.get("events")
+        latest = raw.get("latest_offset")
+        if not isinstance(events, list) or type(latest) is not int:
+            raise FullGameProtocolError(
+                "export_event_log returned no event list", code="INVALID_RESPONSE"
+            )
+        if latest < offset or len(events) != latest - offset:
+            raise FullGameProtocolError(
+                "export_event_log does not match the requested offset", code="INVALID_RESPONSE"
+            )
+        return FullGameEventPage(events=tuple(events), latest_offset=latest)
 
     def concede_offer(self, player_id: str) -> dict[str, object]:
         """Whether the engine lets ``player_id`` concede now."""
@@ -2188,6 +2235,7 @@ __all__ = [
     "FullGameBridgeSession",
     "FullGameConformanceError",
     "FullGameConformanceResult",
+    "FullGameEventPage",
     "FullGameMatch",
     "FullGamePilotBinding",
     "FullGameProtocolError",
