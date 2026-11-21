@@ -183,14 +183,18 @@ class XmageSeatsFiveSixF5ScenarioTest {
 
     /**
      * F5-3 commander damage per ordered pair (CR 903.10a, 704.6c) at 20 and 30
-     * pairs. Every commander has dealt 20 combat damage to every other player,
-     * except PN's commander, which has dealt 21 to P(N-1). Restored through the
-     * native CARD-scope {@code CommanderInfoWatcher}, consumed by native
-     * state-based actions, as in {@link XmageCommanderDamageRestorationTest}
-     * (three seats). Only P(N-1) loses; PN, which holds 20 from each of N-1
-     * commanders (100 at six seats), does not: damage is never added across
-     * commanders. Not covered: accumulation through live combat at 5/6 seats
-     * (no hasty commander with power in the scaffold corpus).
+     * restored pairs. Every commander has dealt 20 combat damage to every
+     * other player, except PN's commander, which has dealt 21 to P(N-1). The
+     * matrix is restored input through the native CARD-scope
+     * {@code CommanderInfoWatcher}; what the engine decides is the state-based
+     * action, as in {@link XmageCommanderDamageRestorationTest} (three seats).
+     * Only P(N-1) loses. PN, restored with 20 from each of the other N-1
+     * commanders (100 at six seats) at that same check, does not: damage is
+     * never added across commanders. Afterwards the ledger is read back for
+     * the (N-1)^2 pairs whose commander is still in the game (16 / 25),
+     * including PN -> P(N-1) = 21. Not covered: accumulation through live
+     * combat at 5/6 seats (no hasty commander with power in the scaffold
+     * corpus).
      */
     @ParameterizedTest(name = "F5-3 commander damage per pair: {0} players")
     @ValueSource(ints = {5, 6})
@@ -248,9 +252,11 @@ class XmageSeatsFiveSixF5ScenarioTest {
                         + " holds at most 20 from any one commander and does not lose");
             }
         }
-        // The native ledger of every commander still in the game, for every
-        // defender still in the game. The loser's own commander left the game
-        // with it (CR 800.4a), so the engine no longer lists it for that owner.
+        // Read back the native ledger of every commander, for every defender,
+        // the loser included (PN -> P(N-1) must read 21). Only the loser's own
+        // commander is skipped as attacker: it left the game with its owner
+        // (CR 800.4a), so the engine no longer lists it for that owner.
+        int pairsRead = 0;
         for (int attacker = 1; attacker <= playerCount; attacker++) {
             String from = "P" + attacker;
             if (from.equals(loser)) {
@@ -261,14 +267,17 @@ class XmageSeatsFiveSixF5ScenarioTest {
             assertNotNull(watcher, "native CommanderInfoWatcher for " + from);
             for (int defender = 1; defender <= playerCount; defender++) {
                 String to = "P" + defender;
-                if (attacker == defender || to.equals(loser)) {
+                if (attacker == defender) {
                     continue;
                 }
                 assertEquals(expected.get(from + "->" + to),
                         watcher.getDamageToPlayer().get(seats.get(to).getId()),
                         "native ledger " + from + " -> " + to);
+                pairsRead++;
             }
         }
+        assertEquals((playerCount - 1) * (playerCount - 1), pairsRead,
+                "ledger read back for every pair whose commander is still in the game");
         assertFalse(game.hasEnded(), "N-1 players remain");
         JsonObject pending = session.pendingDecisionPayload();
         assertFalse(pending.get("decision").isJsonNull(), "the survivors get the next decision");
