@@ -29,6 +29,20 @@ STRENGTH: Final = "near_optimal_heuristic"
 #: Opponent modes of the model; only ``fixed`` runs in B2a (#1658, comment of the builder).
 OPPONENT_MODES = ("fixed", "rotation", "draw")
 RUNNABLE_OPPONENT_MODES = ("fixed",)
+#: Wall-clock limit of one pool game per seat count (S1, #1660): a game in flight this long with
+#: no answer is given up as ``TimeLimit``. Two to four seats keep the 1,800 s of before; the
+#: values for five and six seats come from S2/F6 and are absent until then (an error, no guess).
+GAME_WALL_LIMIT_SECONDS: Final[dict[int, float]] = {2: 1800.0, 3: 1800.0, 4: 1800.0}
+
+
+def game_wall_limit_seconds(seats: int) -> float:
+    """The wall-clock limit of one game at a table of ``seats`` seats."""
+    limit = GAME_WALL_LIMIT_SECONDS.get(int(seats))
+    if limit is None:
+        raise ValueError(
+            f"keine Wandzeit-Grenze für {seats} Sitze festgelegt (Werte für 5/6 liefert S2/F6)"
+        )
+    return limit
 
 
 class PilotProfile(BaseModel):
@@ -85,6 +99,10 @@ class TableSpec(BaseModel):
                 f"gepaarte Serien spielen heute mit Stil {DEFAULT_STYLE}; ein anderer Stil ist "
                 "noch nicht umgesetzt"
             )
+
+    def game_wall_limit_seconds(self) -> float:
+        """A method, not a field: the table hash of existing tables stays as it is."""
+        return game_wall_limit_seconds(self.seats)
 
     def tested_seats(self) -> list[int]:
         return list(range(self.seats)) if self.seat_policy == "rotate" else [0]

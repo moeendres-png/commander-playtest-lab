@@ -42,7 +42,9 @@ from pathlib import Path
 from typing import IO, Protocol
 
 from .games import games_folder
+from .series_record import DeterminismViolation, SeriesRecord, file_sha256
 from .store import now_utc
+from .table_spec import game_wall_limit_seconds
 
 #: ``1`` (or ``true``) lets a paired series play on long-lived worker JVMs. Unset: the chunked
 #: path of ``play_batch`` stays in use until the pool is measured against the real engine.
@@ -51,8 +53,9 @@ SERIES_POOL_ENV = "COMMANDER_LAB_STUDIO_SERIES_POOL"
 #: A game that has been in flight this long with no answer is given up: the worker process is
 #: killed and the game fails as ``TimeLimit``. Far beyond any real game (the engine's own
 #: request timeouts end a hung game after two minutes); this only guards the series against a
-#: worker that never answers.
-GAME_WALL_LIMIT_SECONDS = 1800.0
+#: worker that never answers. The limit is set per seat count in ``table_spec`` (S1, #1660);
+#: this default is the four-seat value, unchanged at 1,800 s.
+GAME_WALL_LIMIT_SECONDS = game_wall_limit_seconds(4)
 #: How long a retiring worker may take to end its JVM cleanly before it is killed.
 RETIRE_WAIT_SECONDS = 30.0
 #: How long an idle worker that has ended (its tree killed, reaped) may keep its place while the
@@ -81,12 +84,32 @@ class GamePoolError(RuntimeError):
 
 @dataclass(frozen=True)
 class GameTask:
-    """One game, fully determined when it is planned: seed, decks in seat order, log id."""
+    """One game, fully determined when it is planned (S1, #1660).
+
+    Every per-seat tuple is in seat order with one entry per seat: the deck file and its
+    SHA-256, the style and the pilot fingerprint of that seat. The worker checks each deck file
+    and each fingerprint before the game and plays nothing on a mismatch (an infrastructure
+    failure). ``game_key`` names the game for the determinism guard (``series_record``); a
+    task without it or without ``jar_sha256``, or whose key its fields do not give, is refused
+    by the worker (``plan_task`` never builds one). ``table`` is the canonical ``TableSpec`` and ``table_hash`` its hash, ``None``
+    for a caller that has no table spec yet.
+    """
 
     task_id: str
     seed: int
     game_id: str
     deck_paths: tuple[str, ...]
+    deck_sha256: tuple[str, ...] = ()
+    seat_styles: tuple[float, ...] = ()
+    pilot_fingerprints: tuple[str, ...] = ()
+    strategy: str = "generic"
+    jar_sha256: str | None = None
+    game_key: str | None = None
+    table_hash: str | None = None
+    table: Mapping[str, object] | None = None
+    engine_pin: str | None = None
+    skip_forced_decisions: bool | None = None
+    round_limit: int | None = None
 
     def to_wire(self) -> dict[str, object]:
         return {
@@ -95,10 +118,100 @@ class GameTask:
             "seed": self.seed,
             "game_id": self.game_id,
             "deck_paths": list(self.deck_paths),
+            "deck_sha256": list(self.deck_sha256),
+            "seat_styles": list(self.seat_styles),
+            "pilot_fingerprints": list(self.pilot_fingerprints),
+            "strategy": self.strategy,
+            "jar_sha256": self.jar_sha256,
+            "game_key": self.game_key,
+            "table_hash": self.table_hash,
+            "table": dict(self.table) if self.table is not None else None,
+            "engine_pin": self.engine_pin,
+            "skip_forced_decisions": self.skip_forced_decisions,
+            "round_limit": self.round_limit,
         }
 
 
 GameSummary = dict[str, object]
+
+
+def skip_forced_decisions_of(command: Sequence[str] | None) -> bool | None:
+    """The forced-pass switch a bridge command sets; ``None`` when it does not set it."""
+    from .launch import SKIP_FORCED_DECISIONS_PROPERTY
+
+    prefix = f"-D{SKIP_FORCED_DECISIONS_PROPERTY}="
+    for part in command or ():
+        if part.startswith(prefix):
+            return part[len(prefix) :].strip().lower() == "true"
+    return None
+
+
+def plan_task(
+    *,
+    task_id: str,
+    seed: int,
+    game_id: str,
+    deck_paths: Sequence[str],
+    seat_styles: Sequence[float],
+    jar_sha256: str | None,
+    engine_pin: str | None,
+    skip_forced_decisions: bool | None,
+    strategy: str = "generic",
+    round_limit: int | None = None,
+    table: Mapping[str, object] | None = None,
+    table_hash: str | None = None,
+    deck_hashes: dict[str, str] | None = None,
+) -> GameTask:
+    """A complete task: deck hashes, seat pilots and ``game_key`` from its inputs (S1, #1660).
+
+    ``deck_hashes`` caches file hashes by path across the tasks of a series. Without a bridge
+    JAR or engine pin there is no task (``ValueError``): a pool game is never planned without
+    the key its worker and the determinism guard check.
+    """
+    from .series_record import game_key
+
+    if len(seat_styles) != len(deck_paths):
+        raise ValueError("ein Stil je Sitz")
+    cache = deck_hashes if deck_hashes is not None else {}
+    for path in deck_paths:
+        if path not in cache:
+            cache[path] = file_sha256(path)
+    hashes = tuple(cache[path] for path in deck_paths)
+    fingerprints = tuple(seat_pilot_fingerprint(style) for style in seat_styles)
+    if not jar_sha256 or not engine_pin:
+        raise ValueError(
+            "kein Bridge-JAR-SHA oder Engine-Pin bekannt: eine Pool-Partie wird nicht ohne "
+            "Spielschlüssel geplant"
+        )
+    key = game_key(
+        jar_sha256=jar_sha256,
+        engine_pin=engine_pin,
+        pilot_fingerprints=fingerprints,
+        seat_styles=seat_styles,
+        deck_sha256=hashes,
+        seed=seed,
+        strategy=strategy,
+        table_options=table,
+        skip_forced_decisions=skip_forced_decisions,
+        round_limit=round_limit,
+    )
+    return GameTask(
+        task_id=task_id,
+        seed=seed,
+        game_id=game_id,
+        deck_paths=tuple(deck_paths),
+        deck_sha256=hashes,
+        seat_styles=tuple(float(style) for style in seat_styles),
+        pilot_fingerprints=fingerprints,
+        strategy=strategy,
+        jar_sha256=jar_sha256,
+        game_key=key,
+        table_hash=table_hash,
+        table=table,
+        engine_pin=engine_pin,
+        skip_forced_decisions=skip_forced_decisions,
+        round_limit=round_limit,
+    )
 
 
 # --------------------------------------------------------------------------------- worker side
@@ -152,11 +265,23 @@ class SessionWorkerEngine:
     def play(self, message: Mapping[str, object], on_played: Callable[[], None]) -> GameSummary:
         from .play import close_recorded_game, load_decks, prepare_game
 
+        game_id = str(message["game_id"])
+        expected_jar = message.get("jar_sha256")
+        if expected_jar is not None and expected_jar != self._jar_sha:
+            # the supervisor planned the game (and its key) for another bridge JAR
+            return refused_game_summary(
+                game_id,
+                "BridgeJarMismatch",
+                "der Auftrag nennt einen anderen Bridge-JAR als den, den dieser Worker startet",
+            )
         decks = load_decks([Path(str(path)) for path in _as_list(message.get("deck_paths"))])
+        styles = [float(str(style)) for style in _as_list(message.get("seat_styles"))]
         prepared = prepare_game(
             decks,
             seed=int(str(message["seed"])),
-            game_id=str(message["game_id"]),
+            game_id=game_id,
+            strategy=str(message.get("strategy") or "generic"),
+            seat_styles={seat: style for seat, style in enumerate(styles, start=1)},
             data_folder=self._data_folder,
             command=self._command,
             jar_sha256=self._jar_sha,
@@ -217,7 +342,14 @@ def worker_main(
             if op != "play":
                 continue
             task_id = str(message["task_id"])
-            summary = engine.play(message, _played_emitter(stdout, task_id))
+            refused = task_refusal(message)
+            summary = (
+                refused
+                if refused is not None
+                else engine.play(message, _played_emitter(stdout, task_id))
+            )
+            if message.get("game_key") is not None:
+                summary = {**summary, "game_key": message.get("game_key")}
             _report_lives()
             _emit(stdout, {"ev": "done", "task_id": task_id, "summary": summary})
     finally:
@@ -226,6 +358,114 @@ def worker_main(
             _report_lives()
         _emit(stdout, {"ev": "bye"})
     return 0
+
+
+def seat_pilot_fingerprint(style: float) -> str:
+    """The pilot fingerprint of one seat: pilot code and data, policy, strength and style."""
+    from commander_lab.models import PilotStrength
+
+    from .pilot_fingerprint import pilot_fingerprint
+    from .play import POLICY_VERSION
+
+    return pilot_fingerprint(
+        policy_version=POLICY_VERSION,
+        strength=PilotStrength.NEAR_OPTIMAL_HEURISTIC.value,
+        style=style,
+    )
+
+
+def refused_game_summary(game_id: str, failure_class: str, message: str) -> GameSummary:
+    """A game the worker did not start because its setup is wrong: infrastructure, no result."""
+    return {
+        "game_id": game_id,
+        "status": "failed",
+        "failure_class": failure_class,
+        "failure_kind": "infrastructure",
+        "failure_message": message,
+        "log": None,
+    }
+
+
+def task_refusal(message: Mapping[str, object]) -> GameSummary | None:
+    """Check a task before its game: every deck file against its hash, every seat's pilot.
+
+    ``None``: the game may be played. Otherwise the summary of a game that never started
+    (``failure_kind`` infrastructure): a task without one hash, style and fingerprint per seat,
+    a deck file that is missing or differs from its hash, or a seat whose pilot fingerprint is
+    not the one this worker's pilot code gives for that style (the supervisor planned the game
+    with other pilot code).
+    """
+    game_id = str(message.get("game_id"))
+    paths = [str(path) for path in _as_list(message.get("deck_paths"))]
+    hashes = [str(value) for value in _as_list(message.get("deck_sha256"))]
+    styles = _as_list(message.get("seat_styles"))
+    fingerprints = [str(value) for value in _as_list(message.get("pilot_fingerprints"))]
+    seats = len(paths)
+    if not seats or not (len(hashes) == len(styles) == len(fingerprints) == seats):
+        return refused_game_summary(
+            game_id,
+            "TaskIncomplete",
+            "der Auftrag braucht je Sitz Deck-Hash, Stil und Pilot-Fingerabdruck",
+        )
+    if not message.get("jar_sha256") or not message.get("game_key"):
+        # without them the worker cannot check its JAR and the guard has nothing to compare
+        return refused_game_summary(
+            game_id, "TaskIncomplete", "der Auftrag braucht Bridge-JAR-SHA und Spielschlüssel"
+        )
+    for seat, (path, expected) in enumerate(zip(paths, hashes, strict=True)):
+        try:
+            actual = file_sha256(path)
+        except OSError:
+            actual = None
+        if actual != expected:
+            return refused_game_summary(
+                game_id,
+                "DeckHashMismatch",
+                f"Deck-Datei von Sitz {seat} fehlt oder weicht von ihrem Hash ab",
+            )
+    for seat, (style, expected) in enumerate(zip(styles, fingerprints, strict=True)):
+        try:
+            actual_fp: str | None = seat_pilot_fingerprint(float(str(style)))
+        except ValueError:
+            actual_fp = None
+        if actual_fp != expected:
+            return refused_game_summary(
+                game_id,
+                "PilotFingerprintMismatch",
+                f"Pilot-Fingerabdruck von Sitz {seat} passt nicht zum Pilot-Code dieses Workers",
+            )
+    if task_key_of(message) != message.get("game_key"):  # recomputed, never echoed
+        return refused_game_summary(
+            game_id, "GameKeyMismatch", "der Spielschlüssel passt nicht zu den Angaben des Auftrags"
+        )
+    return None
+
+
+def task_key_of(message: Mapping[str, object]) -> str | None:
+    """The game key the fields of a task give; ``None`` when they give none (incomplete)."""
+    from .series_record import game_key
+
+    strategy, table = message.get("strategy"), message.get("table")
+    skip, rounds = message.get("skip_forced_decisions"), message.get("round_limit")
+    if not isinstance(strategy, str) or not (table is None or isinstance(table, dict)):
+        return None
+    if not (skip is None or isinstance(skip, bool)) or not (rounds is None or type(rounds) is int):
+        return None
+    try:
+        return game_key(
+            jar_sha256=str(message.get("jar_sha256") or ""),
+            engine_pin=str(message.get("engine_pin") or ""),
+            pilot_fingerprints=[str(v) for v in _as_list(message.get("pilot_fingerprints"))],
+            seat_styles=[float(str(v)) for v in _as_list(message.get("seat_styles"))],
+            deck_sha256=[str(v) for v in _as_list(message.get("deck_sha256"))],
+            seed=int(str(message.get("seed"))),
+            strategy=strategy,
+            table_options=table,
+            skip_forced_decisions=skip,
+            round_limit=rounds,
+        )
+    except ValueError:
+        return None
 
 
 def run_worker_process(
@@ -593,16 +833,42 @@ class GamePool:
         on_played: Callable[[GameTask], None] | None = None,
         on_done: Callable[[GameTask, GameSummary], None] | None = None,
         should_cancel: Callable[[], bool] | None = None,
+        record: SeriesRecord | None = None,
     ) -> dict[str, GameSummary]:
         """Play ``tasks`` and return the summary of every game that ended, by task id.
 
         Games are handed out in list order to whichever worker is free. A cancelled run stops
         handing out games, waits for the games in flight and returns what ended.
+
+        With a ``record`` (S1, #1660) every final result goes to the series journal before
+        ``on_done`` sees it, and a task whose game already has a result in the journal (a
+        resumed series) is not played again: its journaled summary is returned and handed to
+        ``on_done``. A game key with a second transcript hash raises
+        :class:`~commander_lab.studio.series_record.DeterminismViolation` at once; nothing more
+        is handed out, and the caller ends the pool (``close``).
         """
         if self._closed:
             raise GamePoolError("the pool is closed")
-        pending = deque(tasks)
         results: dict[str, GameSummary] = {}
+        journaled = record.results() if record is not None else {}
+        if record is not None:
+            members = record.members()
+            strangers = [task.game_id for task in tasks if task.game_id not in members]
+            if strangers:
+                raise GamePoolError(
+                    f"{len(strangers)} games are not in the manifest of the series: "
+                    + ", ".join(strangers[:3])
+                )
+        to_play: list[GameTask] = []
+        for task in tasks:
+            stored = journaled.get(task.game_id)
+            if stored is None:
+                to_play.append(task)
+                continue
+            results[task.task_id] = stored
+            if on_done is not None:
+                on_done(task, stored)
+        pending = deque(to_play)
         limit = min(self.workers, max(1, len(pending)))
         cancelled = False
 
@@ -611,6 +877,9 @@ class GamePool:
             worker.task = None
             if task is None:
                 return
+            if record is not None:
+                # the guard runs here; a violation ends the run before ``on_done``
+                record.record(task.game_id, summary)
             results[task.task_id] = summary
             if summary.get("status") == "finished":
                 self._games_finished += 1
@@ -790,13 +1059,20 @@ __all__ = [
     "ENDED_EOF_GRACE_SECONDS",
     "GAME_WALL_LIMIT_SECONDS",
     "SERIES_POOL_ENV",
+    "DeterminismViolation",
     "GamePool",
     "GamePoolError",
     "GameSummary",
     "GameTask",
     "SessionWorkerEngine",
     "WorkerEngine",
+    "plan_task",
+    "refused_game_summary",
     "run_worker_process",
+    "seat_pilot_fingerprint",
     "series_pool_enabled",
+    "skip_forced_decisions_of",
+    "task_key_of",
+    "task_refusal",
     "worker_main",
 ]
