@@ -462,6 +462,43 @@ def test_play_type_ignores_do_not_grow(repo_root: Path) -> None:
     assert _COUNTS.type_ignores(play) <= PLAY_TYPE_IGNORE_CEILING
 
 
+def _raw_client_reads(path: Path) -> list[int]:
+    """Lines where ``path`` reads an attribute named ``client`` (the raw bridge client behind
+    ``FullGameBridgeSession.client``), in any form."""
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    return sorted(
+        node.lineno
+        for node in ast.walk(tree)
+        if (isinstance(node, ast.Attribute) and node.attr == "client")
+        or (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id in {"getattr", "hasattr", "setattr"}
+            and len(node.args) >= 2
+            and isinstance(node.args[1], ast.Constant)
+            and node.args[1].value == "client"
+        )
+    )
+
+
+def test_play_never_reaches_the_raw_bridge_client(repo_root: Path) -> None:
+    """PLAY reads every status through a step of its match, which audits it before it is
+    published (#1663 cross review P2-2): no ``<session>.client`` (0, may only stay 0)."""
+    play = repo_root / "src" / "commander_lab" / "studio" / "play.py"
+    assert _raw_client_reads(play) == []
+
+
+def test_the_raw_client_scan_sees_each_form(tmp_path: Path) -> None:
+    probe = tmp_path / "probe.py"
+    for line in (
+        'bridge.client.request("start_full_game")',
+        "raw = self._bridge.client",
+        'getattr(bridge, "client").request("x")',
+    ):
+        probe.write_text(line + "\n", encoding="utf-8")
+        assert _raw_client_reads(probe) == [1], line
+
+
 def test_studio_overrides_of_private_engine_hooks_are_frozen(repo_root: Path) -> None:
     studio, engine = _studio_and_engine_files(repo_root)
     sites = _COUNTS.private_engine_overrides(studio, engine)
