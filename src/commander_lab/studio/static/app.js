@@ -441,7 +441,7 @@ function renderSaveState() {
     box.replaceChildren(
       h("span", { class: "pill bad" }, "Konflikt: Entwurf in anderem Tab geändert"),
       " ",
-      h("button", { type: "button", class: "small", onclick: () => loadBranch().catch((error) => fail(error)) }, "Aktuellen Stand laden"),
+      h("button", { type: "button", class: "small", onclick: () => loadDecks().then(loadBranch).catch((error) => fail(error)) }, "Aktuellen Stand laden"),
     );
     return;
   }
@@ -2957,10 +2957,17 @@ function useCards(cards) {
   // instead of dropping it silently (#1648).
   if (dropped) toast(`${StudioUI.num(dropped, 0)} von ${StudioUI.num(mainEntries, 0)} Karten sind nicht im Pool (Sammlung oder Zukauf-Auswahl) und wurden nicht übernommen.`);
 }
+let discardingStaleDraft = false;
 async function discardStaleDraft() {
-  await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "DELETE");
-  await loadDecks();
-  await loadBranch();
+  if (discardingStaleDraft) return; // one DELETE per click series
+  discardingStaleDraft = true;
+  try {
+    await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "DELETE");
+    await loadDecks();
+    await loadBranch();
+  } finally {
+    discardingStaleDraft = false;
+  }
 }
 async function loadBranch() {
   const deck = state.decks.find((item) => item.deck_id === state.deckId);
@@ -3004,10 +3011,15 @@ async function currentBranchRevision(branch) {
 async function commitRevision(branch = state.branch, note = "") {
   const seq = state.changeSeq;
   try {
-    // never save silently on a base that moved (B2b, #1658): the server would put the variant
-    // back onto a child of the old base
-    const current = branch === state.branch ? await currentBranchRevision(branch) : null;
-    if (state.baseStale || (current !== null && current !== state.baseRevision)) {
+    // never overwrite an existing branch silently (B2b, #1658): the target branch is read
+    // fresh; it must not exist, or be this tab's branch still standing on this draft's base.
+    // A new variant may start from an old base (the work of a stale draft can be saved there).
+    const current = await currentBranchRevision(branch);
+    if (current !== null && branch !== state.branch) {
+      toast(`Variante „${branch}“ gibt es schon: nichts gespeichert, bitte einen anderen Namen wählen.`);
+      return;
+    }
+    if (current !== null && current !== state.baseRevision) {
       state.baseStale = true;
       renderSaveState();
       toast("Entwurf ist veraltet, neu laden: der Stand darunter wurde inzwischen geändert. Nichts gespeichert.");
@@ -3015,7 +3027,7 @@ async function commitRevision(branch = state.branch, note = "") {
     }
     const result = await api(`/api/decks/${encodeURIComponent(state.deckId)}/revisions`, "POST", { cards: entries(), branch, note, parent_revision_id: state.baseRevision });
     if (branch !== state.branch) await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "DELETE");
-    state.branch = branch; state.baseRevision = result.revision_id; state.dirty = state.changeSeq !== seq; state.savedSeq = Math.max(state.savedSeq, seq);
+    state.branch = branch; state.baseRevision = result.revision_id; state.baseStale = false; state.dirty = state.changeSeq !== seq; state.savedSeq = Math.max(state.savedSeq, seq);
     state.draftUpdatedAt = ""; state.draftConflict = false; state.needsDraftPut = state.dirty;
     rememberVariant();
     await loadDecks(); renderHeader(); renderSaveState(); toast("Stand gespeichert.");

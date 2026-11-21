@@ -1877,6 +1877,45 @@ const out = {};
   pending["/api/experiments/exp-a"]({ ...base, question: "Frage A" }); await first;
   out.race = text(target);
 
+  // the draft check: a failed check blocks; before it answers the button is blocked
+  reset();
+  const failingApi = async (path, method, body) => { calls.push([path, method || "GET", body && body.decision]); if (path.endsWith("/draft")) throw Object.assign(new Error("x"), { detail: "offline" }); return {}; };
+  const chk = experimentDetailView(h, base, { ...deps, api: failingApi });
+  await button(chk, "Übernehmen …").attrs.onclick();
+  const chkYes = button(chk, "Ja, übernehmen");
+  await chkYes.attrs.onclick();
+  out.checkFailed = [chkYes.disabled, posts().length, text(chk).includes("nicht prüfbar")];
+  reset();
+  let answer;
+  const slowApi = (path, method, body) => { calls.push([path, method || "GET", body && body.decision]); return path.endsWith("/draft") ? new Promise((r) => { answer = r; }) : Promise.resolve({}); };
+  const slow = experimentDetailView(h, base, { ...deps, api: slowApi });
+  const opening = button(slow, "Übernehmen …").attrs.onclick();
+  const slowYes = button(slow, "Ja, übernehmen");
+  const before = slowYes.disabled;
+  await slowYes.attrs.onclick();
+  const postsBefore = posts().length;
+  answer({ draft: null }); await opening;
+  out.pending = [before, postsBefore, slowYes.disabled];
+  // cancel is off while the POST is in the air; a failing reload after success is shown
+  reset();
+  let release;
+  const holdApi = (path, method, body) => { calls.push([path, method || "GET", body && body.decision]); return method === "POST" ? new Promise((r) => { release = r; }) : Promise.resolve({ draft: null }); };
+  const hold = experimentDetailView(h, base, { ...deps, api: holdApi, onDecided: async () => { throw Object.assign(new Error("x"), { detail: "Netz weg" }); } });
+  await button(hold, "Übernehmen …").attrs.onclick();
+  const holdYes = button(hold, "Ja, übernehmen");
+  const sendingPost = holdYes.attrs.onclick();
+  out.cancelDuring = button(hold, "Abbrechen").disabled;
+  button(hold, "Abbrechen").attrs.onclick();
+  out.panelKept = Boolean(button(hold, "Ja, übernehmen"));
+  release({}); await sendingPost;
+  out.reloadError = text(hold).includes("Entscheidung gespeichert, Ansicht nicht neu geladen: Das hat nicht geklappt (Netz weg).");
+  // "empfehlungsfähig" never derived in the browser, not even from a high level
+  out.empfR3 = pills(experimentDetailView(h, base.reifegrad ? { ...base, reifegrad: { ...befund, stufe: "R3", stufe_text: "R3 voll belegt" } } : base, deps)).map((p) => p[1]);
+  // a figure only through the number contract: the contract's class node, nothing raw
+  const zahlNodes = (root) => all(root).filter((x) => String(x.attrs.class || "").includes("zahl-simuliert")).length;
+  out.zahlNode = [zahlNodes(experimentDetailView(h, base, { ...deps, zahlen })), zahlNodes(experimentDetailView(h, base, deps))];
+  out.seedsBig = text(experimentDetailView(h, { ...base, seeds: { first: 1200000, last: 1200003, count: 4, rule: "consecutive" } }, deps));
+
   // the list's error page names the server's reason
   const slot = h("div", {});
   await renderExperiments(slot, [], { h, deckId: "d", api: async () => { throw Object.assign(new Error("x"), { detail: "Serien nicht lesbar" }); } });
@@ -1952,40 +1991,95 @@ def test_experiment_view_shows_route_fields_and_decides_only_on_confirmation() -
     assert "offen" in list_text and "verworfen" in list_text
     assert "Frage B" in r["race"] and "Frage A" not in r["race"]
     assert "Das hat nicht geklappt (Serien nicht lesbar)." in r["listError"]
+    assert r["checkFailed"] == [True, 0, True]  # a failed draft check blocks, never opens
+    assert r["pending"] == [True, 0, False]  # blocked until the check answered
+    assert r["cancelDuring"] is True and r["panelKept"] is True and r["reloadError"] is True
+    assert "empfehlungsfähig" not in r["empfR3"] and "R3 voll belegt" in r["empfR3"]
+    assert r["zahlNode"] == [1, 0]
+    assert "Seeds: 1200000 bis 1200003" in r["seedsBig"]
 
 
-_COMMIT_JS = r"""
+_APP_JS = r"""
 const fs = require("fs");
 const app = fs.readFileSync("app.js", "utf8");
-const part = app.slice(app.indexOf("// The saved state of `branch` now"), app.indexOf("function saveRevision("));
-const posted = []; const toasts = []; let rendered = 0;
-let serverMain = "deck@v";
-const state = { deckId: "d", branch: "main", baseRevision: "deck@b", baseStale: false, changeSeq: 1, savedSeq: 0, dirty: true };
+const cut = (from, to) => app.slice(app.indexOf(from), app.indexOf(to));
+const code = [
+  cut("let discardingStaleDraft = false;", "async function loadBranch()"),
+  cut("// The saved state of `branch` now", "function saveRevision("),
+  cut("async function afterExperimentDecision(", "async function openSeriesFromHistory("),
+].join("\n");
+let posted = []; let deleted = 0; let toasts = []; let rendered = 0; let branchLoads = 0; let historyShown = 0;
+let server = { main: "deck@v", variant2: "deck@w" };
+let draft = null;
+const state = { deckId: "d", branch: "main", baseRevision: "deck@b", baseStale: false, changeSeq: 1, savedSeq: 0, dirty: true,
+  decks: [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }] };
 const api = async (path, method, body) => {
-  if (path === "/api/decks") return [{ deck_id: "d", branches: [{ branch: "main", revision_id: serverMain }] }];
-  posted.push([path, method, body && body.parent_revision_id]); return { revision_id: "deck@n" };
+  if (path === "/api/decks") return [{ deck_id: "d", branches: Object.entries(server).map(([branch, revision_id]) => ({ branch, revision_id })) }];
+  if (path.startsWith("/api/revisions/")) return { cards: [], issues: [], shape: null };
+  if (path.endsWith("/draft") && method === "DELETE") { deleted += 1; await new Promise((r) => setTimeout(r, 5)); return {}; }
+  if (path.endsWith("/draft")) return { draft };
+  posted.push([path, method, body && body.branch, body && body.parent_revision_id]); return { revision_id: "deck@n" };
 };
 const entries = () => []; const toast = (t) => toasts.push(t); const renderSaveState = () => { rendered += 1; };
 const rememberVariant = () => {}; const loadDecks = async () => {}; const renderHeader = () => {}; const fail = (e) => toasts.push(String(e));
-eval(part);
+const ensureUnownedLoadedFor = async () => {}; const useCards = () => {}; const renderAll = () => {}; const syncDraft = async () => {};
+const closeModal = () => {}; const showHistory = async () => { historyShown += 1; };
+eval(code + "\n" + cut("async function loadBranch()", "// The saved state of `branch` now").replace("async function loadBranch()", "async function realLoadBranch()"));
+const loadBranch = async () => { branchLoads += 1; };
 (async () => {
+  const out = {};
+  // same branch, base moved: refused
   await commitRevision("main", "");
-  const stale = [posted.length, state.baseStale, toasts.slice(), rendered];
-  serverMain = "deck@b"; state.baseStale = false; toasts.length = 0;
+  out.stale = [posted.length, state.baseStale, toasts.some((t) => t.includes("Entwurf ist veraltet, neu laden"))];
+  // "Neue Variante" named main from another branch: never overwrites main
+  state.branch = "variant2"; state.baseRevision = "deck@w"; state.baseStale = false; toasts = [];
   await commitRevision("main", "");
-  process.stdout.write(JSON.stringify({ stale, fresh: [posted, state.baseStale] }));
+  out.otherBranch = [posted.length, toasts.some((t) => t.includes("gibt es schon"))];
+  // a stale draft may be saved as a new variant (the work is kept)
+  state.branch = "main"; state.baseRevision = "deck@b"; state.baseStale = true;
+  await commitRevision("rettung", "");
+  out.rescue = [posted.map((p) => [p[2], p[3]]), state.baseStale, state.branch];
+  // the own branch on its own base: saved
+  posted = []; server.rettung = "deck@n";
+  await commitRevision("rettung", "");
+  out.fresh = posted.map((p) => [p[2], p[3]]);
+  // loadBranch names a draft on another saved state stale and keeps its base
+  state.branch = "main"; state.decks = [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }];
+  draft = { cards: [], base_revision_id: "deck@b", updated_at: "t" };
+  await realLoadBranch();
+  out.load = [state.baseStale, state.baseRevision];
+  draft = { cards: [], base_revision_id: "deck@v", updated_at: "t" };
+  await realLoadBranch();
+  out.loadOk = [state.baseStale, state.baseRevision];
+  // after an adoption: a dirty main is named stale, a clean main is loaded
+  state.branch = "main"; state.dirty = true; state.baseStale = false; branchLoads = 0;
+  await afterExperimentDecision("adopted");
+  out.afterDirty = [state.baseStale, branchLoads];
+  state.dirty = false; state.baseStale = false;
+  await afterExperimentDecision("adopted");
+  out.afterClean = [state.baseStale, branchLoads];
+  await afterExperimentDecision("rejected");
+  out.afterReject = historyShown;
+  // discarding a stale draft: one DELETE per click series
+  deleted = 0;
+  await Promise.all([discardStaleDraft(), discardStaleDraft(), discardStaleDraft()]);
+  out.deleted = deleted;
+  process.stdout.write(JSON.stringify(out));
 })();
 """
 
 
-def test_saving_a_draft_on_a_moved_base_is_refused() -> None:
-    r = _node_json(_COMMIT_JS)
+def test_saving_never_overwrites_a_moved_or_foreign_branch_and_keeps_rescue() -> None:
+    r = _node_json(_APP_JS)
     assert isinstance(r, dict)
-    count, stale, toasts, rendered = r["stale"]
-    assert count == 0 and stale is True and rendered >= 1
-    assert any("Entwurf ist veraltet, neu laden" in t for t in toasts)
-    posted, still_stale = r["fresh"]
-    assert posted == [["/api/decks/d/revisions", "POST", "deck@b"]] and still_stale is False
+    assert r["stale"] == [0, True, True]
+    assert r["otherBranch"] == [0, True]  # "Neue Variante" named main never overwrites main
+    assert r["rescue"] == [[["rettung", "deck@b"]], False, "rettung"]
+    assert r["fresh"] == [["rettung", "deck@n"]]
+    assert r["load"] == [True, "deck@b"] and r["loadOk"] == [False, "deck@v"]
+    assert r["afterDirty"] == [True, 0] and r["afterClean"] == [False, 1]
+    assert r["afterReject"] == 1
+    assert r["deleted"] == 1
 
 
 def test_experiment_view_static_guards() -> None:

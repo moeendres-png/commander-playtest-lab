@@ -123,7 +123,7 @@ function experimentPlan(h, detail) {
   const seeds = detail.seeds || {};
   const seedText = seeds.first === null || seeds.first === undefined
     ? "unbekannt"
-    : `${StudioUI.num(seeds.first)} bis ${StudioUI.num(seeds.last)} (${StudioUI.num(seeds.count)} Seeds)`;
+    : `${String(seeds.first)} bis ${String(seeds.last)} (${StudioUI.num(seeds.count)} Seeds)`; // seeds are ids: no thousands dots
   const items = [
     h("div", {}, h("span", { class: cls }, text)),
     h("div", {}, `Zweck: ${experimentPurpose(detail.purpose)}`),
@@ -226,6 +226,7 @@ function experimentDecision(h, detail, labels, deps) {
     const lines = h("ul", {}, experimentConsequences(decision, detail, labels).map((line) => h("li", {}, line)));
     let sending = false;
     let blocked = decision === "adopted"; // until the draft check below has answered
+    const cancel = h("button", { type: "button", onclick: () => { if (!sending) showChoice(); } }, "Abbrechen");
     const yes = h("button", {
       type: "button",
       class: decision === "adopted" ? "primary" : "",
@@ -234,22 +235,28 @@ function experimentDecision(h, detail, labels, deps) {
         if (sending || blocked) return; // one POST per confirmation, never while blocked
         sending = true;
         yes.disabled = true;
+        cancel.disabled = true;
         try {
           await deps.api(`/api/experiments/${encodeURIComponent(detail.experiment_id)}/decision`, "POST", { decision, note: note.value || "" });
         } catch (error) {
           sending = false;
           yes.disabled = false;
+          cancel.disabled = false;
           status.replaceChildren(StudioUI.germanError(error));
           return;
         }
-        deps.onDecided(decision);
+        try {
+          await deps.onDecided(decision);
+        } catch (error) { // recorded on the server; only reloading the view failed
+          status.replaceChildren(`Entscheidung gespeichert, Ansicht nicht neu geladen: ${StudioUI.germanError(error)}`);
+        }
       },
     }, decision === "adopted" ? "Ja, übernehmen" : "Ja, verwerfen");
     box.replaceChildren(h("div", { class: "note", role: "group", "aria-label": "Entscheidung bestätigen" },
       h("b", {}, decision === "adopted" ? "Variante übernehmen?" : "Variante verwerfen?"),
       lines,
       note,
-      h("div", { class: "actions" }, yes, h("button", { type: "button", onclick: showChoice }, "Abbrechen")),
+      h("div", { class: "actions" }, yes, cancel),
       status));
     if (decision === "adopted") return experimentCheckDraft(detail, deps, lines, (ok) => { blocked = !ok; yes.disabled = !ok; });
     return null;
