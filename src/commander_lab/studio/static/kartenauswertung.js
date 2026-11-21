@@ -16,6 +16,8 @@
 // change of the pilot gives separate strata (no 409), each naming its fingerprint (short hash);
 // logs without one stand apart as "Pilot unbekannt". Sections are per table size and pilot
 // fingerprint. The axes come from OUTCOMES_AXES, pinned to card_outcomes.STRATUM_AXES by a test.
+// Games with a human seat (#1662, PLAYED_GAME) are their own cohort: counted in no figure here,
+// named apart with their own n and origin (played_cohort); a missing count reads "unbekannt".
 
 const OUTCOMES_CARD_ORDER = { MEASURED: 0, INSUFFICIENT_SAMPLE: 1 };
 
@@ -241,6 +243,26 @@ function outcomesStandNote(h, data) {
   return h("p", { class: "muted" }, parts.join(" · "));
 }
 
+// #1662: the games with a human seat, apart; never one number with the simulated games above.
+function outcomesPlayedNote(h, data) {
+  const played = data && data.played_cohort;
+  if (!played || typeof played !== "object") {
+    return h("p", { class: "muted" },
+      "Mensch-Partien (PLAYED_GAME): unbekannt (Antwort ohne Kohortenangabe) · in keiner Zahl oben enthalten");
+  }
+  const unknown = typeof played.games_cohort_unknown === "number" && played.games_cohort_unknown > 0
+    ? ` · Partien mit unlesbarer Kohorte: ${outcomesInt(played.games_cohort_unknown)} (in keiner Kohorte gezählt)`
+    : played.games_cohort_unknown === null || played.games_cohort_unknown === undefined
+      ? " · Partien mit unlesbarer Kohorte: unbekannt"
+      : "";
+  // n counts each game once by its game id, any status; the ended ones are named apart
+  const status = typeof played.games === "number"
+    ? ` (beendet ${outcomesInt(played.games_finished)}, nicht beendet ${typeof played.games_finished === "number" ? outcomesInt(played.games - played.games_finished) : "unbekannt"})`
+    : "";
+  return h("p", { class: "muted" },
+    `Mensch-Partien (${played.data_class || "PLAYED_GAME"}, je Spiel-ID, jeder Status): n = ${outcomesInt(played.games)}${status} · Herkunft: ${played.source || "unbekannt"} · eigene Kohorte, in keiner Zahl oben enthalten${unknown}`);
+}
+
 const outcomesQueryLabel = (queryId, baseRevision, revHash) =>
   baseRevision && queryId === baseRevision
     ? `Deck-Stand (Hash): ${revHash}`
@@ -413,6 +435,7 @@ async function renderCardOutcomes(slot, deps) {
   const label = perStand ? `über Deck-ID ${queryId || "unbekannt"} · ${outcomesStandLabel(data, deps.baseRevision)}` : queryLabel;
   const meta = outcomesMetadataNodes(h, data, label);
   const standNote = perStand ? outcomesStandNote(h, data) : null;
+  const playedNote = outcomesPlayedNote(h, data);
   const sections = [];
   const cohorts = perStand ? outcomesCohorts(data) : [];
   if (perStand) {
@@ -425,7 +448,7 @@ async function renderCardOutcomes(slot, deps) {
 
   if (data.status === "NOT_POOLED") {
     slot.replaceChildren(...StudioUI.kids(
-      h("h3", {}, title), fixedNote, dirtyNote, ...meta, standNote,
+      h("h3", {}, title), fixedNote, dirtyNote, ...meta, standNote, playedNote,
       h("p", { class: "muted" }, cohorts.length
         ? `Verschiedene Werte von ${outcomesAxisNames(OUTCOMES_CELL_AXES)} werden nie zusammengeführt: Unten steht je Kombination ein eigener Abschnitt (${StudioUI.num(cohorts.length, 0)} Abschnitte) mit eigener Tabelle, eigener Zahl und Herkunft.`
         : `Die Schichten (${outcomesAxisNames()}) werden nicht zusammengeführt (siehe Grund); jede Schicht steht unten mit eigener Zahl.`),
@@ -435,7 +458,7 @@ async function renderCardOutcomes(slot, deps) {
 
   if (data.status === "NO_GAMES" || !Array.isArray(data.cards) || !data.cards.length) {
     slot.replaceChildren(...StudioUI.kids(
-      h("h3", {}, title), fixedNote, dirtyNote, ...meta, standNote,
+      h("h3", {}, title), fixedNote, dirtyNote, ...meta, standNote, playedNote,
       h("p", { class: "muted" }, perStand && outcomesUnknownStrata(data).length
         ? `Für ${label} liegen keine Partien vor, in denen ${outcomesAxisNames()} bekannt sind; die übrigen Partien stehen unten unter ${OUTCOMES_AXES.map((axis) => `„${axis.unknown}“`).join(" bzw. ")} (getrennt gezählt, mit eigener Herkunft).`
         : `Für ${label} liegen noch keine abgeschlossenen Partien mit Starthand-Daten vor (zu wenig Daten, nicht 0).`),
@@ -444,7 +467,7 @@ async function renderCardOutcomes(slot, deps) {
   }
 
   const table = outcomesCardTable(h, data.cards, deps, "Karten-Auswertung aus simulierten Partien (Starthand gegen nicht in Starthand)");
-  slot.replaceChildren(...StudioUI.kids(h("h3", {}, title), fixedNote, dirtyNote, ...meta, standNote, table, ...sections));
+  slot.replaceChildren(...StudioUI.kids(h("h3", {}, title), fixedNote, dirtyNote, ...meta, standNote, playedNote, table, ...sections));
 }
 
 if (typeof module !== "undefined" && module.exports) {
@@ -460,6 +483,7 @@ if (typeof module !== "undefined" && module.exports) {
     outcomesStratumName,
     outcomesReasonText,
     outcomesTableSize,
+    outcomesPlayedNote,
     OUTCOMES_AXES,
     renderCardOutcomes,
   };

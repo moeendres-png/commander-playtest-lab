@@ -97,6 +97,7 @@ def _write_log(
     fingerprint: object = _DEFAULT,
     extra_seats: Sequence[object] = (),
     bridge_jar: str | None = None,
+    header_extra: dict[str, object] | None = None,
 ) -> Path:
     """One game log. Every seat names a deck state derived from its deck id unless
     ``deck_hashes`` gives others; ``deck_hashes=None`` writes a log of before #1657.
@@ -133,6 +134,7 @@ def _write_log(
         header["pilot_fingerprint"] = named
     if bridge_jar is not None:
         header["bridge_jar_sha256"] = bridge_jar
+    header.update(header_extra or {})
     lines: list[dict[str, object]] = [header, *frames]
     if status is not None:
         lines.append({"kind": "result", "status": status, "winner_seats": list(winners)})
@@ -416,7 +418,7 @@ def test_two_fingerprints_at_one_stand_are_separate_strata_not_a_409(
         response = client.get("/api/outcomes", params={"deck_id": DECK, "min_exposed": 1})
     assert response.status_code == 200
     body = response.json()
-    assert body["schema"] == "studio-card-outcomes-5"
+    assert body["schema"] == "studio-card-outcomes-6"
     assert body["strata"] == 2 and body["status"] == "NOT_POOLED" and body["cards"] == []
     assert body["games_total"] == 10  # 6 + 4: "Pilot unbekannt" is never added
     pooling = body["pooling"]
@@ -808,7 +810,7 @@ def test_cache_temp_name_is_unique_per_thread(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     path = _write_log(tmp_path, "g1", _simple_frames(["X"]))
-    exposure, deck_ids = card_outcomes._read_log(path)
+    exposure, deck_ids, _cohort, _ident = card_outcomes._read_log(path)
     assert exposure is not None
     names: list[str] = []
     real_replace = os.replace
@@ -1023,7 +1025,7 @@ def test_api_answers_per_deck_state(tmp_path: Path, monkeypatch: pytest.MonkeyPa
     with TestClient(create_app(tmp_path)) as client:
         body = client.get("/api/outcomes", params={"deck_id": DECK, "min_exposed": 1}).json()
         decks = {r["deck_id"]: r for r in client.get("/api/outcomes/decks").json()["decks"]}
-    assert body["schema"] == "studio-card-outcomes-5"
+    assert body["schema"] == "studio-card-outcomes-6"
     assert body["strata"] == 2 and body["games_total"] == 2
     assert sorted(s["deck_hash"] for s in body["stands"]) == sorted([STATE_A, STATE_B])
     assert [t["games_total"] for t in body["unknown_strata"]] == [1]
@@ -1163,12 +1165,15 @@ def test_header_seats_give_the_table_size_and_never_a_guess(tmp_path: Path) -> N
         (_seats(1, start=3), None),  # a gap (0, 1, 3): incomplete seat list
         ([{"seat": 1, "deck_id": "deck/x"}], None),  # a repeated seat
         ([{"deck_id": "deck/x"}], None),  # a seat row without a seat number
-        (["not a row"], None),
     ]
     for index, (extra, size) in enumerate(cases):
         path = _write_log(tmp_path, f"g{index}", _simple_frames(["X"]), extra_seats=extra)
         game = game_exposures(path)
         assert game is not None and game.get("table_size") == size, (extra, size)
+    # #1662: a seat row that is no mapping cannot say whether a human sat there: the log is of
+    # unreadable cohort (fail-closed), stricter than "Tischgröße unbekannt", and never counted
+    path = _write_log(tmp_path, "g-row", _simple_frames(["X"]), extra_seats=["not a row"])
+    assert game_exposures(path) is None
     assert card_outcomes._table_size(None) is None and card_outcomes._table_size([]) is None
 
 
@@ -1301,7 +1306,7 @@ def test_cache_entry_of_before_table_sizes_is_read_again(tmp_path: Path) -> None
     assert table["strata"] == 1 and table["table_size"] == 3
     assert table["unknown_strata"] == []
     stored = json.loads(card_outcomes._cache_file(path).read_text(encoding="utf-8"))
-    assert stored["version"] == card_outcomes.CACHE_VERSION == 5
+    assert stored["version"] == card_outcomes.CACHE_VERSION == 6
     assert stored["exposure"]["table_size"] == 3
 
 
@@ -1426,7 +1431,7 @@ def test_api_pools_each_table_size_on_its_own_from_real_logs(
             )
     with TestClient(create_app(tmp_path)) as client:
         body = client.get("/api/outcomes", params={"deck_id": DECK, "min_exposed": 1}).json()
-    assert body["schema"] == "studio-card-outcomes-5"
+    assert body["schema"] == "studio-card-outcomes-6"
     assert body["status"] == "NOT_POOLED" and body["cards"] == [] and body["strata"] == 3
     two, three = body["cohorts"]
     assert (two["table_size"], two["pooling"]["status"], two["games_total"]) == (2, "POOLED", 12)
@@ -1515,6 +1520,12 @@ const render = async (payload) => {{
     ) in text
     assert "(bei 2 Sitzen 1/2, bei 3 Sitzen 1/3)" in text
     assert "diese Ansicht kommt als Folgepaket" not in text
+    # #1662: the games with a human seat stand apart; built without a folder scan: unknown
+    assert "Mensch-Partien (PLAYED_GAME, je Spiel-ID, jeder Status): n = unbekannt" in text
+    assert (
+        "Mensch-Partien (PLAYED_GAME, je Spiel-ID, jeder Status): n = unbekannt"
+        in r["pilots"]["text"]
+    )
     assert "Der Pilot-Fingerabdruck wechselte" not in text  # only the table size differs
     two, three = r["sections"]
     assert two["text"].startswith(
@@ -1656,3 +1667,359 @@ const mod = require('./kartenauswertung.js');
 console.log(JSON.stringify(mod.OUTCOMES_AXES.map((a) => [a.field, a.unknown, a.pooled])));
 """
     assert [tuple(a) for a in _node_json(script)] == axes
+
+
+# --- #1662: games with a human seat are their own cohort (PLAYED_GAME) ---------------------
+
+PLAYED_NEW = {"data_class": "PLAYED_GAME", "human_seats": [0]}
+# Logs written before #1662: the header still says SIMULATED_RESULT (or nothing) but names the
+# human seat; no backfill, recognised by ``human_seats`` or a seat pilot "Mensch".
+PLAYED_OLD = {"data_class": "SIMULATED_RESULT", "human_seats": [0]}
+PLAYED_OLD_NO_CLASS = {"human_seats": [1]}
+
+
+def _cohort_folder(folder: Path, *played: dict[str, object]) -> None:
+    """One simulated game of DECK plus one game per header in ``played``, all finished."""
+    _write_log(folder, "sim", _simple_frames(["X"]), seed=1)
+    for index, extra in enumerate(played):
+        _write_log(
+            folder, f"human-{index}", _simple_frames(["X"]), seed=10 + index, header_extra=extra
+        )
+
+
+@pytest.mark.parametrize(
+    ("header", "cohort"),
+    [
+        ({"data_class": "SIMULATED_RESULT", "seats": []}, "SIMULATED_RESULT"),
+        ({"seats": []}, "SIMULATED_RESULT"),  # older logs without data_class
+        ({"human_seats": [], "seats": []}, "SIMULATED_RESULT"),  # timeout only, no human
+        (PLAYED_NEW, "PLAYED_GAME"),
+        (PLAYED_OLD, "PLAYED_GAME"),
+        (PLAYED_OLD_NO_CLASS, "PLAYED_GAME"),
+        ({"data_class": "PLAYED_GAME"}, "PLAYED_GAME"),
+        ({"seats": [{"seat": 0, "pilot": "Mensch"}, {"seat": 1, "pilot": "KI"}]}, "PLAYED_GAME"),
+        ({"human_seats": "0"}, "UNKNOWN"),
+        ({"human_seats": [True]}, "UNKNOWN"),
+        ({"human_seats": None, "seats": "x"}, "UNKNOWN"),
+        ({"seats": [{"seat": 0, "pilot": "KI"}, "not a row"]}, "UNKNOWN"),
+        ({"seats": ["not a row", {"seat": 1, "pilot": "Mensch"}]}, "PLAYED_GAME"),
+        ({"data_class": "SOMETHING_ELSE"}, "UNKNOWN"),
+        ("not a header", "UNKNOWN"),
+    ],
+)
+def test_game_cohort_reads_the_header_fail_closed(header: object, cohort: str) -> None:
+    from commander_lab.studio.games import game_cohort
+
+    assert game_cohort(header) == cohort
+
+
+def test_played_games_never_count_in_card_outcomes_and_are_named_apart(tmp_path: Path) -> None:
+    """M1/M3: a game with a human seat is no exposure, no skipped game and no part of any n."""
+    _cohort_folder(tmp_path, PLAYED_NEW)
+    report = load_exposures(tmp_path)
+    assert [g["game_id"] for g in report["exposures"]] == ["sim"]
+    assert report["skipped_with_deck"] == {} and report["skipped_unreadable"] == 0
+    assert report["played_with_deck"] == {DECK: 1, OTHER: 1} and report["played_games"] == 1
+    table = outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
+    assert table["games_total"] == 1 and table["games_skipped"] == 0
+    assert table["seeds"] == 1
+    assert all(card["games_total"] == 1 for card in table["cards"])
+    assert table["played_cohort"] == {
+        "data_class": "PLAYED_GAME",
+        "games": 1,
+        "games_finished": 1,
+        "games_cohort_unknown": 0,
+        "source": card_outcomes.PLAYED_SOURCE,
+        "counted_in_simulation": False,
+    }
+    assert any("human seat (PLAYED_GAME)" in w for w in table["warnings"])
+    assert "PLAYED_GAME (human seat) games 1 (ended 1)" in format_table(table)
+
+
+def test_legacy_played_logs_are_recognised_by_their_human_seats(tmp_path: Path) -> None:
+    """M4: logs of before #1662 (data_class SIMULATED_RESULT or none) with a human seat."""
+    _cohort_folder(tmp_path, PLAYED_OLD, PLAYED_OLD_NO_CLASS)
+    table = outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
+    assert table["games_total"] == 1 and table["games_skipped"] == 0
+    assert table.get("played_cohort", {}).get("games") == 2
+
+
+def test_unreadable_cohort_is_counted_in_neither_cohort(tmp_path: Path) -> None:
+    """M5: a header whose cohort fields cannot be read is never a simulated game; a log without
+    a readable header stays an unreadable skipped log (the path of before #1662)."""
+    _cohort_folder(tmp_path, {"human_seats": "0"}, {"data_class": "SOMETHING_ELSE"})
+    (tmp_path / "broken.jsonl.gz").write_bytes(gzip.compress(b"{not json\n"))
+    table = outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
+    assert table["games_total"] == 1 and table["games_skipped"] == 0
+    assert table["games_skipped_unreadable"] == 1
+    played = table.get("played_cohort", {})
+    assert played.get("games") == 0 and played.get("games_cohort_unknown") == 2
+    assert any("unreadable cohort" in w for w in table["warnings"])
+
+
+def test_played_cohort_without_a_folder_scan_is_unknown_never_zero() -> None:
+    table = card_outcomes.stand_tables(_synthetic(_block("A", 4, 2)), deck_id=DECK, min_exposed=1)
+    assert table["played_cohort"]["games"] is None
+    assert table["played_cohort"]["games_cohort_unknown"] is None
+    assert "games unknown (ended unknown)  cohort unknown unknown" in format_table(table)
+
+
+def test_api_outcomes_and_decks_keep_played_games_apart(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Through the routes with the cache check on: the played game is in no simulation n."""
+    from commander_lab.studio import cache
+
+    monkeypatch.setattr(cache, "CHECK", True)
+    games = tmp_path / "games"
+    _cohort_folder(games, PLAYED_OLD)
+    _write_log(
+        games,
+        "only-human",
+        _simple_frames(["X"]),
+        seed=30,
+        decks=("deck/h", OTHER),
+        header_extra=PLAYED_NEW,
+    )
+    _write_log(games, "unknown", _simple_frames(["X"]), seed=40, header_extra={"human_seats": "0"})
+    with TestClient(create_app(tmp_path)) as client:
+        body = client.get("/api/outcomes", params={"deck_id": DECK, "min_exposed": 1}).json()
+        decks = {row["deck_id"]: row for row in client.get("/api/outcomes/decks").json()["decks"]}
+        human = client.get("/api/outcomes", params={"deck_id": "deck/h"}).json()
+    assert body["games_total"] == 1 and body["played_cohort"]["games"] == 1
+    assert all(z["N"] == 1 for z in body["zahlen"] if z["id"].startswith("outcome."))
+    assert decks[DECK]["games"] == 1 and decks[DECK]["games_skipped"] == 0
+    assert decks[DECK]["played_games"] == 1 and decks[DECK]["games_cohort_unknown"] == 1
+    assert decks[OTHER]["games"] == 1 and decks[OTHER]["played_games"] == 2
+    assert (
+        decks[OTHER]["games_cohort_unknown"] == 1 and decks["deck/h"]["games_cohort_unknown"] == 0
+    )
+    # a deck named only by a game with a human seat: listed, no simulated game, n apart
+    assert decks["deck/h"]["games"] == 0 and decks["deck/h"]["games_skipped"] == 0
+    assert decks["deck/h"]["played_games"] == 1
+    assert human["status"] == "NO_GAMES" and human["games_total"] == 0
+    assert human["played_cohort"]["games"] == 1 and human["zahlen"] == []
+    assert body["played_cohort"]["games_cohort_unknown"] == 1
+    # the same counts on the all-decks path (CLI ``card-outcomes`` without a deck)
+    every = card_outcomes.outcomes_for_all_decks(games, min_exposed=1)
+    assert {d: t["played_cohort"]["games"] for d, t in every.items()} == {
+        DECK: 1,
+        OTHER: 2,
+        "deck/h": 1,
+    }
+    assert {d: t["played_cohort"]["games_cohort_unknown"] for d, t in every.items()} == {
+        DECK: 1,
+        OTHER: 1,
+        "deck/h": 0,
+    }
+    assert every[DECK]["games_total"] == 1 and every["deck/h"]["games_total"] == 0
+    # no game with a human seat or of unreadable cohort is a skipped simulated game either
+    assert {d: t["games_skipped"] for d, t in every.items()} == {DECK: 0, OTHER: 0, "deck/h": 0}
+
+
+def test_cache_entry_of_before_the_cohort_is_read_again(tmp_path: Path) -> None:
+    """A version-5 entry may hold the exposure of a game with a human seat (cached before
+    #1662); it is never served, and no entry without ``data_class`` is."""
+    path = _write_log(tmp_path, "h", _simple_frames(["X"]), header_extra=PLAYED_OLD)
+    twin = _write_log(tmp_path / "twin", "h", _simple_frames(["X"]))
+    exposure = game_exposures(twin)
+    assert exposure is not None and game_exposures(path) is None
+    stat = path.stat()
+    for payload in (
+        {"version": 5, "size": stat.st_size, "mtime_ns": stat.st_mtime_ns},
+        {
+            "version": card_outcomes.CACHE_VERSION,
+            "size": stat.st_size,
+            "mtime_ns": stat.st_mtime_ns,
+        },
+    ):
+        payload.update({"exposure": exposure, "deck_ids": [DECK, OTHER]})
+        card_outcomes._cache_file(path).parent.mkdir(exist_ok=True)
+        card_outcomes._cache_file(path).write_text(json.dumps(payload), encoding="utf-8")
+        report = load_exposures(tmp_path)
+        assert report["exposures"] == [] and report["played_with_deck"][DECK] == 1
+
+
+def test_the_recorder_writes_played_game_for_a_human_seat(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Writer and reader agree: a log written by GameRecorder with a human seat is PLAYED_GAME,
+    even when the caller's header says SIMULATED_RESULT, and the routes do not count it."""
+    from commander_lab.studio import cache
+    from commander_lab.studio.games import GameRecorder
+
+    monkeypatch.setattr(cache, "CHECK", True)
+    seats = [
+        {"seat": 0, "deck_id": DECK, "deck_hash": _hash(DECK), "commanders": ["Cmd A"]},
+        {"seat": 1, "deck_id": OTHER, "deck_hash": _hash(OTHER), "commanders": ["Cmd B"]},
+    ]
+    base = {"seed": 1, "engine_commit": COMMIT, "pilot": "Pilot 1.0.0", "seats": seats}
+    written: dict[str, str] = {}
+    for game_id, extra in (
+        ("ai", {}),
+        ("human", {"human_seats": [0], "data_class": "SIMULATED_RESULT"}),
+    ):
+        recorder = GameRecorder(tmp_path, game_id, {**base, **extra})
+        packed = recorder.close({"status": "finished", "winner_seats": [0]})
+        with gzip.open(packed, "rt", encoding="utf-8") as handle:
+            written[game_id] = json.loads(handle.readline())["data_class"]
+    assert written == {"ai": "SIMULATED_RESULT", "human": "PLAYED_GAME"}
+    with TestClient(create_app(tmp_path)) as client:
+        decks = {row["deck_id"]: row for row in client.get("/api/outcomes/decks").json()["decks"]}
+    assert decks[DECK]["games"] == 1 and decks[DECK]["played_games"] == 1
+
+
+def test_simulation_telemetry_never_reads_a_played_game(tmp_path: Path) -> None:
+    """M2: the batch read path (``simulations.extract_game_log_telemetry``, which feeds batch
+    summaries and the stored ``simulation_run``/``simulation_card``) refuses a game with a human
+    seat and one of unreadable cohort instead of scoring it."""
+    from commander_lab.studio.simulations import extract_game_log_telemetry
+
+    games = tmp_path / "games"
+    _write_log(games, "batch-x-s1", _simple_frames(["X"]))
+    _write_log(games, "batch-x-s2", _simple_frames(["X"]), header_extra=PLAYED_OLD)
+    _write_log(games, "batch-x-s3", _simple_frames(["X"]), header_extra={"human_seats": "0"})
+    sim = extract_game_log_telemetry(tmp_path, "batch-x-s1")
+    human = extract_game_log_telemetry(tmp_path, "batch-x-s2")
+    unknown = extract_game_log_telemetry(tmp_path, "batch-x-s3")
+    assert sim.status == "finished" and sim.candidate_won and sim.observed_cards
+    assert human.status == "failed" and human.failure_class == "PlayedGameExcluded"
+    assert not human.candidate_won and not human.observed_cards
+    assert unknown.status == "failed" and unknown.failure_class == "CohortUnknown"
+
+
+def test_card_page_names_played_games_apart_and_unknown_never_zero() -> None:
+    from tests.unit.test_studio_static_guards import _node_json
+
+    script = """
+global.StudioUI = { num: (n, d = 0) => Number(n).toFixed(d) };
+const mod = require('./kartenauswertung.js');
+const h = (tag, attrs, ...kids) => ({ tag, kids: kids.flat(Infinity) });
+const text = (data) => mod.outcomesPlayedNote(h, data).kids.join('');
+console.log(JSON.stringify([
+  text({ played_cohort: { data_class: 'PLAYED_GAME', games: 3, games_finished: 2, games_cohort_unknown: 2,
+    source: 'Quelle X', counted_in_simulation: false } }),
+  text({ played_cohort: { data_class: 'PLAYED_GAME', games: null, games_cohort_unknown: null } }),
+  text({}),
+]));
+"""
+    known, unknown, missing = _node_json(script)  # type: ignore[misc]
+    assert known == (
+        "Mensch-Partien (PLAYED_GAME, je Spiel-ID, jeder Status): n = 3 (beendet 2, nicht "
+        "beendet 1) · Herkunft: Quelle X · eigene Kohorte, in keiner "
+        "Zahl oben enthalten · Partien mit unlesbarer Kohorte: 2 (in keiner Kohorte gezählt)"
+    )
+    assert "n = unbekannt" in unknown and "unlesbarer Kohorte: unbekannt" in unknown
+    assert "n = 0" not in unknown
+    assert missing.startswith("Mensch-Partien (PLAYED_GAME): unbekannt")
+
+
+def test_card_page_shows_played_games_in_the_ok_and_no_games_answers(tmp_path: Path) -> None:
+    """The line stands in every answer the page renders: OK (cards measured) and NO_GAMES (a
+    deck named only by games with a human seat), not only in NOT_POOLED."""
+    from tests.unit.test_studio_static_guards import _node_json
+
+    _cohort_folder(tmp_path, PLAYED_NEW)
+    _write_log(
+        tmp_path,
+        "only-human",
+        _simple_frames(["X"]),
+        seed=30,
+        decks=("deck/h", OTHER),
+        header_extra=PLAYED_OLD,
+    )
+    ok = outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
+    none = outcomes_for_folder(tmp_path, deck_id="deck/h", min_exposed=1)
+    assert ok["status"] == "OK" and ok["cards"] and none["status"] == "NO_GAMES"
+    script = f"""
+global.StudioUI = {{
+  num: (n, d = 0) => Number(n).toFixed(d),
+  pct: (r) => `${{(Number(r) * 100).toFixed(1)}} %`,
+  kids: (...a) => a.flat(Infinity).filter((x) => x !== null && x !== undefined && x !== false),
+}};
+const mod = require('./kartenauswertung.js');
+const textOf = (node) => {{
+  if (node === null || node === undefined) return '';
+  if (typeof node === 'string' || typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(textOf).join('');
+  return (node.kids || []).map(textOf).join(' ');
+}};
+const h = (tag, attrs, ...kids) => ({{ tag, attrs: attrs || {{}}, kids: kids.flat(Infinity) }});
+const render = async (deckId, payload) => {{
+  const slot = {{ children: [], replaceChildren(...kids) {{ this.children = kids; }} }};
+  await mod.renderCardOutcomes(slot, {{
+    h, deckId, baseRevision: null, dirty: false,
+    api: async (url) => (url === '/api/outcomes/decks' ? {{ decks: [] }} : payload),
+  }});
+  return textOf(slot.children);
+}};
+(async () => {{
+  console.log(JSON.stringify([
+    await render('deck/a', {json.dumps(ok)}),
+    await render('deck/h', {json.dumps(none)}),
+  ]));
+}})();
+"""
+    ok_text, none_text = _node_json(script)  # type: ignore[misc]
+    line = (
+        "Mensch-Partien (PLAYED_GAME, je Spiel-ID, jeder Status): n = 1 (beendet 1, nicht "
+        "beendet 0) · Herkunft: " + card_outcomes.PLAYED_SOURCE
+    )
+    assert line in ok_text and "Karten-Auswertung aus simulierten Partien" in ok_text
+    assert line in none_text and "liegen noch keine abgeschlossenen Partien" in none_text
+
+
+def test_played_games_count_each_game_once_and_name_the_ended_ones(tmp_path: Path) -> None:
+    """A finished human game, its copy under another file name, a running human log and a
+    further human game are 3 games (2 ended), not 4 logs; a deck seated twice in one human game
+    counts once for it."""
+    ended = _write_log(tmp_path, "h1", _simple_frames(["X"]), header_extra=PLAYED_NEW)
+    shutil.copy(ended, tmp_path / "h1-copy.jsonl.gz")
+    _write_log(
+        tmp_path, "h2", _simple_frames(["X"]), status=None, gz=False, header_extra=PLAYED_NEW
+    )
+    _write_log(tmp_path, "h3", _simple_frames(["X"]), decks=(DECK, DECK), header_extra=PLAYED_OLD)
+    report = load_exposures(tmp_path)
+    assert report["played_games"] == 3 and report["exposures"] == []
+    assert report["played_with_deck"] == {DECK: 3, OTHER: 2}
+    assert report["played_finished_with_deck"] == {DECK: 2, OTHER: 1}
+    assert report["duplicate_logs"] == 0 and report["skipped_with_deck"] == {}
+    table = outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
+    assert table["played_cohort"]["games"] == 3
+    assert table["played_cohort"]["games_finished"] == 2
+    assert table["games_total"] == 0 and table["games_skipped"] == 0
+
+
+def test_a_deck_only_in_games_of_unreadable_cohort_is_listed(tmp_path: Path) -> None:
+    _write_log(
+        tmp_path / "games",
+        "u1",
+        _simple_frames(["X"]),
+        decks=("deck/u", OTHER),
+        header_extra={"data_class": "SOMETHING_ELSE"},
+    )
+    with TestClient(create_app(tmp_path)) as client:
+        decks = {row["deck_id"]: row for row in client.get("/api/outcomes/decks").json()["decks"]}
+    assert decks["deck/u"]["games"] == 0 and decks["deck/u"]["games_cohort_unknown"] == 1
+    assert decks["deck/u"]["played_games"] == 0 and decks["deck/u"]["games_skipped"] == 0
+
+
+@pytest.mark.parametrize(
+    ("extra", "written"),
+    [
+        ({"data_class": "SOMETHING_ELSE"}, "UNKNOWN"),
+        ({"human_seats": "0"}, "UNKNOWN"),
+        ({}, "SIMULATED_RESULT"),
+        ({"human_seats": [1]}, "PLAYED_GAME"),
+    ],
+)
+def test_the_recorder_never_stamps_an_unreadable_cohort_as_a_simulation(
+    tmp_path: Path, extra: dict[str, object], written: str
+) -> None:
+    from commander_lab.studio.games import GameRecorder
+
+    seats = [{"seat": 0, "deck_id": DECK}, {"seat": 1, "deck_id": OTHER}]
+    recorder = GameRecorder(tmp_path, "g", {"seats": seats, **extra})
+    packed = recorder.close({"status": "finished", "winner_seats": [0]})
+    with gzip.open(packed, "rt", encoding="utf-8") as handle:
+        assert json.loads(handle.readline())["data_class"] == written

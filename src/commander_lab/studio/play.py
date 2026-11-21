@@ -49,6 +49,7 @@ from commander_lab.qualification.current_boundary.bridge_launcher import canonic
 from commander_lab.storage import sha256_value
 
 from .games import (
+    HUMAN_PILOT_LABEL,
     DecisionPolicy,
     GameRecorder,
     RecordingPolicy,
@@ -435,7 +436,7 @@ def _seat_header(
     row.update(
         {
             "commanders": list(deck.commander_names),
-            "pilot": "Mensch" if index in human_set else "KI",
+            "pilot": HUMAN_PILOT_LABEL if index in human_set else "KI",
             "style": style,
             "style_name": style_label(style),
             "deck_plan": deck_plan,

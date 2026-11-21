@@ -37,6 +37,12 @@ n/N; it is never added to a known fingerprint, and unknown is never equal to unk
 different fingerprints are never combined. ``MixedPilotError`` remains only where games would
 really be counted together: inside "Pilot unbekannt", when its logs name different pilot
 versions.
+
+Since #1662 only logs of the cohort ``SIMULATED_RESULT`` are counted (``games.game_cohort``). A
+game with a human seat (``PLAYED_GAME``, also a log written before #1662 whose header names
+``human_seats``) is never an exposure, never a skipped game and never part of any n here; the
+answer names the number of such logs per deck apart (``played_cohort``). A log whose cohort
+cannot be read is counted in neither cohort (fail-closed) and named apart as well.
 """
 
 from __future__ import annotations
@@ -55,14 +61,16 @@ from typing import Literal, NamedTuple, NotRequired, TypedDict, cast
 
 from commander_lab.bridge_qualification import BRIDGE_AHEAD, BRIDGE_ALIGNED
 
-from .games import LOG_SCHEMA
+from .games import COHORT_PLAYED, COHORT_SIMULATED, COHORT_UNKNOWN, LOG_SCHEMA, game_cohort
 from .simulations import wilson_score_interval
 
 # 3 since #1683: strata of deck state and table size; ``unknown_strata`` replaces ``unknown_stand``.
 # 4 since #1694: ``cohorts`` holds one combined table per table size.
 # 5 since #1687: the pilot fingerprint is an axis (``pilot_fingerprint`` per stratum, cohorts per
 # table size and fingerprint, ``pooling.differing_axes``); a pilot change no longer refuses.
-SCHEMA = "studio-card-outcomes-5"
+# 6 since #1662: ``played_cohort`` names the logs with a human seat (and those of unreadable
+# cohort) per deck apart; they are counted nowhere else.
+SCHEMA = "studio-card-outcomes-6"
 DATA_CLASS = "SIMULATED_RESULT"
 ESTIMAND = (
     "win rate with the card in the first dealt hand minus without; "
@@ -80,7 +88,9 @@ CACHE_DIR = ".outcomes-cache"
 # carries the pilot fingerprint of the header. 5 since #1683: a game carries the table size of
 # the header; a version-4 entry knows none and is read again from its log. #1687 groups by the
 # pilot fingerprint the entry has carried since version 4, so the cached structure is unchanged.
-CACHE_VERSION = 5
+# 6 since #1662: an entry names its cohort (``data_class``) and only simulated games are cached;
+# a version-5 entry may hold the exposure of a game with a human seat and is read again.
+CACHE_VERSION = 6
 PARALLEL_MIN_LOGS = 8  # cold logs before a process pool pays for itself
 MAX_WORKERS = 4
 CHANCE_RATE = 0.05
@@ -221,6 +231,8 @@ class CardOutcomeTable(TypedDict):
     # One table per value of the axes that must be equal (#1694, #1687: table size and pilot
     # fingerprint), each combining only its own strata; empty when the known strata share them.
     cohorts: NotRequired[list[CardOutcomeTable]]
+    # The games with a human seat and those of unreadable cohort, apart (#1662, top level only).
+    played_cohort: NotRequired[PlayedCohort]
 
 
 class UnrankedCard(TypedDict):
@@ -241,6 +253,32 @@ class LoadReport(TypedDict):
     skipped_ids: list[str]
     duplicate_logs: int
     pool_fallback: bool
+    # #1662: games of the cohort PLAYED_GAME (any status; ``played_finished_with_deck`` the
+    # ended ones) and games of unreadable cohort, per deck id their header names and in all,
+    # each game once by its game id; never in ``exposures``, ``skipped_with_deck`` or
+    # ``skipped_unreadable``.
+    played_with_deck: dict[str, int]
+    played_finished_with_deck: dict[str, int]
+    played_games: int
+    cohort_unknown_with_deck: dict[str, int]
+    cohort_unknown_games: int
+
+
+class PlayedCohort(TypedDict):
+    """The games of a deck that no figure of the answer counts (#1662), each with its own n.
+
+    ``games`` counts the games with a human seat (``PLAYED_GAME``, any status, each game once by
+    its game id) naming the deck, ``games_finished`` the ended ones among them;
+    ``games_cohort_unknown`` the games naming the deck whose cohort cannot be read. ``None`` is
+    "unbekannt" (the answer was built without reading the folder), never 0.
+    """
+
+    data_class: str
+    games: int | None
+    games_finished: int | None
+    games_cohort_unknown: int | None
+    source: str
+    counted_in_simulation: bool
 
 
 # --- reading one log -------------------------------------------------------------------
@@ -429,19 +467,35 @@ def _scan(
     return header, result, frames
 
 
-def _read_log(path: Path, *, fast: bool = True) -> tuple[GameExposure | None, list[str]]:
-    """The exposure of one log (or None) and the deck ids named in its header."""
+# One read log: its exposure (or None), the deck ids its header names, its cohort (#1662) and,
+# for a log with a readable header outside the simulated cohort, its game id and whether it ended
+# ("finished"); None otherwise.
+type Read = tuple[GameExposure | None, list[str], str, tuple[str, bool] | None]
+
+
+def _read_log(path: Path, *, fast: bool = True) -> Read:
+    """The exposure of one log (or None), the deck ids named in its header and its cohort.
+
+    Only a log of the cohort ``SIMULATED_RESULT`` has an exposure (#1662); a log with a human
+    seat (``PLAYED_GAME``) or of unreadable cohort (``UNKNOWN``) gives None with its deck ids,
+    and so does a log without a readable header (cohort ``UNKNOWN``, no deck ids).
+    """
     try:
         header, result, frames = _scan(path, fast=fast)
     except (OSError, EOFError, ValueError, zlib.error):
-        return None, []
+        return None, [], COHORT_UNKNOWN, None
     if header is None or header.get("schema") != LOG_SCHEMA:
-        return None, []
+        return None, [], COHORT_UNKNOWN, None
     seats_raw = header.get("seats")
     seat_rows = [s for s in seats_raw if isinstance(s, dict)] if isinstance(seats_raw, list) else []
     deck_ids = [d for d in (_str(s.get("deck_id")) for s in seat_rows) if d]
+    cohort = game_cohort(header)
+    game_id = _str(header.get("game_id")) or path.name.split(".jsonl", 1)[0]
+    if cohort != COHORT_SIMULATED:
+        ended = result is not None and result.get("status") == "finished"
+        return None, deck_ids, cohort, (game_id, ended)
     if result is None or result.get("status") != "finished":
-        return None, deck_ids
+        return None, deck_ids, cohort, None
     winners_raw = result.get("winner_seats")
     winners = (
         sorted({w for w in (_int(x) for x in winners_raw) if w is not None})
@@ -464,7 +518,6 @@ def _read_log(path: Path, *, fast: bool = True) -> tuple[GameExposure | None, li
                 revision_id=_str(row.get("studio_revision_id")),
             )
         )
-    game_id = _str(header.get("game_id")) or path.name.split(".jsonl", 1)[0]
     bridge_sha = _str(header.get("bridge_jar_sha256")) or _str(result.get("bridge_jar_sha256"))
     qual_state = _str(header.get("bridge_qualification_state")) or _str(
         result.get("bridge_qualification_state")
@@ -474,20 +527,25 @@ def _read_log(path: Path, *, fast: bool = True) -> tuple[GameExposure | None, li
         and qual_state == BRIDGE_ALIGNED
         and bridge_sha is not None
     )
-    return {
-        "game_id": game_id,
-        "seed": _int(header.get("seed")),
-        "engine_commit": _str(header.get("engine_commit")),
-        "bridge_jar_sha256": bridge_sha,
-        "bridge_qualification_state": qual_state,
-        "covered_by_sealed_epoch": covered,
-        "pilot": _str(header.get("pilot")),
-        "pilot_fingerprint": _deck_hash(header.get("pilot_fingerprint")),
-        "table_size": _table_size(seats_raw),
-        "decision_policy": _str(header.get("decision_policy")),
-        "winner_seats": winners,
-        "seats": seats,
-    }, deck_ids
+    return (
+        {
+            "game_id": game_id,
+            "seed": _int(header.get("seed")),
+            "engine_commit": _str(header.get("engine_commit")),
+            "bridge_jar_sha256": bridge_sha,
+            "bridge_qualification_state": qual_state,
+            "covered_by_sealed_epoch": covered,
+            "pilot": _str(header.get("pilot")),
+            "pilot_fingerprint": _deck_hash(header.get("pilot_fingerprint")),
+            "table_size": _table_size(seats_raw),
+            "decision_policy": _str(header.get("decision_policy")),
+            "winner_seats": winners,
+            "seats": seats,
+        },
+        deck_ids,
+        cohort,
+        None,
+    )
 
 
 def _cache_file(path: Path) -> Path:
@@ -565,6 +623,7 @@ def _valid_exposure(exposure: object) -> bool:
 
 
 def _cached(cache: Path, size: int, mtime_ns: int) -> tuple[GameExposure, list[str]] | None:
+    """A cached exposure, which is always one of a simulated game (#1662: ``data_class``)."""
     try:
         data = json.loads(cache.read_text(encoding="utf-8"))
     except (OSError, ValueError):
@@ -574,6 +633,7 @@ def _cached(cache: Path, size: int, mtime_ns: int) -> tuple[GameExposure, list[s
     exposure, deck_ids = data.get("exposure"), data.get("deck_ids")
     if (
         data.get("version") != CACHE_VERSION
+        or data.get("data_class") != COHORT_SIMULATED
         or data.get("size") != size
         or data.get("mtime_ns") != mtime_ns
         or not _valid_exposure(exposure)
@@ -589,6 +649,7 @@ def _store(
 ) -> None:
     payload = {
         "version": CACHE_VERSION,
+        "data_class": COHORT_SIMULATED,
         "size": size,
         "mtime_ns": mtime_ns,
         "exposure": exposure,
@@ -614,22 +675,23 @@ def _is_cached(path: Path) -> bool:
     return _cached(_cache_file(path), stat.st_size, stat.st_mtime_ns) is not None
 
 
-def _read(path: Path, *, fast: bool = True) -> tuple[GameExposure | None, list[str]]:
-    """``_read_log`` through the per-log cache (finished packed logs only)."""
+def _read(path: Path, *, fast: bool = True) -> Read:
+    """``_read_log`` through the per-log cache (finished packed simulated logs only)."""
     if not fast or path.suffix != ".gz":
         return _read_log(path, fast=fast)
     try:
         stat = path.stat()
     except OSError:
-        return None, []
+        return None, [], COHORT_UNKNOWN, None
     cache = _cache_file(path)
     hit = _cached(cache, stat.st_size, stat.st_mtime_ns)
     if hit is not None:
-        return hit
-    exposure, deck_ids = _read_log(path, fast=True)
-    if exposure is not None:
+        return hit[0], hit[1], COHORT_SIMULATED, None
+    read = _read_log(path, fast=True)
+    exposure, deck_ids, cohort, _ident = read
+    if exposure is not None and cohort == COHORT_SIMULATED:
         _store(cache, stat.st_size, stat.st_mtime_ns, exposure, deck_ids)
-    return exposure, deck_ids
+    return read
 
 
 def game_exposures(log_path: str | Path) -> GameExposure | None:
@@ -659,7 +721,7 @@ def load_exposures(games_dir: str | Path) -> LoadReport:
     duplicates = 0
     ordered = sorted(paths.items())
     cold = [path for _, path in ordered if path.suffix == ".gz" and not _is_cached(path)]
-    warmed: dict[Path, tuple[GameExposure | None, list[str]]] = {}
+    warmed: dict[Path, Read] = {}
     pool_fallback = False
     if len(cold) >= PARALLEL_MIN_LOGS:
         try:
@@ -671,8 +733,19 @@ def load_exposures(games_dir: str | Path) -> LoadReport:
             # the loop below, only slower (#1267, robustness from the #1245 review).
             warmed = {}
             pool_fallback = True
+    # game id -> (deck ids, ended) per cohort counted apart; one game under several file names
+    # counts once, as an ended game when any of its logs ended (#1662).
+    apart: dict[str, dict[str, tuple[set[str], bool]]] = {COHORT_PLAYED: {}, COHORT_UNKNOWN: {}}
     for key, path in ordered:
-        exposure, deck_ids = warmed[path] if path in warmed else _read(path)
+        exposure, deck_ids, cohort, ident = warmed[path] if path in warmed else _read(path)
+        # A game with a human seat, or of unreadable cohort, is counted apart and never as a
+        # simulated game, a skipped game or an unreadable one (#1662). A log without a readable
+        # header names no deck and stays an unreadable skipped log as before.
+        if ident is not None and (cohort == COHORT_PLAYED or deck_ids):
+            game_id, ended = ident
+            known_decks, known_ended = apart[cohort].get(game_id, (set(), False))
+            apart[cohort][game_id] = (known_decks | set(deck_ids), known_ended or ended)
+            continue
         if exposure is not None:
             if exposure["game_id"] in seen_games:
                 duplicates += 1  # the same game under another file name: first name wins
@@ -692,7 +765,22 @@ def load_exposures(games_dir: str | Path) -> LoadReport:
         "skipped_ids": skipped_ids,
         "duplicate_logs": duplicates,
         "pool_fallback": pool_fallback,
+        "played_with_deck": _per_deck(apart[COHORT_PLAYED].values()),
+        "played_finished_with_deck": _per_deck(
+            item for item in apart[COHORT_PLAYED].values() if item[1]
+        ),
+        "played_games": len(apart[COHORT_PLAYED]),
+        "cohort_unknown_with_deck": _per_deck(apart[COHORT_UNKNOWN].values()),
+        "cohort_unknown_games": len(apart[COHORT_UNKNOWN]),
     }
+
+
+def _per_deck(games: Iterable[tuple[set[str], bool]]) -> dict[str, int]:
+    """Games per deck id: a deck seated twice in one game counts once for that game."""
+    counts: Counter[str] = Counter()
+    for decks, _ended in games:
+        counts.update(decks)
+    return dict(counts)
 
 
 # --- statistics ------------------------------------------------------------------------
@@ -1382,6 +1470,9 @@ def stand_tables(
     games_skipped: int = 0,
     games_skipped_unreadable: int = 0,
     duplicate_logs_ignored: int = 0,
+    played_games: int | None = None,
+    games_cohort_unknown: int | None = None,
+    played_finished: int | None = None,
 ) -> CardOutcomeTable:
     """The card answer for one deck, counted per stratum (deck state #1657, table size #1683,
     pilot fingerprint #1687).
@@ -1401,6 +1492,10 @@ def stand_tables(
     size, pilot fingerprint), one table per value of those axes, built by the same rules from
     its own strata only; the strata of one cell are thus still combined stratified, and two
     cells never share a table. Empty when all known strata share those values.
+
+    ``played_cohort`` (#1662) names ``played_games`` (logs with a human seat naming the deck)
+    and ``games_cohort_unknown`` apart; ``exposures`` must hold simulated games only (as
+    :func:`load_exposures` gives them). ``None`` (not read) stays "unbekannt", never 0.
     """
     groups: dict[StratumKey, list[GameExposure]] = {}
     for game in exposures:
@@ -1444,6 +1539,7 @@ def stand_tables(
     top["duplicate_logs_ignored"] = duplicate_logs_ignored
     top["unknown_strata"] = unknown
     top["cohorts"] = cohorts
+    top["played_cohort"] = played_cohort(played_games, games_cohort_unknown, played_finished)
     warnings = list(top["warnings"])
     for table in unknown:
         warnings += [f"{stratum_label(table)}: {w}" for w in table["warnings"]]
@@ -1461,8 +1557,35 @@ def stand_tables(
     reason = top["pooling"]["reason"]
     if reason:
         warnings.append(reason)
+    if played_games:
+        warnings.append(
+            f"{played_games} game(s) with a human seat ({COHORT_PLAYED}) name this deck: "
+            "a separate cohort, never counted in any figure here"
+        )
+    if games_cohort_unknown:
+        warnings.append(
+            f"{games_cohort_unknown} game(s) of unreadable cohort name this deck: counted "
+            "in neither cohort (fail-closed)"
+        )
     top["warnings"] = warnings
     return top
+
+
+PLAYED_SOURCE = "Studio-Spielprotokolle mit Mensch-Sitz (human_seats im Kopf)"
+
+
+def played_cohort(
+    games: int | None, games_cohort_unknown: int | None, games_finished: int | None = None
+) -> PlayedCohort:
+    """The ``played_cohort`` entry of an answer (#1662): n of its own, never a simulation n."""
+    return {
+        "data_class": COHORT_PLAYED,
+        "games": games,
+        "games_finished": games_finished if games is not None else None,
+        "games_cohort_unknown": games_cohort_unknown,
+        "source": PLAYED_SOURCE,
+        "counted_in_simulation": False,
+    }
 
 
 def _pooled_table(
@@ -1557,6 +1680,9 @@ def outcomes_for_folder(
         games_skipped=report["skipped_with_deck"].get(deck_id, 0),
         games_skipped_unreadable=report["skipped_unreadable"],
         duplicate_logs_ignored=report["duplicate_logs"],
+        played_games=report["played_with_deck"].get(deck_id, 0),
+        games_cohort_unknown=report["cohort_unknown_with_deck"].get(deck_id, 0),
+        played_finished=report["played_finished_with_deck"].get(deck_id, 0),
     )
 
 
@@ -1566,9 +1692,16 @@ def deck_ids_in(report: LoadReport) -> list[str]:
     Finished games contribute the decks of all their seats; skipped (unfinished or
     failed) games contribute the deck ids of their headers, so a deck whose games all
     failed is still listed — with a ``NO_GAMES`` table, never silently absent (#1267).
+    A deck named only by games with a human seat or of unreadable cohort is listed as well,
+    with those games apart (#1662).
     """
     ids = {seat["deck_id"] for game in report["exposures"] for seat in game["seats"]}
-    return sorted(ids | set(report["skipped_with_deck"]))
+    return sorted(
+        ids
+        | set(report["skipped_with_deck"])
+        | set(report["played_with_deck"])
+        | set(report["cohort_unknown_with_deck"])
+    )
 
 
 def outcomes_for_all_decks(
@@ -1594,6 +1727,9 @@ def outcomes_for_all_decks(
             games_skipped=report["skipped_with_deck"].get(deck_id, 0),
             games_skipped_unreadable=report["skipped_unreadable"],
             duplicate_logs_ignored=report["duplicate_logs"],
+            played_games=report["played_with_deck"].get(deck_id, 0),
+            games_cohort_unknown=report["cohort_unknown_with_deck"].get(deck_id, 0),
+            played_finished=report["played_finished_with_deck"].get(deck_id, 0),
         )
         for deck_id in deck_ids_in(report)
     }
@@ -1635,6 +1771,17 @@ def format_table(table: CardOutcomeTable, *, limit: int = 15) -> str:
             lines.append(
                 f"  {stratum_label(apart)}  games {apart['games_total']}, apart, never added"
             )
+    played = table.get("played_cohort")
+    if played is not None:
+        # #1662: its own n, never added to the games above; None is unknown, never 0
+        def _n(value: int | None) -> str:
+            return "unknown" if value is None else str(value)
+
+        lines.append(
+            f"{played['data_class']} (human seat) games {_n(played['games'])} "
+            f"(ended {_n(played['games_finished'])})  "
+            f"cohort unknown {_n(played['games_cohort_unknown'])}  apart, never counted above"
+        )
     lines.append(
         f"{table['comparisons']} cards compared at 95 %: about "
         f"{table['expected_chance_findings']} will look different from 0 by chance; treat the "
