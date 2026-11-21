@@ -564,7 +564,7 @@ CREATE TABLE IF NOT EXISTS card_ruling_source (
 );
 -- TAM purchase guide values (#1637, register entry "Preise für TAM"): the field prices.eur of a
 -- local Scryfall bulk file, one value per oracle_id, only in this local store (never committed,
--- never in scryfall_card). Read only by tam_prices.purchase_guide_values for the commander TAM.
+-- never in scryfall_card). Read only by purchase_guide_values (TAM guide-value module).
 -- Created on every open without a schema bump (schema 22 is reserved for the file split,
 -- E15 Q9); a card without a usable value has no row ("unbekannt", never 0).
 CREATE TABLE IF NOT EXISTS tam_price_snapshot (

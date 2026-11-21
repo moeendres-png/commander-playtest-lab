@@ -177,38 +177,44 @@ const StudioWishlist = (() => {
     });
   }
 
-  // Budget filter: a per-card upper limit, nothing cumulative. Rows without a value are hidden
-  // while the filter is on and counted apart.
+  // Budget filter: a per-card upper limit, nothing cumulative. Rows without a value (unknown,
+  // or owned) are hidden while the filter is on and counted apart.
   function filterTamBudget(rows, maxCents) {
     const limit = validCents(maxCents);
-    if (limit === null) return { rows: [...(rows || [])], hiddenOver: 0, hiddenUnknown: 0, active: false };
+    if (limit === null) return { rows: [...(rows || [])], hiddenOver: 0, hiddenUnknown: 0, hiddenOwned: 0, active: false };
     let hiddenOver = 0;
     let hiddenUnknown = 0;
+    let hiddenOwned = 0;
     const kept = [];
     for (const row of rows || []) {
-      if (row.cents === null) hiddenUnknown += 1;
+      if (row.status === "owned") hiddenOwned += 1;
+      else if (row.cents === null) hiddenUnknown += 1;
       else if (row.cents > limit) hiddenOver += 1;
       else kept.push(row);
     }
-    return { rows: kept, hiddenOver, hiddenUnknown, active: true };
+    return { rows: kept, hiddenOver, hiddenUnknown, hiddenOwned, active: true };
   }
 
-  // Sum of the shown rows (value x missing copies); null when no shown row has a value.
+  // Sum of the shown rows (value x missing copies); null when no shown row has a value. Cards
+  // already owned (in any printing) are counted apart: they carry no value and are no gap.
   function summarizeTamRows(rows) {
     let sum = 0;
     let priced = 0;
+    let owned = 0;
     for (const row of rows || []) {
+      if (row.status === "owned") { owned += 1; continue; }
       if (row.cents === null) continue;
       priced += 1;
       sum += row.cents * Math.max(1, row.missing);
     }
-    const total = (rows || []).length;
-    return { sumCents: priced ? sum : null, priced, without: total - priced, total };
+    const total = (rows || []).length - owned;
+    return { sumCents: priced ? sum : null, priced, without: total - priced, total, owned };
   }
 
   function tamSumText(summary) {
     const sum = summary.sumCents === null ? UNKNOWN : formatEur(summary.sumCents);
-    return `Summe (Richtwert): ${sum} · ${summary.without} von ${summary.total} Karten ohne Preis`;
+    const owned = summary.owned ? ` · ${summary.owned} im Besitz (kein Preis)` : "";
+    return `Summe (Richtwert): ${sum} · ${summary.without} von ${summary.total} Karten ohne Preis${owned}`;
   }
 
   function sourceText(answer) {
@@ -237,7 +243,7 @@ const StudioWishlist = (() => {
       results.replaceChildren(
         h("p", { id: "tam-zukauf-sum" }, h("b", {}, tamSumText(summary))),
         filtered.active
-          ? h("p", { class: "note", id: "tam-zukauf-hidden" }, `Budgetfilter: ${filtered.hiddenOver} Karten über dem Höchstwert und ${filtered.hiddenUnknown} Karten ohne Preis ausgeblendet.`)
+          ? h("p", { class: "note", id: "tam-zukauf-hidden" }, `Budgetfilter: ${filtered.hiddenOver} Karten über dem Höchstwert, ${filtered.hiddenUnknown} Karten ohne Preis und ${filtered.hiddenOwned} im Besitz ausgeblendet.`)
           : "",
         h("div", { class: "table-wrap" },
           h("table", { id: "tam-zukauf-table" },

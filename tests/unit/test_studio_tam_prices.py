@@ -98,6 +98,11 @@ def test_import_needs_a_bulk_date_and_replaces_the_snapshot(tmp_path: Path) -> N
         tam_prices.import_scryfall_prices(store, plain)
     with pytest.raises(ValueError, match="YYYY-MM-DD"):
         tam_prices.import_scryfall_prices(store, plain, bulk_date="20.11.2026")
+    with pytest.raises(ValueError, match="no calendar date"):
+        tam_prices.import_scryfall_prices(store, plain, bulk_date="2026-99-99")
+    impossible = _bulk(tmp_path / "default-cards-20260231120000.json", SYNTHETIC)
+    with pytest.raises(ValueError, match="no calendar date"):
+        tam_prices.import_scryfall_prices(store, impossible)  # 31 February from the file name
     assert _rows(store, "tam_price_snapshot") == 0  # refused, nothing written
     tam_prices.import_scryfall_prices(store, plain, bulk_date="2026-11-19")
     later = _bulk(tmp_path / "later.jsonl", [_card("o-z", "s-z", {"eur": "4.20"})])
@@ -107,21 +112,6 @@ def test_import_needs_a_bulk_date_and_replaces_the_snapshot(tmp_path: Path) -> N
     assert [tuple(row) for row in rows] == [("o-z", 420)]  # the old snapshot is gone
     assert _rows(store, "tam_price_snapshot") == 1
     store.close()
-
-
-def _tam_store(tmp_path: Path) -> tuple[StudioStore, dict[str, str]]:
-    from tests.unit.test_studio_builder import _fill
-
-    store = StudioStore.open(tmp_path / "studio")
-    _fill(store, tmp_path)
-    owned = store.connection.execute(
-        "SELECT c.card_id, c.oracle_id FROM card c JOIN inventory i ON i.card_id = c.card_id "
-        "WHERE i.owned_lower_bound > 0 AND c.oracle_id IS NOT NULL ORDER BY c.card_id LIMIT 1"
-    ).fetchone()
-    ids = {"owned": str(owned["card_id"]), "owned_oracle": str(owned["oracle_id"])}
-    ids["priced"] = "scryfall:o-tam-priced"
-    ids["unknown"] = "scryfall:o-tam-unknown"
-    return store, ids
 
 
 def _seed_prices(store: StudioStore, values: dict[str, int], bulk_date: str = "2026-11-20") -> None:
@@ -139,57 +129,154 @@ def _seed_prices(store: StudioStore, values: dict[str, int], bulk_date: str = "2
         )
 
 
-def test_only_tam_gets_values_and_only_for_cards_not_owned(tmp_path: Path) -> None:
-    store, ids = _tam_store(tmp_path)
+CHULANE = "Chulane, Teller of Tales"
+
+
+def _add_owned_commander(
+    store: StudioStore, card_id: str, oracle_id: str, name: str, colors: str
+) -> None:
+    from tests.unit.test_studio_builder import _insert_scryfall
+
+    db = store.connection
+    source_id = str(db.execute("SELECT source_id FROM card LIMIT 1").fetchone()[0])
+    _insert_scryfall(
+        store, oracle_id=oracle_id, name=name, colors=colors, type_line="Legendary Creature"
+    )
+    db.execute(
+        "INSERT INTO card(card_id, oracle_name, oracle_id, color_identity, mana_cost, "
+        "mana_value, type_line, oracle_text, is_basic_land, commander_legal, source_id) "
+        "VALUES (?, ?, ?, ?, '{5}', 5.0, 'Legendary Creature', '', 0, 1, ?)",
+        (card_id, name, oracle_id, colors, source_id),
+    )
+    db.execute(
+        "INSERT INTO inventory(card_id, observed, owned_lower_bound, reserved, "
+        "available_lower_bound, quantity_exact, source_id) VALUES (?, 1, 1, 0, 1, 1, ?)",
+        (card_id, source_id),
+    )
+
+
+def _deck(client: TestClient, name: str, commander_id: str, main: list[str]) -> str:
+    created = client.post("/api/decks", json={"name": name, "commander_card_ids": [commander_id]})
+    assert created.status_code == 200, created.text
+    head = str(created.json()["revision_id"])
+    cards = [{"card_id": commander_id, "quantity": 1, "zone": "commander"}]
+    cards += [{"card_id": card_id, "quantity": 1, "zone": "main"} for card_id in main]
+    saved = client.post(
+        f"/api/decks/{created.json()['deck_id']}/revisions",
+        json={"cards": cards, "parent_revision_id": head, "expected_parent": head},
+    )
+    assert saved.status_code == 200, saved.text
+    return str(created.json()["deck_id"])
+
+
+def _tam_store(tmp_path: Path) -> tuple[TestClient, dict[str, str]]:
+    """TAM and Chulane decks with the same purchase cards (one with a value, one without, one
+    owned), and a card of neither deck."""
+    from tests.unit.test_studio_builder import _fill, _insert_scryfall
+
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    owned = store.connection.execute(
+        "SELECT c.card_id, c.oracle_id FROM card c JOIN inventory i ON i.card_id = c.card_id "
+        "WHERE i.owned_lower_bound > 0 AND c.oracle_id IS NOT NULL "
+        "AND c.type_line NOT LIKE 'Basic%' ORDER BY c.card_id LIMIT 1"
+    ).fetchone()
+    ids = {"owned": str(owned["card_id"]), "owned_oracle": str(owned["oracle_id"])}
+    _add_owned_commander(store, "card:t:tam", "o-tam", TAM_COMMANDER_NAME, "WUBRG")
+    _add_owned_commander(store, "card:t:chulane", "o-chulane", CHULANE, "WUG")
+    for key, oracle_id in (("priced", "o-tam-priced"), ("unknown", "o-tam-unknown"),
+                           ("foreign", "o-foreign"), ("later", "o-tam-later")):  # fmt: skip
+        _insert_scryfall(
+            store, oracle_id=oracle_id, name=f"Walker {key}", colors="W",
+            type_line="Legendary Planeswalker — Test",
+        )  # fmt: skip
+        ids[key] = f"scryfall:{oracle_id}"
+    store.connection.commit()
+    _seed_prices(
+        store,
+        {"o-tam-priced": 1234, ids["owned_oracle"]: 555, "o-foreign": 777, "o-tam-later": 888},
+    )
+    store.close()
+    client = TestClient(create_app(tmp_path / "studio"), headers=HEADER)
+    main = [ids["priced"], ids["unknown"], ids["owned"]]
+    ids["tam_deck"] = _deck(client, "TAM Zukauf", "card:t:tam", main)
+    ids["chulane_deck"] = _deck(client, "Chulane Zukauf", "card:t:chulane", main)
+    return client, ids
+
+
+def _ask(client: TestClient, deck_id: str, card_ids: list[str], **extra: object) -> object:
+    return client.post(
+        "/api/tam/zukauf-richtwerte", json={"deck_id": deck_id, "card_ids": card_ids, **extra}
+    )
+
+
+def test_only_a_stored_tam_deck_gets_values_and_only_for_its_cards_not_owned(
+    tmp_path: Path,
+) -> None:
+    client, ids = _tam_store(tmp_path)
     wanted = [ids["priced"], ids["unknown"], ids["owned"]]
-    # without a snapshot: every card unknown, no value field anywhere
-    empty = tam_prices.purchase_guide_values(store, TAM_COMMANDER_NAME, wanted)
-    assert empty["snapshot"] is None
-    assert [c["status"] for c in empty["cards"]] == ["unknown", "unknown", "owned"]
-    assert "eur_cents" not in json.dumps(empty)
-    _seed_prices(store, {"o-tam-priced": 1234, ids["owned_oracle"]: 555})
-    answer = tam_prices.purchase_guide_values(store, TAM_COMMANDER_NAME, wanted)
+    response = _ask(client, ids["tam_deck"], wanted)
+    assert response.status_code == 200, response.text
+    answer = response.json()
     assert answer["kind"] == "Richtwert"
     assert answer["source"] == "Scryfall prices.eur (lokale Bulk-Datei)"
     assert answer["snapshot"]["bulk_date"] == "2026-11-20"
-    assert "nicht Deutschland" in str(answer["notice"]) and "kein Angebot" in str(answer["notice"])
-    assert "günstigste Angebot" in str(answer["notice"])  # only as a negation
-    cards = {c["card_id"]: c for c in answer["cards"]}
-    assert cards[ids["priced"]] == {"card_id": ids["priced"], "status": "value", "eur_cents": 1234}
-    assert cards[ids["unknown"]] == {"card_id": ids["unknown"], "status": "unknown"}
-    # owned in the collection: no value although the snapshot has one for its oracle_id
-    assert cards[ids["owned"]] == {"card_id": ids["owned"], "status": "owned"}
-    for other in ("Chulane, Teller of Tales", "Test Commander", "tam, the possibility", ""):
-        with pytest.raises(tam_prices.NotTamError):
-            tam_prices.purchase_guide_values(store, other, wanted)
-    store.close()
+    assert "nicht Deutschland" in answer["notice"] and "kein Angebot" in answer["notice"]
+    assert "günstigste Angebot" in answer["notice"]  # only as a negation
+    assert answer["not_in_deck"] == 0
+    assert answer["cards"] == [
+        {"card_id": ids["priced"], "status": "value", "eur_cents": 1234},
+        {"card_id": ids["unknown"], "status": "unknown"},
+        # owned in the collection: no value although the snapshot has one for its oracle_id
+        {"card_id": ids["owned"], "status": "owned"},
+    ]
+    # a card of no deck (with a value row) is left out and counted, never answered
+    mixed = _ask(client, ids["tam_deck"], [ids["foreign"], ids["priced"]]).json()
+    assert mixed["cards"] == [{"card_id": ids["priced"], "status": "value", "eur_cents": 1234}]
+    assert mixed["not_in_deck"] == 1 and "777" not in json.dumps(mixed)
 
 
-def test_route_refuses_chulane_and_serves_tam(tmp_path: Path) -> None:
-    store, ids = _tam_store(tmp_path)
-    _seed_prices(store, {"o-tam-priced": 1234})
-    store.close()
-    client = TestClient(create_app(tmp_path / "studio"), headers=HEADER)
-    refused = client.post(
-        "/api/tam/zukauf-richtwerte",
-        json={"commander": "Chulane, Teller of Tales", "card_ids": [ids["priced"]]},
-    )
-    assert refused.status_code == 403
-    assert "eur_cents" not in refused.text and "1234" not in refused.text
-    served = client.post(
-        "/api/tam/zukauf-richtwerte",
-        json={"commander": TAM_COMMANDER_NAME, "card_ids": [ids["priced"], ids["owned"]]},
-    )
-    assert served.status_code == 200
-    assert [c.get("eur_cents") for c in served.json()["cards"]] == [1234, None]
-    too_many = client.post(
-        "/api/tam/zukauf-richtwerte",
-        json={"commander": TAM_COMMANDER_NAME, "card_ids": [f"x{i}" for i in range(251)]},
-    )
+def test_the_stored_commander_decides_not_the_name_the_client_sends(tmp_path: Path) -> None:
+    client, ids = _tam_store(tmp_path)
+    wanted = [ids["priced"], ids["owned"]]
+    for extra in ({}, {"commander": TAM_COMMANDER_NAME}):
+        refused = _ask(client, ids["chulane_deck"], wanted, **extra)
+        assert refused.status_code == 403, extra
+        assert "eur_cents" not in refused.text and "1234" not in refused.text
+    # a TAM deck asked under another name is refused as well
+    assert _ask(client, ids["tam_deck"], wanted, commander=CHULANE).status_code == 403
+    assert _ask(client, "no-such-deck", wanted).status_code == 404
+    too_many = _ask(client, ids["tam_deck"], [f"x{i}" for i in range(251)])
     assert too_many.status_code == 422
 
 
-CHULANE = "Chulane, Teller of Tales"
+def test_the_working_draft_is_the_list_answered(tmp_path: Path) -> None:
+    client, ids = _tam_store(tmp_path)
+    assert _ask(client, ids["tam_deck"], [ids["later"]]).json()["cards"] == []
+    cards = [{"card_id": "card:t:tam", "quantity": 1, "zone": "commander"}]
+    cards += [{"card_id": ids["later"], "quantity": 1, "zone": "main"}]
+    put = client.put(f"/api/decks/{ids['tam_deck']}/branches/main/draft", json={"cards": cards})
+    assert put.status_code == 200, put.text
+    answer = _ask(client, ids["tam_deck"], [ids["later"], ids["priced"]]).json()
+    assert answer["cards"] == [{"card_id": ids["later"], "status": "value", "eur_cents": 888}]
+    # a Chulane draft never turns into a TAM answer
+    chulane = [{"card_id": "card:t:chulane", "quantity": 1, "zone": "commander"}, *cards[1:]]
+    client.put(f"/api/decks/{ids['chulane_deck']}/branches/main/draft", json={"cards": chulane})
+    assert _ask(client, ids["chulane_deck"], [ids["later"]]).status_code == 403
+
+
+def test_without_a_snapshot_every_card_is_unknown(tmp_path: Path) -> None:
+    client, ids = _tam_store(tmp_path)
+    store = StudioStore.open(tmp_path / "studio")
+    with store.connection as db:
+        db.execute("DELETE FROM tam_price_snapshot")
+    store.close()
+    answer = _ask(client, ids["tam_deck"], [ids["priced"], ids["owned"]]).json()
+    assert answer["snapshot"] is None
+    assert [c["status"] for c in answer["cards"]] == ["unknown", "owned"]
+    assert "eur_cents" not in json.dumps(answer)
+
+
 WALKERS = (("o-leak-walker-a", "Leak Walker Alpha"), ("o-leak-walker-b", "Leak Walker Beta"))
 
 
@@ -202,26 +289,8 @@ def _leak_store(tmp_path: Path) -> tuple[StudioStore, str]:
 
     store = _seed_swap_store(tmp_path)
     cmd_id = str(builder.pool_cards(store, ["Test Commander"])["commander_ids"][0])
-    db = store.connection
-    source_id = str(db.execute("SELECT source_id FROM card LIMIT 1").fetchone()[0])
-    for card_id, oracle_id, name, colors in (
-        ("card:leak:tam", "o-leak-tam", TAM_COMMANDER_NAME, "WUBRG"),
-        ("card:leak:chulane", "o-leak-chulane", CHULANE, "WUG"),
-    ):
-        _insert_scryfall(
-            store, oracle_id=oracle_id, name=name, colors=colors, type_line="Legendary Creature"
-        )
-        db.execute(
-            "INSERT INTO card(card_id, oracle_name, oracle_id, color_identity, mana_cost, "
-            "mana_value, type_line, oracle_text, is_basic_land, commander_legal, source_id) "
-            "VALUES (?, ?, ?, ?, '{5}', 5.0, 'Legendary Creature', '', 0, 1, ?)",
-            (card_id, name, oracle_id, colors, source_id),
-        )
-        db.execute(
-            "INSERT INTO inventory(card_id, observed, owned_lower_bound, reserved, "
-            "available_lower_bound, quantity_exact, source_id) VALUES (?, 1, 1, 0, 1, 1, ?)",
-            (card_id, source_id),
-        )
+    _add_owned_commander(store, "card:leak:tam", "o-leak-tam", TAM_COMMANDER_NAME, "WUBRG")
+    _add_owned_commander(store, "card:leak:chulane", "o-leak-chulane", CHULANE, "WUG")
     for oracle_id, name in WALKERS:
         _insert_scryfall(
             store,
@@ -230,7 +299,7 @@ def _leak_store(tmp_path: Path) -> tuple[StudioStore, str]:
             colors="WU",
             type_line="Legendary Planeswalker — Test",
         )
-    db.commit()
+    store.connection.commit()
     return store, cmd_id
 
 
@@ -278,6 +347,38 @@ def _answers(client: TestClient, cmd_id: str, card_id: str) -> dict[str, object]
     detail = client.get(f"/api/cards/{card_id}", params={"commander": commander})
     assert detail.status_code == 200, detail.text
     out["card"] = detail.json()
+    # suggestions, deck plans, doctor, duel, evidence, data page and simulation lists
+    plan = {"commander": commander, "cards": cards}
+    q = {"commander": commander}
+    for method, path, payload, params in (
+        ("POST", "/api/packages", plan, None),
+        ("POST", "/api/build-plan", plan, None),
+        ("POST", "/api/upgrade-path", plan, None),
+        ("POST", "/api/deck-doctor", plan, None),
+        ("POST", "/api/deck-evidence", plan, None),
+        ("POST", "/api/land-advisor", plan, None),
+        ("POST", "/api/deck-facts", {"cards": cards}, None),
+        ("POST", "/api/check", {"cards": cards}, None),
+        ("POST", "/api/castability", {"cards": cards}, None),
+        (
+            "POST",
+            "/api/card-duel",
+            {"commander": commander, "card_a": "rem-low", "card_b": "rem-mid"},
+            None,
+        ),
+        ("GET", "/api/similar-decks", None, q),
+        ("GET", "/api/layers", None, q),
+        ("GET", "/api/roles/audit", None, q),
+        ("GET", "/api/cohorts", None, q),
+        ("GET", "/api/simulations", None, q),
+        ("GET", "/api/simulations/paired", None, None),
+        ("GET", "/api/decks", None, None),
+        ("GET", "/api/data-report", None, None),
+        ("GET", "/api/status", None, None),
+    ):
+        response = client.request(method, path, json=payload, params=params)
+        assert response.status_code == 200, (path, response.text)
+        out[path] = response.json()
     # the Zukauf path is really walked: TAM's candidates hold the planeswalkers with a value row
     tam_cards = out[f"pool_{TAM_COMMANDER_NAME}_True"]["cards"]  # type: ignore[index]
     candidates = {c["name"] for c in tam_cards if c.get("wishlist_candidate")}
@@ -323,7 +424,7 @@ def test_no_answer_holds_a_price_field_or_value(tmp_path: Path) -> None:
     cache.invalidate()
     client = TestClient(create_app(tmp_path / "studio"), headers=HEADER)
     answers = _answers(client, cmd_id, "rem-high")
-    assert len(answers) == 14
+    assert len(answers) == 33
     for name, answer in answers.items():
         text = json.dumps(answer, ensure_ascii=False).casefold()
         for marker in LEAK_MARKERS:
@@ -368,3 +469,50 @@ def test_no_committed_price_values_in_data_src_or_scripts() -> None:
     assert scanned > 1000
     assert offenders == []
     assert _COMMITTED_PRICE.search('{"eur": "1.75"}')  # the pattern still finds a value
+
+
+# Structural guard: the guide values have one reader. The table names and the value field occur
+# only where the tables are declared (schema, cache group, source register text) and in the one
+# module that writes and reads them; that module is imported only by the TAM route and the CLI,
+# and in web.py only the TAM route and its body model use it. A new route that reads the values
+# (e.g. a MAX(eur_cents) into a ranking) fails here even when no answer test calls it.
+_VALUE_NAMES = re.compile(r"tam_price_eur|tam_price_snapshot|eur_cents")
+# the display of the TAM purchase list (static/wishlist.js) reads eur_cents of the route answer
+_VALUE_FILES = frozenset(
+    {"tam_prices.py", "store.py", "cache.py", "sources.py", "static/wishlist.js"}
+)
+_MODULE_USERS = frozenset({"web.py", "__main__.py"})
+
+
+def test_guide_values_have_one_reader_in_src() -> None:
+    src = ROOT / "src"
+    files = sorted(
+        path
+        for path in src.rglob("*")
+        if path.is_file() and path.suffix in {".py", ".js", ".html", ".sql"}
+    )
+    assert len(files) > 100
+    by_value = {
+        p.relative_to(src).as_posix()
+        for p in files
+        if _VALUE_NAMES.search(p.read_text(encoding="utf-8"))
+    }
+    assert by_value == {f"commander_lab/studio/{name}" for name in _VALUE_FILES}
+    module_users = {
+        p.relative_to(src).as_posix()
+        for p in files
+        if p.name != "tam_prices.py" and re.search(r"\btam_prices\b", p.read_text(encoding="utf-8"))
+    }
+    assert module_users == {f"commander_lab/studio/{name}" for name in _MODULE_USERS}
+    web = (src / "commander_lab/studio/web.py").read_text(encoding="utf-8")
+    body = web[web.index("class TamPurchaseBody(BaseModel):") :]
+    body = body[: body.index("\nclass ")]
+    route = web[web.index('    @app.post("/api/tam/zukauf-richtwerte")') :]
+    route = route[: route.index("\n    @app.")]
+    uses = len(re.findall(r"\btam_prices\.", web))
+    assert uses == len(re.findall(r"\btam_prices\.", body)) + len(
+        re.findall(r"\btam_prices\.", route)
+    )
+    assert uses >= 3 and web.count("tam_prices,") == 1  # the import line
+    main = (src / "commander_lab/studio/__main__.py").read_text(encoding="utf-8")
+    assert len(re.findall(r"\btam_prices\.", main)) == 1  # import-tam-prices only

@@ -609,12 +609,16 @@ function copyWishlist(ownership) {
   }
 }
 // TAM only (#1637): the purchase list with guide values; every wording and rule of it lives in
-// wishlist.js. Other commanders and the Zukauf mode off never ask the server.
+// wishlist.js. Other commanders and the Zukauf mode off never ask the server; the server checks
+// the stored commander of the deck itself.
 async function openTamPurchase(ownership) {
   if (typeof StudioWishlist === "undefined" || !StudioWishlist.tamPricesAllowed(COMMANDER, state.includeUnowned)) return;
+  if (!state.deckId) return;
   let answer;
   try {
-    answer = await api("/api/tam/zukauf-richtwerte", "POST", { commander: COMMANDER, card_ids: ownership.missingCards.map((card) => card.card_id) });
+    // the server reads the deck's own commander and list: the working list is stored first
+    if (state.dirty && state.needsDraftPut) await syncDraft();
+    answer = await api("/api/tam/zukauf-richtwerte", "POST", { deck_id: state.deckId, branch: state.branch, commander: COMMANDER, card_ids: ownership.missingCards.map((card) => card.card_id) });
   } catch (error) { fail(error); return; }
   const box = $("modal-box"); box.className = "plain";
   box.replaceChildren(

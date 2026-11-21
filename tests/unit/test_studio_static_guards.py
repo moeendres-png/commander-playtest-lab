@@ -1847,6 +1847,7 @@ const missing = [
   { card_id: 'c', name: 'Charlie Unknown', missing: 1 },
   { card_id: 'd', name: 'Delta Owned', missing: 1 },
   { card_id: 'e', name: 'Echo Zero', missing: 1 },
+  { card_id: 'z', name: 'Aaa Unknown', missing: 1 },
 ];
 const answer = { kind: 'Richtwert', source: 'Scryfall prices.eur (lokale Bulk-Datei)', notice: 'kein Angebot.', rule: 'r',
   snapshot: { bulk_date: '2026-11-20', date_basis: 'Dateiname', imported_at: 't', file_sha256: 'x' },
@@ -1856,6 +1857,7 @@ const answer = { kind: 'Richtwert', source: 'Scryfall prices.eur (lokale Bulk-Da
     { card_id: 'c', status: 'unknown' },
     { card_id: 'd', status: 'owned', eur_cents: 999 },
     { card_id: 'e', status: 'value', eur_cents: 0 },
+    { card_id: 'z', status: 'unknown' },
   ] };
 const rows = W.tamPurchaseRows(missing, answer);
 const names = (list) => list.map((r) => r.name);
@@ -1873,7 +1875,8 @@ console.log(JSON.stringify({
   asc: names(W.sortTamRows(rows, 'price-asc')),
   desc: names(W.sortTamRows(rows, 'price-desc')),
   byName: names(W.sortTamRows(rows, 'name')),
-  filter: (({ rows: kept, hiddenOver, hiddenUnknown, active }) => [names(kept), hiddenOver, hiddenUnknown, active])(W.filterTamBudget(rows, 500)),
+  filter: (({ rows: kept, hiddenOver, hiddenUnknown, hiddenOwned, active }) => [names(kept), hiddenOver, hiddenUnknown, hiddenOwned, active])(W.filterTamBudget(rows, 500)),
+  owned: W.summarizeTamRows(rows).owned,
   noFilter: W.filterTamBudget(rows, null).rows.length,
   sum: W.tamSumText(W.summarizeTamRows(rows)),
   sumUnknown: W.tamSumText(W.summarizeTamRows(allUnknown)),
@@ -1894,10 +1897,13 @@ console.log(JSON.stringify({
     # owned: no value although the answer has one; a 0 value is unknown
     assert result["status"] == [
         ["value", 123456], ["value", 250], ["unknown", None], ["owned", None], ["unknown", None],
+        ["unknown", None],
     ]  # fmt: skip
+    # rows without a value come last in both directions, even "Aaa Unknown" (by name among them)
     assert result["asc"] == [
         "Beta Key",
         "Alpha Walker",
+        "Aaa Unknown",
         "Charlie Unknown",
         "Delta Owned",
         "Echo Zero",
@@ -1905,17 +1911,22 @@ console.log(JSON.stringify({
     assert result["desc"] == [
         "Alpha Walker",
         "Beta Key",
+        "Aaa Unknown",
         "Charlie Unknown",
         "Delta Owned",
         "Echo Zero",
     ]
-    assert result["byName"][0] == "Alpha Walker"
-    assert result["filter"] == [["Beta Key"], 1, 3, True]
-    assert result["noFilter"] == 5
-    # 1234,56 + 2 x 2,50; three of five without a value (unknown, owned, zero)
-    assert result["sum"] == "Summe (Richtwert): 1.239,56 € · 3 von 5 Karten ohne Preis"
+    assert result["byName"][0] == "Aaa Unknown"
+    assert result["filter"] == [["Beta Key"], 1, 3, 1, True]
+    assert result["noFilter"] == 6
+    assert result["owned"] == 1
+    # 1234,56 + 2 x 2,50; of the five cards to buy three have no value (two unknown, one zero);
+    # the owned card is counted apart, never as "ohne Preis"
+    assert result["sum"] == (
+        "Summe (Richtwert): 1.239,56 € · 3 von 5 Karten ohne Preis · 1 im Besitz (kein Preis)"
+    )
     assert result["sumCentsUnknown"] is None  # no sum, not a sum of 0
-    assert result["sumUnknown"] == "Summe (Richtwert): unbekannt · 5 von 5 Karten ohne Preis"
+    assert result["sumUnknown"] == "Summe (Richtwert): unbekannt · 6 von 6 Karten ohne Preis"
     assert result["sumEmpty"] == "Summe (Richtwert): unbekannt · 0 von 0 Karten ohne Preis"
     view = str(result["view"])
     assert "Scryfall prices.eur (lokale Bulk-Datei)" in view and "Bulk-Datum 2026-11-20" in view
@@ -1928,8 +1939,8 @@ console.log(JSON.stringify({
     assert "python -m commander_lab.studio import-tam-prices" in str(result["emptyView"])
     assert "Summe (Richtwert): unbekannt" in str(result["emptyView"])
     assert (
-        "Budgetfilter: 1 Karten über dem Höchstwert und 3 Karten ohne Preis ausgeblendet."
-        in str(result["filteredView"])
+        "Budgetfilter: 1 Karten über dem Höchstwert, 3 Karten ohne Preis und 1 im Besitz "
+        "ausgeblendet." in str(result["filteredView"])
     )
     wishlist = (STATIC / "wishlist.js").read_text(encoding="utf-8")
     # only the planning functions named in the register: no cumulative pick, no cheapest offer

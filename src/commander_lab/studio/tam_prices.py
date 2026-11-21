@@ -17,12 +17,15 @@ value is "unbekannt", never 0. The only reader is :func:`purchase_guide_values`.
 
 from __future__ import annotations
 
+import json
 import re
 from collections.abc import Sequence
+from datetime import date as calendar_date
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 from . import catalog
+from .decks import branch_head
 from .store import StudioStore, now_utc
 from .tam_import import TAM_COMMANDER_NAME
 
@@ -39,6 +42,17 @@ NOTICE = (
 MAX_CARD_IDS = 250
 _EUR = re.compile(r"\d{1,6}(?:\.\d{1,2})?")
 _ISO_DATE = re.compile(r"20\d{2}-\d{2}-\d{2}")
+
+
+def _valid_date(text: str) -> str:
+    """A real calendar date in ``YYYY-MM-DD`` form; anything else (``2026-99-99``) refuses."""
+    if not _ISO_DATE.fullmatch(text):
+        raise ValueError(f"bulk date must be YYYY-MM-DD: {text!r}")
+    try:
+        calendar_date.fromisoformat(text)
+    except ValueError as error:
+        raise ValueError(f"bulk date is no calendar date: {text!r}") from error
+    return text
 
 
 class NotTamError(ValueError):
@@ -68,9 +82,7 @@ def import_scryfall_prices(
     Per oracle_id the lowest usable ``prices.eur`` over the printings in the file is kept."""
     files = catalog._source_files(Path(bulk_path))
     if bulk_date is not None:
-        if not _ISO_DATE.fullmatch(bulk_date):
-            raise ValueError(f"bulk date must be YYYY-MM-DD: {bulk_date!r}")
-        date, basis = bulk_date, "angegeben"
+        date, basis = _valid_date(bulk_date), "angegeben"
     else:
         found = catalog._date_from_name(files[0].name)
         if found is None:
@@ -78,7 +90,7 @@ def import_scryfall_prices(
                 "no bulk date: the file name carries no date; pass --bulk-date YYYY-MM-DD "
                 "(the date of the Scryfall bulk file)"
             )
-        date, basis = found, "Dateiname"
+        date, basis = _valid_date(found), "Dateiname"
     digest = catalog._source_digest(files)
     best: dict[str, tuple[int, str]] = {}
     seen: set[str] = set()
@@ -147,20 +159,71 @@ def _owned(store: StudioStore, card_id: str, oracle_id: str | None) -> int:
     return int(row[0] or 0)
 
 
-def purchase_guide_values(
-    store: StudioStore, commander: str, card_ids: Sequence[str]
-) -> dict[str, object]:
-    """Guide values of the purchase list of a TAM deck.
+def _deck_cards(store: StudioStore, deck_id: str, branch: str) -> list[tuple[str, str]]:
+    """(card_id, zone) of the list the builder works on: the stored draft of the branch, else
+    the saved revision the branch points to. ``KeyError`` for an unknown deck or branch."""
+    row = store.connection.execute(
+        "SELECT cards FROM deck_draft WHERE deck_id = ? AND branch = ?", (deck_id, branch)
+    ).fetchone()
+    if row is not None:
+        raw = json.loads(str(row[0]))
+        return [
+            (str(item.get("card_id")), str(item.get("zone") or "main"))
+            for item in (raw if isinstance(raw, list) else [])
+            if isinstance(item, dict) and item.get("card_id")
+        ]
+    head = branch_head(store.connection, deck_id, branch)
+    if head is None:
+        raise KeyError(f"{deck_id}/{branch}")
+    rows = store.connection.execute(
+        "SELECT card_id, zone FROM deck_revision_card WHERE revision_id = ?", (head,)
+    ).fetchall()
+    return [(str(r[0]), str(r[1])) for r in rows]
 
-    ``commander`` must be exactly TAM, otherwise :class:`NotTamError` (Chulane and every other
-    commander get no price). A card owned in any printing gets ``status="owned"`` and no value;
-    a card without a value ``status="unknown"``; only ``status="value"`` carries ``eur_cents``.
-    Without an imported snapshot every card is unknown and ``snapshot`` is ``None``."""
-    if commander != TAM_COMMANDER_NAME:
-        raise NotTamError(f"Richtwerte nur für den Commander TAM ({TAM_COMMANDER_NAME})")
-    ids = list(dict.fromkeys(str(card_id) for card_id in card_ids if card_id))
-    if len(ids) > MAX_CARD_IDS:
+
+def _card_name(store: StudioStore, card_id: str) -> str | None:
+    row = store.connection.execute(
+        "SELECT oracle_name FROM card WHERE card_id = ?", (card_id,)
+    ).fetchone()
+    if row is None and card_id.startswith("scryfall:"):
+        row = store.connection.execute(
+            "SELECT name FROM scryfall_card WHERE oracle_id = ?",
+            (card_id.removeprefix("scryfall:"),),
+        ).fetchone()
+    return str(row[0]) if row is not None and row[0] else None
+
+
+def purchase_guide_values(
+    store: StudioStore,
+    deck_id: str,
+    branch: str,
+    card_ids: Sequence[str],
+    *,
+    commander: str | None = None,
+) -> dict[str, object]:
+    """Guide values of the purchase list of a stored TAM deck.
+
+    The commander is the one stored for the deck (its draft, else the revision the branch points
+    to), never a name the caller sends: unless that is exactly TAM and nothing else,
+    :class:`NotTamError` (Chulane and every other commander get no price). A ``commander`` the
+    caller names must match it. Only cards of the deck's main list are answered; other ids are
+    left out and counted (``not_in_deck``). A card owned in any printing gets ``status="owned"``
+    and no value; a card without a value ``status="unknown"``; only ``status="value"`` carries
+    ``eur_cents``. Without an imported snapshot every card is unknown and ``snapshot`` is
+    ``None``."""
+    requested = list(dict.fromkeys(str(card_id) for card_id in card_ids if card_id))
+    if len(requested) > MAX_CARD_IDS:
         raise ValueError(f"at most {MAX_CARD_IDS} cards")
+    deck = _deck_cards(store, deck_id, branch)
+    commanders = sorted(
+        {_card_name(store, cid) or cid for cid, zone in deck if zone == "commander"}
+    )
+    if commanders != [TAM_COMMANDER_NAME] or commander not in (None, TAM_COMMANDER_NAME):
+        raise NotTamError(
+            f"Richtwerte nur für ein Deck mit dem Commander TAM ({TAM_COMMANDER_NAME})"
+        )
+    main = {cid for cid, zone in deck if zone == "main"}
+    ids = [card_id for card_id in requested if card_id in main]
     snap = store.connection.execute(
         "SELECT bulk_date, date_basis, imported_at, file_sha256 FROM tam_price_snapshot "
         "WHERE snapshot_id = 1"
@@ -184,6 +247,9 @@ def purchase_guide_values(
             cards.append({"card_id": card_id, "status": "value", "eur_cents": int(row[0])})
     return {
         "commander": TAM_COMMANDER_NAME,
+        "deck_id": deck_id,
+        "branch": branch,
+        "not_in_deck": len(requested) - len(ids),
         "kind": VALUE_KIND,
         "source": SOURCE_LABEL,
         "rule": VALUE_RULE,
