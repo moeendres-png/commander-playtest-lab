@@ -1750,3 +1750,143 @@ console.log(JSON.stringify({
     app_js = (STATIC / "app.js").read_text(encoding="utf-8")
     assert "async function ensureUnownedLoadedFor(" in app_js
     assert app_js.count("await ensureUnownedLoadedFor(") >= 4
+
+
+# -- B2b (#1658): experiment view (experiments.js) ----------------------------------------
+
+_EXPERIMENT_JS = r"""
+const vm = require("vm");
+const fs = require("fs");
+function node(tag, attrs, kids) {
+  const n = { tag, attrs: attrs || {}, kids: [], value: "", disabled: false };
+  n.replaceChildren = (...k) => { n.kids = k.flat(9).filter((x) => x !== null && x !== undefined && x !== false); };
+  n.replaceChildren(...kids);
+  return n;
+}
+const h = (tag, attrs, ...kids) => node(tag, attrs, kids);
+const text = (n) => (typeof n === "string" || typeof n === "number" ? String(n) : n.kids.map(text).join(""));
+const all = (n) => (typeof n === "object" ? [n, ...n.kids.flatMap(all)] : []);
+const pills = (n) => all(n).filter((x) => String(x.attrs.class || "").startsWith("pill")).map((x) => [x.attrs.class, text(x)]);
+const button = (root, label) => all(root).find((x) => x.tag === "button" && text(x) === label);
+globalThis.StudioUI = { ..._UiHelpers, germanError: (e) => `Das hat nicht geklappt (${e.detail}).` };
+vm.runInThisContext(fs.readFileSync("zahl.js", "utf8"));
+vm.runInThisContext(fs.readFileSync("experiments.js", "utf8"));
+const calls = [];
+const decided = [];
+const deps = { h, api: async (...a) => { calls.push(a); return {}; }, onDecided: (d) => decided.push(d), labels: new Map([["deck@b", "Stand B"], ["deck@v", "Stand V"]]), zahlen: new Map() };
+const befund = { stufe: null, stufe_text: "kein Reifegrad (Beleg fehlt)", urteil_text: "Hinweis besser (Erkundung, unbestätigt)",
+  n: 4, N: 4, bezug: "Paare (abgeschlossen / geplant)", effektives_p: 0.0001, holm_p: 0.0001,
+  stand: { bezug: "aktuell", text: "Befund zum aktuellen Stand" }, empfehlungsfaehig: false, empfehlungsfaehig_gruende: ["Reifegrad unter R2"], hinweise: [] };
+const result = { series_id: "paired-1", counts_as_result: true, status_text: "abgeschlossen", pairs_completed: 4, pairs_planned: 4, pairs_attempted: 4, difference_pp: 100.0 };
+const base = { experiment_id: "exp-1-1-a", question: "38 statt 40 Wälder", purpose: "exploration", plan_state: "intact",
+  plan: { question_kind: "axis", budget_pairs: 4, look_every_pairs: 2, threshold_pp: 0, significance_level: 0.05, stop_rule: "obf_looks" },
+  table_hash: "t".repeat(64), tested_seats: [0, 1, 2, 3], seeds: { first: 100, last: 100, count: 1, rule: "consecutive" },
+  arms: [{ role: "base", revision_id: "deck@b", deck_hash: "a".repeat(64) }, { role: "variant", revision_id: "deck@v", deck_hash: "b".repeat(64) }],
+  provenance: { engine_pin: null, bridge_jar_sha256: null, bridge_state: null, pilot_fingerprint: null },
+  experiment: { experiment_id: "exp-1-1-a", decision: "open", decision_text: "offen" }, current_main_revision_id: "deck@b",
+  result, reifegrad: befund, reifegrad_hinweis: null, sources: { plan: "p", result: "r", index: "i" } };
+const out = {};
+(async () => {
+  const view = experimentDetailView(h, base, deps);
+  out.text = text(view); out.pills = pills(view); out.callsAfterRender = calls.length;
+  button(view, "Verwerfen …").attrs.onclick();
+  out.callsAfterFirstClick = calls.length; out.panel = text(view);
+  button(view, "Abbrechen").attrs.onclick();
+  button(view, "Verwerfen …").attrs.onclick();
+  await button(view, "Ja, verwerfen").attrs.onclick();
+  out.calls = calls.map((c) => [c[0], c[1], c[2] && c[2].decision]); out.decided = decided.slice();
+  const adoptView = experimentDetailView(h, { ...base, current_main_revision_id: "deck@x", result: { ...result, counts_as_result: false, status_text: "nicht abgeschlossen" } }, deps);
+  button(adoptView, "Übernehmen …").attrs.onclick();
+  out.adoptPanel = text(adoptView);
+  const other = experimentDetailView(h, { ...base, reifegrad: { ...befund, stand: { bezug: "vorgaenger", text: "Befund zum direkten Vorgänger" } } }, deps);
+  out.other = [text(other), pills(other)];
+  const unknown = experimentDetailView(h, { ...base, plan_state: "legacy", plan: null, experiment: null, tested_seats: null, table_hash: null,
+    seeds: { first: null, last: null, count: null, rule: null }, arms: [{ role: "base", revision_id: "deck@b", deck_hash: null }],
+    result: { series_id: "paired-2", counts_as_result: false, status_text: "nicht abgeschlossen", pairs_completed: null, pairs_planned: 4, pairs_attempted: null, difference_pp: null },
+    reifegrad: { ...befund, n: null, N: 4 } }, deps);
+  out.unknown = [text(unknown), pills(unknown), all(unknown).filter((x) => x.tag === "button").map(text)];
+  const mismatch = experimentDetailView(h, { ...base, plan_state: "mismatch", plan: null }, deps);
+  out.mismatch = pills(mismatch);
+  const zahl = { id: "series.paired-1.difference_pp", bezeichnung: "Differenz", wert: 100, einheit: "pp", n: 4, N: 4, bezug: "Paare (abgeschlossen / geplant)",
+    klasse: "SIMULIERT", quelle: "Serie", stand_hash: "a".repeat(64), basis_hash: "b".repeat(64), pilot: "fp", data_class: "SIMULATED_RESULT" };
+  const zahlen = new Map([[zahl.id, zahl]]);
+  out.zahlShown = text(experimentDetailView(h, base, { ...deps, zahlen }));
+  out.zahlHidden = text(experimentDetailView(h, { ...base, result: { ...result, counts_as_result: false } }, { ...deps, zahlen }));
+  out.notes = [
+    experimentLegacyNote({ legacy_series_shown: 3, legacy_series_found: 3, legacy_series_found_lower_bound: true, scan_truncated: 5 }),
+    experimentLegacyNote({ legacy_series_shown: 2, legacy_series_found: 5, legacy_series_found_lower_bound: false, scan_truncated: 0 }),
+    experimentLegacyNote({ legacy_series_shown: 2, legacy_series_found: 2, legacy_series_found_lower_bound: false, scan_truncated: 0 }),
+  ];
+  const listed = experimentListTable(h, { series: [{ ...result, created_at: "2026-11-21T10:00:00Z", experiment: base.experiment && { ...base.experiment, question: "q", purpose: "confirmation" } },
+    { ...result, series_id: "paired-1", created_at: "2026-11-20T10:00:00Z", experiment: { experiment_id: "exp-2-2-b", question: "q2", purpose: "control", decision_text: "verworfen" } }] }, (key) => calls.push(["open", key]));
+  calls.length = 0;
+  all(listed).filter((x) => x.tag === "button").forEach((b) => b.attrs.onclick());
+  out.list = [text(listed), calls.map((c) => c[1])];
+  process.stdout.write(JSON.stringify(out));
+})();
+"""
+
+
+def test_experiment_view_shows_route_fields_and_decides_only_on_confirmation() -> None:
+    prelude = _ui_helpers_prelude().replace("const StudioUI =", "const _UiHelpers =", 1)
+    r = _node_json(prelude + _EXPERIMENT_JS)
+    assert isinstance(r, dict)
+    text = r["text"]
+    # maturity only from the route: no badge without a level, the route's text as it is
+    assert ["pill", "kein Reifegrad (Beleg fehlt)"] not in r["pills"]
+    assert "kein Reifegrad (Beleg fehlt)" in text and "Hinweis besser (Erkundung, unbestätigt)" in text
+    assert "n/N 4 / 4 Paare (abgeschlossen / geplant)" in text
+    assert "Erkundung" in text and "Plan intakt" in text and "Stand B" in text and "Stand V" in text
+    assert "SIMULATED_RESULT" in text and "anderer Stand" not in text
+    # nothing is posted on render or on the first click; only "Ja, …" posts, once
+    assert r["callsAfterRender"] == 0 and r["callsAfterFirstClick"] == 0
+    assert "Plan, Serie und Befund bleiben gespeichert" in r["panel"]
+    assert r["calls"] == [["/api/experiments/exp-1-1-a/decision", "POST", "rejected"]]
+    assert r["decided"] == ["rejected"]
+    assert "lehnt die Übernahme ab" in r["adoptPanel"] and "ungetestet" in r["adoptPanel"]
+    assert "Owner-Entscheid" in r["adoptPanel"] and "keine Deck-Datei" in r["adoptPanel"]
+    # a finding of another state is named as such
+    assert ["pill warn", "anderer Stand"] in r["other"][1]
+    assert "Befund zum direkten Vorgänger" in r["other"][0]
+    # unknown stays unknown, never 0; a legacy series offers no decision
+    unknown_text, unknown_pills, unknown_buttons = r["unknown"]
+    assert "Seeds: unbekannt" in unknown_text and "Paare unbekannt" in unknown_text
+    assert "kein Ergebnis (unbekannt von 4 Paaren begonnen)" in unknown_text
+    assert "Deck-Hash" in unknown_text and " 0 " not in unknown_text and "0 von" not in unknown_text
+    assert ["pill warn", "Alt-Serie ohne Plan (vor #1658)"] in unknown_pills
+    assert not any(label.startswith(("Übernehmen", "Verwerfen")) for label in unknown_buttons)
+    assert ["pill bad", "Plan-Datei passt nicht zum Index: der Befund zählt nicht"] in r["mismatch"]
+    assert not any("Plan intakt" in p[1] for p in r["mismatch"])
+    # a contract figure only when the route counts the result
+    assert "simuliert" in r["zahlShown"] and "100 pp" not in r["zahlHidden"]
+    assert "nicht als Ergebnis gezählt" in r["zahlHidden"]
+    # the cut of the legacy scan: "≥ N" when files stayed unread, n/N when only cut
+    lower, cut, none = r["notes"]
+    assert "≥ 3" in lower and "Gesamtzahl unbekannt" in lower
+    assert "2/5" in cut and "≥" not in cut and none is None
+    # the list is keyed by experiment id, never by series id; pairs per series, never summed
+    list_text, opened = r["list"]
+    assert opened == ["exp-1-1-a", "exp-2-2-b"]
+    assert list_text.count("n/N 4 / 4") == 2 and "8" not in list_text
+    assert "Bestätigung" in list_text and "Kontrolle" in list_text
+
+
+def test_experiment_view_static_guards() -> None:
+    js = (STATIC / "experiments.js").read_text(encoding="utf-8")
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    assert html.index('src="zahl.js"') < html.index('src="experiments.js"') < html.index('src="app.js"')
+    assert 'typeof renderExperiments === "function"' in app and 'id: "experiment-slot"' in app
+    for forbidden in (
+        "innerHTML", "outerHTML", "style", "eval(", "document.", "window.", "fetch(",
+        "localStorage", ".toFixed(", "Preis", "€", "confirm(",
+    ):
+        assert forbidden not in js, forbidden
+    # the maturity is shown, never computed: no level literal, no rule on the figures
+    assert not re.search(r"\bR[123]\b", js)
+    assert not re.search(r"(effektives_p|holm_p|difference_pp|\.n|\.N|niveau)\s*[<>]=?", js)
+    assert "befund.stufe ?" in js and "befund.empfehlungsfaehig" in js
+    # the decision is posted only from the confirm button's handler
+    assert js.count('"POST"') == 1
+    post = js.index('"POST"')
+    assert js.rfind('"Ja, übernehmen"', 0, post) == -1 and js.index("const yes = h(") < post

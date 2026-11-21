@@ -3024,12 +3024,27 @@ async function showHistory() {
           h("button", { type: "button", class: "small", onclick: async () => { const revision = await api(`/api/revisions/${encodeURIComponent(row.revision_id)}`); await ensureUnownedLoadedFor(revision.cards); useCards(revision.cards); closeModal(); changed(); toast("Alter Stand geladen. Er wird erst mit Speichern zum aktuellen Stand."); } }, "Laden"),
           h("button", { type: "button", class: "small", onclick: () => { state.diffBaseRev = row.revision_id; state.tab = "diff"; closeModal(); renderDeck(); } }, "Vergleichen")))))))),
     h("div", { id: "deck-series-slot" }),
+    h("div", { id: "experiment-slot" }),
     h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen")));
   $("modal").hidden = false;
   if (typeof renderDeckSeries === "function") {
     box.className = "plain wide";
     renderDeckSeries($("deck-series-slot"), rows, { h, api, deckId: state.deckId, open: openSeriesFromHistory });
   }
+  if (typeof renderExperiments === "function") {
+    renderExperiments($("experiment-slot"), rows, { h, api, deckId: state.deckId, onDecided: afterExperimentDecision });
+  }
+}
+// B2b (#1658): after an explicit decision the view reads everything again. An adoption moves
+// main on the server; a clean editor on main loads it, a draft is kept and named as outdated.
+async function afterExperimentDecision(decision) {
+  if (decision !== "adopted") { await showHistory(); return; }
+  closeModal();
+  await loadDecks();
+  if (state.branch !== "main") { toast("Variante übernommen: main zeigt jetzt den Variantenstand."); return; }
+  if (state.dirty) { toast("Variante übernommen. Dein ungespeicherter Entwurf baut noch auf dem alten main auf: vor dem Speichern prüfen."); return; }
+  await loadBranch();
+  toast("Variante übernommen: main zeigt jetzt den Variantenstand.");
 }
 async function openSeriesFromHistory(seriesId) {
   state.activePaired = await api(`/api/simulations/paired/${encodeURIComponent(seriesId)}`);
