@@ -30,7 +30,7 @@ from commander_lab.bridge_qualification import (
 )
 from commander_lab.qualification.current_boundary.bridge_launcher import canonical_xmage_engine_pin
 
-from . import cache
+from . import cache, series_reservation
 from .decks import lab_snapshot
 from .games import COHORT_PLAYED, COHORT_SIMULATED, game_cohort, games_folder, read_game
 from .launch import (
@@ -875,6 +875,8 @@ class BatchSimulation:
         self.ended_at: str | None = None
         self.error: str | None = None
         self.run_id: str | None = None
+        #: The games folder that holds this series' id reservation (None: no process-wide claim)
+        self.reserved_in: Path | None = None
 
         self._cancel_requested = False
         #: Log ids of games the engine has played to their end (a progress signal that comes
@@ -1141,6 +1143,15 @@ class BatchSimulation:
                 self.status = "failed"
                 self.error = str(exc)
                 self.ended_at = now_utc()
+        finally:
+            # the run row and the record are written by now: the saved series holds the id itself
+            self.release_reservation()
+
+    def release_reservation(self) -> None:
+        """Give the id claim of ``start_batch`` back (#1707); safe to call twice."""
+        folder, self.reserved_in = self.reserved_in, None
+        if folder is not None:
+            series_reservation.release(folder, self.batch_id)
 
     def _write_record(self) -> None:
         """The series record next to the game logs: results and the execution that made them."""
@@ -1419,20 +1430,30 @@ def batch_id_in_use(store: StudioStore, data_folder: Path, batch_id: str) -> boo
     return row is not None
 
 
+class BatchIdsExhausted(RuntimeError):
+    """Every id of a start second is taken; nothing was started and nothing was changed."""
+
+    def __init__(self, base: str) -> None:
+        self.base = base
+        super().__init__(
+            f"batch id {base!r} and its {BATCH_ID_ATTEMPTS - 1} suffixed variants are all taken; "
+            "no series was started and no existing one was changed"
+        )
+
+
 def free_batch_id(base: str, in_use: Callable[[str], bool]) -> str:
     """``base`` when free, else ``base-2``, ``base-3``, ...; a clear error, never an overwrite.
 
     A series that is already saved keeps its id (resume reads it back); a new series never takes
-    an id that a run row, a series record or a running batch already holds (#1707).
+    an id that a run row, a series record or a running batch already holds (#1707). ``in_use``
+    is asked in id order and the id it answers ``False`` for is the one returned, so a predicate
+    may claim the id it approves (the cross-process reservation does) as its last step.
     """
     for attempt in range(1, BATCH_ID_ATTEMPTS + 1):
         candidate = base if attempt == 1 else f"{base}-{attempt}"
         if not in_use(candidate):
             return candidate
-    raise RuntimeError(
-        f"batch id {base!r} and its {BATCH_ID_ATTEMPTS - 1} suffixed variants are all taken; "
-        "no series was started and no existing one was changed"
-    )
+    raise BatchIdsExhausted(base)
 
 
 class SimulationBatchManager:
@@ -1504,31 +1525,46 @@ class SimulationBatchManager:
         # The id is chosen and registered under one lock: two series that start in the same second
         # (#1707) never share an id, so neither overwrites the other's run row, series record or
         # game logs. The first id of a second keeps its old form; only a later one gets a suffix.
+        # A series of another process (the server next to a CLI ``simulate``) has no entry here and,
+        # while it runs, no run row or record either: the id is claimed with an exclusive file, as
+        # the last check, so exactly one process owns it (series_reservation).
+        claims = games_folder(data_path)
+
+        def taken(candidate: str) -> bool:
+            return (
+                candidate in self._batches
+                or batch_id_in_use(store, data_path, candidate)
+                or not series_reservation.try_reserve(claims, candidate)
+            )
+
         with self._lock:
-            batch_id = free_batch_id(
-                base_batch_id,
-                lambda candidate: (
-                    candidate in self._batches or batch_id_in_use(store, data_path, candidate)
-                ),
-            )
-            batch = BatchSimulation(
-                batch_id=batch_id,
-                data_folder=data_path,
-                deck_id=deck_id,
-                revision_id=revision_id,
-                pod_name=pod,
-                opponent_paths=opp_paths,
-                opponent_ids=opponent_ids if opponent_ids is not None else list(POD_PRESETS[pod]),
-                seeds=seeds,
-                style=style,
-                game_executor=game_executor,
-                workers=used_workers,
-                games_per_jvm=used_games_per_jvm,
-                engine=engine,
-                chunk_runner=chunk_runner,
-                bridge_jar_sha256=jar_sha,
-                qualification=qual,
-            )
+            series_reservation.reap_stale(claims)
+            batch_id = free_batch_id(base_batch_id, taken)
+            try:
+                batch = BatchSimulation(
+                    batch_id=batch_id,
+                    data_folder=data_path,
+                    deck_id=deck_id,
+                    revision_id=revision_id,
+                    pod_name=pod,
+                    opponent_paths=opp_paths,
+                    opponent_ids=(
+                        opponent_ids if opponent_ids is not None else list(POD_PRESETS[pod])
+                    ),
+                    seeds=seeds,
+                    style=style,
+                    game_executor=game_executor,
+                    workers=used_workers,
+                    games_per_jvm=used_games_per_jvm,
+                    engine=engine,
+                    chunk_runner=chunk_runner,
+                    bridge_jar_sha256=jar_sha,
+                    qualification=qual,
+                )
+            except BaseException:
+                series_reservation.release(claims, batch_id)  # no series, no claim
+                raise
+            batch.reserved_in = claims
             self._batches[batch_id] = batch
 
         # Store factory for persistence at end of run
@@ -1537,12 +1573,18 @@ class SimulationBatchManager:
                 return StudioStore.open(store.path.parent)
             return StudioStore.open(data_path)
 
-        thread = threading.Thread(
-            target=batch.run_worker,
-            kwargs={"store_factory": _open_store, "own_deck_path": own_deck_path},
-            daemon=True,
-        )
-        thread.start()
+        try:
+            thread = threading.Thread(
+                target=batch.run_worker,
+                kwargs={"store_factory": _open_store, "own_deck_path": own_deck_path},
+                daemon=True,
+            )
+            thread.start()
+        except BaseException:
+            with self._lock:
+                self._batches.pop(batch_id, None)
+            batch.release_reservation()
+            raise
         return batch
 
     def get_batch(self, batch_id: str) -> BatchSimulation | None:

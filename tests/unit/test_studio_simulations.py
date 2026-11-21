@@ -14,8 +14,11 @@ from __future__ import annotations
 
 import contextlib
 import json
+import os
 import re
 import sqlite3
+import subprocess
+import sys
 import threading
 import time
 import types
@@ -29,7 +32,7 @@ from commander_lab.studio import builder, games, play
 from commander_lab.studio import simulations as simulations_module
 from commander_lab.studio import store as store_module
 from commander_lab.studio.decks import RevisionCard, create_revision
-from commander_lab.studio.launch import POD_PRESETS
+from commander_lab.studio.launch import POD_PRESETS, SeriesEngine
 from commander_lab.studio.simulations import (
     BatchSimulation,
     GameSummary,
@@ -1028,3 +1031,514 @@ def test_parallel_starts_in_one_second_all_get_their_own_id(
                 )
     finally:
         store.close()
+
+
+# --- #1707 (rest): the id is also unique across processes -----------------------------------
+
+
+def _hold_runner(release: threading.Event) -> object:
+    """A chunk runner that keeps its series running until ``release`` is set."""
+
+    def run(seeds: Sequence[int]) -> Iterator[GameSummary]:
+        assert release.wait(10), "the series was never released"
+        yield from _cards_runner(seeds)
+
+    return run
+
+
+def _start_held(
+    manager: SimulationBatchManager,
+    store: StudioStore,
+    folder: Path,
+    rev_id: str,
+    base: int,
+    release: threading.Event,
+) -> BatchSimulation:
+    return manager.start_batch(
+        store,
+        folder,
+        revision_id=rev_id,
+        pod="precon",
+        games_count=4,
+        base_seed=base,
+        chunk_runner=_hold_runner(release),  # type: ignore[arg-type]
+    )
+
+
+def _reservations(folder: Path) -> list[str]:
+    return sorted(p.name for p in games.games_folder(folder).glob("*.reserve"))
+
+
+def test_two_managers_in_one_second_while_the_first_still_runs_get_two_ids(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A CLI ``simulate`` has its own manager: a running series has no run row and no record yet."""
+    _freeze_second(monkeypatch)
+    release = threading.Event()
+    store = StudioStore.open(tmp_path)
+    try:
+        rev_id = _seed_test_deck(store)
+        server = _start_held(SimulationBatchManager(), store, tmp_path, rev_id, 10, release)
+        assert server.status in {"pending", "running"}  # no run row, no record: only in memory
+        assert store.connection.execute("SELECT COUNT(*) FROM simulation_run").fetchone()[0] == 0
+        assert _reservations(tmp_path) == [f"{server.batch_id}.reserve"]
+        cli = _start_held(SimulationBatchManager(), store, tmp_path, rev_id, 20, release)
+        assert (server.batch_id, cli.batch_id) == (
+            "batch-1800000000-chulane",
+            "batch-1800000000-chulane-2",
+        )
+        release.set()
+        _wait(server)
+        _wait(cli)
+        _wait_for_record(tmp_path, server)
+        _wait_for_record(tmp_path, cli)
+        assert server.status == "completed" and cli.status == "completed"
+        rows = store.connection.execute(
+            "SELECT run_id, seeds FROM simulation_run ORDER BY run_id"
+        ).fetchall()
+        assert {r["run_id"]: json.loads(r["seeds"]) for r in rows} == {
+            server.run_id: [10, 11, 12, 13],
+            cli.run_id: [20, 21, 22, 23],
+        }
+        assert _reservations(tmp_path) == []  # released when the series ended
+    finally:
+        release.set()
+        store.close()
+
+
+def test_a_reservation_of_another_process_is_never_overwritten(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The claim file of a running series elsewhere holds its id; a start walks on to the next."""
+    from commander_lab.studio import series_reservation
+
+    _freeze_second(monkeypatch)
+    folder = games.games_folder(tmp_path)
+    plain = "batch-1800000000-chulane"
+    assert series_reservation.try_reserve(folder, plain)  # "the other process"
+    held = (folder / f"{plain}.reserve").read_text("utf-8")
+    store = StudioStore.open(tmp_path)
+    try:
+        rev_id = _seed_test_deck(store)
+        batch = _start(SimulationBatchManager(), store, tmp_path, rev_id, 10)
+        _wait(batch)
+        _wait_for_record(tmp_path, batch)
+        assert batch.batch_id == f"{plain}-2"
+        assert (folder / f"{plain}.reserve").read_text("utf-8") == held  # untouched
+        assert _reservations(tmp_path) == [f"{plain}.reserve"]  # only the other one's remains
+    finally:
+        store.close()
+
+
+def test_a_stale_reservation_is_reaped_and_a_fresh_one_is_kept(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.studio import series_reservation
+
+    folder = games.games_folder(tmp_path)
+    old, fresh = folder / "batch-1-old.reserve", folder / "batch-2-fresh.reserve"
+    for path in (old, fresh):
+        path.write_text("{}", encoding="utf-8")
+    now = time.time()
+    os.utime(old, (now - series_reservation.STALE_AFTER_SECONDS - 60,) * 2)
+    os.utime(fresh, (now - series_reservation.STALE_AFTER_SECONDS + 600,) * 2)
+    assert series_reservation.reap_stale(folder) == ["batch-1-old"]
+    assert not old.exists() and fresh.exists()
+    # a reservation that is not reaped yet still refuses; the reaped id can be claimed again
+    assert not series_reservation.try_reserve(folder, "batch-2-fresh")
+    assert series_reservation.try_reserve(folder, "batch-1-old")
+    series_reservation.release(folder, "batch-1-old")
+    series_reservation.release(folder, "batch-1-old")  # twice is fine
+
+
+def test_start_batch_reaps_a_stale_reservation_of_a_killed_process(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _freeze_second(monkeypatch)
+    folder = games.games_folder(tmp_path)
+    leftover = folder / "batch-1-killed.reserve"
+    leftover.write_text("{}", encoding="utf-8")
+    os.utime(leftover, (1.0, 1.0))
+    store = StudioStore.open(tmp_path)
+    try:
+        batch = _start(SimulationBatchManager(), store, tmp_path, _seed_test_deck(store), 10)
+        _wait(batch)
+        assert not leftover.exists()
+    finally:
+        store.close()
+
+
+def test_a_start_that_fails_after_the_claim_gives_the_claim_back(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _freeze_second(monkeypatch)
+    store = StudioStore.open(tmp_path)
+    try:
+        rev_id = _seed_test_deck(store)
+
+        def broken_thread(*_args: object, **_kwargs: object) -> object:
+            raise RuntimeError("no thread")
+
+        monkeypatch.setattr(simulations_module.threading, "Thread", broken_thread)
+        manager = SimulationBatchManager()
+        with pytest.raises(RuntimeError, match="no thread"):
+            _start(manager, store, tmp_path, rev_id, 10)
+        assert _reservations(tmp_path) == []
+        assert manager.list_batches() == []
+    finally:
+        store.close()
+
+
+def test_a_start_that_fails_while_building_the_batch_gives_the_claim_back(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _freeze_second(monkeypatch)
+    store = StudioStore.open(tmp_path)
+    try:
+        rev_id = _seed_test_deck(store)
+
+        def broken_batch(*_args: object, **_kwargs: object) -> object:
+            raise ValueError("cannot build")
+
+        monkeypatch.setattr(simulations_module, "BatchSimulation", broken_batch)
+        manager = SimulationBatchManager()
+        with pytest.raises(ValueError, match="cannot build"):
+            _start(manager, store, tmp_path, rev_id, 10)
+        assert _reservations(tmp_path) == [] and manager.list_batches() == []
+    finally:
+        store.close()
+
+
+def test_a_denied_create_is_a_taken_id_only_when_the_file_exists(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Windows answers an exclusive create on an existing (or delete-pending) file with a denial."""
+    from commander_lab.studio import series_reservation
+
+    def denied(*_args: object, **_kwargs: object) -> int:
+        raise PermissionError("denied")
+
+    monkeypatch.setattr(series_reservation.os, "open", denied)
+    (tmp_path / "there.reserve").write_text("{}", encoding="utf-8")
+    assert series_reservation.try_reserve(tmp_path, "there") is False
+    with pytest.raises(PermissionError):  # a real permission problem is not hidden as "taken"
+        series_reservation.try_reserve(tmp_path, "absent")
+
+
+def test_a_failed_and_a_cancelled_series_release_their_claim(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _freeze_second(monkeypatch)
+    store = StudioStore.open(tmp_path)
+    try:
+        rev_id = _seed_test_deck(store)
+
+        def failing(seeds: Sequence[int]) -> Iterator[GameSummary]:
+            raise ValueError("engine down")
+            yield  # pragma: no cover
+
+        manager = SimulationBatchManager()
+        failed = manager.start_batch(
+            store, tmp_path, revision_id=rev_id, games_count=2, chunk_runner=failing
+        )
+        _wait(failed)
+        deadline = time.monotonic() + 5
+        while _reservations(tmp_path) and time.monotonic() < deadline:
+            time.sleep(0.05)
+        assert _reservations(tmp_path) == []
+    finally:
+        store.close()
+
+
+def test_the_id_choice_and_the_batch_entry_share_one_lock_scope(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The check, the claim and the entry in ``_batches`` run under the manager lock (#1707)."""
+    from commander_lab.studio import series_reservation
+
+    _freeze_second(monkeypatch)
+    manager = SimulationBatchManager()
+    seen: list[tuple[str, bool]] = []
+    in_use = simulations_module.batch_id_in_use
+    reserve = series_reservation.try_reserve
+
+    def spy_in_use(store: StudioStore, folder: Path, batch_id: str) -> bool:
+        seen.append(("check", manager._lock.locked()))
+        return in_use(store, folder, batch_id)
+
+    def spy_reserve(folder: Path, series_id: str, **kwargs: object) -> bool:
+        seen.append(("claim", manager._lock.locked()))
+        return reserve(folder, series_id, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(simulations_module, "batch_id_in_use", spy_in_use)
+    monkeypatch.setattr(series_reservation, "try_reserve", spy_reserve)
+    store = StudioStore.open(tmp_path)
+    try:
+        batch = _start(manager, store, tmp_path, _seed_test_deck(store), 10)
+        _wait(batch)
+        assert seen == [("check", True), ("claim", True)]
+        assert manager._batches[batch.batch_id] is batch
+    finally:
+        store.close()
+
+
+_PROBE = r"""
+import sys, time, types, json
+from pathlib import Path
+from commander_lab.studio import simulations
+from commander_lab.studio.simulations import GameSummary, SimulationBatchManager
+from commander_lab.studio.store import StudioStore
+
+folder, rev_id, name, other = Path(sys.argv[1]), sys.argv[2], sys.argv[3], sys.argv[4]
+simulations.time = types.SimpleNamespace(time=lambda: 1_800_000_000.0)  # the same second
+(folder / f"{name}.ready").write_text("1")
+deadline = time.monotonic() + 30
+while not (folder / "go").exists():  # start together
+    assert time.monotonic() < deadline
+    time.sleep(0.01)
+
+def runner(seeds):
+    # keep this series running until the other process has started its own: no row, no record yet
+    deadline = time.monotonic() + 30
+    while not (folder / f"{other}.started").exists():
+        assert time.monotonic() < deadline
+        time.sleep(0.01)
+    for seed in seeds:
+        yield GameSummary(game_id=f"{name}-{seed}", seed=seed, status="finished",
+                          winner_seats=[0], rounds=5)
+
+store = StudioStore.open(folder)
+batch = SimulationBatchManager().start_batch(
+    store, folder, revision_id=rev_id, games_count=2,
+    base_seed=100 if name == "a" else 200, chunk_runner=runner)
+(folder / f"{name}.started").write_text(batch.batch_id)
+deadline = time.monotonic() + 30
+while batch.status in {"pending", "running"} and time.monotonic() < deadline:
+    time.sleep(0.02)
+deadline = time.monotonic() + 30
+while batch.run_id is None and time.monotonic() < deadline:
+    time.sleep(0.02)
+store.close()
+print(json.dumps({"batch_id": batch.batch_id, "status": batch.status}))
+"""
+
+
+def test_two_processes_in_one_second_with_one_deck_get_two_run_rows(
+    tmp_path: Path, subprocess_env: dict[str, str]
+) -> None:
+    """The real probe: two interpreters, one data folder, one frozen second, one deck slug."""
+    folder = tmp_path / "data"
+    store = StudioStore.open(folder)
+    try:
+        rev_id = _seed_test_deck(store)
+    finally:
+        store.close()
+    games.games_folder(folder)
+    processes = {
+        name: subprocess.Popen(
+            [sys.executable, "-c", _PROBE, str(folder), rev_id, name, other],
+            env=subprocess_env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        for name, other in (("a", "b"), ("b", "a"))
+    }
+    try:
+        deadline = time.monotonic() + 30
+        while not all((folder / f"{n}.ready").exists() for n in processes):
+            assert time.monotonic() < deadline, "the probe processes did not come up"
+            time.sleep(0.02)
+        (folder / "go").write_text("1")
+        results = {}
+        for name, process in processes.items():
+            out, err = process.communicate(timeout=60)
+            assert process.returncode == 0, err
+            results[name] = json.loads(out)
+    finally:
+        for process in processes.values():
+            if process.poll() is None:
+                process.kill()
+    assert {r["status"] for r in results.values()} == {"completed"}
+    ids = {r["batch_id"] for r in results.values()}
+    assert len(ids) == 2  # n=2 processes, n=2 distinct ids
+    assert ids == {"batch-1800000000-chulane", "batch-1800000000-chulane-2"}
+    reread = StudioStore.open(folder)
+    try:
+        rows = reread.connection.execute("SELECT run_id, seeds FROM simulation_run").fetchall()
+    finally:
+        reread.close()
+    assert sorted(json.loads(r["seeds"])[0] for r in rows) == [100, 200]  # two rows, none lost
+    assert sorted(r["run_id"] for r in rows) == sorted(f"batch-{i}" for i in ids)
+    assert _reservations(folder) == []
+
+
+# --- CLI: exhausted ids end in a clear German message, never a traceback ---------------------
+
+
+def _simulate_argv(folder: Path, rev_id: str) -> list[str]:
+    return ["--data", str(folder), "simulate", "--revision", rev_id, "--count", "2"]
+
+
+def test_simulate_cli_reports_exhausted_ids_in_german_without_a_traceback(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from commander_lab.studio.__main__ import main as studio_main
+
+    _freeze_second(monkeypatch)
+    monkeypatch.setattr(simulations_module, "BATCH_ID_ATTEMPTS", 2)
+    store = StudioStore.open(tmp_path)
+    try:
+        rev_id = _seed_test_deck(store)
+        manager = SimulationBatchManager()
+        for base in (10, 20):
+            batch = _start(manager, store, tmp_path, rev_id, base)
+            _wait(batch)
+            _wait_for_record(tmp_path, batch)
+    finally:
+        store.close()
+    rows_before = StudioStore.open(tmp_path)
+    try:
+        count = rows_before.connection.execute("SELECT COUNT(*) FROM simulation_run").fetchone()[0]
+    finally:
+        rows_before.close()
+    # the CLI asks for an engine before it picks an id: a stand-in that never plays a game
+    stand_in = SeriesEngine(
+        command=("engine",), jvm_flags=(), games_per_jvm=1, serial_gc=False, appcds=False
+    )
+    monkeypatch.setattr(simulations_module, "series_engine", lambda *_a, **_k: stand_in)
+    rc = studio_main(_simulate_argv(tmp_path, rev_id))
+    captured = capsys.readouterr()
+    assert rc == 2
+    assert "Keine freie Serien-Kennung" in captured.err
+    assert "nichts überschrieben" in captured.err
+    assert "Traceback" not in captured.err and captured.out == ""
+    after = StudioStore.open(tmp_path)
+    try:
+        assert (
+            after.connection.execute("SELECT COUNT(*) FROM simulation_run").fetchone()[0] == count
+        )
+    finally:
+        after.close()
+    assert _reservations(tmp_path) == []
+
+
+# --- cmp-<second> of compare-decks (#1707) ---------------------------------------------------
+
+
+def test_compare_decks_ids_of_one_second_are_claimed_and_never_shared(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Two compare-decks in one second shared ``cmp-<second>`` and so the same game log names."""
+    from commander_lab.studio import __main__ as studio_main
+    from commander_lab.studio import series_reservation
+
+    folder = games.games_folder(tmp_path)
+    first = studio_main._claim_compare_id(tmp_path, "cmp-1800000000")
+    second = studio_main._claim_compare_id(tmp_path, "cmp-1800000000")  # first still running
+    assert (first, second) == ("cmp-1800000000", "cmp-1800000000-2")
+    series_reservation.release(folder, first)
+    series_reservation.release(folder, second)
+    # recorded game logs and a series folder hold their id as well, claim or no claim
+    (folder / "cmp-1800000000-base-s1000-t0.jsonl").write_text("{}\n", encoding="utf-8")
+    (folder / "series" / "cmp-1800000000-2").mkdir(parents=True)
+    assert studio_main._claim_compare_id(tmp_path, "cmp-1800000000") == "cmp-1800000000-3"
+    series_reservation.release(folder, "cmp-1800000000-3")
+    # an explicit --series-id is the caller's choice and is not touched here
+    assert _reservations(tmp_path) == []
+
+
+def _stub_compare(
+    monkeypatch: pytest.MonkeyPatch,
+    runs: list[str],
+    *,
+    fail: bool = False,
+    claimed: bool = True,
+) -> list[str]:
+    """Replace the engine side of compare-decks; ``runs`` collects the series id of each run."""
+    from commander_lab.engine.rules import project
+    from commander_lab.studio import __main__ as studio_main
+    from commander_lab.studio import paired_comparison
+
+    def snapshot(path: Path) -> object:
+        return types.SimpleNamespace(deck_id=Path(path).stem)
+
+    def run(**kwargs: object) -> dict[str, object]:
+        execution = kwargs["execution"]
+        assert isinstance(execution, dict)
+        runs.append(str(execution["series_id"]))
+        held = [f"{runs[-1]}.reserve"] if claimed else []
+        assert _reservations(Path(str(execution["games_dir"])).parent) == held
+        if fail:
+            raise ValueError("stand-in failure")
+        return {}
+
+    monkeypatch.setattr(project, "load_rules_deck_snapshot", snapshot)
+    monkeypatch.setattr(studio_main, "series_engine", lambda *_a, **_k: None)
+    monkeypatch.setattr(paired_comparison, "recorded_game_player", lambda *_a, **_k: None)
+    monkeypatch.setattr(paired_comparison, "run_comparison_series", run)
+    monkeypatch.setattr(paired_comparison, "format_comparison", lambda _result: "ok")
+    monkeypatch.setattr(time, "time", lambda: FROZEN_SECOND)
+    return runs
+
+
+def _compare_argv(folder: Path) -> list[str]:
+    argv = ["--data", str(folder), "compare-decks", "--base-deck", "base", "--variant-deck", "var"]
+    for index in range(3):
+        argv += ["--opponent", f"opp{index}"]
+    return argv
+
+
+def test_compare_decks_holds_its_id_while_it_runs_and_releases_it_at_the_end(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from commander_lab.studio.__main__ import main as studio_main
+
+    runs: list[str] = []
+    _stub_compare(monkeypatch, runs)
+    assert studio_main(_compare_argv(tmp_path)) == 0
+    assert runs == ["cmp-1800000000"]  # the stand-in asserted the claim file exists while running
+    assert _reservations(tmp_path) == []
+    capsys.readouterr()
+
+
+def test_compare_decks_with_an_explicit_series_id_makes_no_claim(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.studio.__main__ import main as studio_main
+
+    runs: list[str] = []
+    _stub_compare(monkeypatch, runs, claimed=False)  # the stand-in checks: no claim file
+    assert studio_main([*_compare_argv(tmp_path), "--series-id", "mine"]) == 0
+    assert runs == ["mine"] and _reservations(tmp_path) == []
+
+
+def test_compare_decks_releases_its_id_when_the_run_is_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from commander_lab.studio.__main__ import main as studio_main
+
+    runs: list[str] = []
+    _stub_compare(monkeypatch, runs, fail=True)
+    assert studio_main(_compare_argv(tmp_path)) == 2
+    assert "refused: stand-in failure" in capsys.readouterr().err
+    assert _reservations(tmp_path) == []
+
+
+def test_compare_decks_reports_exhausted_ids_in_german(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from commander_lab.studio import series_reservation
+    from commander_lab.studio.__main__ import main as studio_main
+
+    runs: list[str] = []
+    _stub_compare(monkeypatch, runs)
+    monkeypatch.setattr(simulations_module, "BATCH_ID_ATTEMPTS", 2)
+    folder = games.games_folder(tmp_path)
+    for taken in ("cmp-1800000000", "cmp-1800000000-2"):
+        assert series_reservation.try_reserve(folder, taken)  # held by other processes
+    assert studio_main(_compare_argv(tmp_path)) == 2
+    err = capsys.readouterr().err
+    assert "Keine freie Serien-Kennung" in err and "Traceback" not in err
+    assert runs == []
+    assert _reservations(tmp_path) == ["cmp-1800000000-2.reserve", "cmp-1800000000.reserve"]

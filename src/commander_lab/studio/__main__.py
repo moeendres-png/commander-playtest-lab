@@ -589,16 +589,55 @@ def _card_outcomes(args: argparse.Namespace) -> int:
     return 0
 
 
+def _ids_exhausted_text(error: BaseException) -> str:
+    """The German message for a start second whose every id is taken (nothing was started)."""
+    from .simulations import BATCH_ID_ATTEMPTS
+
+    return (
+        f"Keine freie Serien-Kennung: {getattr(error, 'base', '?')} und seine "
+        f"{BATCH_ID_ATTEMPTS - 1} Varianten sind alle belegt. Es wurde nichts gestartet und "
+        "nichts überschrieben; bitte kurz warten und erneut starten."
+    )
+
+
+def _claim_compare_id(folder: Path, base: str) -> str:
+    """A ``cmp-<second>`` id that no game log, series record or other process holds (#1707).
+
+    Two ``compare-decks`` in one second used to share the id: the game logs of the first were
+    overwritten by the second (``<id>-<arm>-s<seed>-t<seat>``). The id is claimed with an
+    exclusive file (see ``series_reservation``); the caller releases it when the run ends.
+    """
+    from . import series_reservation
+    from .games import games_folder
+    from .series_record import series_folder
+    from .simulations import free_batch_id
+
+    games = games_folder(folder)
+    series_reservation.reap_stale(games)
+
+    def taken(candidate: str) -> bool:
+        return (
+            series_folder(folder, candidate).exists()
+            or any(games.glob(f"{candidate}-*.jsonl*"))
+            or not series_reservation.try_reserve(games, candidate)
+        )
+
+    return free_batch_id(base, taken)
+
+
 def _compare_decks(args: argparse.Namespace) -> int:
     import sys
     import time
 
     from commander_lab.engine.rules.project import load_rules_deck_snapshot
 
-    from . import paired_comparison
+    from . import paired_comparison, series_reservation
     from .games import games_folder
+    from .simulations import BatchIdsExhausted
     from .store import studio_data_dir
 
+    series_id = ""
+    claimed_in: Path | None = None  # the games folder that holds this run's id claim (#1707)
     try:
         opponents_count = len(args.opponent)
         table_size = validate_released_seat_count(
@@ -631,7 +670,11 @@ def _compare_decks(args: argparse.Namespace) -> int:
             raise ValueError("base, variant and opponents need distinct deck ids")
         needed_seeds = -(-args.pairs // len(tested_seats))
         seeds = [args.base_seed + index for index in range(needed_seeds)]
-        series_id = args.series_id or f"cmp-{int(time.time())}"
+        if args.series_id:
+            series_id = args.series_id
+        else:
+            series_id = _claim_compare_id(folder, f"cmp-{int(time.time())}")
+            claimed_in = games_folder(folder)
         paths_by_deck_id = dict(zip(deck_ids, paths, strict=True))
         engine = series_engine(folder, used_batch)
         play: paired_comparison.PairPlayer
@@ -688,6 +731,12 @@ def _compare_decks(args: argparse.Namespace) -> int:
     except ValueError as error:
         print(f"refused: {error}", file=sys.stderr)
         return 2
+    except BatchIdsExhausted as error:
+        print(f"refused: {_ids_exhausted_text(error)}", file=sys.stderr)
+        return 2
+    finally:
+        if claimed_in is not None:
+            series_reservation.release(claimed_in, series_id)
     if args.out:
         Path(args.out).write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", "utf-8")
     print(paired_comparison.format_comparison(result))
@@ -1175,7 +1224,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "simulate":
         import time
 
-        from .simulations import SimulationBatchManager
+        from .simulations import BatchIdsExhausted, SimulationBatchManager
         from .store import studio_data_dir
 
         folder = Path(args.data).resolve() if args.data else studio_data_dir()
@@ -1202,17 +1251,21 @@ def main(argv: list[str] | None = None) -> int:
                         file=sys.stderr,
                     )
                     return 2
-                batch = mgr.start_batch(
-                    store,
-                    folder,
-                    revision_id=args.revision,
-                    pod=args.pod,
-                    games_count=args.count,
-                    base_seed=args.base_seed,
-                    style=args.style,
-                    workers=args.workers,
-                    games_per_jvm=args.games_per_jvm,
-                )
+                try:
+                    batch = mgr.start_batch(
+                        store,
+                        folder,
+                        revision_id=args.revision,
+                        pod=args.pod,
+                        games_count=args.count,
+                        base_seed=args.base_seed,
+                        style=args.style,
+                        workers=args.workers,
+                        games_per_jvm=args.games_per_jvm,
+                    )
+                except BatchIdsExhausted as error:
+                    print(f"error: {_ids_exhausted_text(error)}", file=sys.stderr)
+                    return 2
             try:
                 while batch.status in {"pending", "running"}:
                     time.sleep(0.5)
