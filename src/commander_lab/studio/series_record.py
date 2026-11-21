@@ -198,7 +198,13 @@ class SeriesRecord:
         }
         path = folder / "manifest.json"
         if path.is_file():
-            stored = json.loads(path.read_text(encoding="utf-8"))
+            try:
+                stored = json.loads(path.read_text(encoding="utf-8"))
+            except ValueError as error:
+                # empty or half written (a start that ended inside the exclusive-create fallback)
+                raise ManifestMismatch(
+                    f"Manifest der Serie {series_id} ist leer oder unvollständig, nicht fortsetzbar"
+                ) from error
             if not isinstance(stored, dict):
                 raise ManifestMismatch(f"Manifest der Serie {series_id} ist kein Objekt")
             body = {k: v for k, v in stored.items() if k != "created_at"}

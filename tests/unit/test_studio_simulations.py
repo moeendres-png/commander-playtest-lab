@@ -12,6 +12,7 @@ Verifies:
 
 from __future__ import annotations
 
+import contextlib
 import json
 import re
 import sqlite3
@@ -853,6 +854,31 @@ def test_two_series_started_in_one_second_keep_two_run_ids(
         store.close()
 
 
+def _wait_for_record(folder: Path, batch: BatchSimulation) -> Path:
+    """The series record of an ended batch, once written: it is written after the status flips."""
+    path = games.games_folder(folder) / f"{batch.batch_id}.series.json"
+    deadline = time.monotonic() + 5.0
+    while time.monotonic() < deadline:
+        with contextlib.suppress(OSError, ValueError):
+            if json.loads(path.read_text("utf-8")).get("status") == batch.status:
+                return path
+        time.sleep(0.05)
+    raise AssertionError(f"series record of {batch.batch_id} not written")
+
+
+def _unlink_when_free(path: Path) -> None:
+    """Windows refuses to delete a file another thread still holds open (WinError 32)."""
+    deadline = time.monotonic() + 5.0
+    while True:
+        try:
+            path.unlink()
+            return
+        except PermissionError:
+            if time.monotonic() > deadline:
+                raise
+            time.sleep(0.05)
+
+
 def test_a_saved_series_of_the_same_second_is_never_overwritten(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -864,11 +890,12 @@ def test_a_saved_series_of_the_same_second_is_never_overwritten(
         first = _start(SimulationBatchManager(), store, tmp_path, rev_id, 10)
         _wait(first)
         before = store.connection.execute("SELECT * FROM simulation_run").fetchall()
-        record = games.games_folder(tmp_path) / f"{first.batch_id}.series.json"
+        record = _wait_for_record(tmp_path, first)
         record_before = record.read_text("utf-8")
 
         later = _start(SimulationBatchManager(), store, tmp_path, rev_id, 20)  # fresh manager
         _wait(later)
+        _wait_for_record(tmp_path, later)
         assert later.batch_id == f"{first.batch_id}-2"
         assert record.read_text("utf-8") == record_before
         old_row = store.connection.execute(
@@ -885,7 +912,7 @@ def test_a_saved_series_of_the_same_second_is_never_overwritten(
         assert again.batch_id == f"{first.batch_id}-3"
 
         # only the run row exists (the record file was lost): the id is still taken
-        (games.games_folder(tmp_path) / f"{again.batch_id}.series.json").unlink()
+        _unlink_when_free(_wait_for_record(tmp_path, again))
         row_only = _start(SimulationBatchManager(), store, tmp_path, rev_id, 40)
         _wait(row_only)
         assert row_only.batch_id == f"{first.batch_id}-4"

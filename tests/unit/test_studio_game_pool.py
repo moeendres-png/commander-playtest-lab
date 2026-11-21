@@ -1152,10 +1152,19 @@ def test_a_last_line_without_its_line_end_is_never_a_result_even_when_it_parses(
 ) -> None:
     games = _games("tail", range(1, 3))
     record = _record(tmp_path, games)
-    entry = {"game_id": games[1].game_id, "status": "finished", "summary": {"status": "finished"}}
+    entry = {
+        "game_id": games[1].game_id,
+        "game_key": games[1].game_key,  # a valid member line: only the missing line end drops it
+        "status": "finished",
+        "summary": {"status": "finished"},
+    }
     record.journal_path.write_text(json.dumps(entry), encoding="utf-8")  # no line end: cut off
     resumed = _record(tmp_path, games)
     assert resumed.results() == {} and resumed.ignored_lines == 1
+    assert resumed.key_mismatch_lines == 0
+    record.journal_path.write_text(json.dumps(entry) + "\n", encoding="utf-8")  # the control
+    assert set(_record(tmp_path, games).results()) == {games[1].game_id}
+    record.journal_path.write_text(json.dumps(entry), encoding="utf-8")
     resumed.record(games[0].game_id, {"status": "finished", "semantic_transcript_sha256": "a" * 64})
     lines = resumed.journal_path.read_text(encoding="utf-8").splitlines()
     assert len(lines) == 2 and json.loads(lines[1])["game_id"] == games[0].game_id
@@ -1285,6 +1294,18 @@ def test_a_failing_manifest_write_leaves_no_temp_file(
     with pytest.raises(OSError, match="disk full"):
         _record(tmp_path, _games("tmp", range(1, 2)), series="tmp")
     assert list(series_record.series_folder(tmp_path, "tmp").iterdir()) == []
+
+
+@pytest.mark.parametrize("content", ["", '{"schema": "studio-series-man'])
+def test_an_empty_or_half_written_manifest_is_a_manifest_mismatch(
+    tmp_path: Path, content: str
+) -> None:
+    folder = series_record.series_folder(tmp_path, "half")
+    folder.mkdir(parents=True)
+    (folder / "manifest.json").write_text(content, encoding="utf-8")  # a start that ended early
+    with pytest.raises(ManifestMismatch, match="unvollständig"):
+        _record(tmp_path, _games("half", range(1, 2)), series="half")
+    assert (folder / "manifest.json").read_text(encoding="utf-8") == content  # never rewritten
 
 
 @pytest.mark.parametrize(
