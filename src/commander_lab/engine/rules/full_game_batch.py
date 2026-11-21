@@ -184,7 +184,8 @@ def command_with_games_per_jvm(command: tuple[str, ...], games_per_jvm: int) -> 
     return (cleaned[0], f"{prefix}{games_per_jvm}", *cleaned[1:])
 
 
-def _games_per_jvm_permitted(command: tuple[str, ...]) -> int:
+def games_per_jvm_permitted(command: tuple[str, ...]) -> int:
+    """How many games one bridge JVM of ``command`` may play (its games-per-JVM property), >= 1."""
     prefix = f"-D{GAMES_PER_JVM_PROPERTY}="
     for part in command:
         if part.startswith(prefix):
@@ -193,6 +194,9 @@ def _games_per_jvm_permitted(command: tuple[str, ...]) -> int:
             except ValueError:
                 return 1
     return 1
+
+
+_games_per_jvm_permitted = games_per_jvm_permitted
 
 
 class _GameRunner(Protocol):
@@ -826,4 +830,5 @@ __all__ = [
     "execute_batch_case",
     "execute_batch_chunk",
     "execution_identity_of",
+    "games_per_jvm_permitted",
 ]

@@ -29,17 +29,17 @@ from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.models import RulesDeckInput
 
 from .full_game import (
-    _STARTUP_ATTEMPTS,
-    _STARTUP_BACKOFF_SECONDS,
+    FULL_GAME_STARTUP_ATTEMPTS,
+    FULL_GAME_STARTUP_BACKOFF_SECONDS,
+    FullGameBridgeSession,
     FullGameConformanceError,
     FullGameHiddenInformationAudit,
     FullGamePilotBinding,
     XmageFullGameRunner,
-    _is_startup_collision,
-    _public_error,
-    _RawFullGameClient,
+    is_startup_collision,
+    public_error,
 )
-from .full_game_batch import _games_per_jvm_permitted
+from .full_game_batch import games_per_jvm_permitted
 from .full_game_pilot.common import (
     FULL_GAME_DECISION_PROTOCOL_VERSION,
     FULL_GAME_EVIDENCE_CLASS,
@@ -172,7 +172,7 @@ def build_series_result(
     hidden_audit: FullGameHiddenInformationAudit,
 ) -> FullGameSeriesResult:
     """The result of a finished game, with the same checks of the engine's answer as a game
-    played alone (``XmageFullGameRunner._build_result``) but resting on ``ack``."""
+    played alone (``XmageFullGameRunner.conformance_result``) but resting on ``ack``."""
     if result.get("evidence_class") != FULL_GAME_EVIDENCE_CLASS:
         raise FullGameConformanceError("result evidence class is not technical conformance")
     for flag in ("consumed_gameplay_evidence", "holdout_consumed", "official_campaign_eligible"):
@@ -205,8 +205,8 @@ def build_series_result(
         decision_count=int(cast(int, result.get("decision_count", 0))),
         winner_seats=winner_seats,
         result_payload=cast(dict[str, object], result),
-        semantic_transcript_sha256=XmageFullGameRunner._sha256(semantic),
-        raw_result_sha256=XmageFullGameRunner._sha256(result),
+        semantic_transcript_sha256=XmageFullGameRunner.result_sha256(semantic),
+        raw_result_sha256=XmageFullGameRunner.result_sha256(result),
         shutdown_game_ack=ack,
         jvm_life_id=jvm_life_id,
         position_in_jvm=position_in_jvm,
@@ -227,16 +227,17 @@ class XmageFullGameSeriesSession:
 
     ``runner`` supplies the engine command, the pilots' policy and the drive of a game; it is
     the same runner (or its recording subclass) a game played alone uses, so a game here is the
-    game of its seed.
+    game of its seed. The session speaks to the bridge only through the runner's public step
+    sequence (:meth:`XmageFullGameRunner.open_session`, D-3, #1663).
     """
 
     def __init__(self, runner: XmageFullGameRunner, *, id_prefix: str = "jvm") -> None:
         self._runner = runner
         command = runner.command
-        permitted = _games_per_jvm_permitted(command) if command else 1
+        permitted = games_per_jvm_permitted(command) if command else 1
         self.budget = max(1, min(permitted, SERIES_JVM_GAME_CAP))
         self._id_prefix = id_prefix
-        self._client: _RawFullGameClient | None = None
+        self._bridge: FullGameBridgeSession | None = None
         self._life: JvmLife | None = None
         self._lives: list[JvmLife] = []
 
@@ -258,11 +259,15 @@ class XmageFullGameSeriesSession:
                 result = self._play_one(scenario, decks, pilots)
             except Exception as exc:
                 self._end_life("game_failed")
-                if first_of_life and _is_startup_collision(exc) and attempts < _STARTUP_ATTEMPTS:
+                if (
+                    first_of_life
+                    and is_startup_collision(exc)
+                    and attempts < FULL_GAME_STARTUP_ATTEMPTS
+                ):
                     # nothing of this game exists yet: the card repository was busy, start again
-                    time.sleep(_STARTUP_BACKOFF_SECONDS * attempts)
+                    time.sleep(FULL_GAME_STARTUP_BACKOFF_SECONDS * attempts)
                     continue
-                return _public_error(exc)
+                return public_error(exc)
             if self._life is not None and self._life.games >= self.budget:
                 self._end_life("budget")
             return result
@@ -278,33 +283,22 @@ class XmageFullGameSeriesSession:
     def __exit__(self, *_args: object) -> None:
         self.close()
 
-    def _ensure_jvm(self) -> tuple[_RawFullGameClient, JvmLife]:
-        if self._client is not None and self._life is not None:
-            return self._client, self._life
-        command = self._runner.command
-        if command is None:
-            raise FullGameConformanceError("full-game bridge is not configured")
-        runner = self._runner
-        client = _RawFullGameClient(
-            command,
-            cwd=runner.cwd,
-            request_timeout_seconds=runner.request_timeout_seconds,
-            private_card_repository=runner.private_card_repository,
-            shutdown_grace_seconds=runner.shutdown_grace_seconds,
-        )
-        client.start()
+    def _ensure_jvm(self) -> tuple[FullGameBridgeSession, JvmLife]:
+        if self._bridge is not None and self._life is not None:
+            return self._bridge, self._life
+        bridge = self._runner.open_session()
+        bridge.start()
         life = JvmLife(life_id=f"{self._id_prefix}-{len(self._lives) + 1}")
-        self._client, self._life = client, life
+        self._bridge, self._life = bridge, life
         self._lives.append(life)
-        return client, life
+        return bridge, life
 
     def _end_life(self, end: JvmLifeEnd) -> None:
-        client, life = self._client, self._life
-        self._client = self._life = None
-        if client is None:
+        bridge, life = self._bridge, self._life
+        self._bridge = self._life = None
+        if bridge is None:
             return
-        disposition = client.close()
-        client.shutdown_disposition = disposition
+        disposition = bridge.close()
         if life is not None:
             life.end = end
             life.disposition = disposition
@@ -315,29 +309,23 @@ class XmageFullGameSeriesSession:
         decks: tuple[RulesDeckInput, ...],
         pilots: tuple[FullGamePilotBinding, ...],
     ) -> FullGameSeriesResult:
-        runner = self._runner
-        policy = runner._validated_policy(scenario, decks, pilots)
-        client, life = self._ensure_jvm()
-        audit = FullGameHiddenInformationAudit()
-        runner._hidden_audit = audit
-        try:
-            provider = runner._open_game(client, scenario, decks)
-            _count, _, terminal = runner._drive(client, policy, stop_after=None)
-        finally:
-            runner._hidden_audit = None
+        # the inputs are checked before any JVM starts
+        policy = self._runner.decision_policy(scenario, decks, pilots)
+        bridge, life = self._ensure_jvm()
+        game = bridge.create_game(scenario, decks, policy)
+        _count, _, terminal = game.drive()
         if terminal is not True:
             raise FullGameConformanceError("full game ended without game over")
-        wire = cast(FullGameResultWire, client.request("get_full_game_result"))
-        protocol_game_id = f"{scenario.scenario_id}:{scenario.candidate_id}:{scenario.seed}"
-        ack = checked_shutdown_ack(client.request("shutdown_game"), game_id=protocol_game_id)
+        wire = game.result()
+        ack = checked_shutdown_ack(game.shutdown(), game_id=game.game_id)
         built = build_series_result(
             scenario,
-            provider,
+            game.provider,
             wire,
             ack,
             jvm_life_id=life.life_id,
             position_in_jvm=life.games + 1,
-            hidden_audit=audit,
+            hidden_audit=game.hidden_audit,
         )
         life.games += 1
         return built
