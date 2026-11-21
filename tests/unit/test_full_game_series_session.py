@@ -15,7 +15,7 @@ import pytest
 from pydantic import ValidationError
 
 from commander_lab.candidates.models import FutureXmageScenario
-from commander_lab.engine.rules import full_game_series
+from commander_lab.engine.rules import full_game, full_game_series
 from commander_lab.engine.rules.full_game import (
     FullGameConformanceError,
     FullGameConformanceResult,
@@ -134,7 +134,7 @@ def _scripted_bridge(monkeypatch: pytest.MonkeyPatch) -> None:
     _Client.instances = []
     _Client.start_errors = []
     _Client.ack_for = None
-    monkeypatch.setattr(full_game_series, "_RawFullGameClient", _Client)
+    monkeypatch.setattr(full_game, "_RawFullGameClient", _Client)
     monkeypatch.setattr(full_game_series.time, "sleep", lambda _s: None)
 
 
@@ -476,3 +476,105 @@ def test_the_real_deck_gate_refuses_a_series_result() -> None:
 
     with pytest.raises(TypeError, match="FullGameSeriesResult"):
         gate.summarize_result(_series_result_for(_scenario(1)), "gate")
+
+
+# --- the runner's public step sequence (D-3, Refs #1663) -------------------------------------------
+
+
+class _StepClient(_Client):
+    """Answers every step of the public sequence and records the payload it was sent."""
+
+    def __init__(self, command: tuple[str, ...], **kwargs: object) -> None:
+        super().__init__(command, **kwargs)
+        self.sent: list[tuple[str, object]] = []
+        self.started = False
+
+    def start(self) -> None:
+        self.started = True
+
+    def request(self, name: str, payload: object = None) -> object:
+        self.sent.append((name, payload))
+        if name == "export_event_log":
+            return {"events": [{"n": 0}, {"n": 1}, {"n": 2}]}
+        if name in {"get_full_game_result", "shutdown_game"}:
+            return super().request(name, payload)
+        return {"step": name}
+
+
+def test_the_public_steps_send_exactly_their_protocol_request(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(full_game, "_RawFullGameClient", _StepClient)
+    runner = _Runner(("java", "-jar", "bridge.jar", "full-game"))
+    scenario = _scenario(7)
+    policy = runner.decision_policy(scenario, (), ())
+    with runner.open_session() as bridge:
+        client = bridge.client
+        assert isinstance(client, _StepClient) and client.started
+        game = bridge.create_game(scenario, (), policy)
+        # create_game goes through the runner's own _open_game hook (here: the test override)
+        assert client.scenario == scenario and game.provider["engine_commit"] == COMMIT
+        assert game.game_id == "studio-game-s7:own:7" and game.policy is policy
+        assert game.start() == {"step": "start_full_game"}
+        assert game.next_decision() == {"step": "get_full_game_decision"}
+        assert game.answer({"selected_option_ids": ["a"]}) == {"step": "submit_full_game_decision"}
+        assert game.concede_offer("p1") == {"step": "get_concede_offer"}
+        assert game.concede("p1") == {"step": "submit_concede"}
+        assert game.result()["seed"] == 7
+        assert isinstance(game.shutdown(), dict)
+    assert client.sent == [
+        ("start_full_game", None),
+        ("get_full_game_decision", None),
+        ("submit_full_game_decision", {"response": {"selected_option_ids": ["a"]}}),
+        ("get_concede_offer", {"player_id": "p1"}),
+        ("submit_concede", {"proposal": {"actor_id": "p1", "player_id": "p1"}}),
+        ("get_full_game_result", None),
+        ("shutdown_game", None),
+    ]
+    assert client.closed and bridge.shutdown_disposition == FULL_GAME_SHUTDOWN_GRACEFUL
+
+
+@pytest.mark.parametrize(
+    ("offset", "expected"),
+    [(0, [0, 1, 2]), (2, [2]), (3, []), (9, [])],
+)
+def test_events_are_read_from_an_offset(
+    monkeypatch: pytest.MonkeyPatch, offset: int, expected: list[int]
+) -> None:
+    monkeypatch.setattr(full_game, "_RawFullGameClient", _StepClient)
+    runner = _Runner(("java", "-jar", "bridge.jar", "full-game"))
+    game = runner.open_session().create_game(_scenario(1), (), object())
+    assert [event["n"] for event in game.events(offset)] == expected
+
+
+def test_events_refuse_a_negative_offset(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(full_game, "_RawFullGameClient", _StepClient)
+    runner = _Runner(("java", "-jar", "bridge.jar", "full-game"))
+    game = runner.open_session().create_game(_scenario(1), (), object())
+    with pytest.raises(ValueError, match="offset"):
+        game.events(-1)
+
+
+def test_drive_arms_the_hidden_information_audit_only_while_it_runs(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(full_game, "_RawFullGameClient", _StepClient)
+    seen: list[object] = []
+
+    class _AuditRunner(_Runner):
+        def _drive(self, client, policy, *, stop_after=None, **_kwargs):  # type: ignore[no-untyped-def]
+            seen.append(self._hidden_audit)
+            raise FullGameProtocolError("boom", code="ENGINE_FAILURE")
+
+    runner = _AuditRunner(("java", "-jar", "bridge.jar", "full-game"))
+    game = runner.open_session().create_game(_scenario(1), (), object())
+    with pytest.raises(FullGameProtocolError):
+        game.drive()
+    assert seen == [game.hidden_audit] and runner._hidden_audit is None
+
+
+def test_a_bridge_session_needs_a_configured_command() -> None:
+    runner = _Runner(("java",))
+    runner.command = None
+    with pytest.raises(FullGameConformanceError, match="not configured"):
+        runner.open_session()

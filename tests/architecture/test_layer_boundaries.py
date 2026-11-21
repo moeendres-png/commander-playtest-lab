@@ -9,6 +9,8 @@ from pathlib import Path
 from types import ModuleType
 from typing import cast
 
+import pytest
+
 FORBIDDEN_PREFIXES = {
     "commander_lab.engine.structural": ("commander_lab.agents.openai_workflow", "openai", "agents"),
     "commander_lab.engine.rules": ("commander_lab.agents.openai_workflow", "openai", "agents"),
@@ -403,6 +405,75 @@ def test_studio_private_override_count_follows_studio_subclasses(tmp_path: Path)
         "first.py:3 _drive",
         "second.py:3 _drive",
     ]
+
+
+# --- one protocol driver (D-3, Refs #1663) -------------------------------------------------------
+#
+# The Studio series session speaks to the bridge only through the runner's public step sequence
+# (XmageFullGameRunner.decision_policy / open_session, FullGameBridgeSession, FullGameMatch). The
+# floor is 0, so the ratchet is an equality; studio/ follows in the second package of #1663.
+
+
+def _runner_modules(repo_root: Path) -> list[Path]:
+    rules = repo_root / "src" / "commander_lab" / "engine" / "rules"
+    return [rules / name for name in _COUNTS.RUNNER_MODULES]
+
+
+def test_full_game_series_reaches_no_private_runner_name(repo_root: Path) -> None:
+    series = repo_root / "src" / "commander_lab" / "engine" / "rules" / "full_game_series.py"
+    assert _COUNTS.private_runner_accesses([series], _runner_modules(repo_root)) == []
+
+
+_RUNNER_FIXTURE = (
+    "_STARTUP_ATTEMPTS = 4\n"
+    "class Runner:\n"
+    "    def __init__(self):\n"
+    "        self._hidden_audit = None\n"
+    "    def _drive(self): ...\n"
+    "    @staticmethod\n"
+    "    def _sha256(value): ...\n"
+)
+
+
+@pytest.mark.parametrize(
+    ("line", "name"),
+    [
+        ("runner._drive()", "_drive"),
+        ("runner._hidden_audit = object()", "_hidden_audit"),
+        ("Runner._sha256(1)", "_sha256"),
+        ("from .full_game import _STARTUP_ATTEMPTS", "_STARTUP_ATTEMPTS"),
+        ("from commander_lab.engine.rules.full_game_batch import _other", "_other"),
+        ("getattr(runner, '_hidden_audit')", "_hidden_audit"),
+        ("setattr(runner, '_drive', None)", "_drive"),
+        ("self._runner._drive()", "_drive"),
+    ],
+)
+def test_private_runner_scan_turns_red_on_each_access_form(
+    tmp_path: Path, line: str, name: str
+) -> None:
+    full_game = tmp_path / "full_game.py"
+    full_game.write_text(_RUNNER_FIXTURE, encoding="utf-8")
+    batch = tmp_path / "full_game_batch.py"
+    batch.write_text("def _other(): ...\n", encoding="utf-8")
+    caller = tmp_path / "caller.py"
+    caller.write_text(f"def play(runner):\n    {line}\n", encoding="utf-8")
+    assert _COUNTS.private_runner_accesses([caller], [full_game, batch]) == [f"caller.py:2 {name}"]
+
+
+def test_private_runner_scan_ignores_own_attributes_and_other_modules(tmp_path: Path) -> None:
+    full_game = tmp_path / "full_game.py"
+    full_game.write_text(_RUNNER_FIXTURE, encoding="utf-8")
+    caller = tmp_path / "caller.py"
+    caller.write_text(
+        "from .full_game_pilot.common import _StrictModel\n"
+        "class Session:\n"
+        "    def _drive(self):\n"
+        "        self._drive()\n"
+        "        super()._drive()\n"
+        "        return self._hidden_audit\n",
+        encoding="utf-8",
+    )
+    assert _COUNTS.private_runner_accesses([caller], [full_game]) == []
 
 
 def _history_entry(**changes: object) -> dict[str, object]:

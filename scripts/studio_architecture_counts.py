@@ -387,6 +387,10 @@ def keyword_uses(path: Path, keyword: str) -> int:
     )
 
 
+#: The full-game runner's modules under ``engine/rules`` (``private_runner_accesses``).
+RUNNER_MODULES = ("full_game.py", "full_game_batch.py")
+
+
 def _private(name: str) -> bool:
     return name.startswith("_") and not name.startswith("__")
 
@@ -470,6 +474,63 @@ def private_engine_accesses(studio_paths: list[Path], engine_paths: list[Path]) 
                 and _private(node.args[1].value)
                 and node.args[1].value in engine_names
                 and node.args[1].value not in studio_names
+            ):
+                hits.append(f"{path.name}:{node.lineno} {node.args[1].value}")
+    return sorted(hits, key=_site_key)
+
+
+#: Built-ins that reach an attribute by a constant name.
+_NAME_ACCESS_CALLS = frozenset({"getattr", "hasattr", "setattr", "delattr"})
+
+
+def private_runner_accesses(paths: list[Path], runner_paths: list[Path]) -> list[str]:
+    """Places in ``paths`` that reach a private name of the full-game runner modules (D-3, #1663).
+
+    ``runner_paths`` are the runner's modules (``engine/rules/full_game.py`` and
+    ``full_game_batch.py``); a runner name is a single-underscore name defined there (def,
+    class or assignment, ``self._x = ...`` included). A hit is (a) ``from <runner module> import
+    _name`` (absolute or relative; a module counts by its last dotted part, so
+    ``from .full_game_pilot.common import _StrictModel`` is not a runner import), (b) an
+    attribute ``obj._name``, read or written, where ``obj`` is not ``self``/``cls``/``super()``,
+    or (c) ``getattr``/``hasattr``/``setattr``/``delattr`` with the constant ``"_name"``.
+    Stricter than ``private_engine_accesses``: a runner name is a hit even when the scanned
+    file defines the same name itself (that exclusion hid ``runner._validated_policy`` in
+    ``play.py``). ``"<file>:<line> <name>"`` entries.
+    """
+    runner_names = {name for name in _defined_names(runner_paths) if _private(name)}
+    runner_modules = {path.stem for path in runner_paths}
+    hits: list[str] = []
+    for path in paths:
+        for node in ast.walk(_parse(path)):
+            if isinstance(node, ast.ImportFrom):
+                module = node.module or ""
+                if module.rsplit(".", 1)[-1] in runner_modules and (
+                    node.level > 0 or module.startswith("commander_lab.engine")
+                ):
+                    hits.extend(
+                        f"{path.name}:{node.lineno} {alias.name}"
+                        for alias in node.names
+                        if _private(alias.name)
+                    )
+            elif isinstance(node, ast.Attribute) and node.attr in runner_names:
+                receiver = node.value
+                if isinstance(receiver, ast.Name) and receiver.id in {"self", "cls"}:
+                    continue
+                if (
+                    isinstance(receiver, ast.Call)
+                    and isinstance(receiver.func, ast.Name)
+                    and receiver.func.id == "super"
+                ):
+                    continue
+                hits.append(f"{path.name}:{node.lineno} {node.attr}")
+            elif (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Name)
+                and node.func.id in _NAME_ACCESS_CALLS
+                and len(node.args) >= 2
+                and isinstance(node.args[1], ast.Constant)
+                and isinstance(node.args[1].value, str)
+                and node.args[1].value in runner_names
             ):
                 hits.append(f"{path.name}:{node.lineno} {node.args[1].value}")
     return sorted(hits, key=_site_key)
@@ -662,6 +723,11 @@ def collect(repo: Path) -> dict[str, object]:
     js_tests = js_executing_tests(_files(repo / "tests", "**/test_*.py"))
     private = private_engine_accesses(studio_py, engine_py)
     overrides = private_engine_overrides(studio_py, engine_py)
+    runner_py = [source / "engine" / "rules" / name for name in RUNNER_MODULES]
+    series_runner = private_runner_accesses(
+        [source / "engine" / "rules" / "full_game_series.py"], runner_py
+    )
+    studio_runner = private_runner_accesses(studio_py, runner_py)
     return {
         "repo_head": _git_head(repo),
         "sizes": {
@@ -688,6 +754,9 @@ def collect(repo: Path) -> dict[str, object]:
         "studio_private_engine_access_sites": private,
         "studio_private_engine_overrides": len(overrides),
         "studio_private_engine_override_sites": overrides,
+        "full_game_series_private_runner_access_sites": series_runner,
+        "studio_private_runner_accesses": len(studio_runner),
+        "studio_private_runner_access_sites": studio_runner,
         "studio_import_graph": {
             "modules": len(graph),
             "edges": sum(len(targets) for targets in graph.values()),
