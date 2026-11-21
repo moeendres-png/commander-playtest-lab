@@ -562,6 +562,26 @@ CREATE TABLE IF NOT EXISTS card_ruling_source (
     source_id TEXT NOT NULL REFERENCES source(source_id),
     PRIMARY KEY (oracle_id, published_at, comment, source_id)
 );
+-- TAM purchase guide values (#1637, register entry "Preise für TAM"): the field prices.eur of a
+-- local Scryfall bulk file, one value per oracle_id, only in this local store (never committed,
+-- never in scryfall_card). Read only by purchase_guide_values (TAM guide-value module).
+-- Created on every open without a schema bump (schema 22 is reserved for the file split,
+-- E15 Q9); a card without a usable value has no row ("unbekannt", never 0).
+CREATE TABLE IF NOT EXISTS tam_price_snapshot (
+    snapshot_id INTEGER PRIMARY KEY CHECK (snapshot_id = 1),
+    file_name TEXT NOT NULL,
+    file_sha256 TEXT NOT NULL,
+    bulk_date TEXT NOT NULL,
+    date_basis TEXT NOT NULL,
+    imported_at TEXT NOT NULL,
+    cards_with_value INTEGER NOT NULL,
+    cards_without_value INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS tam_price_eur (
+    oracle_id TEXT PRIMARY KEY,
+    eur_cents INTEGER NOT NULL CHECK (eur_cents > 0),
+    scryfall_id TEXT
+) WITHOUT ROWID;
 CREATE VIEW IF NOT EXISTS card_fact AS
 SELECT c.card_id,
        c.oracle_name,
