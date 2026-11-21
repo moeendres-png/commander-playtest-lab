@@ -11,8 +11,25 @@ from pathlib import Path
 import pytest
 
 STATIC = Path(__file__).resolve().parents[2] / "src" / "commander_lab" / "studio" / "static"
-# Price and buy wording is forbidden in every page and script (B1, AGENTS.md §12).
+# Price and buy wording is forbidden in every page and script (B1, AGENTS.md §12). The one
+# exception (owner decision 2026-11-21, register entry "Preise für TAM", #1637): the marked TAM
+# block of wishlist.js, the TAM purchase list with guide values; nothing else is opened.
 PRICE_WORDS = re.compile(r"\b(preis\w*|kaufen|price\w*|buy)\b|€", re.IGNORECASE)
+PRICE_FILE = "wishlist.js"
+PRICE_BEGIN = "// TAM-RICHTWERT-BEGIN"
+PRICE_END = "// TAM-RICHTWERT-END"
+TAM_PRICE_ROUTE = "/api/tam/zukauf-richtwerte"
+
+
+def _outside_price_block(text: str) -> str:
+    """The text of wishlist.js without its one marked TAM block (the markers must be there
+    exactly once and in order, else the whole text stays and the price guard fails)."""
+    if text.count(PRICE_BEGIN) != 1 or text.count(PRICE_END) != 1:
+        return text
+    start, end = text.index(PRICE_BEGIN), text.index(PRICE_END)
+    return text if end < start else text[:start] + text[end + len(PRICE_END) :]
+
+
 # Owner decision 2026-11-19 (E14, #1187, #1636): the word "Zukauf" (missing-card wishlist
 # without prices) is allowed in BUILD only: its wishlist helpers and the BUILD page (#1648).
 ZUKAUF_WORDS = re.compile(r"\bzuk[aä]u[fe]\w*", re.IGNORECASE)
@@ -72,8 +89,46 @@ def test_replace_children_never_receives_a_bare_null() -> None:
 def test_no_price_wording_in_pages_and_scripts() -> None:
     for path in [*_files("*.html"), *_files("*.js")]:
         text = path.read_text(encoding="utf-8")
+        if path.name == PRICE_FILE:
+            text = _outside_price_block(text)
         hits = PRICE_WORDS.findall(text)
         assert not hits, f"{path.name}: {hits}"
+
+
+def test_price_wording_is_opened_only_for_the_one_tam_block() -> None:
+    """#1637: exactly one marked block in wishlist.js may hold price wording; no other file has
+    the markers; only app.js asks the TAM route, once, behind the TAM and Zukauf gate."""
+    wishlist = (STATIC / PRICE_FILE).read_text(encoding="utf-8")
+    assert wishlist.count(PRICE_BEGIN) == 1 and wishlist.count(PRICE_END) == 1
+    block = wishlist[wishlist.index(PRICE_BEGIN) : wishlist.index(PRICE_END)]
+    assert PRICE_WORDS.search(block)  # the pattern still finds the opened wording
+    assert 'const TAM_COMMANDER = "Tam, the Possibility";' in block
+    assert "return commander === TAM_COMMANDER && includeUnowned === true;" in block
+    # the copied wishlist text stays a plain card list
+    plain = wishlist[wishlist.index("function formatWishlistText") : wishlist.index(PRICE_BEGIN)]
+    assert not re.search(r"cents|eur|richtwert", plain, re.IGNORECASE)
+    for path in [*_files("*.html"), *_files("*.js"), *_files("*.css")]:
+        text = path.read_text(encoding="utf-8")
+        if path.name != PRICE_FILE:
+            assert PRICE_BEGIN not in text and PRICE_END not in text, path.name
+            assert "eur_cents" not in text, path.name
+            assert "tamPurchaseView" not in text or path.name == "app.js", path.name
+        if path.name != "app.js":
+            assert TAM_PRICE_ROUTE not in text, path.name
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert app.count(TAM_PRICE_ROUTE) == 1 and app.count("tamPurchaseView") == 1
+    opener = app[app.index("async function openTamPurchase(") :]
+    opener = opener[: opener.index("\n}\n")]
+    assert TAM_PRICE_ROUTE in opener and "tamPurchaseView" in opener
+    # the working list reaches the server before the question (the server reads the draft)
+    assert "if (state.dirty && state.needsDraftPut) await syncDraft();" in opener
+    assert opener.index("await syncDraft();") < opener.index(TAM_PRICE_ROUTE)
+    assert "deck_id: state.deckId, branch: state.branch" in opener
+    gate = "!StudioWishlist.tamPricesAllowed(COMMANDER, state.includeUnowned)) return;"
+    assert gate in opener and opener.index(gate) < opener.index(TAM_PRICE_ROUTE)
+    assert app.count("openTamPurchase(") == 2  # the definition and the gated button
+    button = app[app.index('id: "tam-zukauf-open"') - 200 : app.index('id: "tam-zukauf-open"')]
+    assert "StudioWishlist.tamPricesAllowed(COMMANDER, state.includeUnowned)" in button
 
 
 def test_zukauf_wording_only_on_the_build_page() -> None:
@@ -1785,6 +1840,140 @@ const SIM = {{cohort: 'SIMULATED_RESULT', played_seats: []}};
 const HUMAN = {{cohort: 'PLAYED_GAME', played_seats: [0]}};
 const UNKNOWN = {{cohort: 'UNKNOWN', played_seats: []}};
 """
+
+
+def test_tam_guide_values_in_wishlist_js_only_for_tam_and_never_zero() -> None:
+    """#1637: the TAM purchase list helpers. The gate is TAM plus Zukauf mode; a missing value
+    is "unbekannt", never 0 (also the sum); unknown rows sort last; the budget filter is a
+    per-card limit that counts what it hides; owned cards carry no value."""
+    script = r"""
+const W = require('./wishlist.js');
+function h(tag, props, ...children) {
+  const el = { tag, props: props || {}, children: [] };
+  el.replaceChildren = (...kids) => { el.children = kids.flat(); };
+  el.children = children.flat();
+  return el;
+}
+const text = (el) => (el === null || el === undefined || el === false) ? '' : typeof el !== 'object' ? String(el) : el.children.map(text).join(' ');
+const missing = [
+  { card_id: 'a', name: 'Alpha Walker', missing: 1 },
+  { card_id: 'b', name: 'Beta Key', missing: 2 },
+  { card_id: 'c', name: 'Charlie Unknown', missing: 1 },
+  { card_id: 'd', name: 'Delta Owned', missing: 1 },
+  { card_id: 'e', name: 'Echo Zero', missing: 1 },
+  { card_id: 'z', name: 'Aaa Unknown', missing: 1 },
+];
+const answer = { kind: 'Richtwert', source: 'Scryfall prices.eur (lokale Bulk-Datei)', notice: 'kein Angebot.', rule: 'r',
+  snapshot: { bulk_date: '2026-11-20', date_basis: 'Dateiname', imported_at: 't', file_sha256: 'x' },
+  cards: [
+    { card_id: 'a', status: 'value', eur_cents: 123456 },
+    { card_id: 'b', status: 'value', eur_cents: 250 },
+    { card_id: 'c', status: 'unknown' },
+    { card_id: 'd', status: 'owned', eur_cents: 999 },
+    { card_id: 'e', status: 'value', eur_cents: 0 },
+    { card_id: 'z', status: 'unknown' },
+  ] };
+const rows = W.tamPurchaseRows(missing, answer);
+const names = (list) => list.map((r) => r.name);
+const allUnknown = W.tamPurchaseRows(missing, { snapshot: null, cards: [] });
+const view = W.tamPurchaseView(h, answer, missing, { sort: 'price-desc', budget: '' });
+const emptyView = W.tamPurchaseView(h, { snapshot: null, cards: [] }, missing, { sort: 'name', budget: '' });
+const filteredView = W.tamPurchaseView(h, answer, missing, { sort: 'name', budget: '5' });
+console.log(JSON.stringify({
+  gate: [W.tamPricesAllowed('Tam, the Possibility', true), W.tamPricesAllowed('Tam, the Possibility', false),
+    W.tamPricesAllowed('Chulane, Teller of Tales', true), W.tamPricesAllowed('tam, the possibility', true),
+    W.tamPricesAllowed('Tam, the Possibility', 'true')],
+  fmt: [W.formatEur(123456), W.formatEur(5), W.formatEur(0), W.formatEur(null), W.formatEur(undefined), W.formatEur(-100), W.formatEur(1.5), W.formatEur('250')],
+  budget: [W.parseBudget('12'), W.parseBudget('12,5'), W.parseBudget('0'), W.parseBudget(''), W.parseBudget('abc'), W.parseBudget('3.999'),
+    W.parseBudget('1.000'), W.parseBudget('1.234,56'), W.parseBudget('10 €'), W.parseBudget('1,234'), W.parseBudget('12.505')],
+  atLimit: names(W.filterTamBudget(rows, 250).rows),
+  absent: W.tamPurchaseRows([{ card_id: 'q', name: 'Not Saved', missing: 1 }], answer).map((r) => [r.status, r.cents]),
+  absentView: text(W.tamPurchaseView(h, answer, [{ card_id: 'q', name: 'Not Saved', missing: 1 }], { sort: 'name', budget: '' })),
+  invalidView: text(W.tamPurchaseView(h, answer, missing, { sort: 'name', budget: '12,345' })),
+  status: rows.map((r) => [r.status, r.cents]),
+  asc: names(W.sortTamRows(rows, 'price-asc')),
+  desc: names(W.sortTamRows(rows, 'price-desc')),
+  byName: names(W.sortTamRows(rows, 'name')),
+  filter: (({ rows: kept, hiddenOver, hiddenUnknown, hiddenOwned, active }) => [names(kept), hiddenOver, hiddenUnknown, hiddenOwned, active])(W.filterTamBudget(rows, 500)),
+  owned: W.summarizeTamRows(rows).owned,
+  noFilter: W.filterTamBudget(rows, null).rows.length,
+  sum: W.tamSumText(W.summarizeTamRows(rows)),
+  sumUnknown: W.tamSumText(W.summarizeTamRows(allUnknown)),
+  sumCentsUnknown: W.summarizeTamRows(allUnknown).sumCents,
+  sumEmpty: W.tamSumText(W.summarizeTamRows([])),
+  view: text(view),
+  emptyView: text(emptyView),
+  filteredView: text(filteredView),
+}));
+"""
+    result = _node_json(script)
+    assert result["gate"] == [True, False, False, False, False]
+    assert result["fmt"] == [
+        "1.234,56 €", "0,05 €", "unbekannt", "unbekannt", "unbekannt", "unbekannt", "unbekannt",
+        "unbekannt",
+    ]  # fmt: skip
+    # German input: thousands dot and decimal comma; three decimals are unreadable
+    assert result["budget"] == [
+        1200, 1250, None, None, None, 399900, 100000, 123456, 1000, None, 1250500,
+    ]  # fmt: skip
+    assert result["atLimit"] == ["Beta Key"]  # a value equal to the limit stays in
+    # a card the server did not answer (not in the saved list) is "absent", not unknown
+    assert result["absent"] == [["absent", None]]
+    assert "nicht im gespeicherten Deck (kein Preis)" in str(result["absentView"])
+    assert "1 Karten stehen nicht in der gespeicherten Deckliste" in str(result["absentView"])
+    assert "Budget „12,345“ nicht lesbar" in str(result["invalidView"])
+    # owned: no value although the answer has one; a 0 value is unknown
+    assert result["status"] == [
+        ["value", 123456], ["value", 250], ["unknown", None], ["owned", None], ["unknown", None],
+        ["unknown", None],
+    ]  # fmt: skip
+    # rows without a value come last in both directions, even "Aaa Unknown" (by name among them)
+    assert result["asc"] == [
+        "Beta Key",
+        "Alpha Walker",
+        "Aaa Unknown",
+        "Charlie Unknown",
+        "Delta Owned",
+        "Echo Zero",
+    ]
+    assert result["desc"] == [
+        "Alpha Walker",
+        "Beta Key",
+        "Aaa Unknown",
+        "Charlie Unknown",
+        "Delta Owned",
+        "Echo Zero",
+    ]
+    assert result["byName"][0] == "Aaa Unknown"
+    assert result["filter"] == [["Beta Key"], 1, 3, 1, True]
+    assert result["noFilter"] == 6
+    assert result["owned"] == 1
+    # 1234,56 + 2 x 2,50; of the five cards to buy three have no value (two unknown, one zero);
+    # the owned card is counted apart, never as "ohne Preis"
+    assert result["sum"] == (
+        "Summe (Richtwert): 1.239,56 € · 3 von 5 Karten ohne Preis · 1 im Besitz (kein Preis)"
+    )
+    assert result["sumCentsUnknown"] is None  # no sum, not a sum of 0
+    assert result["sumUnknown"] == "Summe (Richtwert): unbekannt · 6 von 6 Karten ohne Preis"
+    assert result["sumEmpty"] == "Summe (Richtwert): unbekannt · 0 von 0 Karten ohne Preis"
+    view = str(result["view"])
+    assert "Scryfall prices.eur (lokale Bulk-Datei)" in view and "Bulk-Datum 2026-11-20" in view
+    assert "Richtwert" in view and "im Besitz (kein Preis)" in view and "unbekannt" in view
+    assert view.index("Alpha Walker") < view.index("Beta Key") < view.index("Charlie Unknown")
+    for shown in (view, str(result["emptyView"]), str(result["filteredView"])):
+        assert "0,00 €" not in shown and " 0 €" not in shown
+    assert "Kein Preis-Schnappschuss importiert" in str(result["emptyView"])
+    # the command the empty state names is the real one (python -m, not a missing alias)
+    assert "python -m commander_lab.studio import-tam-prices" in str(result["emptyView"])
+    assert "Summe (Richtwert): unbekannt" in str(result["emptyView"])
+    assert (
+        "Budgetfilter: 1 Karten über dem Höchstwert, 3 Karten ohne Preis und 1 im Besitz "
+        "ausgeblendet." in str(result["filteredView"])
+    )
+    wishlist = (STATIC / "wishlist.js").read_text(encoding="utf-8")
+    # only the planning functions named in the register: no cumulative pick, no cheapest offer
+    for forbidden in ("günstigst", "Angebot:", "Cardmarket", "kaufen", "Warenkorb", "wants"):
+        assert forbidden.casefold() not in wishlist.casefold(), forbidden
 
 
 def test_cohort_js_words_each_cohort_and_never_calls_an_unknown_game_simulated() -> None:

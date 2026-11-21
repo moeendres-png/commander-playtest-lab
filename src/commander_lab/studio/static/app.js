@@ -626,6 +626,25 @@ function copyWishlist(ownership) {
     openFallbackModal();
   }
 }
+// TAM only (#1637): the purchase list with guide values; every wording and rule of it lives in
+// wishlist.js. Other commanders and the Zukauf mode off never ask the server; the server checks
+// the stored commander of the deck itself.
+async function openTamPurchase(ownership) {
+  if (typeof StudioWishlist === "undefined" || !StudioWishlist.tamPricesAllowed(COMMANDER, state.includeUnowned)) return;
+  if (!state.deckId) return;
+  let answer;
+  try {
+    // the server reads the deck's own commander and list: the working list is stored first
+    if (state.dirty && state.needsDraftPut) await syncDraft();
+    answer = await api("/api/tam/zukauf-richtwerte", "POST", { deck_id: state.deckId, branch: state.branch, commander: COMMANDER, card_ids: ownership.missingCards.map((card) => card.card_id) });
+  } catch (error) { fail(error); return; }
+  const box = $("modal-box"); box.className = "plain";
+  box.replaceChildren(
+    StudioWishlist.tamPurchaseView(h, answer, ownership.missingCards, { sort: "name", budget: "" }),
+    h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen"))
+  );
+  $("modal").hidden = false;
+}
 function renderList(body) {
   const problems = new Set(state.issues.map((issue) => issue.card_id).filter(Boolean));
   for (const id of state.commanderIds) {
@@ -640,7 +659,10 @@ function renderList(body) {
     if (ownership.missing > 0) {
       body.append(h("div", { class: "actions", id: "wishlist-summary" },
         h("span", { class: "pill warn", title: "Kopien dieser Deckliste samt Commander (ein Commander-Deck hat 100): im Besitz laut Sammlung (Untergrenze), Zukauf = fehlende Kopien" }, `Im Besitz: ${StudioUI.num(ownership.owned, 0)}/100 · Zukauf: ${StudioUI.num(ownership.missing, 0)}/100`),
-        h("button", { type: "button", class: "small", id: "copy-wishlist", onclick: () => copyWishlist(ownership) }, "Zukauf-Liste kopieren")));
+        h("button", { type: "button", class: "small", id: "copy-wishlist", onclick: () => copyWishlist(ownership) }, "Zukauf-Liste kopieren"),
+        StudioWishlist.tamPricesAllowed(COMMANDER, state.includeUnowned)
+          ? h("button", { type: "button", class: "small", id: "tam-zukauf-open", onclick: () => openTamPurchase(ownership) }, "Zukauf-Liste mit Richtwerten (TAM)")
+          : null));
     }
   }
   const cards = deckCards();

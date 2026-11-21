@@ -97,6 +97,7 @@ _IMPORT_TABLES = (
     "commander_binding", "neutral_board_row", "observation", "card_signal", "card_role",
     "card_role_claim", "commander_combo", "playgroup_card_atlas", "playgroup_top_commander",
     "playgroup_final_zone", "source", "source_capture_event",
+    "tam_price_snapshot", "tam_price_eur",
 )  # fmt: skip
 _DECK_TABLES = (
     "deck", "deck_revision", "deck_revision_card", "deck_branch", "deck_draft", "deck_label",

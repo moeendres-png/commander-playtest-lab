@@ -32,6 +32,7 @@
   "tests/unit/test_required_test_ownership.py",
   "tests/unit/test_studio_docs_commands.py",
   "tests/unit/test_studio_search_syntax.py",
+  "tests/unit/test_studio_tam_prices.py",
   "tests/unit/test_studio_tierliste_wp6.py",
   "tests/unit/test_technical_truth.py",
   "tests/unit/test_topdeck_collector.py",
