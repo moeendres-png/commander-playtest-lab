@@ -1434,6 +1434,7 @@ def test_deck_series_limits_are_reported(tmp_path: Path, monkeypatch: pytest.Mon
     # n/N of the cut, never silent (#1658 B2b): 4 of 5 files read
     assert (out["scan_files_read"], out["scan_files_total"]) == (4, 5)
     assert (out["legacy_series_shown"], out["legacy_series_found"]) == (4, 4)
+    assert out["legacy_series_found_lower_bound"] is True  # one file unread: N unknown
     assert len(cast(list[object], out["series"])) == 4
     monkeypatch.setattr(deck_series, "SCAN_LIMIT", 10)
     monkeypatch.setattr(deck_series, "SERIES_LIMIT", 2)
@@ -1442,6 +1443,7 @@ def test_deck_series_limits_are_reported(tmp_path: Path, monkeypatch: pytest.Mon
     assert capped["scan_truncated"] == 0
     assert (capped["legacy_series_shown"], capped["legacy_series_found"]) == (2, 5)
     assert (capped["scan_files_read"], capped["scan_files_total"]) == (5, 5)
+    assert capped["legacy_series_found_lower_bound"] is False
     assert len(cast(list[object], capped["series"])) == 2
 
 

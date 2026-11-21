@@ -23,6 +23,7 @@ import itertools
 import json
 import os
 import shutil
+import sqlite3
 import threading
 import time
 from collections.abc import Callable, Mapping, Sequence
@@ -339,9 +340,15 @@ def start_experiment(
         "SELECT 1 FROM experiment WHERE experiment_id = ?", (experiment_id,)
     ).fetchone()
     try:
+        folder.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as error:  # e.g. ``games/experiments`` is a file: not a collision
+        raise RuntimeError(
+            f"Experiment-Ordner {folder.parent} kann nicht angelegt werden ({error}); "
+            "nichts gestartet"
+        ) from error
+    try:
         if taken is not None:
             raise FileExistsError(experiment_id)
-        folder.parent.mkdir(parents=True, exist_ok=True)
         # exclusive: an id that already exists (two processes, same second, same plan) never
         # overwrites the plan, run or decision files of the existing experiment
         folder.mkdir(exist_ok=False)
@@ -353,7 +360,26 @@ def start_experiment(
     inserted = False
     try:
         _write_json(folder / "plan.json", record)
-        _insert(store, row, arms)
+        try:
+            _insert(store, row, arms)
+        except sqlite3.IntegrityError as error:
+            # a concurrent rebuild indexed this call's fresh plan file first: that row is this
+            # call's own (same id and plan SHA) and goes with it; any other row stays
+            store.connection.rollback()
+            with store.connection:
+                store.connection.execute(
+                    "DELETE FROM experiment_arm WHERE experiment_id = ? AND experiment_id IN "
+                    "(SELECT experiment_id FROM experiment WHERE plan_sha = ?)",
+                    (experiment_id, sha),
+                )
+                store.connection.execute(
+                    "DELETE FROM experiment WHERE experiment_id = ? AND plan_sha = ?",
+                    (experiment_id, sha),
+                )
+            raise RuntimeError(
+                f"Index-Konflikt beim Start von {experiment_id} (gleichzeitiger Neuaufbau?); "
+                "nichts gestartet, bitte neu starten"
+            ) from error
         store.connection.commit()
         inserted = True
         starter = start_series or _default_starter(store, data_path)

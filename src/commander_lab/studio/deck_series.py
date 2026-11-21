@@ -425,6 +425,8 @@ def deck_series(
         "scan_files_total": len(every),
         "legacy_series_shown": len(scanned),
         "legacy_series_found": len(found),
+        # with unread files the true number of legacy series is unknown: found is a lower bound
+        "legacy_series_found_lower_bound": len(every) > len(files),
     }
 
 

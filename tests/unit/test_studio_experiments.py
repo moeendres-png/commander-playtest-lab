@@ -1092,3 +1092,143 @@ def test_a_schema_21_store_from_before_the_index_stays_readable(
     assert client.get("/api/experiments/paired-5-1-legacy05", headers=HEADERS).status_code == 404
     assert client.post("/api/experiments/rebuild-index", headers=HEADERS).status_code == 200
     assert _detail(lab, "paired-5-1-legacy05")["legacy"] is True
+
+
+def test_detail_maturity_depends_on_the_other_series_of_the_deck(lab: dict[str, object]) -> None:
+    """Review #1725 P2-2: Holm family and the used-seed register depend on the deck's other
+    series; the detail takes the finding from that whole computation, not from this series
+    alone."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    folder = Path(str(lab["folder"]))
+    one = _start(lab, _plan(revs, purpose="confirmation", first_seed=200))
+    two = _start(
+        lab,
+        _plan(
+            revs,
+            purpose="confirmation",
+            first_seed=300,
+            variants=[{"revision_id": revs["variant2"]}],
+        ),
+    )
+    # a legacy series (scanned, not indexed) that played seed 300: confirmation two is not fresh
+    path = folder / "games" / "paired-6-1-legacy06.paired.json"
+    path.write_text(
+        json.dumps(
+            {
+                "schema": SCHEMA_PAIRED_JOB,
+                "series_id": "paired-6-1-legacy06",
+                "status": "completed",
+                "base_ref": revs["base"],
+                "variant_ref": revs["variant"],
+                "budget_pairs": 4,
+                "created_at": "2026-06-01",
+                "result": {
+                    "pairs_completed": 4,
+                    "pairs_played": 4,
+                    "difference_pp": 25.0,
+                    "seeds": [300],
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    history = _history(lab)
+    assert len(history["series"]) == 3
+    befunde = history["reifegrad"]["befunde"]
+    for started in (one, two):
+        detail = _detail(lab, started["experiment_id"])
+        assert detail["reifegrad"] == befunde[started["series_id"]]
+    # the other series matter: a Holm family of two, and the legacy seed makes two not fresh
+
+    def fresh(sid: str) -> object:
+        return next(
+            c["erfuellt"]
+            for c in befunde[sid]["bedingungen"]
+            if str(c["name"]).startswith("frische Seeds")
+        )
+
+    assert any("Holm-Familie: 2" in h for h in befunde[one["series_id"]]["hinweise"])
+    assert (fresh(one["series_id"]), fresh(two["series_id"])) == (True, False)
+
+
+def test_plan_state_mismatch_and_missing_show_no_plan(lab: dict[str, object]) -> None:
+    """Review #1725 P2-1: a changed or deleted plan file is never shown as intact."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    folder = Path(str(lab["folder"]))
+    started = _start(lab, _plan(revs))
+    plan_path = folder / "games" / "experiments" / started["experiment_id"] / "plan.json"
+    record = json.loads(plan_path.read_text(encoding="utf-8"))
+    record["plan"]["budget_pairs"] = 400
+    plan_path.write_text(json.dumps(record), encoding="utf-8")
+    changed = _detail(lab, started["experiment_id"])
+    assert changed["plan_state"] == "mismatch"
+    assert changed["plan"] is None and changed["table"] is None
+    assert changed["result"]["status"] == "plan_mismatch"
+    plan_path.unlink()
+    missing = _detail(lab, started["experiment_id"])
+    assert missing["plan_state"] == "missing"
+    assert missing["plan"] is None and missing["table"] is None
+
+
+def test_detail_says_why_a_maturity_is_unknown(lab: dict[str, object]) -> None:
+    """Review #1725 P3 (c): no finding stays None with a stated reason."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    folder = Path(str(lab["folder"]))
+    store = StudioStore.open(folder)
+    try:
+        with store.connection:
+            for exp_id, deck_id in (("exp-9-1-nofinding", "chulane-b2"), ("exp-9-2-nodeck", "")):
+                store.connection.execute(
+                    "INSERT INTO experiment(experiment_id, deck_id, question, purpose, "
+                    "base_revision_id, created_at) VALUES (?, ?, 'q', 'exploration', "
+                    "'gone@1', '2026-07-01')",
+                    (exp_id, deck_id),
+                )
+                store.connection.execute(
+                    "INSERT INTO experiment_arm(experiment_id, role, revision_id) "
+                    "VALUES (?, 'base', 'gone@1')",
+                    (exp_id,),
+                )
+    finally:
+        store.close()
+    no_finding = _detail(lab, "exp-9-1-nofinding")
+    assert no_finding["reifegrad"] is None
+    assert no_finding["reifegrad_hinweis"] == "kein Befund im Deck-Verlauf (unbekannt)"
+    no_deck = _detail(lab, "exp-9-2-nodeck")
+    assert no_deck["reifegrad"] is None
+    assert no_deck["reifegrad_hinweis"] == "Deck unbekannt: kein Reifegrad (unbekannt)"
+
+
+def test_start_errors_are_named_not_mistaken_for_a_collision(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Review #1725 P3 (b), (a): a blocked experiments folder and an index conflict from a
+    concurrent rebuild are clear 409s; the conflict leaves no orphaned row of this call."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    folder = Path(str(lab["folder"]))
+    blocker = folder / "games" / "experiments"
+    blocker.parent.mkdir(parents=True, exist_ok=True)
+    blocker.write_text("kein Ordner", encoding="utf-8")
+    res = client.post("/api/experiments", headers=HEADERS, json={"plan": _plan(revs)})
+    assert res.status_code == 409
+    assert "kann nicht angelegt werden" in res.json()["detail"]
+    assert "existiert schon" not in res.json()["detail"]
+    blocker.unlink()
+    original = experiments._insert
+
+    def rebuild_first(store: StudioStore, row: object, arms: object) -> None:
+        monkeypatch.setattr(experiments, "_insert", original)
+        experiments.rebuild_index(store, folder)  # the concurrent rebuild indexes the plan
+        original(store, row, arms)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(experiments, "_insert", rebuild_first)
+    res = client.post("/api/experiments", headers=HEADERS, json={"plan": _plan(revs)})
+    assert res.status_code == 409 and "Index-Konflikt" in res.json()["detail"]
+    assert _index_rows(folder) == []
+    assert not any((folder / "games" / "experiments").iterdir())
