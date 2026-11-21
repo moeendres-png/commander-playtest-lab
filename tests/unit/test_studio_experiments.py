@@ -556,7 +556,23 @@ def test_rebuilt_index_gives_the_same_history(lab: dict[str, object]) -> None:
     res = client.post("/api/experiments/rebuild-index", headers=HEADERS)
     assert res.status_code == 200
     assert res.json() == {"experiments": 2, "legacy": 2, "skipped": 0}
-    assert _history(lab) == before
+    # the scan counts say how the legacy part was read (scanned before, indexed now)
+    scan_keys = {
+        "scan_files_read",
+        "scan_files_total",
+        "legacy_series_shown",
+        "legacy_series_found",
+    }
+
+    def without_scan(payload: dict[str, object]) -> dict[str, object]:
+        return {k: v for k, v in payload.items() if k not in scan_keys}
+
+    rebuilt = _history(lab)
+    assert without_scan(rebuilt) == without_scan(before)
+    assert (before["legacy_series_shown"], rebuilt["legacy_series_shown"]) == (1, 0)
+    # delete and rebuild once more: the answer is identical, scan counts included
+    assert client.post("/api/experiments/rebuild-index", headers=HEADERS).status_code == 200
+    assert _history(lab) == rebuilt
     # a series of another deck's state never appears at this deck
     other = client.get("/api/decks/other-b2/series", headers=HEADERS).json()
     assert {s["series_id"] for s in other["series"]} == {"paired-1-2-legacy02"}
@@ -815,3 +831,540 @@ def test_adopt_and_undo_write_only_what_they_read(
     assert res.status_code == 409
     assert _main_branch(folder) == revs["variant2"]
     assert _index_rows(folder)[0]["decision"] == "adopted"
+
+
+# -- B2b (#1658): experiment detail, read-only routes, no overwrite, old store ---------------
+
+
+def _detail(lab: dict[str, object], experiment_id: str) -> dict[str, object]:
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    res = client.get(f"/api/experiments/{experiment_id}", headers=HEADERS)
+    assert res.status_code == 200, res.text
+    body = res.json()
+    assert isinstance(body, dict)
+    return body
+
+
+def test_experiment_detail_shows_the_plan_and_the_maturity_of_the_series_route(
+    lab: dict[str, object],
+) -> None:
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    first = _start(lab, _plan(revs, budget_pairs=8))
+    second = _start(lab, _plan(revs, variants=[{"revision_id": revs["variant2"]}], first_seed=200))
+    history = _history(lab)
+    for started in (first, second):
+        detail = _detail(lab, started["experiment_id"])
+        assert detail["data_class"] == "SIMULATED_RESULT"
+        assert detail["plan_state"] == "intact" and detail["legacy"] is False
+        plan = detail["plan"]
+        assert isinstance(plan, dict)
+        assert plan["purpose"] == "exploration" and plan["stop_rule"] == "obf_looks"
+        assert plan["look_every_pairs"] == 2 and plan["question_kind"] == "axis"
+        assert [a["role"] for a in detail["arms"]] == ["base", "variant"]
+        assert [a["revision_id"] for a in detail["arms"]] == [
+            a["revision_id"] for a in started["arms"]
+        ]
+        assert all(isinstance(a["deck_hash"], str) for a in detail["arms"])
+        assert detail["seeds"]["first"] == started["seeds"]["first"]
+        assert detail["seeds"]["count"] == started["seeds"]["count"]
+        assert detail["table_hash"] == started["table_hash"]
+        sid = started["series_id"]
+        # the same entry and the same maturity as the deck's series route, nothing recomputed
+        entry = next(s for s in history["series"] if s["series_id"] == sid)
+        assert detail["result"] == entry
+        assert detail["reifegrad"] == history["reifegrad"]["befunde"][sid]
+        assert detail["reifegrad"]["n"] == entry["pairs_completed"]
+        assert detail["reifegrad"]["N"] == entry["pairs_planned"]
+    assert _detail(lab, first["experiment_id"])["result"]["pairs_planned"] == 8
+    # adopting the first moves main: the second is a finding about another state, not current
+    assert (
+        client.post(
+            f"/api/experiments/{first['experiment_id']}/decision",
+            headers=HEADERS,
+            json={"decision": "adopted"},
+        ).status_code
+        == 200
+    )
+    adopted = _detail(lab, first["experiment_id"])
+    stale = _detail(lab, second["experiment_id"])
+    assert adopted["current_main_revision_id"] == revs["variant"]
+    assert adopted["reifegrad"]["stand"]["bezug"] == "aktuell"
+    assert stale["reifegrad"]["stand"]["bezug"] != "aktuell"
+    assert stale["experiment"]["decision"] == "open"
+    assert client.get("/api/experiments/exp-1-1-unknown", headers=HEADERS).status_code == 404
+    for bad in ("nothing", "exp-" + "a" * 100, "exp-a.b", "paired-a.b", "paired-%20x"):
+        assert client.get(f"/api/experiments/{bad}", headers=HEADERS).status_code == 422, bad
+    assert client.get("/api/experiments/exp-../x", headers=HEADERS).status_code in (404, 422)
+    assert client.get("/api/experiments/..%2Fplan", headers=HEADERS).status_code in (404, 422)
+
+
+def test_unknown_stays_unknown_in_the_detail_of_a_legacy_series(lab: dict[str, object]) -> None:
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    folder = Path(str(lab["folder"]))
+    path = folder / "games" / "paired-3-1-running01.paired.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(
+            {
+                "schema": SCHEMA_PAIRED_JOB,
+                "series_id": "paired-3-1-running01",
+                "status": "running",
+                "base_ref": revs["base"],
+                "variant_ref": revs["variant"],
+                "budget_pairs": 4,
+                "created_at": "2026-03-01",
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert client.post("/api/experiments/rebuild-index", headers=HEADERS).status_code == 200
+    detail = _detail(lab, "paired-3-1-running01")
+    assert detail["legacy"] is True and detail["experiment"] is None
+    assert detail["plan"] is None and detail["plan_state"] == "legacy"
+    assert detail["seeds"] == {"first": None, "last": None, "count": None, "rule": None}
+    assert detail["arms"][0]["deck_hash"] is None  # not stored for a legacy row: unknown
+    result = detail["result"]
+    assert result["counts_as_result"] is False
+    assert result["pairs_completed"] is None
+    assert result["difference_pp"] is None
+    assert detail["reifegrad"]["n"] is None
+
+
+def _tree(folder: Path) -> dict[str, tuple[int, int]]:
+    return {
+        p.relative_to(folder).as_posix(): (p.stat().st_mtime_ns, p.stat().st_size)
+        for p in sorted(folder.rglob("*"))
+        if p.is_file()
+    }
+
+
+def test_read_routes_write_neither_the_store_nor_a_file(lab: dict[str, object]) -> None:
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    folder = Path(str(lab["folder"]))
+    started = _start(lab, _plan(revs))
+    _legacy_series(folder, "paired-4-1-legacy04", revs["base"], revs["variant"], "2026-04-01")
+    StudioStore.open(folder).close()  # the opening migration runs before the snapshot
+    before = _tree(folder)
+    db = folder / "studio.sqlite3"
+    assert db.is_file()
+    db_bytes = db.read_bytes()
+    for url in (
+        f"/api/experiments/{started['experiment_id']}",
+        "/api/experiments/paired-4-1-legacy04",  # not indexed yet: 404, and nothing indexed
+        "/api/decks/chulane-b2/series",
+    ):
+        assert client.get(url, headers=HEADERS).status_code in (200, 404)
+    assert _tree(folder) == before
+    assert db.read_bytes() == db_bytes
+    assert {r["experiment_id"] for r in _index_rows(folder)} == {started["experiment_id"]}
+
+
+def test_a_colliding_experiment_id_overwrites_nothing(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Two starts of the same plan in the same second from two processes get the same id;
+    the second never touches the plan, run, decision files or index rows of the first."""
+    import itertools
+
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    folder = Path(str(lab["folder"]))
+    monkeypatch.setattr(experiments.time, "time", lambda: 1_800_000_000.0)
+    monkeypatch.setattr(experiments, "_SEQ", itertools.count(1))
+    first = _start(lab, _plan(revs))
+    adopt = client.post(
+        f"/api/experiments/{first['experiment_id']}/decision",
+        headers=HEADERS,
+        json={"decision": "rejected", "note": "erstes"},
+    )
+    assert adopt.status_code == 200
+    own = folder / "games" / "experiments" / first["experiment_id"]
+    files = {p.name: p.read_bytes() for p in own.iterdir()}
+    assert set(files) == {"plan.json", "run.json", "decision.json"}
+    rows = _index_rows(folder)
+    monkeypatch.setattr(experiments, "_SEQ", itertools.count(1))  # the other process
+    res = client.post("/api/experiments", headers=HEADERS, json={"plan": _plan(revs)})
+    assert res.status_code == 409 and "existiert schon" in res.json()["detail"]
+    assert {p.name: p.read_bytes() for p in own.iterdir()} == files
+    assert _index_rows(folder) == rows
+    # the files alone (index rows gone, a rebuild not yet run) are not overwritten either
+    store = StudioStore.open(folder)
+    try:
+        with store.connection:
+            store.connection.execute("DELETE FROM experiment_arm")
+            store.connection.execute("DELETE FROM experiment")
+    finally:
+        store.close()
+    monkeypatch.setattr(experiments, "_SEQ", itertools.count(1))
+    res = client.post("/api/experiments", headers=HEADERS, json={"plan": _plan(revs)})
+    assert res.status_code == 409
+    assert {p.name: p.read_bytes() for p in own.iterdir()} == files
+    assert _index_rows(folder) == []
+    # and the index row alone (folder gone) is not overwritten or removed
+    assert client.post("/api/experiments/rebuild-index", headers=HEADERS).status_code == 200
+    rows = _index_rows(folder)
+    assert [r["experiment_id"] for r in rows] == [first["experiment_id"]]
+    shutil.rmtree(own)
+    monkeypatch.setattr(experiments, "_SEQ", itertools.count(1))
+    res = client.post("/api/experiments", headers=HEADERS, json={"plan": _plan(revs)})
+    assert res.status_code == 409
+    assert _index_rows(folder) == rows
+    assert not own.exists()
+
+
+def test_reject_keeps_every_piece_of_evidence(lab: dict[str, object]) -> None:
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    folder = Path(str(lab["folder"]))
+    started = _start(lab, _plan(revs))
+    before = _detail(lab, started["experiment_id"])
+    res = client.post(
+        f"/api/experiments/{started['experiment_id']}/decision",
+        headers=HEADERS,
+        json={"decision": "rejected", "note": "nein"},
+    )
+    assert res.status_code == 200
+    own = folder / "games" / "experiments" / started["experiment_id"]
+    assert {p.name for p in own.iterdir()} == {"plan.json", "run.json", "decision.json"}
+    assert (folder / "games" / f"{started['series_id']}.paired.json").is_file()
+    after = _detail(lab, started["experiment_id"])
+    assert after["arms"] == before["arms"]
+
+    def numbers(detail: dict[str, object]) -> dict[str, object]:
+        result = detail["result"]
+        assert isinstance(result, dict)
+        return {k: v for k, v in result.items() if k != "experiment"}  # decision text differs
+
+    assert numbers(after) == numbers(before)
+    assert after["result"]["counts_as_result"] is True
+    assert after["experiment"]["decision"] == "rejected"
+    assert after["experiment"]["decision_note"] == "nein"
+    store = StudioStore.open(folder)
+    try:
+        assert store.connection.execute(
+            "SELECT 1 FROM deck_revision WHERE revision_id = ?", (revs["variant"],)
+        ).fetchone()
+    finally:
+        store.close()
+    assert _main_branch(folder) == revs["base"]
+
+
+def test_a_schema_21_store_from_before_the_index_stays_readable(
+    lab: dict[str, object],
+) -> None:
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    folder = Path(str(lab["folder"]))
+    _legacy_series(folder, "paired-5-1-legacy05", revs["base"], revs["variant"], "2026-05-01")
+    store = StudioStore.open(folder)
+    try:
+        with store.connection:  # a store as written by a client before B2: no index tables
+            store.connection.execute("DROP TABLE experiment_arm")
+            store.connection.execute("DROP TABLE experiment")
+    finally:
+        store.close()
+    history = _history(lab)  # opening adds the tables again, the legacy scan still finds it
+    assert [s["series_id"] for s in history["series"]] == ["paired-5-1-legacy05"]
+    store = StudioStore.open(folder)
+    try:
+        version = store.connection.execute(
+            "SELECT value FROM meta WHERE key = 'schema_version'"
+        ).fetchone()
+        assert version is not None and int(version[0]) == 21
+        assert store.connection.execute("SELECT COUNT(*) FROM experiment").fetchone()[0] == 0
+    finally:
+        store.close()
+    assert client.get("/api/experiments/paired-5-1-legacy05", headers=HEADERS).status_code == 404
+    assert client.post("/api/experiments/rebuild-index", headers=HEADERS).status_code == 200
+    assert _detail(lab, "paired-5-1-legacy05")["legacy"] is True
+
+
+def test_detail_maturity_depends_on_the_other_series_of_the_deck(lab: dict[str, object]) -> None:
+    """Review #1725 P2-2: Holm family and the used-seed register depend on the deck's other
+    series; the detail takes the finding from that whole computation, not from this series
+    alone."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    folder = Path(str(lab["folder"]))
+    one = _start(lab, _plan(revs, purpose="confirmation", first_seed=200))
+    two = _start(
+        lab,
+        _plan(
+            revs,
+            purpose="confirmation",
+            first_seed=300,
+            variants=[{"revision_id": revs["variant2"]}],
+        ),
+    )
+    # a legacy series (scanned, not indexed) that played seed 300: confirmation two is not fresh
+    path = folder / "games" / "paired-6-1-legacy06.paired.json"
+    path.write_text(
+        json.dumps(
+            {
+                "schema": SCHEMA_PAIRED_JOB,
+                "series_id": "paired-6-1-legacy06",
+                "status": "completed",
+                "base_ref": revs["base"],
+                "variant_ref": revs["variant"],
+                "budget_pairs": 4,
+                "created_at": "2026-06-01",
+                "result": {
+                    "pairs_completed": 4,
+                    "pairs_played": 4,
+                    "difference_pp": 25.0,
+                    "seeds": [300],
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    history = _history(lab)
+    assert len(history["series"]) == 3
+    befunde = history["reifegrad"]["befunde"]
+    for started in (one, two):
+        detail = _detail(lab, started["experiment_id"])
+        assert detail["reifegrad"] == befunde[started["series_id"]]
+    # the other series matter: a Holm family of two, and the legacy seed makes two not fresh
+
+    def fresh(sid: str) -> object:
+        return next(
+            c["erfuellt"]
+            for c in befunde[sid]["bedingungen"]
+            if str(c["name"]).startswith("frische Seeds")
+        )
+
+    assert any("Holm-Familie: 2" in h for h in befunde[one["series_id"]]["hinweise"])
+    assert (fresh(one["series_id"]), fresh(two["series_id"])) == (True, False)
+
+
+def test_plan_state_mismatch_and_missing_show_no_plan(lab: dict[str, object]) -> None:
+    """Review #1725 P2-1: a changed or deleted plan file is never shown as intact."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    folder = Path(str(lab["folder"]))
+    started = _start(lab, _plan(revs))
+    plan_path = folder / "games" / "experiments" / started["experiment_id"] / "plan.json"
+    record = json.loads(plan_path.read_text(encoding="utf-8"))
+    record["plan"]["budget_pairs"] = 400
+    plan_path.write_text(json.dumps(record), encoding="utf-8")
+    changed = _detail(lab, started["experiment_id"])
+    assert changed["plan_state"] == "mismatch"
+    assert changed["plan"] is None and changed["table"] is None
+    assert changed["result"]["status"] == "plan_mismatch"
+    # a plan changed and its own SHA recomputed is consistent in itself, but not the
+    # plan the index names
+    record["plan_sha"] = deck_series.plan_sha(record["plan"], record["resolved"])
+    plan_path.write_text(json.dumps(record), encoding="utf-8")
+    resealed = _detail(lab, started["experiment_id"])
+    assert resealed["plan_state"] == "mismatch" and resealed["plan"] is None
+    plan_path.unlink()
+    missing = _detail(lab, started["experiment_id"])
+    assert missing["plan_state"] == "missing"
+    assert missing["plan"] is None and missing["table"] is None
+
+
+def test_detail_says_why_a_maturity_is_unknown(lab: dict[str, object]) -> None:
+    """Review #1725 P3 (c): no finding stays None with a stated reason."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    folder = Path(str(lab["folder"]))
+    store = StudioStore.open(folder)
+    try:
+        with store.connection:
+            for exp_id, deck_id in (("exp-9-1-nofinding", "chulane-b2"), ("exp-9-2-nodeck", "")):
+                store.connection.execute(
+                    "INSERT INTO experiment(experiment_id, deck_id, question, purpose, "
+                    "base_revision_id, created_at) VALUES (?, ?, 'q', 'exploration', "
+                    "'gone@1', '2026-07-01')",
+                    (exp_id, deck_id),
+                )
+                store.connection.execute(
+                    "INSERT INTO experiment_arm(experiment_id, role, revision_id) "
+                    "VALUES (?, 'base', 'gone@1')",
+                    (exp_id,),
+                )
+    finally:
+        store.close()
+    no_finding = _detail(lab, "exp-9-1-nofinding")
+    assert no_finding["reifegrad"] is None
+    assert no_finding["reifegrad_hinweis"] == "kein Befund im Deck-Verlauf (unbekannt)"
+    no_deck = _detail(lab, "exp-9-2-nodeck")
+    assert no_deck["reifegrad"] is None
+    assert no_deck["reifegrad_hinweis"] == "Deck unbekannt: kein Reifegrad (unbekannt)"
+
+
+def test_start_errors_are_named_not_mistaken_for_a_collision(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Review #1725 P3 (b), (a): a blocked experiments folder and an index conflict from a
+    concurrent rebuild are clear 409s; the conflict leaves no orphaned row of this call."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    folder = Path(str(lab["folder"]))
+    blocker = folder / "games" / "experiments"
+    blocker.parent.mkdir(parents=True, exist_ok=True)
+    blocker.write_text("kein Ordner", encoding="utf-8")
+    res = client.post("/api/experiments", headers=HEADERS, json={"plan": _plan(revs)})
+    assert res.status_code == 409
+    assert "kann nicht angelegt werden" in res.json()["detail"]
+    assert "existiert schon" not in res.json()["detail"]
+    assert str(folder) not in res.json()["detail"]  # no local path, no OS error text
+    assert "Errno" not in res.json()["detail"]
+    blocker.unlink()
+    original = experiments._insert
+
+    def rebuild_first(store: StudioStore, row: object, arms: object) -> None:
+        monkeypatch.setattr(experiments, "_insert", original)
+        experiments.rebuild_index(store, folder)  # the concurrent rebuild indexes the plan
+        original(store, row, arms)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(experiments, "_insert", rebuild_first)
+    res = client.post("/api/experiments", headers=HEADERS, json={"plan": _plan(revs)})
+    assert res.status_code == 409 and "Index-Konflikt" in res.json()["detail"]
+    assert _index_rows(folder) == []
+    assert not any((folder / "games" / "experiments").iterdir())
+    # a conflicting row of someone else (same id, other plan SHA) stays untouched
+    foreign_sha = "f" * 64
+
+    def foreign_first(store: StudioStore, row: dict[str, object], arms: object) -> None:
+        monkeypatch.setattr(experiments, "_insert", original)
+        original(store, {**row, "plan_sha": foreign_sha}, arms)  # type: ignore[arg-type]
+        store.connection.commit()
+        original(store, row, arms)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(experiments, "_insert", foreign_first)
+    res = client.post("/api/experiments", headers=HEADERS, json={"plan": _plan(revs)})
+    assert res.status_code == 409 and "Index-Konflikt" in res.json()["detail"]
+    rows = _index_rows(folder)
+    assert [r["plan_sha"] for r in rows] == [foreign_sha]
+    store = StudioStore.open(folder)
+    try:
+        arms_left = store.connection.execute("SELECT COUNT(*) FROM experiment_arm").fetchone()[0]
+    finally:
+        store.close()
+    assert arms_left == 2
+
+
+def test_a_failed_start_leaves_no_index_row_and_no_folder(lab: dict[str, object]) -> None:
+    """Review #1725 P3 (M11): a start whose series does not start removes its own row."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    folder = Path(str(lab["folder"]))
+    plan = experiments.ExperimentPlan.model_validate(_plan(revs))
+
+    def refuse(settings: dict[str, object]) -> paired_series.PairedSeriesJob:
+        raise RuntimeError("Serie startet nicht")
+
+    store = StudioStore.open(folder)
+    try:
+        with pytest.raises(RuntimeError, match="Serie startet nicht"):
+            experiments.start_experiment(store, folder, plan, start_series=refuse)
+    finally:
+        store.close()
+    assert _index_rows(folder) == []
+    exp_folder = folder / "games" / "experiments"
+    assert not exp_folder.exists() or not any(exp_folder.iterdir())
+
+
+def test_a_series_named_by_two_experiments_is_credited_to_neither(
+    lab: dict[str, object],
+) -> None:
+    """Review #1725 P2-1: run.json of A names B's series; the detail of A shows A's own entry
+    (plan mismatch, not counted) and no maturity, never B's result."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    folder = Path(str(lab["folder"]))
+    a = _start(lab, _plan(revs))
+    b = _start(lab, _plan(revs, variants=[{"revision_id": revs["variant2"]}], first_seed=200))
+    run = folder / "games" / "experiments" / a["experiment_id"] / "run.json"
+    run.write_text(
+        json.dumps({"experiment_id": a["experiment_id"], "series_id": b["series_id"]}),
+        encoding="utf-8",
+    )
+    assert client.post("/api/experiments/rebuild-index", headers=HEADERS).status_code == 200
+    detail_a = _detail(lab, a["experiment_id"])
+    assert detail_a["result"]["experiment"]["experiment_id"] == a["experiment_id"]
+    assert detail_a["result"]["counts_as_result"] is False
+    assert detail_a["result"]["status"] == "plan_mismatch"
+    assert detail_a["result"]["pairs_completed"] is None
+    assert detail_a["reifegrad"] is None
+    assert "mehrfach verknüpft" in str(detail_a["reifegrad_hinweis"])
+    detail_b = _detail(lab, b["experiment_id"])
+    assert detail_b["result"]["experiment"]["experiment_id"] == b["experiment_id"]
+    assert detail_b["reifegrad"] is None  # the same series id: not credited to B either
+
+
+def test_rebuild_holds_the_write_lock_while_it_reads_the_files(lab: dict[str, object]) -> None:
+    """Review #1725 P2-2: a failed start in another process cleans up while a rebuild reads
+    the files; the rebuild must not write the removed row back (a row without a plan file
+    would refuse every later rebuild)."""
+    import threading
+
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    folder = Path(str(lab["folder"]))
+    started = _start(lab, _plan(revs))
+    own = folder / "games" / "experiments" / started["experiment_id"]
+    read_done = threading.Event()
+    original = experiments._legacy_row
+    games = folder / "games"
+    _legacy_series(games.parent, "paired-7-1-legacy07", revs["base"], revs["variant"], "2026")
+    errors: list[BaseException] = []
+
+    def slow_legacy(store: StudioStore, raw: object) -> object:
+        read_done.set()  # the plan files are read; the other process cleans up now
+        time.sleep(0.5)
+        return original(store, raw)  # type: ignore[arg-type]
+
+    def rebuild() -> None:
+        store = StudioStore.open(folder)
+        try:
+            experiments._legacy_row = slow_legacy  # type: ignore[assignment]
+            experiments.rebuild_index(store, folder)
+        except BaseException as error:
+            errors.append(error)
+        finally:
+            experiments._legacy_row = original
+            store.close()
+
+    other = StudioStore.open(folder)  # the failing start of the other process
+    try:
+        worker = threading.Thread(target=rebuild)
+        worker.start()
+        assert read_done.wait(10)
+        with other.connection:
+            other.connection.execute(
+                "DELETE FROM experiment_arm WHERE experiment_id = ?", (started["experiment_id"],)
+            )
+            other.connection.execute(
+                "DELETE FROM experiment WHERE experiment_id = ?", (started["experiment_id"],)
+            )
+        shutil.rmtree(own)
+        worker.join(15)
+    finally:
+        other.close()
+    assert not errors, errors
+    assert started["experiment_id"] not in {r["experiment_id"] for r in _index_rows(folder)}
+    assert client.post("/api/experiments/rebuild-index", headers=HEADERS).status_code == 200

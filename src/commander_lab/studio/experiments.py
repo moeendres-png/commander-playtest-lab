@@ -22,8 +22,8 @@ import contextlib
 import itertools
 import json
 import os
-import re
 import shutil
+import sqlite3
 import threading
 import time
 from collections.abc import Callable, Mapping, Sequence
@@ -34,6 +34,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from . import paired_comparison, paired_series
 from .deck_series import (
+    EXPERIMENT_ID_PATTERN,
     EXPERIMENT_SELECT,
     entry_for_experiment,
     experiments_folder,
@@ -53,7 +54,7 @@ SCHEMA_DECISION = "studio-experiment-decision-1"
 DATA_CLASS = "SIMULATED_RESULT"
 LEGACY_QUESTION = "Alt-Serie ohne Plan (vor #1658)"
 MAX_FILE_BYTES = 2_000_000
-_SAFE_ID = re.compile(r"^exp-[A-Za-z0-9_-]{1,90}$")
+_SAFE_ID = EXPERIMENT_ID_PATTERN
 _SEQ = itertools.count(1)
 _SEQ_LOCK = threading.Lock()
 
@@ -335,11 +336,52 @@ def start_experiment(
         },
     }
     folder = experiments_folder(data_path) / experiment_id
-    _write_json(folder / "plan.json", record)
-    row, arms = _row_from_record(record)
+    taken = store.connection.execute(
+        "SELECT 1 FROM experiment WHERE experiment_id = ?", (experiment_id,)
+    ).fetchone()
     try:
-        _insert(store, row, arms)
+        folder.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as error:  # e.g. ``games/experiments`` is a file: not a collision
+        raise RuntimeError(
+            f"Experiment-Ordner für {experiment_id} kann nicht angelegt werden (Pfad belegt "
+            "oder nicht beschreibbar); nichts gestartet"
+        ) from error
+    try:
+        if taken is not None:
+            raise FileExistsError(experiment_id)
+        # exclusive: an id that already exists (two processes, same second, same plan) never
+        # overwrites the plan, run or decision files of the existing experiment
+        folder.mkdir(exist_ok=False)
+    except FileExistsError as error:
+        raise RuntimeError(
+            f"Experiment {experiment_id} existiert schon; nichts überschrieben, bitte neu starten"
+        ) from error
+    row, arms = _row_from_record(record)
+    inserted = False
+    try:
+        _write_json(folder / "plan.json", record)
+        try:
+            _insert(store, row, arms)
+        except sqlite3.IntegrityError as error:
+            # a concurrent rebuild indexed this call's fresh plan file first: that row is this
+            # call's own (same id and plan SHA) and goes with it; any other row stays
+            store.connection.rollback()
+            with store.connection:
+                store.connection.execute(
+                    "DELETE FROM experiment_arm WHERE experiment_id = ? AND experiment_id IN "
+                    "(SELECT experiment_id FROM experiment WHERE plan_sha = ?)",
+                    (experiment_id, sha),
+                )
+                store.connection.execute(
+                    "DELETE FROM experiment WHERE experiment_id = ? AND plan_sha = ?",
+                    (experiment_id, sha),
+                )
+            raise RuntimeError(
+                f"Index-Konflikt beim Start von {experiment_id} (gleichzeitiger Neuaufbau?); "
+                "nichts gestartet, bitte neu starten"
+            ) from error
         store.connection.commit()
+        inserted = True
         starter = start_series or _default_starter(store, data_path)
         job = starter(
             dict(
@@ -363,13 +405,14 @@ def start_experiment(
         )
     except Exception:
         store.connection.rollback()
-        with store.connection:
-            store.connection.execute(
-                "DELETE FROM experiment_arm WHERE experiment_id = ?", (experiment_id,)
-            )
-            store.connection.execute(
-                "DELETE FROM experiment WHERE experiment_id = ?", (experiment_id,)
-            )
+        if inserted:  # only rows and files this call created are removed again
+            with store.connection:
+                store.connection.execute(
+                    "DELETE FROM experiment_arm WHERE experiment_id = ?", (experiment_id,)
+                )
+                store.connection.execute(
+                    "DELETE FROM experiment WHERE experiment_id = ?", (experiment_id,)
+                )
         shutil.rmtree(folder, ignore_errors=True)
         raise
     _write_json(folder / "run.json", {"experiment_id": experiment_id, "series_id": job.series_id})
@@ -567,7 +610,23 @@ def rebuild_index(store: StudioStore, data_folder: str | Path) -> dict[str, int]
     """Rebuild ``experiment``/``experiment_arm`` from the files (plan, run, decision; old
     ``*.paired.json`` without a plan as legacy rows). Everything is read first; when an indexed
     experiment has no readable plan file any more, nothing is replaced (``RebuildRefused``).
-    The caller declares the write."""
+    The caller declares the write.
+
+    The write lock is taken before the files are read (``BEGIN IMMEDIATE``): a start in
+    another process that fails and removes its row and folder waits for the rebuild and then
+    removes what the rebuild wrote, so no row without its plan file is left behind."""
+    db = store.connection
+    if not db.in_transaction:
+        db.execute("BEGIN IMMEDIATE")
+    try:
+        return _rebuild(store, data_folder)
+    except BaseException:
+        if db.in_transaction:
+            db.rollback()
+        raise
+
+
+def _rebuild(store: StudioStore, data_folder: str | Path) -> dict[str, int]:
     data_path = Path(data_folder).resolve()
     counts = {"experiments": 0, "legacy": 0, "skipped": 0}
     linked: set[str] = set()
