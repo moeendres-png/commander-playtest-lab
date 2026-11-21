@@ -19,6 +19,7 @@ from . import (
     roles,
     rulings,
     signals,
+    tam_prices,
     universe,
 )
 from .builder import list_commanders
@@ -91,6 +92,16 @@ def _parser() -> argparse.ArgumentParser:
         "--allow-deck-move",
         action="store_true",
         help="a deck that an earlier import took from another part file now lives in this file",
+    )
+    tam_price_cmd = commands.add_parser(
+        "import-tam-prices",
+        help="TAM purchase guide values (#1637): only the field prices.eur of a local Scryfall "
+        "bulk file, into the local store only (never committed); nothing is requested",
+    )
+    tam_price_cmd.add_argument("path", help="Scryfall bulk file or folder of its .jsonl parts")
+    tam_price_cmd.add_argument(
+        "--bulk-date",
+        help="date of the bulk file (YYYY-MM-DD) when its file name carries none",
     )
     scryfall = commands.add_parser("import-scryfall")
     scryfall.add_argument("path")
@@ -969,6 +980,8 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
             )
         except ValueError as error:
             raise SystemExit(f"import-signals: {error}") from None
+    elif args.command == "import-tam-prices":
+        result = tam_prices.import_scryfall_prices(store, args.path, bulk_date=args.bulk_date)
     elif args.command == "import-scryfall":
         result = catalog.import_scryfall_oracle(
             store, args.path, disambiguation_path=args.disambiguation

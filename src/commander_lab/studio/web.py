@@ -70,6 +70,7 @@ from . import (
     strength,
     strength_view,
     swap,
+    tam_prices,
     tier_snapshot,
     tokens,
     understanding_field,
@@ -192,6 +193,14 @@ class PlanPackagesBody(BaseModel):
 
 class DeckDoctorBody(PlanPackagesBody):
     limit: int = Field(default=5, ge=1, le=20)
+
+
+class TamPurchaseBody(BaseModel):
+    """The purchase list of a TAM deck (#1637): only the commander TAM gets guide values."""
+
+    model_config = ConfigDict(extra="forbid")
+    commander: str = Field(min_length=1, max_length=200)
+    card_ids: list[str] = Field(default_factory=list, max_length=tam_prices.MAX_CARD_IDS)
 
 
 class SwapBody(BaseModel):
@@ -2428,6 +2437,22 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             )
         except KeyError as error:
             raise HTTPException(404, f"unknown card or commander: {error}") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/tam/zukauf-richtwerte")
+    def tam_purchase_route(body: TamPurchaseBody) -> dict[str, object]:
+        """Guide values (Richtwerte) of the TAM purchase list (#1637, register entry "Preise für
+        TAM"): only for the commander TAM and only for cards not owned, from the local Scryfall
+        bulk snapshot with source and date; a card without a value is unknown. Any other
+        commander is refused. No other route reads these values."""
+        store = open_store()
+        try:
+            return tam_prices.purchase_guide_values(store, body.commander, body.card_ids)
+        except tam_prices.NotTamError as error:
+            raise HTTPException(403, str(error)) from error
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         finally:
