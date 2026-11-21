@@ -35,16 +35,37 @@ def reservation_path(folder: Path, series_id: str) -> Path:
 def try_reserve(folder: Path, series_id: str, *, clock: Callable[[], float] = time.time) -> bool:
     """Claim ``series_id`` in ``folder``: True when this caller now owns it, False when taken."""
     path = reservation_path(folder, series_id)
-    try:
-        descriptor = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
-    except FileExistsError:
-        return False
-    except PermissionError:
-        if path.exists():  # Windows reports an existing or just-deleted file as a denied create
+    for attempt in (1, 2):
+        try:
+            descriptor = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+        except FileExistsError:
             return False
-        raise
-    with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
-        json.dump({"pid": os.getpid(), "created_epoch": clock()}, handle)
+        except PermissionError:
+            # Windows answers a create on an existing or just-deleted file with a denial: an
+            # existing file is a taken id, a vanishing one is asked once more, anything else is real
+            if path.exists():
+                return False
+            if attempt == 2:
+                raise
+        else:
+            with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+                json.dump({"pid": os.getpid(), "created_epoch": clock()}, handle)
+            return True
+    return False  # unreachable: the second attempt returns or raises
+
+
+def claim_unless_used(folder: Path, series_id: str, in_use: Callable[[str], bool]) -> bool:
+    """Claim ``series_id`` and check once more that no finished series owns it (#1707).
+
+    A series of another process that ends between the caller's check and this claim has written
+    its run row and record and released its own claim; the claim alone would then succeed on an id
+    that is taken. True only when the id is claimed and still unused.
+    """
+    if not try_reserve(folder, series_id):
+        return False
+    if in_use(series_id):
+        release(folder, series_id)
+        return False
     return True
 
 

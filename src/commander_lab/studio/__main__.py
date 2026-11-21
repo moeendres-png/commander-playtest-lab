@@ -615,12 +615,11 @@ def _claim_compare_id(folder: Path, base: str) -> str:
     games = games_folder(folder)
     series_reservation.reap_stale(games)
 
+    def used(candidate: str) -> bool:
+        return series_folder(folder, candidate).exists() or any(games.glob(f"{candidate}-*.jsonl*"))
+
     def taken(candidate: str) -> bool:
-        return (
-            series_folder(folder, candidate).exists()
-            or any(games.glob(f"{candidate}-*.jsonl*"))
-            or not series_reservation.try_reserve(games, candidate)
-        )
+        return used(candidate) or not series_reservation.claim_unless_used(games, candidate, used)
 
     return free_batch_id(base, taken)
 
@@ -1272,6 +1271,8 @@ def main(argv: list[str] | None = None) -> int:
             except KeyboardInterrupt:
                 batch.cancel()
                 raise
+            # the thread still writes the series record and gives its id claim back after the status
+            batch.worker_done.wait(60)
             print(json.dumps(batch.to_dict(), indent=2, ensure_ascii=False))
             return 0 if batch.status == "completed" else 1
         finally:

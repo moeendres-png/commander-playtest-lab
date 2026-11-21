@@ -877,6 +877,9 @@ class BatchSimulation:
         self.run_id: str | None = None
         #: The games folder that holds this series' id reservation (None: no process-wide claim)
         self.reserved_in: Path | None = None
+        #: Set when ``run_worker`` is completely done (record written, claim released): a caller that
+        #: ends its process on ``status == "completed"`` alone would kill the thread before that.
+        self.worker_done = threading.Event()
 
         self._cancel_requested = False
         #: Log ids of games the engine has played to their end (a progress signal that comes
@@ -1092,14 +1095,15 @@ class BatchSimulation:
         own_deck_path: Path | None = None,
     ) -> None:
         """Main execution loop running in a background thread."""
-        if own_deck_path is not None:
-            from .play import snapshot_deck_hash
-
-            self.deck_hash = snapshot_deck_hash(own_deck_path)
+        self.worker_done.clear()
         self.started_at = self.started_at or now_utc()
         self.status = "running"
 
         try:
+            if own_deck_path is not None:
+                from .play import snapshot_deck_hash
+
+                self.deck_hash = snapshot_deck_hash(own_deck_path)
             if self.chunks:
                 with ThreadPoolExecutor(
                     max_workers=min(self.workers, len(self.chunks)),
@@ -1146,6 +1150,7 @@ class BatchSimulation:
         finally:
             # the run row and the record are written by now: the saved series holds the id itself
             self.release_reservation()
+            self.worker_done.set()
 
     def release_reservation(self) -> None:
         """Give the id claim of ``start_batch`` back (#1707); safe to call twice."""
@@ -1530,11 +1535,14 @@ class SimulationBatchManager:
         # the last check, so exactly one process owns it (series_reservation).
         claims = games_folder(data_path)
 
+        def saved(candidate: str) -> bool:
+            return batch_id_in_use(store, data_path, candidate)
+
         def taken(candidate: str) -> bool:
             return (
                 candidate in self._batches
-                or batch_id_in_use(store, data_path, candidate)
-                or not series_reservation.try_reserve(claims, candidate)
+                or saved(candidate)
+                or not series_reservation.claim_unless_used(claims, candidate, saved)
             )
 
         with self._lock:
@@ -1648,6 +1656,7 @@ class SimulationBatchManager:
 
         if not batch.chunks:
             batch.status = "completed"
+            batch.worker_done.set()
             return batch
 
         # Locate or snapshot candidate deck
