@@ -1,0 +1,262 @@
+{
+  "schema": "studio-paired-comparison-1",
+  "data_class": "SIMULATED_RESULT",
+  "estimand": "win-credit difference variant minus base over paired games (same seed, same seat, same other decks); simulated games, these pilots, this pod set",
+  "status": "NOT_DECIDED",
+  "answer": null,
+  "stop_reason": "BUDGET_EXHAUSTED",
+  "base_deck_id": "precon/2023/eldrazi_unbound",
+  "variant_deck_id": "precon/2023/divine_convocation",
+  "question": {
+    "threshold_pp": 0.0,
+    "significance_level": 0.05,
+    "method": "Looks at fixed cumulative pair counts; the level of each look is spent along an O'Brien-Fleming-type Lan-DeMets function over the planned looks (commander_lab.engine.rules.full_game_comparison.sequential_look_alphas), so repeated looking keeps the overall level. Cluster-robust Student-t interval of the paired win-credit differences (one cluster per seed, cluster_difference_stats); a look decides when that interval at the look's level lies entirely above the threshold (difference greater) or entirely at or below it (not greater). A zero-spread look (no variation between the seed clusters) decides only through the exact sign test on the discordant seeds at the look's level: the seat rotations of one seed share one library shuffle, so the seed, not the pair, is the independent unit. Failed games censor their pair and never count as a loss."
+  },
+  "pairs_completed": 10,
+  "pairs_censored": 0,
+  "unpaired_base": 0,
+  "unpaired_variant": 0,
+  "games_failed_base": 0,
+  "games_failed_variant": 0,
+  "failure_classes": {
+    "base": {},
+    "variant": {}
+  },
+  "base_rate": 0.2,
+  "variant_rate": 0.4,
+  "difference_pp": 20.0,
+  "difference_ci95_pp": [
+    -98.303,
+    138.303
+  ],
+  "decision_alpha": 0.05,
+  "decision_level_pct": 95.0,
+  "decision_ci_pp": [
+    -98.303,
+    138.303
+  ],
+  "detectable_difference_pp": 147.467,
+  "variant_only_wins": 3,
+  "baseline_only_wins": 1,
+  "tied_pairs": 6,
+  "discordant_share": 0.4,
+  "discordant_share_if_independent": 0.44,
+  "sign_test_p_value": 0.625,
+  "seeds": [
+    2000,
+    2001,
+    2002
+  ],
+  "seeds_completed": [
+    2000,
+    2001,
+    2002
+  ],
+  "pods": [
+    {
+      "opponents": [
+        "precon/2026/lorehold_spirit",
+        "precon/2024/animated_army",
+        "precon/2022/token_triumph"
+      ],
+      "pairs": 5
+    },
+    {
+      "opponents": [
+        "precon/2022/token_triumph",
+        "precon/2026/lorehold_spirit",
+        "precon/2024/animated_army"
+      ],
+      "pairs": 3
+    },
+    {
+      "opponents": [
+        "precon/2024/animated_army",
+        "precon/2022/token_triumph",
+        "precon/2026/lorehold_spirit"
+      ],
+      "pairs": 2
+    }
+  ],
+  "tested_seats": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "engine_commits": [
+    "f4d12f6e8066203fba7aa38bd35ea3358117393d"
+  ],
+  "bridge_jar_sha256s": [
+    "49d18f2f8ad7e7fdf8a0df07c8fdc3f209cebaec0f75b37ef0fe85990e2d51e4"
+  ],
+  "bridge_qualification_states": [
+    "UNKNOWN"
+  ],
+  "covered_by_sealed_epoch": false,
+  "pilots": [
+    "fp:cf668c12e1f67e7d768a5ae9e58515dab05af15a0cff90c20d4e1b5e7c998133"
+  ],
+  "decision_policies": [
+    "xmage-full-game-policy-1.0.0"
+  ],
+  "engine_pin": "f4d12f6e8066203fba7aa38bd35ea3358117393d",
+  "looks_planned": 1,
+  "looks_used": 1,
+  "pairs_played": 10,
+  "execution": {
+    "mode": "series",
+    "executor": "studio-paired-comparison-1",
+    "series_id": "g1715-id-4",
+    "command": "studio compare-decks",
+    "rotate_seats": true,
+    "look_every_pairs": 10,
+    "budget_pairs": 10,
+    "workers": 3,
+    "games_per_jvm": 16,
+    "games_dir": "/tmp/claude-0/-home-user/ef006e8b-893c-5ebd-80a1-8743a09c7458/scratchpad/gate1715_out/w3/games"
+  },
+  "warnings": [],
+  "pairs": [
+    {
+      "seed": 2000,
+      "seat": 0,
+      "opponents": [
+        "precon/2026/lorehold_spirit",
+        "precon/2024/animated_army",
+        "precon/2022/token_triumph"
+      ],
+      "base_game_id": "g1715-id-4-base-s2000-t0",
+      "variant_game_id": "g1715-id-4-variant-s2000-t0",
+      "base_credit": 1.0,
+      "variant_credit": 0.0,
+      "difference": -1.0
+    },
+    {
+      "seed": 2000,
+      "seat": 1,
+      "opponents": [
+        "precon/2022/token_triumph",
+        "precon/2026/lorehold_spirit",
+        "precon/2024/animated_army"
+      ],
+      "base_game_id": "g1715-id-4-base-s2000-t1",
+      "variant_game_id": "g1715-id-4-variant-s2000-t1",
+      "base_credit": 0.0,
+      "variant_credit": 0.0,
+      "difference": 0.0
+    },
+    {
+      "seed": 2000,
+      "seat": 2,
+      "opponents": [
+        "precon/2024/animated_army",
+        "precon/2022/token_triumph",
+        "precon/2026/lorehold_spirit"
+      ],
+      "base_game_id": "g1715-id-4-base-s2000-t2",
+      "variant_game_id": "g1715-id-4-variant-s2000-t2",
+      "base_credit": 1.0,
+      "variant_credit": 1.0,
+      "difference": 0.0
+    },
+    {
+      "seed": 2000,
+      "seat": 3,
+      "opponents": [
+        "precon/2026/lorehold_spirit",
+        "precon/2024/animated_army",
+        "precon/2022/token_triumph"
+      ],
+      "base_game_id": "g1715-id-4-base-s2000-t3",
+      "variant_game_id": "g1715-id-4-variant-s2000-t3",
+      "base_credit": 0.0,
+      "variant_credit": 0.0,
+      "difference": 0.0
+    },
+    {
+      "seed": 2001,
+      "seat": 0,
+      "opponents": [
+        "precon/2026/lorehold_spirit",
+        "precon/2024/animated_army",
+        "precon/2022/token_triumph"
+      ],
+      "base_game_id": "g1715-id-4-base-s2001-t0",
+      "variant_game_id": "g1715-id-4-variant-s2001-t0",
+      "base_credit": 0.0,
+      "variant_credit": 1.0,
+      "difference": 1.0
+    },
+    {
+      "seed": 2001,
+      "seat": 1,
+      "opponents": [
+        "precon/2022/token_triumph",
+        "precon/2026/lorehold_spirit",
+        "precon/2024/animated_army"
+      ],
+      "base_game_id": "g1715-id-4-base-s2001-t1",
+      "variant_game_id": "g1715-id-4-variant-s2001-t1",
+      "base_credit": 0.0,
+      "variant_credit": 0.0,
+      "difference": 0.0
+    },
+    {
+      "seed": 2001,
+      "seat": 2,
+      "opponents": [
+        "precon/2024/animated_army",
+        "precon/2022/token_triumph",
+        "precon/2026/lorehold_spirit"
+      ],
+      "base_game_id": "g1715-id-4-base-s2001-t2",
+      "variant_game_id": "g1715-id-4-variant-s2001-t2",
+      "base_credit": 0.0,
+      "variant_credit": 1.0,
+      "difference": 1.0
+    },
+    {
+      "seed": 2001,
+      "seat": 3,
+      "opponents": [
+        "precon/2026/lorehold_spirit",
+        "precon/2024/animated_army",
+        "precon/2022/token_triumph"
+      ],
+      "base_game_id": "g1715-id-4-base-s2001-t3",
+      "variant_game_id": "g1715-id-4-variant-s2001-t3",
+      "base_credit": 0.0,
+      "variant_credit": 0.0,
+      "difference": 0.0
+    },
+    {
+      "seed": 2002,
+      "seat": 0,
+      "opponents": [
+        "precon/2026/lorehold_spirit",
+        "precon/2024/animated_army",
+        "precon/2022/token_triumph"
+      ],
+      "base_game_id": "g1715-id-4-base-s2002-t0",
+      "variant_game_id": "g1715-id-4-variant-s2002-t0",
+      "base_credit": 0.0,
+      "variant_credit": 1.0,
+      "difference": 1.0
+    },
+    {
+      "seed": 2002,
+      "seat": 1,
+      "opponents": [
+        "precon/2022/token_triumph",
+        "precon/2026/lorehold_spirit",
+        "precon/2024/animated_army"
+      ],
+      "base_game_id": "g1715-id-4-base-s2002-t1",
+      "variant_game_id": "g1715-id-4-variant-s2002-t1",
+      "base_credit": 0.0,
+      "variant_credit": 0.0,
+      "difference": 0.0
+    }
+  ]
+}

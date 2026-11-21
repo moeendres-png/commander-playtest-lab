@@ -1,0 +1,771 @@
+{
+ "jar": "/tmp/claude-0/-home-user/ef006e8b-893c-5ebd-80a1-8743a09c7458/scratchpad/jarbuild/out/xmage-engine-bridge.jar",
+ "bridge_jar_sha256": "49d18f2f8ad7e7fdf8a0df07c8fdc3f209cebaec0f75b37ef0fe85990e2d51e4",
+ "frame_digest": true,
+ "frame_digest_skip_forced": false,
+ "jvm_options": [
+  "-XX:+UseSerialGC",
+  "-Dh2.bindAddress=127.0.0.1"
+ ],
+ "games_per_jvm": 1,
+ "workers": 3,
+ "total_wall_s": 742.57,
+ "games": [
+  {
+   "pod": "real",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "35494183b698b5b0e33251213d76e921c0e8ed7f9107869adca69821fecfb179",
+   "decisions": 2488,
+   "winners": [
+    3
+   ],
+   "frame_digest": "b0f34ec74d33bbd3117b0bef99871e3d3a0f9a21415786fa4db1fad09fa5da13",
+   "frame_digest_by_seat": {
+    "0": "36b2a536f626c1aa08eb2ec91ad20b76299af50e0baad3c3f543edab5d90384b",
+    "1": "77cc9b8ec91ed5c113a456b4d16caba9d4f5766e0233b7c94d13a5c4bfd81902",
+    "2": "65da2dc106864b22010f46db5b28ae1edbe76b7ab950934304951d1c8f12679c",
+    "3": "27a555de55dfd964fdc278ad5aa28608f25483a06a0a651851f09ef4ddfca6a0"
+   },
+   "frames": 2488,
+   "frames_skipped_forced": 0,
+   "wall_s": 59.9,
+   "child_cpu_s": 97.05
+  },
+  {
+   "pod": "real",
+   "seed": 2,
+   "status": "ok",
+   "semantic": "5a59375ac76c6cdb50585d678e040cf25fd05650cd0fa285c0ee76218b1ce20d",
+   "decisions": 2212,
+   "winners": [
+    3
+   ],
+   "frame_digest": "d1fa183d855bcb1767988b61e474f4e28d133e135fb816bad5022da797ff9c11",
+   "frame_digest_by_seat": {
+    "0": "26643791745f223ab2e1b8faf98fe060656e39c0ca8731376555b7b7ebe20dd0",
+    "1": "edb9ea29a4a75637cd7f52e130c5c54334101a73254936788c71438db77e0b9d",
+    "2": "b045fa7c8f8e14a3aa5de5ac9d5cb7d125c64d6d0e3e5a5dbb917951923dbf2b",
+    "3": "f9aa3e4532c4dddaddc2fea0d46e68eadb34be55192ec13473bee03e88e238a3"
+   },
+   "frames": 2212,
+   "frames_skipped_forced": 0,
+   "wall_s": 52.62,
+   "child_cpu_s": 46.92
+  },
+  {
+   "pod": "real",
+   "seed": 3,
+   "status": "ok",
+   "semantic": "f2a7388f3331ad7a422a4e14474d45a98d87558668416aaef81021a5994c9b70",
+   "decisions": 2972,
+   "winners": [
+    3
+   ],
+   "frame_digest": "d90d5b2b4c78c16232736e3bed857bdfe7191ff1e6419380eab7266056bac8a7",
+   "frame_digest_by_seat": {
+    "0": "b06ed736794e741b49a3c74a944c424fe8a9982258b047d509e43be7fc3e1aa9",
+    "1": "4df1a789c90d3ddeb293ee2b53f999a5a3c5518bb677d770facc84dcf2396b8b",
+    "2": "f651a4ad430459d050fd2f0c3089a90e799f033fa7115cae8b0032d6bdd38c31",
+    "3": "3cc8695b0c6d570f1192c7c62bb746675a061256cac7a8552110e0a88c69ac7d"
+   },
+   "frames": 2972,
+   "frames_skipped_forced": 0,
+   "wall_s": 66.82,
+   "child_cpu_s": 148.96
+  },
+  {
+   "pod": "real",
+   "seed": 4,
+   "status": "ok",
+   "semantic": "7080481d627e71c044b35df80c5777040cb13df81ccfa97ca9aaf4869aebfde5",
+   "decisions": 2986,
+   "winners": [
+    3
+   ],
+   "frame_digest": "5cc52775837240561fd2f17bb2713fa6949b975ed89383620aaa2af9c8b6203b",
+   "frame_digest_by_seat": {
+    "0": "dc68fa804dad477e525fc62d078e89120ac5d8151ffa56a2e360d6609e8f4864",
+    "1": "8e9a428813878acc8479dc337524c436dc758124479a355a847d6c6100ab38ac",
+    "2": "ee9ef64b262274a12bfb6536fbe52b4f7a42947ee1812234b18646f4385a89e6",
+    "3": "c7b9837e2288cfc80c20f977e3323ab58c777caba644531dc90942e116c0edc3"
+   },
+   "frames": 2986,
+   "frames_skipped_forced": 0,
+   "wall_s": 66.89,
+   "child_cpu_s": 156.56
+  },
+  {
+   "pod": "real",
+   "seed": 5,
+   "status": "ok",
+   "semantic": "3548b540baeec129d8c021b0363cd51603a7abc0629c1f9c41fd50a2898f5dbf",
+   "decisions": 3402,
+   "winners": [
+    3
+   ],
+   "frame_digest": "b27d5a0460bc4ce97e5c19b2cbe4e5f3d384d2a3ce8ab8a52ed565d40ab281ea",
+   "frame_digest_by_seat": {
+    "0": "4b390c61959bc755c6d1391aaef54f8e9ff58b180f10940185cf441cd040fe9c",
+    "1": "84bb519b62db495fbc31eeea042e89f0942b1ba5d5ec28a997ba296793c6138f",
+    "2": "f4100556319d110f7f58a3556ef7e422f92c83fe8ec2af753837784e3d6c1b15",
+    "3": "e7ec0c15e1f984bcf7e8e66d2e49c1745c9ab34ee7668a6589c4ce7584222f36"
+   },
+   "frames": 3402,
+   "frames_skipped_forced": 0,
+   "wall_s": 70.58,
+   "child_cpu_s": 162.76
+  },
+  {
+   "pod": "real",
+   "seed": 6,
+   "status": "ok",
+   "semantic": "81507400c8625ec0881c62e88f228c8e34c4301e3fbde94895dbb52b692e73f1",
+   "decisions": 3445,
+   "winners": [
+    4
+   ],
+   "frame_digest": "cc4aaa4e91c47f439abde608de0286d16e8ef092a966ba5d0d92dc2a22283b8c",
+   "frame_digest_by_seat": {
+    "0": "bee3ae871755dd343cf360a6ec03ca3f060049ca5dc0c947692f1d3ab37691fe",
+    "1": "22987e6c7b4323f5ef849746d5016ac2d0daa59a3a22f1055b52e35a91b10267",
+    "2": "0d0053423438e171113f8025cdba7e86986ee81469e5feddf817058f90b8cc55",
+    "3": "ebb73e386ea60e7c27e1b25a53b0b3b0058da6d4ece34e0a688126569c68d0fe"
+   },
+   "frames": 3445,
+   "frames_skipped_forced": 0,
+   "wall_s": 69.43,
+   "child_cpu_s": 167.47
+  },
+  {
+   "pod": "real",
+   "seed": 7,
+   "status": "ok",
+   "semantic": "48b2f2fec02a5fe500bea662db71c3c874ca3fdef3ff3133976e569371bd710b",
+   "decisions": 2653,
+   "winners": [
+    1
+   ],
+   "frame_digest": "87eb50e13346606ef9bd283920bf9405d0cb9c1f8174e10efeb3c949e2861feb",
+   "frame_digest_by_seat": {
+    "0": "eeeeb153262ba2cdc442546591ecd13e3bd6bc2cb803ddbd948b165daf660561",
+    "1": "24d6dfe07617f6cc7e91cd78d094505e1b1a31baaaeb3f09edf5b6a7c8e9ddf4",
+    "2": "519225312546f47b7a905fc8e4b68e5ca5e419e55299bd4570e3c398070f1d8f",
+    "3": "47c50fe726ad12ee73358aa18124afa0be4e11b0d6189344fe4d77a0ccca7a3e"
+   },
+   "frames": 2653,
+   "frames_skipped_forced": 0,
+   "wall_s": 64.6,
+   "child_cpu_s": 160.21
+  },
+  {
+   "pod": "real",
+   "seed": 8,
+   "status": "ok",
+   "semantic": "c3842af065c44598aac4c389ca06663423f159de80156a3b8f50809d078c6469",
+   "decisions": 2141,
+   "winners": [
+    3
+   ],
+   "frame_digest": "36b1a7ce740e0f33f89d0020a18e6cbe02ebec546ba6d79560bc86fa25c3ab0e",
+   "frame_digest_by_seat": {
+    "0": "bf7d2f551192d2fa08baeb2d9fbe9f6e55bbd05cc7e12809b2ee5c2aac318781",
+    "1": "bd042697900447f1ffba493b7aa031834e964a5fd311d107c16c387236efd031",
+    "2": "74aeb1ed495430aec91978120da7263812704f96f9eca334bb32a624247217e9",
+    "3": "df9ff7bccc7ef409f10d1858c21a2ba23005b08fbabe3cd79b5f8afe8354b206"
+   },
+   "frames": 2141,
+   "frames_skipped_forced": 0,
+   "wall_s": 54.16,
+   "child_cpu_s": 147.82
+  },
+  {
+   "pod": "real",
+   "seed": 9,
+   "status": "ok",
+   "semantic": "3ea4e105f5f2a19b625d6cee59cc6dc0af0b2d3649930c3d67c9b31eef1aae09",
+   "decisions": 2822,
+   "winners": [
+    3
+   ],
+   "frame_digest": "6ca5d7924707db91886775fb2084a81cb07ebaa21fc9c91083e73fd69c6c17ad",
+   "frame_digest_by_seat": {
+    "0": "a6d255805a0a7f298284448846b1aa5246d425914873a92011687c75159829fd",
+    "1": "43a10c9a9355459d582dad2c1bbebe3444064cc8b8bf44e9e96f00315c2cf7a7",
+    "2": "fa28473828dcb9de59b1475bba1918bab84c49003e811eb546bfc4c9b1b85b9f",
+    "3": "c1ad02700c1f85f7d27dac9a809042166823be1ef0fa8333b5d674f8508bf521"
+   },
+   "frames": 2822,
+   "frames_skipped_forced": 0,
+   "wall_s": 58.59,
+   "child_cpu_s": 140.84
+  },
+  {
+   "pod": "real",
+   "seed": 10,
+   "status": "ok",
+   "semantic": "ec36918795cec195c3781ae3a34c3e4e1ff2e1671db87664c1eb65d923b7a6ce",
+   "decisions": 2593,
+   "winners": [
+    3
+   ],
+   "frame_digest": "f294802dcabfd37e4fe00a9e2156ef2e4dc0f3e55cbbcac08c01a9944083a17a",
+   "frame_digest_by_seat": {
+    "0": "a0c342ae81f2cff0d39f05b0fc7795605424ea87d22f4993b866d204751d9d0e",
+    "1": "c56bd81cb2d9137fc8483934d4fe7869468a9e66c1cb1622674867e3b695c306",
+    "2": "99a9ae05c4e91eeab4afa184e42990a2e69bbc76ce540242f7c83721a316fb62",
+    "3": "18dff48610d33a3744719bb1e0ef419252f915aaa5faec2cddae297f5b160978"
+   },
+   "frames": 2593,
+   "frames_skipped_forced": 0,
+   "wall_s": 48.98,
+   "child_cpu_s": 137.56
+  },
+  {
+   "pod": "real",
+   "seed": 11,
+   "status": "ok",
+   "semantic": "a02908f7a466bfa70b8d0d6850cef056c1eaabdf310c7522a0cd43433a3c9f94",
+   "decisions": 3959,
+   "winners": [
+    4
+   ],
+   "frame_digest": "ce2f4540c835d7b1d37642c029d3293454ff6a3543c88bf4c96468002196b1bc",
+   "frame_digest_by_seat": {
+    "0": "e5436bba523cf9df89d225265954db911c0e54d71c4ce7091744372e33a61f8b",
+    "1": "6eed3c820ceec493ade32efb37517499dc403bdb321a4b58f159a586df83b933",
+    "2": "98fe8280fb1f52b85e7ce8c54985ced434b4b1e328d9415a930dc9ad24a7e5ee",
+    "3": "8abf830efe7bd51c1f1236db448ed0c53c98b8430179c77495171f8c4bb33a4f"
+   },
+   "frames": 3959,
+   "frames_skipped_forced": 0,
+   "wall_s": 72.79,
+   "child_cpu_s": 208.1
+  },
+  {
+   "pod": "real",
+   "seed": 12,
+   "status": "ok",
+   "semantic": "d264427cf7fa73f8f381624552ec05e0bd7389664486bd3ecb365604c1551f44",
+   "decisions": 3167,
+   "winners": [
+    3
+   ],
+   "frame_digest": "f8b9ecd0c7123d283949959212301a0eeddd6106535439d7184b92090cf8dec0",
+   "frame_digest_by_seat": {
+    "0": "f3e8d9e180cef075cda9d1be832e94769e6f794512c408a17ab388459af4468d",
+    "1": "13b91c8321ca92eef38789cbc4c335c0e7ecdef0c893456e1b7288bc686f3800",
+    "2": "16f4b980817ae141fb4652bd91b75d617a98081f6f7ed4a69a2a5ed66c724d0a",
+    "3": "356352b1ccbb00a6c4e9e47f064446aa1c7dd7053d7de14081d8567cd9b58b26"
+   },
+   "frames": 3167,
+   "frames_skipped_forced": 0,
+   "wall_s": 59.51,
+   "child_cpu_s": 95.55
+  },
+  {
+   "pod": "real",
+   "seed": 13,
+   "status": "ok",
+   "semantic": "79dc6fc7c369911db8e08812e7e0bd7c40644170f4f7f784a589ed5654b70994",
+   "decisions": 3063,
+   "winners": [
+    3
+   ],
+   "frame_digest": "2d0f3c08e76a3de2d2a56bec0b7e62df13d7caae6ac3f014e595edf0941db210",
+   "frame_digest_by_seat": {
+    "0": "d212471dc59cd474df4767352ee69442cba5a8380aeb753633a74e2f796ba665",
+    "1": "161bab55f761f8a06b066bb098faa9c8f3dd58c6575ff291ba70d717b5fe2f2b",
+    "2": "9f9eb3a75107918eb6492a8199915263f5227264ba327fdbe5b717732bfba77a",
+    "3": "d829fb2f1c42e5153d903e730e5b8f0530e0a883d4d553bf2d92ab29c4e5ddd0"
+   },
+   "frames": 3063,
+   "frames_skipped_forced": 0,
+   "wall_s": 50.74,
+   "child_cpu_s": 165.19
+  },
+  {
+   "pod": "real",
+   "seed": 14,
+   "status": "ok",
+   "semantic": "e6d06b377196123f54791c496ee9b58f665651a48f805ef8a0210e1c1702c046",
+   "decisions": 3041,
+   "winners": [
+    1
+   ],
+   "frame_digest": "e171794a7d7b70ed1704bfe80c8a555b6ab9387427d3c0a684b8ce6201df1243",
+   "frame_digest_by_seat": {
+    "0": "c38278b3ba49ba2319b03c587de757648e3c45d4c638a384ea3a73eb9d37285d",
+    "1": "77ef32962e3536b0cd5c890eacbfac8e475b0166d6fb3875045aa3040416ce93",
+    "2": "56c285111581e0f0e8a049eaec227b211602663c994edd0e7d99a0748c23581a",
+    "3": "bf383494f8971b3d8df203a1cd0d04b19a7a260ff8a52090e72e2aab35119096"
+   },
+   "frames": 3041,
+   "frames_skipped_forced": 0,
+   "wall_s": 58.78,
+   "child_cpu_s": 164.29
+  },
+  {
+   "pod": "real",
+   "seed": 15,
+   "status": "ok",
+   "semantic": "fc3dfc7feb87165f76b69c1ea167c790520e24718922d0942001ad57f27e7f6b",
+   "decisions": 3481,
+   "winners": [
+    3
+   ],
+   "frame_digest": "18e89cdbb7f07508995bcba35edd64d65cdcf33625d4f917d84ea784b4c65399",
+   "frame_digest_by_seat": {
+    "0": "1af891ae80da604840d68ecce5e0785f6a22f53d8ae347d3728b65fd45d9c96a",
+    "1": "a9e1966df77ddc0f706efa0740416734e6b81b9a81c98e4d54ec266bcf77d8ff",
+    "2": "c4a45945c92a732a98b058c56ccb68bd9bc3d96a9a34283da6042c745e9dd9fa",
+    "3": "791f34fad2efa13b760fdb7227bf4f042a9a72a0c2d2941a9224cba1d553186a"
+   },
+   "frames": 3481,
+   "frames_skipped_forced": 0,
+   "wall_s": 62.96,
+   "child_cpu_s": 198.12
+  },
+  {
+   "pod": "real",
+   "seed": 16,
+   "status": "ok",
+   "semantic": "8a3b7d78bd9ba933872473a5d58136c818df827151523e06fcb7c0ec9b85e22a",
+   "decisions": 1949,
+   "winners": [
+    3
+   ],
+   "frame_digest": "e939444624b3309e6fc136352be838ecd254506b1831e4029cb120cb70616521",
+   "frame_digest_by_seat": {
+    "0": "cdcba84e96051d5c0ba0959f0012b814738f9fd95f84797cc434ee45c59023d3",
+    "1": "fd54dcfb560962926b6da196d9272c05c714e168e338fa0d2b327b76ce43991d",
+    "2": "c3f8348921dfcf649abaf1196a9775e742141a929fc422d703558bbbbeeceb0c",
+    "3": "f7a5c81040fe1d1254a343f68356c06654ccdcec997f408fc76928534c6e7fc3"
+   },
+   "frames": 1949,
+   "frames_skipped_forced": 0,
+   "wall_s": 35.58,
+   "child_cpu_s": 91.28
+  },
+  {
+   "pod": "real",
+   "seed": 17,
+   "status": "ok",
+   "semantic": "39339f3afc8caf4d7065f040cdb28d2fbc253cdb83861afe98800438f9a9d18e",
+   "decisions": 2735,
+   "winners": [
+    4
+   ],
+   "frame_digest": "2f99c8e88e23fc723f0cc8ca390b82206c6c8d3195d6269c9f43eef7e48c254e",
+   "frame_digest_by_seat": {
+    "0": "1917738f16d722c2565d94160284c0de770dcacd8d28700cea57108f038b82c2",
+    "1": "f13e836745aaac8d86fc85bba1f1b06860ebebee8b0d9a92702c20ac137de5ed",
+    "2": "6a405721f9269e53e62aed27a283713e2f712fccdf78d2a2f86898d69909f425",
+    "3": "b602ff055c2d3aa2d62c8d206216ebcbef0ef71a32dcd484568592a81d9a9764"
+   },
+   "frames": 2735,
+   "frames_skipped_forced": 0,
+   "wall_s": 43.69,
+   "child_cpu_s": 184.03
+  },
+  {
+   "pod": "real",
+   "seed": 18,
+   "status": "ok",
+   "semantic": "d25c1a92b8cfa1be8eaedfd4cc8f755d46ff60fc302d3cc39c85c6541bc853d9",
+   "decisions": 2298,
+   "winners": [
+    3
+   ],
+   "frame_digest": "0a5dd58c4d6702d4aecd93a261c6d495f8663eff3f0764b270502d678dce51fd",
+   "frame_digest_by_seat": {
+    "0": "8bf5d575669c679e98d9cff3f6fb6a40f496d05694aa30cab43b15a2c4a88f4a",
+    "1": "045c8d46139a6c4255bf36de8a2a4830cd74995dc9b8df86363255880c43f437",
+    "2": "ea28299c43c3c097002f2f5ba98293a3dbcae86eeba48e79f36b90b6633e2a4e",
+    "3": "3a4695222407842931425a150db5c015abe2c9c94de1376f46d87b3c11bd2d59"
+   },
+   "frames": 2298,
+   "frames_skipped_forced": 0,
+   "wall_s": 37.12,
+   "child_cpu_s": 96.71
+  },
+  {
+   "pod": "real",
+   "seed": 19,
+   "status": "ok",
+   "semantic": "c795fd3412c3175e194ce139799756c72ba388b9b70ebd445796b02b50a586e2",
+   "decisions": 4255,
+   "winners": [
+    3
+   ],
+   "frame_digest": "13f33f76f37e91ae711805fc0978d74351ddf977d370715e57df6b2a5ff30024",
+   "frame_digest_by_seat": {
+    "0": "cd2e67c62ba6292cf9e2a3d9afb1c257b2b3db8f00f0ffc7faf7e54a8b9af82c",
+    "1": "d5362dbb4d966d7bdb89d23e82c378ef97b1a10fe6546cce34c0aa37122f760c",
+    "2": "f6b314835ae2361344c27126acadc330f79301842bcc1124da672b6246886d46",
+    "3": "1b8298f7418d7b6f21f1070f3f051c67f05a373c7ed201836b886bdc113ecc82"
+   },
+   "frames": 4255,
+   "frames_skipped_forced": 0,
+   "wall_s": 64.3,
+   "child_cpu_s": 143.09
+  },
+  {
+   "pod": "real",
+   "seed": 20,
+   "status": "ok",
+   "semantic": "f44b9d9154725f18eb9cb81b32604ed1f88cae0b99340bf005b9f841cdf91e23",
+   "decisions": 3773,
+   "winners": [
+    3
+   ],
+   "frame_digest": "32df09e402e0bfc151febcd89427833ceb39bde53971a577f345ed9d8cf08ac6",
+   "frame_digest_by_seat": {
+    "0": "d01b8547638a173c449b22907005a2931104cafaebd520f739a197b61073013f",
+    "1": "eb0adb07a88b6ed487a799b700dfb3d306b85f05a0e73c63c8453bc92fd0b506",
+    "2": "ebde222867287c2e875c698b74e012d88f8eafc20c6f7d950e7b0ee97dbac26d",
+    "3": "684805e6d651578d557fbd4af04274c7ece83a47c79c3ae6b49e5e78e4407fa6"
+   },
+   "frames": 3773,
+   "frames_skipped_forced": 0,
+   "wall_s": 68.71,
+   "child_cpu_s": 216.18
+  },
+  {
+   "pod": "real",
+   "seed": 21,
+   "status": "ok",
+   "semantic": "bd6b11d97a046724dd0ab580766baf39f14a260045c678a1da5be3f3e1cc1e79",
+   "decisions": 3025,
+   "winners": [
+    3
+   ],
+   "frame_digest": "974ef034d504c743275f13b23186592df5cd79feea049643fc19cd6ad8a92e06",
+   "frame_digest_by_seat": {
+    "0": "ae4d5fbf5e1fb5f5a4b48efa1b06a3ea95e19d3c5a1d0fdc71b6e4980813790a",
+    "1": "1887a248c97860eb0120b31d3bdf0480b5be36f328472fd42554865a7b1c470e",
+    "2": "d864fc33f245be74e7e8f99deead39585370bff45abb2b2748f43663df1ec9f3",
+    "3": "8f07d868e287a3979f1bff8292edf20d3d61ed50ea1c8a9e440e06d2b0a4b3d8"
+   },
+   "frames": 3025,
+   "frames_skipped_forced": 0,
+   "wall_s": 59.1,
+   "child_cpu_s": 107.96
+  },
+  {
+   "pod": "real",
+   "seed": 22,
+   "status": "ok",
+   "semantic": "c5028a3795c16f31e76e91359de791d05039205c32c2a9a9b6940f1bfe47b91d",
+   "decisions": 3434,
+   "winners": [
+    3
+   ],
+   "frame_digest": "532d1f7d724fd934df599b47b1f40150cb2b76bf0976b7c761e46876be494c76",
+   "frame_digest_by_seat": {
+    "0": "58339f3f1c2958266b6c6576ec0155659b352c07c28186729b5dc4ed02cb7436",
+    "1": "56dede471542c2ef1d273e545d0671347b7c2625a69dc2e7c2049937599d1c5b",
+    "2": "8f413f5fbc4bd897e5b0ffd824e831b11c9ebd7664524aa718bc2d444462def6",
+    "3": "be3872db4c290c449a7727c8b67abcb979245c6a5fb5efbcdcebbf0a53c003bb"
+   },
+   "frames": 3434,
+   "frames_skipped_forced": 0,
+   "wall_s": 65.94,
+   "child_cpu_s": 168.96
+  },
+  {
+   "pod": "real",
+   "seed": 23,
+   "status": "ok",
+   "semantic": "877ddc8076bf7b3e0402c77b197d45e2fe4313cefd656fa9217e0cf505cc9d65",
+   "decisions": 3876,
+   "winners": [
+    3
+   ],
+   "frame_digest": "98e53350870c5666094304de2f63434da4a652e9aafa7eebf83e485145785480",
+   "frame_digest_by_seat": {
+    "0": "1eb66d96bea8e16375ba3d83197e8c2e6127982b7934eb1850a594f05bb42c31",
+    "1": "8b1e8eedb5af10504b95eb39d2b0ed3f0efbc461fb529397b6179841ef28af7b",
+    "2": "1b1def05797c9ff7f4a2c6970883c953e0aa4e365c67f38867fe43dc4479a6cd",
+    "3": "55f3383550f5ebff90184030ac27e2ad7f594f9601c07f09569d8abff1abb337"
+   },
+   "frames": 3876,
+   "frames_skipped_forced": 0,
+   "wall_s": 88.67,
+   "child_cpu_s": 181.71
+  },
+  {
+   "pod": "real",
+   "seed": 24,
+   "status": "ok",
+   "semantic": "8900834719c168df7d8d51579269222356da7e813f43aa978e4b443d65978f3d",
+   "decisions": 4269,
+   "winners": [
+    1
+   ],
+   "frame_digest": "375a7aa2ea513aa6459e5465905d545c420ec9d936dc94dd010c7d0863cb1287",
+   "frame_digest_by_seat": {
+    "0": "645cce57115d44ab2c6cd46ebdeccceb0949cddaa871970e457d04231c1a491d",
+    "1": "0927f8d371e572967eff08ff6f1dab55bd3e293cc9e58c293db4a3f602eecf45",
+    "2": "39771d3a5ecb545f3cf84da11d671fabf954c714bdff22a9c0ac3bac6906c11f",
+    "3": "2025665d23d1fff606cb7b4db5964378bd89215afba40fbb37d9a9523ad8d560"
+   },
+   "frames": 4269,
+   "frames_skipped_forced": 0,
+   "wall_s": 109.11,
+   "child_cpu_s": 234.5
+  },
+  {
+   "pod": "real",
+   "seed": 25,
+   "status": "ok",
+   "semantic": "cf3f93a6a6aed113acc6fc2bf0a529c889cb61a1a4e3b6367343c1bbff084fd6",
+   "decisions": 2849,
+   "winners": [
+    1
+   ],
+   "frame_digest": "2e40b13e37348a714044bbb877c57b08b23ec85b40fd338611bb47931419026f",
+   "frame_digest_by_seat": {
+    "0": "82df8074b6d574502c11b5aec52e02793a700900ed6e6479c9c2509f66558b31",
+    "1": "1e656d26309dfce6d3ef5bd6a9ed84a8cf24c9f998f0d3292b47720cadad0d9b",
+    "2": "fb1f9ea7f5e6ca839d2c517e4b82465f21cb8c158e051e52412dd18759b80549",
+    "3": "388233f3d3baba218d475d8601ce5fad06a9956847e923070f3d40dc6fafb685"
+   },
+   "frames": 2849,
+   "frames_skipped_forced": 0,
+   "wall_s": 69.58,
+   "child_cpu_s": 113.0
+  },
+  {
+   "pod": "real",
+   "seed": 26,
+   "status": "ok",
+   "semantic": "95e1000a35410d1e530102544b6b9430fc336f1d203f4b53913d61891f0e81b5",
+   "decisions": 3104,
+   "winners": [
+    3
+   ],
+   "frame_digest": "1f26d1140c6f2bb628b23d830a97adb4631bab50786e0e225a6a8af12998cd7e",
+   "frame_digest_by_seat": {
+    "0": "8579094c41923599ea57ac6de3d2ed4fcb9be7d303b355bc0ff474d8cef017fc",
+    "1": "503f659215e8236c0331171e5ca02b16b087b072a0db78f989f7e446132516ce",
+    "2": "ae7a3369ddcf2c503c4f2e4221cc3c44ddb5b6b82ae5f8a8d4bfb76085f79ca9",
+    "3": "2d664f0132af5c69bafe699b6f1bdfba6133760175b2ea80a48c045f3f506fec"
+   },
+   "frames": 3104,
+   "frames_skipped_forced": 0,
+   "wall_s": 124.67,
+   "child_cpu_s": 253.67
+  },
+  {
+   "pod": "real",
+   "seed": 27,
+   "status": "ok",
+   "semantic": "331a29ffd0fc26654f1d99875f80af6d6417cab39eb6daa35ed7adeb5c9af61d",
+   "decisions": 2531,
+   "winners": [
+    1
+   ],
+   "frame_digest": "4146f5df866d2c0ec7a38f0a77becf4f4675f728e484e181331dd6b60f0d3a0a",
+   "frame_digest_by_seat": {
+    "0": "9dcda4e0888bd4d9fa10670bbb36c15651c60d0104bcf721ed1cb91172ebf3ef",
+    "1": "47d80f5ec1e4d57fbfd089f1f3b92c7c7a8ab7906a515fee5cf41e169b2818b6",
+    "2": "4911b2c70530d4c80218fd223dde48a37202d4f78a0c393f3972bc584995649b",
+    "3": "0aaad818933bb654e28e0d1a9597a1f6d8be736d7a19e9af807ba6e9bd601f87"
+   },
+   "frames": 2531,
+   "frames_skipped_forced": 0,
+   "wall_s": 71.34,
+   "child_cpu_s": 108.96
+  },
+  {
+   "pod": "real",
+   "seed": 28,
+   "status": "ok",
+   "semantic": "615d6882e8d0d2b4a67df0280c1e4e93dbd07560738ea4b0fe4e64eb0e859e36",
+   "decisions": 2358,
+   "winners": [
+    3
+   ],
+   "frame_digest": "c5714de091c205b1ca7f38c6aa403ea5cfb8c64e33f7e9265c75e6665a12a99a",
+   "frame_digest_by_seat": {
+    "0": "90108a7b4abc7b128ba5055a10075749742b6061bad99c516b2992ad16890e63",
+    "1": "21299dd3129f794ad9188351a3aeade13dc8ffd4c3112f37bac0d6128b3c3fc6",
+    "2": "bbc646bd1dd7ba9277783191fa4639a9070e15681a9c10a26d8ae4e1e8a7baf1",
+    "3": "5a3a17a2b6646423338e4208caa3f4d8d4faf4f9a551ee5e120b39effc886ecb"
+   },
+   "frames": 2358,
+   "frames_skipped_forced": 0,
+   "wall_s": 66.13,
+   "child_cpu_s": 84.3
+  },
+  {
+   "pod": "real",
+   "seed": 29,
+   "status": "ok",
+   "semantic": "f0e485676924f4362dd66f70aa42b741019ccd02b88ac88a6ebaf7e1d39b5caa",
+   "decisions": 3460,
+   "winners": [
+    3
+   ],
+   "frame_digest": "5717ae280a8921133331b61c0680eddf347e1c0ec018376dfeb7b9f63ead7eb8",
+   "frame_digest_by_seat": {
+    "0": "93b90131f838efb9e7e4b47c0950c2f725f297e216232fde822271a516893dbb",
+    "1": "791f604e5f2a6eea0ef579b95f0f8f90c4293cc3bdb531ef7f5ecd6bdb783ee6",
+    "2": "c73ab3764ea3c7335a077c3ce6033b87e997757ec079a7bf82746ec1cf37bbf6",
+    "3": "40097be12f1d4682a72c7380b3a5338f18ebd8126d6a8a03a1864f307465ce7c"
+   },
+   "frames": 3460,
+   "frames_skipped_forced": 0,
+   "wall_s": 74.51,
+   "child_cpu_s": 201.35
+  },
+  {
+   "pod": "real",
+   "seed": 30,
+   "status": "ok",
+   "semantic": "f653d85ac6bef5df0c6b29890dac54f3f07983a668b9d3a6a41279ffc881f08f",
+   "decisions": 2722,
+   "winners": [
+    4
+   ],
+   "frame_digest": "30b6245cbe7fb49d31ae69f49b495198d73e5890008c0932a0e6996cb735cb7d",
+   "frame_digest_by_seat": {
+    "0": "edc8474524c1c03308580efdd1265e46941e2c4cfc005315600bd821953dc490",
+    "1": "1c541e4f2e736a8df39969f4285a5d9f0020696ad0eebacb5d2ad920a0b5579d",
+    "2": "6aa11c4883a487d596d7045f055576bf0cc8f6ff549de8646044736399af632c",
+    "3": "7b6aa11701dc014ae78586ecf2c2c9c7e3113cf59cda09f024ac11b6d7b7fa8d"
+   },
+   "frames": 2722,
+   "frames_skipped_forced": 0,
+   "wall_s": 59.15,
+   "child_cpu_s": 102.8
+  },
+  {
+   "pod": "real",
+   "seed": 31,
+   "status": "ok",
+   "semantic": "76f60a8146d6f06a298826b7f098c28d479c7cdca47c157db2366bfc57f8f244",
+   "decisions": 2018,
+   "winners": [
+    1
+   ],
+   "frame_digest": "7699a961f4e3ac015ab60f6ad5b5e764948d9b6cc6fa7f2ab4126c721ff8eb6a",
+   "frame_digest_by_seat": {
+    "0": "8aef89f83dbaffd250c9048accd3462d94d611914e826bbc30a9fe324771df9e",
+    "1": "58b56a4e5c0e666d64a6f5d2dab003a1f0d11377fcad8fc57920da4a4163f9ec",
+    "2": "f085bcdc0029655ef13169291528ca740167bdafbdd3d0870b82222a1d9aac7d",
+    "3": "1d3bb2d2c91dfd926c47f907fc84567e6b573edd87050822baf1b6bb3bed370d"
+   },
+   "frames": 2018,
+   "frames_skipped_forced": 0,
+   "wall_s": 38.55,
+   "child_cpu_s": 143.6
+  },
+  {
+   "pod": "real",
+   "seed": 32,
+   "status": "ok",
+   "semantic": "5366b3089eecfa02a03eb5f28378cfb506dfa3d657c15684dda7c1cc88c2db5d",
+   "decisions": 1853,
+   "winners": [
+    1
+   ],
+   "frame_digest": "795dd875d0fc5f2fa52e614a7d81fa1e5943d73c622b30235422e15519bcd3a0",
+   "frame_digest_by_seat": {
+    "0": "f16b1885f8f1505547eed53e97d1a17e169da18725e21682e7f4e1a8a48e6ce4",
+    "1": "c3984b4953865b0cde9feb0442cd4cb3d5b9c4ef28320fca244a14890ef34503",
+    "2": "01e770f2cad64add35dc0a510d7f82ab0815ca8ac31ec8ae7aff81091259e08e",
+    "3": "bde7c3b59e8f26179ed58a4de45be52b1792d57a8d8ee2205660f27065f3d289"
+   },
+   "frames": 1853,
+   "frames_skipped_forced": 0,
+   "wall_s": 30.9,
+   "child_cpu_s": 129.25
+  },
+  {
+   "pod": "real",
+   "seed": 33,
+   "status": "ok",
+   "semantic": "b3d11684d077027a0b25e28f4b794833cd89b49837298fc64762bde48dc7cebe",
+   "decisions": 2541,
+   "winners": [
+    3
+   ],
+   "frame_digest": "d3a072c7b7aa4bf793f8b4067e9f24fa8526d029ed7aa97e4afb45c976c1ac24",
+   "frame_digest_by_seat": {
+    "0": "6e4326249ebe80f5b999cf8b8db36392fbde3d46635d0d68b0bc10112f941f2b",
+    "1": "b8b30ea5ef64f6383ba243797ec6da130ad0c815a28336622170b6a2b9425a75",
+    "2": "aa5a48f694833ba2c735b0ae7e2bda6d8a6a6ee149b600286ab123d434ce2945",
+    "3": "be83705c1f850294e1f2eb9b0bc0c340156540d66c1bd4c14b408940ce209435"
+   },
+   "frames": 2541,
+   "frames_skipped_forced": 0,
+   "wall_s": 41.8,
+   "child_cpu_s": 155.83
+  },
+  {
+   "pod": "real",
+   "seed": 34,
+   "status": "ok",
+   "semantic": "f0476635b282ea9633969ced389abc8dc05ccd45f9970b77aad59a26b2f18ecc",
+   "decisions": 2109,
+   "winners": [
+    4
+   ],
+   "frame_digest": "599efb5a5faa909779e7b9b1bbbef8394bdbe09b8232153f07289c988fa80e63",
+   "frame_digest_by_seat": {
+    "0": "bdc770aef758cf78d4df703a2776a60f9c33ccb1eb10357655956dbd87eca2a2",
+    "1": "c37feaef4ca2e5663954517572b037f14a3cba86603832c855aa89a767ca2a8f",
+    "2": "0fab91c576dec7ec73a3718626acf49835a415bdb53a7e263dac99de5d3be8d5",
+    "3": "2fad6d45fab974bf76937c23e624be3ab1f6048ccf94e3765036c140b667f224"
+   },
+   "frames": 2109,
+   "frames_skipped_forced": 0,
+   "wall_s": 36.38,
+   "child_cpu_s": 72.52
+  },
+  {
+   "pod": "real",
+   "seed": 35,
+   "status": "ok",
+   "semantic": "e3b0bfcdb02086e7279896ab32fca7bd3d91fca75c96953d92210bd39feea0fb",
+   "decisions": 3360,
+   "winners": [
+    3
+   ],
+   "frame_digest": "b83a7aae4a8e6aad04f964d6a623751b0c7c01b17bf70b1d2c63cbd4c2eebea2",
+   "frame_digest_by_seat": {
+    "0": "70fc846d24b5c5a4eeee69e08037220ba9e82738051e88fa6ed2e0a8fd114b4a",
+    "1": "ad87ca70cc834727eaa98c380e0bd43b3846389d4bce2ac844150e368ae2ddbb",
+    "2": "b0d16b324788959783a79aa0e3326bb50aac52baa1150985a6b4a3db5b355c5a",
+    "3": "e3e208579146cccd486a68ff44e6f44775af3b8fee1f72db95ca96023beacf28"
+   },
+   "frames": 3360,
+   "frames_skipped_forced": 0,
+   "wall_s": 41.43,
+   "child_cpu_s": 135.18
+  },
+  {
+   "pod": "real",
+   "seed": 36,
+   "status": "ok",
+   "semantic": "c2515f5f6b9df258fee16e21a969ebc535534f86444591158f0191cabf7f2939",
+   "decisions": 3515,
+   "winners": [
+    3
+   ],
+   "frame_digest": "2f3ae1e067cd61eb5f861f7d19cf7607aa85f9583db8611983b357e6b2d43ce0",
+   "frame_digest_by_seat": {
+    "0": "252d198fb7223b7d59f1ca753d93a1be8bae01171bdd42533023491eeebb7891",
+    "1": "46dd4eb46faf35dccd725d9b29c808091b6bb85fd4b98f254abbba469e216a60",
+    "2": "c5f57f25013ad7ed2aecb5345f8a3f37dfcd582ead17aee6eb2eb250e9416084",
+    "3": "478782905b496362ce20d29ef7cb3de9ebc625f42f9139d897a763f22381445d"
+   },
+   "frames": 3515,
+   "frames_skipped_forced": 0,
+   "wall_s": 36.75,
+   "child_cpu_s": 150.52
+  }
+ ]
+}

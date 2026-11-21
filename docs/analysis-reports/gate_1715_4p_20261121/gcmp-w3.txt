@@ -1,0 +1,7 @@
+settings A: workers 1, games_per_jvm 1, jvm_options ['-XX:+UseSerialGC', '-Dh2.bindAddress=127.0.0.1'], jar 49d18f2f8ad7e7fdf8a0df07c8fdc3f209cebaec0f75b37ef0fe85990e2d51e4
+settings B: workers 3, games_per_jvm 1, jvm_options ['-XX:+UseSerialGC', '-Dh2.bindAddress=127.0.0.1'], jar 49d18f2f8ad7e7fdf8a0df07c8fdc3f209cebaec0f75b37ef0fe85990e2d51e4
+identical 36/36
+frames identical 36/36
+NOTE workers 1 -> 3, games_per_jvm 1 -> 1: the time lines below do not compare like with like
+cpu  n/a (workers > 1: the per-game CPU of overlapping games overlaps)
+elapsed 966.8 -> 742.6 s (-23.2 %)

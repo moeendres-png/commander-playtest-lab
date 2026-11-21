@@ -1,0 +1,7 @@
+settings A: workers 1, games_per_jvm 1, jvm_options ['-XX:+UseSerialGC', '-Dh2.bindAddress=127.0.0.1'], jar 49d18f2f8ad7e7fdf8a0df07c8fdc3f209cebaec0f75b37ef0fe85990e2d51e4
+settings B: workers 1, games_per_jvm 12, jvm_options ['-XX:+UseSerialGC', '-Dh2.bindAddress=127.0.0.1', '-Dcommanderlab.fullGame.gamesPerJvm=12'], jar 49d18f2f8ad7e7fdf8a0df07c8fdc3f209cebaec0f75b37ef0fe85990e2d51e4
+identical 36/36
+frames identical 36/36
+NOTE workers 1 -> 1, games_per_jvm 1 -> 12: the time lines below do not compare like with like
+wall 966.2 -> 640.9 s (-33.7 %)
+cpu  1705.9 -> 607.3 s (-64.4 %)
