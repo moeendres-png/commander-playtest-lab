@@ -146,7 +146,8 @@ class XmageSeatsFiveSixF5ScenarioTest {
         concede.addProperty("player_id", leaverId);
         JsonObject result = s.session.submitConcede(concede);
         assertFalse(s.seats.get(leaver).isInGame(), leaver + " left the game");
-        assertTrue(game.getStack().isEmpty(), leaver + "'s Bolt ceased to exist (800.4a)");
+        assertTrue(game.getStack().isEmpty(),
+                leaver + "'s Bolt, a card it owns, left the game with it (800.4a)");
         assertTrue(result.get("failure").isJsonNull(), "the lane goes on: " + result.get("failure"));
 
         JsonObject frame = result.getAsJsonObject("decision");
@@ -202,13 +203,6 @@ class XmageSeatsFiveSixF5ScenarioTest {
         String last = "P" + playerCount;
         String loser = "P" + (playerCount - 1);
         String tag = "f5-3-cmd-damage-" + playerCount + "p";
-        List<XmageNativeStateRestoration.RequestedPlayer> players = new ArrayList<>();
-        List<XmageNativeStateRestoration.RequestedCommander> commanders = new ArrayList<>();
-        for (int seat = 1; seat <= playerCount; seat++) {
-            players.add(new XmageNativeStateRestoration.RequestedPlayer("P" + seat, seat, 40));
-            commanders.add(new XmageNativeStateRestoration.RequestedCommander(
-                    "cmd:P" + seat + "-A", ROGRAKH, "P" + seat, 0));
-        }
         Map<String, Integer> expected = new LinkedHashMap<>();
         List<XmageNativeStateRestoration.RequestedCommanderDamage> damage = new ArrayList<>();
         for (int attacker = 1; attacker <= playerCount; attacker++) {
@@ -226,20 +220,8 @@ class XmageSeatsFiveSixF5ScenarioTest {
         }
         assertEquals(playerCount * (playerCount - 1), damage.size(), "every ordered pair");
 
-        XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
-                tag, playerCount, 424242L, players, commanders, damage, List.of(),
-                1, mage.constants.TurnPhase.PRECOMBAT_MAIN,
-                PhaseStep.PRECOMBAT_MAIN, "P1", "P1");
-        XmageDeckImporter importer = new XmageDeckImporter();
-        XmageNativeStateRestoration restoration =
-                XmageNativeStateRestorationTest.restorationFor(plan);
-        List<String> handles =
-                XmageNativeStateRestorationTest.importScaffolding(importer, plan, tag);
-        XmageFullGameSession session = new XmageFullGameSession(
-                tag, handles, 0, 40, plan.seed(), importer, restoration);
-        session.start();
+        XmageFullGameSession session = arriveWithCommanderDamage(tag, playerCount, damage);
         Map<String, Player> seats = session.restorationSeats();
-        XmageNativeStateRestorationTest.completeArrival(session, restoration, seats);
         GameCommanderImpl game = session.restorationGame();
 
         for (Map.Entry<String, Player> seat : seats.entrySet()) {
@@ -279,11 +261,99 @@ class XmageSeatsFiveSixF5ScenarioTest {
         assertEquals((playerCount - 1) * (playerCount - 1), pairsRead,
                 "ledger read back for every pair whose commander is still in the game");
         assertFalse(game.hasEnded(), "N-1 players remain");
-        JsonObject pending = session.pendingDecisionPayload();
-        assertFalse(pending.get("decision").isJsonNull(), "the survivors get the next decision");
-        assertFalse(seats.get(loser).getId().toString().equals(
-                pending.getAsJsonObject("decision").get("actor_id").getAsString()),
-                loser + " is never asked again");
+        // One priority round after the state-based action: the N-1 survivors,
+        // and only they, are asked.
+        Set<String> survivors = new LinkedHashSet<>(seats.keySet());
+        survivors.remove(loser);
+        Set<String> asked = new LinkedHashSet<>();
+        for (int i = 0; i < playerCount - 1; i++) {
+            JsonObject pending = session.pendingDecisionPayload();
+            assertFalse(pending.get("decision").isJsonNull(), "the survivors get the next decision");
+            assertEquals("priority",
+                    pending.getAsJsonObject("decision").get("decision_class").getAsString());
+            String actor = XmageNativeStateRestorationTest.pidOf(seats,
+                    session.legalActionsPayload().get("actor_id").getAsString());
+            assertFalse(loser.equals(actor), loser + " is never asked again");
+            asked.add(actor);
+            XmageFullGameTaxExecutionTest.submit(session, tag + "-pass-" + i,
+                    XmageNativeStateRestorationTest.singleActionOfType(
+                            session.legalActionsPayload(), "pass_priority", null));
+        }
+        assertEquals(survivors, asked, "one priority round reaches every survivor");
+    }
+
+    /**
+     * Known engine deviation (documentation test, not a rule claim of ours).
+     * Two chained 21-damage pairs restored for the same state-based-action
+     * check: by CR 704.3 with 704.6c both damaged players should lose at once.
+     * The engine at the tested build lets only one of them lose:
+     * {@code GameCommanderImpl.checkStateBasedActions} walks the players one
+     * after another and skips the commanders of owners that are no longer in
+     * the game, so the commander of the player who just lost no longer counts
+     * (reviewer finding on #1750 from the bytecode, LOCAL_OBSERVED on the
+     * local 1.4.62 build; restored input, no live combat). XMage is the rules
+     * authority: the bridge mirrors it, the deviation is only reported, no
+     * fork change. This test stays green while the engine behaves so; when it
+     * fails, the deviation is gone and this test and F5-3's PARTIAL rating are
+     * to be revisited. The control row with two separate pairs shows both
+     * players losing.
+     */
+    @ParameterizedTest(name = "known engine deviation, {0} players: {1} -> lost {2}, still in {3}")
+    @CsvSource({
+            "6, P1>P6 P6>P5, P6, P5",
+            "5, P1>P5 P5>P4, P5, P4",
+            "6, P6>P5 P5>P1, P5, P1",
+            "6, P1>P2 P5>P4, P2 P4, -"})
+    void knownEngineDeviationChainedTwentyOnePairsInOneCheckEliminateOnlyOnePlayer(
+            int playerCount, String pairs, String lost, String stillIn) {
+        String tag = "f5-3-chained-" + playerCount + "p-" + pairs.replaceAll("[^A-Za-z0-9]", "");
+        List<XmageNativeStateRestoration.RequestedCommanderDamage> damage = new ArrayList<>();
+        for (String pair : pairs.split(" ")) {
+            String[] ends = pair.split(">");
+            damage.add(new XmageNativeStateRestoration.RequestedCommanderDamage(
+                    "cmd:" + ends[0] + "-A", ends[1], 21));
+        }
+        XmageFullGameSession session = arriveWithCommanderDamage(tag, playerCount, damage);
+        Map<String, Player> seats = session.restorationSeats();
+        Set<String> lostSet = Set.of(lost.split(" "));
+        for (Map.Entry<String, Player> seat : seats.entrySet()) {
+            Player player = seat.getValue();
+            if (lostSet.contains(seat.getKey())) {
+                assertTrue(player.hasLost() || player.hasLeft(), seat.getKey() + " lost");
+            } else {
+                assertFalse(player.hasLost(), seat.getKey() + " is still in the game"
+                        + (seat.getKey().equals(stillIn)
+                                ? " (known deviation: CR 704.3/704.6c would make it lose too)"
+                                : ""));
+            }
+        }
+    }
+
+    /** Arrival at P1's precombat main with the given restored commander-damage matrix. */
+    private static XmageFullGameSession arriveWithCommanderDamage(String tag, int playerCount,
+            List<XmageNativeStateRestoration.RequestedCommanderDamage> damage) {
+        List<XmageNativeStateRestoration.RequestedPlayer> players = new ArrayList<>();
+        List<XmageNativeStateRestoration.RequestedCommander> commanders = new ArrayList<>();
+        for (int seat = 1; seat <= playerCount; seat++) {
+            players.add(new XmageNativeStateRestoration.RequestedPlayer("P" + seat, seat, 40));
+            commanders.add(new XmageNativeStateRestoration.RequestedCommander(
+                    "cmd:P" + seat + "-A", ROGRAKH, "P" + seat, 0));
+        }
+        XmageNativeStateRestoration.Plan plan = new XmageNativeStateRestoration.Plan(
+                tag, playerCount, 424242L, players, commanders, damage, List.of(),
+                1, mage.constants.TurnPhase.PRECOMBAT_MAIN,
+                PhaseStep.PRECOMBAT_MAIN, "P1", "P1");
+        XmageDeckImporter importer = new XmageDeckImporter();
+        XmageNativeStateRestoration restoration =
+                XmageNativeStateRestorationTest.restorationFor(plan);
+        List<String> handles =
+                XmageNativeStateRestorationTest.importScaffolding(importer, plan, tag);
+        XmageFullGameSession session = new XmageFullGameSession(
+                tag, handles, 0, 40, plan.seed(), importer, restoration);
+        session.start();
+        XmageNativeStateRestorationTest.completeArrival(
+                session, restoration, session.restorationSeats());
+        return session;
     }
 
     private static UUID commanderId(GameCommanderImpl game, Player owner) {
@@ -706,8 +776,8 @@ class XmageSeatsFiveSixF5ScenarioTest {
 
     /**
      * F5-7 seat and turn order. From P1's turn the turns pass P1, P2, ..., PN
-     * and then wrap to P1 (F-41: turns run in seat order; CR 103.1, 500.1), one
-     * turn number each.
+     * and then wrap to P1 (F-41: the engine runs turns in seat order), one turn number
+     * each.
      */
     @ParameterizedTest(name = "F5-7 full round: {0} players")
     @ValueSource(ints = {5, 6})
@@ -772,8 +842,10 @@ class XmageSeatsFiveSixF5ScenarioTest {
             String actor = XmageActualCardCorpusTest.actorPid(started);
             if (departed.contains(actor)) {
                 JsonObject decision = session.pendingDecisionPayload().getAsJsonObject("decision");
-                assertTrue(decision.getAsJsonObject("context").get("actor_left_game").getAsBoolean(),
-                        "a departed seat gets at most its re-issued pass frame");
+                boolean leftFrame = decision.has("context") && decision.get("context").isJsonObject()
+                        && decision.getAsJsonObject("context").has("actor_left_game")
+                        && decision.getAsJsonObject("context").get("actor_left_game").getAsBoolean();
+                assertTrue(leftFrame, "a departed seat gets at most its re-issued pass frame");
             }
             switch (cls) {
                 case "priority" -> XmageActualCardCorpusTest.pass(started, tag + "-pass-" + step);
