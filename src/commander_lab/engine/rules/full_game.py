@@ -210,7 +210,7 @@ def audit_actor_scoped_frame(decision: dict[str, Any]) -> tuple[int, int, list[s
 
 
 def _audit_decision_frame(
-    audit: FullGameHiddenInformationAudit, decision: dict[str, Any], number: int
+    audit: FullGameHiddenInformationAudit, decision: dict[str, object], number: int
 ) -> None:
     """Audit one decision frame into ``audit``; fail closed on a leak (``number`` names it)."""
     rows, visible, violations = audit_actor_scoped_frame(decision)
