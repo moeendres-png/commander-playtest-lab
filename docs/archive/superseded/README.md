@@ -18,9 +18,21 @@ neither the charter nor the register was carried into the register, section 6, w
 line; the fixed reference set of the Studio bridge gate moved verbatim to
 `../../STUDIO_BRIDGE_GATE_TOOLING.md`. Their last commits on `main` before archiving are
 `aef76b8e0b345ab61c216bfeb7890bf2d7b9998f` (scope) and `41938a58dc8489aa3121a98bab3c64990ac9a7c3`
-(plan and roadmap; the plan's header lines 6 to 8 were corrected once more before the move).
+(plan and roadmap; the plan's header lines 6 to 8 were corrected once more before the move, `cea4b349`). Since then the scope gained one price sentence on `main` (`86802c05c`, #1740), which is part of the archived copy.
 
 **Last commit at which the described code existed:** `5e31a2712beb641a55e231c5c7378b401f89563a`. For the three Studio planning documents (no code described): `2a481efbe77d74a36859ba2b829a70f07307405d`, `main` at archiving time.
 
-Contents are byte-identical to what they were under `docs/`; links inside them are history
-and are not maintained.
+Contents are what they were under `docs/` at archiving time (`git mv`, no edits during the move);
+links inside them are history and are not maintained. Two of the three Studio files are not
+byte-identical to the pinned commits above, so line references of the form `PL:N` or `SC:N`
+(the register, section 6, pins them to `41938a58` and `aef76b8e`) refer to the pinned commit,
+not to the archived copy:
+
+- `STUDIO_PLAN_SIMULATOR.md`: header lines 6 to 8 of `41938a58` were replaced by four lines
+  (commit `cea4b349`, E15 Q1 instead of the G-SIM gate). The archived copy is therefore one line
+  longer after line 8: line N of `41938a58` is line N+1 in the archived file for N of 9 and above
+  (the reference set, lines 58 to 92, is lines 59 to 93).
+- `STUDIO_SCOPE.md`: one sentence at line 34 of `aef76b8e` was extended to two lines by the
+  price decision for the TAM purchase (`86802c05c`, #1740). The archived copy is one line longer
+  after line 34: line N of `aef76b8e` is line N+1 in the archived file for N of 35 and above.
+- `STUDIO_ROADMAP_20261112.md` is byte-identical to `41938a58`.

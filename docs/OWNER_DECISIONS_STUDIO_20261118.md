@@ -666,6 +666,7 @@ eingeführt hat (Refs #1667).
 `aef76b8e0b345ab61c216bfeb7890bf2d7b9998f`, „PL“ `STUDIO_PLAN_SIMULATOR.md` und „RM“
 `STUDIO_ROADMAP_20261112.md` am Commit `41938a58dc8489aa3121a98bab3c64990ac9a7c3`; die Zahl nach
 dem Doppelpunkt ist die Zeile dort. Diese Stände sind die letzten auf `main` vor der Archivierung.
+R37 und R38 sind nach dem ersten Review nachgetragen (zwei Reste, die zunächst als „schon vorhanden“ galten) und stehen bei ihrem Thema, nicht am Ende der Nummernfolge.
 
 **Lesart (Einordnung des Co-Leads, Einspruch des Owners jederzeit möglich).** Die Regeln sind
 wortlautnah übernommen und nicht neu gefasst. Wo eine Regel gleichlautend in `AGENTS.md` steht, ist
@@ -700,6 +701,7 @@ an diesem Abschnitt gilt dasselbe wie für die übrigen Owner-Entscheide (R33).
 | R8 | Der Serienplan liegt als Datei vor dem ersten Spiel vor. Die Konsistenz-Tafel trennt drei Herkunftsklassen (exakt gerechnet; in der Engine gemessen und pilotunabhängig; in der Engine gemessen und pilotabhängig). Jedes Ergebnis trägt den Gültigkeitsblock (Sitzkurve neben der Playgroup-Referenz, Zählung der Pilot-Auslassungen nach E3, fester Satz zur KI-Gültigkeit). | SC:79 |
 | R9 | Simulationsergebnisse stehen nie in einer Spalte mit EDHREC-, Playgroup- oder TopDeck-Zahlen und werden nie über Commander oder Deck-Stände summiert. Eine Serie zu einem anderen Deck-Stand wird nie als Ergebnis des aktuellen Standes gezeigt. | SC:92-94, RM:61 |
 | R10 | SIMULATE entscheidet Pakete und Bauachsen (Landzahl, Ramp-, Schutzpaket), nicht einzelne Kartentausche; die Oberfläche sagt das. | SC:98-99 |
+| R38 | Später, nur bei Bedarf (A3): rundenbegrenzte Serien mit vollen Piloten, Kontrollgrößen, Zufalls-Pods, Vorausschau-Piloten (S5, #1265). Rundenlimit, neue Abhängigkeiten und 5/6 Sitze brauchen einen Owner-Entscheid. | SC:100-102 |
 
 ### 6.4 Engine, Bridge und Aufräumen
 
@@ -717,6 +719,7 @@ an diesem Abschnitt gilt dasselbe wie für die übrigen Owner-Entscheide (R33).
 
 | # | Regel | Quelle |
 |---|---|---|
+| R37 | Plattform: Der Owner-PC ist Windows; Start über `scripts/studio_start.ps1`, Datenordner standardmäßig `%LOCALAPPDATA%\CommanderStudio` (`docs/STUDIO_OWNER_PC_SETUP.md`). Linux/WSL (`scripts/studio_start.sh`) ist nur Ausweichweg; ob am Owner-PC WSL vorhanden ist: `UNKNOWN`. | SC:119-121 |
 | R18 | Messwerkzeuge für Bridge-Gate und Serien-Identität müssen unter Windows laufen. | SC:122-124, SC:158 (S1, Abnahme 4) |
 | R19 | Das Release-Artefakt (`.github/workflows/release-artifacts.yml`, mit `xmage-engine-bridge.jar`, dessen `.sha256` und `ENGINE_PIN.txt`; `retention-days: 30`) wird vor dem Abschluss neu erzeugt. Ein dauerhaftes GitHub-Release ist eine Veröffentlichung und Owner-Entscheid (E15 Q11, `AGENTS.md` §8). | SC:125-128 |
 | R20 | Zum Abschluss: neue Qualifikations-Epoche (Versiegeln braucht das Owner-Go) oder dauerhaft sichtbar „vor Qualifikation“. | SC:134-135 |
