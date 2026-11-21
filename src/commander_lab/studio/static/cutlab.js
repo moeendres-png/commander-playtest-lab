@@ -163,6 +163,7 @@ async function renderCutLab(body, deps) {
     item.below_minimum.length ? h("p", { class: "warn" }, "Unter der Mindestzahl: " + item.below_minimum.map(deps.roleName).join(", ")) : "",
     item.combo_parts.length ? h("p", { class: "note" }, h("span", { class: "chip chip-static" }, "Kombo-Teil"), " " + item.combo_parts.map((cards) => cards.join(" + ")).join(" · ")) : "",
     cutDeltaList(h, item, deps),
+    h("p", { id: "cut-evidence", class: "muted" }, "Simulation (SIMULIERT, Reifegrad): ", deckSeriesCardEvidence(h)),
     h("div", { class: "actions" },
       h("button", { type: "button", class: "primary", id: "cut-accept", onclick: () => { if (card) deps.remove(card); } }, "Kürzen"),
       h("button", { type: "button", id: "cut-reject", onclick: () => { CutLab.rejected.push(item.card_id); rerender(); } }, "Ablehnen"),
