@@ -598,7 +598,12 @@ def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]
     # changes (``with_understanding`` copies the answer); the data file's stamp is part of the key.
     return cache.cached(
         store,
-        ("strength_understanding", *key, card_understanding.stamp()),
+        (
+            "strength_understanding",
+            *key,
+            card_understanding.stamp(),
+            card_understanding.audit_stamp(),
+        ),
         lambda: understanding_field.with_understanding(store, answer),
     )
 
@@ -908,6 +913,21 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             return evidence_model.card_evidence(store, card_id, commander, view=view)
         except KeyError as error:
             raise HTTPException(404, "unknown card or card outside this view") from error
+        finally:
+            store.close()
+
+    @app.get("/api/cards/{card_id}/understanding")
+    def card_understanding_detail(
+        card_id: str, commander: str = Query(min_length=1)
+    ) -> dict[str, object]:
+        """One card's single ratings of "Kartenverständnis (Modellurteil)" (WP-6, T2): all seven
+        criteria, reason, notes, rules claims, the audit doubt and the coverage n of N per
+        criterion. Only for the data set's commander; for any other ``anzeigen`` is False."""
+        store = open_store()
+        try:
+            return understanding_field.card_detail(store, card_id, commander)
+        except KeyError as error:
+            raise HTTPException(404, "unknown card") from error
         finally:
             store.close()
 

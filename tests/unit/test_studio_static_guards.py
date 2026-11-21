@@ -801,8 +801,10 @@ const field = (zahlen, extra) => ({verfuegbar: true, grund: null, name: 'Kartenv
   n_bewertet: zahlen.length, n_gesamt: 3, herkunft: {version: 'v2.1', rubric: 'chulane-rubric-v2.1'}, zahlen, ...extra});
 const setup = (result, view = 'commander', status = 'ready') => { globalThis.state = {view, strength: {status, result}}; };
 const cards = [{card_id: 'A'}, {card_id: 'B'}, {card_id: 'C'}];
+const titleOf = (n) => (n && typeof n === 'object' ? (n.props && n.props.title) || n.kids.map(titleOf).find(Boolean) || '' : '');
 const view = () => { const columns = understandingColumns();
   return {heads: columns.map((c) => text(c.head())), cells: columns.length ? cards.map((card) => text(columns[0].cell(card))) : [],
+    titles: columns.length ? cards.map((card) => titleOf(columns[0].cell(card))) : [],
     hint: understandingHint().map(text).join(' ')}; };
 """
     return (
@@ -851,21 +853,25 @@ console.log(JSON.stringify(out));
     chulane = result["chulane"]
     assert chulane["heads"] == ["Kartenverständnis (Modellurteil)"]
     a, b, c = chulane["cells"]
-    assert a.startswith("90") and "Modellurteil" in a and "Quelle: Rubrik v2.1" in a
-    assert "Kohorte: Chulane" in a and "nicht gegen Spielergebnisse validiert" in a
+    # WP-6 (T1): a compact cell; the shared origin stands once, visible, above the table and every
+    # cell carries its own origin and notes in the tooltip
+    assert a.startswith("90") and "Modellurteil" in a and "Quelle:" not in a
+    assert "Quelle: Rubrik v2.1" in chulane["titles"][0] and "Kohorte: Chulane" in chulane["titles"][0]
+    assert "nicht gegen Spielergebnisse validiert" in chulane["titles"][0]
     assert b == "unbekannt"  # no figure: unknown, never 0
     assert c.startswith("0") and "Modellurteil" in c  # a real 0 stays a real 0
     assert "2 von 3 Karten bewertet" in chulane["hint"] and "v2.1" in chulane["hint"]
+    assert "Quelle: Rubrik v2.1" in chulane["hint"] and "Kohorte: Chulane" in chulane["hint"]
     assert "nicht gegen Spielergebnisse validiert" in chulane["hint"]
     for case in ("other", "global", "loading"):
-        assert result[case] == {"heads": [], "cells": [], "hint": ""}, case
+        assert result[case] == {"heads": [], "cells": [], "titles": [], "hint": ""}, case
     unavailable = result["unavailable"]
     assert unavailable["heads"] == [] and "nicht verfügbar" in unavailable["hint"]
     assert "Bracket 3" in unavailable["hint"]
     mixed = result["mixed"]["cells"]
     assert mixed[0] == "Klasse passt nicht zur Spalte" and not mixed[0].startswith("90")
     js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
-    assert 'StudioZahl.zelle(h, understandingFigure(card), "URTEIL"' in js
+    assert 'StudioZahl.zelle(h, figure, "URTEIL", { class: "understanding" }, { kompakt: true' in js
 
 
 def test_the_tierliste_shows_exactly_one_tier_scale() -> None:
@@ -904,7 +910,9 @@ def test_the_tierliste_shows_exactly_one_tier_scale() -> None:
     # the one scale and the kept comparison
     assert "Stärke-Index mit Stufen S bis D" in html and 'id="rk-usage"' in html
     assert 'id="rank-group-toggle"' in html and 'id="rg-function"' in html
-    assert "tierBadge(item.tier, StudioUI.num(item.index, 1), title)" in js
+    # the badge shows the index (S to C) or, in tier D, the band of places of the tie group (WP-6, T4)
+    assert "tierBadge(item.tier, shown," in js and "const band = rankBandNode(item);" in js
+    assert "StudioUI.num(item.index, 1), band ?" in js
 
 
 def _pool_view_node_prelude() -> str:

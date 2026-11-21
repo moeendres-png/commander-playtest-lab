@@ -235,3 +235,165 @@ def stamp(path: Path | None = None) -> tuple[str, int, int] | None:
     except OSError:
         return None
     return (str(target), found.st_size, found.st_mtime_ns)
+
+
+_LOADED: dict[str, tuple[tuple[str, int, int], dict[str, UnderstandingRow]]] = {}
+
+
+def load_cached() -> dict[str, UnderstandingRow]:
+    """``load()`` of ``DATASET_PATH``, parsed once per file identity (path, size, mtime). The card
+    window asks per card; reading 922 lines each time is not needed. Same failures as ``load``."""
+    found = stamp()
+    if found is None:
+        return load()
+    cached = _LOADED.get("dataset")
+    if cached is not None and cached[0] == found:
+        return cached[1]
+    rows = load()
+    _LOADED["dataset"] = (found, rows)
+    return rows
+
+
+# --- the rating audit of rubric v2.1 (Audit A): cards the reviewer doubts ----------------------
+#
+# The audit is a separate, blind review of the full run (reviewer of another model family, no usage
+# data): 35 lines, one per card whose score H it doubts, with the proposed range. It is research
+# evidence, read as it is from the research folder; nothing here changes a score.
+
+AUDIT_PATH: Final = (
+    Path(__file__).resolve().parents[3]
+    / "data"
+    / "research"
+    / "chulane_rubric_v2_20261118"
+    / "audit"
+    / "audit_A_flagged.jsonl"
+)
+AUDIT_SOURCE: Final = (
+    "Rating-Audit A der Rubrik v2.1 (blinde Prüfung ohne Nutzungsdaten, Prüfer aus einer "
+    "anderen Modellfamilie), data/research/chulane_rubric_v2_20261118/audit/audit_A_flagged.jsonl"
+)
+AUDIT_KINDS: Final[tuple[str, ...]] = ("H zu hoch", "H zu niedrig", "Begründung faktisch falsch")
+
+
+class AuditFlag(TypedDict):
+    """One doubted card of the audit: the H the reviewer saw, its proposed range and why."""
+
+    card: str
+    rater_H: float
+    proposed_H_low: float | None
+    proposed_H_high: float | None
+    kind: str
+    reason: str
+    sample: str
+
+
+def parse_audit_row(raw: object) -> AuditFlag:
+    """Validate one decoded audit line; raises ``UnderstandingDataError``."""
+    if not isinstance(raw, dict):
+        raise UnderstandingDataError("an audit line must be a JSON object")
+    allowed = {"card", "rater_H", "proposed_H_low", "proposed_H_high", "kind", "reason", "sample"}
+    unknown = sorted(str(key) for key in raw if key not in allowed)
+    if unknown:
+        raise UnderstandingDataError(f"unknown audit fields {unknown}")
+    missing = sorted(
+        key for key in ("card", "rater_H", "kind", "reason", "sample") if key not in raw
+    )
+    if missing:
+        raise UnderstandingDataError(f"missing audit fields {missing}")
+    rater_h = _number(raw["rater_H"])
+    if rater_h is None or not 0.0 <= rater_h <= 100.0:
+        raise UnderstandingDataError("rater_H must be a number in 0..100")
+    bounds: list[float | None] = []
+    for key in ("proposed_H_low", "proposed_H_high"):
+        value = raw.get(key)
+        number = None if value is None else _number(value)
+        if value is not None and (number is None or not 0.0 <= number <= 100.0):
+            raise UnderstandingDataError(f"{key} must be a number in 0..100 or null")
+        bounds.append(number)
+    low, high = bounds
+    if low is not None and high is not None and low > high:
+        raise UnderstandingDataError("proposed_H_low is above proposed_H_high")
+    kind = _text(raw, "kind")
+    if kind not in AUDIT_KINDS:
+        raise UnderstandingDataError(f"kind must be one of {list(AUDIT_KINDS)}")
+    return {
+        "card": _text(raw, "card"),
+        "rater_H": rater_h,
+        "proposed_H_low": low,
+        "proposed_H_high": high,
+        "kind": kind,
+        "reason": _text(raw, "reason"),
+        "sample": _text(raw, "sample"),
+    }
+
+
+def load_audit(path: Path | None = None) -> list[AuditFlag]:
+    """All lines of the audit file (default ``AUDIT_PATH``), in file order. A missing file is
+    ``DatasetNotFoundError`` (never "no card doubted"); a broken line fails the whole load."""
+    target = AUDIT_PATH if path is None else path
+    if not target.is_file():
+        raise DatasetNotFoundError(f"Audit-Datei nicht gefunden: {target.name}")
+    try:
+        text = target.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as error:
+        raise UnderstandingDataError(
+            f"audit file cannot be read ({type(error).__name__})"
+        ) from error
+    flags: list[AuditFlag] = []
+    errors: list[str] = []
+    for number, line in enumerate(text.splitlines(), start=1):
+        if not line.strip():
+            continue
+        try:
+            flags.append(parse_audit_row(json.loads(line)))
+        except json.JSONDecodeError as error:
+            errors.append(f"line {number}: not valid JSON ({error.msg})")
+        except UnderstandingDataError as error:
+            errors.append(f"line {number}: {error}")
+    if errors:
+        raise UnderstandingDataError(f"{len(errors)} broken audit line(s): {'; '.join(errors[:3])}")
+    return flags
+
+
+def audit_stamp(path: Path | None = None) -> tuple[str, int, int] | None:
+    """Identity of the audit file for cache keys; None if absent."""
+    return stamp(AUDIT_PATH if path is None else path)
+
+
+class AuditMatch(TypedDict):
+    """The audit read against the data set: per ``oracle_id`` the flag that still describes the
+    current score, and the counts that say how much of the audit could be placed."""
+
+    flags: dict[str, AuditFlag]
+    n_flagged: int
+    n_matched: int
+    unmatched: list[str]
+    outdated: list[str]
+
+
+def match_audit(rows: dict[str, UnderstandingRow], flags: list[AuditFlag]) -> AuditMatch:
+    """Place every audit line on a data-set row by its exact card name. A name the data set does
+    not list is counted as unmatched (never dropped silently); a line whose ``rater_H`` is not the
+    row's current H is counted as outdated and not shown as a doubt of the current score."""
+    by_name: dict[str, str] = {}
+    for oracle_id, row in rows.items():
+        by_name.setdefault(row["card"], oracle_id)
+    placed: dict[str, AuditFlag] = {}
+    unmatched: list[str] = []
+    outdated: list[str] = []
+    for flag in flags:
+        placed_id = by_name.get(flag["card"])
+        if placed_id is None:
+            unmatched.append(flag["card"])
+            continue
+        if float(rows[placed_id]["scores"]["H"]) != flag["rater_H"]:
+            outdated.append(flag["card"])
+            continue
+        placed[placed_id] = flag
+    return {
+        "flags": placed,
+        "n_flagged": len(flags),
+        "n_matched": len(placed),
+        "unmatched": unmatched,
+        "outdated": outdated,
+    }
