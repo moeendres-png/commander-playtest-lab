@@ -2103,6 +2103,8 @@ def test_experiment_view_static_guards() -> None:
     assert "state.baseStale = true" in load
     render = app[app.index("function renderSaveState()") : app.index("function changed()")]
     assert render.index("if (state.baseStale)") < render.index("if (state.draftConflict)")
+    # "Aktuellen Stand laden" reads the branches first, never the stale base again
+    assert "loadDecks().then(loadBranch)" in render
     after = app[app.index("async function afterExperimentDecision") :]
     after = after[: after.index("\n}\n")]
     assert "state.baseStale = true" in after
