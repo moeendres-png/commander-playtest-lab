@@ -2036,4 +2036,8 @@ def test_experiment_view_static_guards() -> None:
     assert "befund.stufe ?" in js and "befund.empfehlungsfaehig" in js
     # the decision is posted only from the confirm button's handler
     assert js.count('"POST"') == 1
-    assert js.index("const yes = h(") < js.index('"POST"') < js.index('"Ja, übernehmen" : "Ja, verwerfen"')
+    assert (
+        js.index("const yes = h(")
+        < js.index('"POST"')
+        < js.index('"Ja, übernehmen" : "Ja, verwerfen"')
+    )
