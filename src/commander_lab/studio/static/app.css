@@ -327,6 +327,9 @@ body:has(#data-state details.datastate[open]) main{min-height:540px}
   #pool>#filters{min-height:312px;align-content:flex-start}
 }
 
+
+/* WP-2/WP-3 (#1404): the deck's own row of the land count table */
+#land-count-table tr.land-count-deck td { font-weight: 600; }
 /* WP-6 (#1404, T2): "Kartenverständnis (Modellurteil)" in the deck builder's card window (kartenverstaendnis.js) */
 .understanding-detail .understanding-origin,.understanding-detail .understanding-note{font-size:13px;color:var(--muted)}
 .understanding-criteria td,.understanding-criteria th{vertical-align:top}
