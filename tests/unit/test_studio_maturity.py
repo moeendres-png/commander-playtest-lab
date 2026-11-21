@@ -301,6 +301,41 @@ def test_after_holm_the_text_claims_no_uncorrected_sensitivity() -> None:
 # -- verdict in four steps ---------------------------------------------------------------------
 
 
+def test_five_zero_wins_on_the_own_level_is_undecided() -> None:
+    # 5 : 0 gives p = 2 * 0.5**5 = 0.0625 > 0.05: undecided, never "belegt besser" (#1717 F4)
+    got = _assess(_finding("c", wins=5))["c"]
+    assert got["urteil"] == m.NO_DIFFERENCE and got["belegt"] is False
+    assert got["effektives_p"] == pytest.approx(0.0625)
+    assert got["urteil_text"] == (
+        "kein nachweisbarer Unterschied ab 20.0 pp (y = nachweisbar mit 80 % Power)"
+    )
+    # the same pairs decide at a level above 0.0625 (strictly below) and not at exactly 0.0625
+    assert _assess(_finding("c", wins=5, alpha=0.07))["c"]["urteil"] == m.BETTER
+    assert _assess(_finding("c", wins=5, alpha=0.0625))["c"]["urteil"] == m.NO_DIFFERENCE
+    # six wins do decide at 0.05: the boundary is the p-value, not the count
+    assert _assess(_finding("c", wins=6))["c"]["urteil"] == m.BETTER
+
+
+def test_undecided_member_of_a_family_at_equal_alpha_labels_the_single_test() -> None:
+    # a: 1 : 1 with 4 ties (undecided, y = 20 pp), b: another confirmation of the same family,
+    # same alpha: y is the uncorrected single test's, the text says so
+    a = _finding("a", wins=1, losses=1, ties=4)
+    b = _finding("b", variant="rev-var2", first_seed=600, wins=1, losses=1, ties=4)
+    got = _assess(a, b)["a"]
+    assert got["urteil"] == m.NO_DIFFERENCE and got["y_pp"] == 20.0
+    assert got["urteil_text"] == (
+        "kein nachweisbarer Unterschied ab 20.0 pp (y = nachweisbar mit 80 % Power) "
+        "(Einzeltest, vor Holm)"
+    )
+    # a single-member family is the test itself: no label
+    assert "Einzeltest" not in str(_assess(a)["a"]["urteil_text"])
+    # a smaller family level or a Holm withhold shows no y at all, so no label either
+    low = _finding("b", variant="rev-var2", first_seed=600, wins=1, losses=1, ties=4, alpha=0.01)
+    assert "Einzeltest" not in str(_assess(a, low)["a"]["urteil_text"])
+    both = _assess(_finding("a"), _finding("b", variant="rev-var2", first_seed=600))
+    assert "Einzeltest" not in str(both["a"]["urteil_text"])
+
+
 def test_verdict_in_four_steps() -> None:
     # one table each: five confirmations of one table would be one Holm family
     got = _assess(
@@ -630,8 +665,27 @@ const r0 = deckSeriesEvidence(h, { ...base, stufe: "R0", stufe_text: "R0 Erkundu
 const r0cls = (function find(n) { if (typeof n === "string") return null; if (text(n) === "R0 Erkundung" && n.tag === "span") return n.attrs.class; for (const k of n.kids) { const c = find(k); if (c) return c; } return null; })(r0);
 const r2 = deckSeriesEvidence(h, { ...base, stufe: "R2", stufe_text: "R2 bestätigt mit Kontrollen", empfehlungsfaehig: true, empfehlungsfaehig_gruende: [],
   stand: { bezug: "aktuell", text: "Befund zum aktuellen Stand" } });
+// belegt, not urteil, decides: a decided step below R1 (urteil belegt_*, belegt false) is a hint
+// even when the answer's text claims more
+const hint = deckSeriesEvidence(h, { ...base, stufe: "R0", stufe_text: "R0 Erkundung", urteil: "belegt_besser", belegt: false, urteil_text: "belegt besser (B gegenüber A)" });
+const proven = deckSeriesEvidence(h, { ...base, stufe: "R1", stufe_text: "R1 bestätigt (frische Seeds, Holm)", urteil: "belegt_besser", belegt: true, urteil_text: "belegt besser (B gegenüber A)" });
+const single = deckSeriesEvidence(h, { ...base, stufe: "R1", stufe_text: "R1 bestätigt (frische Seeds, Holm)", urteil: "kein_nachweisbarer_unterschied", belegt: false,
+  urteil_text: "kein nachweisbarer Unterschied ab 20.0 pp (y = nachweisbar mit 80 % Power) (Einzeltest, vor Holm)" });
+// the diff: only a series of exactly the two compared states, in either order
+const mk = (id, a, b) => ({ series_id: id, base_ref: a, variant_ref: b, created_at: "2026-11-20T10:00:00" });
+const data = { series: [mk("s1", "rev-a", "rev-b"), mk("s2", "rev-b", "rev-a"), mk("s3", "rev-a", "rev-c")],
+  reifegrad: { befunde: { s1: { ...base, stufe: "R1", stufe_text: "R1 bestätigt (frische Seeds, Holm)", urteil: "belegt_besser", belegt: true, urteil_text: "belegt besser (B gegenüber A)", stand: { bezug: "aktuell", text: "Befund zum aktuellen Stand" } },
+    s3: { ...base, stufe: "R1", stufe_text: "R1 bestätigt (frische Seeds, Holm)", urteil_text: "belegt schlechter (B gegenüber A)" } } } };
+const diffFound = deckSeriesDiffEvidence(h, data, "rev-a", "rev-b");
+const diffNone = deckSeriesDiffEvidence(h, data, "rev-a", "rev-zzz");
+const diffDirty = deckSeriesDiffEvidence(h, data, "rev-a", null);
+const diffBroken = deckSeriesDiffEvidence(h, null, "rev-a", "rev-b");
+const diffCut = deckSeriesDiffEvidence(h, { ...data, scan_truncated: 3 }, "rev-a", "rev-zzz");
+const card = deckSeriesCardEvidence(h);
 process.stdout.write(JSON.stringify({ none: [text(none), pills(none)], missing: [text(missing), pills(missing)],
-  r1: [text(r1), pills(r1)], r2: [text(r2), pills(r2)], r0: [text(r0), pills(r0), r0cls] }));
+  r1: [text(r1), pills(r1)], r2: [text(r2), pills(r2)], r0: [text(r0), pills(r0), r0cls],
+  hint: text(hint), proven: text(proven), single: text(single),
+  diffFound: [text(diffFound), pills(diffFound)], diffNone: text(diffNone), diffDirty: text(diffDirty), diffBroken: text(diffBroken), diffCut: text(diffCut), card: text(card) }));
 """
 
 
@@ -651,6 +705,52 @@ def test_evidence_row_shows_no_badge_without_proof_and_names_other_states() -> N
     assert r["r0"][1] == [] and r["r0"][2] == "pill"  # R0 exploration: neutral, never green
 
 
+def test_verdict_reads_belegt_the_diff_shows_only_the_exact_pair_and_cards_say_no_finding() -> None:
+    node = _node()
+    script = _JS.replace("__SERIES__", json.dumps(str(STATIC / "deckseries.js")))
+    r = json.loads(
+        subprocess.run(
+            [node, "-e", script], capture_output=True, text=True, timeout=30, check=True
+        ).stdout
+    )
+    # below R1 urteil says belegt_besser, belegt is false: shown as a hint, never as proven
+    assert "Hinweis besser (nicht belegt" in r["hint"] and "belegt besser (B" not in r["hint"]
+    assert "Ergebnis (simuliert): belegt besser (B gegenüber A)" in r["proven"]
+    # the single-test label of the answer is shown as it is
+    assert "(Einzeltest, vor Holm)" in r["single"]
+    # the diff: the exact pair in either order (A/B named), another pair's series never
+    found, found_pills = r["diffFound"]
+    assert "Serie vom 2026-11-20 10:00: A = Vergleichsbasis, B = aktueller Stand" in found
+    assert "A = aktueller Stand, B = Vergleichsbasis" in found
+    assert "belegt besser (B gegenüber A)" in found and "belegt schlechter" not in found
+    assert found_pills == ["R1 bestätigt (frische Seeds, Holm)"]  # s2 has no finding: no badge
+    assert "kein Reifegrad (kein Befund)" in found
+    for key in ("diffNone", "diffDirty", "diffBroken", "diffCut"):
+        assert "kein Befund" in r[key] and "belegt" not in r[key].replace("kein Befund", "")
+    assert "der aktuelle Stand ist nicht gespeichert" in r["diffDirty"]
+    assert "nicht gelesen werden (unbekannt, nicht 0)" in r["diffBroken"]
+    assert "ältere Serien nicht geprüft" in r["diffCut"]
+    assert "keine Serie je Karte gespeichert" in r["card"]
+
+
+def test_the_diff_and_the_cut_swap_surfaces_are_wired_without_forbidden_patterns() -> None:
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    diff = app[app.index("async function renderDiff") : app.index("function pollBatch")]
+    assert "deckSeriesDiffEvidence(h, seriesData, state.diffBaseRev" in diff
+    assert "state.dirty ? null : state.baseRevision" in diff  # an unsaved state has no finding
+    swap = app[app.index("async function renderSwapBox") :]
+    assert "Simulation (SIMULIERT, Reifegrad)" in swap and "deckSeriesCardEvidence(h)" in swap
+    cut = (STATIC / "cutlab.js").read_text(encoding="utf-8")
+    assert 'id: "cut-evidence"' in cut and "deckSeriesCardEvidence(h)" in cut
+    series = (STATIC / "deckseries.js").read_text(encoding="utf-8")
+    tail = series[series.index("function deckSeriesDiffEvidence") :]
+    for source in (diff, tail):
+        for forbidden in ("innerHTML", "outerHTML", "style:", "style=", ".toFixed(", "eval("):
+            assert forbidden not in source, forbidden
+    # no figure of this surface enters a sum or the tier list
+    assert "+=" not in tail and "reduce(" not in tail
+
+
 def test_evidence_row_static_guards() -> None:
     js = (STATIC / "deckseries.js").read_text(encoding="utf-8")
     row = js[js.index("function deckSeriesEvidence") : js.index("function deckSeriesRefLabel")]
@@ -658,4 +758,9 @@ def test_evidence_row_static_guards() -> None:
         assert forbidden not in row, forbidden
     # the badge and the flag come only from the answer, never from a local rule
     assert re.search(r"befund\.stufe \?", row) and "befund.empfehlungsfaehig" in row
+    verdict_fn = js[
+        js.index("function deckSeriesVerdictText") : js.index("function deckSeriesEvidence")
+    ]
+    assert "befund.belegt === true" in verdict_fn  # the verdict reads belegt, not urteil alone
+    assert "deckSeriesVerdictText(befund)" in row and "befund.urteil_text" not in row
     assert "R2" not in row and "R3" not in row
