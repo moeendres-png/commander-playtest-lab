@@ -148,13 +148,39 @@ def _pool(
     return pool, script
 
 
-def _tasks(seeds: range, table: str = "t") -> list[GameTask]:
+_DECKS: list[Path] = []
+JAR = "j" * 64
+PIN = "p" * 40
+
+
+@pytest.fixture(autouse=True)
+def _deck_folder(tmp_path: Path) -> None:
+    """The deck files of the scripted tasks; the worker checks each against its hash (S1)."""
+    folder = tmp_path / "task-decks"
+    folder.mkdir()
+    _DECKS[:] = [folder]
+
+
+def _deck_file(name: str) -> str:
+    path = _DECKS[0] / name
+    if not path.is_file():
+        path.write_text(json.dumps({"deck": name}), encoding="utf-8")
+    return str(path)
+
+
+def _tasks(
+    seeds: range, table: str = "t", *, styles: tuple[float, float] = (0.5, 0.5)
+) -> list[GameTask]:
     return [
-        GameTask(
+        game_pool.plan_task(
             task_id=f"{table}:{seed}",
             seed=seed,
             game_id=f"g-{table}-s{seed}",
-            deck_paths=(f"{table}-a.json", f"{table}-b.json"),
+            deck_paths=[_deck_file(f"{table}-a.json"), _deck_file(f"{table}-b.json")],
+            seat_styles=list(styles),
+            jar_sha256=JAR,
+            engine_pin=PIN,
+            skip_forced_decisions=True,
         )
         for seed in seeds
     ]
@@ -307,8 +333,8 @@ def test_the_worker_loop_speaks_the_protocol_and_reports_each_jvm_life() -> None
                 self.lives[-1]["end"] = "series_closed"
 
     plays = [
-        json.dumps({"op": "play", "task_id": f"t{n}", "seed": n, "game_id": f"g{n}"})
-        for n in (1, 2, 3)
+        json.dumps({**task.to_wire(), "task_id": f"t{n}", "game_id": f"g{n}"})
+        for n, task in zip((1, 2, 3), _tasks(range(1, 4)), strict=True)
     ]
     out = io.StringIO()
     code = worker_main(
@@ -998,8 +1024,6 @@ from commander_lab.studio.series_record import (  # noqa: E402
     SeriesRecord,
 )
 
-JAR = "j" * 64
-PIN = "p" * 40
 _KEY_INPUT: dict[str, object] = {
     "jar_sha256": JAR,
     "engine_pin": PIN,
@@ -1359,3 +1383,328 @@ def test_the_wall_limit_is_set_per_seat_count_without_changing_the_table_hash() 
     spec = table_spec.TableSpec(seats=3, opponents=["a", "b"])
     assert spec.game_wall_limit_seconds() == 1800.0
     assert "game_wall_limit_seconds" not in spec.canonical()
+
+
+# --- S1 (#1660), worker side: complete tasks, checks before the game, journal on the pool -----
+
+
+def test_a_planned_task_carries_hashes_pilots_and_key_and_the_key_follows_the_pilot(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    task = _tasks(range(3, 4), "k", styles=(0.5, 0.8))[0]
+    assert task.deck_sha256 == tuple(series_record.file_sha256(p) for p in task.deck_paths)
+    assert task.seat_styles == (0.5, 0.8)
+    assert task.pilot_fingerprints == tuple(map(game_pool.seat_pilot_fingerprint, (0.5, 0.8)))
+    assert len(set(task.pilot_fingerprints)) == 2  # the style is part of a seat's fingerprint
+    wire = task.to_wire()
+    assert wire["game_key"] == task.game_key and wire["seat_styles"] == [0.5, 0.8]
+    # other pilot code (same styles, same decks) gives another key (M1)
+    monkeypatch.setattr(game_pool, "seat_pilot_fingerprint", lambda style: f"other-{style}")
+    assert _tasks(range(3, 4), "k", styles=(0.5, 0.8))[0].game_key != task.game_key
+    # without a bridge JAR or engine pin there is no task, never one without its key
+    for jar, pin in ((None, PIN), ("", PIN), (JAR, None)):
+        with pytest.raises(ValueError, match="Spielschlüssel"):
+            game_pool.plan_task(
+                task_id="x",
+                seed=1,
+                game_id="x",
+                deck_paths=list(task.deck_paths),
+                seat_styles=[0.5, 0.5],
+                jar_sha256=jar,
+                engine_pin=pin,
+                skip_forced_decisions=None,
+            )
+
+
+def test_the_forced_pass_switch_is_read_from_the_command() -> None:
+    prop = "-Dcommanderlab.fullGame.skipForcedDecisions"
+    assert game_pool.skip_forced_decisions_of(("java", f"{prop}=true", "-jar", "b")) is True
+    assert game_pool.skip_forced_decisions_of(("java", f"{prop}=false", "-jar", "b")) is False
+    assert game_pool.skip_forced_decisions_of(("java", "-jar", "b")) is None
+    assert game_pool.skip_forced_decisions_of(None) is None
+
+
+def test_a_manipulated_deck_file_plays_no_game_and_fails_as_infrastructure(tmp_path: Path) -> None:
+    tasks = _tasks(range(1, 3), "m")
+    Path(tasks[0].deck_paths[1]).write_text('{"deck": "changed"}', encoding="utf-8")
+    pool, _ = _pool(tmp_path, workers=1)
+    with pool:
+        results = pool.run(tasks)
+    for task in tasks:  # both use the manipulated file
+        got = results[task.task_id]
+        assert got["status"] == "failed" and got["failure_class"] == "DeckHashMismatch"
+        assert got["failure_kind"] == "infrastructure" and got["log"] is None
+        assert "jvm_life_id" not in got  # the engine never played it
+        assert got["game_key"] == task.game_key
+    assert "DeckHashMismatch" in series_record.INFRASTRUCTURE_FAILURES
+
+
+def test_a_missing_deck_file_an_incomplete_task_and_a_wrong_fingerprint_are_refused() -> None:
+    task = _tasks(range(1, 2), "r")[0]
+    assert game_pool.task_refusal(task.to_wire()) is None
+    bare = {"op": "play", "task_id": "t", "seed": 1, "game_id": "g", "deck_paths": ["a"]}
+    assert game_pool.task_refusal(bare)["failure_class"] == "TaskIncomplete"  # type: ignore[index]
+    for field in ("deck_sha256", "seat_styles", "pilot_fingerprints"):
+        short = {**task.to_wire(), field: task.to_wire()[field][:1]}  # type: ignore[index]
+        assert game_pool.task_refusal(short)["failure_class"] == "TaskIncomplete"  # type: ignore[index]
+    for missing in ("jar_sha256", "game_key"):
+        # the worker cannot check its JAR, the guard has nothing to compare: no game
+        unkeyed = {**task.to_wire(), missing: None}
+        assert game_pool.task_refusal(unkeyed)["failure_class"] == "TaskIncomplete"  # type: ignore[index]
+    gone = {**task.to_wire(), "deck_paths": [task.deck_paths[0], task.deck_paths[0] + ".gone"]}
+    assert game_pool.task_refusal(gone)["failure_class"] == "DeckHashMismatch"  # type: ignore[index]
+    wrong = {**task.to_wire(), "pilot_fingerprints": [task.pilot_fingerprints[0], "f" * 64]}
+    assert game_pool.task_refusal(wrong)["failure_class"] == "PilotFingerprintMismatch"  # type: ignore[index]
+    restyled = {**task.to_wire(), "seat_styles": [0.5, 0.9]}  # style changed, fingerprint kept
+    assert game_pool.task_refusal(restyled)["failure_class"] == "PilotFingerprintMismatch"  # type: ignore[index]
+
+
+def test_the_worker_recomputes_the_game_key_and_refuses_a_task_it_does_not_give() -> None:
+    task = _tasks(range(1, 2), "rk")[0]
+    wire = task.to_wire()
+    assert game_pool.task_key_of(wire) == task.game_key  # the wire carries every key field
+    changes: dict[str, object] = {
+        "seed": task.seed + 1,
+        "strategy": "control",
+        "engine_pin": "q" * 40,
+        "skip_forced_decisions": False,
+        "round_limit": 30,
+        "table": {"seats": 2},
+        "game_key": "0" * 64,  # any non-empty key the fields do not give
+    }
+    for field, value in changes.items():
+        got = game_pool.task_refusal({**wire, field: value})
+        assert got is not None and got["failure_class"] == "GameKeyMismatch", field
+        assert got["failure_kind"] == "infrastructure"
+    for field in ("strategy", "engine_pin"):
+        got = game_pool.task_refusal({**wire, field: None})  # no strategy or pin: no key
+        assert got is not None and got["failure_class"] == "GameKeyMismatch", field
+    got = game_pool.task_refusal({**wire, "strategy": 7})  # not a strategy name: no key
+    assert got is not None and got["failure_class"] == "GameKeyMismatch"
+    assert "GameKeyMismatch" in series_record.INFRASTRUCTURE_FAILURES
+
+
+def _plan(**changes: object) -> GameTask:
+    options: dict[str, object] = {
+        "task_id": "pk",
+        "seed": 5,
+        "game_id": "g-pk",
+        "deck_paths": [_deck_file("pk-a.json"), _deck_file("pk-b.json")],
+        "seat_styles": [0.5, 0.5],
+        "jar_sha256": JAR,
+        "engine_pin": PIN,
+        "skip_forced_decisions": None,
+        "deck_hashes": {},  # fresh: a changed file is hashed again
+    }
+    options.update(changes)
+    return game_pool.plan_task(**options)  # type: ignore[arg-type]
+
+
+def _key_of(task: GameTask, **changes: object) -> str:
+    """The key ``game_key`` gives for the task's inputs, recomputed independently."""
+    inputs: dict[str, object] = {
+        "jar_sha256": JAR,
+        "engine_pin": PIN,
+        "pilot_fingerprints": [game_pool.seat_pilot_fingerprint(0.5)] * 2,
+        "seat_styles": [0.5, 0.5],
+        "deck_sha256": [series_record.file_sha256(p) for p in task.deck_paths],
+        "seed": 5,
+        "strategy": "generic",
+        "table_options": None,
+        "skip_forced_decisions": None,
+        "round_limit": None,
+    }
+    inputs.update(changes)
+    return series_record.game_key(**inputs)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    ("field", "plan_change", "key_change"),
+    [
+        ("strategy", {"strategy": "control"}, {"strategy": "control"}),
+        ("skip_forced", {"skip_forced_decisions": True}, {"skip_forced_decisions": True}),
+        ("skip_forced_off", {"skip_forced_decisions": False}, {"skip_forced_decisions": False}),
+        (
+            "table",
+            {"table": {"seats": 2, "mode": "x"}},
+            {"table_options": {"seats": 2, "mode": "x"}},
+        ),
+        ("round_limit", {"round_limit": 30}, {"round_limit": 30}),
+        ("pin", {"engine_pin": "q" * 40}, {"engine_pin": "q" * 40}),
+        ("jar", {"jar_sha256": "k" * 64}, {"jar_sha256": "k" * 64}),
+        ("seed", {"seed": 6}, {"seed": 6}),
+    ],
+)
+def test_plan_task_puts_every_key_field_into_the_game_key(
+    field: str, plan_change: dict[str, object], key_change: dict[str, object]
+) -> None:
+    base = _plan()
+    assert base.game_key == _key_of(base)
+    changed = _plan(**plan_change)
+    assert changed.game_key != base.game_key, field
+    assert changed.game_key == _key_of(changed, **key_change), field
+    assert game_pool.task_key_of(changed.to_wire()) == changed.game_key, field
+
+
+def test_plan_task_puts_the_deck_contents_and_the_pilot_fingerprints_into_the_game_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    base = _plan()
+    Path(base.deck_paths[1]).write_text('{"deck": "changed"}', encoding="utf-8")  # same path
+    redeck = _plan()
+    assert redeck.game_key != base.game_key and redeck.game_key == _key_of(redeck)
+    monkeypatch.setattr(game_pool, "seat_pilot_fingerprint", lambda style: f"other-{style}")
+    repilot = _plan()  # same styles, other pilot code
+    assert repilot.game_key != redeck.game_key
+    assert repilot.game_key == _key_of(repilot, pilot_fingerprints=["other-0.5"] * 2)
+
+
+def _session_engine(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> game_pool.SessionWorkerEngine:
+    jar = tmp_path / "bridge.jar"
+    jar.write_bytes(b"jar")
+    monkeypatch.setenv(
+        "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD",
+        f"java -Dcommanderlab.fullGame.gamesPerJvm=2 -jar {jar} full-game",
+    )
+
+    class FakeSession:
+        def __init__(self, runner: object, *, id_prefix: str = "") -> None:
+            self.runner = runner
+            self.lives = ()
+            self.pilots: object = None
+
+        def play(self, scenario: object, decks: object, pilots: object):  # type: ignore[no-untyped-def]
+            self.pilots = pilots
+            recorder = self.runner._recorder_for(scenario)  # type: ignore[attr-defined]
+            self.runner.on_played(recorder.game_id)  # type: ignore[attr-defined]
+            return _series_result(scenario, 1)
+
+        def close(self) -> tuple[object, ...]:
+            return ()
+
+    monkeypatch.setattr(full_game_series, "XmageFullGameSeriesSession", FakeSession)
+    return game_pool.SessionWorkerEngine(
+        tmp_path, label="s", private_card_repository=False, command=None
+    )
+
+
+def test_the_style_of_each_seat_reaches_the_log_header_and_the_pilots_of_a_pool_game(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    engine = _session_engine(tmp_path, monkeypatch)
+    styles = [0.8, 0.2, 0.5, 0.65]
+    task = game_pool.plan_task(
+        task_id="st",
+        seed=6,
+        game_id="ser-style-s6-t0",
+        deck_paths=[str(DECK), *map(str, PRECONS)],
+        seat_styles=styles,
+        jar_sha256=hashlib.sha256(b"jar").hexdigest(),
+        engine_pin=PIN,
+        skip_forced_decisions=None,
+        strategy="control",
+    )
+    assert game_pool.task_refusal(task.to_wire()) is None
+    summary = engine.play(task.to_wire(), lambda: None)
+    assert summary["status"] == "finished"
+    from commander_lab.studio import games
+
+    header = games.read_game(tmp_path, "ser-style-s6-t0", start=0, count=1)["header"]
+    assert [seat["style"] for seat in header["seats"]] == styles  # type: ignore[index]
+    pilots = engine._session.pilots  # type: ignore[attr-defined]
+    assert [binding.config.style for binding in pilots] == styles
+    # the strategy of the task reaches the pilots and the header too
+    assert header["strategy"] == "control"  # type: ignore[index]
+    assert {binding.strategy for binding in pilots} == {"control"}
+
+
+def test_a_task_for_another_bridge_jar_is_refused_by_the_session_worker(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    engine = _session_engine(tmp_path, monkeypatch)
+    task = game_pool.plan_task(
+        task_id="j",
+        seed=6,
+        game_id="ser-jar",
+        deck_paths=[str(DECK), *map(str, PRECONS)],
+        seat_styles=[0.5] * 4,
+        jar_sha256="0" * 64,
+        engine_pin=PIN,
+        skip_forced_decisions=None,
+    )
+    summary = engine.play(task.to_wire(), lambda: None)
+    assert summary["failure_class"] == "BridgeJarMismatch"
+    assert summary["failure_kind"] == "infrastructure"
+
+
+def test_the_pool_ends_the_series_on_a_determinism_violation(tmp_path: Path) -> None:
+    first, second = _tasks(range(1, 3), "dv")
+    record = _record(tmp_path, [first, second])
+    # an earlier game with the key of ``first`` gave another transcript
+    record.record(first.game_id, {"status": "finished", "semantic_transcript_sha256": "0" * 64})
+    record = _record(tmp_path, [first, second])
+    record._entries.pop(first.game_id)  # make the pool play it again, as #1589 reuse would
+    pool, _ = _pool(tmp_path, workers=1)
+    with pool, pytest.raises(DeterminismViolation):
+        pool.run([first, second], record=record)
+
+
+def test_a_foreign_log_is_not_counted_and_a_resumed_series_reads_its_journal(
+    tmp_path: Path,
+) -> None:
+    tasks = _tasks(range(1, 4), "res")
+    record = _record(tmp_path, tasks)
+    pool, _ = _pool(tmp_path, workers=1)
+    with pool:
+        first = pool.run(tasks[:1], record=record)
+    # a foreign game in the series folder and journal, and a line cut off by the cancel
+    folder = record.folder
+    folder.joinpath("foreign.jsonl").write_text('{"kind":"header"}\n', encoding="utf-8")
+    with record.journal_path.open("a", encoding="utf-8") as handle:
+        handle.write(
+            json.dumps(
+                {"game_id": "foreign", "status": "finished", "summary": {"status": "finished"}}
+            )
+            + "\n"
+        )
+        handle.write('{"game_id": "g-res-s2", "sta')
+    resumed = _record(tmp_path, tasks)
+    assert set(resumed.results()) == {"g-res-s1"} and resumed.ignored_lines == 2
+    played: list[str] = []
+    pool, _ = _pool(tmp_path, workers=1)
+    with pool:
+        second = pool.run(tasks, record=resumed, on_done=lambda t, _s: played.append(t.task_id))
+    assert second["res:1"] == first["res:1"]  # from the journal, not played again
+    assert pool.summary()["games_finished"] == 2  # only the two missing games were played
+    assert sorted(played) == ["res:1", "res:2", "res:3"]
+    with pytest.raises(GamePoolError, match="not in the manifest"):
+        pool_x, _ = _pool(tmp_path, workers=1)
+        with pool_x:
+            pool_x.run(_tasks(range(9, 10), "stranger"), record=resumed)
+
+
+def test_an_infrastructure_failure_is_final_on_resume_like_in_the_progress_log(
+    tmp_path: Path,
+) -> None:
+    """A resumed series counts what an uninterrupted one counted: the failure is not replayed."""
+    tasks = _tasks(range(1, 3), "inf")
+    original = Path(tasks[0].deck_paths[0]).read_text(encoding="utf-8")
+    Path(tasks[0].deck_paths[0]).write_text('{"deck": "changed"}', encoding="utf-8")
+    record = _record(tmp_path, tasks)
+    pool, _ = _pool(tmp_path, workers=1)
+    with pool:
+        first = pool.run(tasks[:1], record=record)
+    assert first["inf:1"]["failure_class"] == "DeckHashMismatch"
+    Path(tasks[0].deck_paths[0]).write_text(original, encoding="utf-8")  # the file is repaired
+    pool, _ = _pool(tmp_path, workers=1)
+    with pool:
+        resumed = pool.run(tasks, record=_record(tmp_path, tasks))
+    assert resumed["inf:1"] == first["inf:1"]  # from the journal, not played again
+    assert resumed["inf:2"]["status"] == "finished"
+    assert pool.summary()["games_finished"] == 1
+
+
+def test_the_pool_default_wall_limit_is_the_four_seat_value() -> None:
+    assert game_pool.GAME_WALL_LIMIT_SECONDS == table_spec.game_wall_limit_seconds(4) == 1800.0

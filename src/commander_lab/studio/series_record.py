@@ -25,6 +25,9 @@ is created once, by hard link or, where the file system has none, by exclusive c
 appends of two processes may interleave).
 
 Nothing here reuses a game (that is #1589, Owner); S1 builds the key and the guard it needs.
+A green series is no evidence of determinism: in a normal A/B series every key is unique (each
+arm, seed and seat is one game), so the guard can only trip when one key is played twice.
+A series whose journal shows a violation is not resumable on either path (``series_violation``).
 """
 
 from __future__ import annotations
@@ -52,6 +55,7 @@ INFRASTRUCTURE_FAILURES: Final = (
     "PilotFingerprintMismatch",
     "BridgeJarMismatch",
     "TaskIncomplete",
+    "GameKeyMismatch",
 )
 
 
@@ -340,6 +344,55 @@ class SeriesRecord:
                 os.fsync(handle.fileno())
 
 
+def series_violation(data_folder: str | Path, series_id: str) -> DeterminismViolation | None:
+    """The violation the stored journal of a series shows, whichever path played it.
+
+    Reads the stored manifest as it is (no plan to compare against) and its journal. ``None``:
+    no journal or no violation in it. A journal without a readable manifest cannot be checked
+    and raises ``ManifestMismatch`` (fail-closed, never "no violation").
+    """
+    try:
+        _stored_record(data_folder, series_id)
+    except DeterminismViolation as violation:
+        return violation
+    return None
+
+
+def series_guard(data_folder: str | Path, series_id: str) -> dict[str, object] | None:
+    """What the guard of a stored series saw, for its status: ``unguarded`` n of ``finished`` N.
+
+    ``None``: no journal (a chunked series, or nothing played yet), so unknown, never "0 of 0".
+    After a violation the journal is not read to its end: both counts are ``None``.
+    """
+    try:
+        record = _stored_record(data_folder, series_id)
+    except DeterminismViolation:
+        return {"violation": True, "unguarded": None, "finished": None}
+    if record is None:
+        return None
+    unguarded, finished = record.unguarded()
+    return {"violation": False, "unguarded": unguarded, "finished": finished}
+
+
+def _stored_record(data_folder: str | Path, series_id: str) -> SeriesRecord | None:
+    """The stored manifest and journal of a series (journal read); ``None`` without a journal."""
+    folder = series_folder(data_folder, series_id)
+    record = SeriesRecord(folder, {})
+    if not record.journal_path.is_file():
+        return None
+    try:
+        stored = json.loads(record.manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        raise ManifestMismatch(
+            f"Serie {series_id}: Journal ohne lesbares Manifest, nicht prüfbar"
+        ) from error
+    if not isinstance(stored, dict):
+        raise ManifestMismatch(f"Manifest der Serie {series_id} ist kein Objekt")
+    record.manifest = stored
+    record._read_journal()
+    return record
+
+
 def _create_exclusive(path: Path, data: bytes) -> None:
     """Create ``path`` with ``data``; ``FileExistsError`` if it exists (never replaced)."""
     fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_BINARY", 0))
@@ -380,4 +433,6 @@ __all__ = [
     "file_sha256",
     "game_key",
     "series_folder",
+    "series_guard",
+    "series_violation",
 ]
