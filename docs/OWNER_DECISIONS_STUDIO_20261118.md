@@ -406,6 +406,10 @@ Owner-Entscheid; Owner-Vorbehalte (Abschnitt 5 dieser Datei, `AGENTS.md` §8) bl
 - **Q3 TAM:** Standardkohorte `tam:active_91` (daneben `tam:curated_b2_4`, nie addiert);
   Datensammlung für TAM gezielt fortsetzen, für Chulane zurückstellen; TAM-Simulation erst nach
   Zählung der Sim-Bereitschaft je Kohorte (Angleichung von `STUDIO_SCOPE.md` mit E14 erledigt).
+  Anmerkung (8a): Der Pfad `docs/STUDIO_SCOPE.md:31-32`/`:270` in Charta §5 Q3 liegt seit
+  2026-11-21 im Archiv (Thema `superseded`, `docs/README.md`, Abschnitt „Archive“). Mit `:270` ist die Zeile
+  „Multi-Commander“ gemeint; bei Abfassung der Charta (`bc0c1e7e`) war sie Zeile 270, am
+  archivierten Stand (`aef76b8e`) ist sie Zeile 272. Der Owner-Text der Charta bleibt unverändert.
 - **Q4 Experimente:** eine Nacht je Frage (5.400 Partien); rundenbegrenzte Frühphasen-Serie (L1) als
   eigener Experiment-Typ nach einem Messversuch.
 - **Q5 Sitze:** Qualifikation 5/6 jetzt (die acht Prüfpunkte aus `docs/research/SEATS_5_6_QUALIFICATION_PLAN.md` §2, in der Charta „F1–F8“ genannt; der Teil-A-Bericht `docs/analysis-reports/seats_5_6_part_a_report.md` §1 nummeriert anders: dort ist F1 die Festlegung `ALL`/`MULTIPLE`/6 ohne Replay-Anspruch und F5 die acht Regelpunkte aus Plan §2, so auch im Abschnitt „Entscheide 2026-11-20/21“);
@@ -512,22 +516,32 @@ dürfen gerne Preise rein also das kannst du aus der agents md entfernen bzw anp
 tam hauptsächlich noch planeswalker + key cards kaufen muss um das deck so zu spielen wie ich will
 sind hier Preise erlaubt“.
 
-Reichweite: Preise sind für den TAM-Zukauf erlaubt (vor allem Planeswalker und Schlüsselkarten,
-wie der Owner als Grund nennt; das ist ein Beispiel, kein Filter). Chulane bleibt unverändert
-Standard „nur Sammlung“ ohne Preise. Preise für andere Zwecke bleiben Owner-Vorbehalt
+Herkunft: Owner (Reichweite) / Co-Lead (Umfang). Die Reichweite ist die Owner-Aussage oben;
+den Umfang hat der Co-Lead festgelegt (#1656, Kommentar 7062128464, Punkt 3, und die
+Review-Runden zu PR #1740 und PR #1741). Der Umfang ist keine Owner-Aussage.
+
+Reichweite (Owner): Preise sind für den TAM-Zukauf erlaubt (vor allem Planeswalker und
+Schlüsselkarten, wie der Owner als Grund nennt; das ist ein Beispiel, kein Filter). Chulane bleibt
+unverändert Standard „nur Sammlung“ ohne Preise. Preise für andere Zwecke bleiben Owner-Vorbehalt
 (`AGENTS.md` §8, §12).
 
-Umfang und Grenzen (Einordnung des Co-Leads in Kommentar 7062128464, Punkt 3, und Entscheid des
-Co-Leads in der Review-Runde zu PR #1740; keine Owner-Aussage): erlaubt sind Preisanzeige und
-Planungsfunktionen für den TAM-Zukauf (Summe der Zukauf-Liste, Sortierung und Budgetfilter,
-Kennzeichnung „günstigstes Angebot“), für TAM-Karten im Besitz nur als Anzeige. Nicht erlaubt:
-Kaufabschluss und Kaufabwicklung; Einfluss auf Rating, Tierliste, Ranking oder Simulationszahlen
-(Preise fließen nie in Bewertungen); Bezahldienste; Scraping einer Seite ohne öffentliche API
-(`AGENTS.md` §8). Jeder Preis trägt eine ehrliche Quelle und einen Zeitstempel, ein fehlender Preis
-heißt „unbekannt“, nie 0 €. Ein Cardmarket-API-Schlüssel bleibt `LOCAL_ONLY` beim Owner und kommt
-nie ins Repository (`AGENTS.md` §12, Secrets). TAM-Preis-Schnappschüsse bleiben im lokalen
-Studio-Store und kommen nicht ins Repository, bis der Owner anders entscheidet; Tests nutzen nur
-synthetische Werte.
+Umfang und Grenzen (Co-Lead): Ein Preis wird nur für Karten angezeigt, die noch nicht im Besitz
+sind, und nur in der TAM-Zukaufansicht. Karten im Besitz liegen in der gemeinsamen Sammlung und
+tragen keinen Preis. Die Planungsfunktionen sind abschließend: Summe, Sortierung und Budgetfilter
+der TAM-Zukauf-Liste, Kennzeichnung als Richtwert. Preise fließen nie in Vorschläge, Kürzen/Tauschen,
+Evidenz/Reife, Rating, Tierliste, Ranking oder Simulationszahlen. Nicht erlaubt sind außerdem
+Kaufabschluss und Kaufabwicklung, Bezahldienste und Scraping einer Seite ohne öffentliche API
+(`AGENTS.md` §8). Preise werden nur aus einer Quelle gesammelt, die im Quellregister
+(`src/commander_lab/studio/sources.py`, mit Zugangsstatus) geführt ist. Jeder Preis trägt eine
+ehrliche Quelle und einen Zeitstempel, ein fehlender Preis heißt „unbekannt“, nie 0 €. Ein
+Cardmarket-API-Schlüssel bleibt `LOCAL_ONLY` beim Owner und kommt nie ins Repository
+(`AGENTS.md` §12, Secrets). TAM-Preis-Schnappschüsse bleiben im lokalen Studio-Store und kommen
+nicht ins Repository, bis der Owner anders entscheidet; Tests nutzen nur synthetische Werte.
+
+Anmerkung zum Archiv: Der archivierte Scope (`STUDIO_SCOPE.md`, Thema `superseded`, Stand
+`aef76b8e`, Zeilen 33 bis 34) sagt noch, der Zukauf-Modus im BUILD ohne Preise sei erlaubt und
+Preisdaten dafür blieben Owner-Vorbehalt (T3). Der Archivtext bleibt unverändert; für den
+TAM-Zukauf gilt dieser Eintrag.
 
 Folgepaket #1637 (Plan aus dem Issue, kein Entscheid; Nummerierung wie dort): Quellen sind
 (1) offizieller Cardmarket-API-Zugang nur mit lokalem Schlüssel beim Owner (`LOCAL_ONLY`), die
@@ -535,12 +549,23 @@ Klärung des Zugangs bleibt Teil von #1637; (2) Scryfall-Bulk `prices.eur`/`pric
 Richtwert mit klarer Kennzeichnung, denn sie kennt weder das Verkäuferland DE noch den Zustand EX
 und ist damit nicht die Zielgröße des Owners aus E14 (günstigstes Angebot eines deutschen
 Anbieters, mindestens Excellent, Minimum aus Foil und Non-Foil); (3) Export der Zukauf-Liste in
-Cardmarkets Wants-Liste und Shopping Wizard. Beim Bau anzupassende Wächter (mit diesem Eintrag
-nicht geändert): `data/provenance/source_inventory.json:44` und
-`src/commander_lab/studio/sources.py:157` („strip price fields on write“),
-`tests/unit/test_no_personal_collection_metadata.py:30,62`, `tests/unit/test_studio_builder.py:966`,
-`tests/unit/test_studio_db_a_1404.py:22-31,139`, `tests/unit/test_studio_data_page.py:53`,
-`scripts/data_wave1/_common.py:67-69`.
+Cardmarkets Wants-Liste und Shopping Wizard.
+
+Preis-Wächter beim Bau (mit diesem Eintrag nicht geändert; Zeilen am Stand `86802c05`, `main` mit
+#1740):
+
+- **Bleibt** (Repo-Daten, Chulane, Bewertung):
+  `tests/unit/test_no_personal_collection_metadata.py:30,62`,
+  `scripts/data_wave1/_common.py:67-69` (`PRICE_KEYS`),
+  `tests/unit/test_audit_committed_research_data.py:12,29`,
+  `tests/unit/test_studio_strength.py:216-228`, `tests/unit/test_studio_swap.py:221`,
+  `tests/unit/test_studio_card_duel.py:135,348`; ebenso, als Einordnung der Review-Runde zu
+  PR #1741 (Sammlungsimport und Daten-Seite sind nicht die TAM-Zukaufansicht):
+  `tests/unit/test_studio_db_a_1404.py:22-31,139` und `tests/unit/test_studio_data_page.py:53`.
+- **Nur für die TAM-Anzeige eng zu öffnen:** `tests/unit/test_studio_static_guards.py:14-15,72`
+  (`PRICE_WORDS`; der Kommentar zitiert B1 und `AGENTS.md` §12),
+  `tests/unit/test_studio_builder.py:966`, `data/provenance/source_inventory.json:44` und
+  `src/commander_lab/studio/sources.py:157` („strip price fields on write“).
 
 ### Entscheide 2026-11-21 (Owner-Antworten 2a und 8a, #1656, #1167)
 
@@ -612,7 +637,7 @@ Kommentaren.
 | Review eines MATERIAL-PR aus frischem Kontext | zusätzlich Kreuz-Review durch den jeweils anderen Agenten, soweit zwei parallel arbeiten | E7, C7 |
 | Owner-Entscheidung 2026-10-15 (`owner_decision_20261015_batch_games_per_jvm`): jedes Ergebnis ruht auf dem sauberen Herunterfahren des Prozesses | gilt nur für `run_batch` und die Konformanz-Evidenz; für Studio-Serien ruht das Ergebnis auf dem bestätigten `shutdown_game` je Partie in eigenem Ergebnistyp (E9) | Owner 2026-11-19, #1612 |
 | „Keine Preise, kein Kaufmodus“ (B1) und „kein Multi-Commander über den Chulane-Fokus hinaus“ (B2), soweit BUILD betroffen | Zukauf-Modus im BUILD ohne Preise und TAM als zweiter Commander im BUILD erlaubt; Preise bleiben Owner-Vorbehalt, Chulane bleibt Standard (E14); für TAM überholt durch „Preise für TAM (2026-11-21)“ | Owner 2026-11-19, #1187 |
-| Preise und Preisdaten für Zukäufe bleiben Owner-Vorbehalt (E14, T3; `AGENTS.md` §8, §12) | Preisanzeige und Planungsfunktionen für den TAM-Zukauf erlaubt (vor allem Planeswalker und Schlüsselkarten), mit Quelle und Zeitstempel, fehlend „unbekannt“; Schnappschüsse nur im lokalen Studio-Store; Preise nie in Bewertungen; keine Kaufabwicklung, keine Bezahldienste, kein Scraping; Chulane bleibt „nur Sammlung“ ohne Preise; andere Preise bleiben Owner-Vorbehalt („Preise für TAM (2026-11-21)“) | Owner 2026-11-21, #1656 |
+| Preise und Preisdaten für Zukäufe bleiben Owner-Vorbehalt (E14, T3; `AGENTS.md` §8, §12) | Preisanzeige für noch nicht besessene Karten in der TAM-Zukaufansicht erlaubt (vor allem Planeswalker und Schlüsselkarten), Planungsfunktionen abschließend Summe, Sortierung und Budgetfilter der TAM-Zukauf-Liste und Kennzeichnung als Richtwert (Umfang vom Co-Lead); mit Quelle aus dem Quellregister und Zeitstempel, fehlend „unbekannt“; Schnappschüsse nur im lokalen Studio-Store; Preise nie in Vorschläge, Kürzen/Tauschen, Evidenz/Reife, Rating, Tierliste, Ranking oder Simulationszahlen; keine Kaufabwicklung, keine Bezahldienste, kein Scraping; Chulane bleibt „nur Sammlung“ ohne Preise; andere Preise bleiben Owner-Vorbehalt („Preise für TAM (2026-11-21)“) | Owner 2026-11-21, #1656 |
 | E6 (Gesamtrating mit Rubrik und Tierlisten-Gewichte), B11/E2 (Gewicht `simulation` 0 bis G-SIM), A4 („nur objektive Daten“), E7/C7 (jeder MATERIAL-PR mit Kreuz-Review), Rundenlimit nur nach Owner-Entscheid (`STUDIO_SCOPE.md` am Commit `aef76b8e`, Zeilen 101–102 und 269), 5/6 Sitze (E15 Q5), Datei-Schnitt Schema 21 → 22 | beschlossen; wirksam sind schon Gesamtrating v1, Layers, Rubrik v1, Turnier-Signal und Gewicht `simulation` entfernt (#1684, #1686, #1691, #1696), die zweite Tierlisten-Skala ist mit #1701 entfernt (#1680), die Evidenz R0–R3 ist mit #1717 als Paket 1 im Serien-Verlauf gebaut (höchstens R1 erreichbar; Erfassung für R2/R3 sowie Evidenz im Diff und in der Kürzen-/Tauschen-Spalte offen, Q1-c, #1666) (Q1), Vorschläge als eigene Klasse (Q2), MATERIAL in A/B (Q10, umgesetzt in `AGENTS.md` §10 mit dem Doku-Wahrheits-Pass #1697), rundenbegrenzte Frühphasen-Serie als Experiment-Typ nach Messversuch (Q4: gilt als Owner-Entscheid für dieses Rundenlimit, weiterhin mit vollen Piloten, kein Goldfish-/Passiv-Modus, `STUDIO_SCOPE.md` am Commit `aef76b8e`, Zeilen 268–269), Qualifikation 5/6 (Q5, Sperre bleibt), Gegner aus Studio-Deck-Ständen (Q6), Pilot-Regeln (Q8), drei Dateien (Q9), Ältere Lanes bleiben (Q11) | Owner 2026-11-20 (E15) |
 | 5/6-Freigabe: Owner-Wunsch „wenn es problemlos geht“; Vorab-Ermächtigung verneint (Option B, #1167, Kommentar 7038409631, Punkt 2; Beleg-Zusammenfassung mit der Ein-Seiten-Evidenz #1661, Kommentar 7043142024 vorgelegt) | Option A = warten (neue Liste A/B/C): frühestens nach #1715 (mit 4-Sitz-Vergleichsmessung n/N), F5 (die acht Regelpunkte aus Plan §2 als gezielte Szenarien) und Replay-Tape mindestens für 5 Sitze und Owner-Entscheid zu F1, dann finales Ja und Freigabe-PR mit Review; `launch.MAX_RELEASED_SEATS = 4` bleibt; PLAY 5/6 bleibt getrennt (nicht Teil des SIMULATE-Freigabe-PR), Q5 „gilt dann für SIMULATE und PLAY“ ist insoweit eingeschränkt und offen; ob #1692 Voraussetzung bleibt, ist offen (Entscheide 2026-11-20/21, Nr. 1 und 3) | Owner 2026-11-20 (#1661) |
 | Abweichende Frame-Folge bei Seed 123 (#1692): Wegnormalisieren als Umklassifizierung dem Owner vorgelegt (#1661, Kommentar 7043142024) | keine Umklassifizierung: bleibt FAIL (`NEUTRAL`), nichts in `UNORDERED_LISTS`, #1692 offen bis zur Ursache auf der Bridge-Seite (Entscheide 2026-11-20/21, Nr. 2) | Owner 2026-11-20 (#1661) |
@@ -666,83 +691,94 @@ eingeführt hat (Refs #1667).
 `aef76b8e0b345ab61c216bfeb7890bf2d7b9998f`, „PL“ `STUDIO_PLAN_SIMULATOR.md` und „RM“
 `STUDIO_ROADMAP_20261112.md` am Commit `41938a58dc8489aa3121a98bab3c64990ac9a7c3`; die Zahl nach
 dem Doppelpunkt ist die Zeile dort. Diese Stände sind die letzten auf `main` vor der Archivierung.
-R37 und R38 sind nach dem ersten Review nachgetragen (zwei Reste, die zunächst als „schon vorhanden“ galten) und stehen bei ihrem Thema, nicht am Ende der Nummernfolge.
+SR37 und SR38 sind nach dem ersten Review nachgetragen (zwei Reste, die zunächst als „schon vorhanden“ galten) und stehen bei ihrem Thema, nicht am Ende der Nummernfolge.
+„SR“ steht für eine übernommene Scope-Regel (bis zur Review-Runde zu PR #1741 hießen sie R1 bis R38); SR1 bis SR38 sind nicht die Reifegrade R0 bis R3 der Simulations-Evidenz (E15 Q1, `AGENTS.md` §1).
 
-**Lesart (Einordnung des Co-Leads, Einspruch des Owners jederzeit möglich).** Die Regeln sind
-wortlautnah übernommen und nicht neu gefasst. Wo eine Regel gleichlautend in `AGENTS.md` steht, ist
+**Lesart (Einordnung des Co-Leads, Einspruch des Owners jederzeit möglich).** Die Regeln in den
+Tabellen sind wortlautnah übernommen und nicht neu gefasst; Einordnungen außerhalb der Tabellen
+(etwa zur Reihenfolge in 6.7) sind als solche gekennzeichnet. Wo eine Regel gleichlautend in `AGENTS.md` steht, ist
 sie hier nur wiederholt, damit sie nicht an einer archivierten Datei hängt; bei Widerspruch gilt
-`AGENTS.md`. Die Anführungszeichen in R15 bis R17 umschließen den Wortlaut des Plans, der die
+`AGENTS.md`. Die Anführungszeichen in SR15 bis SR17 umschließen den Wortlaut des Plans, der die
 Owner-Entscheide vom 2026-11-12 (abends) festhielt; sie sind kein Owner-Wortlaut. Für Änderungen
-an diesem Abschnitt gilt dasselbe wie für die übrigen Owner-Entscheide (R33).
+an diesem Abschnitt gilt dasselbe wie für die übrigen Owner-Entscheide (SR33).
 
 ### 6.1 Alle Bereiche
 
 | # | Regel | Quelle |
 |---|---|---|
-| R1 | Bei Widerspruch gehen die Owner-Entscheide vor; Git, Tests und Issues sind Source Truth für den technischen Stand (gleichlautend `AGENTS.md` §3). | SC:9-10 |
-| R2 | Die Engine nimmt 2 bis 6 Sitze an (`studio/launch.py`: `MIN_SEATS, MAX_SEATS = 2, 6`); ihr Verhalten bei 5 und 6 Sitzen ist nicht qualifiziert und gilt als `UNKNOWN`. Der Schalter `--allow-unreleased-seats` von `compare-decks` bleibt standardmäßig aus und wird nur nach Owner-Freigabe gesetzt. | SC:37-42 |
+| SR1 | Bei Widerspruch gehen die Owner-Entscheide vor; Git, Tests und Issues sind Source Truth für den technischen Stand (gleichlautend `AGENTS.md` §3). | SC:9-10 |
+| SR2 | Die Engine nimmt 2 bis 6 Sitze an (`studio/launch.py`: `MIN_SEATS, MAX_SEATS = 2, 6`); ihr Verhalten bei 5 und 6 Sitzen ist nicht qualifiziert und gilt als `UNKNOWN`. Der Schalter `--allow-unreleased-seats` von `compare-decks` bleibt standardmäßig aus und wird nur nach Owner-Freigabe gesetzt. | SC:37-42 |
 
 ### 6.2 PLAY
 
 | # | Regel | Quelle |
 |---|---|---|
-| R3 | Die Abnahme-Partien (AK-1 bis AK-8, E4) werden schon nach P0 gespielt; die Reihenfolge der P1-Punkte folgt aus AK-8. | SC:58-59 |
-| R4 | P1a ist nur Seite, ohne Bridge-Änderung: Stack-Schiene mit Zielen aus dem veröffentlichten Zustand, Tastatur mit sichtbarem Fokus, Yield-Modi nur über die Pass-Option, die die Engine anbietet (jede andere Entscheidung hält an, jeder automatische Pass steht im Protokoll), Wiedergabe einer beendeten Partie Zug für Zug. | SC:64 |
-| R5 | P1b: Commander-Steuer und Commander-Schaden nur als Engine-Werte, nie auf der Seite errechnet; neuer Frame-Inhalt ist eine `BEHAVIOUR`-Änderung unter dem Studio-Bridge-Gate (`AGENTS.md` §10). Erst nach AK-8 und nach den P1a-Punkten, die AK-8 vorzieht. | SC:65 |
-| R6 | Nur auf Owner-Wunsch (P2): serverseitiges Yield (vorher unabhängiges Review gegen `AGENTS.md` §2), Bedienung per Berührung, Mensch auf einem anderen Sitz als 1, Bildvergleichs-Tests (neue Abhängigkeit). Nicht geplant: freies Rückgängig (P4), Erklärung einzelner KI-Entscheidungen, passiver Gegner (P3); zu Speichern und Wiederaufnehmen E5 und E15 Q7. | SC:66 |
-| R22 | Der Echt-Engine-Test des Mensch-Sitzes läuft in einem CI-Job und ist dort nicht übersprungen. | SC:158 (S1, Abnahme 3) |
-| R24 | Jeder P1-Punkt hat einen Test, der ohne die Änderung fällt. | SC:161 |
+| SR3 | Die Abnahme-Partien (AK-1 bis AK-8, E4) werden schon nach P0 gespielt; die Reihenfolge der P1-Punkte folgt aus AK-8. | SC:58-59 |
+| SR4 | P1a ist nur Seite, ohne Bridge-Änderung: Stack-Schiene mit Zielen aus dem veröffentlichten Zustand, Tastatur mit sichtbarem Fokus, Yield-Modi nur über die Pass-Option, die die Engine anbietet (jede andere Entscheidung hält an, jeder automatische Pass steht im Protokoll), Wiedergabe einer beendeten Partie Zug für Zug. | SC:64 |
+| SR5 | P1b: Commander-Steuer und Commander-Schaden nur als Engine-Werte, nie auf der Seite errechnet; neuer Frame-Inhalt ist eine `BEHAVIOUR`-Änderung unter dem Studio-Bridge-Gate (`AGENTS.md` §10). Erst nach AK-8 und nach den P1a-Punkten, die AK-8 vorzieht. | SC:65 |
+| SR6 | Nur auf Owner-Wunsch (P2): serverseitiges Yield (vorher unabhängiges Review gegen `AGENTS.md` §2), Bedienung per Berührung, Mensch auf einem anderen Sitz als 1, Bildvergleichs-Tests (neue Abhängigkeit). Nicht geplant: freies Rückgängig (P4), Erklärung einzelner KI-Entscheidungen, passiver Gegner (P3); zu Speichern und Wiederaufnehmen E5 und E15 Q7. | SC:66 |
+| SR22 | Der Echt-Engine-Test des Mensch-Sitzes läuft in einem CI-Job und ist dort nicht übersprungen. | SC:158 (S1, Abnahme 3) |
+| SR24 | Jeder P1-Punkt hat einen Test, der ohne die Änderung fällt. | SC:161 |
 
 ### 6.3 SIMULATE
 
 | # | Regel | Quelle |
 |---|---|---|
-| R7 | Gepaarte Serien laufen nur parallel, wenn die Identität belegt ist: jedes Spiel im Stapel hat denselben semantischen Hash wie allein gespielt, gepaart-parallel n identisch von N mit N ≥ 20 Spielen; sonst laufen gepaarte Serien mit einem Worker. | SC:78, SC:158 (S1, Abnahme 2), PL:45 |
-| R8 | Der Serienplan liegt als Datei vor dem ersten Spiel vor. Die Konsistenz-Tafel trennt drei Herkunftsklassen (exakt gerechnet; in der Engine gemessen und pilotunabhängig; in der Engine gemessen und pilotabhängig). Jedes Ergebnis trägt den Gültigkeitsblock (Sitzkurve neben der Playgroup-Referenz, Zählung der Pilot-Auslassungen nach E3, fester Satz zur KI-Gültigkeit). | SC:79 |
-| R9 | Simulationsergebnisse stehen nie in einer Spalte mit EDHREC-, Playgroup- oder TopDeck-Zahlen und werden nie über Commander oder Deck-Stände summiert. Eine Serie zu einem anderen Deck-Stand wird nie als Ergebnis des aktuellen Standes gezeigt. | SC:92-94, RM:61 |
-| R10 | SIMULATE entscheidet Pakete und Bauachsen (Landzahl, Ramp-, Schutzpaket), nicht einzelne Kartentausche; die Oberfläche sagt das. | SC:98-99 |
-| R38 | Später, nur bei Bedarf (A3): rundenbegrenzte Serien mit vollen Piloten, Kontrollgrößen, Zufalls-Pods, Vorausschau-Piloten (S5, #1265). Rundenlimit, neue Abhängigkeiten und 5/6 Sitze brauchen einen Owner-Entscheid. | SC:100-102 |
+| SR7 | Gepaarte Serien laufen nur parallel, wenn die Identität belegt ist: jedes Spiel im Stapel hat denselben semantischen Hash wie allein gespielt, gepaart-parallel n identisch von N mit N ≥ 20 Spielen; sonst laufen gepaarte Serien mit einem Worker. | SC:78, SC:158 (S1, Abnahme 2), PL:45 |
+| SR8 | Der Serienplan liegt als Datei vor dem ersten Spiel vor. Die Konsistenz-Tafel trennt drei Herkunftsklassen (exakt gerechnet; in der Engine gemessen und pilotunabhängig; in der Engine gemessen und pilotabhängig). Jedes Ergebnis trägt den Gültigkeitsblock (Sitzkurve neben der Playgroup-Referenz, Zählung der Pilot-Auslassungen nach E3, fester Satz zur KI-Gültigkeit). | SC:79 |
+| SR9 | Simulationsergebnisse stehen nie in einer Spalte mit EDHREC-, Playgroup- oder TopDeck-Zahlen und werden nie über Commander oder Deck-Stände summiert. Eine Serie zu einem anderen Deck-Stand wird nie als Ergebnis des aktuellen Standes gezeigt. | SC:92-94, RM:61 |
+| SR10 | SIMULATE entscheidet Pakete und Bauachsen (Landzahl, Ramp-, Schutzpaket), nicht einzelne Kartentausche; die Oberfläche sagt das. | SC:98-99 |
+| SR38 | Später, nur bei Bedarf (A3): rundenbegrenzte Serien mit vollen Piloten, Kontrollgrößen, Zufalls-Pods, Vorausschau-Piloten (S5, #1265). Rundenlimit, neue Abhängigkeiten und 5/6 Sitze brauchen einen Owner-Entscheid. | SC:100-102 |
 
 ### 6.4 Engine, Bridge und Aufräumen
 
 | # | Regel | Quelle |
 |---|---|---|
-| R11 | Änderungen unter `engine-bridge/` für das Studio laufen über das Studio-Bridge-Gate (gleichlautend `AGENTS.md` §10). Der feste Referenzsatz, die Befehle und die Pflichtangaben eines Ergebnisses („What a result must always say“) stehen seit dieser Übernahme wörtlich in `docs/STUDIO_BRIDGE_GATE_TOOLING.md`. | SC:108-109, PL:58-92 |
-| R12 | Eine Bridge-Änderung, die Frame-Inhalt entfernt, ist `BEHAVIOUR`, nicht `NEUTRAL`. | PL:48 |
-| R13 | Engine-Vorausschau (S5) nur als gemessenes Experiment unter dem Studio-Bridge-Gate, deklariert `BEHAVIOUR`: Die Bridge meldet nur die akteurgebundene Sicht des fragenden Sitzes auf die Kopie; verdeckte Zonen der Kopie werden aus öffentlicher Information und dem Wissen des Sitzes neu bestimmt; die Kopie nutzt ihren eigenen aufgezeichneten Zufall, nie den der echten Partie; jede Wahl in der Kopie trifft ein Pilot oder sie beendet die Vorausschau (fail-closed, keine Engine-KI); ein Test belegt, dass keine verdeckte Kartenidentität zurückkommt. Standard aus; Standard wird sie nur, wenn eine gepaarte Serie einen Nutzen zeigt. Als Serien-Pilot nicht (E15 Q8). | PL:49 |
-| R14 | Eine schlanke Bridge (S4, #1264 ohne gemessenen Gewinn geparkt) nur als neuer Messversuch unter dem Studio-Bridge-Gate, nicht als Meilenstein. | SC:274 |
-| R15 | Plan-Entscheid D4, Wortlaut des Plans: „Code that the Studio never reaches and that belongs to removed things is deleted (S3). Git history keeps it. Sealed qualification records are not touched.“ | PL:21 |
-| R16 | Plan-Entscheid D5 (auf ihn verweist `AGENTS.md` §8), Wortlaut des Plans: „`pyproject.toml` may change for S3: its two console scripts become unused once the workflows that call them are removed (S3 a and c). The digest in `WS17_SHA256SUMS` is regenerated in the same PR with `scripts/regenerate_hash_manifests.py`; `tests/qualification/test_ws17_qualification.py` verifies it.“ Die Grenzen aus `AGENTS.md` §8 zu `WS17_SHA256SUMS` gelten unverändert. | PL:22 |
-| R17 | Plan-Entscheid D6, Wortlaut des Plans: „The rule "at least 10 seeds for a pilot change" is withdrawn. How many games a statement needs follows from its interval, which every result shows.“ | PL:23 |
+| SR11 | Änderungen unter `engine-bridge/` für das Studio laufen über das Studio-Bridge-Gate (gleichlautend `AGENTS.md` §10). Der feste Referenzsatz, die Befehle und die Pflichtangaben eines Ergebnisses („What a result must always say“) stehen seit dieser Übernahme wörtlich in `docs/STUDIO_BRIDGE_GATE_TOOLING.md`. | SC:108-109, PL:58-92 |
+| SR12 | Eine Bridge-Änderung, die Frame-Inhalt entfernt, ist `BEHAVIOUR`, nicht `NEUTRAL`. | PL:48 |
+| SR13 | Engine-Vorausschau (S5) nur als gemessenes Experiment unter dem Studio-Bridge-Gate, deklariert `BEHAVIOUR`: Die Bridge meldet nur die akteurgebundene Sicht des fragenden Sitzes auf die Kopie; verdeckte Zonen der Kopie werden aus öffentlicher Information und dem Wissen des Sitzes neu bestimmt; die Kopie nutzt ihren eigenen aufgezeichneten Zufall, nie den der echten Partie; jede Wahl in der Kopie trifft ein Pilot oder sie beendet die Vorausschau (fail-closed, keine Engine-KI); ein Test belegt, dass keine verdeckte Kartenidentität zurückkommt. Standard aus; Standard wird sie nur, wenn eine gepaarte Serie einen Nutzen zeigt. Als Serien-Pilot nicht (E15 Q8). | PL:49 |
+| SR14 | Eine schlanke Bridge (S4, #1264 ohne gemessenen Gewinn geparkt) nur als neuer Messversuch unter dem Studio-Bridge-Gate, nicht als Meilenstein. | SC:274 |
+| SR15 | Plan-Entscheid D4, Wortlaut des Plans: „Code that the Studio never reaches and that belongs to removed things is deleted (S3). Git history keeps it. Sealed qualification records are not touched.“ | PL:21 |
+| SR16 | Plan-Entscheid D5 (auf ihn verweist `AGENTS.md` §8), Wortlaut des Plans: „`pyproject.toml` may change for S3: its two console scripts become unused once the workflows that call them are removed (S3 a and c). The digest in `WS17_SHA256SUMS` is regenerated in the same PR with `scripts/regenerate_hash_manifests.py`; `tests/qualification/test_ws17_qualification.py` verifies it.“ Die Grenzen aus `AGENTS.md` §8 zu `WS17_SHA256SUMS` gelten unverändert. | PL:22 |
+| SR17 | Plan-Entscheid D6, Wortlaut des Plans: „The rule "at least 10 seeds for a pilot change" is withdrawn. How many games a statement needs follows from its interval, which every result shows.“ | PL:23 |
 
 ### 6.5 Betrieb und Release
 
 | # | Regel | Quelle |
 |---|---|---|
-| R37 | Plattform: Der Owner-PC ist Windows; Start über `scripts/studio_start.ps1`, Datenordner standardmäßig `%LOCALAPPDATA%\CommanderStudio` (`docs/STUDIO_OWNER_PC_SETUP.md`). Linux/WSL (`scripts/studio_start.sh`) ist nur Ausweichweg; ob am Owner-PC WSL vorhanden ist: `UNKNOWN`. | SC:119-121 |
-| R18 | Messwerkzeuge für Bridge-Gate und Serien-Identität müssen unter Windows laufen. | SC:122-124, SC:158 (S1, Abnahme 4) |
-| R19 | Das Release-Artefakt (`.github/workflows/release-artifacts.yml`, mit `xmage-engine-bridge.jar`, dessen `.sha256` und `ENGINE_PIN.txt`; `retention-days: 30`) wird vor dem Abschluss neu erzeugt. Ein dauerhaftes GitHub-Release ist eine Veröffentlichung und Owner-Entscheid (E15 Q11, `AGENTS.md` §8). | SC:125-128 |
-| R20 | Zum Abschluss: neue Qualifikations-Epoche (Versiegeln braucht das Owner-Go) oder dauerhaft sichtbar „vor Qualifikation“. | SC:134-135 |
-| R21 | Die Owner-PC-Seite (`docs/STUDIO_OWNER_PC_SETUP.md`) wird einmal von null in sauberer Umgebung durchgespielt; jede Abweichung ist ein Befund. | SC:158 (S1, Abnahme 5) |
+| SR37 | Plattform: Der Owner-PC ist Windows; Start über `scripts/studio_start.ps1`, Datenordner standardmäßig `%LOCALAPPDATA%\CommanderStudio` (`docs/STUDIO_OWNER_PC_SETUP.md`). Linux/WSL (`scripts/studio_start.sh`) ist nur Ausweichweg; ob am Owner-PC WSL vorhanden ist: `UNKNOWN`. | SC:119-121 |
+| SR18 | Messwerkzeuge für Bridge-Gate und Serien-Identität müssen unter Windows laufen. | SC:122-124, SC:158 (S1, Abnahme 4) |
+| SR19 | Das Release-Artefakt (`.github/workflows/release-artifacts.yml`, mit `xmage-engine-bridge.jar`, dessen `.sha256` und `ENGINE_PIN.txt`; `retention-days: 30`) wird vor dem Abschluss neu erzeugt. Ein dauerhaftes GitHub-Release ist eine Veröffentlichung und Owner-Entscheid (E15 Q11, `AGENTS.md` §8). | SC:125-128 |
+| SR20 | Zum Abschluss: neue Qualifikations-Epoche (Versiegeln braucht das Owner-Go) oder dauerhaft sichtbar „vor Qualifikation“. | SC:134-135 |
+| SR21 | Die Owner-PC-Seite (`docs/STUDIO_OWNER_PC_SETUP.md`) wird einmal von null in sauberer Umgebung durchgespielt; jede Abweichung ist ein Befund. | SC:158 (S1, Abnahme 5) |
 
 ### 6.6 Abnahme und Abschlusskriterien
 
 | # | Regel | Quelle |
 |---|---|---|
-| R23 | Im Abnahme-Protokoll bekommt jede Zeile Wert, Herkunft (Datei oder Bildschirmfoto) und Urteil PASS, FAIL oder `UNKNOWN`; AK-3 steht als Tabelle n je Entscheidungsklasse, nicht vorgekommen = `UNKNOWN`. Vorlage: `docs/STUDIO_ABNAHME_PROTOKOLL.md`. | SC:165-173 |
-| R25 | Abschluss 1, PLAY: AK-1 bis AK-8 erfüllt und vom Owner bestätigt. | SC:188 |
-| R26 | Abschluss 2, SIMULATE: Eine vom Owner gestellte Chulane-Frage ist mit Serienplan, Ergebnis, Intervall, nachweisbarer Differenz und Gültigkeitsblock beantwortet und im Deck-Verlauf sichtbar. | SC:189-190 |
-| R27 | Abschluss 3, BUILD: Ein Deck geht ohne Handarbeit aus dem Deckbauer in Partie und Serie; die Tierliste (#1369) ist vom Owner abgenommen (das Gesamtrating daraus ist seit E15 Q1 entfernt). | SC:191-192 |
-| R28 | Abschluss 4, Regeln: Komponente `simulation` existiert nicht mehr (E15 Q1), durch Test gesichert; 5 und 6 Sitze technisch gesperrt oder vom Owner freigegeben; keine Zahl ohne n/N. | SC:193 |
-| R29 | Abschluss 5, Doku: die Charta v2, dieses Register und keine offenen Widersprüche in den Studio-Dokumenten (in der Quelle „diese Datei, die Entscheidungsdatei“; angepasst, weil der Scope archiviert ist). | SC:194 |
-| R30 | Abschluss 6, Betrieb: Einrichtung am Owner-PC aus dem Release-Paket nachvollzogen; Zustand der Bridge gegenüber dem Siegel ehrlich ausgewiesen. | SC:195-196 |
+| SR23 | Im Abnahme-Protokoll bekommt jede Zeile Wert, Herkunft (Datei oder Bildschirmfoto) und Urteil PASS, FAIL oder `UNKNOWN`; AK-3 steht als Tabelle n je Entscheidungsklasse, nicht vorgekommen = `UNKNOWN`. Vorlage: `docs/STUDIO_ABNAHME_PROTOKOLL.md`. | SC:165-173 |
+| SR25 | Abschluss 1, PLAY: AK-1 bis AK-8 erfüllt und vom Owner bestätigt. | SC:188 |
+| SR26 | Abschluss 2, SIMULATE: Eine vom Owner gestellte Chulane-Frage ist mit Serienplan, Ergebnis, Intervall, nachweisbarer Differenz und Gültigkeitsblock beantwortet und im Deck-Verlauf sichtbar. | SC:189-190 |
+| SR27 | Abschluss 3, BUILD: Ein Deck geht ohne Handarbeit aus dem Deckbauer in Partie und Serie; die Tierliste (#1369) ist vom Owner abgenommen (das Gesamtrating daraus ist seit E15 Q1 entfernt). | SC:191-192 |
+| SR28 | Abschluss 4, Regeln: Komponente `simulation` existiert nicht mehr (E15 Q1), durch Test gesichert; 5 und 6 Sitze technisch gesperrt oder vom Owner freigegeben; keine Zahl ohne n/N. | SC:193 |
+| SR29 | Abschluss 5, Doku: die Charta v2, dieses Register und keine offenen Widersprüche in den Studio-Dokumenten (in der Quelle „diese Datei, die Entscheidungsdatei“; angepasst, weil der Scope archiviert ist). | SC:194 |
+| SR30 | Abschluss 6, Betrieb: Einrichtung am Owner-PC aus dem Release-Paket nachvollzogen; Zustand der Bridge gegenüber dem Siegel ehrlich ausgewiesen. | SC:195-196 |
 
 ### 6.7 Abarbeitung (für alle Agents)
 
-So wird Studio-Arbeit abgearbeitet, von jedem Agenten gleich. Die Reihenfolge der Arbeit folgt der
-Charta v2 (§3 Nr. 4 und §4, Planung des Co-Leads nach `AGENTS.md` §8); die Roadmap-Phasen 0 bis 5
-und der Phasenplan S0 bis S6 des archivierten Scopes sind Verlauf, ihre noch offenen Abnahmen
-stehen in R7 und R18 bis R30. Claims nach E8 und `AGENTS.md` §11 (Claim-Tabelle in #1167,
+So wird Studio-Arbeit abgearbeitet, von jedem Agenten gleich.
+
+Reihenfolge, Wortlaut der Quelle (SC:208-210; Wortlaut des archivierten Scopes, kein
+Owner-Wortlaut; innere Anführungszeichen als ‚…‘ gesetzt): „die Phasen 0 bis 5 aus
+‚Roadmap-Phasen‘, verfeinert durch den Phasenplan S0 bis S6; Phase 1 (PLAY P0) und Phase 2
+(SIMULATE A1) laufen parallel, weil ihre Flächen getrennt sind.“
+
+Einordnung des Co-Leads, nicht Wortlaut (Einspruch des Owners jederzeit möglich): Die
+Roadmap-Phasen 0 bis 5 und der Phasenplan S0 bis S6 sind Verlauf; die
+weitere Reihenfolge der Arbeit folgt der Charta v2 (§3 Nr. 4 und §4, Planung des Co-Leads nach
+`AGENTS.md` §8). Die noch offenen Abnahmen aus Scope und Roadmap stehen in SR7 und SR18 bis SR30.
+
+Claims nach E8 und `AGENTS.md` §11 (Claim-Tabelle in #1167,
 Verfall 24 Stunden nach unbeantworteter Rückfrage bei einem Claim ohne gepushten Meilenstein),
 Owner-Entscheide wörtlich mit Quelle (Lesart oben), Kreuz-Review der Klasse A und seine befristete
 Ausnahme nach „Entscheide 2026-11-20/21“ Nr. 4; Simulation nach E15 Q1. Flächen-Karte und
@@ -750,10 +786,10 @@ Kollisionsdateien: `docs/STUDIO_AGENT_ONBOARDING.md`.
 
 | # | Regel | Quelle |
 |---|---|---|
-| R31 | Ein Paket = ein Issue bzw. ein Branch = ein PR. Commits und PR-Texte sagen `Refs #N`, nie `Closes #N` (`AGENTS.md` §10). | SC:221-222 |
-| R32 | Studio-Ergänzung zu `AGENTS.md` §10 (ändert §10 nicht): Texte der Oberfläche, die Aussagen über Ratings oder Simulationsergebnisse machen, sind review-pflichtig; eine solche Änderung wird wie MATERIAL behandelt. Ein Merge vor dem erforderlichen Review ist nach §10 ein Gate-Verstoß, soweit die Änderung unter die MATERIAL-Liste in §10 fällt. | SC:227-230 |
-| R33 | Governance-Dateien: Änderungen an `AGENTS.md` und `CLAUDE.md` erfolgen durch Lead oder Coordinator nach `AGENTS.md` §8. Inhaltliche Änderungen an den Owner-Entscheiden (`docs/OWNER_DECISIONS_*`, einschließlich dieses Abschnitts) und an Owner-vorbehaltenen Regeln nur auf ausdrückliche Owner-Anweisung oder nach Owner-Freigabe einer vorgelegten Option; die Quelle steht im PR. Andere Agents legen Option und Empfehlung vor. Entscheide von Lead oder Coordinator innerhalb des Scopes nach `AGENTS.md` §8 bleiben unberührt und stehen im Issue oder PR; E10 (Überarbeiten überholten Wortlauts mit Begründung, Datum und Verweis) bleibt unberührt. Bei Unsicherheit wird mit dem Owner geplant (Owner, 2026-11-18). | SC:239-245 |
-| R34 | Was nicht belegt ist, heißt `UNKNOWN`, nie PASS. Punkte, die eine echte Engine oder den Owner-PC brauchen, werden als solche ausgewiesen und nicht durch Tests mit nachgebautem Client als erledigt gemeldet. | SC:248-250 |
+| SR31 | Ein Paket = ein Issue bzw. ein Branch = ein PR. Commits und PR-Texte sagen `Refs #N`, nie `Closes #N` (`AGENTS.md` §10). | SC:221-222 |
+| SR32 | Studio-Ergänzung zu `AGENTS.md` §10 (ändert §10 nicht): Texte der Oberfläche, die Aussagen über Ratings oder Simulationsergebnisse machen, sind review-pflichtig; eine solche Änderung wird wie MATERIAL behandelt. Ein Merge vor dem erforderlichen Review ist nach §10 ein Gate-Verstoß, soweit die Änderung unter die MATERIAL-Liste in §10 fällt. | SC:227-230 |
+| SR33 | Governance-Dateien: Änderungen an `AGENTS.md` und `CLAUDE.md` erfolgen durch Lead oder Coordinator nach `AGENTS.md` §8. Inhaltliche Änderungen an den Owner-Entscheiden (`docs/OWNER_DECISIONS_*`, einschließlich dieses Abschnitts) und an Owner-vorbehaltenen Regeln nur auf ausdrückliche Owner-Anweisung oder nach Owner-Freigabe einer vorgelegten Option; die Quelle steht im PR. Andere Agents legen Option und Empfehlung vor. Entscheide von Lead oder Coordinator innerhalb des Scopes nach `AGENTS.md` §8 bleiben unberührt und stehen im Issue oder PR; E10 (Überarbeiten überholten Wortlauts mit Begründung, Datum und Verweis) bleibt unberührt. Bei Unsicherheit wird mit dem Owner geplant (Owner, 2026-11-18). | SC:239-245 |
+| SR34 | Was nicht belegt ist, heißt `UNKNOWN`, nie PASS. Punkte, die eine echte Engine oder den Owner-PC brauchen, werden als solche ausgewiesen und nicht durch Tests mit nachgebautem Client als erledigt gemeldet. | SC:248-250 |
 
 ### 6.8 Nicht übernommen aus `docs/STUDIO_TARGET_SCOPE.md`
 
@@ -763,5 +799,5 @@ Pilot-Fehlentscheidungsberichte E3 und E7 (C1), „Resolve All“ E5 (Einordnung
 
 | # | Regel | Quelle |
 |---|---|---|
-| R35 | Multi-Commander über den Chulane-Fokus hinaus (B2) hat für PLAY und Serien keine Owner-Quelle, soweit E14 (BUILD), E15 Q3 (TAM-Simulation erst nach Zählung der Sim-Bereitschaft je Kohorte) und E15 Q6 (Studio-Deck-Stände als Gegner-Sitze) es nicht abdecken. | SC:272 |
-| R36 | Spaltenansicht im Deckbauer: keine Owner-Quelle; als BUILD-Wunsch dem Owner vorzulegen, nicht ohne Owner-Entscheid zu bauen. | SC:273 |
+| SR35 | Multi-Commander über den Chulane-Fokus hinaus (B2) hat für PLAY und Serien keine Owner-Quelle, soweit E14 (BUILD), E15 Q3 (TAM-Simulation erst nach Zählung der Sim-Bereitschaft je Kohorte) und E15 Q6 (Studio-Deck-Stände als Gegner-Sitze) es nicht abdecken. | SC:272 |
+| SR36 | Spaltenansicht im Deckbauer: keine Owner-Quelle; als BUILD-Wunsch dem Owner vorzulegen, nicht ohne Owner-Entscheid zu bauen. | SC:273 |

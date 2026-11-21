@@ -68,7 +68,7 @@ Vollständige Liste: `AGENTS.md` §8.
 `AGENTS.md` und `CLAUDE.md` ändern Lead oder Coordinator nach `AGENTS.md` §8.
 `docs/OWNER_DECISIONS_*` ändern sich inhaltlich nur auf Owner-Anweisung oder nach Owner-Freigabe
 einer vorgelegten Option; andere legen Option und Empfehlung vor (Entscheid-Register, Abschnitt
-6.7, R33). Bei Unsicherheit wird mit dem Owner
+6.7, SR33). Bei Unsicherheit wird mit dem Owner
 geplant.
 
 ## 5. Prüfen vor dem Push
@@ -89,7 +89,7 @@ geplant.
 ## 6. Review und Merge
 
 - MATERIAL (Liste in `AGENTS.md` §10; dazu Texte der Oberfläche über Ratings oder
-  Simulationsergebnisse, Entscheid-Register Abschnitt 6.7, R32): zuerst ein Review aus
+  Simulationsergebnisse, Entscheid-Register Abschnitt 6.7, SR32): zuerst ein Review aus
   frischem Kontext mit PASS als PR-Kommentar. Der Kommentar nennt die prüfende Sitzung neutral
   (ohne Personennamen), die exakte Head-SHA, die ausgeführten Befehle und das Urteil. Gemergt wird
   genau diese SHA. Klasse A (MATERIAL wegen einer Kategorie der Liste): Arbeiten zwei Agenten

@@ -8,7 +8,10 @@ The two last sections of this page, the fixed reference set of the gate and what
 always say, were moved here verbatim from the Studio simulator plan (`STUDIO_PLAN_SIMULATOR.md`
 at commit `41938a58dc8489aa3121a98bab3c64990ac9a7c3`, lines 58 to 92), which is archived since
 the Owner answer 8a of 2026-11-21 (#1667, `docs/OWNER_DECISIONS_STUDIO_20261118.md` section 6).
-`AGENTS.md` §10 points here for the reference set and the commands.
+`AGENTS.md` §10 points here for the reference set and the commands. Inside that moved text, the
+pointer to this page for the frame-digest tooling and the sentence "No tool does that yet: the
+first `NEUTRAL` PR adds the normalized frame digest …" are the plan's history and stay verbatim;
+the tool exists, and the opening paragraph of this page applies.
 
 ## Commands
 
