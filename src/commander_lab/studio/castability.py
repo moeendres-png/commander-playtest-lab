@@ -28,7 +28,7 @@ coloured mana), ``suchland`` (no coloured mana of its own, and the text searches
 for a basic land card, for cards of named basic land types or for a land card with a basic land
 type and puts the card onto the battlefield), ``ohne_farbe`` (known to produce no coloured mana,
 no such search) and ``unbekannt`` (no card data, no rules text, or a search text that is not one
-of these forms, such as a search for a Gate). Every figure is given twice: ``direkt`` (search
+of these forms, such as a search for a Gate, or a search bound to a target). Every figure is given twice: ``direkt`` (search
 lands are no source, as before) and ``mit Suchland`` (``with_search``). The second one rests on a
 calculation assumption, not a rules ruling: a search land counts as a source of every colour that
 a land of the main deck matching its search (by type line: supertype Basic and basic land types,
