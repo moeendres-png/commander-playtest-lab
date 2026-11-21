@@ -15,10 +15,16 @@ stem,stem`` names them explicitly instead (exactly player_count - 4 stems).
 
 Opt-in report. When ``--player-count``, ``--extra-decks`` or ``--jar`` is given, the output
 gains a ``seat_gate`` block: result class SIMULATED_RESULT (never qualification evidence),
-the ordered seat decks with their file names, n/N per check (an unknown value is counted as
-unknown, never as 0 or as a pass), and the SHA-256 of the ``--jar`` bridge archive. In that
-mode a seat gap (seats must be exactly 1..N, engine seats 0..N-1) or a player_count that
-differs between plan, result and tape fails the gate. Without those flags no key is added.
+the ordered seat decks with their file names, a ``pod`` label and ``table_a5`` (never true
+here: seats 1-4 are reference decks, table A5 is five precons), n/N per check and the
+SHA-256 of the ``--jar`` bridge archive. Every check is labelled "engine" (observed from the
+engine result, the tape steps or the archive) or "plan" (copied from the gate's own plan or
+the recorder input, so it only catches driver bugs); ``check_groups`` counts n/N per group and
+``all_checks_passed`` needs both groups to pass. An unknown value is counted as unknown, never
+as 0 or as a pass. More than four seats require ``--jar`` (exit 2 otherwise); the archive is
+hashed again after the run and a changed or vanished file is a red ``jar_unchanged`` check.
+A seat gap (seats must be exactly 1..N, engine seats 0..N-1) or a player_count that differs
+between plan, result and tape fails the gate. Without those flags no key is added.
 
 The semantic replay tape model holds at most 5 seats; ``replay`` with 6 seats therefore
 stops before any engine call (no replay claim for 6 seats). ``single`` and ``batch`` run 6.
