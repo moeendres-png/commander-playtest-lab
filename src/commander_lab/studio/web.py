@@ -1786,29 +1786,94 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             revision_ids = deck_series.deck_revision_ids(store, deck_id)
             if revision_ids is None:
                 raise HTTPException(404, "unknown deck")
-            result = deck_series.deck_series(
-                games_home(), revision_ids, store=store, deck_id=deck_id
-            )
-            refs = {
-                str(item[key])
-                for item in cast(list[dict[str, object]], result["series"])
-                for key in ("base_ref", "variant_ref")
-            }
-            hashes = deck_series.revision_hashes(store, sorted({*revision_ids, *refs}))
-            # Q1-c (#1666): maturity R0-R3 and the four-step verdict per series; reads only
-            # (no store write, so no cache group), never part of the tier list.
-            result["reifegrad"] = maturity.deck_maturity(
-                store,
-                games_home(),
-                deck_id,
-                result,
-                hashes,
-                bridge_jar_sha256=launch.bridge_jar_sha256(games_home()),
-            )
+            result, hashes = _series_with_maturity(store, deck_id, revision_ids)
         finally:
             store.close()
         result["zahlen"] = number_contract.series_zahlen(result, hashes)
         return result
+
+    def _series_with_maturity(
+        store: StudioStore, deck_id: str, revision_ids: list[str]
+    ) -> tuple[dict[str, object], dict[str, str]]:
+        result = deck_series.deck_series(games_home(), revision_ids, store=store, deck_id=deck_id)
+        refs = {
+            str(item[key])
+            for item in cast(list[dict[str, object]], result["series"])
+            for key in ("base_ref", "variant_ref")
+        }
+        hashes = deck_series.revision_hashes(store, sorted({*revision_ids, *refs}))
+        # Q1-c (#1666): maturity R0-R3 and the four-step verdict per series; reads only
+        # (no store write, so no cache group), never part of the tier list.
+        result["reifegrad"] = maturity.deck_maturity(
+            store,
+            games_home(),
+            deck_id,
+            result,
+            hashes,
+            bridge_jar_sha256=launch.bridge_jar_sha256(games_home()),
+        )
+        return result, hashes
+
+    @app.get("/api/experiments/{experiment_id}")
+    def experiment_detail(
+        experiment_id: str = PathParam(min_length=1, max_length=120),
+    ) -> dict[str, object]:
+        """One experiment (or legacy series) of the index: plan, arms, seeds, purpose,
+        provenance, decision, its result with n/N and its maturity (B2b, #1658). Read-only:
+        no store write, no file write, so no cache group. The result entry and the maturity
+        are taken from the same computation as ``/api/decks/{id}/series``, never recomputed
+        on their own; ``SIMULATED_RESULT``, never part of the tier list."""
+        if not deck_series.valid_index_id(experiment_id):
+            raise HTTPException(422, "ungültige Experiment-ID")
+        store = open_store()
+        try:
+            detail = deck_series.experiment_detail(store, games_home(), experiment_id)
+            if detail is None:
+                raise HTTPException(404, "unknown experiment")
+            deck_id = detail["deck_id"]
+            revision_ids = (
+                deck_series.deck_revision_ids(store, deck_id) if isinstance(deck_id, str) else None
+            )
+            series_id = str(cast(dict[str, object], detail["result"])["series_id"])
+            detail["reifegrad"] = None
+            detail["reifegrad_hinweis"] = "Deck unbekannt: kein Reifegrad (unbekannt)"
+            if revision_ids is not None:
+                payload, _hashes = _series_with_maturity(store, str(deck_id), revision_ids)
+                own = None if detail["legacy"] else detail["experiment_id"]
+                same = [
+                    item
+                    for item in cast(list[dict[str, object]], payload["series"])
+                    if item["series_id"] == series_id
+                ]
+                # only this row's own entry (a legacy series has no experiment); a series that
+                # two rows name is never credited to either of them
+                mine = [
+                    item
+                    for item in same
+                    if (cast(dict[str, object], item["experiment"]) or {}).get("experiment_id")
+                    == own
+                ]
+                if len(mine) == 1:
+                    detail["result"] = mine[0]
+                findings = cast(dict[str, object], payload["reifegrad"]).get("befunde")
+                found = (
+                    findings.get(series_id)
+                    if isinstance(findings, dict) and len(same) == 1 and len(mine) == 1
+                    else None
+                )
+                detail["reifegrad"] = found
+                if len(same) > 1:
+                    detail["reifegrad_hinweis"] = (
+                        f"Serie {series_id} ist im Deck-Verlauf mehrfach verknüpft: "
+                        "kein Reifegrad (unbekannt)"
+                    )
+                else:
+                    detail["reifegrad_hinweis"] = (
+                        None if found is not None else "kein Befund im Deck-Verlauf (unbekannt)"
+                    )
+        finally:
+            store.close()
+        return detail
 
     @app.get("/api/decks/{deck_id}/history")
     def deck_history(deck_id: str) -> list[dict[str, object]]:
