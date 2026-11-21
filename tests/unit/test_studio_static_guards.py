@@ -2213,7 +2213,8 @@ let entriesImpl = null;
 const entries = () => (entriesImpl ? entriesImpl() : [{ card_id: "c1", zone: "main", quantity: 1 }]);
 const toast = (t) => toasts.push(t); const renderSaveState = () => { rendered += 1; };
 const rememberVariant = () => {}; let decksFail = false;
-const loadDecks = async () => { order.push("decks"); if (decksFail) throw httpError(503, "Speicher belegt, bitte erneut versuchen."); };
+let decksHold = null;
+const loadDecks = async () => { order.push("decks"); if (decksHold) await decksHold; if (decksFail) throw httpError(503, "Speicher belegt, bitte erneut versuchen."); };
 const renderHeader = () => {}; const fail = (e) => failed.push(StudioUI.germanError(e));
 const closeModal = () => { closed += 1; }; const showHistory = async () => { historyShown += 1; };
 const loadBranch = async () => { branchLoads += 1; order.push("branch"); if (loadBranchImpl) await loadBranchImpl(); };
@@ -2339,6 +2340,14 @@ eval(code + "\n" + cut("async function loadBranch()", "// The saved state of `br
   await commitRevision("main", "");
   out.scenarioDeck = [posts.length, toasts.some((t) => t.includes("lädt noch"))];
   release(); await deckSwitch; getHold = null;
+  // ... also while the deck list itself still loads (before the variant load starts)
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  let releaseDecks; decksHold = new Promise((r) => { releaseDecks = r; });
+  $("deck-select").value = "d";
+  const deckListSwitch = onDeckSelect();
+  await commitRevision("main", "");
+  out.scenarioDeckList = [posts.length, toasts.some((t) => t.includes("lädt noch"))];
+  decksHold = null; releaseDecks(); await deckListSwitch;
   // scenario b: the stale notice of the old variant goes at once; discarding while the new
   // variant loads never deletes the new variant's draft
   resetAll(); set({ branch: "test", baseRevision: "deck@t", baseStale: true }); server.test = "deck@t"; draftOf.main = { cards: [], base_revision_id: "deck@v" };
@@ -2496,6 +2505,7 @@ def test_saving_sends_expected_parent_and_never_overwrites_a_moved_branch() -> N
     assert r["scenarioA"] == [["main", "deck@v"], 0, "deck@v", True, False]
     assert r["scenarioAAfter"] == 1
     assert r["scenarioDeck"] == [0, True]
+    assert r["scenarioDeckList"] == [0, True]
     # scenario b: the old notice goes at once; a discard while loading deletes nothing
     assert r["scenarioB"] == [True, False, [], True]
     assert r["cardsAtClick"] == [["c1"]]
