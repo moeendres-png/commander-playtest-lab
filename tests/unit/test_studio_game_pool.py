@@ -1043,8 +1043,11 @@ def test_skip_forced_unknown_is_its_own_value_and_a_key_needs_jar_and_pin() -> N
         for value in (None, True, False)
     }
     assert len(keys) == 3
-    with pytest.raises(ValueError, match="JAR"):
-        series_record.game_key(**{**_KEY_INPUT, "jar_sha256": ""})  # type: ignore[arg-type]
+    for blank in ("", " ", "\t\n"):
+        with pytest.raises(ValueError, match="JAR"):
+            series_record.game_key(**{**_KEY_INPUT, "jar_sha256": blank})  # type: ignore[arg-type]
+        with pytest.raises(ValueError, match="Pin"):
+            series_record.game_key(**{**_KEY_INPUT, "engine_pin": blank})  # type: ignore[arg-type]
     with pytest.raises(ValueError, match="je einen Eintrag"):
         series_record.game_key(**{**_KEY_INPUT, "seat_styles": (0.5,)})  # type: ignore[arg-type]
 
@@ -1112,7 +1115,20 @@ def test_a_failed_game_or_a_game_without_key_never_trips_the_guard(tmp_path: Pat
     record.record(unkeyed.game_id, {"status": "finished", "semantic_transcript_sha256": "e" * 64})
     lines = record.journal_path.read_text(encoding="utf-8").splitlines()
     assert len(lines) == 4  # all four results journaled, none of them a violation
-    assert set(_record(tmp_path, [task, unkeyed]).results()) == {task.game_id, unkeyed.game_id}
+    resumed = _record(tmp_path, [task, unkeyed])
+    assert set(resumed.results()) == {task.game_id, unkeyed.game_id}
+    # never silent: the finished game without a key is counted as unguarded (last result per game)
+    assert record.unguarded() == (1, 1) and resumed.unguarded() == (1, 1)
+
+
+def test_a_finished_game_without_a_transcript_hash_is_counted_as_unguarded(tmp_path: Path) -> None:
+    first, second = _games("ug", range(1, 3))
+    record = _record(tmp_path, [first, second])
+    assert record.unguarded() == (0, 0)  # nothing finished yet: no count, not "all guarded"
+    record.record(first.game_id, {"status": "finished", "semantic_transcript_sha256": "a" * 64})
+    record.record(second.game_id, {"status": "finished", "semantic_transcript_sha256": ""})
+    assert record.unguarded() == (1, 2)
+    assert _record(tmp_path, [first, second]).unguarded() == (1, 2)
 
 
 def test_the_journal_counts_only_manifest_members_and_survives_a_cut_off_line(
@@ -1162,6 +1178,113 @@ def test_a_violation_appended_after_a_cut_off_line_still_ends_the_resumed_series
     with pytest.raises(DeterminismViolation) as caught:
         _record(tmp_path, [first, second, twin])
     assert caught.value.status == DETERMINISM_VIOLATION
+
+
+def test_a_line_cut_inside_a_multi_byte_character_is_ignored_and_the_series_resumes(
+    tmp_path: Path,
+) -> None:
+    first, second, third = _games("utf", range(1, 4))
+    record = _record(tmp_path, [first, second, third])
+    record.record(
+        first.game_id,
+        {"status": "finished", "semantic_transcript_sha256": "a" * 64, "note": "Spielschlüssel"},
+    )
+    record.record(
+        second.game_id,
+        {"status": "failed", "failure_message": "Spielschlüssel fehlt", "log": None},
+    )
+    data = record.journal_path.read_bytes()
+    cut = data.rindex("ü".encode()) + 1  # inside the two bytes of the last "ü"
+    record.journal_path.write_bytes(data[:cut])
+    resumed = _record(tmp_path, [first, second, third])
+    assert resumed.ignored_lines == 1 and set(resumed.results()) == {first.game_id}
+    assert resumed.results()[first.game_id]["note"] == "Spielschlüssel"  # a whole line keeps it
+    # the next result ends the cut line, which becomes a complete line with a broken character
+    resumed.record(third.game_id, {"status": "finished", "semantic_transcript_sha256": "c" * 64})
+    again = _record(tmp_path, [first, second, third])
+    assert again.ignored_lines == 1
+    assert set(again.results()) == {first.game_id, third.game_id}
+
+
+def test_a_complete_line_with_a_broken_character_is_ignored_not_repaired(tmp_path: Path) -> None:
+    first, second = _games("bad", range(1, 3))
+    record = _record(tmp_path, [first, second])
+    record.record(first.game_id, {"status": "finished", "semantic_transcript_sha256": "a" * 64})
+    record.record(second.game_id, {"status": "failed", "failure_message": "Spielschlüssel"})
+    data = record.journal_path.read_bytes()
+    broken = data.replace("ü".encode(), b"\xc3")  # one byte of the character lost mid-line
+    assert broken.endswith(b"\n") and broken != data
+    record.journal_path.write_bytes(broken)
+    resumed = _record(tmp_path, [first, second])
+    assert resumed.ignored_lines == 1 and set(resumed.results()) == {first.game_id}
+
+
+def test_a_member_line_with_a_key_the_manifest_does_not_name_is_not_counted(
+    tmp_path: Path,
+) -> None:
+    first, second = _games("km", range(1, 3))
+    record = _record(tmp_path, [first, second])
+    record.record(first.game_id, {"status": "finished", "semantic_transcript_sha256": "a" * 64})
+    foreign = {
+        "game_id": second.game_id,
+        "game_key": first.game_key,  # a member's id with another game's key
+        "status": "finished",
+        "semantic_transcript_sha256": "b" * 64,
+        "summary": {"status": "finished"},
+    }
+    with record.journal_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(foreign) + "\n")
+    resumed = _record(tmp_path, [first, second])  # no violation: the line is not grouped at all
+    assert set(resumed.results()) == {first.game_id}
+    assert resumed.key_mismatch_lines == 1 and resumed.ignored_lines == 1
+
+
+def test_without_hard_links_the_manifest_is_created_exclusively_and_no_temp_is_left(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    games = _games("nolink", range(1, 3))
+
+    def no_link(source: object, target: object) -> None:
+        raise PermissionError("hard links are not supported here")
+
+    monkeypatch.setattr(series_record.os, "link", no_link)
+    record = _record(tmp_path, games, series="nolink")
+    stored = json.loads(record.manifest_path.read_text(encoding="utf-8"))
+    assert [g["game_id"] for g in stored["games"]] == [g.game_id for g in games]
+    assert sorted(p.name for p in record.folder.iterdir()) == ["manifest.json"]
+    before = record.manifest_path.read_bytes()
+    with pytest.raises(ManifestMismatch):
+        _record(tmp_path, _games("nolink", range(1, 4)), series="nolink")
+    assert record.manifest_path.read_bytes() == before
+    assert sorted(p.name for p in record.folder.iterdir()) == ["manifest.json"]
+
+    def other_start_then_no_link(source: object, target: object) -> None:
+        # another process created the manifest between the check and the exclusive create
+        Path(str(target)).write_text('{"schema": "studio-series-manifest-1", "games": []}')
+        raise PermissionError("hard links are not supported here")
+
+    monkeypatch.setattr(series_record.os, "link", other_start_then_no_link)
+    with pytest.raises(ManifestMismatch):
+        _record(tmp_path, games, series="race2")
+    raced = series_record.series_folder(tmp_path, "race2")
+    assert json.loads((raced / "manifest.json").read_text())["games"] == []  # never replaced
+    assert sorted(p.name for p in raced.iterdir()) == ["manifest.json"]
+
+
+def test_a_failing_manifest_write_leaves_no_temp_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def broken(path: object, data: bytes) -> None:
+        raise OSError("disk full")
+
+    def no_link(source: object, target: object) -> None:
+        raise OSError("hard links are not supported here")
+
+    monkeypatch.setattr(series_record.os, "link", no_link)
+    monkeypatch.setattr(series_record, "_create_exclusive", broken)
+    with pytest.raises(OSError, match="disk full"):
+        _record(tmp_path, _games("tmp", range(1, 2)), series="tmp")
+    assert list(series_record.series_folder(tmp_path, "tmp").iterdir()) == []
 
 
 @pytest.mark.parametrize(

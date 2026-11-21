@@ -10,13 +10,19 @@ Per series there is ``games/series/<id>/manifest.json`` (``studio-series-manifes
 once when the series starts and never changed afterwards, and ``journal.jsonl`` with one line per
 final game result. Whether a game belongs to the series is decided by the manifest only: a log
 or journal line of a game the manifest does not name is never counted, whatever folder it is in.
-A cancelled series is resumed from its journal; a journal line cut off by the cancel is ignored,
+A cancelled series is resumed from its journal; a journal line cut off by the cancel is ignored
+(even when the cut splits a multi-byte character: the journal is read as bytes, line by line),
 and the next line starts after it, so no later line (a violation least of all) is lost with it.
+The guard groups games by the key the manifest names: a journal line whose key differs from the
+manifest's key of its game is ignored and counted. A finished game without a transcript hash or
+without a key cannot be compared; the guard never passes it silently but counts it
+(``unguarded``: n of N finished games).
 Every final result is final, a failed one too (also an infrastructure failure): a resumed series
 does not replay it, as the progress log of ``paired_series`` does not, so a resumed series counts
 what an uninterrupted one would have counted. Journal and manifest are synced to disk after each
 write; two processes running one series at once are not locked against each other (the manifest
-is created once, by hard link, but journal appends of two processes may interleave).
+is created once, by hard link or, where the file system has none, by exclusive create; journal
+appends of two processes may interleave).
 
 Nothing here reuses a game (that is #1589, Owner); S1 builds the key and the guard it needs.
 """
@@ -103,7 +109,7 @@ def game_key(
     are ``None`` when the command does not set them (the bridge default holds); ``None`` is a
     value of its own in the key, never equal to ``True``/``False`` or a number.
     """
-    if not jar_sha256 or not engine_pin:
+    if not jar_sha256 or not jar_sha256.strip() or not engine_pin or not engine_pin.strip():
         raise ValueError("ein Spielschlüssel braucht Bridge-JAR-SHA und Engine-Pin")
     if not strategy or not strategy.strip():
         raise ValueError("ein Spielschlüssel braucht eine Strategie, kein leeres Feld")
@@ -149,6 +155,8 @@ class SeriesRecord:
     #: game key -> {transcript hash -> game ids}
     _hashes: dict[str, dict[str, list[str]]] = field(default_factory=dict, init=False)
     ignored_lines: int = field(default=0, init=False)
+    #: journal lines of a member whose key is not the manifest's key of that game (also ignored)
+    key_mismatch_lines: int = field(default=0, init=False)
 
     @property
     def manifest_path(self) -> Path:
@@ -204,19 +212,26 @@ class SeriesRecord:
             folder.mkdir(parents=True, exist_ok=True)
             manifest = {**manifest, "created_at": now_utc()}
             temp = folder / f"manifest.{os.getpid()}.tmp"
-            with temp.open("wb") as handle:
-                handle.write(canonical_json(manifest))
-                handle.flush()
-                os.fsync(handle.fileno())
             try:
-                # a hard link never replaces: of two starts of one series only one manifest wins
-                os.link(temp, path)
+                with temp.open("wb") as handle:
+                    handle.write(canonical_json(manifest))
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                try:
+                    # a hard link never replaces: of two starts of one series only one wins
+                    os.link(temp, path)
+                except FileExistsError:
+                    raise
+                except OSError:
+                    # no hard links here (FAT/exFAT, some shares): exclusive create, never replace
+                    _create_exclusive(path, canonical_json(manifest))
+                _fsync_folder(folder)
             except FileExistsError:
-                temp.unlink()
                 return cls.open(
                     data_folder, series_id, games=games, table_hash=table_hash, table=table
                 )
-            temp.unlink()
+            finally:
+                temp.unlink(missing_ok=True)
         record = cls(folder, manifest)
         record._read_journal()
         return record
@@ -225,14 +240,15 @@ class SeriesRecord:
         if not self.journal_path.is_file():
             return
         members = self.members()
-        with self.journal_path.open(encoding="utf-8") as handle:
+        with self.journal_path.open("rb") as handle:
             for raw in handle:
-                if not raw.endswith("\n"):
+                if not raw.endswith(b"\n"):
                     # the last line, cut off by a cancel: never a result (``record`` starts a
                     # new line after it, so no later line is joined to it)
                     self.ignored_lines += 1
                     continue
                 try:
+                    # bytes: a cut inside a multi-byte character is a ``ValueError`` of this line
                     entry = json.loads(raw)
                 except ValueError:
                     self.ignored_lines += 1
@@ -240,6 +256,11 @@ class SeriesRecord:
                 game_id = entry.get("game_id") if isinstance(entry, dict) else None
                 if not isinstance(game_id, str) or game_id not in members:
                     self.ignored_lines += 1  # not a member of this series: never counted
+                    continue
+                if entry.get("game_key") != members[game_id]:
+                    # the guard groups by the manifest's key, never by the key a line claims
+                    self.key_mismatch_lines += 1
+                    self.ignored_lines += 1
                     continue
                 self._admit(entry)
 
@@ -257,6 +278,23 @@ class SeriesRecord:
         if len(by_hash) > 1:
             ids = [gid for gids in by_hash.values() for gid in gids]
             raise DeterminismViolation(key, sorted(by_hash), ids)
+
+    def unguarded(self) -> tuple[int, int]:
+        """(n, N): n of the N finished games (last result per game) the guard cannot compare.
+
+        A finished game without a transcript hash or without a game key is not checked for
+        determinism; it is counted here, never passed silently. ``(0, 0)`` means no finished
+        game yet, not "all guarded".
+        """
+        finished = [entry for entry in self._entries.values() if entry.get("status") == "finished"]
+        unguarded = [
+            entry
+            for entry in finished
+            if not isinstance(entry.get("game_key"), str)
+            or not isinstance(entry.get("semantic_transcript_sha256"), str)
+            or not entry.get("semantic_transcript_sha256")
+        ]
+        return len(unguarded), len(finished)
 
     def results(self) -> dict[str, dict[str, object]]:
         """The final result of every manifest member that has one (game id -> summary)."""
@@ -294,6 +332,29 @@ class SeriesRecord:
                 handle.write(line.encode("utf-8") + b"\n")
                 handle.flush()
                 os.fsync(handle.fileno())
+
+
+def _create_exclusive(path: Path, data: bytes) -> None:
+    """Create ``path`` with ``data``; ``FileExistsError`` if it exists (never replaced)."""
+    fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_BINARY", 0))
+    with os.fdopen(fd, "wb") as handle:
+        handle.write(data)
+        handle.flush()
+        os.fsync(handle.fileno())
+
+
+def _fsync_folder(folder: Path) -> None:
+    """Sync the folder entry of a new file; best effort (a folder cannot be opened on Windows)."""
+    try:
+        fd = os.open(folder, os.O_RDONLY)
+    except OSError:
+        return
+    try:
+        os.fsync(fd)
+    except OSError:
+        pass
+    finally:
+        os.close(fd)
 
 
 def _ends_with_newline(path: Path) -> bool:
