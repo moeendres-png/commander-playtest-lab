@@ -39,6 +39,8 @@ from commander_lab.engine.rules.wire_types import FullGameResultWire
 from tests.unit.test_ws223_cardinality_regression import _priority_pass_request
 
 COMMIT = "a" * 40
+# the module's real client class, before the autouse fixture replaces it with a scripted one
+_REAL_RAW_CLIENT = full_game._RawFullGameClient
 
 
 def _scenario(seed: int) -> FutureXmageScenario:
@@ -839,3 +841,203 @@ def test_a_bridge_session_needs_a_configured_command() -> None:
     runner.command = None
     with pytest.raises(FullGameConformanceError, match="not configured"):
         runner.open_session()
+
+
+# ---- what PLAY needs of the public steps (#1663, package 2) ------------------------------------
+
+
+class _OpenClient(_StepClient):
+    """Answers the opening of a game (lane, handshake, deck imports, creation) for the runner's
+    real ``_open_game``; records every request with its payload."""
+
+    def request(self, name: str, payload: object = None) -> object:
+        if name == "start_engine":
+            self.sent.append((name, payload))
+            return {"lane": full_game.FULL_GAME_LANE}
+        if name in {"get_provider_version", "get_capabilities"}:
+            self.sent.append((name, payload))
+            return {"engine_version": "1.4.61", "engine_commit": COMMIT}
+        if name == "import_deck":
+            self.sent.append((name, payload))
+            return {"deck_handle": {"handle_id": f"h{len(self.sent)}"}}
+        if name == "create_full_game":
+            self.sent.append((name, payload))
+            assert isinstance(payload, dict)
+            return {
+                "player_count": len(payload["deck_handles"]),
+                "seed": payload["seed"],
+                "evidence_class": FULL_GAME_EVIDENCE_CLASS,
+                "holdout_consumed": False,
+            }
+        return super().request(name, payload)
+
+
+class _OpeningRunner(XmageFullGameRunner):
+    """The runner's own ``_open_game``; only the input, handshake and deck gates are doubled."""
+
+    def _validated_policy(self, scenario, decks, pilots):  # type: ignore[no-untyped-def,override]
+        return object()
+
+    @staticmethod
+    def _validate_handshake(scenario, provider, capabilities_payload):  # type: ignore[no-untyped-def,override]
+        return None
+
+    @staticmethod
+    def _deck_payload(deck):  # type: ignore[no-untyped-def,override]
+        return {"deck": deck}
+
+
+_DECKS = ("d1", "d2", "d3", "d4")  # one per seat of ``_scenario``
+
+
+def _create_payload(client: _StepClient) -> dict[str, object]:
+    created = [payload for name, payload in client.sent if name == "create_full_game"]
+    assert len(created) == 1 and isinstance(created[0], dict)
+    return created[0]
+
+
+def test_create_game_sends_human_seats_and_timeout_only_when_given(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(full_game, "_RawFullGameClient", _OpenClient)
+    runner = _OpeningRunner(("java", "-jar", "bridge.jar", "full-game"))
+    scenario = _scenario(5)
+    plain = runner.open_session()
+    plain.create_game(scenario, _DECKS, object())  # type: ignore[arg-type]
+    assert isinstance(plain.client, _OpenClient)
+    # a game the pilots play (series, runner) sends the creation payload as before
+    assert set(_create_payload(plain.client)) == {
+        "game_id",
+        "deck_handles",
+        "seed",
+        "starting_player_seat",
+        "starting_life",
+    }
+    seated = runner.open_session()
+    seated.create_game(
+        scenario,
+        _DECKS,  # type: ignore[arg-type]
+        object(),  # type: ignore[arg-type]
+        human_seats=[1, 0, 1],
+        decision_timeout_seconds=0,
+    )
+    assert isinstance(seated.client, _OpenClient)
+    payload = _create_payload(seated.client)
+    assert list(payload)[-2:] == ["human_seats", "decision_timeout_seconds"]
+    assert payload["human_seats"] == [0, 1] and payload["decision_timeout_seconds"] == 0
+
+
+@pytest.mark.parametrize("stop_after_imports", [0, 1, 4])
+def test_should_stop_cancels_before_the_game_exists(
+    monkeypatch: pytest.MonkeyPatch, stop_after_imports: int
+) -> None:
+    monkeypatch.setattr(full_game, "_RawFullGameClient", _OpenClient)
+    session = _OpeningRunner(("java", "-jar", "bridge.jar", "full-game")).open_session()
+    client = session.client
+    assert isinstance(client, _OpenClient)
+
+    def should_stop() -> bool:
+        return sum(name == "import_deck" for name, _p in client.sent) >= stop_after_imports
+
+    with pytest.raises(full_game.FullGameCancelled):
+        session.create_game(_scenario(5), _DECKS, object(), should_stop=should_stop)  # type: ignore[arg-type]
+    names = [name for name, _p in client.sent]
+    assert names.count("import_deck") == stop_after_imports
+    assert "create_full_game" not in names
+
+
+def test_a_client_factory_builds_the_client_without_a_command() -> None:
+    runner = _Runner(("java", "-jar", "bridge.jar", "full-game"))
+    runner.command = None
+    made: list[tuple[object, dict[str, object]]] = []
+
+    def factory(command: object, **kwargs: object) -> _StepClient:
+        made.append((command, kwargs))
+        return _StepClient(("fake",))
+
+    session = runner.open_session(client_factory=factory)  # type: ignore[arg-type]
+    assert isinstance(session.client, _StepClient)
+    assert made == [
+        (
+            None,
+            {
+                "cwd": runner.cwd,
+                "request_timeout_seconds": runner.request_timeout_seconds,
+                "private_card_repository": runner.private_card_repository,
+                "shutdown_grace_seconds": runner.shutdown_grace_seconds,
+            },
+        )
+    ]
+
+
+class _HealthClient(_StepClient):
+    transport_failure: str | None = None
+    exited = False
+    killed = 0
+
+    def process_exited(self) -> bool:
+        return self.exited
+
+    def kill(self) -> None:
+        self.killed += 1
+
+
+def test_bridge_gone_reads_the_public_client_state_and_kill_reaches_the_client(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(full_game, "_RawFullGameClient", _HealthClient)
+    session = _Runner(("java", "-jar", "bridge.jar", "full-game")).open_session()
+    client = session.client
+    assert isinstance(client, _HealthClient)
+    assert session.bridge_gone() is False and session.transport_failure is None
+    client.exited = True
+    assert session.bridge_gone() is True
+    client.exited = False
+    client.transport_failure = "BRIDGE_TIMEOUT"
+    assert session.bridge_gone() is True and session.transport_failure == "BRIDGE_TIMEOUT"
+    session.kill()
+    assert client.killed == 1
+
+
+def test_the_raw_client_reports_an_exited_process_and_kills_a_running_one() -> None:
+    class _Process:
+        def __init__(self) -> None:
+            self.code: int | None = None
+
+        def poll(self) -> int | None:
+            return self.code
+
+        def kill(self) -> None:
+            self.code = -9
+
+    client = _REAL_RAW_CLIENT(("java", "-jar", "bridge.jar", "full-game"))
+    assert client.process_exited() is False  # not started
+    client.kill()  # nothing to kill
+    process = _Process()
+    client._process = process  # type: ignore[assignment]
+    assert client.process_exited() is False
+    client.kill()
+    assert client.process_exited() is True and process.code == -9
+
+
+@pytest.mark.parametrize("step", _STATUS_STEPS)
+def test_a_step_hands_back_an_engine_failure_on_request_and_still_audits(
+    monkeypatch: pytest.MonkeyPatch, step: str
+) -> None:
+    """``raise_on_failure=False`` (PLAY's own failure handling) returns the failure status as
+    the engine sent it; a decision frame in it still passes the audit (fail closed)."""
+    monkeypatch.setattr(full_game, "_RawFullGameClient", _StepClient)
+    _StepClient.failure = {"message": "DECISION_TIMEOUT: dec-1"}
+    game = _game()
+    kwargs = {"raise_on_failure": False}
+    if step == "answer":
+        status = game.answer({}, **kwargs)  # type: ignore[arg-type]
+    elif step == "concede":
+        status = game.concede("p1", **kwargs)  # type: ignore[arg-type]
+    else:
+        status = getattr(game, step)(**kwargs)
+    assert status["failure"] == {"message": "DECISION_TIMEOUT: dec-1"}
+    _StepClient.failure = None
+    _StepClient.decision = _leaky("engine-9")
+    with pytest.raises(FullGameConformanceError, match="hidden information"):
+        game.next_decision(raise_on_failure=False)

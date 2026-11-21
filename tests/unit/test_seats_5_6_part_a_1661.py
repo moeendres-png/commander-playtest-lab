@@ -28,6 +28,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+from commander_lab.engine.rules import full_game
 from commander_lab.engine.rules.full_game import (
     FULL_GAME_DECISION_PROTOCOL_VERSION,
     FULL_GAME_EVIDENCE_CLASS,
@@ -81,10 +82,21 @@ def _decks(count: int) -> tuple[RulesDeckInput, ...]:
 
 
 def _pilot_state(
-    count: int, *, actor: int, active: int, turn: int, out: frozenset[int] = frozenset()
+    count: int,
+    *,
+    actor: int,
+    active: int,
+    turn: int,
+    out: frozenset[int] = frozenset(),
+    human: int | None = None,
 ) -> dict[str, object]:
-    """What the engine publishes at a decision: every seat's hand, hidden or not, as the bridge
-    hands it to Python (the redaction is the Studio's job)."""
+    """What the engine publishes at a decision: every seat's hand, hidden or not (the redaction
+    is the Studio's job).
+
+    With ``human`` the rows follow the bridge's actor view, so the match's hidden-information
+    audit passes: the actor row is marked ``is_actor``; in the human's frames the other seats'
+    hands stay, flagged ``private_state_visible`` (engine-visible, and still hidden by the Studio
+    until the game ends); in an AI seat's frames the other rows carry no private keys."""
     players: list[dict[str, object]] = []
     for seat in range(count):
         players.append(
@@ -103,6 +115,16 @@ def _pilot_state(
                 "exile": [],
             }
         )
+    if human is not None:
+        for row in players:
+            row["is_actor"] = row["seat"] == actor
+            if row["is_actor"]:
+                continue
+            if actor == human:
+                row["private_state_visible"] = True
+            else:
+                for key in ("hand", "hand_cards"):
+                    row.pop(key, None)
     return {
         "seat": actor,
         "turn_number": turn,
@@ -119,11 +141,28 @@ class SeatBridge:
 
     After ``create_full_game`` it walks ``rounds`` rounds of priority in seat order from the
     starting seat the Studio asked for. The human seat gets two options (pass and casting its own
-    hidden card), an AI seat only the pass, so the real pilot cannot choose anything else. Every
-    published state carries every seat's hidden hand. ``eliminate`` lists seats that leave after
+    hidden card), an AI seat only the pass, so the real pilot cannot choose anything else. A state
+    of the human's decision carries every seat's hidden hand (flagged engine-visible), a state of
+    an AI seat's decision only that seat's own (``_pilot_state``). ``eliminate`` lists seats that leave after
     the first round (the engine's decision, reported in outcomes and states). The game ends with
     ``winner`` as the only winner, or when the human concedes.
     """
+
+    # what a FullGameBridgeSession asks of its client besides request()
+    shutdown_disposition: str | None = None
+    transport_failure: str | None = None
+
+    def start(self) -> None:
+        return None
+
+    def close(self) -> str:
+        return "graceful_shutdown"
+
+    def process_exited(self) -> bool:
+        return False
+
+    def kill(self) -> None:
+        return None
 
     def __init__(
         self,
@@ -190,7 +229,12 @@ class SeatBridge:
 
     def _decision(self, seat: int, turn: int) -> dict[str, object]:
         state = _pilot_state(
-            self.count, actor=seat, active=self.steps[0][0], turn=turn, out=self._out()
+            self.count,
+            actor=seat,
+            active=self.steps[0][0],
+            turn=turn,
+            out=self._out(),
+            human=self.human,
         )
         human = seat == self.human
         options: list[dict[str, object]] = [
@@ -282,7 +326,12 @@ class SeatBridge:
         if method == "create_full_game":
             self.created_payload = dict(payload)
             self._plan(int(str(payload["starting_player_seat"])))
-            return {"evidence_class": FULL_GAME_EVIDENCE_CLASS, "holdout_consumed": False}
+            return {
+                "player_count": len(payload["deck_handles"]),
+                "seed": payload["seed"],
+                "evidence_class": FULL_GAME_EVIDENCE_CLASS,
+                "holdout_consumed": False,
+            }
         if method in {"start_full_game", "get_full_game_decision"}:
             return self._status()
         if method == "get_concede_offer":
@@ -300,7 +349,9 @@ class SeatBridge:
             self.index += 1
             return self._status()
         if method == "export_event_log":
-            return {"events": [{"turn": 1, "text": "Game started"}]}
+            events: list[object] = [{"turn": 1, "text": "Game started"}]
+            offset = int(payload.get("after_offset", 0))
+            return {"events": events[offset:], "latest_offset": len(events)}
         if method == "get_full_game_result":
             created = self.created_payload or {}
             return {
@@ -525,7 +576,8 @@ def _patch_play_route(
         made[str(len(made))] = bridge
         return bridge
 
-    monkeypatch.setattr(play, "_RawFullGameClient", factory)
+    # the bridge session of the runner builds the client (#1663: PLAY plays through it)
+    monkeypatch.setattr(full_game, "_RawFullGameClient", factory)
     return made
 
 

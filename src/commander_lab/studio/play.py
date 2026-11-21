@@ -2,8 +2,9 @@
 
 The existing full-game runner does all the work: XMage decides every rule, the Lab's pilots
 decide every choice. This module only chooses decks and a seed, lets the runner play, and has
-the recorder of ``games.py`` write down what happened. Every seat is a pilot here; a human
-seat is a later step.
+the recorder of ``games.py`` write down what happened. A game with human seats
+(``InteractiveGameSession``) plays through the runner's public steps (``FullGameMatch``): the
+human seat is a game whose decisions come from outside.
 """
 
 from __future__ import annotations
@@ -33,14 +34,17 @@ from commander_lab.engine.rules.failure_privacy import (
     redacted_summary,
 )
 from commander_lab.engine.rules.full_game import (
-    FULL_GAME_EVIDENCE_CLASS,
-    FULL_GAME_LANE,
+    ExternalPilotDecisionPolicy,
+    FullGameBridgeClient,
+    FullGameBridgeSession,
+    FullGameCancelled,
     FullGameConformanceError,
     FullGameConformanceResult,
+    FullGameMatch,
     FullGamePilotBinding,
     FullGameProtocolError,
+    ProgressEntry,
     XmageFullGameRunner,
-    _RawFullGameClient,
 )
 from commander_lab.engine.rules.full_game_series import FullGameSeriesResult
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
@@ -76,6 +80,9 @@ _HUMAN_TIMEOUT_MESSAGE = (
 # While the loop waits for the human it looks at the bridge process this often, so a dead
 # bridge ends the game as failed instead of leaving the page waiting for ever.
 _PARK_POLL_SECONDS = 2.0
+# How long one request to the bridge of an interactive game may take; the human's own thinking
+# time is not in it (the engine waits for the human without limit, the loop parks instead).
+_INTERACTIVE_REQUEST_TIMEOUT_SECONDS = 3_600.0
 DEFAULT_AI_DELAY_MS = 250
 _AI_DELAY_SLICE_SECONDS = 0.05
 # Longest time one state request may be held open waiting for a change (#1593). Short on purpose:
@@ -275,10 +282,24 @@ class _RecordingRunner(XmageFullGameRunner):
             raise RuntimeError("no recorder bound")
         return self.recorder
 
-    def _drive(  # type: ignore[override]
-        self, client: object, policy: object, *, stop_after: int | None = None, **kwargs: object
-    ) -> tuple[int, object, bool]:
-        res = super()._drive(client, policy, stop_after=stop_after, **kwargs)  # type: ignore[arg-type]
+    def _drive(
+        self,
+        client: FullGameBridgeClient,
+        policy: ExternalPilotDecisionPolicy,
+        *,
+        stop_after: int | None,
+        stop_at_turn: int | None = None,
+        progress: list[ProgressEntry] | None = None,
+        stop: dict[str, object] | None = None,
+    ) -> tuple[int, list[str], bool]:
+        res = super()._drive(
+            client,
+            policy,
+            stop_after=stop_after,
+            stop_at_turn=stop_at_turn,
+            progress=progress,
+            stop=stop,
+        )
         if self.recorder is not None and hasattr(client, "request"):
             try:
                 raw_log = client.request("export_event_log")
@@ -598,9 +619,11 @@ class _InteractiveCommand:
 class InteractiveGameSession:
     """Manages one live XMage full-game session with one or more human seats.
 
-    Only the session's background thread speaks to ``_RawFullGameClient`` so pipe
-    request/response ordering cannot race; HTTP endpoints enqueue decision or
-    concede commands and read strictly principal-scoped snapshots.
+    The game is a ``FullGameMatch`` of the runner's public steps; its decisions come from outside
+    (human seats) or from the pilots (AI seats), and every decision frame passes the match's
+    actor-scoped hidden-information audit (fail closed). Only the session's background thread
+    speaks to the bridge, so pipe request/response ordering cannot race; HTTP endpoints enqueue
+    decision or concede commands and read strictly principal-scoped snapshots.
     """
 
     def __init__(
@@ -613,7 +636,7 @@ class InteractiveGameSession:
         ai_delay_ms: int = DEFAULT_AI_DELAY_MS,
         max_decisions: int = 50_000,
         command: Sequence[str] | None = None,
-        client_factory: Callable[..., object] | None = None,
+        client_factory: Callable[..., FullGameBridgeClient] | None = None,
     ) -> None:
         self.data_folder = Path(data_folder)
         self.prepared = prepared
@@ -646,7 +669,7 @@ class InteractiveGameSession:
         self._running = True
         self._discard_on_exit = False
         self._shutdown_event = threading.Event()
-        self._active_client: object | None = None
+        self._active_bridge: FullGameBridgeSession | None = None
         self._result: dict[str, object] | None = None
         # Forced AI priority passes the engine answered itself (#1591), as the engine's status
         # reports them; None until the engine has said so (unknown, not zero).
@@ -665,26 +688,6 @@ class InteractiveGameSession:
     def start(self, *, wait_seconds: float = 15.0) -> None:
         self._thread.start()
         self._ready.wait(timeout=wait_seconds)
-
-    def _build_client(self, runner: XmageFullGameRunner) -> object:
-        ipc_timeout = (
-            max(120.0, float(self.decision_timeout_seconds) + 60.0)
-            if self.decision_timeout_seconds > 0
-            else 3_600.0
-        )
-        if self._client_factory is not None:
-            return self._client_factory(
-                runner.command,
-                cwd=runner.cwd,
-                request_timeout_seconds=ipc_timeout,
-            )
-        if runner.command is None:
-            raise RuntimeError("no bridge command configured for interactive play")
-        return _RawFullGameClient(
-            runner.command,
-            cwd=runner.cwd,
-            request_timeout_seconds=ipc_timeout,
-        )
 
     def _notify_change(self) -> None:
         """Counts one visible state change and wakes every held state request (#1593)."""
@@ -729,7 +732,7 @@ class InteractiveGameSession:
             self._player_ids_by_seat[seat] = actor_id
         return sanitized
 
-    def _publish_status(self, status: Mapping[str, object], client: object) -> None:
+    def _publish_status(self, status: Mapping[str, object], match: object) -> None:
         decision = status.get("decision")
         with self._lock:
             self._update_outcomes_locked(status)
@@ -745,10 +748,10 @@ class InteractiveGameSession:
                         isinstance(actor_id, str)
                         and actor_id
                         and seat not in self._can_concede_by_seat
-                        and hasattr(client, "request")
+                        and isinstance(match, FullGameMatch)
                     ):
                         with contextlib.suppress(Exception):
-                            offer = client.request("get_concede_offer", {"player_id": actor_id})
+                            offer = match.concede_offer(actor_id)
                             if isinstance(offer, Mapping):
                                 self._can_concede_by_seat[seat] = bool(
                                     offer.get("concede_available")
@@ -780,8 +783,10 @@ class InteractiveGameSession:
         self._notify_change()
 
     def _run_concede_command(
-        self, client: object, cmd: _InteractiveCommand, current_status: dict[str, object]
+        self, match: FullGameMatch, cmd: _InteractiveCommand, current_status: dict[str, object]
     ) -> dict[str, object]:
+        """Concede for a human seat. A refused concede leaves the game as it was; a frame after
+        it that fails the hidden-information audit ends the game (it is never published)."""
         seat_arg = cmd.payload
         seat = int(seat_arg) if type(seat_arg) is int else min(self.human_seats)
         if seat not in self.human_seats:
@@ -793,38 +798,41 @@ class InteractiveGameSession:
             cmd.reject(RuntimeError("concede unavailable before player identity is known"))
             return current_status
         try:
-            offer = client.request("get_concede_offer", {"player_id": actor_id})  # type: ignore[attr-defined]
+            offer = match.concede_offer(actor_id)
             if not isinstance(offer, Mapping) or not offer.get("concede_available"):
                 raise ValueError("Aufgeben ist für diesen Platz derzeit nicht möglich")
-            next_status = client.request(  # type: ignore[attr-defined]
-                "submit_concede",
-                {"proposal": {"actor_id": actor_id, "player_id": actor_id}},
-            )
+            next_status = match.concede(actor_id, raise_on_failure=False)
             if not isinstance(next_status, dict):
                 raise RuntimeError("invalid submit_concede response")
-            self._publish_status(next_status, client)
+            self._publish_status(next_status, match)
             cmd.resolve({"conceded": True, "seat": seat})
             return next_status
+        except FullGameConformanceError as exc:
+            cmd.reject(exc)
+            raise
         except Exception as exc:
             cmd.reject(exc)
             return current_status
 
     def _probe_after_rejection(
-        self, client: object
+        self, bridge: FullGameBridgeSession, match: FullGameMatch
     ) -> tuple[str, dict[str, object] | FullGameProtocolError | None]:
         """What the bridge says after it rejected a human answer, read from its status.
 
         ("failed", error): the engine failed or timed out; the game cannot go on.
         ("over", status) / ("moved", status): the game ended, or another decision is open.
         ("same", None): the same decision is still open; the human may answer again.
-        Anything unreadable counts as "same" (an error is shown, the answer can be retried).
+        Anything unreadable counts as "same" (an error is shown, the answer can be retried). A
+        frame that fails the hidden-information audit raises (the game ends, fail closed).
         """
         try:
-            status = client.request("get_full_game_decision")  # type: ignore[attr-defined]
+            status = match.next_decision(raise_on_failure=False)
         except FullGameProtocolError as probe_error:
-            if getattr(client, "_transport_failure", None) is not None:
+            if bridge.transport_failure is not None:
                 return "failed", probe_error
             return "same", None
+        except FullGameConformanceError:
+            raise
         except Exception:
             return "same", None
         if not isinstance(status, dict):
@@ -876,15 +884,133 @@ class InteractiveGameSession:
                 continue
 
     @staticmethod
-    def _raise_if_bridge_gone(client: object) -> None:
+    def _raise_if_bridge_gone(bridge: FullGameBridgeSession) -> None:
         """Fail the game when the bridge process has exited while the human is thinking."""
-        failure = getattr(client, "_transport_failure", None)
-        process = getattr(client, "_process", None)
-        poll = getattr(process, "poll", None)
-        if failure is not None or (callable(poll) and poll() is not None):
+        if bridge.bridge_gone():
             raise FullGameProtocolError(
                 "full-game bridge is gone while waiting for the human seat", code="BRIDGE_EXITED"
             )
+
+    def _play(
+        self,
+        bridge: FullGameBridgeSession,
+        match: FullGameMatch,
+        policy: ExternalPilotDecisionPolicy,
+    ) -> bool:
+        """Play ``match`` until the engine reports its end; True when a shutdown stopped it.
+
+        Human seats park on the command queue (answer, concede or shutdown), AI seats ask the
+        pilots and pause only before visible steps (#1592). Every status comes from a public
+        step of the match, so every decision frame is audited before it is published.
+        """
+        status: dict[str, object] = {}
+        if not self._shutdown_event.is_set():
+            status = match.start(raise_on_failure=False)
+            self._publish_status(status, match)
+        shutdown_requested = self._shutdown_event.is_set()
+
+        decision_count = 0
+        while not shutdown_requested and not self._shutdown_event.is_set():
+            failure = status.get("failure")
+            if isinstance(failure, dict):
+                raise FullGameConformanceError("XMage full-game engine failed")
+            decision = status.get("decision")
+            if isinstance(decision, dict):
+                decision_count += 1
+                if decision_count > self.max_decisions:
+                    raise FullGameProtocolError(
+                        f"full-game exceeded max_decisions={self.max_decisions}",
+                        code="ENGINE_FAILURE",
+                    )
+                seat = decision.get("seat")
+                if type(seat) is int and seat in self.human_seats:
+                    # Park on command queue until human answers, concedes, or shuts down.
+                    while True:
+                        try:
+                            cmd = self._commands.get(timeout=_PARK_POLL_SECONDS)
+                        except queue.Empty:
+                            self._raise_if_bridge_gone(bridge)
+                            continue
+                        if cmd.kind == "shutdown":
+                            shutdown_requested = True
+                            cmd.resolve({"shut_down": True})
+                            break
+                        if cmd.kind == "concede":
+                            status = self._run_concede_command(match, cmd, status)
+                            if cmd.error is None:
+                                break
+                            continue
+                        if cmd.kind == "decision":
+                            response_payload = cmd.payload
+                            if not isinstance(response_payload, Mapping):
+                                cmd.reject(ValueError("response payload must be a dict"))
+                                continue
+                            try:
+                                next_status = match.answer(
+                                    dict(response_payload), raise_on_failure=False
+                                )
+                            except FullGameProtocolError as exc:
+                                retryable = (
+                                    exc.code == "BRIDGE_ERROR"
+                                    and bridge.transport_failure is None
+                                    and not _is_terminal_bridge_error(exc)
+                                )
+                                if not retryable:
+                                    cmd.reject(exc)
+                                    raise
+                                try:
+                                    kind, found = self._probe_after_rejection(bridge, match)
+                                except FullGameConformanceError as leak:
+                                    cmd.reject(leak)
+                                    raise
+                                if kind == "same":
+                                    cmd.reject(ValueError(str(exc)))
+                                    continue
+                                if isinstance(found, FullGameProtocolError):
+                                    cmd.reject(found)
+                                    raise found from None
+                                if isinstance(found, dict):
+                                    # the game ended or moved on: carry on from that status
+                                    status = found
+                                    self._publish_status(status, match)
+                                cmd.reject(ValueError("Entscheidung ist veraltet"))
+                                break
+                            except FullGameConformanceError as leak:
+                                # the frame after the answer failed the audit: never published
+                                cmd.reject(leak)
+                                raise
+                            self._record_decision(decision, response_payload)
+                            status = next_status
+                            self._publish_status(status, match)
+                            cmd.resolve({"accepted": True})
+                            break
+                    continue
+
+                # AI seat: choose first so only visible steps pause (#1592), while still
+                # allowing responsive concede/shutdown commands on every step.
+                response = policy.decide(decision)
+                pause = should_pause_for_ai_step(decision, response)
+                ai_cmd = self._wait_ai_delay(pause=pause)
+                if ai_cmd is not None:
+                    if ai_cmd.kind == "shutdown":
+                        shutdown_requested = True
+                        ai_cmd.resolve({"shut_down": True})
+                        break
+                    if ai_cmd.kind == "concede":
+                        status = self._run_concede_command(match, ai_cmd, status)
+                        continue
+                    ai_cmd.reject(ValueError("no human decision currently pending"))
+                next_status = match.answer(response, raise_on_failure=False)
+                self._record_decision(decision, response)
+                status = next_status
+                self._publish_status(status, match)
+                continue
+
+            if bool(status.get("terminal")):
+                break
+            status = match.next_decision(raise_on_failure=False)
+            self._publish_status(status, match)
+        return shutdown_requested or self._shutdown_event.is_set()
 
     def _run(self) -> None:
         outcome: FullGameConformanceResult | Exception | None = None
@@ -892,190 +1018,44 @@ class InteractiveGameSession:
             runner = XmageFullGameRunner(
                 command=self._command,
                 max_decisions=self.max_decisions,
+                request_timeout_seconds=_INTERACTIVE_REQUEST_TIMEOUT_SECONDS,
             )
-            policy = runner._validated_policy(
+            policy = runner.decision_policy(
                 self.prepared.scenario,
                 self.prepared.decks,
                 self.prepared.pilots,
             )
-            client = self._build_client(runner)
+            bridge = runner.open_session(client_factory=self._client_factory)
             with self._lock:
-                self._active_client = client
-            with client:  # type: ignore[attr-defined]
-                started = client.request("start_engine")  # type: ignore[attr-defined]
-                if started.get("lane") != FULL_GAME_LANE:
-                    raise FullGameConformanceError("bridge did not enter explicit full-game lane")
-                provider = client.request("get_provider_version")  # type: ignore[attr-defined]
-                capabilities = client.request("get_capabilities")  # type: ignore[attr-defined]
-                runner._validate_handshake(self.prepared.scenario, provider, capabilities)
-
-                handles: list[str] = []
-                for deck in self.prepared.decks:
-                    if self._shutdown_event.is_set():
-                        break
-                    imported = client.request(  # type: ignore[attr-defined]
-                        "import_deck", {"deck": runner._deck_payload(deck)}
-                    )
-                    handle = imported.get("deck_handle")
-                    if not isinstance(handle, dict):
-                        raise FullGameConformanceError("IMPORT_DECK returned no deck_handle")
-                    handle_id = str(handle.get("handle_id", "")).strip()
-                    if not handle_id:
-                        raise FullGameConformanceError("IMPORT_DECK returned blank handle_id")
-                    handles.append(handle_id)
-
-                shutdown_requested = self._shutdown_event.is_set()
-                status: dict[str, object] = {}
-                if not shutdown_requested:
-                    game_wire_id = (
-                        f"{self.prepared.scenario.scenario_id}:"
-                        f"{self.prepared.scenario.candidate_id}:"
-                        f"{self.prepared.scenario.seed}"
-                    )
-                    player_count = self.prepared.scenario.player_count
-                    created = client.request(  # type: ignore[attr-defined]
-                        "create_full_game",
-                        {
-                            "game_id": game_wire_id,
-                            "deck_handles": handles,
-                            "seed": self.prepared.scenario.seed,
-                            "starting_player_seat": self.prepared.scenario.seed % player_count,
-                            "starting_life": 40,
-                            "human_seats": sorted(self.human_seats),
-                            "decision_timeout_seconds": self.decision_timeout_seconds,
-                        },
-                    )
-                    if created.get("evidence_class") != FULL_GAME_EVIDENCE_CLASS:
-                        raise FullGameConformanceError(
-                            "full-game creation returned unsafe evidence class"
-                        )
-                    if created.get("holdout_consumed") is not False:
-                        raise FullGameConformanceError(
-                            "technical conformance must not consume holdout"
-                        )
-
-                    if not self._shutdown_event.is_set():
-                        status = client.request("start_full_game")  # type: ignore[attr-defined]
-                        self._publish_status(status, client)
-                    shutdown_requested = self._shutdown_event.is_set()
-
-                decision_count = 0
-                while not shutdown_requested and not self._shutdown_event.is_set():
-                    failure = status.get("failure")
-                    if isinstance(failure, dict):
-                        raise FullGameConformanceError("XMage full-game engine failed")
-                    decision = status.get("decision")
-                    if isinstance(decision, dict):
-                        decision_count += 1
-                        if decision_count > self.max_decisions:
-                            raise FullGameProtocolError(
-                                f"full-game exceeded max_decisions={self.max_decisions}",
-                                code="ENGINE_FAILURE",
-                            )
-                        seat = decision.get("seat")
-                        if type(seat) is int and seat in self.human_seats:
-                            # Park on command queue until human answers, concedes, or shuts down.
-                            while True:
-                                try:
-                                    cmd = self._commands.get(timeout=_PARK_POLL_SECONDS)
-                                except queue.Empty:
-                                    self._raise_if_bridge_gone(client)
-                                    continue
-                                if cmd.kind == "shutdown":
-                                    shutdown_requested = True
-                                    cmd.resolve({"shut_down": True})
-                                    break
-                                if cmd.kind == "concede":
-                                    status = self._run_concede_command(client, cmd, status)
-                                    if cmd.error is None:
-                                        break
-                                    continue
-                                if cmd.kind == "decision":
-                                    response_payload = cmd.payload
-                                    if not isinstance(response_payload, Mapping):
-                                        cmd.reject(ValueError("response payload must be a dict"))
-                                        continue
-                                    try:
-                                        next_status = client.request(  # type: ignore[attr-defined]
-                                            "submit_full_game_decision",
-                                            {"response": dict(response_payload)},
-                                        )
-                                    except FullGameProtocolError as exc:
-                                        retryable = (
-                                            exc.code == "BRIDGE_ERROR"
-                                            and getattr(client, "_transport_failure", None) is None
-                                            and not _is_terminal_bridge_error(exc)
-                                        )
-                                        if not retryable:
-                                            cmd.reject(exc)
-                                            raise
-                                        kind, found = self._probe_after_rejection(client)
-                                        if kind == "same":
-                                            cmd.reject(ValueError(str(exc)))
-                                            continue
-                                        if isinstance(found, FullGameProtocolError):
-                                            cmd.reject(found)
-                                            raise found from None
-                                        if isinstance(found, dict):
-                                            # the game ended or moved on: carry on from that status
-                                            status = found
-                                            self._publish_status(status, client)
-                                        cmd.reject(ValueError("Entscheidung ist veraltet"))
-                                        break
-                                    self._record_decision(decision, response_payload)
-                                    status = next_status
-                                    self._publish_status(status, client)
-                                    cmd.resolve({"accepted": True})
-                                    break
-                            continue
-
-                        # AI seat: choose first so only visible steps pause (#1592), while still
-                        # allowing responsive concede/shutdown commands on every step.
-                        response = policy.decide(decision)
-                        pause = should_pause_for_ai_step(decision, response)
-                        ai_cmd = self._wait_ai_delay(pause=pause)
-                        if ai_cmd is not None:
-                            if ai_cmd.kind == "shutdown":
-                                shutdown_requested = True
-                                ai_cmd.resolve({"shut_down": True})
-                                break
-                            if ai_cmd.kind == "concede":
-                                status = self._run_concede_command(client, ai_cmd, status)
-                                continue
-                            ai_cmd.reject(ValueError("no human decision currently pending"))
-                        next_status = client.request(  # type: ignore[attr-defined]
-                            "submit_full_game_decision",
-                            {"response": response},
-                        )
-                        self._record_decision(decision, response)
-                        status = next_status
-                        self._publish_status(status, client)
-                        continue
-
-                    if bool(status.get("terminal")):
-                        break
-                    status = client.request("get_full_game_decision")  # type: ignore[attr-defined]
-                    self._publish_status(status, client)
-
-                if shutdown_requested or self._shutdown_event.is_set():
-                    outcome = FullGameConformanceError("Spiel durch Benutzer beendet")
-                else:
-                    raw_result = client.request("get_full_game_result")  # type: ignore[attr-defined]
-                    with contextlib.suppress(Exception):
-                        raw_log = client.request("export_event_log")  # type: ignore[attr-defined]
-                        if isinstance(raw_log, dict):
-                            self._recorder.save_event_log(raw_log.get("events"))
-                    outcome = XmageFullGameRunner._build_result(
+                self._active_bridge = bridge
+            match: FullGameMatch | None = None
+            raw_result = None
+            with bridge:
+                try:
+                    match = bridge.create_game(
                         self.prepared.scenario,
-                        provider,
-                        raw_result,
-                        shutdown_disposition="graceful_shutdown",
+                        self.prepared.decks,
+                        policy,
+                        human_seats=sorted(self.human_seats),
+                        decision_timeout_seconds=self.decision_timeout_seconds,
+                        should_stop=self._shutdown_event.is_set,
                     )
+                except FullGameCancelled:
+                    match = None
+                if match is not None and not self._play(bridge, match, policy):
+                    raw_result = match.result()
+                    with contextlib.suppress(Exception):
+                        self._recorder.save_event_log(list(match.events(0).events))
+            # the result rests on how the bridge process really ended (the session is closed now)
+            if match is None or raw_result is None:
+                outcome = FullGameConformanceError("Spiel durch Benutzer beendet")
+            else:
+                outcome = match.conformance_result(raw_result)
         except Exception as exc:
             outcome = exc
         finally:
             with self._lock:
-                self._active_client = None
+                self._active_bridge = None
                 discard_on_exit = self._discard_on_exit
             if discard_on_exit:
                 with contextlib.suppress(Exception):
@@ -1235,13 +1215,10 @@ class InteractiveGameSession:
             self._commands.put(cmd)
             if not cmd.done.wait(timeout=3.0 if discard else 10.0):
                 with self._lock:
-                    active_client = self._active_client
-                proc = (
-                    getattr(active_client, "_process", None) if active_client is not None else None
-                )
-                if proc is not None:
+                    active_bridge = self._active_bridge
+                if active_bridge is not None:
                     with contextlib.suppress(Exception):
-                        proc.kill()
+                        active_bridge.kill()
             self._thread.join(timeout=5.0)
         if discard:
             with contextlib.suppress(Exception):
@@ -1273,7 +1250,7 @@ class InteractivePlayManager:
         style: float | None = None,
         seat_styles: Mapping[int, float] | None = None,
         max_decisions: int = 50_000,
-        client_factory: Callable[..., object] | None = None,
+        client_factory: Callable[..., FullGameBridgeClient] | None = None,
     ) -> dict[str, object]:
         if int(decision_timeout_seconds) != HUMAN_SEAT_TIMEOUT_SECONDS:
             raise ValueError(_HUMAN_TIMEOUT_MESSAGE)

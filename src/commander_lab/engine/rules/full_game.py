@@ -16,7 +16,7 @@ import time
 import uuid
 import weakref
 from collections import Counter, deque
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, TextIO, TypedDict, cast
@@ -80,6 +80,11 @@ from .wire_types import (
     SemanticTranscript,
     StartEngineWire,
 )
+
+
+class FullGameCancelled(FullGameConformanceError):
+    """The caller stopped a game before it was created (``should_stop`` of ``create_game``)."""
+
 
 ClaimEvidenceStatus = Literal[
     "OBSERVED",
@@ -614,6 +619,18 @@ class _RawFullGameClient:
     def transport_failure(self) -> str | None:
         """The code that made this channel unusable, or None while it is usable."""
         return self._transport_failure
+
+    def process_exited(self) -> bool:
+        """True once a started bridge process has exited (False before start and after close)."""
+        process = self._process
+        return process is not None and process.poll() is not None
+
+    def kill(self) -> None:
+        """Kill a running bridge process at once (no shutdown handshake); a blocked request on
+        another thread then fails and its owner closes the client."""
+        process = self._process
+        if process is not None:
+            process.kill()
 
     def _transport_error(self, code: str, message: str) -> FullGameProtocolError:
         """A transport failure whose stderr stays in memory only (C4)."""
@@ -1199,6 +1216,12 @@ def _validate_deck_construction(deck: RulesDeckInput) -> None:
             )
 
 
+#: The public name of the bridge client type (annotations of runner hooks outside this module).
+FullGameBridgeClient = _RawFullGameClient
+#: The runner's deck construction gate, public for a check without a game (Studio draft check).
+validate_deck_construction = _validate_deck_construction
+
+
 class XmageFullGameRunner:
     """Run one isolated 2..6-player XMage Commander game with Commander Lab pilot policy."""
 
@@ -1510,9 +1533,14 @@ class XmageFullGameRunner:
         """Validate one game's inputs and return the pilots' policy for it (no engine yet)."""
         return self._validated_policy(scenario, decks, pilots)
 
-    def open_session(self) -> FullGameBridgeSession:
-        """A bridge process for one or more games, not started yet (``start`` or ``with``)."""
-        return FullGameBridgeSession(self)
+    def open_session(
+        self, *, client_factory: Callable[..., FullGameBridgeClient] | None = None
+    ) -> FullGameBridgeSession:
+        """A bridge process for one or more games, not started yet (``start`` or ``with``).
+
+        ``client_factory`` builds the client in place of the module's own (same arguments);
+        with a factory the runner needs no command of its own (a test double)."""
+        return FullGameBridgeSession(self, client_factory=client_factory)
 
     @staticmethod
     def validate_handshake(
@@ -1573,7 +1601,16 @@ class XmageFullGameRunner:
         client: _RawFullGameClient,
         scenario: FutureXmageScenario,
         decks: tuple[RulesDeckInput, ...],
+        *,
+        human_seats: Sequence[int] = (),
+        decision_timeout_seconds: int | None = None,
+        should_stop: Callable[[], bool] | None = None,
     ) -> ProviderIdentityWire:
+        """Enter the lane, check the handshake, import the decks and create the game.
+
+        ``human_seats`` and ``decision_timeout_seconds`` go into ``create_full_game`` only when
+        given (a game with seats answered from outside, PLAY); ``should_stop`` is asked before
+        each deck import and before the game is created and raises ``FullGameCancelled``."""
         started = cast(StartEngineWire, client.request("start_engine"))
         if started.get("lane") != FULL_GAME_LANE:
             raise FullGameConformanceError("bridge did not enter explicit full-game lane")
@@ -1583,6 +1620,8 @@ class XmageFullGameRunner:
 
         handles: list[str] = []
         for deck in decks:
+            if should_stop is not None and should_stop():
+                raise FullGameCancelled("full game cancelled before it was created")
             imported = client.request("import_deck", {"deck": self._deck_payload(deck)})
             handle = imported.get("deck_handle")
             if not isinstance(handle, dict):
@@ -1591,19 +1630,23 @@ class XmageFullGameRunner:
             if not handle_id:
                 raise FullGameConformanceError("IMPORT_DECK returned blank handle_id")
             handles.append(handle_id)
+        if should_stop is not None and should_stop():
+            raise FullGameCancelled("full game cancelled before it was created")
 
         game_id = f"{scenario.scenario_id}:{scenario.candidate_id}:{scenario.seed}"
         player_count = scenario.player_count
-        created = client.request(
-            "create_full_game",
-            {
-                "game_id": game_id,
-                "deck_handles": handles,
-                "seed": scenario.seed,
-                "starting_player_seat": scenario.seed % player_count,
-                "starting_life": 40,
-            },
-        )
+        create_payload: dict[str, object] = {
+            "game_id": game_id,
+            "deck_handles": handles,
+            "seed": scenario.seed,
+            "starting_player_seat": scenario.seed % player_count,
+            "starting_life": 40,
+        }
+        if human_seats:
+            create_payload["human_seats"] = sorted({int(seat) for seat in human_seats})
+        if decision_timeout_seconds is not None:
+            create_payload["decision_timeout_seconds"] = int(decision_timeout_seconds)
+        created = client.request("create_full_game", create_payload)
         if created.get("player_count") != player_count or created.get("seed") != scenario.seed:
             raise FullGameConformanceError(
                 "full-game creation did not preserve player-count/seed contract"
@@ -2111,12 +2154,17 @@ class FullGameMatch:
     ) -> dict[str, object]:
         return self._session.client.request(message_type, payload)
 
-    def _audited(self, status: dict[str, object]) -> dict[str, object]:
+    def _audited(
+        self, status: dict[str, object], *, raise_on_failure: bool = True
+    ) -> dict[str, object]:
         """The status after the checks of the runner's drive loop: an engine failure raises
         (redacted, as in ``drive``); a decision frame is audited every time it is delivered and
-        counted once per ``decision_id`` (reading the same open decision again adds nothing)."""
+        counted once per ``decision_id`` (reading the same open decision again adds nothing).
+
+        With ``raise_on_failure`` false a failure status is handed back for the caller's own
+        failure handling (PLAY); the audit of a decision frame applies either way."""
         failure = status.get("failure")
-        if isinstance(failure, dict):
+        if raise_on_failure and isinstance(failure, dict):
             raw_failure = json.dumps(failure, sort_keys=True)
             raise FullGameConformanceError(
                 "XMage full-game engine failed: "
@@ -2133,18 +2181,25 @@ class FullGameMatch:
                 self._counted_decisions.add(decision_id)
         return status
 
-    def start(self) -> dict[str, object]:
+    def start(self, *, raise_on_failure: bool = True) -> dict[str, object]:
         """Start play; the status with the first open decision (or terminal), audited."""
         self._mark_started()
-        return self._audited(self._request("start_full_game"))
+        return self._audited(self._request("start_full_game"), raise_on_failure=raise_on_failure)
 
-    def next_decision(self) -> dict[str, object]:
+    def next_decision(self, *, raise_on_failure: bool = True) -> dict[str, object]:
         """The current status: the open decision (audited), terminal or failure."""
-        return self._audited(self._request("get_full_game_decision"))
+        return self._audited(
+            self._request("get_full_game_decision"), raise_on_failure=raise_on_failure
+        )
 
-    def answer(self, response: dict[str, object]) -> dict[str, object]:
+    def answer(
+        self, response: dict[str, object], *, raise_on_failure: bool = True
+    ) -> dict[str, object]:
         """Submit the answer to the open decision; the status after it, audited."""
-        return self._audited(self._request("submit_full_game_decision", {"response": response}))
+        return self._audited(
+            self._request("submit_full_game_decision", {"response": response}),
+            raise_on_failure=raise_on_failure,
+        )
 
     def events(self, offset: int = 0) -> FullGameEventPage:
         """The engine's public event log after its first ``offset`` events.
@@ -2173,12 +2228,13 @@ class FullGameMatch:
         """Whether the engine lets ``player_id`` concede now."""
         return self._request("get_concede_offer", {"player_id": player_id})
 
-    def concede(self, player_id: str) -> dict[str, object]:
+    def concede(self, player_id: str, *, raise_on_failure: bool = True) -> dict[str, object]:
         """Concede for ``player_id``; the status after it (the next open decision), audited."""
         return self._audited(
             self._request(
                 "submit_concede", {"proposal": {"actor_id": player_id, "player_id": player_id}}
-            )
+            ),
+            raise_on_failure=raise_on_failure,
         )
 
     def result(self) -> FullGameResultWire:
@@ -2209,25 +2265,53 @@ class FullGameBridgeSession:
     card repository). It speaks to one caller thread at a time.
     """
 
-    def __init__(self, runner: XmageFullGameRunner) -> None:
+    def __init__(
+        self,
+        runner: XmageFullGameRunner,
+        *,
+        client_factory: Callable[..., FullGameBridgeClient] | None = None,
+    ) -> None:
         command = runner.command
-        if command is None:
-            raise FullGameConformanceError("full-game bridge is not configured")
         self.runner = runner
-        # looked up at call time, so a test double of the module's client takes effect
-        self.client = _RawFullGameClient(
-            command,
-            cwd=runner.cwd,
-            request_timeout_seconds=runner.request_timeout_seconds,
-            private_card_repository=runner.private_card_repository,
-            shutdown_grace_seconds=runner.shutdown_grace_seconds,
-        )
+        if client_factory is not None:
+            self.client = client_factory(
+                command,
+                cwd=runner.cwd,
+                request_timeout_seconds=runner.request_timeout_seconds,
+                private_card_repository=runner.private_card_repository,
+                shutdown_grace_seconds=runner.shutdown_grace_seconds,
+            )
+        elif command is None:
+            raise FullGameConformanceError("full-game bridge is not configured")
+        else:
+            # looked up at call time, so a test double of the module's client takes effect
+            self.client = _RawFullGameClient(
+                command,
+                cwd=runner.cwd,
+                request_timeout_seconds=runner.request_timeout_seconds,
+                private_card_repository=runner.private_card_repository,
+                shutdown_grace_seconds=runner.shutdown_grace_seconds,
+            )
 
     @property
     def shutdown_disposition(self) -> str | None:
         """How the process ended (``graceful_shutdown``, ``forced_kill``, ...); ``None`` while
         it runs."""
         return self.client.shutdown_disposition
+
+    @property
+    def transport_failure(self) -> str | None:
+        """The code that made the channel unusable (timeout, broken pipe, ...), or ``None``."""
+        return self.client.transport_failure
+
+    def bridge_gone(self) -> bool:
+        """True when the channel is unusable or the started process has exited."""
+        return self.client.transport_failure is not None or self.client.process_exited()
+
+    def kill(self) -> None:
+        """Kill the process at once (a caller stuck in a request on another thread then fails
+        and closes the session)."""
+        self.client.kill()
 
     def start(self) -> None:
         """Start the bridge process."""
@@ -2238,10 +2322,31 @@ class FullGameBridgeSession:
         scenario: FutureXmageScenario,
         decks: tuple[RulesDeckInput, ...],
         policy: ExternalPilotDecisionPolicy,
+        *,
+        human_seats: Sequence[int] = (),
+        decision_timeout_seconds: int | None = None,
+        should_stop: Callable[[], bool] | None = None,
     ) -> FullGameMatch:
         """Enter the full-game lane, check the handshake, import the decks and create the game
-        of ``scenario`` (``policy`` from :meth:`XmageFullGameRunner.decision_policy`)."""
-        provider = self.runner._open_game(self.client, scenario, decks)
+        of ``scenario`` (``policy`` from :meth:`XmageFullGameRunner.decision_policy`).
+
+        ``human_seats``: seats whose decisions come from outside (the engine waits for them,
+        ``decision_timeout_seconds`` long, 0 = unlimited); both are sent only when given.
+        ``should_stop`` is asked between the deck imports; ``True`` raises
+        ``FullGameCancelled`` before the game exists."""
+        if human_seats or decision_timeout_seconds is not None or should_stop is not None:
+            provider = self.runner._open_game(
+                self.client,
+                scenario,
+                decks,
+                human_seats=human_seats,
+                decision_timeout_seconds=decision_timeout_seconds,
+                should_stop=should_stop,
+            )
+        else:
+            # without options the hook is called as before (a runner hook with the old
+            # signature, e.g. a test double, keeps working)
+            provider = self.runner._open_game(self.client, scenario, decks)
         return FullGameMatch(self, scenario, policy, provider)
 
     def close(self) -> str:
@@ -2270,7 +2375,9 @@ __all__ = [
     "FULL_GAME_STARTUP_BACKOFF_SECONDS",
     "XMAGE_FULL_GAME_COMMAND_ENV",
     "ExternalPilotDecisionPolicy",
+    "FullGameBridgeClient",
     "FullGameBridgeSession",
+    "FullGameCancelled",
     "FullGameConformanceError",
     "FullGameConformanceResult",
     "FullGameEventPage",
@@ -2279,6 +2386,7 @@ __all__ = [
     "FullGameProtocolError",
     "FullGameReplayGate",
     "FullGameSemanticTapeEvidence",
+    "ProgressEntry",
     "XmageFullGameRunner",
     "_RuntimePilot",
     "full_game_protocol_id",
@@ -2286,4 +2394,5 @@ __all__ = [
     "mana_payment_fit",
     "public_error",
     "public_full_game_errors",
+    "validate_deck_construction",
 ]

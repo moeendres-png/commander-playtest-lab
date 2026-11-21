@@ -37,7 +37,7 @@ const state = {
   pool: [], byId: new Map(), cohorts: {}, small: 30, commanderIds: [],
   universe: "", universeInfo: null, countedUniverse: null, gcBand: "", gcBandData: null,
   decks: [], deckId: null, branch: "main", baseRevision: null,
-  list: new Map(), dirty: false, draftUpdatedAt: "", draftConflict: false, needsDraftPut: false, issues: [], shape: null, deckRoles: {}, combos: null, roles: [], shapes: [],
+  list: new Map(), dirty: false, draftUpdatedAt: "", draftConflict: false, baseStale: false, needsDraftPut: false, issues: [], shape: null, deckRoles: {}, combos: null, roles: [], shapes: [],
   simulations: [], diffBaseRev: null, diffData: null, deckFacts: null, castability: null, activeBatch: null, batchPollTimer: null,
   activePaired: null, pairedPollTimer: null, pairedHistory: [], readinessAudit: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
@@ -427,11 +427,21 @@ function entries() {
 let saveTimer = 0;
 function renderSaveState() {
   const box = $("save-state");
+  // B2b (#1658): the saved state under this draft moved (an adoption): saving is refused until
+  // the draft is discarded and the current state loaded; the notice stays until then.
+  if (state.baseStale) {
+    box.replaceChildren(
+      h("span", { class: "pill bad" }, "Entwurf ist veraltet: der Stand darunter wurde inzwischen geändert, neu laden"),
+      " ",
+      h("button", { type: "button", class: "small", onclick: () => discardStaleDraft().catch((error) => fail(error)) }, "Entwurf verwerfen und aktuellen Stand laden"),
+    );
+    return;
+  }
   if (state.draftConflict) {
     box.replaceChildren(
       h("span", { class: "pill bad" }, "Konflikt: Entwurf in anderem Tab geändert"),
       " ",
-      h("button", { type: "button", class: "small", onclick: () => loadBranch().catch((error) => fail(error)) }, "Aktuellen Stand laden"),
+      h("button", { type: "button", class: "small", onclick: () => loadDecks().then(loadBranch).catch((error) => fail(error)) }, "Aktuellen Stand laden"),
     );
     return;
   }
@@ -2953,10 +2963,23 @@ function useCards(cards) {
   // instead of dropping it silently (#1648).
   if (dropped) toast(`${StudioUI.num(dropped, 0)} von ${StudioUI.num(mainEntries, 0)} Karten sind nicht im Pool (Sammlung oder Zukauf-Auswahl) und wurden nicht übernommen.`);
 }
+let discardingStaleDraft = false;
+async function discardStaleDraft() {
+  if (discardingStaleDraft) return; // one DELETE per click series
+  discardingStaleDraft = true;
+  try {
+    await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "DELETE");
+    await loadDecks();
+    await loadBranch();
+  } finally {
+    discardingStaleDraft = false;
+  }
+}
 async function loadBranch() {
   const deck = state.decks.find((item) => item.deck_id === state.deckId);
   const branch = deck.branches.find((item) => item.branch === state.branch);
   state.baseRevision = branch.revision_id;
+  state.baseStale = false;
   state.diffBaseRev = null;
   rememberVariant();
   const [revision, draft] = await Promise.all([
@@ -2967,6 +2990,12 @@ async function loadBranch() {
   state.draftConflict = false;
   state.needsDraftPut = false;
   if (draft.draft) {
+    // a draft written on another saved state (main moved by an adoption) keeps its own base:
+    // saving it would put that old base back, so it is named stale and saving is refused
+    if (draft.draft.base_revision_id && draft.draft.base_revision_id !== branch.revision_id) {
+      state.baseRevision = draft.draft.base_revision_id;
+      state.baseStale = true;
+    }
     state.draftUpdatedAt = draft.draft.updated_at || "";
     await ensureUnownedLoadedFor(draft.draft.cards);
     useCards(draft.draft.cards); state.dirty = true;
@@ -2978,12 +3007,33 @@ async function loadBranch() {
   renderSaveState();
   renderAll(); await syncDraft();
 }
+// The saved state of `branch` now, from the server; null when the branch does not exist yet.
+async function currentBranchRevision(branch) {
+  const fresh = await api("/api/decks");
+  const deck = fresh.find((item) => item.deck_id === state.deckId);
+  const row = deck && (deck.branches || []).find((item) => item.branch === branch);
+  return row ? row.revision_id : null;
+}
 async function commitRevision(branch = state.branch, note = "") {
   const seq = state.changeSeq;
   try {
+    // never overwrite an existing branch silently (B2b, #1658): the target branch is read
+    // fresh; it must not exist, or be this tab's branch still standing on this draft's base.
+    // A new variant may start from an old base (the work of a stale draft can be saved there).
+    const current = await currentBranchRevision(branch);
+    if (current !== null && branch !== state.branch) {
+      toast(`Variante „${branch}“ gibt es schon: nichts gespeichert, bitte einen anderen Namen wählen.`);
+      return;
+    }
+    if (current !== null && current !== state.baseRevision) {
+      state.baseStale = true;
+      renderSaveState();
+      toast("Entwurf ist veraltet, neu laden: der Stand darunter wurde inzwischen geändert. Nichts gespeichert.");
+      return;
+    }
     const result = await api(`/api/decks/${encodeURIComponent(state.deckId)}/revisions`, "POST", { cards: entries(), branch, note, parent_revision_id: state.baseRevision });
     if (branch !== state.branch) await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "DELETE");
-    state.branch = branch; state.baseRevision = result.revision_id; state.dirty = state.changeSeq !== seq; state.savedSeq = Math.max(state.savedSeq, seq);
+    state.branch = branch; state.baseRevision = result.revision_id; state.baseStale = false; state.dirty = state.changeSeq !== seq; state.savedSeq = Math.max(state.savedSeq, seq);
     state.draftUpdatedAt = ""; state.draftConflict = false; state.needsDraftPut = state.dirty;
     rememberVariant();
     await loadDecks(); renderHeader(); renderSaveState(); toast("Stand gespeichert.");
@@ -3030,12 +3080,30 @@ async function showHistory() {
           h("button", { type: "button", class: "small", onclick: async () => { const revision = await api(`/api/revisions/${encodeURIComponent(row.revision_id)}`); await ensureUnownedLoadedFor(revision.cards); useCards(revision.cards); closeModal(); changed(); toast("Alter Stand geladen. Er wird erst mit Speichern zum aktuellen Stand."); } }, "Laden"),
           h("button", { type: "button", class: "small", onclick: () => { state.diffBaseRev = row.revision_id; state.tab = "diff"; closeModal(); renderDeck(); } }, "Vergleichen")))))))),
     h("div", { id: "deck-series-slot" }),
+    h("div", { id: "experiment-slot" }),
     h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen")));
   $("modal").hidden = false;
   if (typeof renderDeckSeries === "function") {
     box.className = "plain wide";
     renderDeckSeries($("deck-series-slot"), rows, { h, api, deckId: state.deckId, open: openSeriesFromHistory });
   }
+  if (typeof renderExperiments === "function") {
+    renderExperiments($("experiment-slot"), rows, {
+      h, api, deckId: state.deckId, onDecided: afterExperimentDecision,
+      localMainDraft: () => state.branch === "main" && (state.dirty || state.baseStale),
+    });
+  }
+}
+// B2b (#1658): after an explicit decision the view reads everything again. An adoption moves
+// main on the server; a clean editor on main loads it, a draft is kept and named as outdated.
+async function afterExperimentDecision(decision) {
+  if (decision !== "adopted") { await showHistory(); return; }
+  closeModal();
+  await loadDecks();
+  if (state.branch !== "main") { toast("Variante übernommen: main zeigt jetzt den Variantenstand."); return; }
+  if (state.dirty) { state.baseStale = true; renderSaveState(); return; }
+  await loadBranch();
+  toast("Variante übernommen: main zeigt jetzt den Variantenstand.");
 }
 async function openSeriesFromHistory(seriesId) {
   state.activePaired = await api(`/api/simulations/paired/${encodeURIComponent(seriesId)}`);
