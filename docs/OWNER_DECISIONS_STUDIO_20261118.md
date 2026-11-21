@@ -184,8 +184,8 @@ und ohne Änderung an einem Piloten aus dem Audit heraus ohne eigenen gepaarten 
 ### E4 (O6): Abnahme-Definition PLAY
 
 Angenommen ist die Abnahme-Definition AK-1 bis AK-8 (Optionspapier §C.2). Sie schärft den Satz aus
-`docs/STUDIO_ROADMAP_20261112.md`: Der Owner spielt eine ganze Partie mit Chulane gegen drei
-KI-Sitze am eigenen Rechner ohne Zeitlimit.
+`STUDIO_ROADMAP_20261112.md` (seit 2026-11-21 archiviert): Der Owner spielt eine ganze Partie mit
+Chulane gegen drei KI-Sitze am eigenen Rechner ohne Zeitlimit.
 
 | # | Kriterium | Messung |
 |---|---|---|

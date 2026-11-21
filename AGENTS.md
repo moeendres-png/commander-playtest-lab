@@ -17,14 +17,14 @@ plays real 100-card Commander decks rules-correctly, so simulated games can stan
   to four seats are active, five and six are not released (own qualification and the Owner's
   release).
 - The simulator is one part of the local Commander Studio (BUILD, PLAY, SIMULATE):
-  `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`. Before any Studio work read first
-  the charter `docs/STUDIO_CHARTA_V2.md` (the Owner accepted only its §5, Q1 to Q11; the rest is
-  the Lead's planning) with the decision register `docs/OWNER_DECISIONS_STUDIO_20261118.md`
-  (Owner decision of 2026-11-20, E15 Q10). The binding scope stays `docs/STUDIO_SCOPE.md`; the
-  older Owner decisions are in `docs/OWNER_DECISIONS_STUDIO_20261112.md` and
-  `docs/STUDIO_PLAN_SIMULATOR.md` (also the reference set of the Studio bridge gate, §10). Binding in
-  short: only objective data with provenance; every count with its denominator; cohorts never
-  added; source data bound to one commander; no guessed tier. Since the Owner decision of
+  `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`. Required reading before any Studio
+  work is the charter `docs/STUDIO_CHARTA_V2.md` (the Owner accepted only its §5, Q1 to Q11; the
+  rest is the Lead's planning) with the decision register `docs/OWNER_DECISIONS_STUDIO_20261118.md`
+  and its older part `docs/OWNER_DECISIONS_STUDIO_20261112.md` (Owner decisions of 2026-11-20,
+  E15 Q10, and of 2026-11-21, answer 8a). The former scope, simulator plan and roadmap are
+  archived (`docs/README.md`); the rules from them that still bind are in the register, section 6.
+  Binding in short: only objective data with provenance; every count with its denominator; cohorts
+  never added; source data bound to one commander; no guessed tier. Since the Owner decision of
   2026-11-20 (`docs/OWNER_DECISIONS_STUDIO_20261118.md` E15 Q1) the tier list is the usage view
   with one tier scale (the second scale was removed with #1701, #1680); the
   generated overall rating, the rating layers, the tournament-conversion component, the rubric-v1
@@ -32,11 +32,10 @@ plays real 100-card Commander decks rules-correctly, so simulated games can stan
   model judgement is "Kartenverständnis (Modellurteil)" (rubric v2, class URTEIL), for Chulane
   only (code state: not sortable, no tier, no rank, not part of the index). The Owner's marks (favorites, exclusions,
   notes) never count as a rating. Simulation results never enter the tier list as a weight; they
-  appear as evidence with maturity R0-R3 in the deck builder (package Q1-c, #1666). Package 1
-  (#1717) shows the maturity per stored paired series in the deck's series history; at most R1
-  is reachable, because the Studio records no controls, card competence check, pilot audit or
-  Owner acceptance for R2/R3 yet, and evidence in the diff and the cut/swap column is still
-  open. The `SIMULATED_RESULT` rules stay.
+  appear as evidence with maturity R0-R3 in the deck builder (package Q1-c, #1666, built in
+  several packages; which parts are done is recorded in #1666 and the register). Only R1 is
+  reachable while the Studio records no controls, card competence check, pilot audit or Owner
+  acceptance for R2/R3. The `SIMULATED_RESULT` rules stay.
 - Chulane, Teller of Tales is the only active owner deck for optimization
   (`docs/OWNER_DECK_FOCUS_CURRENT.md`). RogShai data is historical and regression data only.
 
@@ -208,7 +207,8 @@ explicitly launched Coordinator session, holds the project's maximum delegated d
 MTG Rules adjudication; evidence promotion, research and data integration, and evidence-policy
 decisions; qualification design and Studio bridge-gate adjudication; gate decisions and
 `AUTHORITY_GATE` resolution; shared architecture; S3 dead-code/doc cleanup (including the
-`pyproject.toml` console scripts under `docs/STUDIO_PLAN_SIMULATOR.md` D5); Studio database, storage
+`pyproject.toml` console scripts under D5 of the Studio simulator plan, carried into
+`docs/OWNER_DECISIONS_STUDIO_20261118.md` section 6, R16); Studio database, storage
 and UI optimization; Studio product and calibration decisions within approved scope (tier cuts,
 signal choices, weights, derived local cohorts, coverage refreshes); cross-workstream integration,
 takeover and continuation of handed-over or completed PRs and issues, and closing or deferring
@@ -347,7 +347,7 @@ weight table.
 
 A change under `engine-bridge/` made for the Studio (speed, the human seat, an engine look-ahead for
 pilots) merges without a new sealed qualification epoch when all of this holds (reference set and
-commands: `docs/STUDIO_PLAN_SIMULATOR.md`, `docs/STUDIO_BRIDGE_GATE_TOOLING.md`):
+commands: `docs/STUDIO_BRIDGE_GATE_TOOLING.md`):
 
 - **Declared kind:** `NEUTRAL` (every game unchanged) or `BEHAVIOUR` (play changes). BEFORE is the
   bridge at the merge base, AFTER the exact PR head, same pin, different jar digests.
@@ -391,8 +391,9 @@ merged only after Lead adjudication, the required checks and a recorded fresh-co
 When another agent's work is needed, comment on its pull request or open an issue. Issue references
 follow §10 (`Refs #N`). Reason: on 2026-11-14 unfinished branches were copied and merged before
 their review ended, and content a review had rejected reached `main`. How Studio work is claimed,
-split and reviewed: `docs/STUDIO_SCOPE.md`, section "Abarbeitung (für alle Agents)". Where a new
-agent starts and which files several lanes share: `docs/STUDIO_AGENT_ONBOARDING.md`.
+split and reviewed: `docs/OWNER_DECISIONS_STUDIO_20261118.md`, section 6.7 "Abarbeitung (für alle
+Agents)". Where a new agent starts and which files several lanes share:
+`docs/STUDIO_AGENT_ONBOARDING.md`.
 
 **Claims.** Every agent, the Development Lead and a Coordinator included, claims its work before
 it starts (Owner instruction of 2026-11-18 to avoid duplicate work,

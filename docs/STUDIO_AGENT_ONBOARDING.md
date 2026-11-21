@@ -1,7 +1,7 @@
 # Commander Studio: Einstieg für einen weiteren Agenten
 
 Diese Seite wiederholt keine Regel, sie sagt, wo die Regeln stehen und wie man hier anfängt. Bei
-Widerspruch gilt `AGENTS.md`, dann `docs/STUDIO_SCOPE.md`. Grundlage: Owner-Aussage vom 2026-11-18,
+Widerspruch gilt `AGENTS.md`, dann das Entscheid-Register `docs/OWNER_DECISIONS_STUDIO_20261118.md`. Grundlage: Owner-Aussage vom 2026-11-18,
 die Dateien so anzupassen, dass ein weiterer Agent weiß, wie abgearbeitet wird
 (`docs/OWNER_DECISIONS_STUDIO_20261118.md`, Abschnitt 1).
 
@@ -9,11 +9,11 @@ die Dateien so anzupassen, dass ein weiterer Agent weiß, wie abgearbeitet wird
 
 1. `AGENTS.md` (ganz).
 2. `docs/STUDIO_CHARTA_V2.md` (vom Owner angenommen ist nur §5, Q1 bis Q11) mit dem
-   Entscheid-Register `docs/OWNER_DECISIONS_STUDIO_20261118.md` (E15 Q10), dann
-   `docs/OWNER_DECISIONS_STUDIO_20261112.md`.
-3. `docs/STUDIO_SCOPE.md` (verbindlicher Scope), darin „Feste Regeln“, „Phasenplan S0 bis S6“ und
-   „Abarbeitung (für alle Agents)“.
-4. Das eigene Issue und die Claim-Tabelle im Übersichts-Issue #1167.
+   Entscheid-Register `docs/OWNER_DECISIONS_STUDIO_20261118.md` und seinem älteren Teil
+   `docs/OWNER_DECISIONS_STUDIO_20261112.md` (Pflichtlektüre nach E15 Q10 und der Owner-Antwort 8a
+   vom 2026-11-21). Im Register besonders Abschnitt 6: die aus dem archivierten Scope, Plan und der
+   Roadmap übernommenen Regeln, darin 6.7 „Abarbeitung (für alle Agents)“.
+3. Das eigene Issue und die Claim-Tabelle im Übersichts-Issue #1167.
 
 ## 2. Anfangen
 
@@ -45,7 +45,7 @@ der eigenen Fläche sind nur lesbar. Pfade unter `studio/` meinen `src/commander
 | Betrieb | `studio/doctor.py`; `scripts/studio_start.*`, `scripts/provision_engine_bridge.py`; `docs/STUDIO_OWNER_PC_SETUP.md` |
 | Gate-Werkzeuge und CI | `scripts/benchmark_xmage_full_games.py`, `scripts/check_studio_series_identity.py`, `.github/workflows/**` (MATERIAL; Pflicht-Checks und Gate-Definitionen ändert nur der Owner, `AGENTS.md` §10) |
 | Bridge | `engine-bridge/**` (Studio-Bridge-Gate, `AGENTS.md` §10) |
-| Governance | `AGENTS.md`, `CLAUDE.md`, `docs/STUDIO_SCOPE.md`, `docs/OWNER_DECISIONS_*`, `.claude/**`, `.github/copilot-instructions.md`, `.github/pull_request_template.md` |
+| Governance | `AGENTS.md`, `CLAUDE.md`, `docs/STUDIO_CHARTA_V2.md`, `docs/OWNER_DECISIONS_*`, `.claude/**`, `.github/copilot-instructions.md`, `.github/pull_request_template.md` |
 
 **Kollisionsdateien** (mehrere Flächen wollen hinein): `studio/web.py`, `studio/static/app.js`,
 `studio/static/partie.js`, `studio/static/tierliste.js`, `studio/__main__.py`, `studio/launch.py`,
@@ -65,9 +65,9 @@ Abhängigkeit · 5 und 6 Sitze freigeben · Sichtbarkeit, #1108 · Bezahldienste
 `simulation` anheben. Vollständige Liste: `AGENTS.md` §8.
 
 `AGENTS.md` und `CLAUDE.md` ändern Lead oder Coordinator nach `AGENTS.md` §8.
-`docs/STUDIO_SCOPE.md` und `docs/OWNER_DECISIONS_*` ändern sich inhaltlich nur auf
-Owner-Anweisung oder nach Owner-Freigabe einer vorgelegten Option; andere legen Option und
-Empfehlung vor (`docs/STUDIO_SCOPE.md`, Abarbeitung Punkt 5). Bei Unsicherheit wird mit dem Owner
+`docs/OWNER_DECISIONS_*` ändern sich inhaltlich nur auf Owner-Anweisung oder nach Owner-Freigabe
+einer vorgelegten Option; andere legen Option und Empfehlung vor (Entscheid-Register, Abschnitt
+6.7, R33). Bei Unsicherheit wird mit dem Owner
 geplant.
 
 ## 5. Prüfen vor dem Push
@@ -88,7 +88,7 @@ geplant.
 ## 6. Review und Merge
 
 - MATERIAL (Liste in `AGENTS.md` §10; dazu Texte der Oberfläche über Ratings oder
-  Simulationsergebnisse, `docs/STUDIO_SCOPE.md` Abarbeitung Punkt 4): zuerst ein Review aus
+  Simulationsergebnisse, Entscheid-Register Abschnitt 6.7, R32): zuerst ein Review aus
   frischem Kontext mit PASS als PR-Kommentar. Der Kommentar nennt die prüfende Sitzung neutral
   (ohne Personennamen), die exakte Head-SHA, die ausgeführten Befehle und das Urteil. Gemergt wird
   genau diese SHA. Klasse A (MATERIAL wegen einer Kategorie der Liste): Arbeiten zwei Agenten
