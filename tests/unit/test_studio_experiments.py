@@ -955,7 +955,8 @@ def test_read_routes_write_neither_the_store_nor_a_file(lab: dict[str, object]) 
     StudioStore.open(folder).close()  # the opening migration runs before the snapshot
     before = _tree(folder)
     db = folder / "studio.sqlite3"
-    db_bytes = db.read_bytes() if db.is_file() else None
+    assert db.is_file()
+    db_bytes = db.read_bytes()
     for url in (
         f"/api/experiments/{started['experiment_id']}",
         "/api/experiments/paired-4-1-legacy04",  # not indexed yet: 404, and nothing indexed
@@ -963,8 +964,7 @@ def test_read_routes_write_neither_the_store_nor_a_file(lab: dict[str, object]) 
     ):
         assert client.get(url, headers=HEADERS).status_code in (200, 404)
     assert _tree(folder) == before
-    if db_bytes is not None:
-        assert db.read_bytes() == db_bytes
+    assert db.read_bytes() == db_bytes
     assert {r["experiment_id"] for r in _index_rows(folder)} == {started["experiment_id"]}
 
 
