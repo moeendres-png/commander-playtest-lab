@@ -44,7 +44,7 @@ Q5 Sitze: Qualifikation 5/6 jetzt (F1–F8); die Freigabe selbst bleibt deine En
 Q6 Gegner: beliebige Studio-Deck-Stände als Gegner-Sitze (Chulane bleibt das einzige optimierte Deck); Korpus-Gegner in PLAY v1 später.
 Q7 PLAY: Zahlungs-Vorschlag aus dem Piloten-Planer, vom Menschen ausgelöst, nur angebotene Optionen, im Protokoll markiert (Auslegung `AGENTS.md` §2); Speichern/Fortsetzen zurückstellen; du spielst vor dem Bedienungs-Paket eine ganze Partie.
 Q8 Piloten: Vorausschau (S5) nicht als Serien-Pilot; Pilot-Änderungen nur mit gepaartem Nachweis; Pilot-Audit nach der ersten Nachtserie.
-Q9 Daten: Schema 22 als Dateischnitt (drei Dateien, Abschnitt 3) mit Migration über die Export-Datei (keine eigene Owner-Sitzung); Decks dürfen Karten ohne Besitz enthalten (TAM-Zukauf, Besitz als Merkmal, Preise bleiben Owner-Vorbehalt).
+Q9 Daten: Schema 22 als Dateischnitt (drei Dateien, Abschnitt 3) mit Migration über die Export-Datei (keine eigene Owner-Sitzung); Decks dürfen Karten ohne Besitz enthalten (TAM-Zukauf, Besitz als Merkmal, Preise bleiben Owner-Vorbehalt außer TAM-Zukauf seit 2026-11-21, Register „Preise für TAM“).
 Q10 Governance: MATERIAL in Inhalt (Klasse A) und bloße Größe (B) teilen, Kreuz-Review nur für A (ändert E7/C7); „Studio-Daten-Gate“ für Schema-Änderungen; Charta mit Entscheid-Register ersetzt die lange Pflichtlektüre.
 Q11 Ältere Lanes erst mit der Abschluss-Epoche entfernen; Release-Archiv lokal ablegen statt dauerhaftem GitHub-Release, solange #1108 offen ist.
 

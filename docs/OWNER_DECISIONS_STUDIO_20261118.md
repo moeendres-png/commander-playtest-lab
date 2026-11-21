@@ -35,6 +35,8 @@ Quelle.
   Co-Lead festgehalten in #1167, Kommentar 7038409631 (Kreuz-Review Option 1), #1661, Kommentar
   7043554602 (5/6-Freigabe, Seed 123, F1) und #1167, Kommentar 7053750538 (alleiniger Writer,
   Kreuz-Review-Ersatz).
+- Owner-Entscheid 2026-11-21 zu Preisen für TAM (Abschnitt „Preise für TAM (2026-11-21)“), vom
+  Co-Lead wörtlich festgehalten in #1656, Kommentar 7062128464, Punkt 3.
 
 ## 1. Owner-Wortlaut vom 2026-11-18
 
@@ -366,11 +368,14 @@ zweiter Commander im BUILD. Plan (Unter-Issues von #1187):
   Kartennamen und Anzahl), wörtliche Oracle-/Tagger-Schnellfilter für TAM-Superfriends.
 - **T3 (später, `needs:owner`):** Preisdaten für Zukäufe (günstigstes Angebot eines deutschen
   Anbieters auf Cardmarket, mindestens Zustand Excellent, Minimum aus Foil und Non-Foil) erst nach
-  rechtlicher und technischer Klärung des API-Zugangs; kein Scraping.
+  rechtlicher und technischer Klärung des API-Zugangs; kein Scraping. Für TAM überholt durch
+  „Preise für TAM (2026-11-21)“: Preisanzeige für den TAM-Zukauf ist freigegeben (#1637); die
+  Klärung des Cardmarket-Zugangs bleibt Teil von #1637.
 
 Grenzen: Chulane bleibt Fokus und Standard („nur Sammlung“, `include_unowned` aus). Die
 Kollektionstrennung bleibt: Zukauf-Karten sind ein Merkmal im Deck, keine Änderung der Sammlung.
-Preise, Preisdaten und Kaufabwicklung bleiben Owner-vorbehalten (`AGENTS.md` §8). Kohorten werden
+Preise, Preisdaten und Kaufabwicklung bleiben Owner-vorbehalten (`AGENTS.md` §8), außer
+Preisanzeige für den TAM-Zukauf (2026-11-21, „Preise für TAM“; Kaufabwicklung bleibt vorbehalten). Kohorten werden
 nie gemischt; Chulane-Daten bleiben von TAM-Daten strikt getrennt (`commander_binding`).
 Überholt (E10, 2026-11-19): „kein Kaufmodus“ (B1) und „Multi-Commander über den Chulane-Fokus
 hinaus“ (B2) gelten für BUILD nicht mehr in dieser Form.
@@ -416,7 +421,7 @@ Owner-Entscheid; Owner-Vorbehalte (Abschnitt 5 dieser Datei, `AGENTS.md` §8) bl
 - **Q9 Daten:** Schema 22 als Dateischnitt (drei Dateien: `reference`, `studio`, `simulate`) mit
   Migration über die Export-Datei des Nutzerzustands (Sicherung, am echten Zustand vorab bewiesen,
   keine eigene Owner-Sitzung); Decks dürfen Karten ohne Besitz enthalten (TAM-Zukauf, Besitz als
-  Merkmal; Preise bleiben Owner-Vorbehalt; Chulane bleibt Standard „nur Sammlung“, `include_unowned` aus, E14). Die
+  Merkmal; Preise bleiben Owner-Vorbehalt außer TAM-Zukauf (2026-11-21, „Preise für TAM“); Chulane bleibt Standard „nur Sammlung“, `include_unowned` aus, E14). Die
   Export-Datei mit dem echten Nutzerzustand gehört nicht ins öffentliche Repository und nicht in die CI
   (`AGENTS.md` §12).
 - **Q10 Governance:** MATERIAL teilt sich in Inhalt (Klasse A: Kreuz-Review) und bloße Größe
@@ -430,7 +435,7 @@ Owner-Entscheid; Owner-Vorbehalte (Abschnitt 5 dieser Datei, `AGENTS.md` §8) bl
   Release-Archiv lokal ablegen statt dauerhaftem GitHub-Release, solange #1108 offen ist.
 
 Grenzen: Der Go deckt Q1 bis Q11, nicht die Owner-Vorbehalte aus Abschnitt 5 (insbesondere
-Freigabe 5/6 Sitze, Fork, Siegel/`qualification/`/WS17, Preise, #1108, Bezahldienste,
+Freigabe 5/6 Sitze, Fork, Siegel/`qualification/`/WS17, Preise (außer TAM-Zukauf, 2026-11-21), #1108, Bezahldienste,
 Kollektionstrennung). Der Owner spielt vor dem PLAY-Bedienungs-Paket selbst eine ganze Partie;
 Abbruchkriterien in der Charta §6.
 
@@ -487,7 +492,35 @@ ihn ebenfalls). Der Inhalt ist hier sinngemäß nach diesen Kommentaren übernom
      übrigen Merge-Bedingungen aus `AGENTS.md` §10 gelten unverändert.
    - **Weiter owner-vorbehalten** (Abschnitt 5, `AGENTS.md` §8): die Freigabe von 5/6 Sitzen
      (Option A, Punkt 1), Fork-Push und Repin, Siegel/`qualification/`/WS17, Sichtbarkeit
-     (#1108), Bezahldienste, die Sammlungstrennung und Preise.
+     (#1108), Bezahldienste, die Sammlungstrennung und Preise (außer TAM-Zukauf, 2026-11-21,
+     „Preise für TAM“).
+
+### Preise für TAM (2026-11-21, #1637, #1187)
+
+Owner, 2026-11-21 (Wortlaut vom Co-Lead festgehalten in #1656, Kommentar 7062128464): „bei TAM
+dürfen gerne Preise rein also das kannst du aus der agents md entfernen bzw anpassen, da ich für
+tam hauptsächlich noch planeswalker + key cards kaufen muss um das deck so zu spielen wie ich will
+sind hier Preise erlaubt“.
+
+Reichweite: Preise sind für den TAM-Zukauf erlaubt (vor allem Planeswalker und Schlüsselkarten,
+wie der Owner als Grund nennt; das ist ein Beispiel, kein Filter). Chulane bleibt unverändert
+Standard „nur Sammlung“ ohne Preise. Preise für andere Zwecke bleiben Owner-Vorbehalt
+(`AGENTS.md` §8, §12).
+
+Grenzen (Einordnung des Co-Leads in Kommentar 7062128464, Punkt 3, keine Owner-Aussage): nur
+Anzeige zur Planung, kein Kaufabschluss und keine Kaufabwicklung; keine Bezahldienste; kein
+Scraping einer Seite ohne öffentliche API (`AGENTS.md` §8); jeder Preis trägt eine ehrliche Quelle
+und einen Zeitstempel, ein fehlender Preis heißt „unbekannt“, nie 0 €. Ein Cardmarket-API-Schlüssel
+bleibt `LOCAL_ONLY` beim Owner und kommt nie ins Repository (`AGENTS.md` §12, Secrets).
+
+Folgepaket #1637 (Plan aus dem Issue, kein Entscheid): Quellen sind (1) Scryfall-Bulk
+`prices.eur`/`prices.eur_foil` als Richtwert mit klarer Kennzeichnung, denn sie kennt weder das
+Verkäuferland DE noch den Zustand EX und ist damit nicht die Zielgröße des Owners aus E14
+(günstigstes Angebot eines deutschen Anbieters, mindestens Excellent, Minimum aus Foil und
+Non-Foil); (2) offizieller Cardmarket-API-Zugang nur mit lokalem Schlüssel beim Owner
+(`LOCAL_ONLY`), die Klärung des Zugangs bleibt Teil von #1637; (3) Export der Zukauf-Liste in
+Cardmarkets Wants-Liste und Shopping Wizard. Offen für den Owner: ob Preis-Schnappschüsse für TAM
+ins Repository dürfen.
 
 ## 3. Was aufgehoben, geändert oder neu ist
 
@@ -504,7 +537,8 @@ ihn ebenfalls). Der Inhalt ist hier sinngemäß nach diesen Kommentaren übernom
 | Weg in die Tierliste: „nach G-SIM eigenes Design“ | Stufen 0 / 1 / 2; Gewicht größer 0 erst in Stufe 2 | E7, C3 |
 | Review eines MATERIAL-PR aus frischem Kontext | zusätzlich Kreuz-Review durch den jeweils anderen Agenten, soweit zwei parallel arbeiten | E7, C7 |
 | Owner-Entscheidung 2026-10-15 (`owner_decision_20261015_batch_games_per_jvm`): jedes Ergebnis ruht auf dem sauberen Herunterfahren des Prozesses | gilt nur für `run_batch` und die Konformanz-Evidenz; für Studio-Serien ruht das Ergebnis auf dem bestätigten `shutdown_game` je Partie in eigenem Ergebnistyp (E9) | Owner 2026-11-19, #1612 |
-| „Keine Preise, kein Kaufmodus“ (B1) und „kein Multi-Commander über den Chulane-Fokus hinaus“ (B2), soweit BUILD betroffen | Zukauf-Modus im BUILD ohne Preise und TAM als zweiter Commander im BUILD erlaubt; Preise bleiben Owner-Vorbehalt, Chulane bleibt Standard (E14) | Owner 2026-11-19, #1187 |
+| „Keine Preise, kein Kaufmodus“ (B1) und „kein Multi-Commander über den Chulane-Fokus hinaus“ (B2), soweit BUILD betroffen | Zukauf-Modus im BUILD ohne Preise und TAM als zweiter Commander im BUILD erlaubt; Preise bleiben Owner-Vorbehalt, Chulane bleibt Standard (E14); für TAM überholt durch „Preise für TAM (2026-11-21)“ | Owner 2026-11-19, #1187 |
+| Preise und Preisdaten für Zukäufe bleiben Owner-Vorbehalt (E14, T3; `AGENTS.md` §8, §12) | Preisanzeige für den TAM-Zukauf erlaubt (vor allem Planeswalker und Schlüsselkarten), nur Anzeige mit Quelle und Zeitstempel, fehlend „unbekannt“; keine Kaufabwicklung, keine Bezahldienste, kein Scraping; Chulane bleibt „nur Sammlung“ ohne Preise; andere Preise bleiben Owner-Vorbehalt („Preise für TAM (2026-11-21)“) | Owner 2026-11-21, #1656 |
 | E6 (Gesamtrating mit Rubrik und Tierlisten-Gewichte), B11/E2 (Gewicht `simulation` 0 bis G-SIM), A4 („nur objektive Daten“), E7/C7 (jeder MATERIAL-PR mit Kreuz-Review), Rundenlimit nur nach Owner-Entscheid (`STUDIO_SCOPE.md:103`, `:267`), 5/6 Sitze (E15 Q5), Datei-Schnitt Schema 21 → 22 | beschlossen; wirksam sind schon Gesamtrating v1, Layers, Rubrik v1, Turnier-Signal und Gewicht `simulation` entfernt (#1684, #1686, #1691, #1696), die zweite Tierlisten-Skala ist mit #1701 entfernt (#1680), die Evidenz R0–R3 ist mit #1717 als Paket 1 im Serien-Verlauf gebaut (höchstens R1 erreichbar; Erfassung für R2/R3 sowie Evidenz im Diff und in der Kürzen-/Tauschen-Spalte offen, Q1-c, #1666) (Q1), Vorschläge als eigene Klasse (Q2), MATERIAL in A/B (Q10, umgesetzt in `AGENTS.md` §10 mit dem Doku-Wahrheits-Pass #1697), rundenbegrenzte Frühphasen-Serie als Experiment-Typ nach Messversuch (Q4: gilt als Owner-Entscheid für dieses Rundenlimit, weiterhin mit vollen Piloten, kein Goldfish-/Passiv-Modus, `STUDIO_SCOPE.md:266-267`), Qualifikation 5/6 (Q5, Sperre bleibt), Gegner aus Studio-Deck-Ständen (Q6), Pilot-Regeln (Q8), drei Dateien (Q9), Ältere Lanes bleiben (Q11) | Owner 2026-11-20 (E15) |
 | 5/6-Freigabe: Owner-Wunsch „wenn es problemlos geht“; Vorab-Ermächtigung verneint (Option B, #1167, Kommentar 7038409631, Punkt 2; Beleg-Zusammenfassung mit der Ein-Seiten-Evidenz #1661, Kommentar 7043142024 vorgelegt) | Option A = warten (neue Liste A/B/C): frühestens nach #1715 (mit 4-Sitz-Vergleichsmessung n/N), F5 (die acht Regelpunkte aus Plan §2 als gezielte Szenarien) und Replay-Tape mindestens für 5 Sitze und Owner-Entscheid zu F1, dann finales Ja und Freigabe-PR mit Review; `launch.MAX_RELEASED_SEATS = 4` bleibt; PLAY 5/6 bleibt getrennt (nicht Teil des SIMULATE-Freigabe-PR), Q5 „gilt dann für SIMULATE und PLAY“ ist insoweit eingeschränkt und offen; ob #1692 Voraussetzung bleibt, ist offen (Entscheide 2026-11-20/21, Nr. 1 und 3) | Owner 2026-11-20 (#1661) |
 | Abweichende Frame-Folge bei Seed 123 (#1692): Wegnormalisieren als Umklassifizierung dem Owner vorgelegt (#1661, Kommentar 7043142024) | keine Umklassifizierung: bleibt FAIL (`NEUTRAL`), nichts in `UNORDERED_LISTS`, #1692 offen bis zur Ursache auf der Bridge-Seite (Entscheide 2026-11-20/21, Nr. 2) | Owner 2026-11-20 (#1661) |
@@ -515,7 +549,7 @@ ihn ebenfalls). Der Inhalt ist hier sinngemäß nach diesen Kommentaren übernom
 
 - XMage ist die alleinige Regelautorität (`AGENTS.md` §2, A2).
 - Keine Erste-, Zufalls- oder Standard-Option in produktionserreichbaren Pfaden (`AGENTS.md` §2).
-- Keine Preise und keine Kaufabwicklung (B1, `AGENTS.md` §12); ein Zukauf-Modus im BUILD ohne Preise ist seit 2026-11-19 erlaubt (E14).
+- Keine Preise und keine Kaufabwicklung (B1, `AGENTS.md` §12); ein Zukauf-Modus im BUILD ohne Preise ist seit 2026-11-19 erlaubt (E14), Preisanzeige für den TAM-Zukauf seit 2026-11-21 („Preise für TAM“); Kaufabwicklung bleibt ausgeschlossen.
 - Jede Zahl mit n/N und Herkunft; „unbekannt“ statt 0 (A4, A5).
 - Kohorten werden nie gemischt oder addiert (A5, B3).
 - Chulane ist das Standard-Owner-Deck und der Fokus (`docs/OWNER_DECK_FOCUS_CURRENT.md`); TAM kommt im BUILD als zweiter Commander dazu (E14).
@@ -539,4 +573,4 @@ Nicht durch die Anweisung, nach den Empfehlungen zu arbeiten, oder das GO abgede
   Neuversiegelung oder der D5-Freigabe, `AGENTS.md` §4, §10).
 - Freigabe von 5 und 6 Sitzen.
 - Sichtbarkeit der Repositorys und #1108.
-- Bezahldienste, Preisdaten und Kaufabwicklung (T3 aus E14).
+- Bezahldienste, Preisdaten und Kaufabwicklung (T3 aus E14); ausgenommen ist die Preisanzeige für den TAM-Zukauf (2026-11-21, „Preise für TAM“).
