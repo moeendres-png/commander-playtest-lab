@@ -4517,5 +4517,18 @@ def test_a_live_human_game_is_served_as_played_game_with_its_seat(tmp_path: Path
             "PLAYED_GAME",
             [0],
         )
+        # the state that comes back with an own answer (#1578) is read by the page the same way
+        answered = client.post(
+            "/api/play/cohort-live/decision",
+            json={
+                "decision_id": "dec-h-1",
+                "selected_option_ids": ["pass-1"],
+                "ordering": [],
+                "start": 0,
+            },
+        )
+        assert answered.status_code == 200, answered.text
+        state = answered.json()["state"]
+        assert (state["cohort"], state["played_seats"]) == ("PLAYED_GAME", [0])
     finally:
         app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
