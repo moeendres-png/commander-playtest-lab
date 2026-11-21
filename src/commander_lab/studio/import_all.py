@@ -41,6 +41,7 @@ from .data_report import data_report
 from .marks import import_owner_marks
 from .store import BOUND_ELSEWHERE, StudioStore
 from .strength import StrengthSettings
+from .tam_import import TAM_COMMANDER_NAME
 
 NOT_PROVIDED = "NOT_PROVIDED"
 IMPORTED = "IMPORTED"
@@ -55,6 +56,10 @@ EXIT_STEP_FAILED = 1
 EXIT_POOL_MISMATCH = 3
 EXIT_COMMANDER_UNKNOWN = 4
 PRESENT = "PRESENT"
+# What the rows (and the pool coverage) of a layer count, see ``LayerResult.rows_scope``.
+ROWS_COMMANDER = "commander"
+ROWS_ALL_COMMANDERS = "all_commanders"
+ROWS_CARD_FACTS = "card_facts"
 
 
 class StepResult(TypedDict):
@@ -70,6 +75,13 @@ class LayerResult(TypedDict):
     covered: int
     pool: int | None
     status: str
+    # What ``rows`` and ``covered`` count. ``commander``: only this commander's (source decks bound
+    # to it, the signals it owns). ``all_commanders``: rows AND coverage include the decks and
+    # observations of every other commander (the corpus, the EDHREC views). ``card_facts``: facts
+    # about cards that belong to no commander (collection, Scryfall, roles, rulings, Playgroup,
+    # marks, commander-independent signals): ``rows`` is the whole store, ``covered`` is this
+    # commander's pool.
+    rows_scope: str
 
 
 class SignalRows(TypedDict):
@@ -214,6 +226,7 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
         covered: int,
         *,
         layer_pool: int | None = size,
+        rows_scope: str = ROWS_CARD_FACTS,
     ) -> None:
         pool_count = 0 if layer_pool is None else layer_pool
         layers.append(
@@ -224,6 +237,7 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
                 "covered": covered,
                 "pool": layer_pool,
                 "status": _status(rows, covered, pool_count),
+                "rows_scope": rows_scope,
             }
         )
 
@@ -262,6 +276,7 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
         bound if isinstance(bound, int) else 0,
         sum(1 for card in non_cmd_cards if _deck_hits(card) > 0),
         layer_pool=non_cmd_size,
+        rows_scope=ROWS_COMMANDER,
     )
     try:
         coverage = strength_view.signal_coverage(store, commander, include_commanders=False)
@@ -278,6 +293,7 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
             item["rows"],
             item["pool_cards_with_value"],
             layer_pool=layer_pool,
+            rows_scope=ROWS_COMMANDER if item["scope"] == "commander" else ROWS_CARD_FACTS,
         )
     for signal, owner in own_signals.items():
         found = {
@@ -300,6 +316,7 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
             ),
             sum(1 for card in target_cards if str(card["name"]).casefold() in found),
             layer_pool=layer_pool,
+            rows_scope=ROWS_COMMANDER if owner else ROWS_CARD_FACTS,
         )
     # Marks are optional per card: present (with the count) or not provided, never partial.
     marked = sum(1 for card in cards if card["favorite"] or card["excluded"] or card["note"])
@@ -311,6 +328,7 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
             "covered": marked,
             "pool": size,
             "status": PRESENT if marked else NOT_PROVIDED,
+            "rows_scope": ROWS_CARD_FACTS,
         }
     )
     return size, layers
@@ -350,6 +368,7 @@ def _repo_layers(
         _count(store, "SELECT COUNT(*) FROM corpus_deck"),
         len(ids & in_corpus),
         layer_pool=size,
+        rows_scope=ROWS_ALL_COMMANDERS,
     )
     observed = {
         str(row[0])
@@ -361,6 +380,7 @@ def _repo_layers(
         _count(store, "SELECT COUNT(*) FROM observation"),
         len(non_cmd_ids & observed),
         layer_pool=non_cmd_size,
+        rows_scope=ROWS_ALL_COMMANDERS,
     )
     atlas = {
         str(row[0])
@@ -407,8 +427,21 @@ _FLAG = {
 _FROM_REPO_LAYERS = frozenset({"corpus", "observations", "playgroup"})
 
 
+# The layers the TAM Drive files fill, with the folder option of ``scripts/import_tam_drive.py``:
+# the decks (TAM_91, TAM_CHANDRA_381) and the EDHREC-78 views. ``import-all --decklists`` reads a
+# different deck-list format and cannot load them (#1404 WP-8).
+_TAM_DRIVE_FLAG = {
+    "decklists": "--tam91-dir",
+    "corpus": "--tam91-dir",
+    "observations": "--edhrec78-dir",
+}
+
+
 def import_command(layer_key: str, commander: str) -> str:
-    """The exact ``import-all`` call that fills one layer (angle brackets: your path)."""
+    """The exact call that fills one layer (angle brackets: your path): ``import-all``, or for
+    the TAM Drive layers of Tam ``scripts/import_tam_drive.py``."""
+    if commander == TAM_COMMANDER_NAME and layer_key in _TAM_DRIVE_FLAG:
+        return f'python scripts/import_tam_drive.py {_TAM_DRIVE_FLAG[layer_key]} "<Ordner>"'
     if layer_key in _FROM_REPO_LAYERS:
         return (
             f'python -m commander_lab.studio import-all --commander "{commander}" '

@@ -118,6 +118,8 @@ function _buildOverviewNodes(data, deps, options = {}) {
   const ownNonlandCards = deckCards.filter((card) => card.group !== "Land");
   const ownNonlandTotal = ownNonlandCards.reduce((sum, card) => sum + qty(card.card_id), 0);
   const ownWithRole = ownNonlandCards.filter((card) => card.roles && card.roles.length).reduce((sum, card) => sum + qty(card.card_id), 0);
+  // The Bauplan counts the collection only; this view counts what the pool shows, so it names it.
+  const poolBasis = deps.includeUnowned ? "Pool (Sammlung + fehlende Karten, Schalter an)" : "Pool (Sammlung)";
   const poolWithRole = pool.filter((card) => card.roles && card.roles.length).length;
   const poolTotal = pool.length;
   const poolRoleCounts = {};
@@ -138,7 +140,7 @@ function _buildOverviewNodes(data, deps, options = {}) {
   const topRoles = allRoleKeys.slice(0, 14);
   const roleChildren = [
     h("h4", {}, h("span", {}, "3. Rollen-Abdeckung (beide Seiten)"), h("span", { class: "muted" }, "Deck vs. Gruppe & Pool")),
-    h("p", { class: "note" }, `Deck: ${StudioUI.num(ownWithRole, 0)} / ${StudioUI.num(ownNonlandTotal, 0)} Nicht-Land-Karten mit Tagger-Rolle · Gruppe: Median ${reference && reference.role_coverage_median !== undefined && reference.role_coverage_median !== null ? StudioUI.numFlex(reference.role_coverage_median, 1) : "unbekannt"} · Pool: ${StudioUI.num(poolWithRole, 0)} / ${StudioUI.num(poolTotal, 0)} Karten belegt.`),
+    h("p", { class: "note" }, `Deck: ${StudioUI.num(ownWithRole, 0)} / ${StudioUI.num(ownNonlandTotal, 0)} Nicht-Land-Karten mit Tagger-Rolle · Gruppe: Median ${reference && reference.role_coverage_median !== undefined && reference.role_coverage_median !== null ? StudioUI.numFlex(reference.role_coverage_median, 1) : "unbekannt"} · ${poolBasis}: ${StudioUI.num(poolWithRole, 0)} / ${StudioUI.num(poolTotal, 0)} Karten mit Rolle belegt.`),
   ];
   if (topRoles.length) {
     roleChildren.push(h("div", { class: "table-wrap" },

@@ -55,6 +55,10 @@ const StudioUI = (() => {
     return node;
   }
 
+  // replaceChildren shows a null argument as the text "null": drop empty children. The one
+  // shared helper of every page; a page never keeps its own copy (#1404, WP-1).
+  const kids = (...items) => items.filter((item) => item !== null && item !== undefined && item !== false);
+
   // ---------- toasts ----------
   let toastTimer = 0;
   function toast(text, kind = "") {
@@ -302,12 +306,16 @@ const StudioUI = (() => {
       const ident = layer.with_identifier ? `, ${num(layer.with_identifier, 0)} nur mit Kennung` : "";
       return el("tr", {}, el("td", {}, layer.layer), el("td", { class: "num" }, `${num(layer.dated, 0)} von ${num(layer.sources, 0)}`), el("td", {}, `${range}${ident}`));
     };
-    const layerTable = () => el("div", { class: "table-wrap" }, el("table", {},
-      el("thead", {}, el("tr", {}, ["Quellschicht", "datiert", "Stand (Datum)"].map((label, index) => el("th", { class: index === 1 ? "num" : "" }, label)))),
-      el("tbody", {}, layers.map(layerLine))));
+    const short = StudioCommander.shortName(commander);
+    // The date table counts the sources of the whole store: no source row names a commander.
+    const layerTable = () => el("div", { class: "table-wrap" },
+      el("p", { class: "note" }, "Quellenstand: gezählt im ganzen Store, alle Commander zusammen (nicht nur für " + short + ")."),
+      el("table", {},
+        el("thead", {}, el("tr", {}, ["Quellschicht (ganzer Store)", "datiert", "Stand (Datum)"].map((label, index) => el("th", { class: index === 1 ? "num" : "" }, label)))),
+        el("tbody", {}, layers.map(layerLine))));
     if (onlyWhenMissing && !missing.length) {
       const span = freshness && freshness.newest_snapshot
-        ? `Quellenstand: ${freshness.oldest_snapshot && freshness.oldest_snapshot !== freshness.newest_snapshot ? `${freshness.oldest_snapshot} bis ${freshness.newest_snapshot}` : freshness.newest_snapshot} (${num(freshness.with_snapshot_date, 0)} von ${num(freshness.total_sources, 0)} Quellen datiert${freshness.with_identifier ? `, ${num(freshness.with_identifier, 0)} nur mit Kennung` : ""})`
+        ? `Quellenstand im ganzen Store: ${freshness.oldest_snapshot && freshness.oldest_snapshot !== freshness.newest_snapshot ? `${freshness.oldest_snapshot} bis ${freshness.newest_snapshot}` : freshness.newest_snapshot} (${num(freshness.with_snapshot_date, 0)} von ${num(freshness.total_sources, 0)} Quellen datiert${freshness.with_identifier ? `, ${num(freshness.with_identifier, 0)} nur mit Kennung` : ""})`
         : "Datenstand";
       host.replaceChildren(el("details", { class: "datastate" },
         el("summary", {}, span),
@@ -315,23 +323,40 @@ const StudioUI = (() => {
         el("p", { class: "note" }, "Datum wie beim Import eingetragen (Dateiname oder Vorgabe), nicht aus dem Inhalt geprüft. Wo kein Datum im Store steht, wird keines angenommen.")));
       return;
     }
+    // What a layer counts: this commander's own rows, the rows AND coverage of every commander
+    // (corpus, EDHREC views), or facts about cards (rows: the whole store; coverage: this pool).
+    const SCOPE_TEXT = { commander: short, all_commanders: "alle Commander (Zeilen und Abdeckung)", card_facts: "Kartenfakten: Zeilen im Store" };
+    const rowsScope = (layer) => SCOPE_TEXT[layer.rows_scope] || "unbekannt";
     const rows = overview.layers.map((layer) => el("tr", {},
       el("td", {}, layer.layer),
       el("td", { class: "num" }, num(layer.rows, 0)),
+      el("td", {}, rowsScope(layer)),
       el("td", { class: "num" }, layer.pool === null ? "unbekannt" : `${num(layer.covered, 0)} von ${num(layer.pool, 0)}`),
       el("td", {}, el("span", { class: `badge status-${layer.status}` }, STATUS_TEXT[layer.status] || layer.status)),
       el("td", {}, layer.status === "MISSING" ? el("code", { class: "cmd" }, layer.command) : "")));
-    host.replaceChildren(el("details", { class: "datastate", open: missing.some((layer) => ["inventory", "scryfall", "decklists"].includes(layer.key)) },
+    const byKey = (key) => overview.layers.find((layer) => layer.key === key);
+    const ownDecks = byKey("decklists");
+    const storeDecks = status && Number.isInteger(status.source_decks) ? status.source_decks : (byKey("corpus") ? byKey("corpus").rows : null);
+    const decksLine = ownDecks && storeDecks !== null
+      ? ` Quelldecks im Store (alle Commander zusammen, mit Duplikaten): ${num(storeDecks, 0)} · an ${short} gebunden (ohne Duplikate): ${num(ownDecks.rows, 0)}.`
+      : "";
+    const tamDrive = missing.some((layer) => String(layer.command || "").includes("import_tam_drive"));
+    // Open only when nothing to build with is there (collection, card facts); a missing deck-list or signal layer is a note, not a stop.
+    // (The tier list asks for ``only`` the layers of its index and keeps the deck lists as one of them: no deck lists, no index.)
+    const stop = only ? ["inventory", "scryfall", "decklists"] : ["inventory", "scryfall"];
+    const essential = missing.some((layer) => stop.includes(layer.key));
+    host.replaceChildren(el("details", { class: "datastate", open: essential },
       el("summary", {}, missing.length ? `Es fehlen Daten: ${num(missing.length, 0)} von ${num(overview.layers.length, 0)} Schichten sind leer` : "Datenstand"),
-      el("p", { class: "note" }, `Gezählt für ${StudioCommander.shortName(commander)}. Eine leere Schicht ist keine schwache Karte, sondern fehlende Beobachtung. ${overview.pool_size === null ? "Der Commander steht nicht in der Sammlung: zuerst die Sammlung importieren." : `Kartenpool: ${num(overview.pool_size, 0)} Karten.`}${freshness && freshness.newest_snapshot ? ` Neuester Quellenstand: ${freshness.newest_snapshot}.` : ""}`),
+      el("p", { class: "note" }, `Pool und Abdeckung gezählt für ${short}. Eine leere Schicht ist keine schwache Karte, sondern fehlende Beobachtung. ${overview.pool_size === null ? "Der Commander steht nicht in der Sammlung: zuerst die Sammlung importieren." : `Kartenpool: ${num(overview.pool_size, 0)} Karten.`}${freshness && freshness.newest_snapshot ? ` Neuester Quellenstand im Store: ${freshness.newest_snapshot}.` : ""}${decksLine}`),
       layers.length ? layerTable() : null,
       el("div", { class: "table-wrap" }, el("table", {},
-        el("thead", {}, el("tr", {}, ["Schicht", "Zeilen", "Pool abgedeckt", "Stand", "Befehl zum Importieren"].map((label, index) => el("th", { class: index === 1 || index === 2 ? "num" : "" }, label)))),
+        el("thead", {}, el("tr", {}, ["Schicht", "Zeilen", "Gezählt über", `Pool von ${short} abgedeckt`, "Stand", "Befehl zum Importieren"].map((label, index) => el("th", { class: index === 1 || index === 3 ? "num" : "" }, label)))),
         el("tbody", {}, rows))),
       missing.some((layer) => layer.key.startsWith("signal:")) ? el("p", { class: "note" }, "Nutzungsdaten (EDHREC, Turnierlisten, Kombos) laden: ", el("code", { class: "cmd" }, overview.signals_command)) : null,
+      tamDrive ? el("p", { class: "note" }, "Die Decks und EDHREC-Ansichten von Tam kommen aus den lokal geladenen Drive-Dateien (scripts/import_tam_drive.py), nicht aus import-all. Ohne gesetzte Umgebungsvariable COMMANDER_LAB_STUDIO_DATA (oder COMMANDER_LAB_OWNER_DATA) kommt --db \"<Datenordner>\" hinzu (der Ordner, den das Studio mit --data benutzt).") : null,
       el("p", { class: "note" }, `Ein Aufruf mit allen Dateien: ${overview.doc}. Unter Windows kommt vor „import-all“ die Option --data "$env:LOCALAPPDATA\\CommanderStudio".`)));
   }
 
-  return { recall, remember, el, h: el, toast, fail, germanError, request, api: request, clearSharedCache, busy, loading, skeleton, num, pct, numFlex, numSig, simStatusLabel, limitNumber, dataState, effectiveTheme, applyTheme };
+  return { recall, remember, el, h: el, kids, toast, fail, germanError, request, api: request, clearSharedCache, busy, loading, skeleton, num, pct, numFlex, numSig, simStatusLabel, limitNumber, dataState, effectiveTheme, applyTheme };
 })();
 
