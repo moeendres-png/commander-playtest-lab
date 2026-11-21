@@ -8,9 +8,11 @@ die Dateien so anzupassen, dass ein weiterer Agent weiß, wie abgearbeitet wird
 ## 1. In dieser Reihenfolge lesen
 
 1. `AGENTS.md` (ganz).
-2. `docs/STUDIO_SCOPE.md`, darin „Feste Regeln“, „Phasenplan S0 bis S6“ und „Abarbeitung (für
-   alle Agents)“.
-3. `docs/OWNER_DECISIONS_STUDIO_20261118.md`, dann `docs/OWNER_DECISIONS_STUDIO_20261112.md`.
+2. `docs/STUDIO_CHARTA_V2.md` (vom Owner angenommen ist nur §5, Q1 bis Q11) mit dem
+   Entscheid-Register `docs/OWNER_DECISIONS_STUDIO_20261118.md` (E15 Q10), dann
+   `docs/OWNER_DECISIONS_STUDIO_20261112.md`.
+3. `docs/STUDIO_SCOPE.md` (verbindlicher Scope), darin „Feste Regeln“, „Phasenplan S0 bis S6“ und
+   „Abarbeitung (für alle Agents)“.
 4. Das eigene Issue und die Claim-Tabelle im Übersichts-Issue #1167.
 
 ## 2. Anfangen
@@ -89,8 +91,12 @@ geplant.
   Simulationsergebnisse, `docs/STUDIO_SCOPE.md` Abarbeitung Punkt 4): zuerst ein Review aus
   frischem Kontext mit PASS als PR-Kommentar. Der Kommentar nennt die prüfende Sitzung neutral
   (ohne Personennamen), die exakte Head-SHA, die ausgeführten Befehle und das Urteil. Gemergt wird
-  genau diese SHA. Arbeiten zwei Agenten parallel, prüft eine Sitzung des jeweils anderen Agenten;
-  der Autor mergt frühestens nach diesem Kommentar (Kreuz-Review, `AGENTS.md` §10).
+  genau diese SHA. Klasse A (MATERIAL wegen einer Kategorie der Liste): Arbeiten zwei Agenten
+  parallel, prüft eine Sitzung des jeweils anderen Agenten; der Autor mergt frühestens nach diesem
+  Kommentar (Kreuz-Review, `AGENTS.md` §10). Klasse B (nur über 300 Zeilen): das Review aus
+  frischem Kontext genügt. Befristete Ausnahme seit 2026-11-21, solange der andere Agent nicht
+  verfügbar ist: ein zweites Review aus frischem Kontext auf einem anderen Modell ersetzt das
+  Kreuz-Review (`docs/OWNER_DECISIONS_STUDIO_20261118.md`, „Entscheide 2026-11-20/21“ Nr. 4).
 - Pflicht-Checks `quality`, `security`, `infrastructure` grün auf dem exakten Head.
 - Wer selbst mergen darf, steht in `AGENTS.md` §6, §10 und §11. Nicht bestellte externe Agenten
   mergen nicht selbst; Lead oder Owner prüfen und mergen.
@@ -119,7 +125,8 @@ geplant.
 - Neue Repository-Inhalte nennen kein KI-Modell und keinen Anbieter (`AGENTS.md` §12).
 - Ergebnisse aus Simulation heißen `SIMULATED_RESULT` und haben kein Gewicht in der Tierliste
   (seit E15 Q1, 2026-11-20, entfernt; die Fassung „bevor G-SIM erfüllt ist“ ist überholt); sie
-  erscheinen als Evidenz mit Reifegrad R0-R3 im Deckbauer (Q1-c, #1666, noch nicht gebaut).
+  erscheinen als Evidenz mit Reifegrad R0-R3 im Deckbauer (Q1-c, #1666; Paket 1 mit #1717 im
+  Serien-Verlauf gebaut, höchstens R1 erreichbar, Diff und Kürzen/Tauschen offen).
 - Jede Zahl mit n/N und Herkunft. Was nicht belegt ist, heißt `UNKNOWN`, nie PASS.
 
 ## 8. Übergabe
