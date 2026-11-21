@@ -35,8 +35,9 @@ Quelle.
   Co-Lead festgehalten in #1167, Kommentar 7038409631 (Kreuz-Review Option 1), #1661, Kommentar
   7043554602 (5/6-Freigabe, Seed 123, F1) und #1167, Kommentar 7053750538 (alleiniger Writer,
   Kreuz-Review-Ersatz).
-- Owner-Entscheid 2026-11-21 zu Preisen für TAM (Abschnitt „Preise für TAM (2026-11-21)“), vom
-  Co-Lead wörtlich festgehalten in #1656, Kommentar 7062128464, Punkt 3.
+- Owner-Entscheid 2026-11-21 zu Preisen für TAM (Abschnitt „Preise für TAM (2026-11-21)“): Owner-Wortlaut
+  im Einleitungsabsatz von #1656, Kommentar 7062128464 (vom Co-Lead festgehalten); Punkt 3 dort ist
+  die Einordnung des Co-Leads.
 
 ## 1. Owner-Wortlaut vom 2026-11-18
 
@@ -507,20 +508,30 @@ wie der Owner als Grund nennt; das ist ein Beispiel, kein Filter). Chulane bleib
 Standard „nur Sammlung“ ohne Preise. Preise für andere Zwecke bleiben Owner-Vorbehalt
 (`AGENTS.md` §8, §12).
 
-Grenzen (Einordnung des Co-Leads in Kommentar 7062128464, Punkt 3, keine Owner-Aussage): nur
-Anzeige zur Planung, kein Kaufabschluss und keine Kaufabwicklung; keine Bezahldienste; kein
-Scraping einer Seite ohne öffentliche API (`AGENTS.md` §8); jeder Preis trägt eine ehrliche Quelle
-und einen Zeitstempel, ein fehlender Preis heißt „unbekannt“, nie 0 €. Ein Cardmarket-API-Schlüssel
-bleibt `LOCAL_ONLY` beim Owner und kommt nie ins Repository (`AGENTS.md` §12, Secrets).
+Umfang und Grenzen (Einordnung des Co-Leads in Kommentar 7062128464, Punkt 3, und Entscheid des
+Co-Leads in der Review-Runde zu PR #1740; keine Owner-Aussage): erlaubt sind Preisanzeige und
+Planungsfunktionen für den TAM-Zukauf (Summe der Zukauf-Liste, Sortierung und Budgetfilter,
+Kennzeichnung „günstigstes Angebot“), für TAM-Karten im Besitz nur als Anzeige. Nicht erlaubt:
+Kaufabschluss und Kaufabwicklung; Einfluss auf Rating, Tierliste, Ranking oder Simulationszahlen
+(Preise fließen nie in Bewertungen); Bezahldienste; Scraping einer Seite ohne öffentliche API
+(`AGENTS.md` §8). Jeder Preis trägt eine ehrliche Quelle und einen Zeitstempel, ein fehlender Preis
+heißt „unbekannt“, nie 0 €. Ein Cardmarket-API-Schlüssel bleibt `LOCAL_ONLY` beim Owner und kommt
+nie ins Repository (`AGENTS.md` §12, Secrets). TAM-Preis-Schnappschüsse bleiben im lokalen
+Studio-Store und kommen nicht ins Repository, bis der Owner anders entscheidet; Tests nutzen nur
+synthetische Werte.
 
-Folgepaket #1637 (Plan aus dem Issue, kein Entscheid): Quellen sind (1) Scryfall-Bulk
-`prices.eur`/`prices.eur_foil` als Richtwert mit klarer Kennzeichnung, denn sie kennt weder das
-Verkäuferland DE noch den Zustand EX und ist damit nicht die Zielgröße des Owners aus E14
-(günstigstes Angebot eines deutschen Anbieters, mindestens Excellent, Minimum aus Foil und
-Non-Foil); (2) offizieller Cardmarket-API-Zugang nur mit lokalem Schlüssel beim Owner
-(`LOCAL_ONLY`), die Klärung des Zugangs bleibt Teil von #1637; (3) Export der Zukauf-Liste in
-Cardmarkets Wants-Liste und Shopping Wizard. Offen für den Owner: ob Preis-Schnappschüsse für TAM
-ins Repository dürfen.
+Folgepaket #1637 (Plan aus dem Issue, kein Entscheid; Nummerierung wie dort): Quellen sind
+(1) offizieller Cardmarket-API-Zugang nur mit lokalem Schlüssel beim Owner (`LOCAL_ONLY`), die
+Klärung des Zugangs bleibt Teil von #1637; (2) Scryfall-Bulk `prices.eur`/`prices.eur_foil` als
+Richtwert mit klarer Kennzeichnung, denn sie kennt weder das Verkäuferland DE noch den Zustand EX
+und ist damit nicht die Zielgröße des Owners aus E14 (günstigstes Angebot eines deutschen
+Anbieters, mindestens Excellent, Minimum aus Foil und Non-Foil); (3) Export der Zukauf-Liste in
+Cardmarkets Wants-Liste und Shopping Wizard. Beim Bau anzupassende Wächter (mit diesem Eintrag
+nicht geändert): `data/provenance/source_inventory.json:44` und
+`src/commander_lab/studio/sources.py:157` („strip price fields on write“),
+`tests/unit/test_no_personal_collection_metadata.py:30,62`, `tests/unit/test_studio_builder.py:966`,
+`tests/unit/test_studio_db_a_1404.py:22-31,139`, `tests/unit/test_studio_data_page.py:53`,
+`scripts/data_wave1/_common.py:67-69`.
 
 ## 3. Was aufgehoben, geändert oder neu ist
 
@@ -538,7 +549,7 @@ ins Repository dürfen.
 | Review eines MATERIAL-PR aus frischem Kontext | zusätzlich Kreuz-Review durch den jeweils anderen Agenten, soweit zwei parallel arbeiten | E7, C7 |
 | Owner-Entscheidung 2026-10-15 (`owner_decision_20261015_batch_games_per_jvm`): jedes Ergebnis ruht auf dem sauberen Herunterfahren des Prozesses | gilt nur für `run_batch` und die Konformanz-Evidenz; für Studio-Serien ruht das Ergebnis auf dem bestätigten `shutdown_game` je Partie in eigenem Ergebnistyp (E9) | Owner 2026-11-19, #1612 |
 | „Keine Preise, kein Kaufmodus“ (B1) und „kein Multi-Commander über den Chulane-Fokus hinaus“ (B2), soweit BUILD betroffen | Zukauf-Modus im BUILD ohne Preise und TAM als zweiter Commander im BUILD erlaubt; Preise bleiben Owner-Vorbehalt, Chulane bleibt Standard (E14); für TAM überholt durch „Preise für TAM (2026-11-21)“ | Owner 2026-11-19, #1187 |
-| Preise und Preisdaten für Zukäufe bleiben Owner-Vorbehalt (E14, T3; `AGENTS.md` §8, §12) | Preisanzeige für den TAM-Zukauf erlaubt (vor allem Planeswalker und Schlüsselkarten), nur Anzeige mit Quelle und Zeitstempel, fehlend „unbekannt“; keine Kaufabwicklung, keine Bezahldienste, kein Scraping; Chulane bleibt „nur Sammlung“ ohne Preise; andere Preise bleiben Owner-Vorbehalt („Preise für TAM (2026-11-21)“) | Owner 2026-11-21, #1656 |
+| Preise und Preisdaten für Zukäufe bleiben Owner-Vorbehalt (E14, T3; `AGENTS.md` §8, §12) | Preisanzeige und Planungsfunktionen für den TAM-Zukauf erlaubt (vor allem Planeswalker und Schlüsselkarten), mit Quelle und Zeitstempel, fehlend „unbekannt“; Schnappschüsse nur im lokalen Studio-Store; Preise nie in Bewertungen; keine Kaufabwicklung, keine Bezahldienste, kein Scraping; Chulane bleibt „nur Sammlung“ ohne Preise; andere Preise bleiben Owner-Vorbehalt („Preise für TAM (2026-11-21)“) | Owner 2026-11-21, #1656 |
 | E6 (Gesamtrating mit Rubrik und Tierlisten-Gewichte), B11/E2 (Gewicht `simulation` 0 bis G-SIM), A4 („nur objektive Daten“), E7/C7 (jeder MATERIAL-PR mit Kreuz-Review), Rundenlimit nur nach Owner-Entscheid (`STUDIO_SCOPE.md:103`, `:267`), 5/6 Sitze (E15 Q5), Datei-Schnitt Schema 21 → 22 | beschlossen; wirksam sind schon Gesamtrating v1, Layers, Rubrik v1, Turnier-Signal und Gewicht `simulation` entfernt (#1684, #1686, #1691, #1696), die zweite Tierlisten-Skala ist mit #1701 entfernt (#1680), die Evidenz R0–R3 ist mit #1717 als Paket 1 im Serien-Verlauf gebaut (höchstens R1 erreichbar; Erfassung für R2/R3 sowie Evidenz im Diff und in der Kürzen-/Tauschen-Spalte offen, Q1-c, #1666) (Q1), Vorschläge als eigene Klasse (Q2), MATERIAL in A/B (Q10, umgesetzt in `AGENTS.md` §10 mit dem Doku-Wahrheits-Pass #1697), rundenbegrenzte Frühphasen-Serie als Experiment-Typ nach Messversuch (Q4: gilt als Owner-Entscheid für dieses Rundenlimit, weiterhin mit vollen Piloten, kein Goldfish-/Passiv-Modus, `STUDIO_SCOPE.md:266-267`), Qualifikation 5/6 (Q5, Sperre bleibt), Gegner aus Studio-Deck-Ständen (Q6), Pilot-Regeln (Q8), drei Dateien (Q9), Ältere Lanes bleiben (Q11) | Owner 2026-11-20 (E15) |
 | 5/6-Freigabe: Owner-Wunsch „wenn es problemlos geht“; Vorab-Ermächtigung verneint (Option B, #1167, Kommentar 7038409631, Punkt 2; Beleg-Zusammenfassung mit der Ein-Seiten-Evidenz #1661, Kommentar 7043142024 vorgelegt) | Option A = warten (neue Liste A/B/C): frühestens nach #1715 (mit 4-Sitz-Vergleichsmessung n/N), F5 (die acht Regelpunkte aus Plan §2 als gezielte Szenarien) und Replay-Tape mindestens für 5 Sitze und Owner-Entscheid zu F1, dann finales Ja und Freigabe-PR mit Review; `launch.MAX_RELEASED_SEATS = 4` bleibt; PLAY 5/6 bleibt getrennt (nicht Teil des SIMULATE-Freigabe-PR), Q5 „gilt dann für SIMULATE und PLAY“ ist insoweit eingeschränkt und offen; ob #1692 Voraussetzung bleibt, ist offen (Entscheide 2026-11-20/21, Nr. 1 und 3) | Owner 2026-11-20 (#1661) |
 | Abweichende Frame-Folge bei Seed 123 (#1692): Wegnormalisieren als Umklassifizierung dem Owner vorgelegt (#1661, Kommentar 7043142024) | keine Umklassifizierung: bleibt FAIL (`NEUTRAL`), nichts in `UNORDERED_LISTS`, #1692 offen bis zur Ursache auf der Bridge-Seite (Entscheide 2026-11-20/21, Nr. 2) | Owner 2026-11-20 (#1661) |

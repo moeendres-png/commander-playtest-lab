@@ -230,7 +230,8 @@ play or qualification; lifting paused or externally gated items (the all-command
 the Drive-dependent import #1187/#1176, scraping a site without a public API, removing a required
 check, activating price features or purchase handling; a purchase mode (Zukauf) for BUILD
 without prices was released on 2026-11-19, `docs/OWNER_DECISIONS_STUDIO_20261118.md` E14, and
-price display for TAM purchases (Zukauf) on 2026-11-21, same register, entry „Preise für TAM“).
+price display and planning functions for TAM purchases (Zukauf) on 2026-11-21, same register,
+entry „Preise für TAM“; purchase handling stays reserved).
 
 The delegation never relaxes Rules Core authority (§2), evidence semantics (§4), hidden information
 in play (§5), the secret, credential and personal-data rules (§12), the Git hard boundaries and
@@ -441,12 +442,16 @@ Collection, deck, store and ownership card data may leave the Owner's machine (O
 lists in agent environments and fetch card images and public MTG metadata from public sources (such
 as Scryfall, EDHREC, Commander Spellbook, playgroup.gg, Archidekt). Studio web image requests carry
 no referrer or credentials (`referrerpolicy="no-referrer"`). Purchase data and card prices are never
-collected or committed unless the Owner orders price data (E14, T3). On 2026-11-21 the Owner ordered
-price data for TAM purchases (Zukauf, above all planeswalkers and key cards; register entry „Preise
-für TAM“): collected and shown in the Studio for planning only, with an honest source and
-timestamp, a missing price shown as unknown and never as 0 €; no purchase handling, no paid
-services, no scraping of a site without a public API, and a Cardmarket API key stays `LOCAL_ONLY`
-with the Owner under the secret rules above. Chulane stays collection-only, without prices.
+collected or committed unless the Owner orders price data (E14, T3). On 2026-11-21 the Owner allowed
+prices for TAM purchases (Zukauf, above all planeswalkers and key cards). That covers collecting
+and showing them in the Studio, not committing them: TAM price snapshots stay in the local Studio
+store and are not committed until the Owner decides; tests use synthetic values only. The scope
+and limits (Co-Lead scope) are in the register entry „Preise für TAM“: display plus planning
+functions, an honest source and timestamp, a missing price shown as unknown and never as 0 €;
+prices never feed ratings, the tier list, rankings or simulation figures; no purchase handling, no
+paid services, no scraping of a site without a public API, and a Cardmarket API key stays
+`LOCAL_ONLY` with the Owner under the secret rules above. Chulane stays collection-only, without
+prices.
 
 ## 13. Semantic Completion Rule
 
