@@ -22,8 +22,8 @@ line; the fixed reference set of the Studio bridge gate moved verbatim to
 
 **Last commit at which the described code existed:** `5e31a2712beb641a55e231c5c7378b401f89563a`. For the three Studio planning documents (no code described): `2a481efbe77d74a36859ba2b829a70f07307405d`, `main` at archiving time.
 
-Contents are what they were under `docs/` at the pinned commits above (`git mv`; the archived
-scope was afterwards set back to `aef76b8e`, without the #1740 sentence); links inside them are
+Contents are what they were under `docs/` at the pinned commits above (`git mv`; except for the plan header changed by `cea4b349`, see the plan entry below, and the
+scope, which was afterwards set back to `aef76b8e` without the #1740 sentence); links inside them are
 history and are not maintained. Line references of the form `PL:N` or `SC:N` (the register,
 section 6, pins them to `41938a58` and `aef76b8e`) refer to the pinned commit:
 

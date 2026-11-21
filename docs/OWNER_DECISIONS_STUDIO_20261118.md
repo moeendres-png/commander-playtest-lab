@@ -532,7 +532,8 @@ der TAM-Zukauf-Liste, Kennzeichnung als Richtwert. Preise fließen nie in Vorsch
 Evidenz/Reife, Rating, Tierliste, Ranking oder Simulationszahlen. Nicht erlaubt sind außerdem
 Kaufabschluss und Kaufabwicklung, Bezahldienste und Scraping einer Seite ohne öffentliche API
 (`AGENTS.md` §8). Preise werden nur aus einer Quelle gesammelt, die im Quellregister
-(`src/commander_lab/studio/sources.py`, mit Zugangsstatus) geführt ist; diese Preisabrufe sind die
+(`src/commander_lab/studio/sources.py`) mit Zugangsstatus `ok` oder `ok_with_conditions` geführt ist (nie
+`unclear` oder `prohibited`; Cardmarket erst nach geklärtem Zugang); diese Preisabrufe sind die
 einzige Ausnahme zu SR39 („nach außen gehen nur Abrufe öffentlicher Kartenbilder und
 Kartendaten“, `AGENTS.md` §12). Jeder Preis trägt eine
 ehrliche Quelle und einen Zeitstempel, ein fehlender Preis heißt „unbekannt“, nie 0 €. Ein
@@ -551,7 +552,9 @@ Klärung des Zugangs bleibt Teil von #1637; (2) Scryfall-Bulk `prices.eur`/`pric
 Richtwert mit klarer Kennzeichnung, denn sie kennt weder das Verkäuferland DE noch den Zustand EX
 und ist damit nicht die Zielgröße des Owners aus E14 (günstigstes Angebot eines deutschen
 Anbieters, mindestens Excellent, Minimum aus Foil und Non-Foil); (3) Export der Zukauf-Liste in
-Cardmarkets Wants-Liste und Shopping Wizard.
+Cardmarkets Wants-Liste und Shopping Wizard (Schritt (3) liegt außerhalb der abschließenden Planungsfunktionen, ist
+ein Abruf-Gegenstück mit Datenausgang und nahe an der Kaufabwicklung: er braucht einen eigenen Entscheid und ist
+von „Preise für TAM“ nicht gedeckt).
 
 Preis-Wächter beim Bau (mit diesem Eintrag nicht geändert; Zeilen am Stand `86802c05`, `main` mit
 #1740):
@@ -751,7 +754,7 @@ an diesem Abschnitt gilt dasselbe wie für die übrigen Owner-Entscheide (SR33).
 | SR37 | Plattform: Der Owner-PC ist Windows; Start über `scripts/studio_start.ps1`, Datenordner standardmäßig `%LOCALAPPDATA%\CommanderStudio` (`docs/STUDIO_OWNER_PC_SETUP.md`). Linux/WSL (`scripts/studio_start.sh`) ist nur Ausweichweg; ob am Owner-PC WSL vorhanden ist: `UNKNOWN`. | SC:119-121 |
 | SR18 | Messwerkzeuge für Bridge-Gate und Serien-Identität müssen unter Windows laufen. | SC:122-124, SC:158 (S1, Abnahme 4) |
 | SR19 | Das Release-Artefakt (`.github/workflows/release-artifacts.yml`, mit `xmage-engine-bridge.jar`, dessen `.sha256` und `ENGINE_PIN.txt`; `retention-days: 30`) wird vor dem Abschluss neu erzeugt. Ein dauerhaftes GitHub-Release ist eine Veröffentlichung und Owner-Entscheid (E15 Q11, `AGENTS.md` §8). | SC:125-128 |
-| SR39 | Backup und Telemetrie: Der Studio-Datenordner (Deck-Verlauf, Markierungen, Serien, Partien) liegt nur auf dem Owner-PC; Sicherung und Rückspiel sind eine Anforderung, noch nicht gebaut (eigenes Paket). Das Studio sendet keine Nutzungs- oder Messdaten nach außen; nach außen gehen nur Abrufe öffentlicher Kartenbilder und Kartendaten (`AGENTS.md` §12). Messwerte der Abnahme kommen als Dateien zurück. | SC:129-133 |
+| SR39 | Backup und Telemetrie: Der Studio-Datenordner (Deck-Verlauf, Markierungen, Serien, Partien) liegt nur auf dem Owner-PC; Sicherung und Rückspiel sind eine Anforderung, noch nicht gebaut (eigenes Paket). Das Studio sendet keine Nutzungs- oder Messdaten nach außen; nach außen gehen nur Abrufe öffentlicher Kartenbilder und Kartendaten (`AGENTS.md` §12). Messwerte der Abnahme kommen als Dateien zurück. (Ausnahme: Preisabrufe für TAM nach „Preise für TAM“.) | SC:129-133 |
 | SR20 | Zum Abschluss: neue Qualifikations-Epoche (Versiegeln braucht das Owner-Go) oder dauerhaft sichtbar „vor Qualifikation“. | SC:134-135 |
 | SR21 | Die Owner-PC-Seite (`docs/STUDIO_OWNER_PC_SETUP.md`) wird einmal von null in sauberer Umgebung durchgespielt; jede Abweichung ist ein Befund. | SC:158 (S1, Abnahme 5) |
 

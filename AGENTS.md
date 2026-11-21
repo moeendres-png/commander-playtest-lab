@@ -454,7 +454,8 @@ Purchase data and card prices are never collected or committed unless the Owner 
 planeswalkers and key cards). That covers collecting and showing them in the Studio, not
 committing them: TAM price snapshots stay in the local Studio store and are not committed until
 the Owner decides; tests use synthetic values only. Prices are collected only from a source listed
-in the Studio source register (`src/commander_lab/studio/sources.py`, with its access status). The
+in the Studio source register (`src/commander_lab/studio/sources.py`) whose access status is `ok` or
+`ok_with_conditions` (never `unclear` or `prohibited`; Cardmarket only after its access is clarified). The
 scope and limits (Co-Lead scope) are in the register entry „Preise für TAM“: a price only for cards
 not yet owned and only in the TAM purchase view (owned cards are in the shared collection, without
 a price); planning functions are only the sum, sorting and budget filter of the TAM purchase list
