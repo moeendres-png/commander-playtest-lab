@@ -17,20 +17,26 @@ plays real 100-card Commander decks rules-correctly, so simulated games can stan
   to four seats are active, five and six are not released (own qualification and the Owner's
   release).
 - The simulator is one part of the local Commander Studio (BUILD, PLAY, SIMULATE):
-  `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`. The binding scope is
-  `docs/STUDIO_SCOPE.md`; the Owner decisions for the three areas are in
-  `docs/OWNER_DECISIONS_STUDIO_20261112.md`, `docs/OWNER_DECISIONS_STUDIO_20261118.md` and
-  `docs/STUDIO_PLAN_SIMULATOR.md`; read them before any Studio work. Binding in short: only
-  objective data with provenance; every count with its denominator; cohorts never added; source
-  data bound to one commander; no guessed tier. Since the Owner decision of 2026-11-20
-  (`docs/OWNER_DECISIONS_STUDIO_20261118.md` E15 Q1) the tier list is the usage view (the second tier scale is still to be removed: #1680); the
+  `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`. Before any Studio work read first
+  the charter `docs/STUDIO_CHARTA_V2.md` (the Owner accepted only its §5, Q1 to Q11; the rest is
+  the Lead's planning) with the decision register `docs/OWNER_DECISIONS_STUDIO_20261118.md`
+  (Owner decision of 2026-11-20, E15 Q10). The binding scope stays `docs/STUDIO_SCOPE.md`; the
+  older Owner decisions are in `docs/OWNER_DECISIONS_STUDIO_20261112.md` and
+  `docs/STUDIO_PLAN_SIMULATOR.md` (also the reference set of the Studio bridge gate, §10). Binding in
+  short: only objective data with provenance; every count with its denominator; cohorts never
+  added; source data bound to one commander; no guessed tier. Since the Owner decision of
+  2026-11-20 (`docs/OWNER_DECISIONS_STUDIO_20261118.md` E15 Q1) the tier list is the usage view
+  with one tier scale (the second scale was removed with #1701, #1680); the
   generated overall rating, the rating layers, the tournament-conversion component, the rubric-v1
   signals and the `simulation` weight were removed (#1684, #1686, #1691, #1696). The one labelled
   model judgement is "Kartenverständnis (Modellurteil)" (rubric v2, class URTEIL), for Chulane
   only (code state: not sortable, no tier, no rank, not part of the index). The Owner's marks (favorites, exclusions,
   notes) never count as a rating. Simulation results never enter the tier list as a weight; they
-  will appear as evidence with maturity R0-R3 in the deck builder (not yet built: package
-  Q1-c, #1666), and the `SIMULATED_RESULT` rules stay.
+  appear as evidence with maturity R0-R3 in the deck builder (package Q1-c, #1666). Package 1
+  (#1717) shows the maturity per stored paired series in the deck's series history; at most R1
+  is reachable, because the Studio records no controls, card competence check, pilot audit or
+  Owner acceptance for R2/R3 yet, and evidence in the diff and the cut/swap column is still
+  open. The `SIMULATED_RESULT` rules stay.
 - Chulane, Teller of Tales is the only active owner deck for optimization
   (`docs/OWNER_DECK_FOCUS_CURRENT.md`). RogShai data is historical and regression data only.
 
