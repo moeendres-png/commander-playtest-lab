@@ -31,6 +31,9 @@ class DataClass(StrEnum):
     DERIVED_DESCRIPTIVE = "DERIVED_DESCRIPTIVE"
     HEURISTIC_MODEL = "HEURISTIC_MODEL"
     SIMULATED_RESULT = "SIMULATED_RESULT"
+    # A game with a human seat played through the page (#1662): its own cohort, never part of a
+    # simulation figure, an aggregate or a card evaluation.
+    PLAYED_GAME = "PLAYED_GAME"
     UNKNOWN = "UNKNOWN"
 
 
