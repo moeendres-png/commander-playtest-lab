@@ -306,7 +306,12 @@ code.cmd{white-space:pre-wrap;word-break:break-all;font-size:12px}
 #top #deck-select,#top #branch-select{min-width:88px;max-width:150px}
 #top button,#top .pill{white-space:nowrap}
 #save-state{min-width:74px;white-space:nowrap}
-#data-state{min-height:54px}
+/* an opened banner scrolls inside itself: it never squeezes the pool and the deck panel to nothing (#1404 WP-8) */
+#data-state{min-height:54px;flex:none;max-height:40vh;overflow:auto}
+body:has(#data-state details.datastate[open]) main{min-height:540px}
+.auto-deck-note{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap;margin:var(--s1) var(--s4);padding:var(--s1) var(--s3);border:1px dashed var(--accent);border-radius:var(--radius);background:var(--panel2);font-size:12.5px}
+.auto-deck-note[hidden]{display:none}
+.auto-deck-note>span{flex:1 1 0;min-width:0}
 #color-filter{min-width:205px;min-height:28px}
 #bracket-bar{flex:1 0 100%;min-height:28px}
 #quick-filter-presets{flex:1 0 100%;min-height:62px}

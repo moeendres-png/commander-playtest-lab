@@ -1683,6 +1683,32 @@ commander-level co-occurrence pass is remembered per store state, commander list
 (`builder._cohort_deck_sets`, sharing `corpus_deck_sets`), so the second open of a card is a
 lookup; the figures are the same as counting the cohort's decks directly (tested).
 
+What the box counts (#1404, WP-8). The date table counts the sources of the whole store, all
+commanders together (no source row names a commander), and says so in its header. The layer table
+below counts for the chosen commander: the coverage is always that commander's pool, and the column
+"Gezählt über" (`rows_scope` of `GET /api/layers`) says per layer what the row count and the
+coverage are made of: `commander` (source decks bound to it, the signals it owns), `all_commanders`
+(the corpus and the EDHREC views: rows AND coverage include the decks and observations of every
+other commander) or `card_facts` (collection, Scryfall facts, roles, rulings, Playgroup, marks,
+commander-independent signals: rows over the whole store, coverage over this pool). Next to it the
+box shows the source decks of the store (with duplicates) against those bound to the commander
+(without duplicates), so Tam never shows the 10,551 Chulane source decks as its own. The box is
+closed unless the collection or the card facts are missing (the tier list, which asks for `only` the
+layers of its index, keeps the deck lists among the reasons to open); an opened box scrolls inside
+itself (at most 40 % of the window height) and the builder keeps at least 540 px below it, so it
+never squeezes the pool and the deck panel to nothing. The import call of a missing layer is
+`import-all` except for the Tam deck and view layers (`decklists`, `corpus`, `observations` of
+"Tam, the Possibility"): those come from the Drive files and name
+`python scripts/import_tam_drive.py --tam91-dir|--edhrec78-dir`; without `COMMANDER_LAB_STUDIO_DATA`
+(or `COMMANDER_LAB_OWNER_DATA`) set, `--db "<data folder>"` names the store, as `--data` does for
+`import-all`. The Bauplan counts the pool of the collection only ("nur Sammlung, ohne die fehlenden
+Karten des Schalters"); the state page names its pool ("Sammlung", or "Sammlung + fehlende Karten,
+Schalter an" with the buy-pool switch on), so the two denominators are never read as one.
+Choosing a commander that has no deck still
+creates a saved deck of just the commander (the variants and drafts need a deck to belong to); the
+page says so in a note ("Automatisch angelegt, nicht von dir") until a card is added or the note is
+dismissed.
+
 ### Actionable Deck-Doctor ("Übersicht", #1404)
 
 In the "Übersicht" tab (`POST /api/deck-doctor`, `studio/builder.py`, schema `studio-deck-doctor-1`,
@@ -1785,7 +1811,7 @@ this; shipping the page inside a wheel is a later step.
   "Teilmenge: N von M Decks"; the chosen cards are "Filterkarte" and not ranked. Only cards of
   the commander's pool can be chosen. Same machinery as the universe `must_contain` filter.
 - Pages show a data-state box (`GET /api/layers`): which data layers exist for the commander
-  and the exact `import-all` call for each missing one. Both pages share one header (Deckbau,
+  and the exact import call for each missing one (`import-all`; `scripts/import_tam_drive.py` for the Tam deck layers). Both pages share one header (Deckbau,
   Tierliste, Partien, chosen commander, light/dark toggle remembered in the browser).
 - Drafts are kept automatically; a saved state is an immutable revision. Variants are named
   branches of a deck. Export as text list or as deck snapshot for the simulator.
