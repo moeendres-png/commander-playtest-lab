@@ -18,7 +18,7 @@ import queue
 import sys
 import textwrap
 import threading
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -986,3 +986,376 @@ def test_p3a_queued_jvm_exit_without_eof_is_kept_when_grace_expires(tmp_path: Pa
         assert any(life.get("life_id") == "w1-1" and life.get("end") == "budget" for life in lives)
     finally:
         pool.close()
+
+
+# --- S1 (#1660): task format, game key, manifest and journal, determinism guard ----------------
+
+from commander_lab.studio import series_record, table_spec  # noqa: E402
+from commander_lab.studio.series_record import (  # noqa: E402
+    DETERMINISM_VIOLATION,
+    DeterminismViolation,
+    ManifestMismatch,
+    SeriesRecord,
+)
+
+JAR = "j" * 64
+PIN = "p" * 40
+_KEY_INPUT: dict[str, object] = {
+    "jar_sha256": JAR,
+    "engine_pin": PIN,
+    "pilot_fingerprints": ("f0", "f1", "f2", "f3"),
+    "seat_styles": (0.5, 0.5, 0.5, 0.5),
+    "deck_sha256": ("d0", "d1", "d2", "d3"),
+    "seed": 7,
+    "strategy": "generic",
+    "table_options": {"seats": 4, "opponent_mode": "fixed"},
+    "skip_forced_decisions": True,
+    "round_limit": None,
+}
+_KEY_CHANGES: dict[str, object] = {
+    "jar_sha256": "k" * 64,
+    "engine_pin": "q" * 40,
+    "pilot_fingerprints": ("f0", "f1", "fX", "f3"),
+    "seat_styles": (0.5, 0.7, 0.5, 0.5),
+    "deck_sha256": ("d0", "d1", "d3", "d2"),  # same decks, other seat order
+    "seed": 8,
+    "strategy": "control",
+    "table_options": {"seats": 4, "opponent_mode": "rotation"},
+    "skip_forced_decisions": False,
+    "round_limit": 30,
+}
+
+
+def test_the_same_input_gives_the_same_game_key() -> None:
+    assert series_record.game_key(**_KEY_INPUT) == series_record.game_key(**dict(_KEY_INPUT))  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize("field", sorted(_KEY_CHANGES))
+def test_every_field_of_the_game_key_changes_the_key(field: str) -> None:
+    assert set(_KEY_CHANGES) == set(_KEY_INPUT)  # every field is probed
+    changed = {**_KEY_INPUT, field: _KEY_CHANGES[field]}
+    assert series_record.game_key(**changed) != series_record.game_key(**_KEY_INPUT)  # type: ignore[arg-type]
+
+
+def test_skip_forced_unknown_is_its_own_value_and_a_key_needs_jar_and_pin() -> None:
+    keys = {
+        series_record.game_key(**{**_KEY_INPUT, "skip_forced_decisions": value})  # type: ignore[arg-type]
+        for value in (None, True, False)
+    }
+    assert len(keys) == 3
+    for blank in ("", " ", "\t\n"):
+        with pytest.raises(ValueError, match="JAR"):
+            series_record.game_key(**{**_KEY_INPUT, "jar_sha256": blank})  # type: ignore[arg-type]
+        with pytest.raises(ValueError, match="Pin"):
+            series_record.game_key(**{**_KEY_INPUT, "engine_pin": blank})  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="je einen Eintrag"):
+        series_record.game_key(**{**_KEY_INPUT, "seat_styles": (0.5,)})  # type: ignore[arg-type]
+
+
+def _games(table: str, seeds: range, key: str | None = "same") -> list[SimpleNamespace]:
+    """Planned games of a manifest: id and key (``same``: one key per seed and table)."""
+    return [
+        SimpleNamespace(
+            task_id=f"{table}:{seed}",
+            game_id=f"g-{table}-s{seed}",
+            game_key=None
+            if key is None
+            else hashlib.sha256(f"{table}|{seed}".encode()).hexdigest(),
+        )
+        for seed in seeds
+    ]
+
+
+def _record(tmp_path: Path, tasks: Sequence[object], series: str = "ser1") -> SeriesRecord:
+    return SeriesRecord.open(
+        tmp_path,
+        series,
+        games=[{"task_id": t.task_id, "game_id": t.game_id, "game_key": t.game_key} for t in tasks],  # type: ignore[attr-defined]
+        table_hash="th",
+        table={"seats": 2},
+    )
+
+
+def test_the_manifest_is_written_once_and_never_changed(tmp_path: Path) -> None:
+    tasks = _games("man", range(1, 3))
+    record = _record(tmp_path, tasks)
+    stored = json.loads(record.manifest_path.read_text(encoding="utf-8"))
+    assert stored["schema"] == "studio-series-manifest-1" and stored["table_hash"] == "th"
+    assert record.manifest_path == tmp_path / "games" / "series" / "ser1" / "manifest.json"
+    again = _record(tmp_path, tasks)  # a resume with the same plan
+    assert again.manifest == record.manifest
+    with pytest.raises(ManifestMismatch):
+        _record(tmp_path, _games("man", range(1, 4)))
+    with pytest.raises(ValueError, match="Serien-Kennung"):
+        series_record.series_folder(tmp_path, "../x")
+
+
+def test_two_transcript_hashes_for_one_key_are_a_determinism_violation(tmp_path: Path) -> None:
+    task = _games("det", range(1, 2))[0]
+    twin = SimpleNamespace(task_id="twin", game_id="g-det-twin", game_key=task.game_key)
+    record = _record(tmp_path, [task, twin])
+    record.record(task.game_id, {"status": "finished", "semantic_transcript_sha256": "a" * 64})
+    record.record(twin.game_id, {"status": "finished", "semantic_transcript_sha256": "a" * 64})
+    with pytest.raises(DeterminismViolation) as caught:
+        record.record(twin.game_id, {"status": "finished", "semantic_transcript_sha256": "b" * 64})
+    assert caught.value.status == DETERMINISM_VIOLATION and caught.value.game_key == task.game_key
+    # the journal keeps the evidence; reading it again (a resume) ends the series the same way
+    assert len(record.journal_path.read_text(encoding="utf-8").splitlines()) == 3
+    with pytest.raises(DeterminismViolation):
+        _record(tmp_path, [task, twin])
+
+
+def test_a_failed_game_or_a_game_without_key_never_trips_the_guard(tmp_path: Path) -> None:
+    task = _games("nk", range(1, 2))[0]
+    unkeyed = _games("u", range(1, 2), key=None)[0]
+    record = _record(tmp_path, [task, unkeyed])
+    record.record(task.game_id, {"status": "finished", "semantic_transcript_sha256": "a" * 64})
+    record.record(task.game_id, {"status": "failed", "semantic_transcript_sha256": "c" * 64})
+    record.record(unkeyed.game_id, {"status": "finished", "semantic_transcript_sha256": "d" * 64})
+    record.record(unkeyed.game_id, {"status": "finished", "semantic_transcript_sha256": "e" * 64})
+    lines = record.journal_path.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 4  # all four results journaled, none of them a violation
+    resumed = _record(tmp_path, [task, unkeyed])
+    assert set(resumed.results()) == {task.game_id, unkeyed.game_id}
+    # never silent: the finished game without a key is counted as unguarded (last result per game)
+    assert record.unguarded() == (1, 1) and resumed.unguarded() == (1, 1)
+
+
+def test_a_finished_game_without_a_transcript_hash_is_counted_as_unguarded(tmp_path: Path) -> None:
+    first, second = _games("ug", range(1, 3))
+    record = _record(tmp_path, [first, second])
+    assert record.unguarded() == (0, 0)  # nothing finished yet: no count, not "all guarded"
+    record.record(first.game_id, {"status": "finished", "semantic_transcript_sha256": "a" * 64})
+    record.record(second.game_id, {"status": "finished", "semantic_transcript_sha256": ""})
+    assert record.unguarded() == (1, 2)
+    assert _record(tmp_path, [first, second]).unguarded() == (1, 2)
+
+
+def test_the_journal_counts_only_manifest_members_and_survives_a_cut_off_line(
+    tmp_path: Path,
+) -> None:
+    games = _games("jr", range(1, 3))
+    record = _record(tmp_path, games)
+    record.record(games[0].game_id, {"status": "finished", "semantic_transcript_sha256": "a" * 64})
+    with pytest.raises(ValueError, match="nicht im Manifest"):
+        record.record("foreign", {"status": "finished"})
+    with record.journal_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps({"game_id": "foreign", "summary": {"status": "finished"}}) + "\n")
+        handle.write('{"game_id": "g-jr-s2", "sta')  # cut off by a cancel
+    resumed = _record(tmp_path, games)
+    assert set(resumed.results()) == {games[0].game_id} and resumed.ignored_lines == 2
+    assert resumed.results()[games[0].game_id]["semantic_transcript_sha256"] == "a" * 64
+
+
+def test_a_last_line_without_its_line_end_is_never_a_result_even_when_it_parses(
+    tmp_path: Path,
+) -> None:
+    games = _games("tail", range(1, 3))
+    record = _record(tmp_path, games)
+    entry = {
+        "game_id": games[1].game_id,
+        "game_key": games[1].game_key,  # a valid member line: only the missing line end drops it
+        "status": "finished",
+        "summary": {"status": "finished"},
+    }
+    record.journal_path.write_text(json.dumps(entry), encoding="utf-8")  # no line end: cut off
+    resumed = _record(tmp_path, games)
+    assert resumed.results() == {} and resumed.ignored_lines == 1
+    assert resumed.key_mismatch_lines == 0
+    record.journal_path.write_text(json.dumps(entry) + "\n", encoding="utf-8")  # the control
+    assert set(_record(tmp_path, games).results()) == {games[1].game_id}
+    record.journal_path.write_text(json.dumps(entry), encoding="utf-8")
+    resumed.record(games[0].game_id, {"status": "finished", "semantic_transcript_sha256": "a" * 64})
+    lines = resumed.journal_path.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 2 and json.loads(lines[1])["game_id"] == games[0].game_id
+
+
+def test_a_violation_appended_after_a_cut_off_line_still_ends_the_resumed_series(
+    tmp_path: Path,
+) -> None:
+    first, second = _games("cut", range(1, 3))
+    twin = SimpleNamespace(task_id="twin", game_id="g-cut-twin", game_key=first.game_key)
+    record = _record(tmp_path, [first, second, twin])
+    record.record(first.game_id, {"status": "finished", "semantic_transcript_sha256": "a" * 64})
+    with record.journal_path.open("a", encoding="utf-8") as handle:
+        handle.write('{"game_id": "g-cut-s2", "sta')  # the run ended mid-line
+    resumed = _record(tmp_path, [first, second, twin])
+    assert resumed.ignored_lines == 1
+    with pytest.raises(DeterminismViolation):
+        resumed.record(twin.game_id, {"status": "finished", "semantic_transcript_sha256": "b" * 64})
+    # the violation is a line of its own, so opening the series again ends it the same way
+    with pytest.raises(DeterminismViolation) as caught:
+        _record(tmp_path, [first, second, twin])
+    assert caught.value.status == DETERMINISM_VIOLATION
+
+
+def test_a_line_cut_inside_a_multi_byte_character_is_ignored_and_the_series_resumes(
+    tmp_path: Path,
+) -> None:
+    first, second, third = _games("utf", range(1, 4))
+    record = _record(tmp_path, [first, second, third])
+    record.record(
+        first.game_id,
+        {"status": "finished", "semantic_transcript_sha256": "a" * 64, "note": "Spielschlüssel"},
+    )
+    record.record(
+        second.game_id,
+        {"status": "failed", "failure_message": "Spielschlüssel fehlt", "log": None},
+    )
+    data = record.journal_path.read_bytes()
+    cut = data.rindex("ü".encode()) + 1  # inside the two bytes of the last "ü"
+    record.journal_path.write_bytes(data[:cut])
+    resumed = _record(tmp_path, [first, second, third])
+    assert resumed.ignored_lines == 1 and set(resumed.results()) == {first.game_id}
+    assert resumed.results()[first.game_id]["note"] == "Spielschlüssel"  # a whole line keeps it
+    # the next result ends the cut line, which becomes a complete line with a broken character
+    resumed.record(third.game_id, {"status": "finished", "semantic_transcript_sha256": "c" * 64})
+    again = _record(tmp_path, [first, second, third])
+    assert again.ignored_lines == 1
+    assert set(again.results()) == {first.game_id, third.game_id}
+
+
+def test_a_complete_line_with_a_broken_character_is_ignored_not_repaired(tmp_path: Path) -> None:
+    first, second = _games("bad", range(1, 3))
+    record = _record(tmp_path, [first, second])
+    record.record(first.game_id, {"status": "finished", "semantic_transcript_sha256": "a" * 64})
+    record.record(second.game_id, {"status": "failed", "failure_message": "Spielschlüssel"})
+    data = record.journal_path.read_bytes()
+    broken = data.replace("ü".encode(), b"\xc3")  # one byte of the character lost mid-line
+    assert broken.endswith(b"\n") and broken != data
+    record.journal_path.write_bytes(broken)
+    resumed = _record(tmp_path, [first, second])
+    assert resumed.ignored_lines == 1 and set(resumed.results()) == {first.game_id}
+
+
+def test_a_member_line_with_a_key_the_manifest_does_not_name_is_not_counted(
+    tmp_path: Path,
+) -> None:
+    first, second = _games("km", range(1, 3))
+    record = _record(tmp_path, [first, second])
+    record.record(first.game_id, {"status": "finished", "semantic_transcript_sha256": "a" * 64})
+    foreign = {
+        "game_id": second.game_id,
+        "game_key": first.game_key,  # a member's id with another game's key
+        "status": "finished",
+        "semantic_transcript_sha256": "b" * 64,
+        "summary": {"status": "finished"},
+    }
+    with record.journal_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(foreign) + "\n")
+    resumed = _record(tmp_path, [first, second])  # no violation: the line is not grouped at all
+    assert set(resumed.results()) == {first.game_id}
+    assert resumed.key_mismatch_lines == 1 and resumed.ignored_lines == 1
+
+
+def test_without_hard_links_the_manifest_is_created_exclusively_and_no_temp_is_left(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    games = _games("nolink", range(1, 3))
+
+    def no_link(source: object, target: object) -> None:
+        raise PermissionError("hard links are not supported here")
+
+    monkeypatch.setattr(series_record.os, "link", no_link)
+    record = _record(tmp_path, games, series="nolink")
+    stored = json.loads(record.manifest_path.read_text(encoding="utf-8"))
+    assert [g["game_id"] for g in stored["games"]] == [g.game_id for g in games]
+    assert sorted(p.name for p in record.folder.iterdir()) == ["manifest.json"]
+    before = record.manifest_path.read_bytes()
+    with pytest.raises(ManifestMismatch):
+        _record(tmp_path, _games("nolink", range(1, 4)), series="nolink")
+    assert record.manifest_path.read_bytes() == before
+    assert sorted(p.name for p in record.folder.iterdir()) == ["manifest.json"]
+
+    def other_start_then_no_link(source: object, target: object) -> None:
+        # another process created the manifest between the check and the exclusive create
+        Path(str(target)).write_text('{"schema": "studio-series-manifest-1", "games": []}')
+        raise PermissionError("hard links are not supported here")
+
+    monkeypatch.setattr(series_record.os, "link", other_start_then_no_link)
+    with pytest.raises(ManifestMismatch):
+        _record(tmp_path, games, series="race2")
+    raced = series_record.series_folder(tmp_path, "race2")
+    assert json.loads((raced / "manifest.json").read_text())["games"] == []  # never replaced
+    assert sorted(p.name for p in raced.iterdir()) == ["manifest.json"]
+
+
+def test_a_failing_manifest_write_leaves_no_temp_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def broken(path: object, data: bytes) -> None:
+        raise OSError("disk full")
+
+    def no_link(source: object, target: object) -> None:
+        raise OSError("hard links are not supported here")
+
+    monkeypatch.setattr(series_record.os, "link", no_link)
+    monkeypatch.setattr(series_record, "_create_exclusive", broken)
+    with pytest.raises(OSError, match="disk full"):
+        _record(tmp_path, _games("tmp", range(1, 2)), series="tmp")
+    assert list(series_record.series_folder(tmp_path, "tmp").iterdir()) == []
+
+
+@pytest.mark.parametrize("content", ["", '{"schema": "studio-series-man'])
+def test_an_empty_or_half_written_manifest_is_a_manifest_mismatch(
+    tmp_path: Path, content: str
+) -> None:
+    folder = series_record.series_folder(tmp_path, "half")
+    folder.mkdir(parents=True)
+    (folder / "manifest.json").write_text(content, encoding="utf-8")  # a start that ended early
+    with pytest.raises(ManifestMismatch, match="unvollständig"):
+        _record(tmp_path, _games("half", range(1, 2)), series="half")
+    assert (folder / "manifest.json").read_text(encoding="utf-8") == content  # never rewritten
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("strategy", ""),
+        ("strategy", "  "),
+        ("pilot_fingerprints", ("f0", "", "f2", "f3")),
+        ("deck_sha256", ("d0", "d1", " ", "d3")),
+    ],
+)
+def test_an_empty_strategy_fingerprint_or_deck_hash_gives_no_key(field: str, value: object) -> None:
+    with pytest.raises(ValueError, match="leer"):
+        series_record.game_key(**{**_KEY_INPUT, field: value})  # type: ignore[arg-type]
+
+
+def test_two_close_styles_never_share_a_key() -> None:
+    near = {**_KEY_INPUT, "seat_styles": (0.5, 0.5000001, 0.5, 0.5)}
+    assert series_record.game_key(**near) != series_record.game_key(**_KEY_INPUT)  # type: ignore[arg-type]
+    coarse = {**_KEY_INPUT, "seat_styles": (0.2, 0.5, 0.5, 0.5)}
+    finer = {**_KEY_INPUT, "seat_styles": (0.3, 0.5, 0.5, 0.5)}
+    assert series_record.game_key(**coarse) != series_record.game_key(**finer)  # type: ignore[arg-type]
+    same = {**_KEY_INPUT, "seat_styles": (0.5, 0.5, 1 / 2, 0.5)}
+    assert series_record.game_key(**same) == series_record.game_key(**_KEY_INPUT)  # type: ignore[arg-type]
+
+
+def test_two_starts_of_one_series_never_overwrite_the_first_manifest(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    games = _games("race", range(1, 3))
+    real_link = series_record.os.link
+
+    def other_start_first(source: object, target: object) -> None:
+        # another process created the manifest of this series between the check and the link
+        Path(str(target)).write_text('{"schema": "studio-series-manifest-1", "games": []}')
+        raise FileExistsError(str(target))
+
+    monkeypatch.setattr(series_record.os, "link", other_start_first)
+    with pytest.raises(ManifestMismatch):
+        _record(tmp_path, games, series="race")
+    monkeypatch.setattr(series_record.os, "link", real_link)
+    folder = series_record.series_folder(tmp_path, "race")
+    assert sorted(p.name for p in folder.iterdir()) == ["manifest.json"]  # no temp file left
+
+
+def test_the_wall_limit_is_set_per_seat_count_without_changing_the_table_hash() -> None:
+    assert [table_spec.game_wall_limit_seconds(n) for n in (2, 3, 4)] == [1800.0] * 3
+    for seats in (5, 6):
+        with pytest.raises(ValueError, match="S2/F6"):
+            table_spec.game_wall_limit_seconds(seats)
+    spec = table_spec.TableSpec(seats=3, opponents=["a", "b"])
+    assert spec.game_wall_limit_seconds() == 1800.0
+    assert "game_wall_limit_seconds" not in spec.canonical()
