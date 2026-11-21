@@ -2173,10 +2173,10 @@ const code = [
   cut("async function afterExperimentDecision(", "async function openSeriesFromHistory("),
 ].join("\n");
 // a small server with the contract of #1733: expected_parent must be the head (null = new)
-let revCards, server, posts, deletes, gets, toasts, failed, rendered, branchLoads, historyShown, closed, deleteFails, onAfterPrecheck, onPost, busy, draftOf, order, boxes, midDiscard, lockedDuringPost;
+let postedCards, revCards, server, posts, deletes, gets, toasts, failed, rendered, branchLoads, historyShown, closed, deleteFails, onAfterPrecheck, onPost, busy, draftOf, order, boxes, midDiscard, lockedDuringPost;
 function resetAll() {
   server = { main: "deck@v", variant2: "deck@w" }; posts = []; deletes = []; gets = 0; toasts = []; failed = []; rendered = 0;
-  branchLoads = 0; historyShown = 0; closed = 0; deleteFails = false; onAfterPrecheck = null; onPost = null; busy = false; draftOf = {}; revCards = {}; order = []; boxes = {}; midDiscard = null; lockedDuringPost = null;
+  branchLoads = 0; historyShown = 0; closed = 0; deleteFails = false; onAfterPrecheck = null; onPost = null; busy = false; draftOf = {}; revCards = {}; postedCards = []; order = []; boxes = {}; midDiscard = null; lockedDuringPost = null;
 }
 resetAll();
 const httpError = (status, detail) => Object.assign(new Error(detail), { status, detail });
@@ -2187,12 +2187,13 @@ const api = async (path, method, body) => {
     if (onAfterPrecheck) { const hook = onAfterPrecheck; onAfterPrecheck = null; hook(); }
     return answer;
   }
-  if (path.startsWith("/api/revisions/")) return { cards: revCards[decodeURIComponent(path.split("/").pop())] || [], issues: [], shape: null };
+  if (path.startsWith("/api/revisions/")) { if (getHold) await getHold; return { cards: revCards[decodeURIComponent(path.split("/").pop())] || [], issues: [], shape: null }; }
   const m = path.match(/branches\/([^/]+)\/draft$/);
   if (m && method === "DELETE") { deletes.push(decodeURIComponent(m[1])); order.push("delete"); if (deleteFails) throw httpError(500, "Platte voll"); await new Promise((r) => setTimeout(r, 5)); return {}; }
   if (m) return { draft: draftOf[decodeURIComponent(m[1])] || null };
   if (path.endsWith("/revisions") && method === "POST") {
     posts.push({ ...body, cards: undefined, deck: decodeURIComponent(path.split("/")[3]) });
+    postedCards.push(body.cards);
     await new Promise((r) => setTimeout(r, 5));
     lockedDuringPost = [boxes["deck-select"] && boxes["deck-select"].disabled, boxes["branch-select"] && boxes["branch-select"].disabled];
     if (onPost) { const hook = onPost; onPost = null; hook(); }
@@ -2207,13 +2208,15 @@ const api = async (path, method, body) => {
   throw httpError(404, "unknown");
 };
 let sameMode = false;
-const entries = () => [{ card_id: "c1", zone: "main", quantity: 1 }];
+let getHold = null; let loadBranchImpl = null;
+let entriesImpl = null;
+const entries = () => (entriesImpl ? entriesImpl() : [{ card_id: "c1", zone: "main", quantity: 1 }]);
 const toast = (t) => toasts.push(t); const renderSaveState = () => { rendered += 1; };
 const rememberVariant = () => {}; let decksFail = false;
 const loadDecks = async () => { order.push("decks"); if (decksFail) throw httpError(503, "Speicher belegt, bitte erneut versuchen."); };
 const renderHeader = () => {}; const fail = (e) => failed.push(StudioUI.germanError(e));
 const closeModal = () => { closed += 1; }; const showHistory = async () => { historyShown += 1; };
-const loadBranch = async () => { branchLoads += 1; order.push("branch"); };
+const loadBranch = async () => { branchLoads += 1; order.push("branch"); if (loadBranchImpl) await loadBranchImpl(); };
 const $ = (id) => (boxes[id] = boxes[id] || { disabled: false, replaceChildren(...nodes) { this.nodes = nodes; } });
 const h = (tag, attrs, ...kids) => ({ tag, attrs: attrs || {}, kids });
 let modalOpened = 0; const openNewBranchModal = () => { modalOpened += 1; };
@@ -2271,12 +2274,12 @@ eval(code + "\n" + cut("async function loadBranch()", "// The saved state of `br
   resetAll(); set({ deckId: "d", branch: "main", baseRevision: "deck@v" });
   onAfterPrecheck = () => { Object.assign(state, { deckId: "d2", branch: "main", baseRevision: "deck@q", dirty: false }); };
   await commitRevision("main", ""); state.deckId = "d";
-  out.switchDeckEarly = [posts.length, posts[0] && posts[0].deck, state.baseRevision];
+  out.switchDeckEarly = [posts.length, posts[0] && posts[0].deck, state.baseRevision, posts[0] && [posts[0].expected_parent, posts[0].parent_revision_id]];
   // switched while the pre-check runs and the other tab moved main: 409, the new variant is not marked stale
   resetAll(); set({ branch: "main", baseRevision: "deck@v" });
   onAfterPrecheck = () => { server.main = "deck@other-tab"; Object.assign(state, openOther); };
   await commitRevision("main", "");
-  out.switch409 = [posts.length, state.branch, state.baseRevision, state.baseStale, toasts.some((t) => t.includes("hat sich geändert, nichts gespeichert"))];
+  out.switch409 = [posts.length, state.branch, state.baseRevision, state.baseStale, toasts.some((t) => t.includes("hat sich geändert, nichts gespeichert")), posts[0] && [posts[0].expected_parent, posts[0].parent_revision_id]];
   // the head moved and holds another list, switched meanwhile: not marked stale either
   resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.main = "deck@moved"; revCards["deck@moved"] = [{ card_id: "c9", zone: "main", quantity: 1 }];
   onAfterPrecheck = () => { Object.assign(state, openOther); };
@@ -2299,6 +2302,63 @@ eval(code + "\n" + cut("async function loadBranch()", "// The saved state of `br
   resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.main = "deck@lost"; revCards["deck@lost"] = [{ card_id: "c9", zone: "main", quantity: 1 }];
   await commitRevision("main", "");
   out.lostOther = [posts.length, state.baseStale];
+  // a new name that already holds this very base (another list): told, no POST
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.copy = "deck@v";
+  await commitRevision("copy", "");
+  out.copyExists = [posts.length, toasts.some((t) => t.includes("gibt es schon")), state.branch];
+  // after a lost answer a draft of this very list may still name the old base: it goes too
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.main = "deck@lost"; revCards["deck@lost"] = entries();
+  draftOf.main = { base_revision_id: "deck@v", cards: entries() };
+  await commitRevision("main", "");
+  out.lostDraft = deletes.slice();
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.main = "deck@lost"; revCards["deck@lost"] = entries();
+  draftOf.main = { base_revision_id: "deck@v", cards: [{ card_id: "c2", zone: "main", quantity: 1 }] };
+  await commitRevision("main", "");
+  out.lostDraftOther = deletes.slice();
+  // scenario a: switching from "test" to main; saving before the load is done never writes
+  // the old list onto main (state.branch and the base already name main)
+  const holdGets = () => { let release; getHold = new Promise((r) => { release = r; }); return release; };
+  resetAll(); set({ branch: "test", baseRevision: "deck@t", dirty: true }); server.test = "deck@t";
+  state.decks = [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }, { branch: "test", revision_id: "deck@t" }] }];
+  loadBranchImpl = realLoadBranch; let release = holdGets();
+  $("branch-select").value = "main";
+  const switching = onBranchSelect();
+  await new Promise((r) => setTimeout(r, 5));
+  const midState = [state.branch, state.baseRevision];
+  await commitRevision("main", "");
+  out.scenarioA = [midState, posts.length, server.main, toasts.some((t) => t.includes("lädt noch: nichts gespeichert")), toasts.some((t) => t.includes("gespeichert.") && !t.includes("nichts"))];
+  release(); await switching; getHold = null;
+  // after the load, saving works again
+  await commitRevision("main", "");
+  out.scenarioAAfter = posts.length;
+  // the same while a deck switch loads
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); release = holdGets();
+  $("deck-select").value = "d";
+  const deckSwitch = onDeckSelect();
+  await new Promise((r) => setTimeout(r, 5));
+  await commitRevision("main", "");
+  out.scenarioDeck = [posts.length, toasts.some((t) => t.includes("lädt noch"))];
+  release(); await deckSwitch; getHold = null;
+  // scenario b: the stale notice of the old variant goes at once; discarding while the new
+  // variant loads never deletes the new variant's draft
+  resetAll(); set({ branch: "test", baseRevision: "deck@t", baseStale: true }); server.test = "deck@t"; draftOf.main = { cards: [], base_revision_id: "deck@v" };
+  state.decks = [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }, { branch: "test", revision_id: "deck@t" }] }];
+  release = holdGets();
+  $("branch-select").value = "main";
+  const renderedBefore = rendered;
+  const switchingB = onBranchSelect();
+  const renderedSync = rendered - renderedBefore;
+  await discardStaleDraft();
+  out.scenarioB = [renderedSync >= 1, state.baseStale, deletes, toasts.some((t) => t.includes("lädt noch: nichts verworfen"))];
+  release(); await switchingB; getHold = null; loadBranchImpl = null;
+  // the list of the click is saved, even if it changes during the pre-check
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  let listNow = [{ card_id: "c1", zone: "main", quantity: 1 }];
+  entriesImpl = () => listNow;
+  onAfterPrecheck = () => { listNow = [{ card_id: "c7", zone: "main", quantity: 1 }]; };
+  await commitRevision("main", "");
+  out.cardsAtClick = postedCards.map((c) => c.map((x) => x.card_id));
+  entriesImpl = null;
   // a new variant of the same name appears between the check and the POST: the server's text
   resetAll(); set({ branch: "main", baseRevision: "deck@v" });
   onAfterPrecheck = () => { server.neu2 = "deck@x"; };
@@ -2411,8 +2471,9 @@ def test_saving_sends_expected_parent_and_never_overwrites_a_moved_branch() -> N
         [False, False],
     ]
     assert r["switchDeck"] == [1, "main", "deck@q", False, "d"]
-    assert r["switchDeckEarly"] == [1, "d", "deck@q"]
-    assert r["switch409"] == [1, "variant2", "deck@w", False, True]
+    # the base of the click is posted, never the one of the deck or variant opened meanwhile
+    assert r["switchDeckEarly"] == [1, "d", "deck@q", ["deck@v", "deck@v"]]
+    assert r["switch409"] == [1, "variant2", "deck@w", False, True, ["deck@v", "deck@v"]]
     assert r["switchStale"] == [0, "variant2", False]
     assert r["switchNew"] == [1, True, "variant2", "deck@w", ["main"]]
     # the stale notice names the loss of reloading and wires both buttons
@@ -2429,6 +2490,15 @@ def test_saving_sends_expected_parent_and_never_overwrites_a_moved_branch() -> N
         "branch",
     ]  # one click series: delete, reload both
     assert r["lostOther"] == [0, True]
+    assert r["copyExists"] == [0, True, "main"]
+    assert r["lostDraft"] == ["main"] and r["lostDraftOther"] == []
+    # scenario a: a save while a variant loads writes nothing and never says "gespeichert"
+    assert r["scenarioA"] == [["main", "deck@v"], 0, "deck@v", True, False]
+    assert r["scenarioAAfter"] == 1
+    assert r["scenarioDeck"] == [0, True]
+    # scenario b: the old notice goes at once; a discard while loading deletes nothing
+    assert r["scenarioB"] == [True, False, [], True]
+    assert r["cardsAtClick"] == [["c1"]]
     assert r["nameRace"] == [1, False, True, "main"]
     assert r["load"] == [True, "deck@b"] and r["afterLoad"] == [0, True]
     assert r["loadOk"] == [False, "deck@v"]
@@ -2472,6 +2542,8 @@ def test_experiment_view_static_guards() -> None:
     assert render.index("if (state.baseStale)") < render.index("if (state.draftConflict)")
     # "Aktuellen Stand laden" reads the branches first, never the stale base again
     assert "loadDecks().then(loadBranch)" in render
+    for sink in ("innerHTML", "outerHTML", "insertAdjacentHTML"):  # M14: DOM only via h()
+        assert sink not in app, sink
     after = app[app.index("async function afterExperimentDecision") :]
     after = after[: after.index("\n}\n")]
     assert "state.baseStale = true" in after
