@@ -149,13 +149,17 @@ def _precons() -> list[str]:
     return [deck_id for deck_id, *_rest in launch._precons()[:3]]
 
 
-def test_table_spec_checks_seats_opponents_and_modes() -> None:
+def test_table_spec_checks_seats_opponents_and_modes(monkeypatch: pytest.MonkeyPatch) -> None:
     opp = _precons()
     spec = TableSpec(seats=4, opponents=opp)
     assert spec.tested_seats() == [0, 1, 2, 3]
     assert TableSpec(seats=4, opponents=opp, seat_policy="fixed").tested_seats() == [0]
+    five = [*opp, "precon/2011/other"]
+    assert TableSpec(seats=5, opponents=five).tested_seats() == [0, 1, 2, 3, 4]  # shipped lock: six
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)  # the old lock, set back in memory
     with pytest.raises(ValidationError, match="locked"):
-        TableSpec(seats=5, opponents=[*opp, "kaervek/current"])
+        TableSpec(seats=5, opponents=five)
+    monkeypatch.undo()
     with pytest.raises(ValidationError, match="braucht 3 Gegner"):
         TableSpec(seats=4, opponents=opp[:2])
     with pytest.raises(ValidationError, match="doppelt"):
