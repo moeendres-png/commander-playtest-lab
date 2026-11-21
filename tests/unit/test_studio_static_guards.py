@@ -2498,7 +2498,9 @@ eval(code + "\n" + cut("async function loadBranch(", "// The saved state of `bra
   state.baseStale = true; realRenderSaveState();
   out.loadingBox = [$("save-state").textContent, ($("save-state").nodes || []).length];
   state.baseStale = false;
-  edit(); releaseGet(); await editedLoad; await new Promise((r) => setTimeout(r, 5));
+  edit(); await syncDraftNow();
+  out.heldBack = [draftPuts.length, state.savedSeq !== state.changeSeq]; // not sent, so not counted as saved
+  releaseGet(); await editedLoad; await new Promise((r) => setTimeout(r, 5));
   out.editDuringLoad = [state.branch, usedCards.length, draftPuts.map((d) => d[0]), toasts.some((t) => t.includes("nicht gewechselt"))];
   // (e) a deck switch whose GET fails changes nothing, not even the deck (N21)
   resetAll(); set({ deckId: "d", branch: "test", baseRevision: "deck@t" }); state.decks = decks2;
@@ -2724,6 +2726,7 @@ def test_saving_sends_expected_parent_and_never_overwrites_a_moved_branch() -> N
     assert r["editBeforeFail"] == ["test", [["test", "deck@t"]], True]
     assert r["unsentSwitch"] == ["test", "test", 0, True]
     assert r["loadingBox"] == ["Variante lädt …", 0]
+    assert r["heldBack"] == [0, True]
     assert r["editDuringLoad"] == ["test", 0, ["test"], True]
     assert r["deckFail"] == ["d", "test", "deck@t", "d", 1]
     assert r["deckSameName"] == ["d2", "test", "deck@t2"]
