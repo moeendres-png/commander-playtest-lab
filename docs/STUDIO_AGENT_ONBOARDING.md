@@ -8,9 +8,11 @@ die Dateien so anzupassen, dass ein weiterer Agent weiß, wie abgearbeitet wird
 ## 1. In dieser Reihenfolge lesen
 
 1. `AGENTS.md` (ganz).
-2. `docs/STUDIO_SCOPE.md`, darin „Feste Regeln“, „Phasenplan S0 bis S6“ und „Abarbeitung (für
-   alle Agents)“.
-3. `docs/OWNER_DECISIONS_STUDIO_20261118.md`, dann `docs/OWNER_DECISIONS_STUDIO_20261112.md`.
+2. `docs/STUDIO_CHARTA_V2.md` (vom Owner angenommen ist nur §5, Q1 bis Q11) mit dem
+   Entscheid-Register `docs/OWNER_DECISIONS_STUDIO_20261118.md` (E15 Q10), dann
+   `docs/OWNER_DECISIONS_STUDIO_20261112.md`.
+3. `docs/STUDIO_SCOPE.md` (verbindlicher Scope), darin „Feste Regeln“, „Phasenplan S0 bis S6“ und
+   „Abarbeitung (für alle Agents)“.
 4. Das eigene Issue und die Claim-Tabelle im Übersichts-Issue #1167.
 
 ## 2. Anfangen

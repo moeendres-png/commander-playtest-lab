@@ -31,6 +31,10 @@ Quelle.
   dieser Datei nicht auf `main`). Es ist keine Owner-Quelle. Seine Teile B-X1, „Deck-Snapshot v1“
   und O2 sind durch O1 verworfen. Was hier aus ihm gilt, ist unten wörtlich oder inhaltlich
   übernommen, damit diese Datei für sich allein trägt.
+- Owner-Entscheide 2026-11-20 und 2026-11-21 (Abschnitt „Entscheide 2026-11-20/21“), vom
+  Co-Lead festgehalten in #1167, Kommentar 7038409631 (Kreuz-Review Option 1), #1661, Kommentar
+  7043554602 (5/6-Freigabe, Seed 123, F1) und #1167, Kommentar 7053750538 (alleiniger Writer,
+  Kreuz-Review-Ersatz).
 
 ## 1. Owner-Wortlaut vom 2026-11-18
 
@@ -420,7 +424,7 @@ Owner-Entscheid; Owner-Vorbehalte (Abschnitt 5 dieser Datei, `AGENTS.md` §8) bl
   unverändert**: jeder MATERIAL-PR braucht weiter ein Frischkontext-Review (bei zwei parallel
   arbeitenden Agenten zusätzlich ein Kreuz-Review); ob Klasse B das Frischkontext-Review behält, legt
   der Governance-PR fest. Auch die Texte zu Q1 (Gesamtrating, Gewicht `simulation`) ändern sich in
-  `AGENTS.md` §1 erst mit dem jeweiligen Paket. **Umgesetzt (Doku-Wahrheits-Pass, Refs #1667):** `AGENTS.md` §1 (Q1 nach #1684/#1686/#1691/#1696) und §10 (Klassen A/B; die Klasse B behält das Frischkontext-Review und verliert nur das Kreuz-Review); das „Studio-Daten-Gate“ für Schema-Änderungen und die Ablösung der Pflichtlektüre durch die Charta bleiben offen (#1667).
+  `AGENTS.md` §1 erst mit dem jeweiligen Paket. **Umgesetzt (Doku-Wahrheits-Pass, Refs #1667):** `AGENTS.md` §1 (Q1 nach #1684/#1686/#1691/#1696) und §10 (Klassen A/B; die Klasse B behält das Frischkontext-Review und verliert nur das Kreuz-Review); die Lesereihenfolge (zuerst Charta v2 und dieses Register, `docs/STUDIO_SCOPE.md` bleibt der verbindliche Scope) ist mit dem Governance-PR zu den Entscheiden 2026-11-20/21 in `AGENTS.md` §1, `CLAUDE.md` und `docs/STUDIO_AGENT_ONBOARDING.md` nachgezogen (Refs #1667); offen bleiben das „Studio-Daten-Gate“ für Schema-Änderungen und die Archivierung alter Pflichtlektüre-Dateien (#1667).
 - **Q11 Ältere Lanes** werden erst mit der Abschluss-Epoche entfernt (PB-03, `qualification/`);
   Release-Archiv lokal ablegen statt dauerhaftem GitHub-Release, solange #1108 offen ist.
 
@@ -428,6 +432,50 @@ Grenzen: Der Go deckt Q1 bis Q11, nicht die Owner-Vorbehalte aus Abschnitt 5 (in
 Freigabe 5/6 Sitze, Fork, Siegel/`qualification/`/WS17, Preise, #1108, Bezahldienste,
 Kollektionstrennung). Der Owner spielt vor dem PLAY-Bedienungs-Paket selbst eine ganze Partie;
 Abbruchkriterien in der Charta §6.
+
+### Entscheide 2026-11-20/21 (#1661, #1167)
+
+Owner, 2026-11-20 und 2026-11-21 (Session-Chat). Die Owner-Aussagen sind nicht wörtlich
+überliefert; der Co-Lead hat sie in den unten genannten Kommentaren festgehalten. Der Inhalt ist
+hier sinngemäß nach diesen Kommentaren übernommen (keine Anführungszeichen, siehe „Lesart“).
+
+1. **Freigabe 5/6 Sitze: Option A = warten** (2026-11-20, #1661, Kommentar 7043554602). Keine
+   Freigabe; `launch.MAX_RELEASED_SEATS = 4` bleibt. SIMULATE 5/6 wird frühestens freigegeben,
+   wenn (a) #1715 geklärt ist, einschließlich einer 4-Sitz-Vergleichsmessung mit n/N, (b) das
+   5-Sitz-Replay-Tape (F5) vorliegt und (c) der Owner F1 entschieden hat (Punkt 3). Danach folgen
+   das finale Ja des Owners und ein Freigabe-PR mit Review. Die am selben Tag früher
+   festgehaltene Option B (#1167, Kommentar 7038409631, Punkt 2: Beleg-Zusammenfassung, Merge
+   nach finalem Ja) ist damit überholt; es gilt Option A.
+2. **Seed 123: keine Umklassifizierung** (2026-11-20, #1661, Kommentar 7043554602). Eine
+   abweichende normalisierte Frame-Folge bleibt beim Bridge-Gate-Typ `NEUTRAL` ein FAIL
+   (`AGENTS.md` §10). Nichts wird in `UNORDERED_LISTS` (`engine/rules/frame_digest.py`)
+   aufgenommen, insbesondere nicht `legal_options`. #1692 bleibt offen, bis die Ursache auf der
+   Bridge-Seite geklärt ist.
+3. **F1 bleibt offen** (2026-11-20, #1661, Kommentar 7043554602): Einflussbereich `ALL`,
+   Angriffsoption `MULTIPLE` und 6 Sitze ohne Replay-Anspruch
+   (`docs/research/SEATS_5_6_QUALIFICATION_PLAN.md`, Phase 0). F1 ist eine Voraussetzung von
+   Option A (Punkt 1) und nicht dasselbe wie Punkt 2.
+4. **Kreuz-Review: Option 1** (2026-11-20, #1167, Kommentar 7038409631). `AGENTS.md` §10 gilt
+   wie geschrieben. Das Kreuz-Review ist nur für Klasse A nötig, in beiden Richtungen zwischen
+   den zwei parallel arbeitenden Agenten: Die Klasse-A-PRs des einen prüft eine Sitzung des
+   anderen. Für Klasse B (nur Größe) genügt das Frischkontext-Review. Jeder Review-Kommentar
+   nennt die Klasse. Bei Klasse A fordert der Autor das Kreuz-Review in #1167 an.
+
+   **Befristete Ausnahme seit 2026-11-21** (#1167, Kommentar 7053750538):
+   - Die Co-Lead-Sitzung ist alleiniger Writer für das Projekt. Alle Claims sind auf den Co-Lead
+     übergegangen, auch die des anderen Agenten und der zweiten Sitzung.
+   - Solange der andere Agent nicht verfügbar ist, ersetzt ein zweites Frischkontext-Review das
+     Kreuz-Review der Klasse A. Es läuft auf einem anderen Modell als das erste Review, ohne
+     Beteiligung des Autors und ohne die Befunde des ersten Reviews im Auftrag. Der
+     Review-Kommentar nennt „Kreuz-Review-Ersatz (Owner-Entscheid 2026-11-21)“, die Klasse und
+     die exakte Head-SHA.
+   - **Befristet:** Die Ausnahme gilt, bis der andere Agent wieder verfügbar ist. Zur Regel
+     (Option 1) kehrt das Projekt mit einem Hinweis des Owners zurück.
+   - Die Ausnahme ändert nur, wer das Kreuz-Review leistet. Das Frischkontext-Review und die
+     übrigen Merge-Bedingungen aus `AGENTS.md` §10 gelten unverändert.
+   - **Weiter owner-vorbehalten** (Abschnitt 5, `AGENTS.md` §8): die Freigabe von 5/6 Sitzen
+     (Option A, Punkt 1), Fork-Push und Repin, Siegel/`qualification/`/WS17, Sichtbarkeit
+     (#1108), Bezahldienste, die Sammlungstrennung und Preise.
 
 ## 3. Was aufgehoben, geändert oder neu ist
 
@@ -445,7 +493,10 @@ Abbruchkriterien in der Charta §6.
 | Review eines MATERIAL-PR aus frischem Kontext | zusätzlich Kreuz-Review durch den jeweils anderen Agenten, soweit zwei parallel arbeiten | E7, C7 |
 | Owner-Entscheidung 2026-10-15 (`owner_decision_20261015_batch_games_per_jvm`): jedes Ergebnis ruht auf dem sauberen Herunterfahren des Prozesses | gilt nur für `run_batch` und die Konformanz-Evidenz; für Studio-Serien ruht das Ergebnis auf dem bestätigten `shutdown_game` je Partie in eigenem Ergebnistyp (E9) | Owner 2026-11-19, #1612 |
 | „Keine Preise, kein Kaufmodus“ (B1) und „kein Multi-Commander über den Chulane-Fokus hinaus“ (B2), soweit BUILD betroffen | Zukauf-Modus im BUILD ohne Preise und TAM als zweiter Commander im BUILD erlaubt; Preise bleiben Owner-Vorbehalt, Chulane bleibt Standard (E14) | Owner 2026-11-19, #1187 |
-| E6 (Gesamtrating mit Rubrik und Tierlisten-Gewichte), B11/E2 (Gewicht `simulation` 0 bis G-SIM), A4 („nur objektive Daten“), E7/C7 (jeder MATERIAL-PR mit Kreuz-Review), Rundenlimit nur nach Owner-Entscheid (`STUDIO_SCOPE.md:103`, `:267`), 5/6 Sitze (E15 Q5), Datei-Schnitt Schema 21 → 22 | beschlossen; wirksam sind schon Gesamtrating v1, Layers, Rubrik v1, Turnier-Signal und Gewicht `simulation` entfernt (#1684, #1686, #1691, #1696), offen sind die zweite Tierlisten-Skala (#1680) und die Evidenz R0–R3 (Q1-c, #1666) (Q1), Vorschläge als eigene Klasse (Q2), MATERIAL in A/B (Q10, umgesetzt in `AGENTS.md` §10 mit dem Doku-Wahrheits-Pass #1697), rundenbegrenzte Frühphasen-Serie als Experiment-Typ nach Messversuch (Q4: gilt als Owner-Entscheid für dieses Rundenlimit, weiterhin mit vollen Piloten, kein Goldfish-/Passiv-Modus, `STUDIO_SCOPE.md:266-267`), Qualifikation 5/6 (Q5, Sperre bleibt), Gegner aus Studio-Deck-Ständen (Q6), Pilot-Regeln (Q8), drei Dateien (Q9), Ältere Lanes bleiben (Q11) | Owner 2026-11-20 (E15) |
+| E6 (Gesamtrating mit Rubrik und Tierlisten-Gewichte), B11/E2 (Gewicht `simulation` 0 bis G-SIM), A4 („nur objektive Daten“), E7/C7 (jeder MATERIAL-PR mit Kreuz-Review), Rundenlimit nur nach Owner-Entscheid (`STUDIO_SCOPE.md:103`, `:267`), 5/6 Sitze (E15 Q5), Datei-Schnitt Schema 21 → 22 | beschlossen; wirksam sind schon Gesamtrating v1, Layers, Rubrik v1, Turnier-Signal und Gewicht `simulation` entfernt (#1684, #1686, #1691, #1696), die zweite Tierlisten-Skala ist mit #1701 entfernt (#1680), die Evidenz R0–R3 ist mit #1717 als Paket 1 im Serien-Verlauf gebaut (höchstens R1 erreichbar; Erfassung für R2/R3 sowie Evidenz im Diff und in der Kürzen-/Tauschen-Spalte offen, Q1-c, #1666) (Q1), Vorschläge als eigene Klasse (Q2), MATERIAL in A/B (Q10, umgesetzt in `AGENTS.md` §10 mit dem Doku-Wahrheits-Pass #1697), rundenbegrenzte Frühphasen-Serie als Experiment-Typ nach Messversuch (Q4: gilt als Owner-Entscheid für dieses Rundenlimit, weiterhin mit vollen Piloten, kein Goldfish-/Passiv-Modus, `STUDIO_SCOPE.md:266-267`), Qualifikation 5/6 (Q5, Sperre bleibt), Gegner aus Studio-Deck-Ständen (Q6), Pilot-Regeln (Q8), drei Dateien (Q9), Ältere Lanes bleiben (Q11) | Owner 2026-11-20 (E15) |
+| 5/6-Freigabe Option B: Beleg-Zusammenfassung, Merge des Freigabe-PR nach finalem Ja (#1167, Kommentar 7038409631, Punkt 2) | Option A = warten: frühestens nach #1715 (mit 4-Sitz-Vergleichsmessung n/N), F5-Replay-Tape und Owner-Entscheid zu F1, dann finales Ja und Freigabe-PR mit Review; `launch.MAX_RELEASED_SEATS = 4` bleibt (Entscheide 2026-11-20/21, Nr. 1 und 3) | Owner 2026-11-20 (#1661) |
+| Abweichende Frame-Folge bei Seed 123 (#1692): Umklassifizierung oder Aufnahme in `UNORDERED_LISTS` erwogen | keine Umklassifizierung: bleibt FAIL (`NEUTRAL`), nichts in `UNORDERED_LISTS`, #1692 offen bis zur Ursache auf der Bridge-Seite (Entscheide 2026-11-20/21, Nr. 2) | Owner 2026-11-20 (#1661) |
+| Kreuz-Review der Klasse A durch eine Sitzung des anderen Agenten (E7/C7, E15 Q10) | bestätigt als Option 1 (`AGENTS.md` §10 wie geschrieben, Klasse B nur Frischkontext-Review); befristete Ausnahme seit 2026-11-21: Co-Lead alleiniger Writer, zweites Frischkontext-Review auf einem anderen Modell ersetzt das Kreuz-Review, bis der andere Agent wieder verfügbar ist (Entscheide 2026-11-20/21, Nr. 4) | Owner 2026-11-20 und 2026-11-21 (#1167) |
 | Entscheid-Dokumente: „fortgeschrieben, nie gelöscht“ (diese Datei, `AGENTS.md` §9 „archived, never deleted“) | überholter Wortlaut darf mit Begründung, Datum und Verweis im PR ersetzt oder entfernt werden; Git-Historie bleibt Quelle (E10) | Owner 2026-11-19, #1612 |
 
 ## 4. Gilt unverändert
