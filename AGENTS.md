@@ -17,14 +17,14 @@ plays real 100-card Commander decks rules-correctly, so simulated games can stan
   to four seats are active, five and six are not released (own qualification and the Owner's
   release).
 - The simulator is one part of the local Commander Studio (BUILD, PLAY, SIMULATE):
-  `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`. Before any Studio work read first
-  the charter `docs/STUDIO_CHARTA_V2.md` (the Owner accepted only its §5, Q1 to Q11; the rest is
-  the Lead's planning) with the decision register `docs/OWNER_DECISIONS_STUDIO_20261118.md`
-  (Owner decision of 2026-11-20, E15 Q10). The binding scope stays `docs/STUDIO_SCOPE.md`; the
-  older Owner decisions are in `docs/OWNER_DECISIONS_STUDIO_20261112.md` and
-  `docs/STUDIO_PLAN_SIMULATOR.md` (also the reference set of the Studio bridge gate, §10). Binding in
-  short: only objective data with provenance; every count with its denominator; cohorts never
-  added; source data bound to one commander; no guessed tier. Since the Owner decision of
+  `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`. Required reading before any Studio
+  work is the charter `docs/STUDIO_CHARTA_V2.md` (the Owner accepted only its §5, Q1 to Q11; the
+  rest is the Lead's planning) with the decision register `docs/OWNER_DECISIONS_STUDIO_20261118.md`
+  and its older part `docs/OWNER_DECISIONS_STUDIO_20261112.md` (Owner decisions of 2026-11-20,
+  E15 Q10, and of 2026-11-21, answer 8a). The former scope, simulator plan and roadmap are
+  archived (`docs/README.md`); the rules from them that still bind are in the register, section 6.
+  Binding in short: only objective data with provenance; every count with its denominator; cohorts
+  never added; source data bound to one commander; no guessed tier. Since the Owner decision of
   2026-11-20 (`docs/OWNER_DECISIONS_STUDIO_20261118.md` E15 Q1) the tier list is the usage view
   with one tier scale (the second scale was removed with #1701, #1680); the
   generated overall rating, the rating layers, the tournament-conversion component, the rubric-v1
@@ -32,11 +32,10 @@ plays real 100-card Commander decks rules-correctly, so simulated games can stan
   model judgement is "Kartenverständnis (Modellurteil)" (rubric v2, class URTEIL), for Chulane
   only (code state: not sortable, no tier, no rank, not part of the index). The Owner's marks (favorites, exclusions,
   notes) never count as a rating. Simulation results never enter the tier list as a weight; they
-  appear as evidence with maturity R0-R3 in the deck builder (package Q1-c, #1666). Package 1
-  (#1717) shows the maturity per stored paired series in the deck's series history; at most R1
-  is reachable, because the Studio records no controls, card competence check, pilot audit or
-  Owner acceptance for R2/R3 yet, and evidence in the diff and the cut/swap column is still
-  open. The `SIMULATED_RESULT` rules stay.
+  appear as evidence with maturity R0-R3 in the deck builder (package Q1-c, #1666, built in
+  several packages; which parts are done is recorded in #1666 and the register). At most R1 is
+  reachable while the Studio records no controls, card competence check, pilot audit or Owner
+  acceptance for R2/R3. The `SIMULATED_RESULT` rules stay.
 - Chulane, Teller of Tales is the only active owner deck for optimization
   (`docs/OWNER_DECK_FOCUS_CURRENT.md`). RogShai data is historical and regression data only.
 
@@ -208,7 +207,8 @@ explicitly launched Coordinator session, holds the project's maximum delegated d
 MTG Rules adjudication; evidence promotion, research and data integration, and evidence-policy
 decisions; qualification design and Studio bridge-gate adjudication; gate decisions and
 `AUTHORITY_GATE` resolution; shared architecture; S3 dead-code/doc cleanup (including the
-`pyproject.toml` console scripts under `docs/STUDIO_PLAN_SIMULATOR.md` D5); Studio database, storage
+`pyproject.toml` console scripts under D5 of the Studio simulator plan, carried into
+`docs/OWNER_DECISIONS_STUDIO_20261118.md` section 6, SR16); Studio database, storage
 and UI optimization; Studio product and calibration decisions within approved scope (tier cuts,
 signal choices, weights, derived local cohorts, coverage refreshes); cross-workstream integration,
 takeover and continuation of handed-over or completed PRs and issues, and closing or deferring
@@ -230,8 +230,12 @@ play or qualification; lifting paused or externally gated items (the all-command
 the Drive-dependent import #1187/#1176, scraping a site without a public API, removing a required
 check, activating price features or purchase handling; a purchase mode (Zukauf) for BUILD
 without prices was released on 2026-11-19, `docs/OWNER_DECISIONS_STUDIO_20261118.md` E14, and
-price display and planning functions for TAM purchases (Zukauf) on 2026-11-21, same register,
-entry „Preise für TAM“; purchase handling stays reserved).
+prices for the purchases (Zukauf) of TAM (the second commander in Studio BUILD, register E14) on
+2026-11-21, same register, entry „Preise für TAM“ (Co-Lead scope): a price shown only for cards not
+yet owned, in the TAM purchase view, and as planning functions only the sum, sorting and budget
+filter of the TAM purchase list and the marking as a guide value (Richtwert); prices never feed
+suggestions, cut/swap, evidence or maturity, ratings, the tier list, rankings or simulation
+figures; purchase handling stays reserved).
 
 The delegation never relaxes Rules Core authority (§2), evidence semantics (§4), hidden information
 in play (§5), the secret, credential and personal-data rules (§12), the Git hard boundaries and
@@ -349,7 +353,7 @@ weight table.
 
 A change under `engine-bridge/` made for the Studio (speed, the human seat, an engine look-ahead for
 pilots) merges without a new sealed qualification epoch when all of this holds (reference set and
-commands: `docs/STUDIO_PLAN_SIMULATOR.md`, `docs/STUDIO_BRIDGE_GATE_TOOLING.md`):
+commands: `docs/STUDIO_BRIDGE_GATE_TOOLING.md`):
 
 - **Declared kind:** `NEUTRAL` (every game unchanged) or `BEHAVIOUR` (play changes). BEFORE is the
   bridge at the merge base, AFTER the exact PR head, same pin, different jar digests.
@@ -393,8 +397,9 @@ merged only after Lead adjudication, the required checks and a recorded fresh-co
 When another agent's work is needed, comment on its pull request or open an issue. Issue references
 follow §10 (`Refs #N`). Reason: on 2026-11-14 unfinished branches were copied and merged before
 their review ended, and content a review had rejected reached `main`. How Studio work is claimed,
-split and reviewed: `docs/STUDIO_SCOPE.md`, section "Abarbeitung (für alle Agents)". Where a new
-agent starts and which files several lanes share: `docs/STUDIO_AGENT_ONBOARDING.md`.
+split and reviewed: `docs/OWNER_DECISIONS_STUDIO_20261118.md`, section 6.7 "Abarbeitung (für alle
+Agents)". Where a new agent starts and which files several lanes share:
+`docs/STUDIO_AGENT_ONBOARDING.md`.
 
 **Claims.** Every agent, the Development Lead and a Coordinator included, claims its work before
 it starts (Owner instruction of 2026-11-18 to avoid duplicate work,
@@ -441,17 +446,24 @@ Collection, deck, store and ownership card data may leave the Owner's machine (O
 `data/research/collection_1655/` is in the repository): executors and Studio tools may process these
 lists in agent environments and fetch card images and public MTG metadata from public sources (such
 as Scryfall, EDHREC, Commander Spellbook, playgroup.gg, Archidekt). Studio web image requests carry
-no referrer or credentials (`referrerpolicy="no-referrer"`). Purchase data and card prices are never
-collected or committed unless the Owner orders price data (E14, T3). On 2026-11-21 the Owner allowed
-prices for TAM purchases (Zukauf, above all planeswalkers and key cards). That covers collecting
-and showing them in the Studio, not committing them: TAM price snapshots stay in the local Studio
-store and are not committed until the Owner decides; tests use synthetic values only. The scope
-and limits (Co-Lead scope) are in the register entry „Preise für TAM“: display plus planning
-functions, an honest source and timestamp, a missing price shown as unknown and never as 0 €;
-prices never feed ratings, the tier list, rankings or simulation figures; no purchase handling, no
-paid services, no scraping of a site without a public API, and a Cardmarket API key stays
-`LOCAL_ONLY` with the Owner under the secret rules above. Chulane stays collection-only, without
-prices.
+no referrer or credentials (`referrerpolicy="no-referrer"`). The Studio sends no usage or
+measurement data outward (no telemetry, register E7 C5 and section 6.5, SR39): outward go only fetches of public card
+images and card data and, for TAM prices, fetches from a source in the source register (below).
+Purchase data and card prices are never collected or committed unless the Owner orders price data
+(E14, T3). On 2026-11-21 the Owner allowed prices for TAM purchases (Zukauf, above all
+planeswalkers and key cards). That covers collecting and showing them in the Studio, not
+committing them: TAM price snapshots stay in the local Studio store and are not committed until
+the Owner decides; tests use synthetic values only. Prices are collected only from a source listed
+in the Studio source register (`src/commander_lab/studio/sources.py`) whose access status is `ok` or
+`ok_with_conditions` (never `unclear` or `prohibited`; Cardmarket only after its access is clarified). The
+scope and limits (Co-Lead scope) are in the register entry „Preise für TAM“: a price only for cards
+not yet owned and only in the TAM purchase view (owned cards are in the shared collection, without
+a price); planning functions are only the sum, sorting and budget filter of the TAM purchase list
+and the marking as a guide value (Richtwert); an honest source and timestamp, a missing price
+shown as unknown and never as 0 €; prices never feed suggestions, cut/swap, evidence or maturity,
+ratings, the tier list, rankings or simulation figures; no purchase handling, no paid services, no
+scraping of a site without a public API, and a Cardmarket API key stays `LOCAL_ONLY` with the Owner
+under the secret rules above. Chulane stays collection-only, without prices.
 
 ## 13. Semantic Completion Rule
 

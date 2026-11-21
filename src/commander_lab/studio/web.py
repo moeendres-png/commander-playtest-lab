@@ -30,6 +30,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from . import (
     allocation,
     answer_cache,
+    answer_models,
     build_list,
     builder,
     cache,
@@ -143,6 +144,12 @@ def _store_busy(error: sqlite3.OperationalError) -> bool:
     """The write lock was not free in time (another process writes): worth a retry, not a 500."""
     text = str(error).casefold()
     return "locked" in text or "busy" in text
+
+
+def _documented(model: object, description: str) -> dict[int | str, dict[str, object]]:
+    """OpenAPI documentation of a route that returns remembered bytes (``answer_cache``): the
+    200 response names ``model``. Documentation only, the handler's ``Response`` is sent as is."""
+    return {200: {"model": model, "description": description}}
 
 
 _CSP = (
@@ -718,7 +725,10 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
-    @app.get("/api/corpus-audit")
+    @app.get(
+        "/api/corpus-audit",
+        responses=_documented(answer_models.CorpusAuditAnswer, "Counts-only corpus audit."),
+    )
     def corpus_audit_route() -> Response:
         """The counts-only formal audit of the counted corpus decks (#1549), the same section
         as ``corpus_audit`` in the data report, without the rest of the report. Read only,
@@ -746,7 +756,12 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
-    @app.get("/api/pool")
+    @app.get(
+        "/api/pool",
+        responses=_documented(
+            answer_models.PoolAnswer, "The pool with everything the builder shows."
+        ),
+    )
     def pool(
         commander: list[str] = Query(min_length=1, max_length=2),
         profile: str | None = Query(default=None, max_length=80),
@@ -850,7 +865,10 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
-    @app.get("/api/evidence")
+    @app.get(
+        "/api/evidence",
+        responses=_documented(answer_models.EvidenceAnswer, "Evidence per pool card, all UNRATED."),
+    )
     def evidence(
         view: str = evidence_model.VIEW_COMMANDER,
         commander: list[str] = Query(default=[], max_length=2),
@@ -928,7 +946,12 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
-    @app.get("/api/roles/audit")
+    @app.get(
+        "/api/roles/audit",
+        responses=_documented(
+            answer_models.RoleAuditAnswer, "Tagger against Oracle-text role claims."
+        ),
+    )
     def role_audit_route(
         commander: str | None = Query(default=None, min_length=1, max_length=200),
     ) -> Response:
@@ -1024,7 +1047,12 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
-    @app.get("/api/universe/counted")
+    @app.get(
+        "/api/universe/counted",
+        responses=_documented(
+            list[answer_models.CountedUniverseItem], "Counted deck-list universes of the commander."
+        ),
+    )
     def universe_counted(
         commander: str = Query(min_length=1, max_length=200),
     ) -> Response:
@@ -2565,7 +2593,10 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
-    @app.get("/api/deck-browser")
+    @app.get(
+        "/api/deck-browser",
+        responses=_documented(answer_models.DeckBrowserAnswer, "Filtered decks and co-occurrence."),
+    )
     def deck_browser_route(
         commander: str = Query(default="", max_length=200),
         q: str = Query(default="", max_length=200),

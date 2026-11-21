@@ -3,8 +3,8 @@
 Stand: 2026-11-18, Refs #1519, #1167. Diese Seite sammelt nur, was im Repository steht. Jede
 Angabe nennt ihre Quelle. **Nichts hier sagt, dass es auf dem Owner-PC läuft.** „zu prüfen am PC“
 (ZPAP) heißt: aus dem Repository nicht belegbar oder nur am PC feststellbar. Ergebnisse von
-dort sind `SIMULATED_RESULT` und kein Qualifikationsbeleg (`docs/STUDIO_SCOPE.md`,
-`docs/STUDIO_PLAN_SIMULATOR.md`, „What a result must always say“).
+dort sind `SIMULATED_RESULT` und kein Qualifikationsbeleg (`docs/OWNER_DECISIONS_STUDIO_20261118.md`
+Abschnitt 6, `docs/STUDIO_BRIDGE_GATE_TOOLING.md`, „What a result must always say“).
 
 Die ausfüllbare Vorlage für die Abnahme am Owner-PC liegt in
 `docs/STUDIO_ABNAHME_PROTOKOLL.md`.
@@ -151,7 +151,7 @@ von XMage nicht unterstützt sind, für eine Deck-Revision oder die ganze Sammlu
 ## 6. Abnahme PLAY (AK-1 bis AK-8): Chulane gegen drei KI-Sitze
 
 Verbindliche Abnahme-Definition ist AK-1 bis AK-8 (`docs/OWNER_DECISIONS_STUDIO_20261118.md`, E4;
-`docs/STUDIO_SCOPE.md`, PLAY P0). Auf `main` ist PLAY P0 gemergt (PR #1515): Brett-Klick für
+archivierter Scope, PLAY P0; weiter bindend: Entscheid-Register Abschnitt 6.2). Auf `main` ist PLAY P0 gemergt (PR #1515): Brett-Klick für
 Ziel, Angreifer, Blocker, Karte aus der Hand und Fähigkeit eines Permanents (`static/boardclick.js`,
 Listen bleiben als Ausweichweg), Sitz-Sperre 2–4 im Startpfad (`launch.MAX_RELEASED_PLAY_SEATS = 4`; SIMULATE: `launch.MAX_RELEASED_SEATS = 6`),
 kein Timeout für den Mensch-Sitz (`decision_timeout_seconds = 0`, `studio/play.py`), KI-Hände live
@@ -171,8 +171,9 @@ Die konkreten Prüfpunkte und Felder stehen in `docs/STUDIO_ABNAHME_PROTOKOLL.md
 
 ## 7. Abnahme Serie: 36-Seed-Referenzserie und gepaarte Serien
 
-Im Repository heißt die Referenz R1: das echte Vier-Spieler-Pod von
-`scripts/run_real_4p_full_game_smoke.py`, Seeds 1 bis 36 (`docs/STUDIO_PLAN_SIMULATOR.md`,
+Im Repository heißt die Referenz R1 (der Referenzsatz; nicht der Reifegrad R1 der Simulations-Evidenz
+und nicht die Register-Regel SR1): das echte Vier-Spieler-Pod von
+`scripts/run_real_4p_full_game_smoke.py`, Seeds 1 bis 36 (`docs/STUDIO_BRIDGE_GATE_TOOLING.md`,
 „Reference set“; `docs/performance/XMAGE_EFFICIENCY_OFFENSIVE_2026-10-21.md`). Dort gemessen
 (andere Maschine, 4 Kerne, 16 GB, JDK 21): 408 s mit 4 Arbeitern und 9 Spielen je JVM, 36/36
 identisch. Das ist ein Vergleichswert, kein Sollwert für den Owner-PC. Ob die „36-Seed-Referenzserie“
@@ -181,7 +182,7 @@ des Owners R1 oder eine Studio-Serie (`POST /api/simulations/batch`, `base_seed`
 
 - **Weg A, R1 über das Benchmark-Skript (belegt nur unter Linux/WSL):** im Repo
   `python scripts/benchmark_xmage_full_games.py run --jar <JAR> --out serie36.json --seeds 1-36 --workers 4 --games-per-jvm 9 --fast`
-  (Befehl aus `docs/STUDIO_PLAN_SIMULATOR.md`; ob `--workers 4` zum PC passt: ZPAP).
+  (Befehl aus `docs/STUDIO_BRIDGE_GATE_TOOLING.md`; ob `--workers 4` zum PC passt: ZPAP).
   **Hinweis Windows (Stand PR #1551):** der `import resource` in
   `scripts/benchmark_xmage_full_games.py` und `scripts/check_studio_series_identity.py` ist
   abgesichert; ohne das Modul bricht der Aufruf nicht mehr mit `ModuleNotFoundError` ab, die
@@ -227,7 +228,7 @@ des Owners R1 oder eine Studio-Serie (`POST /api/simulations/batch`, `base_seed`
    Owner-PC optisch zu prüfen).
 6. Drei vollständige Vierer-Partien mit Mensch auf Sitz 1 nach AK-1 bis AK-8 inkl. Störfällen
    (`docs/STUDIO_ABNAHME_PROTOKOLL.md`, Blöcke B und C).
-7. Was mit „36-Seed-Referenzserie“ gemeint ist (R1-Benchmark oder Studio-Serie) und welche Laufzeit
+7. Was mit „36-Seed-Referenzserie“ gemeint ist (R1-Benchmark, also der Referenzsatz, oder Studio-Serie) und welche Laufzeit
    am Owner-PC akzeptabel gilt; der Repo-Messwert 408 s stammt von anderer Hardware.
 8. Identitätsnachweis, Pilotblock und Kreislauf Deck-Stand → Partie → Serie → Verlauf
    (`docs/STUDIO_ABNAHME_PROTOKOLL.md`, Blöcke D–F, nach #1521 / #1531).

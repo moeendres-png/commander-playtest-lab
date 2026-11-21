@@ -36,6 +36,10 @@ later confirmation of the same family can withhold an earlier verdict, the findi
 The family level is the smallest ``decision_alpha`` of its members: approximately conservative,
 no proven error-rate guarantee over the O'Brien-Fleming looks.
 
+An undecided member of a family with several members at the same level shows the y of its own
+single test; the text says "(Einzeltest, vor Holm)" then (no y at all after a Holm withhold or
+at a smaller family level). The page reads ``belegt``, not ``urteil``, for "belegt".
+
 ``empfehlungsfähig`` needs R2, a finding about the current state (``main``) or its direct
 predecessor, and the pilot fingerprint and bridge JAR of the series equal to the current ones.
 TAM gets no simulation badge before the sim readiness per cohort is counted (E15 Q3).
@@ -513,6 +517,15 @@ def _one(
             "(Empfindlichkeit auf diesem Niveau unbekannt)"
         )
         y_pp = None
+    if (
+        holm_entry is not None
+        and holm_entry[1] > 1
+        and verdict == NO_DIFFERENCE
+        and y_pp is not None
+    ):
+        # an undecided member of a family with several members at the same level: its y is the
+        # uncorrected single test's, so the label says so (Q1-c Paket 2, #1666)
+        verdict_text = f"{verdict_text} (Einzeltest, vor Holm)"
     raw_seeds = res.get("seeds") if counted else None
     seeds = [s for s in raw_seeds if _int(s) is not None] if isinstance(raw_seeds, list) else []
     plan_seeds = exp_view.get("seeds")

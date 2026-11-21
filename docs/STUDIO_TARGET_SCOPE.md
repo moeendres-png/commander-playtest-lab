@@ -3,10 +3,10 @@
 > **Überholt:** Owner 2026-11-18: „Bitte nach deinen neuen hier ausgemachten scope arbeiten und das
 > so hinterlegen“ (wörtlich in PR #1514, Kommentar 6987989133) und „hier mein GO für alle deinen
 > Empfehlungen“ (vom Lead wörtlich übermittelt, ohne eigene Kommentar-ID). Der verbindliche Scope steht in
-> `docs/STUDIO_SCOPE.md`, die Owner-Entscheide in `docs/OWNER_DECISIONS_STUDIO_20261118.md`. Für die
+> `STUDIO_SCOPE.md` (seit 2026-11-21 archiviert), die Owner-Entscheide in `docs/OWNER_DECISIONS_STUDIO_20261118.md`. Für die
 > Freigabe „S-B, O1-A bis O4-A“ unten gibt es keine belegte Owner-Quelle; falls der Owner sie in
 > einer anderen Sitzung gegeben hat, entscheidet er die strittigen Punkte (Liste in
-> `docs/STUDIO_SCOPE.md`) neu, bis dahin wird aus ihnen nichts gebaut. Diese Datei bleibt als
+> `STUDIO_SCOPE.md`, weiter bindend im Register Abschnitt 6.8) neu, bis dahin wird aus ihnen nichts gebaut. Diese Datei bleibt als
 > Verlaufsdokument erhalten.
 
 Stand: 2026-11-18 (Owner-Freigabe: Option S-B, O1-A, O2-A, O3-A, O4-A), Refs #1167, #1169, #1172, #1251, #1265, #1369.

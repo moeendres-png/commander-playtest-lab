@@ -128,6 +128,11 @@ TOPICS: dict[str, tuple[str, tuple[str, ...]]] = {
             "PROJECT_UPDATE_CURRENT_STATE.md",
             "external_runtime_setup.md",
             "rules-engine-bridge-protocol.md",
+            # Owner answer 8a (2026-11-21, #1667): charter v2 and decision register replace them
+            # as required reading; their binding rules live in the register, section 6.
+            "STUDIO_SCOPE.md",
+            "STUDIO_PLAN_SIMULATOR.md",
+            "STUDIO_ROADMAP_20261112.md",
         ),
     ),
 }

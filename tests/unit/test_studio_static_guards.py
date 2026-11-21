@@ -1750,7 +1750,13 @@ console.log(JSON.stringify({
     )  # useCards says what it left out (#1648)
     app_js = (STATIC / "app.js").read_text(encoding="utf-8")
     assert "async function ensureUnownedLoadedFor(" in app_js
-    assert app_js.count("await ensureUnownedLoadedFor(") >= 4
+    # loadBranchNow loads the cards of the draft or the saved state in one call (#1727)
+    assert app_js.count("await ensureUnownedLoadedFor(") >= 3
+    load = app_js[
+        app_js.index("async function loadBranchNow(") : app_js.index("// The saved state of")
+    ]
+    assert "const cards = draft.draft ? draft.draft.cards : revision.cards;" in load
+    assert load.index("await ensureUnownedLoadedFor(cards)") < load.index("useCards(")
 
 
 # ---- #1662: the pill and the list of single games say what a game is -------------------------
@@ -2077,6 +2083,7 @@ const out = {};
   const zahlNodes = (root) => all(root).filter((x) => String(x.attrs.class || "").includes("zahl-simuliert")).length;
   out.zahlNode = [zahlNodes(experimentDetailView(h, base, { ...deps, zahlen })), zahlNodes(experimentDetailView(h, base, deps))];
   out.seedsBig = text(experimentDetailView(h, { ...base, seeds: { first: 1200000, last: 1200003, count: 4, rule: "consecutive" } }, deps));
+  out.seedsHalf = text(experimentDetailView(h, { ...base, seeds: { first: 7, last: null, count: null, rule: null } }, deps));
 
   // the list's error page names the server's reason
   const slot = h("div", {});
@@ -2159,6 +2166,7 @@ def test_experiment_view_shows_route_fields_and_decides_only_on_confirmation() -
     assert "empfehlungsfähig" not in r["empfR3"] and "R3 voll belegt" in r["empfR3"]
     assert r["zahlNode"] == [1, 0]
     assert "Seeds: 1200000 bis 1200003" in r["seedsBig"]
+    assert "Seeds: 7 bis unbekannt (unbekannt Seeds)" in r["seedsHalf"]
 
 
 _APP_JS = r"""
@@ -2166,82 +2174,584 @@ const fs = require("fs");
 const app = fs.readFileSync("app.js", "utf8");
 const cut = (from, to) => app.slice(app.indexOf(from), app.indexOf(to));
 const code = [
-  cut("let discardingStaleDraft = false;", "async function loadBranch()"),
+  cut("let discardingStaleDraft = false;", "// Loads `target`"),
+  cut("function renderSaveState() {", "function changed() {").replace("function renderSaveState()", "function realRenderSaveState()"),
   cut("// The saved state of `branch` now", "function saveRevision("),
   cut("async function afterExperimentDecision(", "async function openSeriesFromHistory("),
+  cut("async function adoptForeignDraft() {", 'document.addEventListener("visibilitychange"'),
 ].join("\n");
-let posted = []; let deleted = 0; let toasts = []; let rendered = 0; let branchLoads = 0; let historyShown = 0;
-let server = { main: "deck@v", variant2: "deck@w" };
-let draft = null;
-const state = { deckId: "d", branch: "main", baseRevision: "deck@b", baseStale: false, changeSeq: 1, savedSeq: 0, dirty: true,
-  decks: [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }] };
+// a small server with the contract of #1733: expected_parent must be the head (null = new)
+let postedCards, revCards, server, posts, deletes, gets, toasts, failed, rendered, branchLoads, historyShown, closed, deleteFails, onAfterPrecheck, onPost, busy, draftOf, order, boxes, midDiscard, lockedDuringPost, listNow, syncs, deleteDecks, draftReadDecks;
+function resetAll() {
+  server = { main: "deck@v", variant2: "deck@w" }; posts = []; deletes = []; gets = 0; toasts = []; failed = []; rendered = 0;
+  branchLoads = 0; historyShown = 0; closed = 0; deleteFails = false; onAfterPrecheck = null; onPost = null; busy = false; draftOf = {}; revCards = {}; postedCards = []; order = []; boxes = {}; midDiscard = null; lockedDuringPost = null; listNow = [{ card_id: "c1", zone: "main", quantity: 1 }]; syncs = 0; deleteDecks = []; draftReadDecks = [];
+}
+resetAll();
+const httpError = (status, detail) => Object.assign(new Error(detail), { status, detail });
 const api = async (path, method, body) => {
-  if (path === "/api/decks") return [{ deck_id: "d", branches: Object.entries(server).map(([branch, revision_id]) => ({ branch, revision_id })) }];
-  if (path.startsWith("/api/revisions/")) return { cards: [], issues: [], shape: null };
-  if (path.endsWith("/draft") && method === "DELETE") { deleted += 1; await new Promise((r) => setTimeout(r, 5)); return {}; }
-  if (path.endsWith("/draft")) return { draft };
-  posted.push([path, method, body && body.branch, body && body.parent_revision_id]); return { revision_id: "deck@n" };
+  if (path === "/api/decks") {
+    gets += 1;
+    const answer = [{ deck_id: "d", branches: Object.entries(server).map(([branch, revision_id]) => ({ branch, revision_id })) }];
+    if (onAfterPrecheck) { const hook = onAfterPrecheck; onAfterPrecheck = null; hook(); }
+    return answer;
+  }
+  if (path.startsWith("/api/revisions/")) { const rid = decodeURIComponent(path.split("/").pop()); if (revHold[rid]) await revHold[rid]; if (revFail === rid) throw httpError(503, "Speicher belegt, bitte erneut versuchen."); if (getHold) await getHold; return { cards: revCards[decodeURIComponent(path.split("/").pop())] || [], issues: [], shape: null }; }
+  const m = path.match(/branches\/([^/]+)\/draft$/);
+  if (path === "/api/check") return { issues: [], shape: null, roles: {}, combos: null };
+  if (m && method === "PUT") { if (putFail) throw httpError(409, "Entwurf in anderem Tab geändert"); draftPuts.push([decodeURIComponent(m[1]), body.base_revision_id]); return { updated_at: "t2" }; }
+  if (m && method === "DELETE") { deletes.push(decodeURIComponent(m[1])); order.push("delete"); deleteDecks.push(decodeURIComponent(path.split("/")[3])); if (deleteFails) throw httpError(500, "Platte voll"); await new Promise((r) => setTimeout(r, 5)); return {}; }
+  if (m) { draftReadDecks.push(decodeURIComponent(path.split("/")[3])); return { draft: draftOf[decodeURIComponent(m[1])] || null }; }
+  if (path.endsWith("/revisions") && method === "POST") {
+    posts.push({ ...body, cards: undefined, deck: decodeURIComponent(path.split("/")[3]) });
+    postedCards.push(body.cards);
+    await new Promise((r) => setTimeout(r, 5));
+    lockedDuringPost = [boxes["deck-select"] && boxes["deck-select"].disabled, boxes["branch-select"] && boxes["branch-select"].disabled];
+    if (onPost) { const hook = onPost; onPost = null; hook(); }
+    if (busy) throw httpError(503, "Speicher belegt, bitte erneut versuchen.");
+    const head = Object.prototype.hasOwnProperty.call(server, body.branch) ? server[body.branch] : null;
+    if (!("expected_parent" in body)) { server[body.branch] = "deck@unchecked"; return { revision_id: "deck@unchecked", expected_parent_missing: true }; }
+    if (body.expected_parent === null && head !== null) throw httpError(409, "Variante wurde inzwischen angelegt");
+    if (body.expected_parent !== head) throw httpError(409, "Zweig hat sich geändert; Entwurf ist veraltet");
+    const id = sameMode ? head : `deck@${body.branch}-${posts.length}`;
+    server[body.branch] = id; return { revision_id: id };
+  }
+  throw httpError(404, "unknown");
 };
-const entries = () => []; const toast = (t) => toasts.push(t); const renderSaveState = () => { rendered += 1; };
-const rememberVariant = () => {}; const loadDecks = async () => {}; const renderHeader = () => {}; const fail = (e) => toasts.push(String(e));
-const ensureUnownedLoadedFor = async () => {}; const useCards = () => {}; const renderAll = () => {}; const syncDraft = async () => {};
-const closeModal = () => {}; const showHistory = async () => { historyShown += 1; };
-eval(code + "\n" + cut("async function loadBranch()", "// The saved state of `branch` now").replace("async function loadBranch()", "async function realLoadBranch()"));
-const loadBranch = async () => { branchLoads += 1; };
+let sameMode = false;
+let getHold = null; let loadBranchImpl = null; let loadFailedForTest = false; let revFail = null; let revHold = {};
+const elementsSaveState = () => {};
+let entriesImpl = null;
+const entries = () => (entriesImpl ? entriesImpl() : listNow);
+const document = { hidden: false };
+const toast = (t) => toasts.push(t); const renderSaveState = () => { rendered += 1; };
+const rememberVariant = () => {}; let decksFail = false;
+let decksHold = null;
+const loadDecks = async () => { order.push("decks"); if (decksHold) await decksHold; if (decksFail) throw httpError(503, "Speicher belegt, bitte erneut versuchen."); };
+const renderHeader = () => {}; const fail = (e) => failed.push(StudioUI.germanError(e));
+const closeModal = () => { closed += 1; }; const showHistory = async () => { historyShown += 1; };
+const loadBranch = async (...args) => { branchLoads += 1; order.push("branch"); if (loadBranchImpl) await loadBranchImpl(...args); };
+function renderDeckSelects() {} const renderDeck = () => {};
+let draftPuts = []; let putFail = false;
+const $ = (id) => (boxes[id] = boxes[id] || { disabled: false, replaceChildren(...nodes) { this.nodes = nodes; } });
+const h = (tag, attrs, ...kids) => ({ tag, attrs: attrs || {}, kids });
+let modalOpened = 0; const openNewBranchModal = () => { modalOpened += 1; };
+const StudioUI = { germanError: (e) => String(e && e.detail) };
+let usedCards = [];
+let ensureCalls = []; let ensureHold = null;
+const ensureUnownedLoadedFor = async (cards) => { ensureCalls.push(cards.map((c) => c.card_id)); if (ensureHold) { const hold = ensureHold; ensureHold = null; await hold; } }; const useCards = (cards) => { usedCards.push(cards.map((c) => c.card_id)); }; const renderAll = () => {}; let syncDraftImpl = null;
+const syncDraft = async () => { syncs += 1; if (syncDraftImpl) return syncDraftImpl(); };
+const state = { deckId: "d", branch: "main", baseRevision: "deck@v", baseStale: false, changeSeq: 1, savedSeq: 0, dirty: true,
+  decks: [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }] };
+const set = (o) => Object.assign(state, { baseStale: false, savedSeq: state.changeSeq, ...o });
+eval(code + "\n" + cut("async function loadBranch(", "// The saved state of `branch` now").replace("async function loadBranch(", "async function realLoadBranch(") + "\n" + cut("async function syncDraftNow()", "// Another page"));
 (async () => {
   const out = {};
-  // same branch, base moved: refused
+  // own branch on its own head: one POST with expected_parent = the base
+  set({ branch: "main", baseRevision: "deck@v" });
   await commitRevision("main", "");
-  out.stale = [posted.length, state.baseStale, toasts.some((t) => t.includes("Entwurf ist veraltet, neu laden"))];
-  // "Neue Variante" named main from another branch: never overwrites main
-  state.branch = "variant2"; state.baseRevision = "deck@w"; state.baseStale = false; toasts = [];
+  out.own = [posts.map((p) => [p.branch, p.expected_parent, p.parent_revision_id]), state.baseStale];
+  // new variant: expected_parent null, parent = base; the old draft goes
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  await commitRevision("neu", "");
+  out.newVariant = [posts.map((p) => [p.branch, p.expected_parent, p.parent_revision_id]), deletes, state.branch];
+  // the pre-check reads the server, never state.decks (D1c): state.decks says deck@b
+  resetAll(); set({ branch: "main", baseRevision: "deck@b", decks: [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@b" }] }] });
   await commitRevision("main", "");
-  out.otherBranch = [posted.length, toasts.some((t) => t.includes("gibt es schon"))];
-  // a stale draft may be saved as a new variant (the work is kept)
-  state.branch = "main"; state.baseRevision = "deck@b"; state.baseStale = true;
+  out.precheck = [posts.length, state.baseStale, toasts.some((t) => t.includes("Entwurf ist veraltet") && t.includes("Neu laden verwirft sie"))];
+  // race of two tabs: the other tab saves between the pre-check and the POST: 409, no retry
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  onAfterPrecheck = () => { server.main = "deck@other-tab"; };
+  await commitRevision("main", "");
+  out.race = [posts.length, state.baseStale, server.main, toasts.some((t) => t.includes("Entwurf ist veraltet")), failed.length];
+  // the work of the stale tab is kept as a new variant
   await commitRevision("rettung", "");
-  out.rescue = [posted.map((p) => [p[2], p[3]]), state.baseStale, state.branch];
-  // the own branch on its own base: saved
-  posted = []; server.rettung = "deck@n";
-  await commitRevision("rettung", "");
-  out.fresh = posted.map((p) => [p[2], p[3]]);
-  // loadBranch names a draft on another saved state stale and keeps its base
-  state.branch = "main"; state.decks = [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }];
-  draft = { cards: [], base_revision_id: "deck@b", updated_at: "t" };
+  out.rescue = [posts.map((p) => [p.branch, p.expected_parent, p.parent_revision_id]), state.baseStale, state.branch, server.main];
+  // the answer of an earlier save was lost: the head holds exactly this list, so it is saved
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", baseStale: true }); server.main = "deck@lost"; revCards["deck@lost"] = entries();
+  await commitRevision("main", "");
+  out.lost = [posts.length, state.baseStale, state.baseRevision, toasts.some((t) => t.includes("schon gespeichert")), toasts.some((t) => t.includes("ging verloren")), toasts.some((t) => t.includes("schon gespeichert in Variante „main“."))];
+  // the same for a new variant: the variant already holds exactly this list (reply lost)
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.neu = "deck@x"; revCards["deck@x"] = entries();
+  await commitRevision("neu", "");
+  out.lostNew = [posts.length, state.branch, state.baseRevision, deletes, toasts.some((t) => t.includes("schon gespeichert in Variante „neu“.")), toasts.some((t) => t.includes("gibt es schon"))];
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.neu = "deck@x"; revCards["deck@x"] = [{ card_id: "c9", zone: "main", quantity: 1 }];
+  await commitRevision("neu", "");
+  out.takenNew = [posts.length, state.branch, deletes, toasts.some((t) => t.includes("gibt es schon"))];
+  // the variant is switched while the POST is in the air: the editor state stays that of the new one
+  const openOther = { branch: "variant2", baseRevision: "deck@w", dirty: false, baseStale: false, savedSeq: 0 };
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  onPost = () => { Object.assign(state, openOther); midDiscard = discardStaleDraft(); };
+  await commitRevision("main", ""); await midDiscard;
+  out.switchOk = [posts.length, server.main, state.branch, state.baseRevision, state.dirty, state.baseStale, toasts.some((t) => t.includes("Die Ansicht bleibt bei der inzwischen gewählten Variante")), deletes, lockedDuringPost, [$("deck-select").disabled, $("branch-select").disabled]];
+  out.switchOkToast = toasts.filter((t) => t.includes("Speichern läuft schon")).length; // the discard click is told
+  // a list loaded during the save (a foreign draft), or an edit made during it: never shown as saved
+  const forests = [{ card_id: "forest", zone: "main", quantity: 10 }];
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", changeSeq: 1, savedSeq: 1 });
+  onPost = () => { listNow = forests; };
+  await commitRevision("main", "");
+  out.loadDuring = [state.baseRevision, state.dirty, state.needsDraftPut, syncs];
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", changeSeq: 1, savedSeq: 1 });
+  onPost = () => { listNow = [...listNow, { card_id: "c2", zone: "main", quantity: 1 }]; state.changeSeq += 1; };
+  await commitRevision("main", "");
+  out.editDuring = [state.baseRevision, state.dirty, state.needsDraftPut, syncs];
+  set({ changeSeq: 1 });
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", changeSeq: 1, savedSeq: 1 });
+  await commitRevision("main", "");
+  out.cleanSave = [state.dirty, state.needsDraftPut, syncs];
+  // neither the focus adoption nor "Aktuellen Stand laden" runs during a save
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", changeSeq: 1, savedSeq: 1 });
+  usedCards = []; draftOf.main = { cards: forests, updated_at: "t" };
+  onPost = () => { midDiscard = adoptForeignDraft(); };
+  await commitRevision("main", ""); await midDiscard;
+  out.adoptDuring = [usedCards.length, toasts.some((t) => t.includes("anderen Seite"))];
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", changeSeq: 1, savedSeq: 1, draftConflict: true });
+  onPost = () => { realRenderSaveState(); $("save-state").nodes.filter((n) => n && n.tag === "button")[0].attrs.onclick(); };
+  await commitRevision("main", "");
+  out.reloadDuring = [branchLoads, toasts.filter((t) => t.includes("Speichern läuft schon")).length];
+  state.draftConflict = false;
+  // another deck instead of another variant
+  resetAll(); set({ deckId: "d", branch: "main", baseRevision: "deck@v" });
+  onPost = () => { Object.assign(state, { deckId: "d2", branch: "main", baseRevision: "deck@q", dirty: false }); };
+  await commitRevision("main", ""); state.deckId = "d";
+  out.switchDeck = [posts.length, state.branch, state.baseRevision, state.dirty, posts[0].deck];
+  // the deck is switched between the pre-check and the POST: the POST still goes to the saved deck
+  resetAll(); set({ deckId: "d", branch: "main", baseRevision: "deck@v" });
+  onAfterPrecheck = () => { Object.assign(state, { deckId: "d2", branch: "main", baseRevision: "deck@q", dirty: false }); };
+  await commitRevision("main", ""); state.deckId = "d";
+  out.switchDeckEarly = [posts.length, posts[0] && posts[0].deck, state.baseRevision, posts[0] && [posts[0].expected_parent, posts[0].parent_revision_id]];
+  // switched while the pre-check runs and the other tab moved main: 409, the new variant is not marked stale
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  onAfterPrecheck = () => { server.main = "deck@other-tab"; Object.assign(state, openOther); };
+  await commitRevision("main", "");
+  out.switch409 = [posts.length, state.branch, state.baseRevision, state.baseStale, toasts.some((t) => t.includes("hat sich geändert, nichts gespeichert")), posts[0] && [posts[0].expected_parent, posts[0].parent_revision_id]];
+  // the head moved and holds another list, switched meanwhile: not marked stale either
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.main = "deck@moved"; revCards["deck@moved"] = [{ card_id: "c9", zone: "main", quantity: 1 }];
+  onAfterPrecheck = () => { Object.assign(state, openOther); };
+  await commitRevision("main", "");
+  out.switchStale = [posts.length, state.branch, state.baseStale];
+  // a new variant, switched meanwhile: saved there, the editor stays on the chosen variant
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  onPost = () => { Object.assign(state, openOther); };
+  await commitRevision("neu", "");
+  out.switchNew = [posts.length, server.neu !== undefined, state.branch, state.baseRevision, deletes, toasts.some((t) => t.includes("Stand gespeichert in Variante „neu“. Die Ansicht bleibt"))];
+  // the deck is switched during a new-variant save: the old draft is deleted in the saved deck
+  resetAll(); set({ deckId: "d", branch: "main", baseRevision: "deck@v" });
+  onPost = () => { Object.assign(state, { deckId: "d2", branch: "main2" }); };
+  await commitRevision("neu", ""); state.deckId = "d";
+  out.newVariantDeck = [deleteDecks, deletes];
+  // same: the identical draft of the own branch is read and deleted in the saved deck
+  resetAll(); set({ deckId: "d", branch: "main", baseRevision: "deck@v" });
+  draftOf.main = { base_revision_id: "deck@v", cards: entries() }; sameMode = true;
+  onPost = () => { Object.assign(state, { deckId: "d2", branch: "main2" }); };
+  await commitRevision("main", ""); state.deckId = "d"; sameMode = false;
+  out.sameDeck = [draftReadDecks, deleteDecks];
+  // the stale notice: its buttons are wired to "new variant" and to "discard and reload"
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", baseStale: true });
+  realRenderSaveState();
+  const nodes = $("save-state").nodes; const pill = nodes[0]; const buttons = nodes.filter((n) => n && n.tag === "button");
+  out.staleBox = [pill.kids[0], buttons.map((b) => b.kids[0])];
+  buttons[0].attrs.onclick();
+  out.staleNew = [modalOpened, deletes.length];
+  await buttons[1].attrs.onclick();
+  out.staleDiscard = [deletes, order];
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.main = "deck@lost"; revCards["deck@lost"] = [{ card_id: "c9", zone: "main", quantity: 1 }];
+  await commitRevision("main", "");
+  out.lostOther = [posts.length, state.baseStale];
+  // a new name that already holds this very base (another list): told, no POST
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.copy = "deck@v";
+  await commitRevision("copy", "");
+  out.copyExists = [posts.length, toasts.some((t) => t.includes("gibt es schon")), state.branch];
+  // after a lost answer a draft of this very list may still name the old base: it goes too
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.main = "deck@lost"; revCards["deck@lost"] = entries();
+  draftOf.main = { base_revision_id: "deck@v", cards: entries() };
+  await commitRevision("main", "");
+  out.lostDraft = deletes.slice();
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.main = "deck@lost"; revCards["deck@lost"] = entries();
+  draftOf.main = { base_revision_id: "deck@v", cards: [{ card_id: "c2", zone: "main", quantity: 1 }] };
+  await commitRevision("main", "");
+  out.lostDraftOther = deletes.slice();
+  // scenario a: switching from "test" to main; saving before the load is done never writes
+  // the old list onto main (state.branch and the base already name main)
+  const holdGets = () => { let release; getHold = new Promise((r) => { release = r; }); return release; };
+  resetAll(); set({ branch: "test", baseRevision: "deck@t", dirty: true }); server.test = "deck@t";
+  state.decks = [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }, { branch: "test", revision_id: "deck@t" }] }];
+  loadBranchImpl = realLoadBranch; let release = holdGets();
+  $("branch-select").value = "main";
+  const switching = onBranchSelect();
+  await new Promise((r) => setTimeout(r, 5));
+  const midState = [state.branch, state.baseRevision];
+  await commitRevision("main", "");
+  out.scenarioA = [midState, posts.length, server.main, toasts.some((t) => t.includes("lädt noch: nichts gespeichert")), toasts.some((t) => t.includes("gespeichert.") && !t.includes("nichts"))];
+  release(); await switching; getHold = null;
+  // after the load, saving works again
+  await commitRevision("main", "");
+  out.scenarioAAfter = posts.length;
+  // the same while a deck switch loads
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); release = holdGets();
+  $("deck-select").value = "d";
+  const deckSwitch = onDeckSelect();
+  await new Promise((r) => setTimeout(r, 5));
+  await commitRevision("main", "");
+  out.scenarioDeck = [posts.length, toasts.some((t) => t.includes("lädt noch"))];
+  release(); await deckSwitch; getHold = null;
+  // ... also while the deck list itself still loads (before the variant load starts)
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  let releaseDecks; decksHold = new Promise((r) => { releaseDecks = r; });
+  $("deck-select").value = "d";
+  const deckListSwitch = onDeckSelect();
+  await commitRevision("main", "");
+  out.scenarioDeckList = [posts.length, toasts.some((t) => t.includes("lädt noch"))];
+  decksHold = null; releaseDecks(); await deckListSwitch;
+  // scenario b: the stale notice of the old variant goes at once; discarding while the new
+  // variant loads never deletes the new variant's draft
+  resetAll(); set({ branch: "test", baseRevision: "deck@t", baseStale: true }); server.test = "deck@t"; draftOf.main = { cards: [], base_revision_id: "deck@v" };
+  state.decks = [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }, { branch: "test", revision_id: "deck@t" }] }];
+  release = holdGets();
+  $("branch-select").value = "main";
+  const renderedBefore = rendered;
+  const switchingB = onBranchSelect();
+  const renderedSync = rendered - renderedBefore;
+  await discardStaleDraft();
+  out.scenarioB = [renderedSync >= 1, state.baseStale, deletes, toasts.some((t) => t.includes("lädt noch: nichts verworfen"))];
+  release(); await switchingB; getHold = null; loadBranchImpl = null;
+  // a GET of the new variant fails (503): nothing changes, the select goes back, the failure is
+  // shown, saving and discarding stay blocked until a load succeeds
+  const branches3 = [{ branch: "main", revision_id: "deck@v" }, { branch: "test", revision_id: "deck@t" }, { branch: "c", revision_id: "deck@c" }];
+  const failingRev = (id) => { revFail = id; };
+  resetAll(); set({ branch: "test", baseRevision: "deck@t", dirty: false }); server.test = "deck@t"; server.c = "deck@c";
+  state.decks = [{ deck_id: "d", branches: branches3 }]; loadBranchImpl = realLoadBranch; failingRev("deck@v");
+  $("branch-select").value = "main";
+  await onBranchSelect();
+  const afterFail = [state.branch, state.baseRevision, $("branch-select").value, failed.slice()];
+  await commitRevision("main", ""); await commitRevision("test", ""); await discardStaleDraft();
+  out.loadFail = [afterFail, posts.length, deletes.length, toasts.filter((t) => t.includes("Laden fehlgeschlagen")).length];
+  // the failure notice offers a reload
+  elementsSaveState();
+  realRenderSaveState();
+  out.loadFailBox = $("save-state").nodes.map((n) => (typeof n === "string" ? n : n.kids.join(""))).join("");
+  // a later successful load makes saving possible again
+  failingRev(null); $("branch-select").value = "main";
+  await onBranchSelect();
+  await commitRevision("main", "");
+  out.loadRecovered = [state.branch, posts.map((p) => [p.branch, p.expected_parent])];
+  // test -> main -> c quickly; main's late answer is dropped, the editor shows c
+  resetAll(); set({ branch: "test", baseRevision: "deck@t" }); server.test = "deck@t"; server.c = "deck@c"; usedCards = []; ensureCalls = [];
+  state.decks = [{ deck_id: "d", branches: branches3 }]; revCards["deck@c"] = [{ card_id: "C1", zone: "main", quantity: 1 }];
+  let releaseMain; revHold["deck@v"] = new Promise((r) => { releaseMain = r; });
+  $("branch-select").value = "main"; const toMain = onBranchSelect();
+  $("branch-select").value = "c"; const toC = onBranchSelect();
+  await toC; releaseMain(); await toMain;
+  out.lateAnswer = [state.branch, state.baseRevision, usedCards.at(-1), usedCards.length, ensureCalls.length];
+  // main's cards arrive, then c is applied while main still loads its pool: main is dropped
+  resetAll(); set({ branch: "test", baseRevision: "deck@t" }); usedCards = []; ensureCalls = [];
+  state.decks = [{ deck_id: "d", branches: branches3 }];
+  let releasePool; ensureHold = new Promise((r) => { releasePool = r; });
+  $("branch-select").value = "main"; const slowMain = onBranchSelect();
+  await new Promise((r) => setTimeout(r, 5));
+  $("branch-select").value = "c"; await onBranchSelect();
+  releasePool(); await slowMain;
+  out.latePool = [state.branch, state.baseRevision, usedCards.length];
+  // an earlier load that fails after a later one succeeded does not block saving
+  resetAll(); set({ branch: "test", baseRevision: "deck@t" }); server.c = "deck@c";
+  state.decks = [{ deck_id: "d", branches: branches3 }];
+  let releaseFail; revHold["deck@v"] = new Promise((r) => { releaseFail = r; }); revFail = "deck@v";
+  $("branch-select").value = "main"; const failingMain = onBranchSelect();
+  $("branch-select").value = "c"; await onBranchSelect();
+  releaseFail(); await failingMain; revFail = null;
+  await commitRevision("c", "");
+  out.lateFail = [state.branch, posts.map((p) => p.branch), toasts.some((t) => t.includes("Laden fehlgeschlagen")), failed.slice()];
+  // ---- last round: no silent loss after a failed load, transactional deck switch ----
+  const edit = () => { state.changeSeq += 1; state.dirty = true; state.needsDraftPut = true; };
+  const decks2 = [{ deck_id: "d", branches: branches3 }, { deck_id: "d2", branches: [{ branch: "x", revision_id: "deck@x2" }, { branch: "test", revision_id: "deck@t2" }] }];
+  syncDraftImpl = syncDraftNow; loadBranchImpl = realLoadBranch;
+  // (a) main fails to load, then a card is changed: the change is saved as draft of "test"
+  resetAll(); set({ branch: "test", baseRevision: "deck@t", dirty: false, needsDraftPut: false }); state.decks = [{ deck_id: "d", branches: branches3 }]; draftPuts = [];
+  revFail = "deck@v"; $("branch-select").value = "main";
+  await onBranchSelect();
+  edit(); await syncDraftNow();
+  out.editAfterFail = [state.branch, draftPuts.slice(), state.savedSeq === state.changeSeq, toasts.includes("Laden fehlgeschlagen: nichts gespeichert. Bitte die Variante erneut laden.") || true];
+  // the failed-load toast says "nichts" (N20)
+  await commitRevision("test", "");
+  out.failToast = toasts.slice(-1)[0];
+  // "Erneut laden" tries main again once it answers; the draft of "test" was saved first
+  revFail = null; draftPuts = [];
+  await retryLoad();
+  out.retry = [state.branch, state.baseRevision];
+  // (b) a change right before a switch that fails: saved first, never lost
+  resetAll(); set({ branch: "test", baseRevision: "deck@t", dirty: false, needsDraftPut: false }); state.decks = [{ deck_id: "d", branches: branches3 }]; draftPuts = [];
+  edit(); revFail = "deck@v"; $("branch-select").value = "main";
+  await onBranchSelect();
+  out.editBeforeFail = [state.branch, draftPuts.slice(), state.savedSeq === state.changeSeq];
+  revFail = null;
+  // (c) a change that cannot be saved (draft conflict): nothing is switched or reloaded
+  resetAll(); set({ branch: "test", baseRevision: "deck@t", dirty: false, needsDraftPut: false }); state.decks = [{ deck_id: "d", branches: branches3 }]; usedCards = [];
+  edit(); putFail = true; $("branch-select").value = "main";
+  await onBranchSelect();
+  out.unsentSwitch = [state.branch, $("branch-select").value, usedCards.length, failed.some((f) => f.includes("nicht als Entwurf gesichert"))];
+  failed = []; loadFailedForTest = true;
+  putFail = false;
+  // (d) a change while the GETs run: the switch is dropped, the change stays and is saved
+  resetAll(); set({ branch: "test", baseRevision: "deck@t", dirty: false, needsDraftPut: false }); state.decks = [{ deck_id: "d", branches: branches3 }]; draftPuts = []; usedCards = [];
+  let releaseGet; revHold["deck@v"] = new Promise((r) => { releaseGet = r; });
+  $("branch-select").value = "main"; const editedLoad = onBranchSelect();
+  await new Promise((r) => setTimeout(r, 5));
+  // while loading the box says "lädt" and offers no button (N19)
+  state.baseStale = true; realRenderSaveState();
+  out.loadingBox = [$("save-state").textContent, ($("save-state").nodes || []).length];
+  state.baseStale = false;
+  edit(); await syncDraftNow();
+  out.heldBack = [draftPuts.length, state.savedSeq !== state.changeSeq]; // not sent, so not counted as saved
+  releaseGet(); await editedLoad; await new Promise((r) => setTimeout(r, 5));
+  out.editDuringLoad = [state.branch, usedCards.length, draftPuts.map((d) => d[0]), toasts.some((t) => t.includes("nicht gewechselt"))];
+  // (e) a deck switch whose GET fails changes nothing, not even the deck (N21)
+  resetAll(); set({ deckId: "d", branch: "test", baseRevision: "deck@t" }); state.decks = decks2;
+  revFail = "deck@t2"; $("deck-select").value = "d2";
+  await onDeckSelect();
+  out.deckFail = [state.deckId, state.branch, state.baseRevision, $("deck-select").value, failed.length];
+  revFail = null;
+  // (f) a deck switch opens the variant of the same name, else the first
+  $("deck-select").value = "d2";
+  await onDeckSelect();
+  out.deckSameName = [state.deckId, state.branch, state.baseRevision];
+  // (g) a deck switch with an unsent change: saved as draft of the open variant first
+  resetAll(); set({ deckId: "d", branch: "test", baseRevision: "deck@t", dirty: false, needsDraftPut: false }); state.decks = decks2; draftPuts = [];
+  edit(); $("deck-select").value = "d2";
+  await onDeckSelect();
+  out.deckEdit = [state.deckId, state.branch, draftPuts.map((d) => d[0]), failed.slice()];
+  // (h) a change made while a deck switch fails is saved once no load runs any more
+  resetAll(); set({ deckId: "d", branch: "test", baseRevision: "deck@t", dirty: false, needsDraftPut: false }); state.decks = decks2; draftPuts = [];
+  let releaseD2; revHold["deck@t2"] = new Promise((r) => { releaseD2 = r; }); revFail = "deck@t2";
+  $("deck-select").value = "d2"; const failingDeck = onDeckSelect();
+  await new Promise((r) => setTimeout(r, 5));
+  edit(); releaseD2(); await failingDeck; await new Promise((r) => setTimeout(r, 5)); revFail = null;
+  out.editInFailedDeck = [state.deckId, draftPuts.map((d) => d[0]), state.savedSeq === state.changeSeq];
+  syncDraftImpl = null; state.deckId = "d";
+  // no draft PUT while a load runs: the old list never lands in the new variant
+  resetAll(); set({ branch: "test", baseRevision: "deck@t", dirty: true, needsDraftPut: true });
+  state.decks = [{ deck_id: "d", branches: branches3 }];
+  revHold["deck@v"] = new Promise((r) => { releaseMain = r; }); draftPuts = [];
+  $("branch-select").value = "main"; const loadingMain = onBranchSelect();
+  await new Promise((r) => setTimeout(r, 5));
+  await syncDraftNow();
+  out.putWhileLoading = draftPuts.slice();
+  releaseMain(); await loadingMain; loadBranchImpl = null;
+  // the list of the click is saved, even if it changes during the pre-check
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  let clickList = [{ card_id: "c1", zone: "main", quantity: 1 }];
+  entriesImpl = () => clickList;
+  onAfterPrecheck = () => { clickList = [{ card_id: "c7", zone: "main", quantity: 1 }]; };
+  await commitRevision("main", "");
+  out.cardsAtClick = postedCards.map((c) => c.map((x) => x.card_id));
+  entriesImpl = null;
+  // a new variant of the same name appears between the check and the POST: the server's text
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  onAfterPrecheck = () => { server.neu2 = "deck@x"; };
+  await commitRevision("neu2", "");
+  out.nameRace = [posts.length, state.baseStale, toasts.includes("Variante wurde inzwischen angelegt"), state.branch];
+  // "Neue Variante" named main from another branch never overwrites main
+  resetAll(); set({ branch: "variant2", baseRevision: "deck@w" });
+  await commitRevision("main", "");
+  out.otherBranch = [posts.length, toasts.some((t) => t.includes("gibt es schon")), server.main];
+  // three clicks, one POST
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  await Promise.all([commitRevision("main", ""), commitRevision("main", ""), commitRevision("main", "")]);
+  out.clicks = [posts.length, toasts.filter((t) => t.includes("Speichern läuft schon")).length];
+  // 503 is shown honestly, nothing marked stale
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); busy = true;
+  await commitRevision("main", "");
+  out.busy = [posts.length, failed, state.baseStale];
+  // the old draft cannot be deleted after a rescue: a hint, and no second variant on a new click
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); deleteFails = true;
+  await commitRevision("rettung2", "");
+  out.rescueDeleteFails = [posts.length, state.branch, toasts.some((t) => t.includes("nicht erneut speichern")), failed.length];
+  await commitRevision("rettung2", "");
+  out.rescueAgain = posts.length;
+  // the same content as the head: the identical draft goes (else it blocks the adoption)
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  draftOf.main = { base_revision_id: "deck@v", cards: entries() };
+  sameMode = true; // the server answers the head itself for the same content
+  out.sameNoop = null;
+  try { await commitRevision("main", ""); } catch (e) { out.sameNoop = String(e); }
+  out.same = deletes.slice();
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  draftOf.main = { base_revision_id: "deck@v", cards: [{ card_id: "c2", zone: "main", quantity: 1 }] };
+  await commitRevision("main", "");
+  out.sameOther = deletes.slice();
+  // same list, but the draft names another base: it is not this tab's draft and stays (M15)
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); sameMode = true;
+  draftOf.main = { base_revision_id: "deck@x", cards: entries() };
+  await commitRevision("main", "");
+  out.sameOtherBase = deletes.slice(); sameMode = false;
+  // same base, the draft differs only in a quantity, or only in a zone: it stays
+  for (const [key, cards] of [["sameQty", [{ card_id: "c1", zone: "main", quantity: 2 }]], ["sameZone", [{ card_id: "c1", zone: "commander", quantity: 1 }]]]) {
+    resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+    draftOf.main = { base_revision_id: "deck@v", cards };
+    await commitRevision("main", "");
+    out[key] = deletes.slice();
+  }
+  sameMode = false;
+  // loadBranch: a draft on another saved state keeps its base (sent as expected_parent later)
+  resetAll(); set({ branch: "main", decks: [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }] });
+  draftOf.main = { cards: [], base_revision_id: "deck@b", updated_at: "t" };
   await realLoadBranch();
   out.load = [state.baseStale, state.baseRevision];
-  draft = { cards: [], base_revision_id: "deck@v", updated_at: "t" };
+  await commitRevision("main", "");
+  out.afterLoad = [posts.length, state.baseStale];
+  draftOf.main = { cards: [], base_revision_id: "deck@v", updated_at: "t" };
   await realLoadBranch();
   out.loadOk = [state.baseStale, state.baseRevision];
-  // after an adoption: a dirty main is named stale, a clean main is loaded
-  state.branch = "main"; state.dirty = true; state.baseStale = false; branchLoads = 0;
+  // after an adoption: decks are read while the dialog is open; a failure keeps it open
+  resetAll(); set({ branch: "main", dirty: true });
   await afterExperimentDecision("adopted");
-  out.afterDirty = [state.baseStale, branchLoads];
-  state.dirty = false; state.baseStale = false;
+  out.afterDirty = [state.baseStale, branchLoads, closed];
+  set({ dirty: false });
   await afterExperimentDecision("adopted");
   out.afterClean = [state.baseStale, branchLoads];
+  decksFail = true; closed = 0; let thrown = null;
+  try { await afterExperimentDecision("adopted"); } catch (e) { thrown = e.detail; }
+  out.afterFail = [closed, thrown]; decksFail = false;
   await afterExperimentDecision("rejected");
   out.afterReject = historyShown;
-  // discarding a stale draft: one DELETE per click series
-  deleted = 0;
+  resetAll();
   await Promise.all([discardStaleDraft(), discardStaleDraft(), discardStaleDraft()]);
-  out.deleted = deleted;
+  out.deleted = deletes.length;
+  out.discardOrder = order;
   process.stdout.write(JSON.stringify(out));
 })();
 """
 
 
-def test_saving_never_overwrites_a_moved_or_foreign_branch_and_keeps_rescue() -> None:
+def test_saving_sends_expected_parent_and_never_overwrites_a_moved_branch() -> None:
     r = _node_json(_APP_JS)
     assert isinstance(r, dict)
-    assert r["stale"] == [0, True, True]
-    assert r["otherBranch"] == [0, True]  # "Neue Variante" named main never overwrites main
-    assert r["rescue"] == [[["rettung", "deck@b"]], False, "rettung"]
-    assert r["fresh"] == [["rettung", "deck@n"]]
-    assert r["load"] == [True, "deck@b"] and r["loadOk"] == [False, "deck@v"]
-    assert r["afterDirty"] == [True, 0] and r["afterClean"] == [False, 1]
+    assert r["own"] == [[["main", "deck@v", "deck@v"]], False]
+    assert r["newVariant"] == [[["neu", None, "deck@v"]], ["main"], "neu"]
+    assert r["precheck"] == [0, True, True]
+    # race: exactly one POST, refused by the server, never retried, main untouched
+    assert r["race"] == [1, True, "deck@other-tab", True, 0]
+    assert r["rescue"] == [
+        [["main", "deck@v", "deck@v"], ["rettung", None, "deck@v"]],
+        False,
+        "rettung",
+        "deck@other-tab",
+    ]
+    assert r["otherBranch"] == [0, True, "deck@v"]
+    assert r["clicks"] == [1, 2]  # one POST; the other clicks are told, not dropped silently
+    assert r["busy"] == [1, ["Speicher belegt, bitte erneut versuchen."], False]
+    assert r["rescueDeleteFails"] == [1, "rettung2", True, 0]
+    assert r["rescueAgain"] == 2  # now on the new variant itself: a normal save, no new branch
+    assert r["same"] == ["main"] and r["sameOther"] == [] and r["sameNoop"] is None
+    assert r["sameQty"] == [] and r["sameZone"] == []
+    assert r["lost"] == [
+        0,
+        False,
+        "deck@lost",
+        True,
+        False,
+        True,
+    ]  # stale flag cleared, no guessed cause
+    assert r["lostNew"] == [0, "neu", "deck@x", ["main"], True, False]
+    assert r["takenNew"] == [0, "main", [], True]
+    # switched while saving: the POST went to the deck and variant of the click, the editor
+    # state stays that of the newly opened one, the selectors were locked, a discard waits
+    assert r["switchOk"] == [
+        1,
+        "deck@main-1",
+        "variant2",
+        "deck@w",
+        False,
+        False,
+        True,
+        [],
+        [True, True],
+        [False, False],
+    ]
+    assert r["switchOkToast"] == 1
+    # the list in the editor differs from the saved one: an unsent draft on the new base, synced
+    assert r["loadDuring"] == ["deck@main-1", True, True, 1]
+    assert r["editDuring"] == ["deck@main-1", True, True, 1]
+    assert r["cleanSave"] == [False, False, 0]
+    assert r["adoptDuring"] == [0, False]
+    assert r["reloadDuring"] == [0, 1]
+    assert r["newVariantDeck"] == [["d"], ["main"]]
+    assert r["sameDeck"] == [["d"], ["d"]]
+    assert r["switchDeck"] == [1, "main", "deck@q", False, "d"]
+    # the base of the click is posted, never the one of the deck or variant opened meanwhile
+    assert r["switchDeckEarly"] == [1, "d", "deck@q", ["deck@v", "deck@v"]]
+    assert r["switch409"] == [1, "variant2", "deck@w", False, True, ["deck@v", "deck@v"]]
+    assert r["switchStale"] == [0, "variant2", False]
+    assert r["switchNew"] == [1, True, "variant2", "deck@w", ["main"], True]
+    # the stale notice names the loss of reloading and wires both buttons
+    pill, labels = r["staleBox"]
+    assert "Als neue Variante speichern behält die Arbeit" in pill and "löscht sie" in pill
+    assert labels == ["Als neue Variante speichern", "Entwurf verwerfen und aktuellen Stand laden"]
+    assert r["staleNew"] == [1, 0] and r["staleDiscard"] == [
+        ["main"],
+        ["delete", "decks", "branch"],
+    ]
+    assert r["discardOrder"] == [
+        "delete",
+        "decks",
+        "branch",
+    ]  # one click series: delete, reload both
+    assert r["lostOther"] == [0, True]
+    assert r["copyExists"] == [0, True, "main"]
+    assert r["lostDraft"] == ["main"] and r["lostDraftOther"] == []
+    # scenario a: a save while a variant loads writes nothing and never says "gespeichert"
+    # while main loads the editor still is "test" (deck, variant, base and list switch together)
+    assert r["scenarioA"] == [["test", "deck@t"], 0, "deck@v", True, False]
+    assert r["scenarioAAfter"] == 1
+    assert r["scenarioDeck"] == [0, True]
+    assert r["scenarioDeckList"] == [0, True]
+    # scenario b: the old notice goes at once; a discard while loading deletes nothing
+    # the old notice is replaced by "lädt" at once; a discard while loading deletes nothing
+    assert r["scenarioB"] == [True, True, [], True]
+    assert r["cardsAtClick"] == [["c1"]]
+    assert r["sameOtherBase"] == []
+    after_fail, fail_posts, fail_deletes, fail_toasts = r["loadFail"]
+    assert after_fail == ["test", "deck@t", "test", ["Speicher belegt, bitte erneut versuchen."]]
+    assert fail_posts == 0 and fail_deletes == 0 and fail_toasts == 3
+    assert "Laden fehlgeschlagen: nichts gespeichert" in r["loadFailBox"]
+    assert "Erneut laden" in r["loadFailBox"]
+    assert r["loadRecovered"] == ["main", [["main", "deck@v"]]]
+    # main's late answer is never applied and loads nothing (no pool load for a dropped answer)
+    assert r["lateAnswer"] == ["c", "deck@c", ["C1"], 1, 1]
+    assert r["latePool"] == ["c", "deck@c", 1]
+    assert r["lateFail"] == ["c", ["c"], False, []]  # a dropped load's failure is not shown
+    assert r["editAfterFail"][:3] == ["test", [["test", "deck@t"]], True]
+    assert (
+        r["failToast"]
+        == "Laden fehlgeschlagen: nichts gespeichert. Bitte die Variante erneut laden."
+    )
+    assert r["retry"] == ["main", "deck@v"]
+    assert r["editBeforeFail"] == ["test", [["test", "deck@t"]], True]
+    assert r["unsentSwitch"] == ["test", "test", 0, True]
+    assert r["loadingBox"] == ["Variante lädt …", 0]
+    assert r["heldBack"] == [0, True]
+    assert r["editDuringLoad"] == ["test", 0, ["test"], True]
+    assert r["deckFail"] == ["d", "test", "deck@t", "d", 1]
+    assert r["deckSameName"] == ["d2", "test", "deck@t2"]
+    assert r["deckEdit"] == ["d2", "test", ["test"], []]
+    assert r["editInFailedDeck"] == ["d", ["test"], True]
+    assert r["putWhileLoading"] == []
+    assert r["nameRace"] == [1, False, True, "main"]
+    assert r["load"] == [True, "deck@b"] and r["afterLoad"] == [0, True]
+    assert r["loadOk"] == [False, "deck@v"]
+    assert r["afterDirty"] == [True, 0, 1] and r["afterClean"] == [False, 1]
+    assert r["afterFail"] == [0, "Speicher belegt, bitte erneut versuchen."]
     assert r["afterReject"] == 1
     assert r["deleted"] == 1
+
+
+def test_the_compile_request_never_names_a_branch() -> None:
+    """#1727: compile with ``save`` writes into the server's ``module:<package>`` branch; the
+    UI sends no ``branch`` (a client branch such as main would be an unchecked write)."""
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    start = app.index("/modules/compile`")
+    body = app[app.index("{", start) : app.index("});", start)]
+    assert "module_ids" in body and "save:" in body
+    assert "branch" not in body and "expected_parent" not in body
+    assert app.count("/modules/compile`") == 1
 
 
 def test_experiment_view_static_guards() -> None:
@@ -2259,14 +2769,16 @@ def test_experiment_view_static_guards() -> None:
         'localMainDraft: () => state.branch === "main" && (state.dirty || state.baseStale)' in app
     )
     load = app[
-        app.index("async function loadBranch()") : app.index("async function currentBranchRevision")
+        app.index("async function loadBranch(") : app.index("async function currentBranchRevision")
     ]
     assert "draft.draft.base_revision_id !== branch.revision_id" in load
     assert "state.baseStale = true" in load
     render = app[app.index("function renderSaveState()") : app.index("function changed()")]
     assert render.index("if (state.baseStale)") < render.index("if (state.draftConflict)")
     # "Aktuellen Stand laden" reads the branches first, never the stale base again
-    assert "loadDecks().then(loadBranch)" in render
+    assert "loadDecks().then(() => loadBranch({ discardLocal: true }))" in render
+    for sink in ("innerHTML", "outerHTML", "insertAdjacentHTML"):  # M14: DOM only via h()
+        assert sink not in app, sink
     after = app[app.index("async function afterExperimentDecision") :]
     after = after[: after.index("\n}\n")]
     assert "state.baseStale = true" in after
