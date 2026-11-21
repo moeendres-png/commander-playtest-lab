@@ -2379,9 +2379,20 @@ def set_favorite(store: StudioStore, card_id: str, favorite: bool) -> dict[str, 
     }
 
 
-def drop_draft(store: StudioStore, deck_id: str, branch: str) -> None:
+def drop_draft(
+    store: StudioStore, deck_id: str, branch: str, *, keep_based_on: str | None = None
+) -> None:
+    """Drop the draft of ``branch``. With ``keep_based_on``, a draft whose base is that revision
+    stays: it was started on the state just saved and is newer than the save (#1727)."""
     with store.connection as db:
-        db.execute("DELETE FROM deck_draft WHERE deck_id = ? AND branch = ?", (deck_id, branch))
+        if keep_based_on is None:
+            db.execute("DELETE FROM deck_draft WHERE deck_id = ? AND branch = ?", (deck_id, branch))
+        else:
+            db.execute(
+                "DELETE FROM deck_draft WHERE deck_id = ? AND branch = ? "
+                "AND (base_revision_id IS NULL OR base_revision_id != ?)",
+                (deck_id, branch, keep_based_on),
+            )
 
 
 def set_mark(
