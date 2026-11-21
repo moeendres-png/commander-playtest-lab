@@ -53,10 +53,12 @@ from commander_lab.qualification.current_boundary.bridge_launcher import canonic
 from commander_lab.storage import sha256_value
 
 from .games import (
+    COHORT_UNKNOWN,
     HUMAN_PILOT_LABEL,
     DecisionPolicy,
     GameRecorder,
     RecordingPolicy,
+    cohort_fields,
     free_game_id,
     redact_frame_for_human_seats,
     redact_pilot_state_for_human_seats,
@@ -1125,6 +1127,7 @@ class InteractiveGameSession:
                 # Counts visible state changes; the page sends it back as ``since`` (#1593).
                 "revision": self._revision,
                 "header": self.prepared.header,
+                **cohort_fields(self.prepared.header),
                 "human_seats": sorted(self.human_seats),
                 "decision_timeout_seconds": self.decision_timeout_seconds,
                 "ai_delay_ms": self.ai_delay_ms,
@@ -1340,6 +1343,8 @@ class InteractivePlayManager:
             "interactive": bool(human_set),
             "running": recorded.get("running", False),
             "header": header,
+            "cohort": recorded.get("cohort", COHORT_UNKNOWN),
+            "played_seats": recorded.get("played_seats", []),
             "human_seats": human_list,
             "decision_timeout_seconds": (
                 header.get(

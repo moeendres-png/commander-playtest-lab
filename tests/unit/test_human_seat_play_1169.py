@@ -4035,6 +4035,7 @@ def _snapshot_as_before(
             "running": session._running,
             "revision": session._revision,
             "header": copy.deepcopy(session.prepared.header),
+            **games.cohort_fields(session.prepared.header),
             "human_seats": sorted(session.human_seats),
             "decision_timeout_seconds": session.decision_timeout_seconds,
             "ai_delay_ms": session.ai_delay_ms,
@@ -4305,6 +4306,7 @@ console.log(JSON.stringify({
 _SUBMIT_PRELUDE = f"""
 const F = require('./follow.js');
 const P1a = require('./play_p1a.js');
+const C = require('./cohort.js');
 const SRC = require('fs').readFileSync({json.dumps((STATIC / "partie.js").as_posix())}, 'utf8');
 const grab = (name) => {{
   const start = SRC.indexOf('function ' + name + '(');
@@ -4315,7 +4317,7 @@ const grab = (name) => {{
   return head + SRC.slice(start, i + 1);
 }};
 const NAMES = ['submitHumanChoice', 'loadMore', 'abortHeldRequest', 'loadMoreOnce', 'render', 'viewState',
-  'followTick'];
+  'followTick', 'renderCohortPill'];
 const pending = (id) => ({{decision_id: id, seat: 0, decision_class: 'priority',
   legal_options: [{{option_id: 'pass-' + id, option_type: 'pass_priority', label: 'Pass'}}],
   pilot_state: {{turn_number: 3, players: []}}}});
@@ -4327,7 +4329,9 @@ async function run(opts) {{
     index: 1, pendingDecision: pending('d1'), selectedOptions: [], orderList: [], submitting: false,
     ff: {{on: false}}, autoPassAttempt: null, foreground: 0, pollAbort: null, followGen: 0, poll: 0,
     pollFailures: 0, playing: false, handsRevealed: false, canConcede: true, result: null, renderedKey: null,
-    ownCombat: P1a.emptyCombatLedger(), humanSeats: [0], header: {{}}}};
+    ownCombat: P1a.emptyCombatLedger(), humanSeats: [0], header: {{}}, cohortRecord: null}};
+  // the pill of the page header: what renderCohortPill writes is read back by the tests
+  const pill = {{className: 'pill', title: '', textContent: 'START'}};
   const api = async (path, method, body) => {{
     calls.requests.push({{method, path, body: body || null}});
     if (method === 'POST') return opts.reply(body, state);
@@ -4337,19 +4341,20 @@ async function run(opts) {{
   const make = new Function('state', 'api', 'StudioPlayP1a', 'StudioFollow', 'calls', '$', 'ffStatus',
     'renderHumanDecision', 'appendAutoPassLog', 'toast', 'endFastForward', 'go', 'follow', 'renderView',
     'adoptPendingDecision', 'loadFacts', 'appendLog', 'resetFrames', 'armFollow', 'showConnectionLost',
-    'refreshTitles', 'performance',
+    'refreshTitles', 'performance', 'StudioCohort',
     body + '; return {{' + NAMES.join(',') + '}};');
-  const fns = make(state, api, P1a, F, calls, () => ({{max: '0'}}), () => {{}}, () => {{}}, () => {{}},
+  const fns = make(state, api, P1a, F, calls, (id) => (id === 'sim-pill' ? pill : {{max: '0'}}), () => {{}}, () => {{}}, () => {{}},
     (text) => calls.toasts.push(text), () => {{}}, (i) => {{ state.index = i; fns.render(); }},
     () => {{ calls.follows += 1; calls.followWhileSending.push(state.submitting); }},
     () => {{ calls.renders += 1; if (opts.onRender) opts.onRender(state, fns); }},
     (next) => {{ state.pendingDecision = next; }}, async () => {{}}, () => {{}}, () => {{}}, () => {{}},
-    () => {{}}, () => {{}}, {{now: () => 0}});
-  return {{state, calls, fns}};
+    () => {{}}, () => {{}}, {{now: () => 0}}, C);
+  return {{state, calls, fns, pill}};
 }}
 const parked = (state, start, extra) => Object.assign({{game_id: 'g', interactive: true, running: true,
   revision: 6, header: {{}}, human_seats: [0], pending_decision: pending('d2'), can_concede: true,
-  hands_revealed: false, result: null, frames: [frame(3)], start, total: 3}}, extra || {{}});
+  hands_revealed: false, result: null, frames: [frame(3)], start, total: 3,
+  cohort: 'PLAYED_GAME', played_seats: [0]}}, extra || {{}});
 """
 
 
@@ -4374,7 +4379,7 @@ def test_page_answer_takes_the_state_from_the_post_and_asks_again_only_when_unus
       body: page.calls.requests[0].body,
       frames: page.state.frames.map((f) => f.n), pending: page.state.pendingDecision.decision_id,
       revision: page.state.revision, follows: page.calls.follows, submitting: page.state.submitting,
-      followGen: page.state.followGen
+      followGen: page.state.followGen, pill: page.pill.textContent
     };
   }
   // a refused answer: no state, one plain reload, the follow loop starts again
@@ -4403,6 +4408,8 @@ def test_page_answer_takes_the_state_from_the_post_and_asks_again_only_when_unus
     assert usable["frames"] == [1, 2, 3] and usable["pending"] == "d2" and usable["revision"] == 6
     assert usable["follows"] == 1 and usable["submitting"] is False
     assert usable["followGen"] == 1  # the follow loop was stopped before the post
+    # the state that came with the answer carries the cohort: the pill says "gespielt"
+    assert usable["pill"] == "gespielt (Mensch an Sitz 1), zählt in keiner Simulationszahl"
     # every unusable state: exactly one plain request, as before, with the same result
     for name in ("noState", "otherGame", "otherStart", "older"):
         row = out[name]
@@ -4500,3 +4507,274 @@ def test_fast_forward_chain_sends_one_request_per_pass_and_follows_only_at_its_e
     assert out["starts"] == [2, 3]
     assert out["follows"] == 1 and out["whileSending"] == [False]
     assert out["frames"] == [1, 2, 3, 4] and out["pending"] == "d3"
+
+
+def test_a_live_human_game_is_served_as_played_game_with_its_seat(tmp_path: Path) -> None:
+    """#1662: the live state names the cohort (``PLAYED_GAME``) and the human seat from the game's
+    own header, so the page never has to guess; the finished log says the same."""
+    fake = _FakeInteractiveClient()
+    app, client = _start_fake_session(tmp_path, "cohort-live", fake)
+    try:
+        _wait_for_pending(client, "cohort-live", "dec-h-1")
+        live = client.get("/api/play/cohort-live").json()
+        assert live["running"] is True
+        assert (live["cohort"], live["played_seats"]) == ("PLAYED_GAME", [0])
+        listed = {g["game_id"]: g for g in client.get("/api/games").json()}
+        assert (listed["cohort-live"]["cohort"], listed["cohort-live"]["played_seats"]) == (
+            "PLAYED_GAME",
+            [0],
+        )
+        # the state that comes back with an own answer (#1578) is read by the page the same way
+        answered = client.post(
+            "/api/play/cohort-live/decision",
+            json={
+                "decision_id": "dec-h-1",
+                "selected_option_ids": ["pass-1"],
+                "ordering": [],
+                "start": 0,
+            },
+        )
+        assert answered.status_code == 200, answered.text
+        state = answered.json()["state"]
+        assert (state["cohort"], state["played_seats"]) == ("PLAYED_GAME", [0])
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def test_page_pill_follows_the_cohort_of_every_state_answer_and_never_a_fixed_word() -> None:
+    """#1662: the page's real loadMoreOnce and submitHumanChoice set the pill from the ``cohort`` of
+    the state they received: a human game is "gespielt", a simulated one "simuliert", an unreadable
+    one neither, and before any state the pill claims nothing."""
+    script = (
+        _SUBMIT_PRELUDE
+        + """
+(async () => {
+  const variants = {
+    human: {cohort: 'PLAYED_GAME', played_seats: [0]},
+    humanSeats: {cohort: 'PLAYED_GAME', played_seats: [2, 0]},
+    humanNoSeat: {cohort: 'PLAYED_GAME', played_seats: []},
+    ai: {cohort: 'SIMULATED_RESULT', played_seats: []},
+    unknown: {cohort: 'UNKNOWN', played_seats: []},
+    absent: {cohort: undefined, played_seats: undefined},
+    garbage: {cohort: 'simulated', played_seats: []},
+    // the header names a human seat, but the server's cohort is what the page shows
+    headerHumanCohortUnknown: {cohort: 'UNKNOWN', played_seats: [], header: {human_seats: [0]}},
+    headerEmptyCohortAi: {cohort: 'SIMULATED_RESULT', played_seats: [], header: {human_seats: []}},
+  };
+  const rows = {};
+  for (const [name, extra] of Object.entries(variants)) {
+    const viaGet = await run({reply: () => ({}), get: (path, state) => parked(state, state.frames.length, extra)});
+    await viaGet.fns.loadMoreOnce(false);
+    const viaPost = await run({
+      reply: (body, state) => ({accepted: true, state: parked(state, body.start, extra)}),
+      get: (path, state) => parked(state, state.frames.length, extra)});
+    await viaPost.fns.submitHumanChoice({decision_id: 'd1', selected_option_ids: ['pass-d1'], ordering: []}, {});
+    rows[name] = {get: [viaGet.pill.textContent, viaGet.pill.className], post: [viaPost.pill.textContent, viaPost.pill.className],
+      record: viaGet.state.cohortRecord};
+  }
+  // a later answer replaces an earlier one: the pill is not set once and kept
+  const switching = await run({reply: () => ({}), get: (path, state) => parked(state, state.frames.length, variants.ai)});
+  await switching.fns.loadMoreOnce(false);
+  const first = switching.pill.textContent;
+  switching.state.frames.length = 2;
+  const humanPage = await run({reply: () => ({}), get: (path, state) => parked(state, state.frames.length, variants.human)});
+  humanPage.pill.textContent = first;
+  humanPage.state.cohortRecord = {cohort: 'SIMULATED_RESULT', played_seats: []};
+  await humanPage.fns.loadMoreOnce(false);
+  const idle = await run({reply: () => ({}), get: () => ({})});
+  idle.fns.renderCohortPill();
+  console.log(JSON.stringify({rows, first, replaced: humanPage.pill.textContent, idle: [idle.pill.textContent, idle.pill.className]}));
+})();
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    rows = out["rows"]
+    played = "zählt in keiner Simulationszahl"
+    expected = {
+        "human": f"gespielt (Mensch an Sitz 1), {played}",
+        "humanSeats": f"gespielt (Mensch an Sitz 1, Sitz 3), {played}",
+        "humanNoSeat": f"gespielt (Mensch), {played}",
+        "ai": "simuliert (KI auf allen Plätzen)",
+        "unknown": "Herkunft unbekannt, nicht als Simulation gewertet",
+        "absent": "Herkunft unbekannt, nicht als Simulation gewertet",
+        "garbage": "Herkunft unbekannt, nicht als Simulation gewertet",
+        "headerHumanCohortUnknown": "Herkunft unbekannt, nicht als Simulation gewertet",
+        "headerEmptyCohortAi": "simuliert (KI auf allen Plätzen)",
+    }
+    for name, text in expected.items():
+        # a state read by a state request and the state that comes back with an own answer
+        assert rows[name]["get"][0] == text, name
+        assert rows[name]["post"][0] == text, name
+        assert rows[name]["get"][1] == rows[name]["post"][1], name
+    assert rows["human"]["get"][1] == "pill good" and rows["ai"]["get"][1] == "pill warn"
+    assert rows["human"]["record"] == {"cohort": "PLAYED_GAME", "played_seats": [0]}
+    assert out["first"] == "simuliert (KI auf allen Plätzen)"
+    # a human state replaces an earlier "simuliert" at once
+    assert out["replaced"] == expected["human"]
+    # before any state arrived the pill claims nothing
+    assert out["idle"] == ["Herkunft noch nicht bekannt", "pill"]
+
+
+def test_a_late_answer_of_a_game_left_behind_never_changes_the_pill_of_the_open_game() -> None:
+    """#1662: game A is open and its state request is still out; game B is opened (its pill is
+    drawn); then A's answer arrives. The pill and the cohort held for B stay as they are."""
+    script = (
+        _SUBMIT_PRELUDE
+        + """
+(async () => {
+  let release = null;
+  const late = new Promise((resolve) => { release = resolve; });
+  const page = await run({reply: () => ({}),
+    get: (path, state) => late});          // the request of game 'g' hangs until released
+  const pending = page.fns.loadMoreOnce(false);
+  // game B is opened meanwhile: the page switches its game, record and pill
+  page.state.gameId = 'h';
+  page.state.cohortRecord = {cohort: 'PLAYED_GAME', played_seats: [0]};
+  page.fns.renderCohortPill();
+  const before = page.pill.textContent;
+  release(parked(page.state, 2, {cohort: 'SIMULATED_RESULT', played_seats: []}));   // A answers late
+  const added = await pending;
+  console.log(JSON.stringify({before, after: page.pill.textContent, record: page.state.cohortRecord,
+    added, frames: page.state.frames.length}));
+})();
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    human = "gespielt (Mensch an Sitz 1), zählt in keiner Simulationszahl"
+    assert out["before"] == human and out["after"] == human
+    assert out["record"] == {"cohort": "PLAYED_GAME", "played_seats": [0]}
+    assert out["added"] is False and out["frames"] == 2  # the late page was dropped altogether
+
+
+_OPEN_PRELUDE = f"""
+const C = require('./cohort.js');
+const P1a = require('./play_p1a.js');
+const SRC = require('fs').readFileSync({json.dumps((STATIC / "partie.js").as_posix())}, 'utf8');
+const grab = (name) => {{
+  const start = SRC.indexOf('function ' + name + '(');
+  if (start < 0) throw new Error('missing ' + name);
+  let depth = 0, i = SRC.indexOf('{{', start);
+  for (; i < SRC.length; i += 1) {{ if (SRC[i] === '{{') depth += 1; else if (SRC[i] === '}}' && --depth === 0) break; }}
+  const head = SRC.lastIndexOf('async ', start) === start - 6 ? 'async ' : '';
+  return head + SRC.slice(start, i + 1);
+}};
+const NAMES = ['openGame', 'listGames', 'renderCohortPill', 'gameTitle'];
+const AI_GAME = {{game_id: 'ai-1', header: {{seats: [{{deck_id: 'a'}}], seed: 1}}, frames: 3, running: false,
+  cohort: 'SIMULATED_RESULT', played_seats: [], result: {{status: 'finished', winner_seats: [0]}}}};
+const HUMAN_GAME = Object.assign({{}}, AI_GAME, {{game_id: 'me-1', cohort: 'PLAYED_GAME', played_seats: [0]}});
+// A page showing a simulated game ("simuliert" in its pill) opens or lists something else.
+function page(opts) {{
+  const els = {{}};
+  const el = (id) => (els[id] = els[id] || {{id, textContent: '', title: '', className: 'pill warn', hidden: false,
+    value: '0', checked: true, max: '', dataset: {{}}, classList: {{toggle() {{}}, remove() {{}}, add() {{}}}},
+    append(child) {{ this.children = (this.children || []).concat([child]); }}}});
+  const seen = {{pillAtLoad: null}};
+  const load = {{fn: null}};
+  const state = {{games: [], gameId: 'ai-1', cohortRecord: {{cohort: 'SIMULATED_RESULT', played_seats: []}},
+    header: null, frames: [], interactive: false, ff: {{on: false}}, pendingDecision: null, canConcede: false,
+    lines: [], ownCombat: null}};
+  el('sim-pill').textContent = 'simuliert (KI auf allen Plätzen)';
+  const names = ['state', '$', 'api', 'StudioCohort', 'StudioPlayP1a', 'h', 'setPlaying', 'abortHeldRequest',
+    'restoreAiDelayOnLeave', 'selectedFastForwardMode', 'ffStatus', 'showConnectionLost', 'loadMore', 'follow',
+    'render', 'setAiDelay', 'renderHumanDecision', 'renderReplayControls', 'seatName'];
+  const stubs = [state, el, opts.api || (async () => []), C, P1a,
+    (tag, props, ...kids) => ({{tag, props, kids}}), () => {{}}, () => {{}}, () => {{}}, () => 'until_my_turn',
+    () => {{}}, () => {{}},
+    async () => {{ seen.pillAtLoad = el('sim-pill').textContent; if (load.fn) load.fn(); if (opts.loadFails) throw new Error('no answer'); }},
+    () => {{}}, () => {{}}, () => {{}}, () => {{}}, () => {{}}, (s) => 'Sitz ' + (s + 1)];
+  const make = new Function(...names, NAMES.map(grab).join('\\n') + '; return {{' + NAMES.join(',') + '}};');
+  return {{state, el, seen, setLoad: (fn) => {{ load.fn = fn; }}, fns: make(...stubs)}};
+}}
+"""
+
+
+def test_opening_another_game_and_an_empty_list_reset_the_pill_at_once() -> None:
+    """#1662: while another game loads (or fails to load) the pill of the game left behind must not
+    stay; with no game at all it claims nothing."""
+    script = (
+        _OPEN_PRELUDE
+        + """
+(async () => {
+  // simulated -> a human game: the old "simuliert" is gone before the state of the new game arrives
+  const toHuman = page({});
+  toHuman.state.games = [AI_GAME, HUMAN_GAME];
+  await toHuman.fns.openGame('me-1');
+  // the load fails: the pill stays neutral for good, never the old game's word
+  const failing = page({loadFails: true});
+  failing.state.games = [AI_GAME, HUMAN_GAME];
+  let failed = false;
+  try { await failing.fns.openGame('me-1'); } catch (error) { failed = true; }
+  // an empty list of games: nothing is open, the pill claims nothing
+  const empty = page({api: async () => []});
+  const listed = await empty.fns.listGames(null);
+  // a list with games opens one of them
+  const filled = page({api: async () => [HUMAN_GAME]});
+  const opened = await filled.fns.listGames('me-1');
+  console.log(JSON.stringify({
+    toHuman: {atLoad: toHuman.seen.pillAtLoad, record: toHuman.state.cohortRecord},
+    failing: {failed, atLoad: failing.seen.pillAtLoad, after: failing.el('sim-pill').textContent, cls: failing.el('sim-pill').className},
+    empty: {listed, text: empty.el('sim-pill').textContent, cls: empty.el('sim-pill').className, record: empty.state.cohortRecord, gameId: empty.state.gameId},
+    filled: {opened, game: filled.state.gameId},
+  }));
+})();
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    neutral = "Herkunft noch nicht bekannt"
+    assert out["toHuman"] == {"atLoad": neutral, "record": None}
+    assert out["failing"] == {"failed": True, "atLoad": neutral, "after": neutral, "cls": "pill"}
+    assert out["empty"] == {
+        "listed": False,
+        "text": neutral,
+        "cls": "pill",
+        "record": None,
+        "gameId": None,
+    }
+    assert out["filled"] == {"opened": True, "game": "me-1"}
+
+
+def test_the_game_info_line_names_the_origin_from_the_same_cohort_as_the_pill() -> None:
+    """#1662: ``game-info`` never says "Mensch gegen KI" or "KI: …" against the pill: both read
+    the server's cohort, whatever the header's own ``human_seats`` or ``pilot`` fields look like."""
+    script = (
+        _OPEN_PRELUDE
+        + """
+(async () => {
+  const cases = {
+    // an old header with only a seat row "Mensch": the server says PLAYED_GAME, no human_seats
+    oldPilotRow: {header: {seed: 1, pilot: 'KI', seats: [{seat: 0, pilot: 'Mensch'}]},
+      record: {cohort: 'PLAYED_GAME', played_seats: [0]}, listed: {seats: [{seat: 0, pilot: 'Mensch'}]}},
+    // human_seats [true] is unreadable: the page lists it as interactive, the server says UNKNOWN
+    garbledSeats: {header: {seed: 2, pilot: 'KI', human_seats: [true]},
+      record: {cohort: 'UNKNOWN', played_seats: []}, listed: {human_seats: [true]}},
+    sim: {header: {seed: 3, pilot: 'KI-Pilot 1'}, record: {cohort: 'SIMULATED_RESULT', played_seats: []}, listed: {}},
+    absent: {header: {seed: 4, pilot: 'KI'}, record: {cohort: undefined, played_seats: undefined}, listed: {}},
+  };
+  const rows = {};
+  for (const [name, c] of Object.entries(cases)) {
+    const p = page({});
+    p.state.games = [Object.assign({}, AI_GAME, {game_id: 'x', header: c.listed})];
+    // loadMore sets the header and the record the way loadMoreOnce does
+    p.setLoad(() => { p.state.header = c.header; p.state.cohortRecord = c.record; p.fns.renderCohortPill(); });
+    await p.fns.openGame('x');
+    rows[name] = {info: p.el('game-info').textContent, pill: p.el('sim-pill').textContent};
+  }
+  console.log(JSON.stringify(rows));
+})();
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    assert (
+        "Mensch gegen KI" in out["oldPilotRow"]["info"] and "KI: " not in out["oldPilotRow"]["info"]
+    )
+    assert out["oldPilotRow"]["pill"].startswith("gespielt (Mensch an Sitz 1)")
+    for name in ("garbledSeats", "absent"):
+        assert "Herkunft unbekannt" in out[name]["info"], name
+        assert "Mensch gegen KI" not in out[name]["info"] and "KI: " not in out[name]["info"], name
+        assert out[name]["pill"] == "Herkunft unbekannt, nicht als Simulation gewertet", name
+    assert "KI: KI-Pilot 1" in out["sim"]["info"] and "Mensch gegen KI" not in out["sim"]["info"]
+    assert out["sim"]["pill"] == "simuliert (KI auf allen Plätzen)"

@@ -863,3 +863,84 @@ def test_face_down_target_and_blank_uuid_option_resolve_without_leaking_uuid_or_
     assert games.frame_of(1, non_uuid_decision, {"selected_option_ids": ["keep"]})["chosen"] == [
         "keep"
     ]
+
+
+def test_games_carry_the_cohort_the_pages_show_instead_of_guessing(tmp_path: Path) -> None:
+    """#1662: ``cohort`` and ``played_seats`` come from the game log header (read_game and
+    list_games); an unreadable header and a made-up orphan header are UNKNOWN, never a simulation."""
+    folder = games.games_folder(tmp_path)
+
+    def write(game_id: str, header: dict[str, object]) -> None:
+        recorder = games.GameRecorder(tmp_path, game_id, header)
+        recorder.record(_decision(), {"selected_option_ids": ["o1"]})
+        recorder.close({"status": "finished", "winner_seats": [0]})
+
+    write("g-sim", HEADER)
+    write("g-human", {**HEADER, "human_seats": [1]})
+    write("g-empty-humans", {**HEADER, "human_seats": []})
+    # an old log: written before #1662, it still says SIMULATED_RESULT although a human sat there
+    old = folder / "g-old.jsonl"
+    old.write_text(
+        json.dumps(
+            {
+                "kind": "header",
+                "schema": games.LOG_SCHEMA,
+                "game_id": "g-old",
+                "data_class": "SIMULATED_RESULT",
+                "seats": [{"seat": 0, "pilot": "KI"}, {"seat": 2, "pilot": "Mensch"}],
+            }
+        )
+        + "\n"
+        + json.dumps({"kind": "result", "status": "finished", "winner_seats": [2]})
+        + "\n",
+        encoding="utf-8",
+    )
+    write("g-garbled", {**HEADER, "human_seats": "yes"})
+    (folder / "g-lost.out").write_text("Exception: start failed\n", encoding="utf-8")
+
+    expected = {
+        "g-sim": ("SIMULATED_RESULT", []),
+        "g-human": ("PLAYED_GAME", [1]),
+        "g-empty-humans": ("SIMULATED_RESULT", []),
+        "g-old": ("PLAYED_GAME", [2]),
+        "g-garbled": ("UNKNOWN", []),
+        "g-lost": ("UNKNOWN", []),
+    }
+    listed = {g["game_id"]: g for g in games.list_games(tmp_path)}
+    assert set(listed) == set(expected)
+    for game_id, (cohort, seats) in expected.items():
+        assert (listed[game_id]["cohort"], listed[game_id]["played_seats"]) == (cohort, seats)
+        read = games.read_game(tmp_path, game_id)
+        assert (read["cohort"], read["played_seats"]) == (cohort, seats), game_id
+    # the made-up header of an orphaned .out says the same as the cohort: unknown
+    lost = games.read_game(tmp_path, "g-lost")
+    assert lost["header"]["data_class"] == "UNKNOWN"  # type: ignore[index]
+    assert games.game_cohort(lost["header"]) == "UNKNOWN"
+    # the helpers read nothing but the header: a seat row without a seat number names no seat
+    assert games.played_seats({"seats": [{"pilot": "Mensch"}]}) == []
+    assert games.cohort_fields({"seats": [{"pilot": "Mensch"}]}) == {
+        "cohort": "PLAYED_GAME",
+        "played_seats": [],
+    }
+    assert games.cohort_fields("no header") == {"cohort": "UNKNOWN", "played_seats": []}
+
+
+def test_the_state_routes_carry_the_cohort_of_a_recorded_game(studio_folder: Path) -> None:
+    """The Partie page reads the cohort from the same answers it already asks for (#1662)."""
+    for game_id, header in (("r-sim", HEADER), ("r-human", {**HEADER, "human_seats": [0]})):
+        recorder = games.GameRecorder(studio_folder, game_id, header)
+        recorder.record(_decision(), {"selected_option_ids": ["o1"]})
+        recorder.close({"status": "finished", "winner_seats": [0]})
+    with TestClient(create_app(studio_folder), headers={"X-Studio": "1"}) as client:
+        listed = {g["game_id"]: g for g in client.get("/api/games").json()}
+        assert listed["r-sim"]["cohort"] == "SIMULATED_RESULT"
+        assert (listed["r-human"]["cohort"], listed["r-human"]["played_seats"]) == (
+            "PLAYED_GAME",
+            [0],
+        )
+        for game_id, cohort in (("r-sim", "SIMULATED_RESULT"), ("r-human", "PLAYED_GAME")):
+            assert client.get(f"/api/games/{game_id}").json()["cohort"] == cohort
+            # a finished human game is also served by the interactive route
+            assert client.get(f"/api/play/{game_id}").json()["cohort"] == cohort
+        played = client.get("/api/play/r-human").json()
+        assert played["played_seats"] == [0] and played["human_seats"] == [0]
