@@ -336,6 +336,19 @@ def test_undecided_member_of_a_family_at_equal_alpha_labels_the_single_test() ->
     assert "Einzeltest" not in str(both["a"]["urteil_text"])
 
 
+def test_decided_or_not_evaluable_family_member_gets_no_single_test_label() -> None:
+    # the label belongs to an undecided member only: its y is the uncorrected single test's
+    decided = _finding("a", wins=10)  # p about 0.002: decided and kept by Holm in a family of two
+    other = _finding("b", variant="rev-var2", first_seed=600, wins=1, losses=1, ties=4)
+    got = _assess(decided, other)["a"]
+    assert got["urteil"] == m.BETTER and got["belegt"] is True and got["y_pp"] == 20.0
+    assert "Einzeltest" not in str(got["urteil_text"])
+    # a contradicting stored difference is not evaluable (y is still stored): no label either
+    odd = _finding("c", wins=10, difference_pp=-3.0)
+    got = _assess(odd, other)["c"]
+    assert got["urteil"] == m.NOT_EVALUABLE and "Einzeltest" not in str(got["urteil_text"])
+
+
 def test_verdict_in_four_steps() -> None:
     # one table each: five confirmations of one table would be one Holm family
     got = _assess(
@@ -682,10 +695,14 @@ const diffDirty = deckSeriesDiffEvidence(h, data, "rev-a", null);
 const diffBroken = deckSeriesDiffEvidence(h, null, "rev-a", "rev-b");
 const diffCut = deckSeriesDiffEvidence(h, { ...data, scan_truncated: 3 }, "rev-a", "rev-zzz");
 const card = deckSeriesCardEvidence(h);
+const diffNoList = deckSeriesDiffEvidence(h, { reifegrad: { befunde: {} } }, "rev-a", "rev-b");
+const diffBadList = deckSeriesDiffEvidence(h, { series: "x" }, "rev-a", "rev-b");
 process.stdout.write(JSON.stringify({ none: [text(none), pills(none)], missing: [text(missing), pills(missing)],
   r1: [text(r1), pills(r1)], r2: [text(r2), pills(r2)], r0: [text(r0), pills(r0), r0cls],
   hint: text(hint), proven: text(proven), single: text(single),
-  diffFound: [text(diffFound), pills(diffFound)], diffNone: text(diffNone), diffDirty: text(diffDirty), diffBroken: text(diffBroken), diffCut: text(diffCut), card: text(card) }));
+  diffFound: [text(diffFound), pills(diffFound)], diffNone: text(diffNone), diffDirty: text(diffDirty), diffBroken: text(diffBroken), diffCut: text(diffCut), card: text(card),
+  diffNoList: text(diffNoList), diffBadList: text(diffBadList),
+  rowTexts: [...diffFound.kids.flatMap(function rows(n) { return typeof n === "string" ? [] : n.attrs.class === "diff-evidence-series" ? [text(n)] : n.kids.flatMap(rows); })] }));
 """
 
 
@@ -730,7 +747,15 @@ def test_verdict_reads_belegt_the_diff_shows_only_the_exact_pair_and_cards_say_n
     assert "der aktuelle Stand ist nicht gespeichert" in r["diffDirty"]
     assert "nicht gelesen werden (unbekannt, nicht 0)" in r["diffBroken"]
     assert "ältere Serien nicht geprüft" in r["diffCut"]
-    assert "keine Serie je Karte gespeichert" in r["card"]
+    assert "keine Serie je Karte gespeichert" in r["card"] and "unbekannt, nicht 0" in r["card"]
+    # a missing or non-array series list drops only the evidence row, with the honest text
+    for key in ("diffNoList", "diffBadList"):
+        assert "kein Befund" in r[key] and "keine Serienliste" in r[key]
+    # A and B are named per series on its own row: s1 base = A, s2 reversed
+    first, second = r["rowTexts"]
+    assert "A = Vergleichsbasis, B = aktueller Stand" in first and "belegt besser" in first
+    assert "A = aktueller Stand, B = Vergleichsbasis" in second
+    assert "A = aktueller Stand" not in first and "A = Vergleichsbasis" not in second
 
 
 def test_the_diff_and_the_cut_swap_surfaces_are_wired_without_forbidden_patterns() -> None:

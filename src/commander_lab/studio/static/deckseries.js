@@ -151,6 +151,7 @@ function deckSeriesDiffEvidence(h, data, baseRev, targetRev) {
   const note = h("p", { class: "note note-compact" }, "SIMULATED_RESULT: gespeicherte Serie genau dieser beiden Stände, nicht Teil der Tierliste und nie mit anderen Zahlen summiert.");
   if (!data) return h("div", { id: "diff-evidence" }, title, note, h("p", { class: "muted" }, "kein Befund: Serien konnten nicht gelesen werden (unbekannt, nicht 0)."));
   if (!targetRev) return h("div", { id: "diff-evidence" }, title, note, h("p", { class: "muted" }, "kein Befund: der aktuelle Stand ist nicht gespeichert (unbekannt, nicht 0)."));
+  if (!Array.isArray(data.series)) return h("div", { id: "diff-evidence" }, title, note, h("p", { class: "muted" }, "kein Befund: die Antwort enthält keine Serienliste (unbekannt, nicht 0)."));
   const side = (ref) => (ref === baseRev ? "Vergleichsbasis" : "aktueller Stand");
   const befunde = (data.reifegrad && data.reifegrad.befunde) || {};
   const found = data.series.filter((item) => (item.base_ref === baseRev && item.variant_ref === targetRev) || (item.base_ref === targetRev && item.variant_ref === baseRev));
