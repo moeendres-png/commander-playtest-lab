@@ -625,8 +625,9 @@ dem Doppelpunkt ist die Zeile dort. Diese Stände sind die letzten auf `main` vo
 **Lesart (Einordnung des Co-Leads, Einspruch des Owners jederzeit möglich).** Die Regeln sind
 wortlautnah übernommen und nicht neu gefasst. Wo eine Regel gleichlautend in `AGENTS.md` steht, ist
 sie hier nur wiederholt, damit sie nicht an einer archivierten Datei hängt; bei Widerspruch gilt
-`AGENTS.md`. Für Änderungen an diesem Abschnitt gilt dasselbe wie für die übrigen Owner-Entscheide
-(R33).
+`AGENTS.md`. Die Anführungszeichen in R15 bis R17 umschließen den Wortlaut des Plans, der die
+Owner-Entscheide vom 2026-11-12 (abends) festhielt; sie sind kein Owner-Wortlaut. Für Änderungen
+an diesem Abschnitt gilt dasselbe wie für die übrigen Owner-Entscheide (R33).
 
 ### 6.1 Alle Bereiche
 

@@ -33,7 +33,7 @@ plays real 100-card Commander decks rules-correctly, so simulated games can stan
   only (code state: not sortable, no tier, no rank, not part of the index). The Owner's marks (favorites, exclusions,
   notes) never count as a rating. Simulation results never enter the tier list as a weight; they
   appear as evidence with maturity R0-R3 in the deck builder (package Q1-c, #1666, built in
-  several packages; which parts are done is recorded in #1666 and the register). Only R1 is
+  several packages; which parts are done is recorded in #1666 and the register). At most R1 is
   reachable while the Studio records no controls, card competence check, pilot audit or Owner
   acceptance for R2/R3. The `SIMULATED_RESULT` rules stay.
 - Chulane, Teller of Tales is the only active owner deck for optimization
