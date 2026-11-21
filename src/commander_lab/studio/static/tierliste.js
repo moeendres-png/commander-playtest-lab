@@ -594,7 +594,8 @@ function spreadNode(field, wert) {
   if (!spread || !spread.kurz) return h("span", { class: "zahl-band unknown", title: "Streuung nicht geliefert" }, " ± unbekannt");
   const band = spreadBandOf(spread, wert);
   const title = band ? `${band.text}: ${band.quelle} · ${spreadTitle(spread)}` : `typische Streuung · ${spreadTitle(spread)}`;
-  return h("span", { class: band ? "zahl-band" : "zahl-band typisch", title }, ` ${band ? band.kurz : `${spread.kurz} typ.`}`);
+  // "≈" marks the audit's estimate per H range: no measured interval of this card (intervall stays null)
+  return h("span", { class: band ? "zahl-band" : "zahl-band typisch", title: band ? `Schätzung, kein Intervall: ${title}` : title }, ` ${band ? `\u2248${band.kurz}` : `${spread.kurz} typ.`}`);
 }
 // Visible extras of one H cell: spread band, the rater's confidence, the audit doubt (T3) and the land scale (T5).
 function understandingExtras(card, figure) {
@@ -603,10 +604,13 @@ function understandingExtras(card, figure) {
   const said = notes.map((text) => /^Rater-Vertrauen (\w+)/.exec(text)).find(Boolean);
   const doubts = field && field.pruefer_zweifel && field.pruefer_zweifel.karten ? field.pruefer_zweifel.karten : {};
   const doubt = doubts[card.card_id];
+  const basis = field && field.pruefer_zweifel && field.pruefer_zweifel.pruefbasis ? ` ${field.pruefer_zweifel.pruefbasis.text}.` : "";
+  const claimFindings = field && field.regelclaim_befunde && field.regelclaim_befunde.karten ? field.regelclaim_befunde.karten[card.card_id] || [] : [];
   return [
     spreadNode(field, figure.wert),
     said ? h("span", { class: "zahl-vertrauen", title: "Rater-Vertrauen (Selbstauskunft des Raters)" }, ` · ${CONFIDENCE_SHORT[said[1]] || said[1]}`) : null,
-    doubt ? h("span", { class: "badge warn pruefer-zweifel", title: `${doubt.text}. ${doubt.grund}` }, doubt.kurz || "Prüfer-Modell-Zweifel") : null,
+    doubt ? h("span", { class: "badge warn pruefer-zweifel", title: `${doubt.text}. ${doubt.grund}${basis}` }, doubt.kurz || "Prüfer-Modell-Zweifel") : null,
+    ...claimFindings.map((f) => h("span", { class: "badge warn regelclaim-befund", title: `Claim ${nf(f.index + 1)}: ${f.korrektur} (${f.quelle})` }, f.kurz)),
     understandingCache.lands.has(card.card_id) ? h("span", { class: "badge laender-skala", title: field.laender_skala.text }, "Länder-Skala") : null,
   ];
 }
@@ -633,15 +637,16 @@ function understandingHint() {
   const spread = field.streuung;
   const measured = spread ? (spread.quellen || []).filter((q) => q.gemessen !== false) : [];
   const spreadText = spread
-    ? `Streuung ${spread.kurz} typisch (1\u03c3, ${nf(spread.laeufe_je_karte)} Lauf je Karte), je H-Bereich ${(spread.baender || []).map((b) => b.kurz).join(" / ")} (Schätzung Audit A); gemessen: ${measured.map((q) => `${q.kurzname || q.name} n = ${nf(q.n)}`).join(", ")}`
+    ? `Streuung ${spread.kurz} typisch (1\u03c3, ${nf(spread.laeufe_je_karte)} Lauf je Karte), je H-Bereich ${(spread.baender || []).map((b) => b.kurz).join(" / ")} (\u2248 = Schätzung Audit A); gemessen: ${measured.map((q) => `${q.kurzname || q.name} n = ${nf(q.n)}`).join(", ")}`
     : "Streuung unbekannt";
   const doubt = field.pruefer_zweifel;
   const doubtText = !doubt ? "" : doubt.verfuegbar === true
-    ? ` · Prüfer-Modell-Zweifel: ${nf(doubt.n_zugeordnet)} von ${nf(doubt.n_markiert)} zugeordnet, ${nf(doubt.n_im_pool)} im Pool`
+    ? ` · Prüfer-Modell-Zweifel: ${nf(doubt.n_zugeordnet)} von ${nf(doubt.n_markiert)} zugeordnet, ${nf(doubt.n_im_pool)} im Pool${doubt.pruefbasis ? ` (Prüfbasis ${nf(doubt.pruefbasis.n)} von ${nf(doubt.pruefbasis.N)}; ohne Kennzeichen heißt nicht geprüft oder ohne Befund)` : ""}`
     : ` · Prüfer-Audit nicht verfügbar: ${doubt.grund || "kein Grund geliefert"}`;
+  const basisTitle = doubt && doubt.pruefbasis ? doubt.pruefbasis.text : "";
   const lands = field.laender_skala;
   const landText = lands ? ` · Länder-Skala: ${nf(lands.n_laender)} Länder, T = 0 bei ${nf(lands.n_t_null)}` : "";
-  const title = [UNDERSTANDING_H, spread ? spreadTitle(spread) : "", doubt ? doubt.quelle : "", lands ? `${lands.text}; ${lands.quelle}` : ""].filter(Boolean).join(" · ");
+  const title = [UNDERSTANDING_H, spread ? spreadTitle(spread) : "", doubt ? doubt.quelle : "", basisTitle, lands ? `${lands.text}; ${lands.quelle}` : ""].filter(Boolean).join(" · ");
   return [h("div", { id: "understanding-hint", class: "hint", title },
     h("b", {}, `${UNDERSTANDING_NAME}: `),
     `Kriterium H, ${nf(field.n_bewertet)} von ${nf(field.n_gesamt)} Karten bewertet · `,
@@ -718,7 +723,7 @@ function tableColumns() {
     { head: () => sortHead("Stufe", "strength", "stick-1", "Stufe aus dem Stärke-Index: Schätzung aus Nutzungsdaten in Commander-Decks, keine Spielstärke. Klick sortiert."), cell: cell("stick-1", strengthCell) },
     { head: () => sortHead("Karte", "name", "stick-2"), cell: (card) => {
       const mark = state.marks.get(card.card_id) || {};
-      return h("td", { class: "cardcell name stick-2", "data-card-id": card.card_id, onclick: () => openCard(card) }, thumb(card), mark.favorite ? h("span", { class: "star" }, "★ ") : null, card.name);
+      return h("td", { class: "cardcell name stick-2", "data-card-id": card.card_id, title: card.name, onclick: () => openCard(card) }, thumb(card), mark.favorite ? h("span", { class: "star" }, "★ ") : null, card.name);
     } },
     ...(commander ? understandingColumns() : []),
     { head: () => plainHead("Favorit / Deck"), cell: cell("acts", markButtons) },

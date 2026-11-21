@@ -432,7 +432,7 @@ no strength in play, no tier, no rank, no sort key, not part of the index.
   `data/research/chulane_rubric_v2_20261118/` (`PILOT_REPORT.md` §10/§11, `audit/AUDIT_A_ratings.md`
   §0/§4). The spread grows with H, so each cell shows the band of its H range from the audit's
   estimate (AUDIT_A §4: about ±5 at H up to 10, about ±10 at H 40 to 55, about −15/+5 from H 60)
-  and otherwise "±5–8 typ."; the head names the audit's 7 to 8 as an estimate and only the drift
+  and otherwise "±5–8 typ."; a band carries "≈" (an estimate, no interval of the card); the head names the audit's 7 to 8 as an estimate and only the drift
   and the other rater as measured n. A test recomputes these figures from the raw files. The
   figures keep `intervall: null`: a typical spread is no measured per-card interval. The origin shared by all figures (source,
   cohort, "nicht gegen Spielergebnisse validiert") stands once, visible, above the table; each
@@ -446,7 +446,7 @@ no strength in play, no tier, no rank, no sort key, not part of the index.
   with the rater's note, the reason, the rules claims, the confidence, the spread and the coverage
   n of N per criterion over the data set. A card the data set does not list has all seven values
   "unbekannt", never 0; a missing note is "unbekannt". For any other commander the answer says
-  `anzeigen: false` and the page shows nothing. The card window of the tier list (while the column
+  `anzeigen: false` and the page shows nothing; an unknown card is 404 for every commander. The card window of the tier list (while the column
   is shown) and of the deck builder render it (`static/kartenverstaendnis.js`). The rules claims
   are headed "Regelclaims des Raters (Modellurteil, keine Regelaussage; Regelautorität XMage/CR)"
   with the note that quotes are not checked one by one (Audit A: 11 of 1708 quotes not literal;
@@ -459,7 +459,12 @@ no strength in play, no tier, no rank, no sort key, not part of the index.
   audit file is "nicht verfügbar", never "no card doubted". The reviewer is a model, and the label
   says so: "Prüfer-Modell bezweifelt H: zu hoch / zu niedrig", or for the two lines of the kind
   "Begründung faktisch falsch" "Prüfer-Modell: Begründung faktisch falsch" (no doubt about H); the
-  reviewer's range for H and the reason are in the tooltip.
+  reviewer's range for H and the reason are in the tooltip. The audit saw 230 of 922 cards (plus 6
+  finds outside its samples): the head and the tooltip say that a card without a mark was not
+  checked or checked without finding (`pruefbasis`). The findings of Audit D outside its random
+  sample (Wavesifter claim 1 wrong, Evoke sacrifice is a triggered ability, CR 702.74a; Appeal to
+  Eirdu claim 1 unsharp) mark the card ("Regelclaim laut Audit D falsch / unscharf") and the claim
+  in the card window (`regelclaim_befunde`; a test compares them with the report's table).
 - **T4 rank bands.** The index has one decimal, so many cards share a value (the audit counted 777
   of 922 in tie groups). Each card with a tier gets the band of places its tie group takes among
   all cards with a tier of the answer; in tier D the band ("Rang 824–922") replaces the decimal (the

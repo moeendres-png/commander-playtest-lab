@@ -397,3 +397,42 @@ def match_audit(rows: dict[str, UnderstandingRow], flags: list[AuditFlag]) -> Au
         "unmatched": unmatched,
         "outdated": outdated,
     }
+
+
+# --- the rules-claim review of rubric v2.1 (Audit D): findings outside its random sample -------
+#
+# Audit D checked 100 random rules claims (100 right) and then looked at about 280 risky claims on
+# purpose; that look found one claim wrong and one unsharp. Copied from the table "Zusatzprobe" of
+# AUDIT_D_rule_claims.md (a test compares them with the file); ``index`` is the claim's position
+# in the card's ``rule_claims`` (the "#0" of the table).
+
+AUDIT_D_SOURCE: Final = (
+    "Audit D der Regelclaims (Zusatzprobe außerhalb der Zufallsstichprobe), "
+    "data/research/chulane_rubric_v2_20261118/audit/AUDIT_D_rule_claims.md"
+)
+
+
+class ClaimFinding(TypedDict):
+    card: str
+    index: int
+    verdict: str
+    correction: str
+
+
+RULE_CLAIM_FINDINGS: Final[tuple[ClaimFinding, ...]] = (
+    {
+        "card": "Wavesifter",
+        "index": 0,
+        "verdict": "falsch",
+        "correction": (
+            "Das Opfern bei Evoke ist eine ausgelöste Fähigkeit (CR 702.74a). Mit ihr auf dem "
+            "Stapel kann Chulane für {3},{T} Wavesifter auf die Hand zurückholen."
+        ),
+    },
+    {
+        "card": "Appeal to Eirdu",
+        "index": 0,
+        "verdict": "unscharf",
+        "correction": "{W} zahlt nur eine weiße Kreatur; sonst {1} (CR 702.51).",
+    },
+)

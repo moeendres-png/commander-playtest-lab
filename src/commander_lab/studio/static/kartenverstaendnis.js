@@ -27,9 +27,11 @@ const StudioKartenverstaendnis = (() => {
     ];
   }
 
-  function claimNodes(h, claims) {
+  function claimNodes(h, claims, findings) {
     if (!Array.isArray(claims) || !claims.length) return [h("p", { class: "muted" }, "Keine Regelclaims im Datensatz für diese Karte.")];
-    return [h("ol", { class: "understanding-claims" }, claims.map((claim) => h("li", {},
+    const byIndex = new Map((Array.isArray(findings) ? findings : []).map((f) => [f.index, f]));
+    return [h("ol", { class: "understanding-claims" }, claims.map((claim, index) => h("li", {},
+      byIndex.has(index) ? h("div", { class: "regelclaim-befund-detail" }, h("span", { class: "badge warn regelclaim-befund" }, byIndex.get(index).kurz), ` ${byIndex.get(index).korrektur} (${byIndex.get(index).quelle})`) : null,
       claim.quote ? h("div", {}, h("b", {}, "Zitat laut Rater: "), `„${claim.quote}“`) : null,
       claim.interaction ? h("div", {}, h("b", {}, "Zusammenspiel: "), String(claim.interaction)) : null,
       claim.claim ? h("div", {}, h("b", {}, "Aussage des Raters: "), String(claim.claim)) : null,
@@ -49,7 +51,10 @@ const StudioKartenverstaendnis = (() => {
     if (detail.pruefer_zweifel) {
       const d = detail.pruefer_zweifel;
       out.append(h("p", { class: "pruefer-zweifel-detail" }, h("span", { class: "badge warn pruefer-zweifel" }, d.kurz || "Prüfer-Modell-Zweifel"), ` ${d.text}. ${d.grund}`));
-    } else if (detail.pruefer_audit && detail.pruefer_audit.verfuegbar === false) {
+    }
+    if (detail.pruefer_audit && detail.pruefer_audit.pruefbasis) out.append(h("p", { class: "understanding-note pruefbasis" }, `${detail.pruefer_audit.pruefbasis.text}.`));
+    if (Array.isArray(detail.regelclaim_befunde) && detail.regelclaim_befunde.length) out.append(h("p", { class: "regelclaim-befund-head" }, ...detail.regelclaim_befunde.map((f) => h("span", { class: "badge warn regelclaim-befund" }, `${f.kurz} (Claim ${num(f.index + 1)})`))));
+    if (!detail.pruefer_zweifel && detail.pruefer_audit && detail.pruefer_audit.verfuegbar === false) {
       out.append(h("p", { class: "muted" }, `Prüfer-Audit nicht verfügbar: ${detail.pruefer_audit.grund || "kein Grund geliefert"}.`));
     }
     if (detail.laender_skala) out.append(h("p", { class: "laender-skala-detail" }, h("span", { class: "badge laender-skala" }, "Länder-Skala"), ` ${detail.laender_skala.text} (${detail.laender_skala.quelle}).`));
@@ -70,7 +75,7 @@ const StudioKartenverstaendnis = (() => {
     out.append(h("h4", {}, "Begründung des Raters"), h("p", { class: detail.begruendung ? "" : "unknown" }, detail.begruendung || UNKNOWN));
     out.append(h("h4", {}, detail.regelclaims_titel || CLAIMS_HEADING),
       h("p", { class: "understanding-note claims-note" }, `${detail.regelclaims_hinweis || CLAIMS_NOTE}.`),
-      ...claimNodes(h, detail.regelclaims));
+      ...claimNodes(h, detail.regelclaims, detail.regelclaim_befunde));
     return out;
   }
 

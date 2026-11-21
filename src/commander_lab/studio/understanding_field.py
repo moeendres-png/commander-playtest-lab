@@ -185,6 +185,43 @@ def _unavailable(reason: str, n_total: int) -> dict[str, object]:
     }
 
 
+# What the audit looked at: without a mark a card was either not checked or checked without
+# finding. Counts from AUDIT_A_ratings.md §0/§1 (a test reads them there).
+AUDIT_BASIS: Final[dict[str, object]] = {
+    "n": 230,
+    "N": 922,
+    "ausserhalb": 6,
+    "bezug": "Karten in den Stichproben des Audits (Spitze 100, Boden 60, Grenzbereich 70) / Datensatz",
+    "text": (
+        "Prüfbasis: 230 von 922 Karten geprüft (plus 6 Funde außerhalb der Stichproben); ohne "
+        "Kennzeichen heißt nicht geprüft (692 von 922) oder geprüft ohne Befund"
+    ),
+}
+
+
+def _claim_findings(
+    rows: Mapping[str, UnderstandingRow],
+) -> dict[str, list[dict[str, object]]]:
+    """Audit D findings by ``oracle_id``; a finding whose card or claim the data set lacks is left
+    out (it cannot be placed)."""
+    by_name = {row["card"]: oracle_id for oracle_id, row in rows.items()}
+    found: dict[str, list[dict[str, object]]] = {}
+    for item in card_understanding.RULE_CLAIM_FINDINGS:
+        oracle_id = by_name.get(item["card"])
+        if oracle_id is None or item["index"] >= len(rows[oracle_id]["rule_claims"]):
+            continue
+        found.setdefault(oracle_id, []).append(
+            {
+                "index": item["index"],
+                "urteil": item["verdict"],
+                "kurz": f"Regelclaim laut Audit D {item['verdict']}",
+                "korrektur": item["correction"],
+                "quelle": card_understanding.AUDIT_D_SOURCE,
+            }
+        )
+    return found
+
+
 def _doubt_short(flag: card_understanding.AuditFlag) -> str:
     """The visible label: the reviewer is a model, and a wrong reason is no doubt about H."""
     if flag["kind"] == "Begründung faktisch falsch":
@@ -288,6 +325,7 @@ def _doubt_field(
             "n_im_pool": None,
             "nicht_zugeordnet": [],
             "veraltet": [],
+            "pruefbasis": AUDIT_BASIS,
             "karten": {},
         }
     return {
@@ -299,6 +337,7 @@ def _doubt_field(
         "n_im_pool": len(in_pool),
         "nicht_zugeordnet": list(match["unmatched"]),
         "veraltet": list(match["outdated"]),
+        "pruefbasis": AUDIT_BASIS,
         "karten": {card_id: _doubt_entry(flag) for card_id, flag in in_pool.items()},
     }
 
@@ -343,6 +382,8 @@ def with_understanding(
         return out
     match, audit_reason = _audit(rows, audit)
     doubts = match["flags"] if match is not None else {}
+    findings = _claim_findings(rows)
+    pool_findings: dict[str, list[dict[str, object]]] = {}
     ids = [str(card["card_id"]) for card in cards]
     lands = {str(card["card_id"]) for card in cards if card.get("is_land") is True}
     oracle = _oracle_ids(store, ids)
@@ -360,6 +401,12 @@ def with_understanding(
         if flag is not None:
             in_pool[card_id] = flag
             notes.append(_doubt_text(flag))
+        claim_found = findings.get(oracle_id) if oracle_id else None
+        if claim_found:
+            pool_findings[card_id] = claim_found
+            notes.extend(
+                f"{item['kurz']} (Claim {int(str(item['index'])) + 1})" for item in claim_found
+            )
         if card_id in lands:
             rated_lands.append(card_id)
             lands_t_zero += 1 if float(row["scores"]["T"]) == 0.0 else 0
@@ -385,6 +432,10 @@ def with_understanding(
             for name in card_understanding.CRITERIA
         },
         "pruefer_zweifel": _doubt_field(match, audit_reason, in_pool),
+        "regelclaim_befunde": {
+            "quelle": card_understanding.AUDIT_D_SOURCE,
+            "karten": pool_findings,
+        },
         "laender_skala": {
             "text": LAND_SCALE_TEXT,
             "quelle": LAND_SCALE_SOURCE,
@@ -426,13 +477,13 @@ def card_detail(
     per criterion over the data set. ``anzeigen`` is False for every commander but the data set's
     (the page then shows nothing); a card the data set does not list has all seven values None
     ("unbekannt", never 0). ``KeyError`` for a card the store does not know."""
-    if commander.strip().casefold() != card_understanding.DATASET_COMMANDER.casefold():
-        return _nothing_to_show(commander)
     found = store.connection.execute(
         "SELECT oracle_id, oracle_name, type_line FROM card WHERE card_id = ?", (card_id,)
     ).fetchone()
-    if found is None:
+    if found is None:  # an unknown card is unknown for every commander (404 at the route)
         raise KeyError(card_id)
+    if commander.strip().casefold() != card_understanding.DATASET_COMMANDER.casefold():
+        return _nothing_to_show(commander)
     oracle_id, name, type_line = (str(found[0]) if found[0] else None), str(found[1]), found[2]
     base: dict[str, object] = {
         "verfuegbar": True,
@@ -500,7 +551,9 @@ def card_detail(
             "verfuegbar": match is not None,
             "grund": audit_reason,
             "quelle": card_understanding.AUDIT_SOURCE,
+            "pruefbasis": AUDIT_BASIS,
         },
+        "regelclaim_befunde": _claim_findings(rows).get(oracle_id, []) if oracle_id else [],
         "laender_skala": (
             {"text": LAND_SCALE_TEXT, "quelle": LAND_SCALE_SOURCE}
             if is_land and row is not None

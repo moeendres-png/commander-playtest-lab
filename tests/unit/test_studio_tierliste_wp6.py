@@ -172,6 +172,21 @@ def test_the_field_marks_35_of_35_doubts_and_65_lands_on_their_own_scale() -> No
         if "Begründung" not in label
     )
     assert all("kein Mensch" in entry["text"] for entry in doubt["karten"].values())
+    # the review base: 230 of 922 cards seen, so no mark is no proof of a check
+    basis = doubt["pruefbasis"]
+    assert (basis["n"], basis["N"], basis["ausserhalb"]) == (230, 922, 6)
+    assert "ohne Kennzeichen heißt nicht geprüft (692 von 922)" in basis["text"]
+    audit_text = (RESEARCH / "audit" / "AUDIT_A_ratings.md").read_text(encoding="utf-8")
+    assert "| Summe | | 230 | 29 |" in audit_text
+    assert "Zusätzlich 6 auffällige Karten außerhalb der Stichproben" in audit_text
+    # Audit D: the wrong claim of Wavesifter and the unsharp one of Appeal to Eirdu carry a mark
+    findings = field["regelclaim_befunde"]["karten"]
+    names = {by_id[i]["id"]: i for i in by_id}
+    assert len(findings) == 2 and len(names) == 922
+    verdicts = sorted(item["kurz"] for found in findings.values() for item in found)
+    assert verdicts == ["Regelclaim laut Audit D falsch", "Regelclaim laut Audit D unscharf"]
+    for card_id, found in findings.items():
+        assert any(note == f"{found[0]['kurz']} (Claim 1)" for note in by_id[card_id]["hinweise"])
     lands = field["laender_skala"]
     assert (lands["n_laender"], lands["n_t_null"]) == (65, 58)  # Gutachten C §4: 65, T = 0 at 58
     assert "Gutachten C §4" in lands["quelle"] and len(lands["karten"]) == 65
@@ -194,7 +209,7 @@ def test_a_missing_audit_file_is_not_available_never_zero_doubts(
     doubt = field["pruefer_zweifel"]
     assert doubt["verfuegbar"] is False and "nicht gefunden" in doubt["grund"]
     assert doubt["n_markiert"] is None and doubt["n_zugeordnet"] is None
-    assert doubt["karten"] == {}
+    assert doubt["karten"] == {} and doubt["pruefbasis"]["n"] == 230
     assert field["zahlen"] and not any(
         "bezweifelt" in note for f in field["zahlen"] for note in f["hinweise"]
     )
@@ -317,6 +332,10 @@ def _detail_store(
         )
     alpha = _row("o-Alpha", "Alpha", H=65)
     alpha["notes"] = {"E": "cheap"}  # most notes missing: "unbekannt", never invented
+    alpha["rule_claims"] = [
+        {"quote": "Draw a card.", "interaction": "cast", "claim": "draws", "basis": "text"},
+        {"quote": "Flying", "interaction": "combat", "claim": "evades", "basis": "keyword"},
+    ]
     data = card_understanding.parse_lines(
         [json.dumps(alpha), json.dumps(_row("o-Grove", "Grove", H=30, rule_claims=[]))]
     )
@@ -340,9 +359,11 @@ def test_the_card_detail_gives_all_seven_criteria_with_reason_and_claims() -> No
     notes = {c["kriterium"]: c["notiz"] for c in criteria}
     assert notes["E"] == "cheap" and notes["H"] is None and notes["T"] is None
     assert detail["begruendung"] == "It does one small thing." and detail["vertrauen"] == "medium"
-    assert detail["regelclaims"] == [
-        {"quote": "Draw a card.", "interaction": "cast", "claim": "draws", "basis": "text"}
+    assert detail["regelclaims"] == [  # every claim, unchanged and in order
+        {"quote": "Draw a card.", "interaction": "cast", "claim": "draws", "basis": "text"},
+        {"quote": "Flying", "interaction": "combat", "claim": "evades", "basis": "keyword"},
     ]
+    assert detail["regelclaim_befunde"] == [] and detail["pruefer_audit"]["pruefbasis"]["n"] == 230
     coverage = detail["abdeckung"]
     assert list(coverage) == list(card_understanding.CRITERIA)
     assert all((c["n"], c["N"]) == (2, 2) for c in coverage.values())
@@ -403,6 +424,8 @@ def test_the_route_serves_the_detail_and_refuses_unknown_cards(
     assert other.status_code == 200 and other.json()["anzeigen"] is False
     missing = client.get("/api/cards/card:nope/understanding", params={"commander": CHULANE})
     assert missing.status_code == 404
+    other_missing = client.get("/api/cards/card:nope/understanding", params={"commander": TAM})
+    assert other_missing.status_code == 404  # unknown is unknown for every commander
     assert client.get("/api/cards/card:synth:alpha/understanding").status_code == 422
 
 
@@ -432,6 +455,7 @@ const unknown = (t = 'unbekannt') => h('span', {class: 'unknown'}, t);
 const spreadKnown = () => false, presentCount = () => 0, corpusAll = () => null, widest = () => null, textfitOf = () => null;
 const SPREAD = {kriterium: 'H', text: 'typisch ± rund 5 bis 8 Punkte (1\u03c3), ein Lauf je Karte', kurz: '±5\u20138', unten: 5, oben: 8, laeufe_je_karte: 1,
   baender: [{ab: 0, bis: 10, kurz: '±5', text: 'etwa ±5 bei H bis 10', quelle: 'Schätzung Rating-Audit A §4'},
+    {ab: 40, bis: 55, kurz: '±10', text: 'etwa ±10 bei H 40 bis 55', quelle: 'Schätzung Rating-Audit A §4'},
     {ab: 60, bis: 100, kurz: '\u221215/+5', text: 'asymmetrisch', quelle: 'Schätzung Rating-Audit A §4'}],
   art: 'typische Streuung', quellen: [{name: 'Audit', kurzname: 'Audit A', gemessen: false, n: 230, N: 922, bezug: 'Karten', kennzahl: 'Schätzung 7 bis 8', datei: 'AUDIT_A'}, {name: 'Drift', kurzname: 'Drift', gemessen: true, n: 49, N: 922, bezug: 'Karten', kennzahl: 'mittlere |ΔH| 5,10', datei: 'PILOT_REPORT.md'}]};
 const item = (id, tier, index, roles = {}) => ({card_id: id, tier, index, components: [], role_ranks: roles, confidence: null, reason: 'X', note: 'n'});
@@ -533,7 +557,9 @@ const field = (extra) => ({verfuegbar: true, grund: null, name: 'Kartenverständ
   herkunft: {version: 'v2.1', rubric: 'chulane-rubric-v2.1'},
   zahlen: [figure('A', 90, ['Prüfer-Modell bezweifelt H: zu hoch; Spanne des Prüfers für H 30 bis 45']), figure('B', 0), figure('L', 30, ['Länder-Skala: x'])],
   streuung: SPREAD, abdeckung: {},
+  regelclaim_befunde: {quelle: 'Audit D', karten: {B: [{index: 0, urteil: 'falsch', kurz: 'Regelclaim laut Audit D falsch', korrektur: 'Evoke-Opfern ist ausgelöst', quelle: 'Audit D'}]}},
   pruefer_zweifel: {verfuegbar: true, quelle: 'Rating-Audit A', n_markiert: 35, n_zugeordnet: 35, n_im_pool: 1,
+    pruefbasis: {n: 230, N: 922, ausserhalb: 6, text: 'Prüfbasis: 230 von 922 Karten geprüft; ohne Kennzeichen heißt nicht geprüft (692 von 922) oder geprüft ohne Befund'},
     karten: {A: {art: 'H zu hoch', spanne: [30, 45], kurz: 'Prüfer-Modell bezweifelt H: zu hoch', text: 'Prüfer-Modell bezweifelt H: zu hoch; Spanne des Prüfers für H 30 bis 45', grund: 'Einmal-Effekt'}}},
   laender_skala: {text: 'Länder-Skala: eigene Skala', quelle: 'Gutachten C §4', n_laender: 1, n_t_null: 1, karten: ['L']}, ...extra});
 const bandTitle = (n) => (n && typeof n === 'object' ? ((n.props.class || '').split(' ').includes('zahl-band') ? n.props.title : n.kids.map(bandTitle).find(Boolean) || '') : '');
@@ -541,6 +567,8 @@ const show = () => ({cells: cards.map((c) => { const cell = understandingCell(c)
   doubt: has(cell, 'pruefer-zweifel'), land: has(cell, 'laender-skala'), band: has(cell, 'zahl-band'), band_title: bandTitle(cell)}; }),
   hint: understandingHint().map(text).join(' ')});
 setup(cards, field({})); const out = {full: show()};
+out.bands = [0, 10, 15, 35, 40, 55, 56, 59, 60, 100].map((v) => { const b = spreadBandOf(SPREAD, v); return b ? b.kurz : null; });
+out.doubtTitle = titleOf(understandingCell(cards[0]).kids[0].kids.find((k) => k && k.props && (k.props.class || '').includes('pruefer-zweifel')));
 setup(cards, field({streuung: null, pruefer_zweifel: {verfuegbar: false, grund: 'Audit-Datei nicht gefunden', n_markiert: null, karten: {}}})); out.missing = show();
 console.log(JSON.stringify(out));
 """
@@ -549,7 +577,25 @@ console.log(JSON.stringify(out));
     assert isinstance(result, dict)
     a, b, land, unrated = result["full"]["cells"]
     # the band of the H range: 90 -> -15/+5, 0 -> +-5, 30 (no band) -> the typical spread
-    assert a["text"].startswith("90") and "\u221215/+5" in a["text"] and "mittel" in a["text"]
+    assert a["text"].startswith("90") and "\u2248\u221215/+5" in a["text"] and "mittel" in a["text"]
+    assert "Schätzung, kein Intervall" in a["band_title"]
+    # inclusive band limits (H = 10 and H = 55 are frequent values of the data set)
+    assert result["bands"] == [
+        "±5",
+        "±5",
+        None,
+        None,
+        "±10",
+        "±10",
+        None,
+        None,
+        "\u221215/+5",
+        "\u221215/+5",
+    ]
+    assert (
+        "Prüfbasis: 230 von 922" in result["doubtTitle"] and "nicht geprüft" in result["doubtTitle"]
+    )
+    assert "Regelclaim laut Audit D falsch" in b["text"]
     assert "Prüfer-Modell bezweifelt H: zu hoch" in a["text"]
     assert "Schätzung Rating-Audit A §4" in a["band_title"]
     assert "Modellurteil" in a["text"] and a["band"] and a["doubt"] and not a["land"]
@@ -558,14 +604,20 @@ console.log(JSON.stringify(out));
     assert b["text"].startswith("0") and b["band"] and not b["doubt"]  # a real 0 stays 0
     assert land["land"] and "Länder-Skala" in land["text"] and not land["doubt"]
     assert "±5\u20138 typ." in land["text"] and "typische Streuung" in land["band_title"]
-    assert " ±5 " in b["text"] + " " and "\u221215" not in b["text"]
+    assert " \u2248±5 " in b["text"].replace("·", " ") and "\u221215" not in b["text"]
     assert unrated["text"] == "unbekannt" and not unrated["band"]
     hint = result["full"]["hint"]
     assert "Quelle: Rubrik v2.1 (chulane-rubric-v2.1)" in hint and "Kohorte: Chulane" in hint
     assert "Streuung ±5\u20138 typisch (1\u03c3, 1 Lauf je Karte)" in hint
-    assert "je H-Bereich ±5 / \u221215/+5 (Schätzung Audit A); gemessen: Drift n = 49" in hint
-    assert "230" not in hint  # the audit's estimate is no measured n beside the sigma
+    assert (
+        "je H-Bereich ±5 / ±10 / \u221215/+5 (\u2248 = Schätzung Audit A); gemessen: Drift n = 49"
+        in hint
+    )
+    spread_part = hint.split("Streuung", 1)[1].split("Prüfer-Modell-Zweifel", 1)[0]
+    assert "230" not in spread_part  # the audit's estimate is no measured n beside the sigma
     assert "Prüfer-Modell-Zweifel: 35 von 35 zugeordnet, 1 im Pool" in hint
+    assert "(Prüfbasis 230 von 922; ohne Kennzeichen heißt nicht geprüft oder ohne Befund)" in hint
+    assert "\u2248 = Schätzung Audit A" in hint
     assert "Länder-Skala: 1 Länder, T = 0 bei 1" in hint and "3 von 4 Karten bewertet" in hint
     assert "nicht gegen Spielergebnisse validiert" in hint and "keine Spielstärke" in hint
     missing = result["missing"]
@@ -604,8 +656,25 @@ def test_the_card_window_shows_seven_criteria_reason_claims_and_marks(
         store, "card:synth:grove", CHULANE, dataset=data, audit=[]
     )
     other = understanding_field.card_detail(store, "card:synth:alpha", TAM, dataset=data)
+    no_coverage = dict(rated, abdeckung={})
+    real_store, _answer = _real_store_and_answer()
+    real = card_understanding.load()
+    wave = next(o for o, r in real.items() if r["card"] == "Wavesifter")
+    wave_id = real_store.connection.execute(
+        "SELECT card_id FROM card WHERE oracle_id = ?", (wave,)
+    ).fetchone()[0]
+    wavesifter = understanding_field.card_detail(real_store, wave_id, CHULANE)
+    assert [f["urteil"] for f in wavesifter["regelclaim_befunde"]] == ["falsch"]
+    answers = {
+        "rated": rated,
+        "unrated": unrated,
+        "land": land,
+        "other": other,
+        "no_coverage": no_coverage,
+        "wavesifter": wavesifter,
+    }
     script = f"""
-const answers = {json.dumps({"rated": rated, "unrated": unrated, "land": land, "other": other})};
+const answers = {json.dumps(answers)};
 const out = {{}};
 for (const [key, detail] of Object.entries(answers)) {{ const node = StudioKartenverstaendnis.box(h, detail);
   out[key] = node === null ? null : {{text: text(node), rows: rowsOf(node)}}; }}
@@ -644,6 +713,13 @@ console.log(JSON.stringify(out));
     assert "alle sieben Kriterien sind unbekannt, nicht 0" in result["unrated"]["text"]
     assert "Länder-Skala" in result["land"]["text"]
     assert "Keine Regelclaims im Datensatz" in result["land"]["text"]
+    assert "Flying" in text and "evades" in text  # every claim is shown
+    assert "Prüfbasis: 230 von 922 Karten geprüft" in text
+    for name, row in result["no_coverage"]["rows"]:
+        assert row.endswith("unbekannt") and "0 / 0" not in row, name
+    wave_text = result["wavesifter"]["text"]
+    assert "Regelclaim laut Audit D falsch (Claim 1)" in wave_text
+    assert "CR 702.74a" in wave_text
 
 
 def test_compact_zahl_cells_keep_class_and_origin_and_refuse_invalid_figures() -> None:
@@ -687,5 +763,64 @@ def test_the_page_scripts_load_the_card_window_part_after_zahl_js() -> None:
     tier = (STATIC / "tierliste.js").read_text(encoding="utf-8")
     assert "StudioKartenverstaendnis.fill(understandingBox, h, api, card.card_id, COMMANDER)" in app
     assert "if (understandingShown()) StudioKartenverstaendnis.fill(" in tier
+    # a long card name cut by the ellipsis keeps the full name as tooltip
+    assert '"data-card-id": card.card_id, title: card.name, onclick: () => openCard(card)' in tier
     css = (STATIC / "tierliste.css").read_text(encoding="utf-8")
     assert "#tier-table td{padding-top:2px;padding-bottom:2px;white-space:nowrap" in css
+
+
+def test_the_audit_d_findings_match_the_table_of_the_report() -> None:
+    """The two findings copied into ``RULE_CLAIM_FINDINGS`` are the rows of the table
+    "Zusatzprobe" of AUDIT_D with the verdict "falsch" or "unscharf"."""
+    report = (RESEARCH / "audit" / "AUDIT_D_rule_claims.md").read_text(encoding="utf-8")
+    table = report.split("## Zusatzprobe", 1)[1].split("Bemerkenswert", 1)[0]
+    rows = [
+        [cell.strip() for cell in line.strip().strip("|").split("|")]
+        for line in table.splitlines()
+        if line.startswith("| ") and "(#" in line
+    ]
+    parsed = [
+        (row[0].split(" (#")[0], int(row[0].split("(#")[1].rstrip(")")), row[2]) for row in rows
+    ]
+    copied = card_understanding.RULE_CLAIM_FINDINGS
+    assert parsed == [(f["card"], f["index"], f["verdict"]) for f in copied]
+    for row, finding in zip(rows, copied, strict=True):
+        assert row[3].startswith(finding["correction"]), finding["card"]
+
+
+def test_a_changed_audit_file_changes_the_remembered_strength_answer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The route remembers the field per store state; the audit file is part of that key, so a
+    changed audit file is never answered from the old memory."""
+    folder = tmp_path / "studio"
+    store = make_store(folder)
+    add_card(store, CMD, type_line="Legendary Creature — Test")
+    for index, name in enumerate(NAMES):
+        add_card(store, name)
+        add_signal(store, CMD, "edhrec_commander_inclusion", name, 80 - 10 * index, 100)
+        store.connection.execute(
+            "UPDATE card SET oracle_id = ? WHERE oracle_name = ?", (f"o-{name}", name)
+        )
+    store.connection.commit()
+    store.close()
+    data = tmp_path / "cu.jsonl"
+    data.write_text(
+        "\n".join(json.dumps(_row(f"o-{name}", name, H=65)) for name in NAMES) + "\n",
+        encoding="utf-8",
+    )
+    audit = tmp_path / "audit.jsonl"
+    flag = {"card": NAMES[0], "rater_H": 65, "proposed_H_low": 30, "proposed_H_high": 45}
+    flag |= {"kind": "H zu hoch", "reason": "r", "sample": "top100"}
+    audit.write_text(json.dumps(flag) + "\n", encoding="utf-8")
+    monkeypatch.setattr(card_understanding, "DATASET_PATH", data)
+    monkeypatch.setattr(card_understanding, "AUDIT_PATH", audit)
+    monkeypatch.setattr(card_understanding, "DATASET_COMMANDER", CMD)
+    head = {"X-Studio": "1"}
+    with TestClient(create_app(folder)) as client:
+        first = client.post("/api/strength", json={"commander": CMD}, headers=head).json()
+        second_flag = dict(flag, card=NAMES[1], reason="a longer reason")
+        audit.write_text(json.dumps(flag) + "\n" + json.dumps(second_flag) + "\n", encoding="utf-8")
+        second = client.post("/api/strength", json={"commander": CMD}, headers=head).json()
+    assert first[FIELD]["pruefer_zweifel"]["n_markiert"] == 1
+    assert second[FIELD]["pruefer_zweifel"]["n_markiert"] == 2
