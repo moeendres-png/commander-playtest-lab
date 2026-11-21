@@ -24,7 +24,8 @@ the recorder input, so it only catches driver bugs); ``check_groups`` counts n/N
 as 0 or as a pass. More than four seats require ``--jar`` (exit 2 otherwise); the archive is
 hashed again after the run and a changed or vanished file is a red ``jar_unchanged`` check.
 The ``seat_gate.jar`` block names the effective start command (with COMMANDER_LAB_XMAGE_JVM_FLAGS
-spliced in). A bridge command from the environment must be a plain java launcher with only JVM
+spliced in, and the launcher rules apply to it) and the JAVA_TOOL_OPTIONS / JDK_JAVA_OPTIONS the JVM
+inherits (value or NOT_SET; a -javaagent in them stops the run). A bridge command from the environment must be a plain java launcher with only JVM
 options before one ``-jar`` and an absolute archive path equal to ``--jar``. The deck list is
 labelled "plan" and carries the SHA-256 of each deck file. A winner list that does not match
 the ``won`` outcomes, or that nobody wins, is not a pass. With 6 seats the report says that no
@@ -812,17 +813,18 @@ def _prepare(args: argparse.Namespace) -> tuple[GateOptions, dict[str, Any]] | i
     try:
         options = resolve_options(args)
         jar = jar_identity(options.jar)
-        if options.jar is not None:
-            command = bridge_command_for_jar(options.jar)
+        jar_path = options.jar
+        if jar_path is not None:
+            command = bridge_command_for_jar(jar_path)
             options = replace(options, command=command)
             # what the bridge JVM really gets: COMMANDER_LAB_XMAGE_JVM_FLAGS is spliced in,
             # so the launcher rules apply to this effective command too
             effective = _with_jvm_flags(command)
-            reason = _launcher_problem(effective, options.jar)
+            reason = _launcher_problem(effective, jar_path)
             if reason is not None:
                 raise GateConfigError(
                     f"the effective bridge command ({XMAGE_JVM_FLAGS_ENV} included) "
-                    f"does not start --jar {options.jar}: {reason}"
+                    f"does not start --jar {jar_path}: {reason}"
                 )
             jar["command"] = list(effective)
             jar["jvm_flags_env"] = os.environ.get(XMAGE_JVM_FLAGS_ENV) or None
