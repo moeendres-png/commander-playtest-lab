@@ -1,6 +1,8 @@
 "use strict";
 // Colour castability (#1415, #1404 option 2): exact, conditioned on land drops (Karsten).
 // Every probability names its condition; no land count advice. Rendered from renderNumbers.
+// WP-2/WP-3 (#1404): sources "direkt" and "über Suchland" (calculation assumption shown on the
+// page), the commander on curve and the exact land count table 30-40.
 // The opening-hand figure is shown through the number contract (zahl.js, #1659) as EXAKT.
 
 function castPct(value) { return value === null || value === undefined ? "unbekannt" : StudioUI.pct(value, 1); }
@@ -28,35 +30,116 @@ function handRoleNodes(h, hr, roleName) {
     h("p", { class: "note" }, "Karten in der Hand: Start 7, nach Zug 1 8, Zug 2 9, Zug 3 10. Je Rolle: obere Zeile mindestens eine Karte der Rolle, untere Zeile keine Karte der Rolle (zusammen 100 %, durch Rundung bis 0,1 Prozentpunkt Abweichung). Rollen sind öffentliche Marken (Tagger); eine Karte zählt für jede ihrer Rollen.")];
 }
 
+// Sources per colour as "U 17" (direct) or "U 20 (+3)" (with search lands).
+function castSources(sources, direct) {
+  return Object.entries(sources || {}).map(([colour, count]) => {
+    const plus = direct && direct[colour] !== undefined && count > direct[colour] ? ` (+${StudioUI.num(count - direct[colour], 0)})` : "";
+    return `${colour} ${StudioUI.num(count, 0)}${plus}`;
+  }).join(" · ") || "–";
+}
+
+// WP-2: land classes from card data and rules text, with n/N and the calculation assumption.
+function landClassNodes(h, classes) {
+  if (!classes) return [];
+  const c = classes.counts || {};
+  const out = [h("p", { id: "land-classes", class: "note" },
+    `Länderklassen (${classes.origin}): direkt ${StudioUI.num(c.direkt || 0, 0)}, Suchland ${StudioUI.num(c.suchland || 0, 0)}, ohne farbiges Mana ${StudioUI.num(c.ohne_farbe || 0, 0)}, unbekannt ${StudioUI.num(c.unbekannt || 0, 0)} – Klasse bestimmt für ${StudioUI.num(classes.classified, 0)} von ${StudioUI.num(classes.of, 0)} Ländern.`)];
+  const search = classes.search_lands || [];
+  if (search.length) {
+    out.push(h("ul", { id: "search-lands", class: "note" }, search.map((land) => h("li", {},
+      `${land.name}${land.quantity > 1 ? ` (${StudioUI.num(land.quantity, 0)}×)` : ""}: sucht ${land.searches_for}; `,
+      land.reach.length ? `passende Länder im Deck: ${StudioUI.num(land.targets, 0)}, erreichbare Farben ${land.reach.join("")}` : `kein passendes Land im Deck (${StudioUI.num(land.targets || 0, 0)}): Quelle keiner Farbe (bekannt, nicht unbekannt)`))));
+  }
+  const unknown = classes.unknown || [];
+  if (unknown.length) {
+    out.push(h("p", { id: "land-classes-unknown", class: "warn" }, `Unbekannt (weder direkt noch über Suchland gezählt, nicht 0): ${unknown.map((land) => `${land.name} – ${land.reason}`).join("; ")}.`));
+  }
+  out.push(h("p", { id: "search-assumption", class: "note" }, h("strong", {}, "Annahme: "), classes.assumption));
+  return out;
+}
+
+// WP-3: the commander's own cost on curve from the command zone.
+function commanderNodes(h, commanders) {
+  if (!commanders || !commanders.length) return [];
+  const rows = commanders.map((cmd) => {
+    if (!cmd.known) return h("tr", {}, h("td", {}, cmd.name), h("td", { colspan: 5, class: "note" }, `unbekannt (${cmd.reason})`));
+    const ws = cmd.with_search || {};
+    return h("tr", { class: "facts-row" },
+      h("td", { class: "nowrap" }, cmd.name, h("div", { class: "note" }, `${cmd.mana_cost || "ohne Kosten"} · Zug ${StudioUI.num(cmd.turn, 0)}${cmd.hybrid_or_phyrexian ? " · Hybrid/Phyrexia nicht eingerechnet" : ""}`)),
+      h("td", { class: "num", title: "Land-Drops und Farben zusammen, direkt" }, castPct(cmd.p_on_curve)),
+      h("td", { class: "num", title: "Land-Drops und Farben zusammen, mit Suchland" }, castPct(ws.p_on_curve)),
+      h("td", { class: "num", title: `mindestens ${StudioUI.num(cmd.turn, 0)} Länder unter ${StudioUI.num(cmd.draws, 0)} Karten` }, castPct(cmd.p_land_drops)),
+      h("td", { class: "num", title: cmd.condition }, castPct(cmd.p_colours_given_lands)),
+      h("td", { class: "num", title: cmd.condition }, castPct(ws.p_colours_given_lands)));
+  });
+  return [
+    h("h3", {}, "Commander auf Kurve"),
+    h("div", { class: "table-wrap" }, h("table", { id: "commander-curve" },
+      h("thead", {}, h("tr", {}, h("th", {}, "Commander"),
+        h("th", { class: "num" }, "auf Kurve direkt"), h("th", { class: "num" }, "auf Kurve mit Suchland"),
+        h("th", { class: "num" }, "Land-Drops"), h("th", { class: "num" }, "Farben direkt*"), h("th", { class: "num" }, "Farben mit Suchland*"))),
+      h("tbody", {}, rows))),
+    h("p", { class: "note" }, "Commander aus der Kommandozone im Zug seines Manawerts: Bibliothek = Deck ohne Commander, erster Wurf ohne Commander-Steuer. „Auf Kurve“ = Land-Drops und Farben zusammen (Land-Drops × Farben). Jedes Farbsymbol braucht ein eigenes Land."),
+    h("p", { id: "commander-start-note", class: "note" }, commanders.filter((cmd) => cmd.known).map((cmd) => `Gerechnet für den Nichtstartspieler (zieht in Zug 1): in Zug ${StudioUI.num(cmd.turn, 0)} ${StudioUI.num(cmd.draws, 0)} Karten; ein Startspieler sieht in Zug ${StudioUI.num(cmd.turn, 0)} nur ${StudioUI.num(cmd.draws - 1, 0)} Karten.`).join(" ")),
+  ];
+}
+
+// WP-3: exact land count table 30-40 (and the deck's own count), no advice.
+function landCountNodes(h, table) {
+  if (!table || !table.rows || !table.rows.length) return [];
+  return [
+    h("h3", {}, "Landzahl-Tabelle (30–40 Länder, exakt)"),
+    h("div", { class: "table-wrap" }, h("table", { id: "land-count-table" },
+      h("thead", {}, h("tr", {}, h("th", {}, ""), h("th", { class: "num", colspan: table.rows[0].cells.length, id: "land-count-player" }, "Nichtstartspieler (zieht in Zug 1); Startspieler: Spalte einen Zug früher")),
+        h("tr", {}, h("th", { class: "num" }, "Länder"),
+        ...table.rows[0].cells.map((cell) => h("th", { class: "num", title: `mindestens ${StudioUI.num(cell.turn, 0)} Länder unter ${StudioUI.num(cell.draws, 0)} Karten` }, `Zug ${StudioUI.num(cell.turn, 0)} · ${StudioUI.num(cell.draws, 0)} Karten`)))),
+      h("tbody", {}, table.rows.map((row) => h("tr", { class: row.deck ? "facts-row land-count-deck" : "" },
+        h("td", { class: "num" }, StudioUI.num(row.lands, 0), row.deck ? " (Deck)" : ""),
+        ...row.cells.map((cell) => h("td", { class: "num" }, castPct(cell.p)))))))),
+    h("p", { class: "note" }, `Je Zeile: Anteil der Ziehungen mit mindestens so vielen Ländern wie der Zug. ${table.rule} Zählweise wie „Farben auf Kurve“ (7 + Zug Karten); die Land-Zieh-Tabelle weiter oben zählt für den Startspieler (zieht in Zug 1 nicht), dort steht derselbe Wert einen Zug später.`),
+  ];
+}
+
 function castabilityNodes(h, data, open, roleName) {
   const pipLabel = (label) => h("span", {}, ...label.split("").map((letter) => h("span", { class: "ms ms-" + letter }, letter)));
   const names = (cards) => h("span", {}, ...cards.flatMap((card, index) => [index ? ", " : "",
     h("a", { href: "#", class: "nm", onclick: (event) => { event.preventDefault(); open(card.card_id); } }, card.name)]));
-  const rows = data.requirements.flatMap((item) => [
-    h("tr", { class: "facts-row" },
-      h("td", { class: "nowrap" }, pipLabel(item.label), ` Zug ${StudioUI.num(item.turn, 0)}`),
-      h("td", { class: "num" }, Object.entries(item.sources).map(([colour, count]) => `${colour} ${StudioUI.num(count, 0)}`).join(" · ")),
-      h("td", { class: "num", title: `mindestens ${StudioUI.num(item.turn, 0)} Länder unter ${StudioUI.num(item.draws, 0)} Karten` }, castPct(item.p_land_drops)),
-      h("td", { class: "num", title: item.condition }, castPct(item.p_colours_given_lands))),
-    h("tr", { class: "facts-basis" }, h("td", { colspan: 4, class: "note" }, names(item.cards))),
-  ]);
+  const rows = data.requirements.flatMap((item) => {
+    const ws = item.with_search || {};
+    return [
+      h("tr", { class: "facts-row" },
+        h("td", { class: "nowrap" }, pipLabel(item.label), ` Zug ${StudioUI.num(item.turn, 0)}`),
+        h("td", { class: "num", title: `mindestens ${StudioUI.num(item.turn, 0)} Länder unter ${StudioUI.num(item.draws, 0)} Karten` }, castPct(item.p_land_drops)),
+        h("td", { class: "num", title: item.condition }, castPct(item.p_colours_given_lands)),
+        h("td", { class: "num", title: `${item.condition}; Suchländer unter der Annahme unten` }, castPct(ws.p_colours_given_lands)),
+        h("td", { class: "num" }, castSources(item.sources)),
+        h("td", { class: "num" }, castSources(ws.sources, item.sources))),
+      h("tr", { class: "facts-basis" }, h("td", { colspan: 6, class: "note" }, names(item.cards))),
+    ];
+  });
   const hand = data.opening_hand;
   const keepable = StudioZahl.index(data.zahlen).get("cast.opening_hand.p_keepable");
   const notes = [];
-  if (data.lands_without_coloured_mana) notes.push(`${StudioUI.num(data.lands_without_coloured_mana, 0)} Länder erzeugen laut Kartendaten kein farbiges Mana (z. B. Fetch-Länder) und zählen nicht als Quelle.`);
+  const searchCount = data.land_classes && data.land_classes.counts ? data.land_classes.counts.suchland || 0 : 0;
+  if (data.lands_without_coloured_mana) notes.push(`${StudioUI.num(data.lands_without_coloured_mana, 0)} Länder erzeugen laut Kartendaten kein farbiges Mana; direkt zählen sie nicht als Quelle${searchCount ? `, davon ${StudioUI.num(searchCount, 0)} Suchländer in „mit Suchland“` : ""}.`);
   if (data.lands_unknown_colours) notes.push(`${StudioUI.num(data.lands_unknown_colours, 0)} Länder ohne Kartendaten: Farben unbekannt, nicht als Quelle gezählt – die Farbwerte sind darum eher zu niedrig.`);
   if (data.cards_unknown_mana_value) notes.push(`${StudioUI.num(data.cards_unknown_mana_value, 0)} Karten mit unbekanntem Manawert: ohne eigene Farbanforderung, in den Ziehungen als Karten ohne frühe Aktion gezählt.`);
   if (data.hybrid_or_phyrexian_cards.length) notes.push(`Hybrid- und Phyrexia-Symbole nicht eingerechnet bei: ${data.hybrid_or_phyrexian_cards.join(", ")}.`);
   return [
     h("h3", {}, "Farben auf Kurve (bedingt auf Land-Drops)"),
-    h("p", { class: "note" }, `Je Farbanforderung: Wahrscheinlichkeit, bis zum Zug des Manawerts genug Länder zu haben (Land-Drops), und – nur unter diesen Ziehungen – die nötigen Quellen der Farbe(n). ${StudioUI.num(data.lands, 0)} Länder in ${StudioUI.num(data.main_cards, 0)} Karten.`),
+    h("p", { class: "note" }, `Je Farbanforderung: Wahrscheinlichkeit, bis zum Zug des Manawerts genug Länder zu haben (Land-Drops), und – nur unter diesen Ziehungen – die nötigen Quellen der Farbe(n), einmal direkt und einmal mit Suchländern. ${StudioUI.num(data.lands, 0)} Länder in ${StudioUI.num(data.main_cards, 0)} Karten.`),
+    ...commanderNodes(h, data.commander),
     h("div", { class: "table-wrap" }, h("table", { id: "castability" },
-      h("thead", {}, h("tr", {}, h("th", {}, "Kosten"), h("th", { class: "num" }, "Quellen"),
-        h("th", { class: "num" }, "Land-Drops"), h("th", { class: "num", title: "nur unter den Ziehungen mit genug Land-Drops" }, "Farben*"))),
+      h("thead", {}, h("tr", {}, h("th", {}, "Kosten"),
+        h("th", { class: "num" }, "Land-Drops"), h("th", { class: "num", title: "nur unter den Ziehungen mit genug Land-Drops, ohne Suchländer" }, "Farben direkt*"),
+        h("th", { class: "num", title: "nur unter den Ziehungen mit genug Land-Drops, Suchländer als Quelle (Annahme unten)" }, "Farben mit Suchland*"),
+        h("th", { class: "num" }, "Quellen direkt"), h("th", { class: "num", title: "Länder mit eigener Farbe plus Suchländer (Annahme unten)" }, "Quellen über Suchland"))),
       h("tbody", {}, rows))),
-    h("p", { class: "note" }, "* Farben: Anteil mit den nötigen farbigen Quellen unter den Ziehungen, die bis zum Zug genug Länder haben. Quellen: nur Länder."),
+    h("p", { class: "note" }, "* Farben: Anteil mit den nötigen farbigen Quellen unter den Ziehungen, die bis zum Zug genug Länder haben. Quellen: nur Länder. „direkt“: Länder mit eigener Farbe; „mit Suchland“: zusätzlich Suchländer unter der Annahme unten."),
+    ...landClassNodes(h, data.land_classes),
     h("p", { id: "opening-hand" }, `Spielbare Starthand (${hand.rule}): `, keepable ? StudioZahl.knoten(h, keepable) : castPct(hand.p_keepable), ` – aus ${StudioUI.num(hand.lands, 0)} Ländern, ${StudioUI.num(hand.early_actions, 0)} frühen Aktionen und ${StudioUI.num(hand.other_cards, 0)} weiteren Karten, 7 Karten, ohne Mulligan.`),
     notes.length ? h("ul", { class: "note" }, notes.map((text) => h("li", {}, text))) : "",
+    ...landCountNodes(h, data.land_count_table),
     ...(data.hand_roles ? handRoleNodes(h, data.hand_roles, roleName || ((key) => key)) : []),
     h("p", { class: "note" }, data.method + " ", h("a", { href: data.source, target: "_blank", rel: "noreferrer noopener", referrerpolicy: "no-referrer" }, "Methodik (Karsten 2022)")),
   ];
