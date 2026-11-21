@@ -461,7 +461,10 @@ function renderSaveState() {
     box.replaceChildren(
       h("span", { class: "pill bad" }, "Konflikt: Entwurf in anderem Tab geändert"),
       " ",
-      h("button", { type: "button", class: "small", onclick: () => loadDecks().then(loadBranch).catch((error) => fail(error)) }, "Aktuellen Stand laden"),
+      h("button", { type: "button", class: "small", onclick: () => {
+        if (committing) { toast("Speichern läuft schon, bitte warten."); return; } // a load now would be dropped by the save
+        loadDecks().then(loadBranch).catch((error) => fail(error));
+      } }, "Aktuellen Stand laden"),
     );
     return;
   }
@@ -520,6 +523,7 @@ async function syncDraftNow() {
 // sent, or failed): changes are counted, and only a tab whose every change is saved adopts.
 async function adoptForeignDraft() {
   const seq = state.changeSeq;
+  if (committing) return; // a save is in the air; it drops the server draft, so nothing is adopted now
   if (document.hidden || !state.deckId || state.savedSeq !== seq) return; // an edit of this tab is unsent (or its save failed)
   try {
     const found = await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`);
@@ -3107,12 +3111,17 @@ async function commitRevision(branch = state.branch, note = "") {
         hints.push(`Der unveränderte Entwurf konnte nicht verworfen werden (${StudioUI.germanError(error)}).`);
       }
     }
-    const done = already ? "Dieser Stand war schon gespeichert." : "Stand gespeichert.";
-    if (!stillHere()) { await left([done, ...hints].join(" ")); return; }
-    state.branch = branch; state.baseRevision = result.revision_id; state.baseStale = false; state.dirty = state.changeSeq !== seq; state.savedSeq = Math.max(state.savedSeq, seq);
+    const where = ` in Variante „${branch}“`;
+    const done = already ? `Dieser Stand war schon gespeichert${where}.` : "Stand gespeichert.";
+    if (!stillHere()) { await left([already ? done : `Stand gespeichert${where}.`, ...hints].join(" ")); return; }
+    state.branch = branch; state.baseRevision = result.revision_id; state.baseStale = false; state.savedSeq = Math.max(state.savedSeq, seq);
+    // the list now in the editor may differ from the one saved (an edit made while the save was
+    // on its way, or a list loaded meanwhile): that is an unsaved draft on the NEW base, never saved
+    state.dirty = state.changeSeq !== seq || cardsKey(entries()) !== cardsKey(cards);
     state.draftUpdatedAt = ""; state.draftConflict = false; state.needsDraftPut = state.dirty;
     rememberVariant();
     await loadDecks(); renderHeader(); renderSaveState(); toast([done, ...hints].join(" "));
+    if (state.dirty) syncDraft();
   } catch (error) { fail(error); } finally { committing = false; setSwitchLocked(false); }
 }
 function saveRevision(branch = state.branch) {
