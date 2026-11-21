@@ -1911,3 +1911,390 @@ def test_partie_cohort_wiring_reads_the_server_value_and_uses_no_html_sinks() ->
         body = src[start : src.index("\n}\n", start)]
         for forbidden in ("innerHTML", "outerHTML", "style:", "style=", "insertAdjacentHTML"):
             assert forbidden not in body, f"{name} {func}: {forbidden}"
+
+
+# -- B2b (#1658): experiment view (experiments.js) ----------------------------------------
+
+_EXPERIMENT_JS = r"""
+const vm = require("vm");
+const fs = require("fs");
+function node(tag, attrs, kids) {
+  const n = { tag, attrs: attrs || {}, kids: [], value: "", disabled: Boolean(attrs && attrs.disabled) };
+  n.replaceChildren = (...k) => { n.kids = k.flat(9).filter((x) => x !== null && x !== undefined && x !== false); };
+  n.append = (...k) => { n.kids.push(...k); };
+  n.replaceChildren(...kids);
+  return n;
+}
+const h = (tag, attrs, ...kids) => node(tag, attrs, kids);
+const text = (n) => (typeof n === "string" || typeof n === "number" ? String(n) : n.kids.map(text).join(""));
+const all = (n) => (typeof n === "object" ? [n, ...n.kids.flatMap(all)] : []);
+const pills = (n) => all(n).filter((x) => String(x.attrs.class || "").startsWith("pill")).map((x) => [x.attrs.class, text(x)]);
+const button = (root, label) => all(root).find((x) => x.tag === "button" && text(x) === label);
+const tick = () => new Promise((r) => setTimeout(r, 0));
+globalThis.StudioUI = { ..._UiHelpers, germanError: (e) => `Das hat nicht geklappt (${e.detail}).` };
+vm.runInThisContext(fs.readFileSync("zahl.js", "utf8"));
+vm.runInThisContext(fs.readFileSync("experiments.js", "utf8"));
+let calls = [];
+let decided = [];
+let serverDraft = null;
+let postError = null;
+const api = async (path, method, body) => {
+  calls.push([path, method || "GET", body && body.decision]);
+  if (path.endsWith("/branches/main/draft")) return { draft: serverDraft };
+  if (method === "POST" && postError) throw postError;
+  return {};
+};
+const deps = { h, api, onDecided: (d) => decided.push(d), labels: new Map([["deck@b", "Stand B"], ["deck@v", "Stand V"]]), zahlen: new Map(), localMainDraft: () => false };
+const befund = { stufe: null, stufe_text: "kein Reifegrad (Beleg fehlt)", urteil_text: "Hinweis besser (Erkundung, unbestätigt)",
+  n: 4, N: 4, bezug: "Paare (abgeschlossen / geplant)", effektives_p: 0.0001, holm_p: 0.0001,
+  stand: { bezug: "aktuell", text: "Befund zum aktuellen Stand" }, empfehlungsfaehig: false, empfehlungsfaehig_gruende: ["Reifegrad unter R2"], hinweise: [] };
+const result = { series_id: "paired-1", counts_as_result: true, status_text: "abgeschlossen", pairs_completed: 4, pairs_planned: 4, pairs_attempted: 4, difference_pp: 100.0 };
+const base = { experiment_id: "exp-1-1-a", deck_id: "chulane", question: "38 statt 40 Wälder", purpose: "exploration", plan_state: "intact",
+  plan: { question_kind: "axis", budget_pairs: 4, look_every_pairs: 2, threshold_pp: 0, significance_level: 0.05, stop_rule: "obf_looks" },
+  table_hash: "t".repeat(64), tested_seats: [0, 1, 2, 3], seeds: { first: 100, last: 100, count: 1, rule: "consecutive" },
+  arms: [{ role: "base", revision_id: "deck@b", deck_hash: "a".repeat(64) }, { role: "variant", revision_id: "deck@v", deck_hash: "b".repeat(64) }],
+  provenance: { engine_pin: null, bridge_jar_sha256: null, bridge_state: null, pilot_fingerprint: null },
+  experiment: { experiment_id: "exp-1-1-a", decision: "open", decision_text: "offen" }, current_main_revision_id: "deck@b",
+  result, reifegrad: befund, reifegrad_hinweis: null, sources: { plan: "p", result: "r", index: "i" } };
+const reset = () => { calls = []; decided = []; serverDraft = null; postError = null; };
+const posts = () => calls.filter((c) => c[1] === "POST").map((c) => [c[0], c[2]]);
+const out = {};
+(async () => {
+  const view = experimentDetailView(h, base, deps);
+  out.text = text(view); out.pills = pills(view); out.callsAfterRender = calls.length;
+  button(view, "Verwerfen …").attrs.onclick();
+  out.callsAfterFirstClick = calls.length; out.panel = text(view);
+  button(view, "Abbrechen").attrs.onclick();
+  button(view, "Verwerfen …").attrs.onclick();
+  await button(view, "Ja, verwerfen").attrs.onclick();
+  out.reject = [posts(), decided.slice()];
+
+  // adoption: three clicks, one POST; then the error path
+  reset();
+  const adopt = experimentDetailView(h, base, deps);
+  await button(adopt, "Übernehmen …").attrs.onclick();
+  const yes = button(adopt, "Ja, übernehmen");
+  out.adoptEnabled = !yes.disabled;
+  await Promise.all([yes.attrs.onclick(), yes.attrs.onclick(), yes.attrs.onclick()]);
+  out.adopt = [posts(), decided.slice()];
+  reset(); postError = Object.assign(new Error("x"), { status: 409, detail: "main steht nicht mehr auf der Basis" });
+  const failing = experimentDetailView(h, base, deps);
+  await button(failing, "Übernehmen …").attrs.onclick();
+  const yes2 = button(failing, "Ja, übernehmen");
+  await yes2.attrs.onclick();
+  out.error = [posts().length, decided.slice(), text(failing).includes("Das hat nicht geklappt (main steht nicht mehr auf der Basis)."), yes2.disabled];
+  postError = null; await yes2.attrs.onclick();
+  out.retry = [posts().length, decided.slice()];
+
+  // blocked: a draft on main (this tab, or stored on the server), or main off the base
+  for (const [name, setup] of [["local", () => { deps.localMainDraft = () => true; }], ["server", () => { serverDraft = { cards: [] }; }],
+    ["moved", () => {}]]) {
+    reset(); deps.localMainDraft = () => false; setup();
+    const d = name === "moved" ? { ...base, current_main_revision_id: "deck@x", result: { ...result, counts_as_result: false, status_text: "nicht abgeschlossen" } } : base;
+    const v = experimentDetailView(h, d, deps);
+    await button(v, "Übernehmen …").attrs.onclick();
+    const y = button(v, "Ja, übernehmen");
+    await y.attrs.onclick();
+    out[name] = [y.disabled, posts().length, text(v)];
+  }
+  deps.localMainDraft = () => false;
+
+  const other = experimentDetailView(h, { ...base, reifegrad: { ...befund, stand: { bezug: "anderer_stand", text: "Befund zu einem anderen Stand (nicht der aktuelle)" } } }, deps);
+  out.other = [text(other), pills(other)];
+  const prev = experimentDetailView(h, { ...base, reifegrad: { ...befund, stand: { bezug: "vorgaenger", text: "Befund zum direkten Vorgänger" } } }, deps);
+  out.prev = pills(prev);
+  const ok = experimentDetailView(h, { ...base, reifegrad: { ...befund, empfehlungsfaehig: true, empfehlungsfaehig_gruende: [] } }, deps);
+  out.empf = [pills(view).some((p) => p[1] === "empfehlungsfähig"), pills(ok).some((p) => p[1] === "empfehlungsfähig")];
+  const unknown = experimentDetailView(h, { ...base, plan_state: "legacy", plan: null, experiment: null, tested_seats: null, table_hash: null,
+    seeds: { first: null, last: null, count: null, rule: null }, arms: [{ role: "base", revision_id: "deck@b", deck_hash: null }],
+    result: { series_id: "paired-2", counts_as_result: false, status_text: "nicht abgeschlossen", pairs_completed: null, pairs_planned: 4, pairs_attempted: null, difference_pp: null },
+    reifegrad: { ...befund, n: null, N: 4 } }, deps);
+  out.unknown = [text(unknown), pills(unknown), all(unknown).filter((x) => x.tag === "button").map(text)];
+  out.mismatch = pills(experimentDetailView(h, { ...base, plan_state: "mismatch", plan: null }, deps));
+  const zahl = { id: "series.paired-1.difference_pp", bezeichnung: "Differenz", wert: 100, einheit: "pp", n: 4, N: 4, bezug: "Paare (abgeschlossen / geplant)",
+    klasse: "SIMULIERT", quelle: "Serie", stand_hash: "a".repeat(64), basis_hash: "b".repeat(64), pilot: "fp", data_class: "SIMULATED_RESULT" };
+  const zahlen = new Map([[zahl.id, zahl]]);
+  out.zahlShown = text(experimentDetailView(h, base, { ...deps, zahlen }));
+  out.zahlHidden = text(experimentDetailView(h, { ...base, result: { ...result, counts_as_result: false } }, { ...deps, zahlen }));
+  out.zahlMissing = text(experimentDetailView(h, base, deps));
+  out.notes = [
+    experimentLegacyNote({ legacy_series_shown: 3, legacy_series_found: 3, legacy_series_found_lower_bound: true, scan_truncated: 5 }),
+    experimentLegacyNote({ legacy_series_shown: 2, legacy_series_found: 5, legacy_series_found_lower_bound: false, scan_truncated: 0 }),
+    experimentLegacyNote({ legacy_series_shown: 2, legacy_series_found: 2, legacy_series_found_lower_bound: false, scan_truncated: 0 }),
+  ];
+  const opened = [];
+  const listed = experimentListTable(h, { series: [{ ...result, created_at: "2026-11-21T10:00:00Z", experiment: { ...base.experiment, question: "q", purpose: "confirmation" } },
+    { ...result, series_id: "paired-1", created_at: "2026-11-20T10:00:00Z", experiment: { experiment_id: "exp-2-2-b", question: "q2", purpose: "control", decision_text: "verworfen" } }] }, (key) => opened.push(key));
+  all(listed).filter((x) => x.tag === "button").forEach((b) => b.attrs.onclick());
+  out.list = [text(listed), opened];
+
+  // a late answer for A never covers B
+  const target = h("div", {});
+  const pending = {};
+  const ctx = { ...deps, openSeq: { n: 0 }, api: (path) => new Promise((resolve) => { pending[path] = resolve; }) };
+  const first = experimentOpen(target, "exp-a", ctx);
+  const second = experimentOpen(target, "exp-b", ctx);
+  pending["/api/experiments/exp-b"]({ ...base, question: "Frage B" }); await second;
+  pending["/api/experiments/exp-a"]({ ...base, question: "Frage A" }); await first;
+  out.race = text(target);
+
+  // the draft check: a failed check blocks; before it answers the button is blocked
+  reset();
+  const failingApi = async (path, method, body) => { calls.push([path, method || "GET", body && body.decision]); if (path.endsWith("/draft")) throw Object.assign(new Error("x"), { detail: "offline" }); return {}; };
+  const chk = experimentDetailView(h, base, { ...deps, api: failingApi });
+  await button(chk, "Übernehmen …").attrs.onclick();
+  const chkYes = button(chk, "Ja, übernehmen");
+  await chkYes.attrs.onclick();
+  out.checkFailed = [chkYes.disabled, posts().length, text(chk).includes("nicht prüfbar")];
+  reset();
+  let answer;
+  const slowApi = (path, method, body) => { calls.push([path, method || "GET", body && body.decision]); return path.endsWith("/draft") ? new Promise((r) => { answer = r; }) : Promise.resolve({}); };
+  const slow = experimentDetailView(h, base, { ...deps, api: slowApi });
+  const opening = button(slow, "Übernehmen …").attrs.onclick();
+  const slowYes = button(slow, "Ja, übernehmen");
+  const before = slowYes.disabled;
+  await slowYes.attrs.onclick();
+  const postsBefore = posts().length;
+  answer({ draft: null }); await opening;
+  out.pending = [before, postsBefore, slowYes.disabled];
+  // cancel is off while the POST is in the air; a failing reload after success is shown
+  reset();
+  let release;
+  const holdApi = (path, method, body) => { calls.push([path, method || "GET", body && body.decision]); return method === "POST" ? new Promise((r) => { release = r; }) : Promise.resolve({ draft: null }); };
+  const hold = experimentDetailView(h, base, { ...deps, api: holdApi, onDecided: async () => { throw Object.assign(new Error("x"), { detail: "Netz weg" }); } });
+  await button(hold, "Übernehmen …").attrs.onclick();
+  const holdYes = button(hold, "Ja, übernehmen");
+  const sendingPost = holdYes.attrs.onclick();
+  out.cancelDuring = button(hold, "Abbrechen").disabled;
+  button(hold, "Abbrechen").attrs.onclick();
+  out.panelKept = Boolean(button(hold, "Ja, übernehmen"));
+  release({}); await sendingPost;
+  out.reloadError = text(hold).includes("Entscheidung gespeichert, Ansicht nicht neu geladen: Das hat nicht geklappt (Netz weg).");
+  // "empfehlungsfähig" never derived in the browser, not even from a high level
+  out.empfR3 = pills(experimentDetailView(h, base.reifegrad ? { ...base, reifegrad: { ...befund, stufe: "R3", stufe_text: "R3 voll belegt" } } : base, deps)).map((p) => p[1]);
+  // a figure only through the number contract: the contract's class node, nothing raw
+  const zahlNodes = (root) => all(root).filter((x) => String(x.attrs.class || "").includes("zahl-simuliert")).length;
+  out.zahlNode = [zahlNodes(experimentDetailView(h, base, { ...deps, zahlen })), zahlNodes(experimentDetailView(h, base, deps))];
+  out.seedsBig = text(experimentDetailView(h, { ...base, seeds: { first: 1200000, last: 1200003, count: 4, rule: "consecutive" } }, deps));
+
+  // the list's error page names the server's reason
+  const slot = h("div", {});
+  await renderExperiments(slot, [], { h, deckId: "d", api: async () => { throw Object.assign(new Error("x"), { detail: "Serien nicht lesbar" }); } });
+  await button(slot, "Experimente anzeigen").attrs.onclick();
+  out.listError = text(slot);
+  process.stdout.write(JSON.stringify(out));
+})();
+"""
+
+
+def test_experiment_view_shows_route_fields_and_decides_only_on_confirmation() -> None:
+    prelude = _ui_helpers_prelude().replace("const StudioUI =", "const _UiHelpers =", 1)
+    r = _node_json(prelude + _EXPERIMENT_JS)
+    assert isinstance(r, dict)
+    text = r["text"]
+    # maturity only from the route: no badge without a level, the route's text as it is
+    assert ["pill", "kein Reifegrad (Beleg fehlt)"] not in r["pills"]
+    assert (
+        "kein Reifegrad (Beleg fehlt)" in text and "Hinweis besser (Erkundung, unbestätigt)" in text
+    )
+    assert "n/N 4 / 4 Paare (abgeschlossen / geplant)" in text
+    assert "Erkundung" in text and "Plan intakt" in text and "Stand B" in text and "Stand V" in text
+    assert "SIMULATED_RESULT" in text and "anderer Stand" not in text
+    assert r["empf"] == [False, True]  # the flag only when the route says so
+    # nothing is posted on render or on the first click; only "Ja, …" posts, once
+    assert r["callsAfterRender"] == 0 and r["callsAfterFirstClick"] == 0
+    assert "Plan, Serie und Befund bleiben gespeichert" in r["panel"]
+    assert r["reject"] == [[["/api/experiments/exp-1-1-a/decision", "rejected"]], ["rejected"]]
+    assert r["adoptEnabled"] is True
+    assert r["adopt"] == [[["/api/experiments/exp-1-1-a/decision", "adopted"]], ["adopted"]]
+    # a refused POST never counts as decided, says why, and the button works again
+    assert r["error"] == [1, [], True, False]
+    assert r["retry"] == [2, ["adopted"]]
+    # blocked while a draft lies on main or the server will refuse; no POST
+    for name in ("local", "server"):
+        disabled, posted, panel = r[name]
+        assert disabled is True and posted == 0, name
+        assert (
+            "Es gibt einen ungespeicherten Entwurf auf main; erst speichern oder verwerfen."
+            in panel
+        )
+    disabled, posted, panel = r["moved"]
+    assert disabled is True and posted == 0
+    assert "lehnt die Übernahme ab" in panel and "ungetestet" in panel
+    assert "Owner-Entscheid" in panel and "keine Deck-Datei" in panel
+    # a finding of another state (or of the predecessor) is named as such
+    assert ["pill warn", "anderer Stand"] in r["other"][1]
+    assert "Befund zu einem anderen Stand (nicht der aktuelle)" in r["other"][0]
+    assert ["pill warn", "anderer Stand"] in r["prev"]
+    # unknown stays unknown, never 0; a legacy series offers no decision
+    unknown_text, unknown_pills, unknown_buttons = r["unknown"]
+    assert "Seeds: unbekannt" in unknown_text and "Paare unbekannt" in unknown_text
+    assert "kein Ergebnis (unbekannt von 4 Paaren begonnen)" in unknown_text
+    assert " 0 " not in unknown_text and "0 von" not in unknown_text
+    assert ["pill warn", "Alt-Serie ohne Plan (vor #1658)"] in unknown_pills
+    assert not any(label.startswith(("Übernehmen", "Verwerfen")) for label in unknown_buttons)
+    assert ["pill bad", "Plan-Datei passt nicht zum Index: der Befund zählt nicht"] in r["mismatch"]
+    assert not any("Plan intakt" in p[1] for p in r["mismatch"])
+    # a figure only through the number contract and only when the route counts the result
+    assert "simuliert" in r["zahlShown"] and "100 pp" not in r["zahlHidden"]
+    assert "nicht als Ergebnis gezählt" in r["zahlHidden"]
+    assert "unbekannt (keine gültige Zahl im Zahl-Vertrag)" in r["zahlMissing"]
+    assert "100" not in r["zahlMissing"].split("Differenz")[1].split("Reifegrad")[0]
+    # the cut of the legacy scan: "≥ N" when files stayed unread, n/N when only cut
+    lower, cut, none = r["notes"]
+    assert "≥ 3" in lower and "Gesamtzahl unbekannt" in lower
+    assert "2/5" in cut and "≥" not in cut and none is None
+    # the list is keyed by experiment id, never by series id; pairs per series, never summed
+    list_text, opened = r["list"]
+    assert opened == ["exp-1-1-a", "exp-2-2-b"]
+    assert list_text.count("n/N 4 / 4") == 2 and "8" not in list_text
+    assert "Bestätigung" in list_text and "Kontrolle" in list_text
+    assert "offen" in list_text and "verworfen" in list_text
+    assert "Frage B" in r["race"] and "Frage A" not in r["race"]
+    assert "Das hat nicht geklappt (Serien nicht lesbar)." in r["listError"]
+    assert r["checkFailed"] == [True, 0, True]  # a failed draft check blocks, never opens
+    assert r["pending"] == [True, 0, False]  # blocked until the check answered
+    assert r["cancelDuring"] is True and r["panelKept"] is True and r["reloadError"] is True
+    assert "empfehlungsfähig" not in r["empfR3"] and "R3 voll belegt" in r["empfR3"]
+    assert r["zahlNode"] == [1, 0]
+    assert "Seeds: 1200000 bis 1200003" in r["seedsBig"]
+
+
+_APP_JS = r"""
+const fs = require("fs");
+const app = fs.readFileSync("app.js", "utf8");
+const cut = (from, to) => app.slice(app.indexOf(from), app.indexOf(to));
+const code = [
+  cut("let discardingStaleDraft = false;", "async function loadBranch()"),
+  cut("// The saved state of `branch` now", "function saveRevision("),
+  cut("async function afterExperimentDecision(", "async function openSeriesFromHistory("),
+].join("\n");
+let posted = []; let deleted = 0; let toasts = []; let rendered = 0; let branchLoads = 0; let historyShown = 0;
+let server = { main: "deck@v", variant2: "deck@w" };
+let draft = null;
+const state = { deckId: "d", branch: "main", baseRevision: "deck@b", baseStale: false, changeSeq: 1, savedSeq: 0, dirty: true,
+  decks: [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }] };
+const api = async (path, method, body) => {
+  if (path === "/api/decks") return [{ deck_id: "d", branches: Object.entries(server).map(([branch, revision_id]) => ({ branch, revision_id })) }];
+  if (path.startsWith("/api/revisions/")) return { cards: [], issues: [], shape: null };
+  if (path.endsWith("/draft") && method === "DELETE") { deleted += 1; await new Promise((r) => setTimeout(r, 5)); return {}; }
+  if (path.endsWith("/draft")) return { draft };
+  posted.push([path, method, body && body.branch, body && body.parent_revision_id]); return { revision_id: "deck@n" };
+};
+const entries = () => []; const toast = (t) => toasts.push(t); const renderSaveState = () => { rendered += 1; };
+const rememberVariant = () => {}; const loadDecks = async () => {}; const renderHeader = () => {}; const fail = (e) => toasts.push(String(e));
+const ensureUnownedLoadedFor = async () => {}; const useCards = () => {}; const renderAll = () => {}; const syncDraft = async () => {};
+const closeModal = () => {}; const showHistory = async () => { historyShown += 1; };
+eval(code + "\n" + cut("async function loadBranch()", "// The saved state of `branch` now").replace("async function loadBranch()", "async function realLoadBranch()"));
+const loadBranch = async () => { branchLoads += 1; };
+(async () => {
+  const out = {};
+  // same branch, base moved: refused
+  await commitRevision("main", "");
+  out.stale = [posted.length, state.baseStale, toasts.some((t) => t.includes("Entwurf ist veraltet, neu laden"))];
+  // "Neue Variante" named main from another branch: never overwrites main
+  state.branch = "variant2"; state.baseRevision = "deck@w"; state.baseStale = false; toasts = [];
+  await commitRevision("main", "");
+  out.otherBranch = [posted.length, toasts.some((t) => t.includes("gibt es schon"))];
+  // a stale draft may be saved as a new variant (the work is kept)
+  state.branch = "main"; state.baseRevision = "deck@b"; state.baseStale = true;
+  await commitRevision("rettung", "");
+  out.rescue = [posted.map((p) => [p[2], p[3]]), state.baseStale, state.branch];
+  // the own branch on its own base: saved
+  posted = []; server.rettung = "deck@n";
+  await commitRevision("rettung", "");
+  out.fresh = posted.map((p) => [p[2], p[3]]);
+  // loadBranch names a draft on another saved state stale and keeps its base
+  state.branch = "main"; state.decks = [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }];
+  draft = { cards: [], base_revision_id: "deck@b", updated_at: "t" };
+  await realLoadBranch();
+  out.load = [state.baseStale, state.baseRevision];
+  draft = { cards: [], base_revision_id: "deck@v", updated_at: "t" };
+  await realLoadBranch();
+  out.loadOk = [state.baseStale, state.baseRevision];
+  // after an adoption: a dirty main is named stale, a clean main is loaded
+  state.branch = "main"; state.dirty = true; state.baseStale = false; branchLoads = 0;
+  await afterExperimentDecision("adopted");
+  out.afterDirty = [state.baseStale, branchLoads];
+  state.dirty = false; state.baseStale = false;
+  await afterExperimentDecision("adopted");
+  out.afterClean = [state.baseStale, branchLoads];
+  await afterExperimentDecision("rejected");
+  out.afterReject = historyShown;
+  // discarding a stale draft: one DELETE per click series
+  deleted = 0;
+  await Promise.all([discardStaleDraft(), discardStaleDraft(), discardStaleDraft()]);
+  out.deleted = deleted;
+  process.stdout.write(JSON.stringify(out));
+})();
+"""
+
+
+def test_saving_never_overwrites_a_moved_or_foreign_branch_and_keeps_rescue() -> None:
+    r = _node_json(_APP_JS)
+    assert isinstance(r, dict)
+    assert r["stale"] == [0, True, True]
+    assert r["otherBranch"] == [0, True]  # "Neue Variante" named main never overwrites main
+    assert r["rescue"] == [[["rettung", "deck@b"]], False, "rettung"]
+    assert r["fresh"] == [["rettung", "deck@n"]]
+    assert r["load"] == [True, "deck@b"] and r["loadOk"] == [False, "deck@v"]
+    assert r["afterDirty"] == [True, 0] and r["afterClean"] == [False, 1]
+    assert r["afterReject"] == 1
+    assert r["deleted"] == 1
+
+
+def test_experiment_view_static_guards() -> None:
+    js = (STATIC / "experiments.js").read_text(encoding="utf-8")
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    assert (
+        html.index('src="zahl.js"')
+        < html.index('src="experiments.js"')
+        < html.index('src="app.js"')
+    )
+    assert 'typeof renderExperiments === "function"' in app and 'id: "experiment-slot"' in app
+    # the draft on main blocks the adoption; a stale draft is named until it is resolved
+    assert (
+        'localMainDraft: () => state.branch === "main" && (state.dirty || state.baseStale)' in app
+    )
+    load = app[
+        app.index("async function loadBranch()") : app.index("async function currentBranchRevision")
+    ]
+    assert "draft.draft.base_revision_id !== branch.revision_id" in load
+    assert "state.baseStale = true" in load
+    render = app[app.index("function renderSaveState()") : app.index("function changed()")]
+    assert render.index("if (state.baseStale)") < render.index("if (state.draftConflict)")
+    # "Aktuellen Stand laden" reads the branches first, never the stale base again
+    assert "loadDecks().then(loadBranch)" in render
+    after = app[app.index("async function afterExperimentDecision") :]
+    after = after[: after.index("\n}\n")]
+    assert "state.baseStale = true" in after
+    for forbidden in (
+        "innerHTML",
+        "outerHTML",
+        "style",
+        "eval(",
+        "document.",
+        "window.",
+        "fetch(",
+        "localStorage",
+        ".toFixed(",
+        "Preis",
+        "€",
+        "confirm(",
+    ):
+        assert forbidden not in js, forbidden
+    # the maturity is shown, never computed: no level literal, no rule on the figures
+    assert not re.search(r"\bR[123]\b", js)
+    # no raw figure is read (the difference only as the contract key series.<id>.difference_pp)
+    assert not re.search(r"\b(effektives_p|holm_p|niveau)\b", js)
+    assert not re.search(r"\w\.difference_pp", js)
+    assert not re.search(r"\.(n|N|stufe)\s*[<>]", js)
+    assert "befund.stufe ?" in js and "befund.empfehlungsfaehig" in js
+    # the decision is posted only from the confirm button's handler
+    assert js.count('"POST"') == 1
+    assert (
+        js.index("const yes = h(")
+        < js.index('"POST"')
+        < js.index('"Ja, übernehmen" : "Ja, verwerfen"')
+    )

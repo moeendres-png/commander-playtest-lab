@@ -1521,7 +1521,9 @@ async function openGame(gameId) {
   const header = state.header || {};
   const jarShort = header.bridge_jar_sha256 ? String(header.bridge_jar_sha256).slice(0, 12) : "–";
   const epochLabel = header.covered_by_sealed_epoch ? "versiegelt" : (header.bridge_qualification_state || "unbekannt");
-  const modeLabel = state.interactive ? "Mensch gegen KI" : `KI: ${header.pilot || "?"}`;
+  // The same reading as the pill (the server's cohort), so the two statements never differ.
+  const cohort = StudioCohort.cohortOf(state.cohortRecord);
+  const modeLabel = cohort === StudioCohort.PLAYED ? "Mensch gegen KI" : cohort === StudioCohort.SIMULATED ? `KI: ${header.pilot || "?"}` : "Herkunft unbekannt";
   $("game-info").textContent = `Seed ${header.seed} · Regeln: XMage ${String(header.engine_commit || "").slice(0, 10)} · Bridge-JAR: ${jarShort} · Epoche: ${epochLabel} · ${modeLabel} · begonnen ${header.started_at || "?"}`;
   $("table").classList.toggle("one", (header.seats || []).length <= 1);
   if (state.interactive && state.frames.length) state.index = state.frames.length - 1;

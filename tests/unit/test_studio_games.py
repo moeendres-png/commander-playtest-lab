@@ -912,6 +912,10 @@ def test_games_carry_the_cohort_the_pages_show_instead_of_guessing(tmp_path: Pat
         assert (listed[game_id]["cohort"], listed[game_id]["played_seats"]) == (cohort, seats)
         read = games.read_game(tmp_path, game_id)
         assert (read["cohort"], read["played_seats"]) == (cohort, seats), game_id
+    # the made-up header of an orphaned .out says the same as the cohort: unknown
+    lost = games.read_game(tmp_path, "g-lost")
+    assert lost["header"]["data_class"] == "UNKNOWN"  # type: ignore[index]
+    assert games.game_cohort(lost["header"]) == "UNKNOWN"
     # the helpers read nothing but the header: a seat row without a seat number names no seat
     assert games.played_seats({"seats": [{"pilot": "Mensch"}]}) == []
     assert games.cohort_fields({"seats": [{"pilot": "Mensch"}]}) == {

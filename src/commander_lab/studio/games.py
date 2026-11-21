@@ -652,7 +652,8 @@ def _read_orphaned_out(data_folder: str | Path, game_id: str) -> dict[str, objec
         "kind": "header",
         "schema": LOG_SCHEMA,
         "game_id": game_id,
-        "data_class": DataClass.SIMULATED_RESULT.value,
+        # made up by this reader: whether a human sat at the table is not known
+        "data_class": COHORT_UNKNOWN,
         "rules_authority": "xmage",
         "started_at": mtime,
         "seats": [],

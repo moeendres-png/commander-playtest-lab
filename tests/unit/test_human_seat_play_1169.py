@@ -4616,6 +4616,38 @@ def test_page_pill_follows_the_cohort_of_every_state_answer_and_never_a_fixed_wo
     assert out["idle"] == ["Herkunft noch nicht bekannt", "pill"]
 
 
+def test_a_late_answer_of_a_game_left_behind_never_changes_the_pill_of_the_open_game() -> None:
+    """#1662: game A is open and its state request is still out; game B is opened (its pill is
+    drawn); then A's answer arrives. The pill and the cohort held for B stay as they are."""
+    script = (
+        _SUBMIT_PRELUDE
+        + """
+(async () => {
+  let release = null;
+  const late = new Promise((resolve) => { release = resolve; });
+  const page = await run({reply: () => ({}),
+    get: (path, state) => late});          // the request of game 'g' hangs until released
+  const pending = page.fns.loadMoreOnce(false);
+  // game B is opened meanwhile: the page switches its game, record and pill
+  page.state.gameId = 'h';
+  page.state.cohortRecord = {cohort: 'PLAYED_GAME', played_seats: [0]};
+  page.fns.renderCohortPill();
+  const before = page.pill.textContent;
+  release(parked(page.state, 2, {cohort: 'SIMULATED_RESULT', played_seats: []}));   // A answers late
+  const added = await pending;
+  console.log(JSON.stringify({before, after: page.pill.textContent, record: page.state.cohortRecord,
+    added, frames: page.state.frames.length}));
+})();
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    human = "gespielt (Mensch an Sitz 1), zählt in keiner Simulationszahl"
+    assert out["before"] == human and out["after"] == human
+    assert out["record"] == {"cohort": "PLAYED_GAME", "played_seats": [0]}
+    assert out["added"] is False and out["frames"] == 2  # the late page was dropped altogether
+
+
 _OPEN_PRELUDE = f"""
 const C = require('./cohort.js');
 const P1a = require('./play_p1a.js');
@@ -4639,6 +4671,7 @@ function page(opts) {{
     value: '0', checked: true, max: '', dataset: {{}}, classList: {{toggle() {{}}, remove() {{}}, add() {{}}}},
     append(child) {{ this.children = (this.children || []).concat([child]); }}}});
   const seen = {{pillAtLoad: null}};
+  const load = {{fn: null}};
   const state = {{games: [], gameId: 'ai-1', cohortRecord: {{cohort: 'SIMULATED_RESULT', played_seats: []}},
     header: null, frames: [], interactive: false, ff: {{on: false}}, pendingDecision: null, canConcede: false,
     lines: [], ownCombat: null}};
@@ -4649,10 +4682,10 @@ function page(opts) {{
   const stubs = [state, el, opts.api || (async () => []), C, P1a,
     (tag, props, ...kids) => ({{tag, props, kids}}), () => {{}}, () => {{}}, () => {{}}, () => 'until_my_turn',
     () => {{}}, () => {{}},
-    async () => {{ seen.pillAtLoad = el('sim-pill').textContent; if (opts.loadFails) throw new Error('no answer'); }},
+    async () => {{ seen.pillAtLoad = el('sim-pill').textContent; if (load.fn) load.fn(); if (opts.loadFails) throw new Error('no answer'); }},
     () => {{}}, () => {{}}, () => {{}}, () => {{}}, () => {{}}, (s) => 'Sitz ' + (s + 1)];
   const make = new Function(...names, NAMES.map(grab).join('\\n') + '; return {{' + NAMES.join(',') + '}};');
-  return {{state, el, seen, fns: make(...stubs)}};
+  return {{state, el, seen, setLoad: (fn) => {{ load.fn = fn; }}, fns: make(...stubs)}};
 }}
 """
 
@@ -4701,3 +4734,47 @@ def test_opening_another_game_and_an_empty_list_reset_the_pill_at_once() -> None
         "gameId": None,
     }
     assert out["filled"] == {"opened": True, "game": "me-1"}
+
+
+def test_the_game_info_line_names_the_origin_from_the_same_cohort_as_the_pill() -> None:
+    """#1662: ``game-info`` never says "Mensch gegen KI" or "KI: …" against the pill: both read
+    the server's cohort, whatever the header's own ``human_seats`` or ``pilot`` fields look like."""
+    script = (
+        _OPEN_PRELUDE
+        + """
+(async () => {
+  const cases = {
+    // an old header with only a seat row "Mensch": the server says PLAYED_GAME, no human_seats
+    oldPilotRow: {header: {seed: 1, pilot: 'KI', seats: [{seat: 0, pilot: 'Mensch'}]},
+      record: {cohort: 'PLAYED_GAME', played_seats: [0]}, listed: {seats: [{seat: 0, pilot: 'Mensch'}]}},
+    // human_seats [true] is unreadable: the page lists it as interactive, the server says UNKNOWN
+    garbledSeats: {header: {seed: 2, pilot: 'KI', human_seats: [true]},
+      record: {cohort: 'UNKNOWN', played_seats: []}, listed: {human_seats: [true]}},
+    sim: {header: {seed: 3, pilot: 'KI-Pilot 1'}, record: {cohort: 'SIMULATED_RESULT', played_seats: []}, listed: {}},
+    absent: {header: {seed: 4, pilot: 'KI'}, record: {cohort: undefined, played_seats: undefined}, listed: {}},
+  };
+  const rows = {};
+  for (const [name, c] of Object.entries(cases)) {
+    const p = page({});
+    p.state.games = [Object.assign({}, AI_GAME, {game_id: 'x', header: c.listed})];
+    // loadMore sets the header and the record the way loadMoreOnce does
+    p.setLoad(() => { p.state.header = c.header; p.state.cohortRecord = c.record; p.fns.renderCohortPill(); });
+    await p.fns.openGame('x');
+    rows[name] = {info: p.el('game-info').textContent, pill: p.el('sim-pill').textContent};
+  }
+  console.log(JSON.stringify(rows));
+})();
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    assert (
+        "Mensch gegen KI" in out["oldPilotRow"]["info"] and "KI: " not in out["oldPilotRow"]["info"]
+    )
+    assert out["oldPilotRow"]["pill"].startswith("gespielt (Mensch an Sitz 1)")
+    for name in ("garbledSeats", "absent"):
+        assert "Herkunft unbekannt" in out[name]["info"], name
+        assert "Mensch gegen KI" not in out[name]["info"] and "KI: " not in out[name]["info"], name
+        assert out[name]["pill"] == "Herkunft unbekannt, nicht als Simulation gewertet", name
+    assert "KI: KI-Pilot 1" in out["sim"]["info"] and "Mensch gegen KI" not in out["sim"]["info"]
+    assert out["sim"]["pill"] == "simuliert (KI auf allen Plätzen)"
