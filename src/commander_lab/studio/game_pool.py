@@ -90,8 +90,8 @@ class GameTask:
     SHA-256, the style and the pilot fingerprint of that seat. The worker checks each deck file
     and each fingerprint before the game and plays nothing on a mismatch (an infrastructure
     failure). ``game_key`` names the game for the determinism guard (``series_record``); a
-    task without it or without ``jar_sha256`` is refused by the worker (``plan_task`` never
-    builds one). ``table`` is the canonical ``TableSpec`` and ``table_hash`` its hash, ``None``
+    task without it or without ``jar_sha256``, or whose key its fields do not give, is refused
+    by the worker (``plan_task`` never builds one). ``table`` is the canonical ``TableSpec`` and ``table_hash`` its hash, ``None``
     for a caller that has no table spec yet.
     """
 
@@ -107,6 +107,9 @@ class GameTask:
     game_key: str | None = None
     table_hash: str | None = None
     table: Mapping[str, object] | None = None
+    engine_pin: str | None = None
+    skip_forced_decisions: bool | None = None
+    round_limit: int | None = None
 
     def to_wire(self) -> dict[str, object]:
         return {
@@ -123,6 +126,9 @@ class GameTask:
             "game_key": self.game_key,
             "table_hash": self.table_hash,
             "table": dict(self.table) if self.table is not None else None,
+            "engine_pin": self.engine_pin,
+            "skip_forced_decisions": self.skip_forced_decisions,
+            "round_limit": self.round_limit,
         }
 
 
@@ -202,6 +208,9 @@ def plan_task(
         game_key=key,
         table_hash=table_hash,
         table=table,
+        engine_pin=engine_pin,
+        skip_forced_decisions=skip_forced_decisions,
+        round_limit=round_limit,
     )
 
 
@@ -425,7 +434,38 @@ def task_refusal(message: Mapping[str, object]) -> GameSummary | None:
                 "PilotFingerprintMismatch",
                 f"Pilot-Fingerabdruck von Sitz {seat} passt nicht zum Pilot-Code dieses Workers",
             )
+    if task_key_of(message) != message.get("game_key"):  # recomputed, never echoed
+        return refused_game_summary(
+            game_id, "GameKeyMismatch", "der Spielschlüssel passt nicht zu den Angaben des Auftrags"
+        )
     return None
+
+
+def task_key_of(message: Mapping[str, object]) -> str | None:
+    """The game key the fields of a task give; ``None`` when they give none (incomplete)."""
+    from .series_record import game_key
+
+    strategy, table = message.get("strategy"), message.get("table")
+    skip, rounds = message.get("skip_forced_decisions"), message.get("round_limit")
+    if not isinstance(strategy, str) or not (table is None or isinstance(table, dict)):
+        return None
+    if not (skip is None or isinstance(skip, bool)) or not (rounds is None or type(rounds) is int):
+        return None
+    try:
+        return game_key(
+            jar_sha256=str(message.get("jar_sha256") or ""),
+            engine_pin=str(message.get("engine_pin") or ""),
+            pilot_fingerprints=[str(v) for v in _as_list(message.get("pilot_fingerprints"))],
+            seat_styles=[float(str(v)) for v in _as_list(message.get("seat_styles"))],
+            deck_sha256=[str(v) for v in _as_list(message.get("deck_sha256"))],
+            seed=int(str(message.get("seed"))),
+            strategy=strategy,
+            table_options=table,
+            skip_forced_decisions=skip,
+            round_limit=rounds,
+        )
+    except ValueError:
+        return None
 
 
 def run_worker_process(
@@ -1032,6 +1072,7 @@ __all__ = [
     "seat_pilot_fingerprint",
     "series_pool_enabled",
     "skip_forced_decisions_of",
+    "task_key_of",
     "task_refusal",
     "worker_main",
 ]

@@ -61,6 +61,7 @@ from .launch import (
     bridge_jar_sha256 as command_bridge_jar_sha256,
 )
 from .play import header_pilot_fingerprint
+from .series_record import DETERMINISM_VIOLATION, ManifestMismatch, series_violation
 from .store import StudioStore, now_utc
 from .strength import StrengthSettings
 
@@ -1105,11 +1106,19 @@ class PairedSeriesManager:
             return False
         err = raw.get("error")
         if isinstance(err, str) and (
-            "mixed " in err or "abweichen" in err or "nicht fortsetzbar" in err
+            "mixed " in err
+            or "abweichen" in err
+            or "nicht fortsetzbar" in err
+            or DETERMINISM_VIOLATION in err
         ):
             return False
         if target_folder is not None and isinstance(raw.get("series_id"), str):
             sid = str(raw["series_id"])
+            try:
+                if series_violation(target_folder, sid) is not None:
+                    return False
+            except (ManifestMismatch, ValueError):
+                return False
             deck_dir = games_folder(target_folder) / "paired_decks" / sid
             if not list(deck_dir.glob("base-*.json")) or not list(deck_dir.glob("variant-*.json")):
                 return False
@@ -1205,6 +1214,10 @@ class PairedSeriesManager:
                 raise ValueError(f"Ungültige Serien-Datei: {safe_id}")
             if raw.get("status") == "completed":
                 raise RuntimeError(f"Serie {safe_id} ist bereits abgeschlossen")
+            # on every path (chunked or pool): a journal with a violation ends the series for good
+            violation = series_violation(target_folder, safe_id)
+            if violation is not None:
+                raise ValueError(f"{violation} (nicht fortsetzbar)")
 
             base_files = sorted(deck_dir.glob("base-*.json"))
             variant_files = sorted(deck_dir.glob("variant-*.json"))

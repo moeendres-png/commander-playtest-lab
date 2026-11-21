@@ -1400,6 +1400,42 @@ def test_a_pool_series_plans_complete_tasks_and_a_manifest_and_journals_through_
     assert task.game_key is not None and manifest["games"][0]["game_key"] == task.game_key
 
 
+@pytest.mark.parametrize("skip_forced", [False, True])
+def test_the_manifest_key_of_a_pool_series_is_the_game_key_of_its_pin_and_command_switch(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, skip_forced: bool
+) -> None:
+    """S1 (#1660): the configured engine pin and the command's forced-pass switch are in the key."""
+    from commander_lab.studio import game_pool, series_record
+
+    pin = "c" * 40
+    monkeypatch.setattr(paired_comparison, "canonical_xmage_engine_pin", lambda: pin)
+    jar = tmp_path / "bridge.jar"
+    flag = f"-Dcommanderlab.fullGame.skipForcedDecisions={str(skip_forced).lower()}"
+    pool = _FakePool(_ScriptedPlayer(tmp_path / "p", _variant_sweeps))
+    player = _pool_player(
+        tmp_path, pool, monkeypatch, command=("java", flag, "-jar", str(jar), "full-game")
+    )
+    player("base", 1, 0)
+    manifest = json.loads(pool.record.manifest_path.read_text(encoding="utf-8"))
+    keys = {game["game_id"]: game["game_key"] for game in manifest["games"]}
+    assert pool.runs and pool.runs[0]
+    for task in pool.runs[0]:
+        expected = series_record.game_key(
+            jar_sha256=hashlib.sha256(b"jar").hexdigest(),
+            engine_pin=pin,
+            pilot_fingerprints=[game_pool.seat_pilot_fingerprint(0.5)] * len(task.deck_paths),
+            seat_styles=[0.5] * len(task.deck_paths),
+            deck_sha256=[series_record.file_sha256(path) for path in task.deck_paths],
+            seed=task.seed,
+            strategy="generic",
+            table_options=None,
+            skip_forced_decisions=skip_forced,
+            round_limit=None,
+        )
+        assert task.game_key == expected and keys[task.game_id] == expected
+        assert task.engine_pin == pin and task.skip_forced_decisions is skip_forced
+
+
 def test_a_pool_series_without_a_bridge_jar_plans_no_game(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -1554,3 +1590,77 @@ def test_a_series_refuses_games_of_two_pilot_fingerprints() -> None:
     for other in ("b" * 64, None):
         with pytest.raises(ValueError, match="mixed pilot versions"):
             pc._check_provenance([game("a" * 64), game(other)], allow_mixed=False)  # type: ignore[list-item]
+
+
+# --- S1 (#1660): a determinism violation in the journal ends the series on every path ---------
+
+
+def _stored_series_with_journal(folder: Path, series_id: str, *, violation: bool) -> None:
+    """A failed series on disk that is otherwise resumable, with a manifest and a journal."""
+    from commander_lab.studio import series_record
+    from commander_lab.studio.games import games_folder
+
+    games = games_folder(folder)
+    raw = {
+        "series_id": series_id,
+        "status": "failed",
+        "error": "worker exited",  # an ordinary error: the series would be resumable
+        "opponent_deck_ids": ["opp/1"],
+        "seed_plan": {"first_seed": 1, "seeds_planned": 1},
+        "tested_seats": [0],
+        "budget_pairs": 1,
+        "threshold_pp": 5.0,
+    }
+    games.joinpath(f"{series_id}.paired.json").write_text(json.dumps(raw), encoding="utf-8")
+    decks = games / "paired_decks" / series_id
+    decks.mkdir(parents=True)
+    decks.joinpath("base-a.json").write_text("{}", encoding="utf-8")
+    decks.joinpath("variant-a.json").write_text("{}", encoding="utf-8")
+    key = "k" * 64
+    record = series_record.SeriesRecord.open(
+        folder,
+        series_id,
+        games=[{"game_id": "g1", "game_key": key}, {"game_id": "g2", "game_key": key}],
+        table_hash=None,
+        table=None,
+    )
+    record.record("g1", {"status": "finished", "semantic_transcript_sha256": "a" * 64})
+    second = "b" * 64 if violation else "a" * 64
+    try:
+        record.record("g2", {"status": "finished", "semantic_transcript_sha256": second})
+    except series_record.DeterminismViolation:
+        assert violation
+
+
+@pytest.mark.parametrize("pool_switch", [None, "1"])
+def test_a_series_with_a_determinism_violation_in_its_journal_is_not_resumable_on_any_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, pool_switch: str | None
+) -> None:
+    from commander_lab.studio import paired_series
+
+    if pool_switch is None:
+        monkeypatch.delenv("COMMANDER_LAB_STUDIO_SERIES_POOL", raising=False)  # chunked path
+    else:
+        monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", pool_switch)  # pool path
+    manager = paired_series.PairedSeriesManager()
+    _stored_series_with_journal(tmp_path, "clean", violation=False)
+    _stored_series_with_journal(tmp_path, "violated", violation=True)
+    clean = manager.get_series(tmp_path, "clean")
+    assert clean is not None and clean["resumable"] is True  # the control: same files, no violation
+    violated = manager.get_series(tmp_path, "violated")
+    assert violated is not None and violated["resumable"] is False
+    with pytest.raises(ValueError, match=r"DETERMINISM_VIOLATION.*nicht fortsetzbar"):
+        manager.resume_series(tmp_path, "violated", play_override=lambda *_a: {})  # type: ignore[arg-type,return-value]
+    assert manager.get_job("violated") is None  # no job, no lock left behind
+
+
+def test_a_journal_without_a_readable_manifest_blocks_the_resume(tmp_path: Path) -> None:
+    from commander_lab.studio import paired_series, series_record
+
+    _stored_series_with_journal(tmp_path, "nomani", violation=False)
+    series_record.series_folder(tmp_path, "nomani").joinpath("manifest.json").unlink()
+    manager = paired_series.PairedSeriesManager()
+    view = manager.get_series(tmp_path, "nomani")
+    assert view is not None and view["resumable"] is False
+    with pytest.raises(series_record.ManifestMismatch, match="nicht prüfbar"):
+        manager.resume_series(tmp_path, "nomani", play_override=lambda *_a: {})  # type: ignore[arg-type,return-value]

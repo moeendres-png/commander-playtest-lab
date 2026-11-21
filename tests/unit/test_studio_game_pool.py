@@ -1438,6 +1438,106 @@ def test_a_missing_deck_file_an_incomplete_task_and_a_wrong_fingerprint_are_refu
     assert game_pool.task_refusal(restyled)["failure_class"] == "PilotFingerprintMismatch"  # type: ignore[index]
 
 
+def test_the_worker_recomputes_the_game_key_and_refuses_a_task_it_does_not_give() -> None:
+    task = _tasks(range(1, 2), "rk")[0]
+    wire = task.to_wire()
+    assert game_pool.task_key_of(wire) == task.game_key  # the wire carries every key field
+    changes: dict[str, object] = {
+        "seed": task.seed + 1,
+        "strategy": "control",
+        "engine_pin": "q" * 40,
+        "skip_forced_decisions": False,
+        "round_limit": 30,
+        "table": {"seats": 2},
+        "game_key": "0" * 64,  # any non-empty key the fields do not give
+    }
+    for field, value in changes.items():
+        got = game_pool.task_refusal({**wire, field: value})
+        assert got is not None and got["failure_class"] == "GameKeyMismatch", field
+        assert got["failure_kind"] == "infrastructure"
+    for field in ("strategy", "engine_pin"):
+        got = game_pool.task_refusal({**wire, field: None})  # no strategy or pin: no key
+        assert got is not None and got["failure_class"] == "GameKeyMismatch", field
+    got = game_pool.task_refusal({**wire, "strategy": 7})  # not a strategy name: no key
+    assert got is not None and got["failure_class"] == "GameKeyMismatch"
+    assert "GameKeyMismatch" in series_record.INFRASTRUCTURE_FAILURES
+
+
+def _plan(**changes: object) -> GameTask:
+    options: dict[str, object] = {
+        "task_id": "pk",
+        "seed": 5,
+        "game_id": "g-pk",
+        "deck_paths": [_deck_file("pk-a.json"), _deck_file("pk-b.json")],
+        "seat_styles": [0.5, 0.5],
+        "jar_sha256": JAR,
+        "engine_pin": PIN,
+        "skip_forced_decisions": None,
+        "deck_hashes": {},  # fresh: a changed file is hashed again
+    }
+    options.update(changes)
+    return game_pool.plan_task(**options)  # type: ignore[arg-type]
+
+
+def _key_of(task: GameTask, **changes: object) -> str:
+    """The key ``game_key`` gives for the task's inputs, recomputed independently."""
+    inputs: dict[str, object] = {
+        "jar_sha256": JAR,
+        "engine_pin": PIN,
+        "pilot_fingerprints": [game_pool.seat_pilot_fingerprint(0.5)] * 2,
+        "seat_styles": [0.5, 0.5],
+        "deck_sha256": [series_record.file_sha256(p) for p in task.deck_paths],
+        "seed": 5,
+        "strategy": "generic",
+        "table_options": None,
+        "skip_forced_decisions": None,
+        "round_limit": None,
+    }
+    inputs.update(changes)
+    return series_record.game_key(**inputs)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    ("field", "plan_change", "key_change"),
+    [
+        ("strategy", {"strategy": "control"}, {"strategy": "control"}),
+        ("skip_forced", {"skip_forced_decisions": True}, {"skip_forced_decisions": True}),
+        ("skip_forced_off", {"skip_forced_decisions": False}, {"skip_forced_decisions": False}),
+        (
+            "table",
+            {"table": {"seats": 2, "mode": "x"}},
+            {"table_options": {"seats": 2, "mode": "x"}},
+        ),
+        ("round_limit", {"round_limit": 30}, {"round_limit": 30}),
+        ("pin", {"engine_pin": "q" * 40}, {"engine_pin": "q" * 40}),
+        ("jar", {"jar_sha256": "k" * 64}, {"jar_sha256": "k" * 64}),
+        ("seed", {"seed": 6}, {"seed": 6}),
+    ],
+)
+def test_plan_task_puts_every_key_field_into_the_game_key(
+    field: str, plan_change: dict[str, object], key_change: dict[str, object]
+) -> None:
+    base = _plan()
+    assert base.game_key == _key_of(base)
+    changed = _plan(**plan_change)
+    assert changed.game_key != base.game_key, field
+    assert changed.game_key == _key_of(changed, **key_change), field
+    assert game_pool.task_key_of(changed.to_wire()) == changed.game_key, field
+
+
+def test_plan_task_puts_the_deck_contents_and_the_pilot_fingerprints_into_the_game_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    base = _plan()
+    Path(base.deck_paths[1]).write_text('{"deck": "changed"}', encoding="utf-8")  # same path
+    redeck = _plan()
+    assert redeck.game_key != base.game_key and redeck.game_key == _key_of(redeck)
+    monkeypatch.setattr(game_pool, "seat_pilot_fingerprint", lambda style: f"other-{style}")
+    repilot = _plan()  # same styles, other pilot code
+    assert repilot.game_key != redeck.game_key
+    assert repilot.game_key == _key_of(repilot, pilot_fingerprints=["other-0.5"] * 2)
+
+
 def _session_engine(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> game_pool.SessionWorkerEngine:
