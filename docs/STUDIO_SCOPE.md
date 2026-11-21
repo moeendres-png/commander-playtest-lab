@@ -31,7 +31,8 @@ Datei widersprechen, gilt diese Datei.
 - Chulane ist das Standard-Owner-Deck und der Fokus (`docs/OWNER_DECK_FOCUS_CURRENT.md`); TAM ist
   als zweiter Commander im BUILD erlaubt (E14, Owner 2026-11-19).
 - Keine Preise und keine Bezahldienste (A1, B1). Der Zukauf-Modus im BUILD ohne Preise ist seit
-  2026-11-19 erlaubt (E14); Preisdaten dafür bleiben Owner-Vorbehalt (T3).
+  2026-11-19 erlaubt (E14); Preisdaten dafür bleiben Owner-Vorbehalt (T3), außer der Preisanzeige
+  für den TAM-Zukauf seit 2026-11-21 (Register „Preise für TAM“; Chulane bleibt ohne Preise).
 - Keine neue Abhängigkeit und keine Änderung an `pyproject.toml` ohne Owner-Go.
 - Sitze: Höchstzahl 6, Standard 4. Aktiv sind 2 bis 4 Sitze; 5 und 6 sind nicht freigegeben
   (eigene Qualifikation und Owner-Freigabe, A3, A8). Die Engine nimmt 2 bis 6 Sitze an
