@@ -72,7 +72,8 @@ function _buildOverviewNodes(data, deps, options = {}) {
     const colourRows = (landData.deck.colours || []).map((entry) => {
       const grpCol = group && group.colours ? group.colours[entry.colour] : null;
       const pipCmp = grpCol ? `${StudioUI.num(entry.pips, 0)} (Vgl. ${StudioUI.num(grpCol.pips.median, 1)})` : StudioUI.num(entry.pips, 0);
-      const landCmp = grpCol ? `${StudioUI.num(entry.land_sources, 0)} (Vgl. ${StudioUI.num(grpCol.land_sources.median, 1)})` : StudioUI.num(entry.land_sources, 0);
+      const viaSearch = entry.search_sources ? ` +${StudioUI.num(entry.search_sources, 0)} Suchland` : "";
+      const landCmp = (grpCol ? `${StudioUI.num(entry.land_sources, 0)} (Vgl. ${StudioUI.num(grpCol.land_sources.median, 1)})` : StudioUI.num(entry.land_sources, 0)) + viaSearch;
       return h("tr", {},
         h("td", {}, h("span", { class: `ms ms-${entry.colour}` }, entry.colour)),
         h("td", { class: "num" }, pipCmp),
@@ -82,8 +83,9 @@ function _buildOverviewNodes(data, deps, options = {}) {
     if (colourRows.length) {
       manaChildren.push(h("div", { class: "table-wrap" },
         h("table", {},
-          h("thead", {}, h("tr", {}, h("th", {}, "Farbe"), h("th", { class: "num" }, "Symbole"), h("th", { class: "num" }, "Länder"), h("th", { class: "num" }, "Andere"))),
+          h("thead", {}, h("tr", {}, h("th", {}, "Farbe"), h("th", { class: "num" }, "Symbole"), h("th", { class: "num", title: "Länder mit eigener Farbe (Vergleich: gleiche Zählung in der Gruppe); +n: Suchländer, die die Farbe im Deck finden (Rechenannahme, nicht im Vergleich)" }, "Länder"), h("th", { class: "num" }, "Andere"))),
           h("tbody", {}, colourRows))));
+      if (landData.deck.lands_search) manaChildren.push(h("p", { class: "note" }, `+n Suchland: ${StudioUI.num(landData.deck.lands_search, 0)} Suchländer, als Quelle jeder Farbe gezählt, die ein passendes Land im Deck erzeugt (Rechenannahme, kein Regelurteil; der Gruppenvergleich zählt nur direkte Quellen).`));
     } else {
       manaChildren.push(h("p", { class: "muted" }, "Keine Farbsymbole oder Farbquellen gezählt."));
     }
@@ -97,16 +99,22 @@ function _buildOverviewNodes(data, deps, options = {}) {
   if (castData && castData.opening_hand) {
     const hand = castData.opening_hand;
     manaChildren.push(h("p", { class: "note" }, `Spielbare Starthand (${hand.rule}): ${_ovPct(hand.p_keepable)} (${StudioUI.num(hand.lands, 0)} Länder, ${StudioUI.num(hand.early_actions, 0)} frühe Aktionen).`));
+    (castData.commander || []).forEach((cmd) => {
+      manaChildren.push(h("p", { class: "note overview-commander-curve" }, cmd.known
+        ? `Commander ${cmd.name} (${cmd.mana_cost}) auf Kurve Zug ${StudioUI.num(cmd.turn, 0)}: ${_ovPct(cmd.p_on_curve)} direkt (Land-Drops ${_ovPct(cmd.p_land_drops)} × Farben ${_ovPct(cmd.p_colours_given_lands)}), mit Suchland ${_ovPct(cmd.with_search && cmd.with_search.p_on_curve)}; aus der Kommandozone, ohne Commander-Steuer.`
+        : `Commander ${cmd.name}: auf Kurve unbekannt (${cmd.reason}).`));
+    });
     const reqs = (castData.requirements || []).slice(0, 8);
     if (reqs.length) {
       manaChildren.push(h("div", { class: "table-wrap" },
         h("table", {},
-          h("thead", {}, h("tr", {}, h("th", {}, "Kosten"), h("th", { class: "num" }, "Quellen"), h("th", { class: "num" }, "Land-Drops"), h("th", { class: "num" }, "Farben*"))),
+          h("thead", {}, h("tr", {}, h("th", {}, "Kosten"), h("th", { class: "num" }, "Quellen"), h("th", { class: "num" }, "Land-Drops"), h("th", { class: "num" }, "Farben direkt*"), h("th", { class: "num", title: "Suchländer als Quelle (Rechenannahme, siehe Tab Zahlen)" }, "mit Suchland*"))),
           h("tbody", {}, reqs.map((item) => h("tr", {},
             h("td", { class: "nowrap" }, item.label, ` Z${item.turn}`),
             h("td", { class: "num" }, Object.entries(item.sources || {}).map(([c, n]) => `${c} ${StudioUI.num(n, 0)}`).join(" · ")),
             h("td", { class: "num" }, _ovPct(item.p_land_drops)),
-            h("td", { class: "num" }, _ovPct(item.p_colours_given_lands))))))));
+            h("td", { class: "num" }, _ovPct(item.p_colours_given_lands)),
+            h("td", { class: "num" }, _ovPct(item.with_search && item.with_search.p_colours_given_lands))))))));
     }
     if (castData.cards_unknown_mana_value || castData.lands_unknown_colours) {
       manaChildren.push(h("p", { class: "note" }, `Unbekannte Eingaben: ${StudioUI.num(castData.cards_unknown_mana_value || 0, 0)} Karten ohne Manawert, ${StudioUI.num(castData.lands_unknown_colours || 0, 0)} Länder ohne Farbdaten.`));

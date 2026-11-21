@@ -15,13 +15,32 @@ Spells? A 2022 Update", https://github.com/frankkarsten/MTG-Math):
 4. Every probability carries its condition and the counts it was computed from.
 
 Counting rules, shown with the result: sources are lands only (``produced_mana`` of the card
-data, else the basic land type); lands that produce no coloured mana per the card data
-(fetch lands, colourless lands) count as lands but not as sources, and lands without card data
-count as lands with unknown colours. Hybrid and Phyrexian symbols are not part of the
-requirement (reported per card). Draws by turn ``T``: 7 + ``T`` cards (in multiplayer only the
-starting player skips the first draw), no mulligan, no extra card draw. Exact multivariate
-hypergeometric arithmetic, no Monte Carlo. The result is a description, never a land count
-recommendation.
+data, else the basic land type); lands that produce no coloured mana per the card data count as
+lands but not as direct sources, and lands without card data count as lands with unknown
+colours. Hybrid and Phyrexian symbols are not part of the requirement (reported per card).
+Draws by turn ``T``: 7 + ``T`` cards (in multiplayer only the starting player skips the first
+draw), no mulligan, no extra card draw. Exact multivariate hypergeometric arithmetic, no Monte
+Carlo. The result is a description, never a land count recommendation.
+
+Search lands (WP-2 of the builder audit, #1404): every land falls into one class read from the
+card data and the rules text of its front face (``classify_land``): ``direkt`` (it produces
+coloured mana), ``suchland`` (no coloured mana of its own, and the text searches *your* library
+for a basic land card, for cards of named basic land types or for a land card with a basic land
+type and puts the card onto the battlefield), ``ohne_farbe`` (known to produce no coloured mana,
+no such search) and ``unbekannt`` (no card data, no rules text, or a search text that is not one
+of these forms, such as a search for a Gate). Every figure is given twice: ``direkt`` (search
+lands are no source, as before) and ``mit Suchland`` (``with_search``). The second one rests on a
+calculation assumption, not a rules ruling: a search land counts as a source of every colour that
+a land of the main deck matching its search (by type line: supertype Basic and basic land types,
+never by name) produces directly, as one land of the joint event, like a dual land. It assumes a
+matching card is still in the library and leaves out entering tapped, life payment (fetch lands),
+activation costs (for example ``{1}`` of the Panoramas) and that some search lands fetch two
+lands. A search land without a matching land in the deck is a known source of no colour.
+
+The commander (WP-3) is one more requirement at the turn of its mana value from the command
+zone: library = main deck without the commander, no commander tax. The land count table (WP-3)
+gives, for 30 to 40 lands in the same library, the exact chance to hold at least ``T`` lands
+among the ``7 + T`` cards seen by turn ``T``.
 """
 
 from __future__ import annotations
@@ -76,6 +95,261 @@ def land_colours(row: Mapping[str, object]) -> frozenset[str] | None:
     if basic:
         return basic
     return None if produced is None else frozenset()
+
+
+LAND_DIRECT = "direkt"
+LAND_SEARCH = "suchland"
+LAND_NO_COLOUR = "ohne_farbe"
+LAND_UNKNOWN = "unbekannt"
+LAND_CLASSES = (LAND_DIRECT, LAND_SEARCH, LAND_NO_COLOUR, LAND_UNKNOWN)
+_ALL_BASIC_TYPES = frozenset(_BASIC_COLOUR)
+REASON_UNREADABLE_SEARCH = "Suchtext ist keine Suche nach Standardland oder Standardland-Typ"
+REASON_TARGETED_SEARCH = "Suche hängt an einem Ziel (Fähigkeit mit „target“)"
+_TARGET = re.compile(r"\btargets?\b", re.IGNORECASE)
+_REMINDER = re.compile(r"\([^()]*\)")
+_ANY_SEARCH = re.compile(r"\bsearch your library\b", re.IGNORECASE)
+_LAND_SEARCH = re.compile(
+    r"\bsearch your library for (?P<spec>[^.;:]+?) cards?"
+    r"(?P<suffix> with a basic land type| that share a land type)?"
+    r",?(?: reveal (?:it|them|that card|those cards),)?(?: and)? put "
+    r"(?:it|them|that card|those cards) onto the battlefield",
+    re.IGNORECASE,
+)
+_QUANTITY = re.compile(r"^(?:a|an|one|two|three|up to (?:one|two|three))\s+", re.IGNORECASE)
+_TYPE_LIST = re.compile(r",\s*(?:or\s+)?|\s+or\s+")
+# One searched-for card: (only basic lands, basic land types of which one must match or ``None``).
+SearchAlternative = tuple[bool, frozenset[str] | None]
+LAND_SEARCH_ASSUMPTION = (
+    "Rechenannahme, kein Regelurteil: ein Suchland zählt in „mit Suchland“ als Quelle jeder "
+    "Farbe, die ein zu seiner Suche passendes Land im Deck direkt erzeugt (passend nach "
+    "Typzeile: Standard-Obertyp und Standardland-Typen, nie nach Namen), und im gemeinsamen "
+    "Ereignis wie ein mehrfarbiges Land als ein Land. Angenommen wird, dass ein passendes Land "
+    "noch in der Bibliothek liegt. Nicht abgebildet: getappter Eintritt, Lebenspunkte "
+    "(Fetchländer), Aktivierungskosten (etwa {1} der Panoramen) und dass manche Suchländer zwei "
+    "Länder holen. Ländersuche durch Zauber (Rampe) ist nicht Teil der Zählung."
+)
+
+
+def _front_lines(row: Mapping[str, object]) -> list[str] | None:
+    """Abilities (lines) of the front face's rules text without reminder text; ``None`` when
+    the card data has no rules text at all."""
+    value = row.get("oracle_text")
+    if value is None:
+        return None
+    text = str(value).split("\n//\n")[0].split(" // ")[0]
+    previous = None
+    while previous != text:
+        previous, text = text, _REMINDER.sub("", text)
+    return [" ".join(line.split()) for line in text.splitlines() if line.strip()]
+
+
+def _search_alternatives(text: str) -> tuple[SearchAlternative, ...] | None:
+    """The cards a land's own text searches for, or ``None`` when the text is no search of
+    the library for basic lands, named basic land types or a land with a basic land type that
+    puts the card onto the battlefield."""
+    match = _LAND_SEARCH.search(text)
+    if match is None:
+        return None
+    suffix = (match.group("suffix") or "").strip().lower()
+    alternatives: list[SearchAlternative] = []
+    for raw in re.split(r" cards? and (?:a |an )?", match.group("spec"), flags=re.IGNORECASE):
+        part = _QUANTITY.sub("", raw.strip())
+        basic = part.lower().startswith("basic ")
+        if basic:
+            part = part[len("basic ") :].strip()
+        if part.lower() == "land":
+            if basic:
+                alternatives.append((True, None))
+            elif suffix == "with a basic land type":
+                alternatives.append((False, _ALL_BASIC_TYPES))
+            else:
+                return None
+            continue
+        types = [word.strip() for word in _TYPE_LIST.split(part) if word.strip()]
+        if not types or any(word not in _BASIC_COLOUR for word in types):
+            return None
+        alternatives.append((basic, frozenset(types)))
+    return tuple(alternatives) if alternatives else None
+
+
+def classify_land(row: Mapping[str, object]) -> dict[str, object]:
+    """Class of one land (see the module text) with the colours it produces directly and,
+    for a search land, what it searches for. Reads card data and rules text, never the name."""
+    direct = land_colours(row)
+    if direct:
+        return {"class": LAND_DIRECT, "direct": direct, "search": None, "reason": "erzeugt Farbe"}
+    lines = _front_lines(row)
+    if lines is None:
+        return {
+            "class": LAND_UNKNOWN,
+            "direct": direct,
+            "search": None,
+            "reason": "kein Regeltext in den Kartendaten",
+        }
+    searching = [line for line in lines if _ANY_SEARCH.search(line)]
+    readable = [
+        (line, alternatives)
+        for line in searching
+        if (alternatives := _search_alternatives(line)) is not None
+    ]
+    free = [alternatives for line, alternatives in readable if not _TARGET.search(line)]
+    if free:
+        return {
+            "class": LAND_SEARCH,
+            "direct": direct,
+            "search": tuple(dict.fromkeys(alt for alternatives in free for alt in alternatives)),
+            "reason": "sucht Standardland bzw. Standardland-Typ",
+        }
+    if searching:
+        return {
+            "class": LAND_UNKNOWN,
+            "direct": direct,
+            "search": None,
+            "reason": REASON_TARGETED_SEARCH if readable else REASON_UNREADABLE_SEARCH,
+        }
+    if direct is None:
+        return {
+            "class": LAND_UNKNOWN,
+            "direct": None,
+            "search": None,
+            "reason": "keine Kartendaten zum erzeugten Mana",
+        }
+    return {
+        "class": LAND_NO_COLOUR,
+        "direct": direct,
+        "search": None,
+        "reason": "erzeugt laut Kartendaten kein farbiges Mana",
+    }
+
+
+def _type_words(type_line: str) -> tuple[frozenset[str], frozenset[str]]:
+    """Supertypes/card types and subtypes of a front type line."""
+    front = type_line.split(" // ")[0]
+    head, _, tail = front.partition("—")
+    return frozenset(head.split()), frozenset(tail.split())
+
+
+def search_matches(alternatives: Sequence[SearchAlternative], type_line: str) -> bool:
+    """Whether a card with this type line is one a search with ``alternatives`` may find."""
+    head, subtypes = _type_words(type_line)
+    if "Land" not in head:
+        return False
+    for basic_only, types in alternatives:
+        if basic_only and "Basic" not in head:
+            continue
+        if types is None or subtypes & types:
+            return True
+    return False
+
+
+def _describe_search(alternatives: Sequence[SearchAlternative]) -> str:
+    parts = []
+    for basic_only, types in alternatives:
+        if types is None:
+            parts.append("Standardland")
+        elif types == _ALL_BASIC_TYPES and not basic_only:
+            parts.append("Land mit Standardland-Typ")
+        else:
+            names = " oder ".join(sorted(types))
+            parts.append(f"Standard-{names}" if basic_only else names)
+    return " und ".join(parts)
+
+
+def search_land_reach(
+    rows: Iterable[Mapping[str, object]],
+) -> list[dict[str, object]]:
+    """Per land row of the main deck: its class and, for a search land, the colours the lands
+    of the deck it may find produce directly (``reach``) and how many such lands there are.
+    The list follows the rows; commander rows are left out."""
+    lands = [
+        row
+        for row in rows
+        if _text(row, "zone") != "commander" and "Land" in _text(row, "type_line").split(" // ")[0]
+    ]
+    out: list[dict[str, object]] = []
+    for row in lands:
+        info = classify_land(row)
+        entry: dict[str, object] = {
+            "card_id": _text(row, "card_id"),
+            "name": _text(row, "oracle_name"),
+            "quantity": int(_text(row, "quantity") or "1"),
+            "class": info["class"],
+            "reason": info["reason"],
+            "direct": info["direct"],
+            "reach": None,
+            "targets": None,
+            "searches_for": None,
+        }
+        alternatives = info["search"]
+        if isinstance(alternatives, tuple):
+            reach: set[str] = set()
+            targets = 0
+            for other in lands:
+                if other is row or not search_matches(alternatives, _text(other, "type_line")):
+                    continue
+                colours = land_colours(other)
+                targets += int(_text(other, "quantity") or "1")
+                reach.update(colours or ())
+            entry["reach"] = frozenset(reach)
+            entry["targets"] = targets
+            entry["searches_for"] = _describe_search(alternatives)
+        out.append(entry)
+    return out
+
+
+def at_least_lands(library: int, lands: int, draws: int, minimum: int) -> Fraction | None:
+    """Exact hypergeometric chance to hold at least ``minimum`` lands among ``draws`` cards
+    of a ``library`` with ``lands`` lands; ``None`` when the draw does not fit the library."""
+    if library <= 0 or draws > library or lands < 0 or lands > library or draws < 0:
+        return None
+    total = comb(library, draws)
+    hits = sum(
+        comb(lands, held) * comb(library - lands, draws - held)
+        for held in range(max(0, minimum), min(lands, draws) + 1)
+    )
+    return Fraction(hits, total)
+
+
+LAND_TABLE_COUNTS = tuple(range(30, 41))
+LAND_TABLE_TURNS = (2, 3, 4, 5, 6, 7)
+
+
+def land_count_table(library: int, deck_lands: int) -> dict[str, object]:
+    """For 30 to 40 lands (and the deck's own count) in a library of ``library`` cards: the
+    exact chance to hold at least ``T`` lands among the ``7 + T`` cards seen by turn ``T``."""
+    counts = sorted({*LAND_TABLE_COUNTS, deck_lands}) if library > 0 else list(LAND_TABLE_COUNTS)
+    rows = []
+    for lands in counts:
+        cells = []
+        for turn in LAND_TABLE_TURNS:
+            exact = at_least_lands(library, lands, draws_by_turn(turn), turn)
+            cells.append(
+                {
+                    "turn": turn,
+                    "draws": draws_by_turn(turn),
+                    "p": None if exact is None else round(float(exact), 4),
+                }
+            )
+        rows.append(
+            {
+                "lands": lands,
+                "deck": lands == deck_lands,
+                "in_range": lands in LAND_TABLE_COUNTS,
+                "cells": cells,
+            }
+        )
+    return {
+        "library": library,
+        "deck_lands": deck_lands,
+        "turns": list(LAND_TABLE_TURNS),
+        "rows": rows,
+        "rule": (
+            f"Bibliothek {library} Karten (Deck ohne Commander), davon die genannte Zahl Länder; "
+            "bis Zug T sind 7 + T Karten gesehen (Zug 1 zieht, ohne Mulligan, ohne Extraziehen); "
+            "Wert: Anteil der Ziehungen mit mindestens T Ländern, exakte Hypergeometrie. "
+            "Keine Empfehlung einer Landzahl."
+        ),
+    }
 
 
 def _joint(
@@ -257,18 +531,92 @@ def hand_roles(
     }
 
 
+def _letters(value: object) -> list[str]:
+    return [c for c in COLOURS if isinstance(value, frozenset) and c in value]
+
+
+def _sorted_groups(groups: Counter[frozenset[str]]) -> list[tuple[frozenset[str], int]]:
+    return sorted(groups.items(), key=lambda item: ("".join(sorted(item[0])), item[1]))
+
+
+def _with_search(
+    search_groups: Sequence[tuple[frozenset[str], int]],
+    nonland: int,
+    need: Mapping[str, int],
+    turn: int,
+) -> dict[str, object]:
+    result = colour_probability(search_groups, nonland, need, turn)
+    return {
+        "sources": result["sources"],
+        "p_colours_given_lands": result["p_colours_given_lands"],
+        "p_on_curve": result["p_on_curve"],
+    }
+
+
+def _commander_entries(
+    commanders: Sequence[Mapping[str, object]],
+    land_groups: Sequence[tuple[frozenset[str], int]],
+    search_groups: Sequence[tuple[frozenset[str], int]],
+    nonland: int,
+) -> list[dict[str, object]]:
+    """The commander's own cost as a requirement on curve from the command zone (WP-3)."""
+    out: list[dict[str, object]] = []
+    for row in commanders:
+        base: dict[str, object] = {
+            "card_id": _text(row, "card_id"),
+            "name": _text(row, "oracle_name"),
+            "mana_cost": _text(row, "mana_cost"),
+        }
+        value = row.get("mana_value")
+        if value is None:
+            out.append({**base, "known": False, "reason": "Manawert unbekannt"})
+            continue
+        need, skipped = requirement(_text(row, "mana_cost"))
+        turn = max(1, int(float(str(value))))
+        result = colour_probability(land_groups, nonland, need, turn)
+        out.append(
+            {
+                **base,
+                "known": True,
+                **result,
+                "label": "".join(colour * count for colour, count in sorted(need.items())),
+                "hybrid_or_phyrexian": skipped,
+                "with_search": _with_search(search_groups, nonland, need, turn),
+            }
+        )
+    return out
+
+
 def deck_castability(rows: Iterable[Mapping[str, object]]) -> dict[str, object]:
     """Castability of every distinct coloured requirement of the deck's nonland cards, plus
     the opening hand figure. ``rows`` carry ``zone``, ``quantity``, ``oracle_name``,
-    ``card_id``, ``type_line``, ``mana_cost``, ``mana_value`` and ``produced_mana``."""
+    ``card_id``, ``type_line``, ``mana_cost``, ``mana_value``, ``produced_mana`` and
+    ``oracle_text``. Each requirement and the commander are given ``direkt`` (the top-level
+    fields) and ``mit Suchland`` (``with_search``)."""
+    row_list = list(rows)
     groups: Counter[frozenset[str]] = Counter()
+    search_counter: Counter[frozenset[str]] = Counter()
     unknown_lands = 0
     no_colour_lands = 0
     lands = early = other = 0
     unknown_mv = 0
     requirements: dict[tuple[int, tuple[tuple[str, int], ...]], list[dict[str, object]]] = {}
     hybrid_cards: list[str] = []
-    for row in rows:
+    classes = search_land_reach(row_list)
+    class_counts: Counter[str] = Counter()
+    for entry in classes:
+        quantity = int(str(entry["quantity"]))
+        class_counts[str(entry["class"])] += quantity
+        reach = entry["reach"]
+        direct = entry["direct"]
+        if isinstance(reach, frozenset):
+            search_counter[reach] += quantity
+        elif isinstance(direct, frozenset):
+            search_counter[direct] += quantity
+        else:
+            search_counter[frozenset()] += quantity
+    commanders = [row for row in row_list if _text(row, "zone") == "commander"]
+    for row in row_list:
         if _text(row, "zone") == "commander":
             continue
         quantity = int(_text(row, "quantity") or "1")
@@ -305,7 +653,8 @@ def deck_castability(rows: Iterable[Mapping[str, object]]) -> dict[str, object]:
             {"card_id": _text(row, "card_id"), "name": _text(row, "oracle_name")}
         )
     nonland = early + other
-    land_groups = sorted(groups.items(), key=lambda item: ("".join(sorted(item[0])), item[1]))
+    land_groups = _sorted_groups(groups)
+    search_groups = _sorted_groups(search_counter)
     items = []
     for (turn, need_items), cards in sorted(requirements.items()):
         result = colour_probability(land_groups, nonland, dict(need_items), turn)
@@ -314,8 +663,26 @@ def deck_castability(rows: Iterable[Mapping[str, object]]) -> dict[str, object]:
                 **result,
                 "label": "".join(colour * count for colour, count in need_items),
                 "cards": sorted(cards, key=lambda card: str(card["name"])),
+                "with_search": _with_search(search_groups, nonland, dict(need_items), turn),
             }
         )
+    search_lands = [
+        {
+            "card_id": entry["card_id"],
+            "name": entry["name"],
+            "quantity": entry["quantity"],
+            "searches_for": entry["searches_for"],
+            "reach": _letters(entry["reach"]),
+            "targets": entry["targets"],
+        }
+        for entry in classes
+        if entry["class"] == LAND_SEARCH
+    ]
+    unknown_class = [
+        {"card_id": entry["card_id"], "name": entry["name"], "reason": entry["reason"]}
+        for entry in classes
+        if entry["class"] == LAND_UNKNOWN
+    ]
     return {
         "schema": SCHEMA,
         "data_class": "DERIVED_DESCRIPTIVE",
@@ -330,12 +697,31 @@ def deck_castability(rows: Iterable[Mapping[str, object]]) -> dict[str, object]:
         "cards_unknown_mana_value": unknown_mv,
         "hybrid_or_phyrexian_cards": sorted(hybrid_cards),
         "requirements": items,
+        "land_sources_with_search": {
+            colour: sum(size for produced, size in search_groups if colour in produced)
+            for colour in COLOURS
+        },
+        "land_classes": {
+            "counts": {name: class_counts[name] for name in LAND_CLASSES},
+            "classified": lands - class_counts[LAND_UNKNOWN],
+            "of": lands,
+            "search_lands": search_lands,
+            "unknown": unknown_class,
+            "assumption": LAND_SEARCH_ASSUMPTION,
+            "origin": (
+                "Klasse aus Kartendaten (erzeugtes Mana, Typzeile) und Regeltext der "
+                "Vorderseite ohne Erinnerungstext; nie aus dem Kartennamen"
+            ),
+        },
+        "commander": _commander_entries(commanders, land_groups, search_groups, nonland),
+        "land_count_table": land_count_table(lands + nonland, lands),
         "opening_hand": opening_hands(lands, early, other),
         "method": (
             "Exakte multivariate Hypergeometrie nach Karsten (2022): Farbwahrscheinlichkeit "
             "bedingt auf die Land-Drops bis zum Zug des Manawerts; Landmangel getrennt; "
             "mehrere Symbole einer Farbe und mehrere Farben als ein gemeinsames Ereignis. "
-            "Ziehen: 7 + Zug Karten, ohne Mulligan und ohne Extraziehen. Quellen: nur Länder."
+            "Ziehen: 7 + Zug Karten, ohne Mulligan und ohne Extraziehen. Quellen: nur Länder; "
+            "„direkt“ ohne Suchländer, „mit Suchland“ unter der genannten Rechenannahme."
         ),
         "source": (
             "https://www.tcgplayer.com/content/article/How-Many-Sources-Do-You-Need-to-"

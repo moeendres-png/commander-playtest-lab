@@ -630,6 +630,10 @@ def castability_zahlen(payload: Mapping[str, object]) -> list[dict[str, object]]
     """Contracts for ``/api/castability``: every probability is exact (hypergeometric)."""
     out: list[dict[str, object]] = []
     source = "Exakte Hypergeometrie aus der Deckliste (Karsten 2022)"
+    classes = _mapping(payload.get("land_classes"))
+    search_note = str(
+        classes.get("assumption") or "Rechenannahme zu Suchländern (siehe Länderklassen)"
+    )
     for item in _list(payload.get("requirements")):
         requirement = _mapping(item)
         key = f"{requirement.get('label')}.{requirement.get('turn')}"
@@ -645,6 +649,55 @@ def castability_zahlen(payload: Mapping[str, object]) -> list[dict[str, object]]
                 klasse=EXAKT,
                 einheit="Anteil",
                 quelle=source,
+            )
+        _try(
+            out,
+            f"cast.{key}.p_colours_given_lands_with_search",
+            f"Farben bei genug Land-Drops mit Suchland ({requirement.get('label')}, "
+            f"Zug {requirement.get('turn')})",
+            _float_or_none(_mapping(requirement.get("with_search")).get("p_colours_given_lands")),
+            klasse=EXAKT,
+            einheit="Anteil",
+            quelle=source,
+            hinweise=[search_note],
+        )
+    for item in _list(payload.get("commander")):
+        commander = _mapping(item)
+        if commander.get("known") is not True:
+            continue
+        name = commander.get("name")
+        with_search = _mapping(commander.get("with_search"))
+        for field, label, value, notes in (
+            ("p_land_drops", "Land-Drops bis Zug", commander.get("p_land_drops"), []),
+            (
+                "p_colours_given_lands",
+                "Farben bei genug Land-Drops",
+                commander.get("p_colours_given_lands"),
+                [],
+            ),
+            ("p_on_curve", "auf Kurve", commander.get("p_on_curve"), []),
+            (
+                "p_colours_given_lands_with_search",
+                "Farben bei genug Land-Drops mit Suchland",
+                with_search.get("p_colours_given_lands"),
+                [search_note],
+            ),
+            (
+                "p_on_curve_with_search",
+                "auf Kurve mit Suchland",
+                with_search.get("p_on_curve"),
+                [search_note],
+            ),
+        ):
+            _try(
+                out,
+                f"cast.commander.{name}.{field}",
+                f"Commander {name}: {label} (Zug {commander.get('turn')})",
+                _float_or_none(value),
+                klasse=EXAKT,
+                einheit="Anteil",
+                quelle=source + "; Commander aus der Kommandozone, ohne Commander-Steuer",
+                hinweise=notes,
             )
     hand = _mapping(payload.get("opening_hand"))
     if hand:

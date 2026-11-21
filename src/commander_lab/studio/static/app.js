@@ -994,9 +994,9 @@ function renderLandAdvisor(body) {
   const groupName = cohortName(state.cohort);
   const swatch = (entry) => h("td", {}, h("span", { class: "ms ms-" + entry.colour }, entry.colour), entry.in_identity ? "" : h("span", { class: "muted", title: "Diese Farbe liegt außerhalb der Farbidentität des Commanders" }, " außerhalb"));
   const own = h("div", { class: "table-wrap" }, h("table", { id: "land-advisor" }, h("thead", {}, h("tr", {}, h("th", {}, "Farbe"), h("th", { class: "num", title: "Farbsymbole in den Kosten der Nicht-Land-Karten" }, "Symbole"), h("th", { class: "num", title: "Anteil an allen Farbsymbolen" }, "Anteil"),
-    h("th", { class: "num", title: "Länder, die diese Farbe erzeugen können" }, "Länder"), h("th", { class: "num", title: "Quellen, die keine Länder sind" }, "andere"))),
+    h("th", { class: "num", title: "Länder, die diese Farbe selbst erzeugen können" }, "Länder direkt"), h("th", { class: "num", title: "Suchländer, die ein Land dieser Farbe im Deck finden können (Rechenannahme, siehe unten)" }, "über Suchland"), h("th", { class: "num", title: "Quellen, die keine Länder sind" }, "andere"))),
     h("tbody", {}, deck.colours.map((entry) => h("tr", {}, swatch(entry), h("td", { class: "num" }, StudioUI.num(entry.pips, 0)), h("td", { class: "num" }, percent(entry.pip_share)),
-      h("td", { class: "num" }, StudioUI.num(entry.land_sources, 0)), h("td", { class: "num" }, StudioUI.num(entry.other_sources, 0) + (entry.modal_sources ? ` (+${StudioUI.num(entry.modal_sources, 0)} mit Landseite)` : "")))))));
+      h("td", { class: "num" }, StudioUI.num(entry.land_sources, 0)), h("td", { class: "num" }, entry.search_sources === undefined ? "unbekannt" : `+${StudioUI.num(entry.search_sources, 0)}`), h("td", { class: "num" }, StudioUI.num(entry.other_sources, 0) + (entry.modal_sources ? ` (+${StudioUI.num(entry.modal_sources, 0)} mit Landseite)` : "")))))));
   const compare = group ? h("div", { class: "table-wrap" }, h("table", { id: "land-advisor-group" }, h("thead", {}, h("tr", {}, h("th", {}, "Farbe"), h("th", { class: "num" }, "Symbole"), h("th", { class: "num" }, "Anteil"), h("th", { class: "num" }, "Länder"))),
     h("tbody", {}, deck.colours.map((entry) => {
       const figures = group.colours[entry.colour];
@@ -1011,7 +1011,9 @@ function renderLandAdvisor(body) {
   if (compare) body.append(h("p", { class: "note", id: "land-advisor-group-title" }, `Vergleichsgruppe: ${groupName} (Median, mittlere Hälfte in Klammern)`), compare);
   const commanderPips = Object.entries(deck.commander_pips || {});
   body.append(h("p", { id: "land-advisor-commander" }, commanderPips.length ? `Farbsymbole der Kosten des Commanders: ${commanderPips.map(([colour, count]) => `${colour} ${StudioUI.num(count, 0)}`).join(", ")} (nicht in den Zahlen des Decks).` : "Der Commander hat keine Farbsymbole in seinen Kosten (nicht in den Zahlen des Decks)."));
-  if (deck.lands_no_mana) body.append(h("p", { class: "note", id: "land-advisor-nomana" }, `Länder, die selbst kein Mana erzeugen: ${StudioUI.num(deck.lands_no_mana, 0)} (laut Kartendaten, zum Beispiel Fetchländer). Sie stehen bei keiner Farbe.`));
+  if (deck.lands_no_mana) body.append(h("p", { class: "note", id: "land-advisor-nomana" }, `Länder, die selbst kein Mana erzeugen: ${StudioUI.num(deck.lands_no_mana, 0)} (laut Kartendaten, zum Beispiel Fetchländer). Sie stehen bei keiner Farbe unter „Länder direkt“.`));
+  if (deck.lands_search) body.append(h("p", { class: "note", id: "land-advisor-search" }, `Suchländer: ${StudioUI.num(deck.lands_search, 0)} (aus dem Regeltext erkannt), in „über Suchland“ je erreichbarer Farbe gezählt. Annahme: ${deck.search_assumption} Der Gruppenvergleich zählt nur direkte Quellen.`));
+  if (deck.lands_search_unknown) body.append(h("p", { class: "note warn", id: "land-advisor-search-unknown" }, `Länder mit Suchtext, dessen Suchbarkeit nicht ableitbar ist: ${StudioUI.num(deck.lands_search_unknown, 0)} – unbekannt, nicht als 0 und nicht als Quelle gezählt.`));
   if (deck.lands_unknown_colours) body.append(h("p", { class: "note", id: "land-advisor-unknown" }, `Länder ohne Angabe: ${StudioUI.num(deck.lands_unknown_colours, 0)} (keine Kartendaten zum erzeugten Mana). Unbekannt, nicht als null gezählt.`));
   const landCands = found.data.land_candidates || [];
   body.append(h("h4", {}, `Freie Nicht-Standardländer in deiner Sammlung (≥ 20 % in „${groupName}“, nicht im Deck)`));

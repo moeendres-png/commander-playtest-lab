@@ -1406,7 +1406,9 @@ its colours, Phyrexian and "2 or colour" symbols for the colour, `{C}` as colour
 generic mana not at all; a split card counts both halves, other two-faced cards the front; a
 land counts for every colour it produces; a land with unknown colours is "unbekannt", never 0;
 the commander's own cost and its colour identity are named apart. Source decks with cards the
-card data does not know are left out and counted.
+card data does not know are left out and counted. Search lands are a separate column "über
+Suchland" (see "Search lands, commander on curve, land count table" below); "Länder direkt" and
+the group figures stay direct.
 
 ### Card allocation ("Belegung", #1419)
 
@@ -1510,11 +1512,59 @@ Frank Karsten, 2022 update. Missing the land drop is reported apart; two pips of
 several colours are one joint event computed over land groups by produced colours (a dual land
 counts for both colours of one draw), never a product of single probabilities; every value
 carries its condition ("bedingt auf mindestens T Länder unter 7 + T gezogenen Karten"). Sources
-are lands only; lands without coloured mana per card data (fetch lands) and lands without card
-data are counted as lands but not as sources and are listed; hybrid and Phyrexian symbols are
+are lands only; lands without coloured mana per card data and lands without card data are
+counted as lands but not as direct sources and are listed; hybrid and Phyrexian symbols are
 not part of the requirement and the cards are named. No mulligan, no extra draws. The opening
 hand figure is the exact share of 7-card hands with 2 to 4 lands and at least one nonland card
 of mana value at most 2. A description, never a land count recommendation.
+
+#### Search lands, commander on curve, land count table (#1404, builder audit WP-2 and WP-3)
+
+**Land classes.** Every land of the list gets one class from its card data and the rules text
+of its front face without reminder text, never from its name (`castability.classify_land`):
+`direkt` (produces coloured mana), `suchland` (no coloured mana of its own; an ability of its own
+text, without a target, searches *your* library for a basic land card, for cards of named basic
+land types such as "Plains or Island" or "basic Forest, Plains, or Island", or for a land card
+with a basic land type, and puts the card onto the battlefield), `ohne_farbe` (known to produce
+no coloured mana, no such search) and `unbekannt` (no card data, no rules text, or a search text
+of another form: a Gate, any land card, into the hand, or bound to a target). The page shows the
+counts and "Klasse bestimmt für n von N Ländern"; unknown lands are named with the reason and are
+never counted as 0 sources. Land ramp spells are not part of this count.
+
+**direkt / mit Suchland.** Every requirement (and the commander) is shown twice: `direkt` (the
+earlier figures, search lands are no source) and `mit Suchland` (`with_search`). The second one
+rests on a calculation assumption, stated in the code (`LAND_SEARCH_ASSUMPTION`) and on the
+page: a search land counts as a source of every colour that a main-deck land matching its search
+produces directly, matched by type line (supertype Basic and the basic land types; a fetch land
+for "Plains or Island" also reaches green when a Forest Plains dual is in the deck), and as one
+land of the joint event like a dual land. A matching card is assumed to be still in the library;
+entering tapped, life payment of fetch lands, activation costs (for example `{1}` of the
+Panoramas) and fetching two lands are not modelled. A search land without a matching land in the
+deck is a known source of no colour. The land advisor ("Länder im Vergleich") shows the search
+lands as a separate column "über Suchland" (`search_sources`, within the commander's colour
+identity); the comparison groups count direct sources only, so deck and group are compared on
+the same rule.
+
+Measured on the QA store copy (import of 2026-11-19, schema 21): the collection pool (card
+facts with an inventory row, commander-legal) holds 134 lands, of which 132 of 134 (98.5 %) get a
+class (106 direkt, 14 suchland, 12 ohne_farbe); unknown are Maze's End (searches for a Gate) and
+Demolition Field (search bound to a target). The public card data of the same store (Zukauf
+universe, a separate figure) gives 1,224 of 1,231 lands. For the Chulane baseline (36 lands, 3
+search lands with basic land search) the colour figures given land drops rise by 1.8 to 11.1 pp,
+on average 5.5 pp over the 26 coloured requirements; UU on turn 3 goes from 65.2 % to 76.4 %.
+
+**Commander on curve.** The commander's own cost is one more requirement at the turn of its
+mana value (`commander`): land drops, colours given the land drops, and both together ("auf
+Kurve"), each direct and with search lands; library = main deck without the commander, first
+cast without commander tax. Chulane `{2}{G}{W}{U}` on the baseline: turn 5 (12 cards), land drops
+45.6 % × colours 92.8 % = 42.4 % direct, colours 97.3 % and 44.4 % with search lands. A
+commander without mana value is "unbekannt". The overview shows the same line.
+
+**Land count table.** `land_count_table`: for 30 to 40 lands (and the deck's own count, marked,
+also when outside that range) in the library of the list (main deck without commander), the
+exact hypergeometric share of draws with at least `T` lands among the `7 + T` cards seen by turn
+`T`, for turns 2 to 7; the column headers name the card count. The deck's own row equals the land
+drops of the requirements of the same turn. No land count recommendation.
 
 #### Roles in the opening hand ("Rollen in der Starthand", #1404)
 

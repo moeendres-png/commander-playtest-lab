@@ -127,6 +127,19 @@ def test_deck_castability_groups_requirements_and_counts_land_data() -> None:
     assert result["land_sources"]["U"] == 7
     assert result["lands_unknown_colours"] == 1
     assert result["lands_without_coloured_mana"] == 1
+    # WP-2: a land without coloured mana and without rules text ("Evolving Wilds" here has no
+    # oracle_text) is of unknown searchability, never a known non-source; the class reads the
+    # text, never the name.
+    assert result["land_classes"]["counts"] == {
+        "direkt": 15,
+        "suchland": 0,
+        "ohne_farbe": 0,
+        "unbekannt": 2,
+    }
+    assert [land["name"] for land in result["land_classes"]["unknown"]] == [
+        "Evolving Wilds",
+        "Mystery Land",
+    ]
     assert result["cards_unknown_mana_value"] == 1
     assert result["hybrid_or_phyrexian_cards"] == ["Kitchen Finks"]
     labels = [(item["label"], item["turn"]) for item in result["requirements"]]
@@ -283,6 +296,13 @@ def test_castability_route_on_a_store(tmp_path) -> None:  # type: ignore[no-unty
     )
     for item in body["requirements"]:
         assert "condition" in item and item["condition"].startswith("bedingt auf")
+        assert set(item["with_search"]) == {"sources", "p_colours_given_lands", "p_on_curve"}
+    assert body["land_count_table"]["library"] == 99
+    assert [row["lands"] for row in body["land_count_table"]["rows"] if row["in_range"]] == list(
+        range(30, 41)
+    )
+    assert len(body["commander"]) == 1
+    assert body["land_classes"]["of"] == body["lands"]
 
 
 def test_draw_sample_hand_deterministic_mulligan_and_route(tmp_path) -> None:  # type: ignore[no-untyped-def]
