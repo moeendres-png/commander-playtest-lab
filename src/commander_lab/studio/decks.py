@@ -13,7 +13,9 @@ import re
 import sqlite3
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
+from typing import Final, Literal
 
 from .german_names import load_german_names
 from .store import StudioStore, ensure_scryfall_cards, now_utc
@@ -61,6 +63,45 @@ def _merge(cards: Iterable[RevisionCard]) -> list[RevisionCard]:
     return [RevisionCard(card_id, qty, zone) for (zone, card_id), qty in sorted(merged.items())]
 
 
+class _Unchecked(Enum):
+    UNCHECKED = "unchecked"
+
+
+UNCHECKED: Final = _Unchecked.UNCHECKED
+"""``expected_parent`` not given: the branch moves without a check (old clients, Owner imports)."""
+
+ExpectedParent = str | Literal[_Unchecked.UNCHECKED] | None
+
+STALE_PARENT_MESSAGE = (
+    "Zweig hat sich geändert; Entwurf ist veraltet. Lade den aktuellen Stand, "
+    "um nichts zu überschreiben."
+)
+NEW_BRANCH_EXISTS_MESSAGE = (
+    "Zweig hat sich geändert; Entwurf ist veraltet: der Zweig existiert bereits. "
+    "Wähle einen anderen Namen oder lade den aktuellen Stand."
+)
+
+
+class StaleParent(Exception):
+    """The branch head is not the one the writer expected (#1727); nothing was written.
+
+    Deliberately not a ``ValueError``: routes answer it with 409, not 422."""
+
+
+def branch_head(db: sqlite3.Connection, deck_id: str, branch: str) -> str | None:
+    """The revision ``branch`` of ``deck_id`` points to, or ``None`` when there is no branch."""
+    row = db.execute(
+        "SELECT revision_id FROM deck_branch WHERE deck_id = ? AND branch = ?",
+        (deck_id, branch),
+    ).fetchone()
+    return None if row is None else str(row[0])
+
+
+def _revision_exists(db: sqlite3.Connection, revision_id: str) -> bool:
+    row = db.execute("SELECT 1 FROM deck_revision WHERE revision_id = ?", (revision_id,))
+    return row.fetchone() is not None
+
+
 def create_revision(
     store: StudioStore,
     *,
@@ -71,23 +112,53 @@ def create_revision(
     note: str = "",
     source_id: str | None = None,
     branch: str = "main",
+    expected_parent: ExpectedParent = UNCHECKED,
 ) -> str:
     """Store a new immutable revision and move ``branch`` to it. Returns the revision id.
 
     The same content under the same deck gives the same id, so storing it twice changes
     nothing. An incomplete or illegal list may be stored: a deck under construction is a
     revision too. ``validate_revision`` says what is wrong with it.
+
+    ``expected_parent`` (optimistic concurrency, #1727): the head the writer last saw for
+    ``branch``; ``None`` means the writer creates a new branch. When the current head differs,
+    ``StaleParent`` is raised and neither the revision, the deck nor the branch pointer is
+    written. The check and the writes share one write transaction (``BEGIN IMMEDIATE``), so no
+    other writer can move the branch in between. Left out, the branch moves unchecked. When the
+    head already is this revision, the save succeeds without writing (idempotent). An unknown
+    ``parent_revision_id`` is a ``ValueError`` and writes nothing.
     """
     merged = _merge(cards)
     digest = deck_hash(merged)
     revision_id = f"{deck_id}@{digest[:16]}"
     db = store.connection
+    # commits catalog rows on its own (``with db``): it must run before the write lock below
     ensure_scryfall_cards(store, (card.card_id for card in merged))
     known = {str(row[0]) for row in db.execute("SELECT card_id FROM card")}
     missing = sorted({card.card_id for card in merged} - known)
     if missing:
         raise ValueError(f"unknown card ids: {missing[:5]}")
-    with db:
+    if parent_revision_id is None and isinstance(expected_parent, str):
+        parent_revision_id = expected_parent
+    if db.in_transaction:
+        # the former ``with db`` committed whatever the caller left open; keep that, then take
+        # the write lock for the check and the writes alone
+        db.commit()
+    db.execute("BEGIN IMMEDIATE")
+    try:
+        if expected_parent is not UNCHECKED:
+            head = branch_head(db, deck_id, branch)
+            if head != expected_parent:
+                if head == revision_id:
+                    # the branch already holds exactly the state the writer wants (the same
+                    # save sent again, a double click, a retry after a lost answer): succeed
+                    # without writing. The revision's stored parent belongs to its first
+                    # writer, not to the branch, so it is not compared.
+                    db.commit()
+                    return revision_id
+                raise StaleParent(
+                    NEW_BRANCH_EXISTS_MESSAGE if expected_parent is None else STALE_PARENT_MESSAGE
+                )
         db.execute(
             "INSERT OR IGNORE INTO deck(deck_id, name, created_at) VALUES (?, ?, ?)",
             (deck_id, name, now_utc()),
@@ -96,6 +167,8 @@ def create_revision(
             "SELECT 1 FROM deck_revision WHERE revision_id = ?", (revision_id,)
         ).fetchone()
         if exists is None:
+            if parent_revision_id is not None and not _revision_exists(db, parent_revision_id):
+                raise ValueError(f"unknown parent revision: {parent_revision_id}")
             db.execute(
                 "INSERT INTO deck_revision(revision_id, deck_id, parent_revision_id, deck_hash, "
                 "note, source_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -111,6 +184,12 @@ def create_revision(
             "ON CONFLICT(deck_id, branch) DO UPDATE SET revision_id = excluded.revision_id",
             (deck_id, branch, revision_id),
         )
+        # inside the ``try``: a failing COMMIT (a reader holds the lock past the busy timeout)
+        # is rolled back, so no later ``with db`` on this connection commits these writes
+        db.commit()
+    except BaseException:
+        db.rollback()
+        raise
     return revision_id
 
 

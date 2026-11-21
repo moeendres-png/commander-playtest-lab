@@ -18,7 +18,9 @@ from dataclasses import asdict
 
 from .decks import (
     DECK_SIZE,
+    UNCHECKED,
     DeckIssue,
+    ExpectedParent,
     RevisionCard,
     _any_number_allowed,
     create_revision,
@@ -292,6 +294,7 @@ def compile_modules(
     save: bool = False,
     branch: str | None = None,
     note: str = "",
+    expected_parent: ExpectedParent = UNCHECKED,
 ) -> dict[str, object]:
     """Compile selected modules (`1 core` + `>=1 package`) into a 100-card deck revision.
 
@@ -411,6 +414,7 @@ def compile_modules(
             cards=raw_cards,
             branch=target_branch,
             note=rev_note,
+            expected_parent=expected_parent,
         )
         saved = True
 
