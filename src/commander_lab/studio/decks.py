@@ -97,11 +97,9 @@ def branch_head(db: sqlite3.Connection, deck_id: str, branch: str) -> str | None
     return None if row is None else str(row[0])
 
 
-def _stored_parent(db: sqlite3.Connection, revision_id: str) -> str | None:
-    row = db.execute(
-        "SELECT parent_revision_id FROM deck_revision WHERE revision_id = ?", (revision_id,)
-    ).fetchone()
-    return None if row is None or row[0] is None else str(row[0])
+def _revision_exists(db: sqlite3.Connection, revision_id: str) -> bool:
+    row = db.execute("SELECT 1 FROM deck_revision WHERE revision_id = ?", (revision_id,))
+    return row.fetchone() is not None
 
 
 def create_revision(
@@ -126,8 +124,9 @@ def create_revision(
     ``branch``; ``None`` means the writer creates a new branch. When the current head differs,
     ``StaleParent`` is raised and neither the revision, the deck nor the branch pointer is
     written. The check and the writes share one write transaction (``BEGIN IMMEDIATE``), so no
-    other writer can move the branch in between. Left out, the branch moves unchecked. A save
-    sent twice (the head already is this revision with the same parent) succeeds unwritten.
+    other writer can move the branch in between. Left out, the branch moves unchecked. When the
+    head already is this revision, the save succeeds without writing (idempotent). An unknown
+    ``parent_revision_id`` is a ``ValueError`` and writes nothing.
     """
     merged = _merge(cards)
     digest = deck_hash(merged)
@@ -150,9 +149,11 @@ def create_revision(
         if expected_parent is not UNCHECKED:
             head = branch_head(db, deck_id, branch)
             if head != expected_parent:
-                if head == revision_id and _stored_parent(db, revision_id) == parent_revision_id:
-                    # the same save sent again (double click, retry after a lost answer): the
-                    # branch already holds exactly this state; succeed without writing
+                if head == revision_id:
+                    # the branch already holds exactly the state the writer wants (the same
+                    # save sent again, a double click, a retry after a lost answer): succeed
+                    # without writing. The revision's stored parent belongs to its first
+                    # writer, not to the branch, so it is not compared.
                     db.commit()
                     return revision_id
                 raise StaleParent(
@@ -166,6 +167,8 @@ def create_revision(
             "SELECT 1 FROM deck_revision WHERE revision_id = ?", (revision_id,)
         ).fetchone()
         if exists is None:
+            if parent_revision_id is not None and not _revision_exists(db, parent_revision_id):
+                raise ValueError(f"unknown parent revision: {parent_revision_id}")
             db.execute(
                 "INSERT INTO deck_revision(revision_id, deck_id, parent_revision_id, deck_hash, "
                 "note, source_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -181,10 +184,12 @@ def create_revision(
             "ON CONFLICT(deck_id, branch) DO UPDATE SET revision_id = excluded.revision_id",
             (deck_id, branch, revision_id),
         )
+        # inside the ``try``: a failing COMMIT (a reader holds the lock past the busy timeout)
+        # is rolled back, so no later ``with db`` on this connection commits these writes
+        db.commit()
     except BaseException:
         db.rollback()
         raise
-    db.commit()
     return revision_id
 
 

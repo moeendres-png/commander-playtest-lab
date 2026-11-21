@@ -23,6 +23,7 @@ from commander_lab.studio import (
     StudioStore,
     builder,
     create_revision,
+    deck_modules,
     decks,
     import_all,
     importers,
@@ -307,6 +308,7 @@ def test_module_compile_refuses_a_stale_expected_parent(folder: Path) -> None:
     store = StudioStore.open(folder)
     try:
         full = create_revision(store, deck_id="mein-deck", name="Mein Deck", cards=_deck())
+        small = create_revision(store, deck_id="mein-deck", name="Mein Deck", cards=_deck()[:6])
     finally:
         store.close()
     with TestClient(create_app(folder)) as client:
@@ -320,17 +322,21 @@ def test_module_compile_refuses_a_stale_expected_parent(folder: Path) -> None:
         compile_url = "/api/decks/mein-deck/modules/compile"
         body = {"module_ids": module_ids, "save": True, "branch": "main"}
         before = _state(folder)
-        stale = client.post(
-            compile_url, json={**body, "expected_parent": "mein-deck@0"}, headers=MARKER
-        )
+        stale = client.post(compile_url, json={**body, "expected_parent": full}, headers=MARKER)
         assert stale.status_code == 409
         assert STALE in stale.json()["detail"]
         assert _state(folder) == before
-        # main already holds exactly the compiled list with no parent: the same save, not a
-        # conflict (idempotent); a different list under "new branch" is refused
-        same = client.post(compile_url, json={**body, "expected_parent": None}, headers=MARKER)
-        assert same.status_code == 200, same.text
+        taken_main = client.post(
+            compile_url, json={**body, "expected_parent": None}, headers=MARKER
+        )
+        assert taken_main.status_code == 409
         assert _state(folder) == before
+        ok = client.post(compile_url, json={**body, "expected_parent": small}, headers=MARKER)
+        assert ok.status_code == 200, ok.text
+        assert ok.json()["saved"] is True
+        # main now holds exactly the compiled list: repeating is the same save (idempotent)
+        same = client.post(compile_url, json={**body, "expected_parent": small}, headers=MARKER)
+        assert same.status_code == 200, same.text
         store = StudioStore.open(folder)
         try:
             create_revision(store, deck_id="mein-deck", name="x", cards=_deck()[:5], branch="x2")
@@ -341,12 +347,17 @@ def test_module_compile_refuses_a_stale_expected_parent(folder: Path) -> None:
         )
         assert taken.status_code == 409
         assert taken.json()["detail"] == NEW_BRANCH_EXISTS_MESSAGE
-        ok = client.post(compile_url, json={**body, "expected_parent": full}, headers=MARKER)
-        assert ok.status_code == 200, ok.text
-        assert ok.json()["saved"] is True
-        old_client = client.post(compile_url, json=body, headers=MARKER)
-        assert old_client.status_code == 200
+        # an old client compiling a DIFFERENT list into an existing branch ("x2" holds five
+        # cards): moved unchecked, no idempotent path involved
+        x2_before = _head(folder, "x2")
+        assert x2_before != full
+        old_client = client.post(compile_url, json={**body, "branch": "x2"}, headers=MARKER)
+        assert old_client.status_code == 200, old_client.text
+        assert old_client.json()["saved"] is True
+        empty = client.post(compile_url, json={**body, "expected_parent": ""}, headers=MARKER)
+        assert empty.status_code == 422
     assert _head(folder) == full
+    assert _head(folder, "x2") == full
 
 
 def test_new_deck_route_creates_main_as_a_new_branch(
@@ -488,16 +499,86 @@ def test_the_same_save_sent_twice_succeeds_twice_with_the_same_answer(folder: Pa
         second = client.post(url, json=body, headers=MARKER)
         assert second.status_code == 200, second.text
         assert second.json() == first.json()
-        # same content but a different parent is not the same save
-        other_parent = client.post(
-            url, json={**body, "parent_revision_id": "mein-deck@1111111111111111"}, headers=MARKER
-        )
-        assert other_parent.status_code == 409
+        # the head already is the wanted state: a different stated parent changes nothing
+        other_parent = client.post(url, json={**body, "parent_revision_id": head0}, headers=MARKER)
+        assert other_parent.status_code == 200
+        # the draft started on the saved state is newer than the save: it stays
+        assert _state(folder) == before
+        # an older draft (based on head0) is dropped by the repeated save
+        old_draft = {"cards": _json(_deck()[:9]), "base_revision_id": head0}
+        assert client.put(draft_url, json=old_draft, headers=MARKER).status_code == 200
+        third = client.post(url, json=body, headers=MARKER)
+        assert third.status_code == 200
     after = _state(folder)
-    assert after["drafts"] == []  # the repeated save drops the draft as well
+    assert after["drafts"] == []
     assert {k: v for k, v in after.items() if k != "drafts"} == {
         k: v for k, v in before.items() if k != "drafts"
     }
+
+
+def test_repeating_a_save_whose_state_the_branch_already_holds_succeeds(folder: Path) -> None:
+    """Content-addressed revisions: going back to an earlier list X, or a new branch with a list
+    stored before, and then repeating the request, is the same save, not a stale draft."""
+    url = "/api/decks/mein-deck/revisions"
+    head0 = _head(folder)
+    list_x = _json(_deck())
+    list_y = _json(_deck()[:9])
+    with TestClient(create_app(folder)) as client:
+        rev_x = client.post(url, json={"cards": list_x, "expected_parent": head0}, headers=MARKER)
+        rev_y = client.post(
+            url,
+            json={"cards": list_y, "expected_parent": rev_x.json()["revision_id"]},
+            headers=MARKER,
+        )
+        assert rev_y.status_code == 200
+        back = {"cards": list_x, "expected_parent": rev_y.json()["revision_id"]}
+        assert client.post(url, json=back, headers=MARKER).status_code == 200
+        assert client.post(url, json=back, headers=MARKER).status_code == 200
+        new_branch = {"cards": list_y, "branch": "v2", "expected_parent": None}
+        assert client.post(url, json=new_branch, headers=MARKER).status_code == 200
+        assert client.post(url, json=new_branch, headers=MARKER).status_code == 200
+    assert _head(folder) == rev_x.json()["revision_id"]
+    assert _head(folder, "v2") == rev_y.json()["revision_id"]
+
+
+def test_an_unknown_parent_revision_is_a_422_and_writes_nothing(folder: Path) -> None:
+    before = _state(folder)
+    with TestClient(create_app(folder)) as client:
+        answer = client.post(
+            "/api/decks/mein-deck/revisions",
+            json={
+                "cards": _json(_deck()),
+                "expected_parent": _head(folder),
+                "parent_revision_id": "mein-deck@9999999999999999",
+            },
+            headers=MARKER,
+        )
+    assert answer.status_code == 422
+    assert "unknown parent revision" in answer.json()["detail"]
+    assert _state(folder) == before
+
+
+def test_a_failing_commit_is_rolled_back_and_not_committed_later(folder: Path) -> None:
+    """A reader holds SHARED (rollback journal) past the busy timeout: the COMMIT fails. The
+    transaction must be rolled back, so a later ``with db`` on the same store writes nothing."""
+    before = _state(folder)
+    store = StudioStore.open(folder)
+    reader = sqlite3.connect(str(store.path), isolation_level=None)
+    try:
+        store.connection.execute("PRAGMA busy_timeout = 100")
+        reader.execute("BEGIN")
+        reader.execute("SELECT * FROM deck_branch").fetchall()
+        with pytest.raises(sqlite3.OperationalError, match="locked"):
+            create_revision(
+                store, deck_id="mein-deck", name="x", cards=_deck(), expected_parent=_head(folder)
+            )
+        assert not store.connection.in_transaction
+        reader.execute("ROLLBACK")
+        builder.drop_draft(store, "mein-deck", "main")  # a later ``with db`` on this store
+    finally:
+        reader.close()
+        store.close()
+    assert _state(folder) == before
 
 
 def test_a_failing_draft_drop_after_the_commit_reports_the_saved_state(
@@ -555,3 +636,42 @@ def test_a_busy_store_answers_503_not_500(folder: Path, monkeypatch: pytest.Monk
         )
     assert answer.status_code == 503
     assert answer.json()["detail"] == web.STORE_BUSY_MESSAGE
+
+
+def test_new_deck_and_compile_answer_503_when_the_store_is_busy(
+    folder: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def busy(*_args: object, **_kwargs: object) -> str:
+        raise sqlite3.OperationalError("database is locked")
+
+    monkeypatch.setattr(web, "create_revision", busy)
+    monkeypatch.setattr(deck_modules, "create_revision", busy)
+    store = StudioStore.open(folder)
+    try:
+        commander = str(
+            store.connection.execute(
+                "SELECT card_id FROM card WHERE oracle_name = 'Test Commander'"
+            ).fetchone()[0]
+        )
+        create_revision(store, deck_id="mein-deck", name="Mein Deck", cards=_deck())
+    finally:
+        store.close()
+    with TestClient(create_app(folder), raise_server_exceptions=False) as client:
+        created = client.post(
+            "/api/decks", json={"name": "Neu", "commander_card_ids": [commander]}, headers=MARKER
+        )
+        assert created.status_code == 503
+        assert created.json()["detail"] == web.STORE_BUSY_MESSAGE
+        seeded = client.post(
+            "/api/decks/mein-deck/modules/seed",
+            json={"cards": _json(_deck()), "core_name": "Kern", "package_name": "Paket"},
+            headers=MARKER,
+        )
+        module_ids = [m["module_id"] for m in seeded.json()["modules"]]
+        compiled = client.post(
+            "/api/decks/mein-deck/modules/compile",
+            json={"module_ids": module_ids, "save": True, "branch": "main"},
+            headers=MARKER,
+        )
+        assert compiled.status_code == 503
+        assert compiled.json()["detail"] == web.STORE_BUSY_MESSAGE

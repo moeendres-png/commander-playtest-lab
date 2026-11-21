@@ -2010,7 +2010,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 )
                 draft_dropped = True
                 try:
-                    builder.drop_draft(store, deck_id, body.branch)
+                    builder.drop_draft(store, deck_id, body.branch, keep_based_on=revision_id)
                 except sqlite3.Error:
                     # the revision is committed already: report it, never a 500 (#1727)
                     draft_dropped = False
