@@ -449,7 +449,7 @@ function renderSaveState() {
   // discarded and the current state loaded. The notice stays until one of the two is done.
   if (state.baseStale) {
     box.replaceChildren(
-      h("span", { class: "pill bad" }, "Entwurf ist veraltet: der Stand darunter wurde inzwischen geändert. Neu laden oder als neue Variante speichern"),
+      h("span", { class: "pill bad" }, "Entwurf ist veraltet: der Stand darunter wurde inzwischen geändert. Als neue Variante speichern behält die Arbeit; Verwerfen und neu laden löscht sie"),
       " ",
       h("button", { type: "button", class: "small", onclick: () => openNewBranchModal() }, "Als neue Variante speichern"),
       " ",
@@ -2968,6 +2968,7 @@ function useCards(cards) {
 let discardingStaleDraft = false;
 async function discardStaleDraft() {
   if (discardingStaleDraft) return; // one DELETE per click series
+  if (committing) { toast("Speichern läuft schon, bitte warten."); return; } // the save decides first
   discardingStaleDraft = true;
   try {
     await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "DELETE");
@@ -3010,90 +3011,104 @@ async function loadBranch() {
   renderAll(); await syncDraft();
 }
 // The saved state of `branch` now, from the server; null when the branch does not exist yet.
-async function currentBranchRevision(branch) {
+async function currentBranchRevision(branch, deckId = state.deckId) {
   const fresh = await api("/api/decks");
-  const deck = fresh.find((item) => item.deck_id === state.deckId);
+  const deck = fresh.find((item) => item.deck_id === deckId);
   const row = deck && (deck.branches || []).find((item) => item.branch === branch);
   return row ? row.revision_id : null;
 }
-const STALE_DRAFT_TEXT = "Entwurf ist veraltet, neu laden oder als „Neue Variante“ speichern: der Stand darunter wurde inzwischen geändert. Nichts gespeichert.";
+const STALE_DRAFT_TEXT = "Entwurf ist veraltet: der Stand darunter wurde inzwischen geändert. Nichts gespeichert. „Neue Variante“ behält die Arbeit; Neu laden verwirft sie.";
 const cardsKey = (cards) => JSON.stringify(cards.map((card) => [card.card_id, card.zone, card.quantity]).sort());
 let committing = false;
+// While a save is in the air the deck and variant selectors stay locked, so the editor keeps
+// showing the list that is being saved.
+function setSwitchLocked(locked) {
+  for (const id of ["deck-select", "branch-select"]) { const box = $(id); if (box) box.disabled = locked; }
+}
 // #1727: every save names the head it expects (`expected_parent`): the base of this draft for
 // the own variant, null for a new variant (with the base as `parent_revision_id`). A 409 from
 // the server means the variant moved: nothing is retried, the draft is named stale, and the
 // work can still be saved as a new variant. The target branch is read fresh from the server,
-// never from `state.decks`.
+// never from `state.decks`. The deck and variant of the click are kept: when another one is
+// open once an answer arrives, that editor state is left as it is and only the list refreshes.
 async function commitRevision(branch = state.branch, note = "") {
   if (committing) { toast("Speichern läuft schon, bitte warten."); return; } // one POST per click series
   committing = true;
+  setSwitchLocked(true);
   const seq = state.changeSeq;
+  const deckId = state.deckId;
   const fromBranch = state.branch;
   const base = state.baseRevision;
   const isNew = branch !== fromBranch;
+  const stillHere = () => state.deckId === deckId && state.branch === fromBranch;
+  const left = async (text) => { await loadDecks(); toast(`${text} Die Ansicht bleibt bei der inzwischen gewählten Variante.`); };
   try {
-    const current = await currentBranchRevision(branch);
-    if (current !== null && isNew) {
-      toast(`Variante „${branch}“ gibt es schon: nichts gespeichert, bitte einen anderen Namen wählen.`);
-      return;
-    }
+    const current = await currentBranchRevision(branch, deckId);
     const cards = entries();
-    if (current !== null && current !== base) {
-      // the head moved: if it holds exactly this list, an earlier save went through and only
-      // its answer was lost; that is reported as saved, not as a stale draft
+    let result = null;
+    let already = false;
+    if (current !== null && (isNew || current !== base)) {
+      // the branch holds another state than expected: if it holds exactly this list, an earlier
+      // save went through; that is reported as saved, not as stale or as a taken name
       const head = await api(`/api/revisions/${encodeURIComponent(current)}`);
       if (cardsKey(head.cards || []) === cardsKey(cards)) {
-        state.baseRevision = current; state.baseStale = false; state.dirty = state.changeSeq !== seq; state.savedSeq = Math.max(state.savedSeq, seq);
-        state.draftUpdatedAt = ""; state.draftConflict = false; state.needsDraftPut = state.dirty;
-        await loadDecks(); renderHeader(); renderSaveState(); toast("Dieser Stand war schon gespeichert (die Antwort ging verloren).");
+        result = { revision_id: current }; already = true;
+      } else if (isNew) {
+        toast(`Variante „${branch}“ gibt es schon: nichts gespeichert, bitte einen anderen Namen wählen.`);
         return;
-      }
-      state.baseStale = true;
-      renderSaveState();
-      toast(STALE_DRAFT_TEXT);
-      return;
-    }
-    let result;
-    try {
-      result = await api(`/api/decks/${encodeURIComponent(state.deckId)}/revisions`, "POST", {
-        cards, branch, note, parent_revision_id: base, expected_parent: isNew ? null : base,
-      });
-    } catch (error) {
-      if (error && error.status === 409) {
-        if (isNew) { toast(StudioUI.germanError(error)); return; }
+      } else {
+        if (!stillHere()) { await left(`Die Variante „${fromBranch}“ hat sich geändert, nichts gespeichert.`); return; }
         state.baseStale = true;
         renderSaveState();
         toast(STALE_DRAFT_TEXT);
         return;
       }
-      throw error;
+    }
+    if (!result) {
+      try {
+        result = await api(`/api/decks/${encodeURIComponent(deckId)}/revisions`, "POST", {
+          cards, branch, note, parent_revision_id: base, expected_parent: isNew ? null : base,
+        });
+      } catch (error) {
+        if (error && error.status === 409) {
+          if (isNew) { toast(StudioUI.germanError(error)); return; }
+          if (!stillHere()) { await left(`Die Variante „${fromBranch}“ hat sich geändert, nichts gespeichert.`); return; }
+          state.baseStale = true;
+          renderSaveState();
+          toast(STALE_DRAFT_TEXT);
+          return;
+        }
+        throw error;
+      }
     }
     const hints = [];
     if (result.hinweis) hints.push(result.hinweis);
     if (isNew) {
       // the work moved to the new variant; the old draft goes, and a failure is only named
       try {
-        await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(fromBranch)}/draft`, "DELETE");
+        await api(`/api/decks/${encodeURIComponent(deckId)}/branches/${encodeURIComponent(fromBranch)}/draft`, "DELETE");
       } catch (error) {
         hints.push(`Der alte Entwurf in „${fromBranch}“ konnte nicht verworfen werden (${StudioUI.germanError(error)}); bitte dort verwerfen, nicht erneut speichern.`);
       }
-    } else if (result.revision_id === base) {
+    } else if (!already && result.revision_id === base) {
       // the same content as the head: the server keeps a draft on that head (#1733); this
       // tab's draft is that content, so it goes, otherwise it would block "Ja, übernehmen"
       try {
-        const found = await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(branch)}/draft`);
+        const found = await api(`/api/decks/${encodeURIComponent(deckId)}/branches/${encodeURIComponent(branch)}/draft`);
         if (found.draft && found.draft.base_revision_id === base && cardsKey(found.draft.cards) === cardsKey(cards)) {
-          await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(branch)}/draft`, "DELETE");
+          await api(`/api/decks/${encodeURIComponent(deckId)}/branches/${encodeURIComponent(branch)}/draft`, "DELETE");
         }
       } catch (error) {
         hints.push(`Der unveränderte Entwurf konnte nicht verworfen werden (${StudioUI.germanError(error)}).`);
       }
     }
+    const done = already ? "Dieser Stand war schon gespeichert." : "Stand gespeichert.";
+    if (!stillHere()) { await left([done, ...hints].join(" ")); return; }
     state.branch = branch; state.baseRevision = result.revision_id; state.baseStale = false; state.dirty = state.changeSeq !== seq; state.savedSeq = Math.max(state.savedSeq, seq);
     state.draftUpdatedAt = ""; state.draftConflict = false; state.needsDraftPut = state.dirty;
     rememberVariant();
-    await loadDecks(); renderHeader(); renderSaveState(); toast(["Stand gespeichert.", ...hints].join(" "));
-  } catch (error) { fail(error); } finally { committing = false; }
+    await loadDecks(); renderHeader(); renderSaveState(); toast([done, ...hints].join(" "));
+  } catch (error) { fail(error); } finally { committing = false; setSwitchLocked(false); }
 }
 function saveRevision(branch = state.branch) {
   openInputModal({

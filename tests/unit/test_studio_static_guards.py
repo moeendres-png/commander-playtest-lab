@@ -2168,14 +2168,15 @@ const app = fs.readFileSync("app.js", "utf8");
 const cut = (from, to) => app.slice(app.indexOf(from), app.indexOf(to));
 const code = [
   cut("let discardingStaleDraft = false;", "async function loadBranch()"),
+  cut("function renderSaveState() {", "function changed() {").replace("function renderSaveState()", "function realRenderSaveState()"),
   cut("// The saved state of `branch` now", "function saveRevision("),
   cut("async function afterExperimentDecision(", "async function openSeriesFromHistory("),
 ].join("\n");
 // a small server with the contract of #1733: expected_parent must be the head (null = new)
-let revCards, server, posts, deletes, gets, toasts, failed, rendered, branchLoads, historyShown, closed, deleteFails, onAfterPrecheck, busy, draftOf;
+let revCards, server, posts, deletes, gets, toasts, failed, rendered, branchLoads, historyShown, closed, deleteFails, onAfterPrecheck, onPost, busy, draftOf, order, boxes, midDiscard, lockedDuringPost;
 function resetAll() {
   server = { main: "deck@v", variant2: "deck@w" }; posts = []; deletes = []; gets = 0; toasts = []; failed = []; rendered = 0;
-  branchLoads = 0; historyShown = 0; closed = 0; deleteFails = false; onAfterPrecheck = null; busy = false; draftOf = {}; revCards = {};
+  branchLoads = 0; historyShown = 0; closed = 0; deleteFails = false; onAfterPrecheck = null; onPost = null; busy = false; draftOf = {}; revCards = {}; order = []; boxes = {}; midDiscard = null; lockedDuringPost = null;
 }
 resetAll();
 const httpError = (status, detail) => Object.assign(new Error(detail), { status, detail });
@@ -2188,11 +2189,13 @@ const api = async (path, method, body) => {
   }
   if (path.startsWith("/api/revisions/")) return { cards: revCards[decodeURIComponent(path.split("/").pop())] || [], issues: [], shape: null };
   const m = path.match(/branches\/([^/]+)\/draft$/);
-  if (m && method === "DELETE") { deletes.push(decodeURIComponent(m[1])); if (deleteFails) throw httpError(500, "Platte voll"); await new Promise((r) => setTimeout(r, 5)); return {}; }
+  if (m && method === "DELETE") { deletes.push(decodeURIComponent(m[1])); order.push("delete"); if (deleteFails) throw httpError(500, "Platte voll"); await new Promise((r) => setTimeout(r, 5)); return {}; }
   if (m) return { draft: draftOf[decodeURIComponent(m[1])] || null };
   if (path.endsWith("/revisions") && method === "POST") {
-    posts.push({ ...body, cards: undefined });
+    posts.push({ ...body, cards: undefined, deck: decodeURIComponent(path.split("/")[3]) });
     await new Promise((r) => setTimeout(r, 5));
+    lockedDuringPost = [boxes["deck-select"] && boxes["deck-select"].disabled, boxes["branch-select"] && boxes["branch-select"].disabled];
+    if (onPost) { const hook = onPost; onPost = null; hook(); }
     if (busy) throw httpError(503, "Speicher belegt, bitte erneut versuchen.");
     const head = Object.prototype.hasOwnProperty.call(server, body.branch) ? server[body.branch] : null;
     if (!("expected_parent" in body)) { server[body.branch] = "deck@unchecked"; return { revision_id: "deck@unchecked", expected_parent_missing: true }; }
@@ -2207,10 +2210,13 @@ let sameMode = false;
 const entries = () => [{ card_id: "c1", zone: "main", quantity: 1 }];
 const toast = (t) => toasts.push(t); const renderSaveState = () => { rendered += 1; };
 const rememberVariant = () => {}; let decksFail = false;
-const loadDecks = async () => { if (decksFail) throw httpError(503, "Speicher belegt, bitte erneut versuchen."); };
+const loadDecks = async () => { order.push("decks"); if (decksFail) throw httpError(503, "Speicher belegt, bitte erneut versuchen."); };
 const renderHeader = () => {}; const fail = (e) => failed.push(StudioUI.germanError(e));
 const closeModal = () => { closed += 1; }; const showHistory = async () => { historyShown += 1; };
-const loadBranch = async () => { branchLoads += 1; };
+const loadBranch = async () => { branchLoads += 1; order.push("branch"); };
+const $ = (id) => (boxes[id] = boxes[id] || { disabled: false, replaceChildren(...nodes) { this.nodes = nodes; } });
+const h = (tag, attrs, ...kids) => ({ tag, attrs: attrs || {}, kids });
+let modalOpened = 0; const openNewBranchModal = () => { modalOpened += 1; };
 const StudioUI = { germanError: (e) => String(e && e.detail) };
 const ensureUnownedLoadedFor = async () => {}; const useCards = () => {}; const renderAll = () => {}; const syncDraft = async () => {};
 const state = { deckId: "d", branch: "main", baseRevision: "deck@v", baseStale: false, changeSeq: 1, savedSeq: 0, dirty: true,
@@ -2230,7 +2236,7 @@ eval(code + "\n" + cut("async function loadBranch()", "// The saved state of `br
   // the pre-check reads the server, never state.decks (D1c): state.decks says deck@b
   resetAll(); set({ branch: "main", baseRevision: "deck@b", decks: [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@b" }] }] });
   await commitRevision("main", "");
-  out.precheck = [posts.length, state.baseStale, toasts.some((t) => t.includes("Entwurf ist veraltet, neu laden oder als „Neue Variante“ speichern"))];
+  out.precheck = [posts.length, state.baseStale, toasts.some((t) => t.includes("Entwurf ist veraltet") && t.includes("Neu laden verwirft sie"))];
   // race of two tabs: the other tab saves between the pre-check and the POST: 409, no retry
   resetAll(); set({ branch: "main", baseRevision: "deck@v" });
   onAfterPrecheck = () => { server.main = "deck@other-tab"; };
@@ -2240,9 +2246,56 @@ eval(code + "\n" + cut("async function loadBranch()", "// The saved state of `br
   await commitRevision("rettung", "");
   out.rescue = [posts.map((p) => [p.branch, p.expected_parent, p.parent_revision_id]), state.baseStale, state.branch, server.main];
   // the answer of an earlier save was lost: the head holds exactly this list, so it is saved
-  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.main = "deck@lost"; revCards["deck@lost"] = entries();
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", baseStale: true }); server.main = "deck@lost"; revCards["deck@lost"] = entries();
   await commitRevision("main", "");
-  out.lost = [posts.length, state.baseStale, state.baseRevision, toasts.some((t) => t.includes("schon gespeichert"))];
+  out.lost = [posts.length, state.baseStale, state.baseRevision, toasts.some((t) => t.includes("schon gespeichert")), toasts.some((t) => t.includes("ging verloren"))];
+  // the same for a new variant: the variant already holds exactly this list (reply lost)
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.neu = "deck@x"; revCards["deck@x"] = entries();
+  await commitRevision("neu", "");
+  out.lostNew = [posts.length, state.branch, state.baseRevision, deletes, toasts.some((t) => t.includes("schon gespeichert")), toasts.some((t) => t.includes("gibt es schon"))];
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.neu = "deck@x"; revCards["deck@x"] = [{ card_id: "c9", zone: "main", quantity: 1 }];
+  await commitRevision("neu", "");
+  out.takenNew = [posts.length, state.branch, deletes, toasts.some((t) => t.includes("gibt es schon"))];
+  // the variant is switched while the POST is in the air: the editor state stays that of the new one
+  const openOther = { branch: "variant2", baseRevision: "deck@w", dirty: false, baseStale: false, savedSeq: 0 };
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  onPost = () => { Object.assign(state, openOther); midDiscard = discardStaleDraft(); };
+  await commitRevision("main", ""); await midDiscard;
+  out.switchOk = [posts.length, server.main, state.branch, state.baseRevision, state.dirty, state.baseStale, toasts.some((t) => t.includes("Die Ansicht bleibt bei der inzwischen gewählten Variante")), deletes, lockedDuringPost, [$("deck-select").disabled, $("branch-select").disabled]];
+  // another deck instead of another variant
+  resetAll(); set({ deckId: "d", branch: "main", baseRevision: "deck@v" });
+  onPost = () => { Object.assign(state, { deckId: "d2", branch: "main", baseRevision: "deck@q", dirty: false }); };
+  await commitRevision("main", ""); state.deckId = "d";
+  out.switchDeck = [posts.length, state.branch, state.baseRevision, state.dirty, posts[0].deck];
+  // the deck is switched between the pre-check and the POST: the POST still goes to the saved deck
+  resetAll(); set({ deckId: "d", branch: "main", baseRevision: "deck@v" });
+  onAfterPrecheck = () => { Object.assign(state, { deckId: "d2", branch: "main", baseRevision: "deck@q", dirty: false }); };
+  await commitRevision("main", ""); state.deckId = "d";
+  out.switchDeckEarly = [posts.length, posts[0] && posts[0].deck, state.baseRevision];
+  // switched while the pre-check runs and the other tab moved main: 409, the new variant is not marked stale
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  onAfterPrecheck = () => { server.main = "deck@other-tab"; Object.assign(state, openOther); };
+  await commitRevision("main", "");
+  out.switch409 = [posts.length, state.branch, state.baseRevision, state.baseStale, toasts.some((t) => t.includes("hat sich geändert, nichts gespeichert"))];
+  // the head moved and holds another list, switched meanwhile: not marked stale either
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.main = "deck@moved"; revCards["deck@moved"] = [{ card_id: "c9", zone: "main", quantity: 1 }];
+  onAfterPrecheck = () => { Object.assign(state, openOther); };
+  await commitRevision("main", "");
+  out.switchStale = [posts.length, state.branch, state.baseStale];
+  // a new variant, switched meanwhile: saved there, the editor stays on the chosen variant
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  onPost = () => { Object.assign(state, openOther); };
+  await commitRevision("neu", "");
+  out.switchNew = [posts.length, server.neu !== undefined, state.branch, state.baseRevision, deletes];
+  // the stale notice: its buttons are wired to "new variant" and to "discard and reload"
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", baseStale: true });
+  realRenderSaveState();
+  const nodes = $("save-state").nodes; const pill = nodes[0]; const buttons = nodes.filter((n) => n && n.tag === "button");
+  out.staleBox = [pill.kids[0], buttons.map((b) => b.kids[0])];
+  buttons[0].attrs.onclick();
+  out.staleNew = [modalOpened, deletes.length];
+  await buttons[1].attrs.onclick();
+  out.staleDiscard = [deletes, order];
   resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.main = "deck@lost"; revCards["deck@lost"] = [{ card_id: "c9", zone: "main", quantity: 1 }];
   await commitRevision("main", "");
   out.lostOther = [posts.length, state.baseStale];
@@ -2313,6 +2366,7 @@ eval(code + "\n" + cut("async function loadBranch()", "// The saved state of `br
   resetAll();
   await Promise.all([discardStaleDraft(), discardStaleDraft(), discardStaleDraft()]);
   out.deleted = deletes.length;
+  out.discardOrder = order;
   process.stdout.write(JSON.stringify(out));
 })();
 """
@@ -2339,7 +2393,41 @@ def test_saving_sends_expected_parent_and_never_overwrites_a_moved_branch() -> N
     assert r["rescueAgain"] == 2  # now on the new variant itself: a normal save, no new branch
     assert r["same"] == ["main"] and r["sameOther"] == [] and r["sameNoop"] is None
     assert r["sameQty"] == [] and r["sameZone"] == []
-    assert r["lost"] == [0, False, "deck@lost", True]
+    assert r["lost"] == [0, False, "deck@lost", True, False]  # stale flag cleared, no guessed cause
+    assert r["lostNew"] == [0, "neu", "deck@x", ["main"], True, False]
+    assert r["takenNew"] == [0, "main", [], True]
+    # switched while saving: the POST went to the deck and variant of the click, the editor
+    # state stays that of the newly opened one, the selectors were locked, a discard waits
+    assert r["switchOk"] == [
+        1,
+        "deck@main-1",
+        "variant2",
+        "deck@w",
+        False,
+        False,
+        True,
+        [],
+        [True, True],
+        [False, False],
+    ]
+    assert r["switchDeck"] == [1, "main", "deck@q", False, "d"]
+    assert r["switchDeckEarly"] == [1, "d", "deck@q"]
+    assert r["switch409"] == [1, "variant2", "deck@w", False, True]
+    assert r["switchStale"] == [0, "variant2", False]
+    assert r["switchNew"] == [1, True, "variant2", "deck@w", ["main"]]
+    # the stale notice names the loss of reloading and wires both buttons
+    pill, labels = r["staleBox"]
+    assert "Als neue Variante speichern behält die Arbeit" in pill and "löscht sie" in pill
+    assert labels == ["Als neue Variante speichern", "Entwurf verwerfen und aktuellen Stand laden"]
+    assert r["staleNew"] == [1, 0] and r["staleDiscard"] == [
+        ["main"],
+        ["delete", "decks", "branch"],
+    ]
+    assert r["discardOrder"] == [
+        "delete",
+        "decks",
+        "branch",
+    ]  # one click series: delete, reload both
     assert r["lostOther"] == [0, True]
     assert r["nameRace"] == [1, False, True, "main"]
     assert r["load"] == [True, "deck@b"] and r["afterLoad"] == [0, True]
