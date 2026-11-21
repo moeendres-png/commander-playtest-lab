@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[2]
 HEADER = {"X-Studio": "1"}
 SENTINEL_CENTS = 987_654  # synthetic, appears nowhere else
 PRICE_TABLES = frozenset({"tam_price_eur", "tam_price_snapshot"})
-LEAK_MARKERS = ("eur_cents", "tam_price", "richtwert", "prices.eur", "9876", "987654")
+LEAK_MARKERS = ("eur_cents", "tam_price", "richtwert", "prices.eur", "987654")
 
 
 def _rows(store: StudioStore, table: str) -> int:
@@ -189,19 +189,66 @@ def test_route_refuses_chulane_and_serves_tam(tmp_path: Path) -> None:
     assert too_many.status_code == 422
 
 
+CHULANE = "Chulane, Teller of Tales"
+WALKERS = (("o-leak-walker-a", "Leak Walker Alpha"), ("o-leak-walker-b", "Leak Walker Beta"))
+
+
+def _leak_store(tmp_path: Path) -> tuple[StudioStore, str]:
+    """The swap store plus TAM and Chulane in the collection and unowned WUBRG planeswalkers:
+    the commander with a live guide-value path, the one that must never get one, and Zukauf
+    candidates that have a value row."""
+    from tests.unit.test_studio_builder import _insert_scryfall
+    from tests.unit.test_studio_swap import _seed_swap_store
+
+    store = _seed_swap_store(tmp_path)
+    cmd_id = str(builder.pool_cards(store, ["Test Commander"])["commander_ids"][0])
+    db = store.connection
+    source_id = str(db.execute("SELECT source_id FROM card LIMIT 1").fetchone()[0])
+    for card_id, oracle_id, name, colors in (
+        ("card:leak:tam", "o-leak-tam", TAM_COMMANDER_NAME, "WUBRG"),
+        ("card:leak:chulane", "o-leak-chulane", CHULANE, "WUG"),
+    ):
+        _insert_scryfall(
+            store, oracle_id=oracle_id, name=name, colors=colors, type_line="Legendary Creature"
+        )
+        db.execute(
+            "INSERT INTO card(card_id, oracle_name, oracle_id, color_identity, mana_cost, "
+            "mana_value, type_line, oracle_text, is_basic_land, commander_legal, source_id) "
+            "VALUES (?, ?, ?, ?, '{5}', 5.0, 'Legendary Creature', '', 0, 1, ?)",
+            (card_id, name, oracle_id, colors, source_id),
+        )
+        db.execute(
+            "INSERT INTO inventory(card_id, observed, owned_lower_bound, reserved, "
+            "available_lower_bound, quantity_exact, source_id) VALUES (?, 1, 1, 0, 1, 1, ?)",
+            (card_id, source_id),
+        )
+    for oracle_id, name in WALKERS:
+        _insert_scryfall(
+            store,
+            oracle_id=oracle_id,
+            name=name,
+            colors="WU",
+            type_line="Legendary Planeswalker — Test",
+        )
+    db.commit()
+    return store, cmd_id
+
+
 def _answers(client: TestClient, cmd_id: str, card_id: str) -> dict[str, object]:
-    """The answers that must never carry or be shaped by a guide value."""
+    """The answers that must never carry or be shaped by a guide value: pool (also the Zukauf
+    candidates of TAM and Chulane), strength, swap, cut lab, alternatives and the card page."""
     commander = "Test Commander"
     out: dict[str, object] = {}
-    for include in (False, True):
-        response = client.get(
-            "/api/pool", params={"commander": commander, "include_unowned": include}
-        )
-        assert response.status_code == 200, response.text
-        out[f"pool_{include}"] = response.json()
-    strength = client.post("/api/strength", json={"commander": commander})
-    assert strength.status_code == 200, strength.text
-    out["strength"] = strength.json()
+    for who in (commander, TAM_COMMANDER_NAME, CHULANE):
+        for include in (False, True):
+            response = client.get(
+                "/api/pool", params={"commander": who, "include_unowned": include}
+            )
+            assert response.status_code == 200, response.text
+            out[f"pool_{who}_{include}"] = response.json()
+        strength = client.post("/api/strength", json={"commander": who})
+        assert strength.status_code == 200, strength.text
+        out[f"strength_{who}"] = strength.json()
     for mode in ("replace", "cut"):
         swap = client.post(
             "/api/swap",
@@ -222,9 +269,19 @@ def _answers(client: TestClient, cmd_id: str, card_id: str) -> dict[str, object]
     cut = client.post("/api/cut-lab", json={"cards": cards})
     assert cut.status_code == 200, cut.text
     out["cut_lab"] = cut.json()
+    alternatives = client.post(
+        f"/api/cards/{card_id}/alternatives",
+        json={"commander": [commander], "in_deck": [cmd_id, "rem-low"]},
+    )
+    assert alternatives.status_code == 200, alternatives.text
+    out["alternatives"] = alternatives.json()
     detail = client.get(f"/api/cards/{card_id}", params={"commander": commander})
     assert detail.status_code == 200, detail.text
     out["card"] = detail.json()
+    # the Zukauf path is really walked: TAM's candidates hold the planeswalkers with a value row
+    tam_cards = out[f"pool_{TAM_COMMANDER_NAME}_True"]["cards"]  # type: ignore[index]
+    candidates = {c["name"] for c in tam_cards if c.get("wishlist_candidate")}
+    assert {name for _oid, name in WALKERS} <= candidates
     return out
 
 
@@ -237,12 +294,10 @@ def _all_oracle_ids(store: StudioStore) -> list[str]:
 
 
 def test_no_answer_carries_or_is_ordered_by_a_guide_value(tmp_path: Path) -> None:
-    """Equality guard: pool (with and without Zukauf), strength, swap, cut lab and the card page
-    are identical with an empty price table and with values that run against every order."""
-    from tests.unit.test_studio_swap import _seed_swap_store
-
-    store = _seed_swap_store(tmp_path)
-    cmd_id = str(builder.pool_cards(store, ["Test Commander"])["commander_ids"][0])
+    """Equality guard: pool (with and without Zukauf, also for TAM and Chulane), strength, swap,
+    cut lab, alternatives and the card page are identical with an empty price table and with
+    values that run against every order."""
+    store, cmd_id = _leak_store(tmp_path)
     oracle_ids = _all_oracle_ids(store)
     store.close()
     client = TestClient(create_app(tmp_path / "studio"), headers=HEADER)
@@ -259,18 +314,16 @@ def test_no_answer_carries_or_is_ordered_by_a_guide_value(tmp_path: Path) -> Non
 
 
 def test_no_answer_holds_a_price_field_or_value(tmp_path: Path) -> None:
-    """Scan guard: with a sentinel value for every card, no answer of the pool, strength, swap,
-    cut lab or card page names a price field or holds the value."""
-    from tests.unit.test_studio_swap import _seed_swap_store
-
-    store = _seed_swap_store(tmp_path)
-    cmd_id = str(builder.pool_cards(store, ["Test Commander"])["commander_ids"][0])
+    """Scan guard: with a sentinel value for every card, no answer of the pool (TAM and Chulane
+    included), strength, swap, cut lab, alternatives or card page names a price field or holds
+    the value."""
+    store, cmd_id = _leak_store(tmp_path)
     _seed_prices(store, dict.fromkeys(_all_oracle_ids(store), SENTINEL_CENTS))
     store.close()
     cache.invalidate()
     client = TestClient(create_app(tmp_path / "studio"), headers=HEADER)
     answers = _answers(client, cmd_id, "rem-high")
-    assert len(answers) == 7
+    assert len(answers) == 14
     for name, answer in answers.items():
         text = json.dumps(answer, ensure_ascii=False).casefold()
         for marker in LEAK_MARKERS:

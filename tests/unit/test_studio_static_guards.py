@@ -1924,6 +1924,8 @@ console.log(JSON.stringify({
     for shown in (view, str(result["emptyView"]), str(result["filteredView"])):
         assert "0,00 €" not in shown and " 0 €" not in shown
     assert "Kein Preis-Schnappschuss importiert" in str(result["emptyView"])
+    # the command the empty state names is the real one (python -m, not a missing alias)
+    assert "python -m commander_lab.studio import-tam-prices" in str(result["emptyView"])
     assert "Summe (Richtwert): unbekannt" in str(result["emptyView"])
     assert (
         "Budgetfilter: 1 Karten über dem Höchstwert und 3 Karten ohne Preis ausgeblendet."

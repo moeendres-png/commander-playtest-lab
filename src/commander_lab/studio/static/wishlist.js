@@ -214,7 +214,7 @@ const StudioWishlist = (() => {
   function sourceText(answer) {
     const snap = answer && answer.snapshot;
     if (!snap) {
-      return "Kein Preis-Schnappschuss importiert: alle Preise unbekannt. Import im Terminal: commander-lab studio import-tam-prices <Scryfall-Bulk-Datei>.";
+      return "Kein Preis-Schnappschuss importiert: alle Preise unbekannt. Import im Terminal: python -m commander_lab.studio import-tam-prices <Scryfall-Bulk-Datei>.";
     }
     return `Quelle: ${answer.source}, Bulk-Datum ${snap.bulk_date} (${snap.date_basis}), importiert ${snap.imported_at}. ${answer.kind}: ${answer.notice} Regel: ${answer.rule}.`;
   }
