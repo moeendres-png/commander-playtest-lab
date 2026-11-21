@@ -115,7 +115,8 @@ def _install_runner(monkeypatch: pytest.MonkeyPatch, make_result: Any = _seat_re
             return make_result(scenario)
 
     monkeypatch.setattr(gate, "XmageFullGameRunner", FakeRunner)
-    monkeypatch.delenv(XMAGE_FULL_GAME_COMMAND_ENV, raising=False)
+    for name in (XMAGE_FULL_GAME_COMMAND_ENV, gate.XMAGE_JVM_FLAGS_ENV, *gate._TOOL_OPTION_ENVS):
+        monkeypatch.delenv(name, raising=False)
     return constructed
 
 
@@ -423,6 +424,8 @@ def test_single_report_carries_class_deck_manifest_counts_and_jar_hash(
         "unchanged": True,
         "command": ["java", "-jar", str(jar.resolve()), "full-game"],
         "jvm_flags_env": None,
+        "java_tool_options": "NOT_SET",
+        "jdk_java_options": "NOT_SET",
     }
     assert constructed == [("java", "-jar", str(jar.resolve()), "full-game")]
     # the deck manifest is labelled as plan and carries the SHA-256 of every deck file
@@ -970,6 +973,12 @@ def test_a_relative_jar_token_in_the_environment_command_is_refused(
         ("java -cp other.jar org.example.Main -jar {jar} full-game", "only JVM options"),
         ("java -cp other.jar -jar {jar} full-game", "only JVM options"),
         ("java --class-path=other.jar -jar {jar} full-game", "only JVM options"),
+        ("java --upgrade-module-path=/x --module=m/Main -jar {jar} full-game", "only JVM options"),
+        ("java --module=m/Main -jar {jar} full-game", "only JVM options"),
+        ("java -m m/Main -jar {jar} full-game", "only JVM options"),
+        ("java --add-modules=m -jar {jar} full-game", "only JVM options"),
+        ("java -Xbootclasspath/a:/x.jar -jar {jar} full-game", "only JVM options"),
+        ("java @args -jar {jar} full-game", "only JVM options"),
         ("java -jar {jar} -jar {jar} full-game", "exactly one -jar"),
         ("java -jar", "-jar names no archive"),
         ("java full-game", "exactly one -jar"),
@@ -1114,3 +1123,78 @@ def test_extra_decks_alone_is_refused_at_the_default_four_seats(
     argv = ["single", "--extra-decks", "2023_veloci_ramp_tor", "--out", str(tmp_path / "o.json")]
     assert gate.main(argv) == 2
     assert "exactly 0" in capsys.readouterr().err
+
+
+# --- review round 3: effective command, tool options, runner without a command, unreadable decks ---
+
+
+@pytest.mark.parametrize("with_environment_command", [False, True])
+def test_jvm_flags_cannot_smuggle_in_another_archive(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    with_environment_command: bool,
+) -> None:
+    jar = _fake_jar(tmp_path)
+    constructed = _install_runner(monkeypatch)
+    if with_environment_command:
+        monkeypatch.setenv(XMAGE_FULL_GAME_COMMAND_ENV, f"java -Xmx1g -jar {jar} full-game")
+    # java -jar /x/other.jar -jar bridge.jar full-game would start the other archive
+    monkeypatch.setenv(gate.XMAGE_JVM_FLAGS_ENV, "-jar /x/other.jar")
+    assert gate.cmd_single(_single_args(tmp_path, player_count=5, jar=jar)) == 2
+    err = capsys.readouterr().err
+    assert "effective bridge command" in err
+    assert constructed == []
+
+
+def test_jvm_flags_with_a_module_start_are_refused_too(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    jar = _fake_jar(tmp_path)
+    _install_runner(monkeypatch)
+    monkeypatch.setenv(gate.XMAGE_JVM_FLAGS_ENV, "--module=m/Main")
+    assert gate.cmd_single(_single_args(tmp_path, player_count=5, jar=jar)) == 2
+    assert "effective bridge command" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("name", ["JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS"])
+def test_tool_option_variables_are_reported_and_an_agent_in_them_is_refused(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    name: str,
+) -> None:
+    jar = _fake_jar(tmp_path)
+    _install_runner(monkeypatch)
+    monkeypatch.setenv(name, "-Xmx2g")
+    assert gate.cmd_single(_single_args(tmp_path, player_count=5, jar=jar)) == 0
+    reported = json.loads((tmp_path / "single.json").read_text())["seat_gate"]["jar"]
+    other = "jdk_java_options" if name == "JAVA_TOOL_OPTIONS" else "java_tool_options"
+    assert reported[name.lower()] == "-Xmx2g"
+    assert reported[other] == "NOT_SET"
+    monkeypatch.setenv(name, "-Xmx2g -JavaAgent:/x/agent.jar")
+    assert gate.cmd_single(_single_args(tmp_path, player_count=5, jar=jar)) == 2
+    assert "-javaagent" in capsys.readouterr().err.lower()
+
+
+def test_a_jar_without_a_prepared_command_is_an_error_not_a_silent_fallback(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    constructed = _install_runner(monkeypatch)
+    jar = _fake_jar(tmp_path)
+    with_jar = gate.GateOptions(player_count=5, extra_decks=None, jar=jar, extended=True)
+    with pytest.raises(gate.GateConfigError, match="no start command was prepared"):
+        gate._make_runner(with_jar)
+    assert constructed == []
+    without_jar = gate.GateOptions(player_count=4, extra_decks=None, jar=None, extended=False)
+    assert gate._make_runner(without_jar).command is None
+    assert constructed == [None]
+
+
+def test_an_unreadable_deck_file_has_an_unknown_hash_never_a_digest(tmp_path: Path) -> None:
+    assert gate._file_sha256(None) is None
+    assert gate._file_sha256(str(tmp_path / "missing.json")) is None
+    assert gate._file_sha256(str(tmp_path)) is None  # a directory is unreadable as a file
+    readable = tmp_path / "deck.json"
+    readable.write_bytes(b"{}")
+    assert gate._file_sha256(str(readable)) == hashlib.sha256(b"{}").hexdigest()

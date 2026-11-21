@@ -481,7 +481,29 @@ def jar_identity(jar: Path | None) -> dict[str, Any]:
 
 
 _JAVA_LAUNCHERS = ("java", "javaw", "java.exe")
-_CLASSPATH_OPTIONS = ("-cp", "-classpath", "--class-path", "-p", "--module-path")
+# Options allowed before -jar (positive list): plain JVM tuning and diagnostics. Anything that can
+# name another code source (classpath, module path, module start, @argfiles, a main class) is
+# not on it. -Xbootclasspath and -Xpatch start with -X but add classes, so they are refused.
+_JVM_OPTION_PREFIXES = (
+    "-X",
+    "-D",
+    "-ea",
+    "-da",
+    "-esa",
+    "-dsa",
+    "-enableassertions",
+    "-disableassertions",
+    "-javaagent:",
+    "-agentlib:",
+    "-agentpath:",
+    "-server",
+    "-client",
+    "-verbose",
+    "--add-opens=",
+    "--add-exports=",
+)
+_REFUSED_OPTION_PREFIXES = ("-Xbootclasspath", "-Xpatch")
+_TOOL_OPTION_ENVS = ("JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS")
 
 
 def bridge_command_for_jar(jar: Path) -> tuple[str, ...]:
@@ -489,8 +511,8 @@ def bridge_command_for_jar(jar: Path) -> tuple[str, ...]:
 
     Without ``COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD`` it is ``java -jar <absolute jar>
     full-game``. A given environment command must be a plain java launcher: only options
-    (``-X...``, ``-D...``, ``-javaagent:...``) before one ``-jar``, no classpath option, and an
-    absolute archive path equal to ``--jar``. The bridge JVM starts in its own working
+    from a positive list (``-X...``, ``-D...``, ``-javaagent:...``) before one ``-jar``, no
+    classpath, module or @argfile option, and an absolute archive path equal to ``--jar``. The bridge JVM starts in its own working
     directory, so a relative archive token would not name the file that was hashed.
     """
     raw = os.environ.get(XMAGE_FULL_GAME_COMMAND_ENV, "").strip()
@@ -510,7 +532,7 @@ def _launcher_problem(command: tuple[str, ...], jar: Path) -> str | None:
         return "it needs exactly one -jar"
     index = command.index("-jar")
     for token in command[1:index]:
-        if not token.startswith("-") or token.split("=", 1)[0] in _CLASSPATH_OPTIONS:
+        if not token.startswith(_JVM_OPTION_PREFIXES) or token.startswith(_REFUSED_OPTION_PREFIXES):
             return f"only JVM options may precede -jar, found {token!r}"
     if index + 1 >= len(command):
         return "-jar names no archive"
@@ -523,8 +545,10 @@ def _launcher_problem(command: tuple[str, ...], jar: Path) -> str | None:
 
 
 def _make_runner(options: GateOptions) -> XmageFullGameRunner:
-    if options.jar is None or options.command is None:
+    if options.jar is None:
         return XmageFullGameRunner()
+    if options.command is None:
+        raise GateConfigError("--jar is set but no start command was prepared for it")
     return XmageFullGameRunner(command=options.command)
 
 
@@ -791,9 +815,23 @@ def _prepare(args: argparse.Namespace) -> tuple[GateOptions, dict[str, Any]] | i
         if options.jar is not None:
             command = bridge_command_for_jar(options.jar)
             options = replace(options, command=command)
-            # what the bridge JVM really gets: COMMANDER_LAB_XMAGE_JVM_FLAGS is spliced in
-            jar["command"] = list(_with_jvm_flags(command))
+            # what the bridge JVM really gets: COMMANDER_LAB_XMAGE_JVM_FLAGS is spliced in,
+            # so the launcher rules apply to this effective command too
+            effective = _with_jvm_flags(command)
+            reason = _launcher_problem(effective, options.jar)
+            if reason is not None:
+                raise GateConfigError(
+                    f"the effective bridge command ({XMAGE_JVM_FLAGS_ENV} included) "
+                    f"does not start --jar {options.jar}: {reason}"
+                )
+            jar["command"] = list(effective)
             jar["jvm_flags_env"] = os.environ.get(XMAGE_JVM_FLAGS_ENV) or None
+            # the JVM inherits these (the runner starts it without its own environment)
+            for name in _TOOL_OPTION_ENVS:
+                value = os.environ.get(name, "")
+                if "-javaagent" in value.lower():
+                    raise GateConfigError(f"{name} carries a -javaagent: {value!r}")
+                jar[name.lower()] = value or "NOT_SET"
         return options, jar
     except GateConfigError as exc:
         return _config_error(exc)
