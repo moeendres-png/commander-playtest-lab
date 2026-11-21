@@ -327,3 +327,6 @@ body:has(#data-state details.datastate[open]) main{min-height:540px}
   #pool>#filters{min-height:312px;align-content:flex-start}
 }
 
+
+/* WP-2/WP-3 (#1404): the deck's own row of the land count table */
+#land-count-table tr.land-count-deck td { font-weight: 600; }
