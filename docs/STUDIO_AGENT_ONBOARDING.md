@@ -61,8 +61,9 @@ der eigenen Fläche sind nur lesbar. Pfade unter `studio/` meinen `src/commander
 ## 4. Nie ohne ausdrückliches Owner-Go
 
 Engine-Fork und Pin · `qualification/` · `pyproject.toml`, `requirements/lock.txt` · neue
-Abhängigkeit · 5 und 6 Sitze freigeben · Sichtbarkeit, #1108 · Bezahldienste · Gewicht
-`simulation` anheben. Vollständige Liste: `AGENTS.md` §8.
+Abhängigkeit · 5 und 6 Sitze freigeben · Sichtbarkeit, #1108 · Bezahldienste · Preise (außer
+Preisanzeige für den TAM-Zukauf, Register „Preise für TAM“) · Gewicht `simulation` anheben.
+Vollständige Liste: `AGENTS.md` §8.
 
 `AGENTS.md` und `CLAUDE.md` ändern Lead oder Coordinator nach `AGENTS.md` §8.
 `docs/OWNER_DECISIONS_*` ändern sich inhaltlich nur auf Owner-Anweisung oder nach Owner-Freigabe
