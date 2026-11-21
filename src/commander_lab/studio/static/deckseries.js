@@ -141,24 +141,36 @@ async function renderDeckSeries(slot, historyRows, deps) {
   slot.replaceChildren(h("h3", {}, "Gespeicherte Paar-Serien je Stand"), note, body);
 }
 
+// The series answer for the diff: null when it cannot be read, never an empty list (an empty list
+// would read as "keine gespeicherte Serie" instead of "nicht gelesen").
+async function deckSeriesLoad(api, deckId) {
+  try {
+    return await api(`/api/decks/${encodeURIComponent(deckId)}/series`);
+  } catch (error) {
+    return null;
+  }
+}
+
 // Q1-c Paket 2 (#1666): the same evidence row in the diff of two saved states. Only a stored
 // series whose two states are exactly the two compared states counts (A and B in either order);
 // the answer of /api/decks/{id}/series (data) supplies series and data.reifegrad. No such series,
-// an unsaved current state or an unreadable answer is "kein Befund" (unknown), never 0 and never
-// a finding of another pair of states.
+// an unsaved opened state or an unreadable answer is "kein Befund" (unknown), never 0 and never
+// a finding of another pair of states. The opened state is "geöffneter Stand": "aktueller Stand"
+// in the finding's own text means main, so each series names that reference and its table.
 function deckSeriesDiffEvidence(h, data, baseRev, targetRev) {
   const title = h("h3", {}, "Simulation zu diesem Vergleich (SIMULIERT)");
   const note = h("p", { class: "note note-compact" }, "SIMULATED_RESULT: gespeicherte Serie genau dieser beiden Stände, nicht Teil der Tierliste und nie mit anderen Zahlen summiert.");
   if (!data) return h("div", { id: "diff-evidence" }, title, note, h("p", { class: "muted" }, "kein Befund: Serien konnten nicht gelesen werden (unbekannt, nicht 0)."));
-  if (!targetRev) return h("div", { id: "diff-evidence" }, title, note, h("p", { class: "muted" }, "kein Befund: der aktuelle Stand ist nicht gespeichert (unbekannt, nicht 0)."));
+  if (!targetRev) return h("div", { id: "diff-evidence" }, title, note, h("p", { class: "muted" }, "kein Befund: der geöffnete Stand ist nicht gespeichert (unbekannt, nicht 0)."));
   if (!Array.isArray(data.series)) return h("div", { id: "diff-evidence" }, title, note, h("p", { class: "muted" }, "kein Befund: die Antwort enthält keine Serienliste (unbekannt, nicht 0)."));
-  const side = (ref) => (ref === baseRev ? "Vergleichsbasis" : "aktueller Stand");
+  const side = (ref) => (ref === baseRev ? "Vergleichsbasis" : "geöffneter Stand");
   const befunde = (data.reifegrad && data.reifegrad.befunde) || {};
   const found = data.series.filter((item) => (item.base_ref === baseRev && item.variant_ref === targetRev) || (item.base_ref === targetRev && item.variant_ref === baseRev));
   const incomplete = data.truncated || data.scan_truncated ? " (ältere Serien nicht geprüft)" : "";
   if (!found.length) return h("div", { id: "diff-evidence" }, title, note, h("p", { class: "muted" }, `kein Befund: keine gespeicherte Serie für genau diese beiden Stände${incomplete} (unbekannt, nicht 0).`));
   return h("div", { id: "diff-evidence" }, title, note, ...found.map((item) => h("div", { class: "diff-evidence-series" },
-    h("p", { class: "muted" }, `Serie vom ${deckSeriesDate(item.created_at)}: A = ${side(item.base_ref)}, B = ${side(item.variant_ref)}`),
+    h("p", { class: "muted" }, `Serie vom ${deckSeriesDate(item.created_at)} · Tisch ${item.pod || "unbekannt"}: A = ${side(item.base_ref)}, B = ${side(item.variant_ref)}`),
+    h("p", { class: "muted" }, "Stand-Bezug des Befunds darunter: bezogen auf main bzw. dessen direkten Vorgänger, nicht auf den geöffneten Stand."),
     deckSeriesEvidence(h, befunde[item.series_id]))));
 }
 

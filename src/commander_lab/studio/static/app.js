@@ -1359,8 +1359,7 @@ async function renderDiff(body) {
       cohortLabel: cohortName(state.cohort), roleName,
       open: (cardId) => { const c = state.byId.get(cardId); if (c) openCard(c); },
     }));
-    let seriesData = null;
-    try { seriesData = await api(`/api/decks/${encodeURIComponent(state.deckId)}/series`); } catch (error) { /* shown as kein Befund */ }
+    const seriesData = await deckSeriesLoad(api, state.deckId);
     if (token !== state.renderToken) return;
     box.append(deckSeriesDiffEvidence(h, seriesData, state.diffBaseRev, state.dirty ? null : state.baseRevision));
   } catch (error) {
