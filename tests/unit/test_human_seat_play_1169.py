@@ -1019,33 +1019,32 @@ def test_web_refuses_a_time_limit_for_a_human_seat(
 def test_server_refuses_five_and_six_seat_tables_with_a_clear_reason(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """AGENTS.md: two to four seats are active for PLAY; five and six stay locked until a
-    qualification and an explicit Owner decision. The Studio start (``/api/games``) refuses them,
-    with and without a human seat, also while the SIMULATE lock is six."""
+    """AGENTS.md: two to four seats are active for PLAY until the Owner releases five and six. With
+    the PLAY lock set back to four (in memory; the release draft ships six), the Studio start
+    (``/api/games``) refuses them with a human seat, also while the SIMULATE lock is six."""
     from commander_lab.studio import launch
 
+    monkeypatch.setattr(launch, "MAX_RELEASED_PLAY_SEATS", 4)
     assert (launch.MIN_SEATS, launch.MAX_RELEASED_PLAY_SEATS) == (2, 4)
     client = TestClient(create_app(tmp_path), headers={"X-Studio": "1"})
     for others in (4, 5):
-        for human in (None, [0]):
-            body: dict[str, object] = {
-                "revision_id": "r",
-                "opponent_ids": [f"o{n}" for n in range(others)],
-                "seed": 1,
-            }
-            if human:
-                body["human_seats"] = human
-            refused = client.post("/api/games", json=body)
-            assert refused.status_code == 422, (others, human)
-            assert "locked" in refused.text and "Owner decision" in refused.text
-            assert f"{others + 1} seats" in refused.text
+        body: dict[str, object] = {
+            "revision_id": "r",
+            "opponent_ids": [f"o{n}" for n in range(others)],
+            "seed": 1,
+            "human_seats": [0],
+        }
+        refused = client.post("/api/games", json=body)
+        assert refused.status_code == 422, others
+        assert "locked" in refused.text and "Owner decision" in refused.text
+        assert f"{others + 1} seats" in refused.text
     # a four-seat table passes the seat rule (it then needs the engine, which this folder lacks)
     monkeypatch.setattr(launch, "engine_command", lambda _folder: None)
     store = launch.StudioStore.open(tmp_path)
     try:
         with pytest.raises(RuntimeError):
             launch.prepare_table_deck_paths(
-                store, tmp_path, revision_id="r", opponent_ids=["a", "b", "c"], seed=1
+                store, tmp_path, revision_id="r", opponent_ids=["a", "b", "c"], seed=1, play=True
             )
     finally:
         store.close()
@@ -1387,6 +1386,94 @@ def _engine_or_skip(tmp_path: Path) -> None:
     jar = next((Path(a) for prev, a in itertools.pairwise(command) if prev == "-jar"), None)
     if jar is None or not jar.is_file():
         pytest.skip(f"NOT RUN (not a pass): the bridge jar named by {ENGINE_ENV} is missing")
+
+
+@pytest.mark.external
+@pytest.mark.parametrize(
+    ("count", "human"), [(5, 0), (5, 4), (6, 0), (6, 5)], ids=lambda v: f"n{v}"
+)
+def test_real_engine_human_seat_at_five_and_six_seats_plays_a_game_to_its_end(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, count: int, human: int
+) -> None:
+    """NOT_RUN until the measurement window: written for #1661 (PLAY at five and six seats), never
+    executed in the release draft. Needs the pinned XMage bridge (Java 21); without it this test is
+    SKIPPED, which is not a pass.
+
+    The human seat, driven only by ``/api/play/{id}/decision``, plays a game at a table of five or six
+    seats (the human at the first or the last seat) against the engine's own AI. What it checks: the
+    start through the real route under the PLAY lock, the header with one row per seat and the human
+    seat, a recorded end reported by the engine (a concede by the script at the turn limit is allowed
+    here and counted: a passive human at six seats may take long), and the hands of the AI seats
+    opening only after the end. Hidden information at five and six seats is covered by the test-bridge
+    tests of part A (F4); this test does not look at the snapshot's players."""
+    from commander_lab.studio import launch
+
+    _engine_or_skip(tmp_path)
+    precons = {deck_id: path for deck_id, _n, _c, _y, path in launch._precons()}
+    opponent_ids = list(launch.pod_opponent_ids("precon", count - 1))
+    own_id = next(deck_id for deck_id in precons if deck_id not in opponent_ids)
+    seat_ids = [own_id, *opponent_ids]
+    monkeypatch.setattr(
+        launch, "MAX_RELEASED_PLAY_SEATS", 6
+    )  # explicit, whatever the shipped value
+    monkeypatch.setattr(
+        launch,
+        "prepare_table_deck_paths",
+        lambda *_a, **_k: (f"real-engine-human-{count}p", [precons[i] for i in seat_ids]),
+    )
+    client = TestClient(create_app(tmp_path), headers={"X-Studio": "1"})
+    started = client.post(
+        "/api/games",
+        json={
+            "revision_id": "r",
+            "opponent_ids": opponent_ids,
+            "seed": 11,
+            "human_seats": [human],
+            "ai_delay_ms": 0,
+        },
+    )
+    assert started.status_code == 200, started.text
+    game_id = started.json()["game_id"]
+    answered: dict[str, int] = {}
+    conceded = False
+    deadline = time.monotonic() + 1800
+    state: dict[str, object] = {}
+    try:
+        while time.monotonic() < deadline:
+            state = client.get(f"/api/play/{game_id}?count=0").json()
+            pending = state.get("pending_decision")
+            if not pending:
+                if not state.get("running"):
+                    break
+                time.sleep(0.2)
+                continue
+            assert isinstance(pending, dict)
+            turn = (pending.get("pilot_state") or {}).get("turn_number", 1)
+            if not conceded and isinstance(turn, int) and turn >= SCRIPTED_TURN_LIMIT:
+                assert client.post(f"/api/play/{game_id}/concede").status_code == 200
+                conceded = True
+                continue
+            body = _scripted_human_answer(pending)
+            cls = str(pending["decision_class"])
+            answered[cls] = answered.get(cls, 0) + 1
+            reply = client.post(f"/api/play/{game_id}/decision", json=body)
+            assert reply.status_code == 200, (cls, body, reply.text)
+        else:
+            pytest.fail(f"the game did not end within the time box; answered so far: {answered}")
+    finally:
+        client.app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+    result = state.get("result") or {}
+    assert isinstance(result, dict)
+    assert state.get("running") is False and result.get("status") == "finished", result
+    header = state.get("header") or {}
+    assert isinstance(header, dict)
+    assert [row["seat"] for row in header["seats"]] == list(range(count))  # type: ignore[index]
+    assert header.get("human_seats") == [human]
+    assert answered.get("mulligan", 0) >= 1, answered
+    assert state.get("hands_revealed") is True
+    print(
+        f"real-engine human game at {count} seats (human seat {human}):", result, answered, conceded
+    )
 
 
 def _play_scripted_game(

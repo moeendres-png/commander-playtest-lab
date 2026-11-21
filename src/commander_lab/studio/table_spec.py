@@ -7,7 +7,7 @@ over canonical JSON) is written into every plan and result. This module is the o
 table is defined; the pool (S1) and PLAY (P1) build on it.
 
 Rules: the seat count is checked against the released SIMULATE maximum (``launch.MAX_RELEASED_SEATS``,
-today six; PLAY keeps its own, lower lock ``launch.MAX_RELEASED_PLAY_SEATS``); an unknown deck is an error,
+today six; PLAY has its own lock ``launch.MAX_RELEASED_PLAY_SEATS``); an unknown deck is an error,
 never replaced; there is no ``seed_step`` (consecutive seeds, so the starting seat
 ``seed % seats`` rotates). Opponent rotation and draw are part of the model but not yet run:
 asking for them is an explicit error until the follow-up package.

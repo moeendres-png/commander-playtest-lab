@@ -1,7 +1,7 @@
 """SIMULATE at five and six seats behind the seat lock (#1702, Refs #1661, #1656, #1681).
 
 Release draft (Refs #1661, not merged before the Owner's release): ``launch.MAX_RELEASED_SEATS``
-(the SIMULATE lock) is 6 in this draft; PLAY keeps its own lock (``MAX_RELEASED_PLAY_SEATS``, 4).
+(the SIMULATE lock) and ``MAX_RELEASED_PLAY_SEATS`` (the PLAY lock) are both 6 in this draft.
 Both states stay tested: the shipped value, and the lock set back to 4 in memory (``monkeypatch``),
 so the lock logic does not rot. The bridge is a test bridge (``play_override``: synthetic
 exposures with N seat rows), no real engine ran: NOT_RUN.
@@ -126,22 +126,15 @@ def test_duration_is_unknown_where_no_throughput_is_measured_and_never_zero() ->
 # -- the two seat locks; the plan route plans with either state ---------------------------------
 
 
-def test_the_shipped_locks_release_simulate_to_six_and_keep_play_at_four() -> None:
-    """The one place that names the shipped values (the release draft of #1661)."""
+def test_the_shipped_locks_release_simulate_and_play_to_six() -> None:
+    """The one place that names the shipped values (the release draft of #1661; ``main`` has 4/4)."""
     assert (launch.MIN_SEATS, launch.MAX_RELEASED_SEATS, launch.MAX_SEATS) == (2, 6, 6)
-    assert launch.MAX_RELEASED_PLAY_SEATS == 4
-    assert launch.validate_released_seat_count(4) == 5
-    assert launch.validate_released_seat_count(5) == 6
-    for opponents in (4, 5):  # PLAY and watched games stay locked, with or without the switch
-        with pytest.raises(ValueError, match=f"tables of {opponents + 1} seats are locked"):
-            launch.validate_released_seat_count(opponents, play=True)
-        assert (
-            launch.validate_released_seat_count(opponents, play=True, allow_unreleased_seats=True)
-            == opponents + 1
-        )
-    assert launch.validate_released_seat_count(3, play=True) == 4
-    with pytest.raises(ValueError, match="1 to 5 opponents"):  # the engine limit stays six
-        launch.validate_released_seat_count(6, allow_unreleased_seats=True)
+    assert launch.MAX_RELEASED_PLAY_SEATS == 6
+    for play in (False, True):  # both paths seat five and six players, not seven
+        assert launch.validate_released_seat_count(4, play=play) == 5
+        assert launch.validate_released_seat_count(5, play=play) == 6
+        with pytest.raises(ValueError, match="1 to 5 opponents"):
+            launch.validate_released_seat_count(6, play=play, allow_unreleased_seats=True)
 
 
 def test_the_simulate_lock_and_the_switch_still_work_when_the_lock_is_set_back_to_four(
