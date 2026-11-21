@@ -210,14 +210,22 @@ def audit_actor_scoped_frame(decision: dict[str, Any]) -> tuple[int, int, list[s
 
 
 def _audit_decision_frame(
-    audit: FullGameHiddenInformationAudit, decision: dict[str, object], number: int
+    audit: FullGameHiddenInformationAudit,
+    decision: dict[str, object],
+    number: int,
+    *,
+    count: bool = True,
 ) -> None:
-    """Audit one decision frame into ``audit``; fail closed on a leak (``number`` names it)."""
+    """Audit one decision frame into ``audit``; fail closed on a leak (``number`` names it).
+
+    With ``count`` false the frame is checked but not counted (a frame read again)."""
     rows, visible, violations = audit_actor_scoped_frame(decision)
     if violations:
         raise FullGameConformanceError(
             f"hidden information not actor-scoped at decision {number}: " + "; ".join(violations)
         )
+    if not count:
+        return
     audit.frames_audited += 1
     audit.non_actor_rows_audited += rows
     audit.non_actor_rows_engine_visible += visible
@@ -2063,6 +2071,7 @@ class FullGameMatch:
         self.hidden_audit = FullGameHiddenInformationAudit()
         self._started = False
         self._frames_seen = 0
+        self._counted_decisions: set[str] = set()
 
     def drive(
         self,
@@ -2103,10 +2112,25 @@ class FullGameMatch:
         return self._session.client.request(message_type, payload)
 
     def _audited(self, status: dict[str, object]) -> dict[str, object]:
+        """The status after the checks of the runner's drive loop: an engine failure raises
+        (redacted, as in ``drive``); a decision frame is audited every time it is delivered and
+        counted once per ``decision_id`` (reading the same open decision again adds nothing)."""
+        failure = status.get("failure")
+        if isinstance(failure, dict):
+            raw_failure = json.dumps(failure, sort_keys=True)
+            raise FullGameConformanceError(
+                "XMage full-game engine failed: "
+                + redacted_summary("ENGINE_FAILURE", (raw_failure,))
+            )
         decision = status.get("decision")
         if isinstance(decision, dict):
-            self._frames_seen += 1
-            _audit_decision_frame(self.hidden_audit, decision, self._frames_seen)
+            decision_id = decision.get("decision_id")
+            new = not (isinstance(decision_id, str) and decision_id in self._counted_decisions)
+            if new:
+                self._frames_seen += 1
+            _audit_decision_frame(self.hidden_audit, decision, self._frames_seen, count=new)
+            if new and isinstance(decision_id, str):
+                self._counted_decisions.add(decision_id)
         return status
 
     def start(self) -> dict[str, object]:
@@ -2150,9 +2174,11 @@ class FullGameMatch:
         return self._request("get_concede_offer", {"player_id": player_id})
 
     def concede(self, player_id: str) -> dict[str, object]:
-        """Concede for ``player_id``; the status after it."""
-        return self._request(
-            "submit_concede", {"proposal": {"actor_id": player_id, "player_id": player_id}}
+        """Concede for ``player_id``; the status after it (the next open decision), audited."""
+        return self._audited(
+            self._request(
+                "submit_concede", {"proposal": {"actor_id": player_id, "player_id": player_id}}
+            )
         )
 
     def result(self) -> FullGameResultWire:
@@ -2162,6 +2188,18 @@ class FullGameMatch:
     def shutdown(self) -> object:
         """End this game in the bridge (the process stays); the raw acknowledgement."""
         return self._request("shutdown_game")
+
+    def conformance_result(self, result: FullGameResultWire) -> FullGameConformanceResult:
+        """The checked result of this game, resting on how its session's process ended (read
+        from the session, not from the caller) and carrying this match's audit. Before the
+        session is closed there is no disposition, so this raises."""
+        return self._session.runner.conformance_result(
+            self.scenario,
+            self.provider,
+            result,
+            shutdown_disposition=self._session.shutdown_disposition,
+            hidden_audit=self.hidden_audit,
+        )
 
 
 class FullGameBridgeSession:
