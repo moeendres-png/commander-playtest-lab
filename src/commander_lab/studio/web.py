@@ -1839,15 +1839,38 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             detail["reifegrad_hinweis"] = "Deck unbekannt: kein Reifegrad (unbekannt)"
             if revision_ids is not None:
                 payload, _hashes = _series_with_maturity(store, str(deck_id), revision_ids)
-                for item in cast(list[dict[str, object]], payload["series"]):
-                    if item["series_id"] == series_id:
-                        detail["result"] = item
+                own = None if detail["legacy"] else detail["experiment_id"]
+                same = [
+                    item
+                    for item in cast(list[dict[str, object]], payload["series"])
+                    if item["series_id"] == series_id
+                ]
+                # only this row's own entry (a legacy series has no experiment); a series that
+                # two rows name is never credited to either of them
+                mine = [
+                    item
+                    for item in same
+                    if (cast(dict[str, object], item["experiment"]) or {}).get("experiment_id")
+                    == own
+                ]
+                if len(mine) == 1:
+                    detail["result"] = mine[0]
                 findings = cast(dict[str, object], payload["reifegrad"]).get("befunde")
-                found = findings.get(series_id) if isinstance(findings, dict) else None
-                detail["reifegrad"] = found
-                detail["reifegrad_hinweis"] = (
-                    None if found is not None else "kein Befund im Deck-Verlauf (unbekannt)"
+                found = (
+                    findings.get(series_id)
+                    if isinstance(findings, dict) and len(same) == 1 and len(mine) == 1
+                    else None
                 )
+                detail["reifegrad"] = found
+                if len(same) > 1:
+                    detail["reifegrad_hinweis"] = (
+                        f"Serie {series_id} ist im Deck-Verlauf mehrfach verknüpft: "
+                        "kein Reifegrad (unbekannt)"
+                    )
+                else:
+                    detail["reifegrad_hinweis"] = (
+                        None if found is not None else "kein Befund im Deck-Verlauf (unbekannt)"
+                    )
         finally:
             store.close()
         return detail

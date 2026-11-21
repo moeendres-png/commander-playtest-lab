@@ -431,14 +431,16 @@ def deck_series(
 
 
 def valid_index_id(value: str) -> bool:
-    """An id the index can hold: an experiment id or, for a legacy row, a series id."""
+    """An id the index can hold: an experiment id or, for a legacy row, the id of a
+    ``paired-*.paired.json`` series (the only legacy files ``rebuild_index`` reads)."""
     if EXPERIMENT_ID_PATTERN.fullmatch(value):
         return True
+    if not value.startswith("paired-"):
+        return False
     try:
-        validate_series_id(value)
+        return validate_series_id(value) == value
     except ValueError:
         return False
-    return True
 
 
 def _plan_state(record: Mapping[str, object] | None, row_sha: object) -> str:

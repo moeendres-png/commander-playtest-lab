@@ -343,8 +343,8 @@ def start_experiment(
         folder.parent.mkdir(parents=True, exist_ok=True)
     except OSError as error:  # e.g. ``games/experiments`` is a file: not a collision
         raise RuntimeError(
-            f"Experiment-Ordner {folder.parent} kann nicht angelegt werden ({error}); "
-            "nichts gestartet"
+            f"Experiment-Ordner für {experiment_id} kann nicht angelegt werden (Pfad belegt "
+            "oder nicht beschreibbar); nichts gestartet"
         ) from error
     try:
         if taken is not None:
@@ -610,7 +610,23 @@ def rebuild_index(store: StudioStore, data_folder: str | Path) -> dict[str, int]
     """Rebuild ``experiment``/``experiment_arm`` from the files (plan, run, decision; old
     ``*.paired.json`` without a plan as legacy rows). Everything is read first; when an indexed
     experiment has no readable plan file any more, nothing is replaced (``RebuildRefused``).
-    The caller declares the write."""
+    The caller declares the write.
+
+    The write lock is taken before the files are read (``BEGIN IMMEDIATE``): a start in
+    another process that fails and removes its row and folder waits for the rebuild and then
+    removes what the rebuild wrote, so no row without its plan file is left behind."""
+    db = store.connection
+    if not db.in_transaction:
+        db.execute("BEGIN IMMEDIATE")
+    try:
+        return _rebuild(store, data_folder)
+    except BaseException:
+        if db.in_transaction:
+            db.rollback()
+        raise
+
+
+def _rebuild(store: StudioStore, data_folder: str | Path) -> dict[str, int]:
     data_path = Path(data_folder).resolve()
     counts = {"experiments": 0, "legacy": 0, "skipped": 0}
     linked: set[str] = set()

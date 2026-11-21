@@ -896,8 +896,9 @@ def test_experiment_detail_shows_the_plan_and_the_maturity_of_the_series_route(
     assert stale["reifegrad"]["stand"]["bezug"] != "aktuell"
     assert stale["experiment"]["decision"] == "open"
     assert client.get("/api/experiments/exp-1-1-unknown", headers=HEADERS).status_code == 404
-    for bad in ("exp-../x", "nothing", "exp-" + "a" * 100):
-        assert client.get(f"/api/experiments/{bad}", headers=HEADERS).status_code in (404, 422)
+    for bad in ("nothing", "exp-" + "a" * 100, "exp-a.b", "paired-a.b", "paired-%20x"):
+        assert client.get(f"/api/experiments/{bad}", headers=HEADERS).status_code == 422, bad
+    assert client.get("/api/experiments/exp-../x", headers=HEADERS).status_code in (404, 422)
     assert client.get("/api/experiments/..%2Fplan", headers=HEADERS).status_code in (404, 422)
 
 
@@ -1166,6 +1167,12 @@ def test_plan_state_mismatch_and_missing_show_no_plan(lab: dict[str, object]) ->
     assert changed["plan_state"] == "mismatch"
     assert changed["plan"] is None and changed["table"] is None
     assert changed["result"]["status"] == "plan_mismatch"
+    # a plan changed and its own SHA recomputed is consistent in itself, but not the
+    # plan the index names
+    record["plan_sha"] = deck_series.plan_sha(record["plan"], record["resolved"])
+    plan_path.write_text(json.dumps(record), encoding="utf-8")
+    resealed = _detail(lab, started["experiment_id"])
+    assert resealed["plan_state"] == "mismatch" and resealed["plan"] is None
     plan_path.unlink()
     missing = _detail(lab, started["experiment_id"])
     assert missing["plan_state"] == "missing"
@@ -1219,6 +1226,8 @@ def test_start_errors_are_named_not_mistaken_for_a_collision(
     assert res.status_code == 409
     assert "kann nicht angelegt werden" in res.json()["detail"]
     assert "existiert schon" not in res.json()["detail"]
+    assert str(folder) not in res.json()["detail"]  # no local path, no OS error text
+    assert "Errno" not in res.json()["detail"]
     blocker.unlink()
     original = experiments._insert
 
@@ -1232,3 +1241,130 @@ def test_start_errors_are_named_not_mistaken_for_a_collision(
     assert res.status_code == 409 and "Index-Konflikt" in res.json()["detail"]
     assert _index_rows(folder) == []
     assert not any((folder / "games" / "experiments").iterdir())
+    # a conflicting row of someone else (same id, other plan SHA) stays untouched
+    foreign_sha = "f" * 64
+
+    def foreign_first(store: StudioStore, row: dict[str, object], arms: object) -> None:
+        monkeypatch.setattr(experiments, "_insert", original)
+        original(store, {**row, "plan_sha": foreign_sha}, arms)  # type: ignore[arg-type]
+        store.connection.commit()
+        original(store, row, arms)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(experiments, "_insert", foreign_first)
+    res = client.post("/api/experiments", headers=HEADERS, json={"plan": _plan(revs)})
+    assert res.status_code == 409 and "Index-Konflikt" in res.json()["detail"]
+    rows = _index_rows(folder)
+    assert [r["plan_sha"] for r in rows] == [foreign_sha]
+    store = StudioStore.open(folder)
+    try:
+        arms_left = store.connection.execute("SELECT COUNT(*) FROM experiment_arm").fetchone()[0]
+    finally:
+        store.close()
+    assert arms_left == 2
+
+
+def test_a_failed_start_leaves_no_index_row_and_no_folder(lab: dict[str, object]) -> None:
+    """Review #1725 P3 (M11): a start whose series does not start removes its own row."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    folder = Path(str(lab["folder"]))
+    plan = experiments.ExperimentPlan.model_validate(_plan(revs))
+
+    def refuse(settings: dict[str, object]) -> paired_series.PairedSeriesJob:
+        raise RuntimeError("Serie startet nicht")
+
+    store = StudioStore.open(folder)
+    try:
+        with pytest.raises(RuntimeError, match="Serie startet nicht"):
+            experiments.start_experiment(store, folder, plan, start_series=refuse)
+    finally:
+        store.close()
+    assert _index_rows(folder) == []
+    exp_folder = folder / "games" / "experiments"
+    assert not exp_folder.exists() or not any(exp_folder.iterdir())
+
+
+def test_a_series_named_by_two_experiments_is_credited_to_neither(
+    lab: dict[str, object],
+) -> None:
+    """Review #1725 P2-1: run.json of A names B's series; the detail of A shows A's own entry
+    (plan mismatch, not counted) and no maturity, never B's result."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    folder = Path(str(lab["folder"]))
+    a = _start(lab, _plan(revs))
+    b = _start(lab, _plan(revs, variants=[{"revision_id": revs["variant2"]}], first_seed=200))
+    run = folder / "games" / "experiments" / a["experiment_id"] / "run.json"
+    run.write_text(
+        json.dumps({"experiment_id": a["experiment_id"], "series_id": b["series_id"]}),
+        encoding="utf-8",
+    )
+    assert client.post("/api/experiments/rebuild-index", headers=HEADERS).status_code == 200
+    detail_a = _detail(lab, a["experiment_id"])
+    assert detail_a["result"]["experiment"]["experiment_id"] == a["experiment_id"]
+    assert detail_a["result"]["counts_as_result"] is False
+    assert detail_a["result"]["status"] == "plan_mismatch"
+    assert detail_a["result"]["pairs_completed"] is None
+    assert detail_a["reifegrad"] is None
+    assert "mehrfach verknüpft" in str(detail_a["reifegrad_hinweis"])
+    detail_b = _detail(lab, b["experiment_id"])
+    assert detail_b["result"]["experiment"]["experiment_id"] == b["experiment_id"]
+    assert detail_b["reifegrad"] is None  # the same series id: not credited to B either
+
+
+def test_rebuild_holds_the_write_lock_while_it_reads_the_files(lab: dict[str, object]) -> None:
+    """Review #1725 P2-2: a failed start in another process cleans up while a rebuild reads
+    the files; the rebuild must not write the removed row back (a row without a plan file
+    would refuse every later rebuild)."""
+    import threading
+
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    folder = Path(str(lab["folder"]))
+    started = _start(lab, _plan(revs))
+    own = folder / "games" / "experiments" / started["experiment_id"]
+    read_done = threading.Event()
+    original = experiments._legacy_row
+    games = folder / "games"
+    _legacy_series(games.parent, "paired-7-1-legacy07", revs["base"], revs["variant"], "2026")
+    errors: list[BaseException] = []
+
+    def slow_legacy(store: StudioStore, raw: object) -> object:
+        read_done.set()  # the plan files are read; the other process cleans up now
+        time.sleep(0.5)
+        return original(store, raw)  # type: ignore[arg-type]
+
+    def rebuild() -> None:
+        store = StudioStore.open(folder)
+        try:
+            experiments._legacy_row = slow_legacy  # type: ignore[assignment]
+            experiments.rebuild_index(store, folder)
+        except BaseException as error:
+            errors.append(error)
+        finally:
+            experiments._legacy_row = original
+            store.close()
+
+    other = StudioStore.open(folder)  # the failing start of the other process
+    try:
+        worker = threading.Thread(target=rebuild)
+        worker.start()
+        assert read_done.wait(10)
+        with other.connection:
+            other.connection.execute(
+                "DELETE FROM experiment_arm WHERE experiment_id = ?", (started["experiment_id"],)
+            )
+            other.connection.execute(
+                "DELETE FROM experiment WHERE experiment_id = ?", (started["experiment_id"],)
+            )
+        shutil.rmtree(own)
+        worker.join(15)
+    finally:
+        other.close()
+    assert not errors, errors
+    assert started["experiment_id"] not in {r["experiment_id"] for r in _index_rows(folder)}
+    assert client.post("/api/experiments/rebuild-index", headers=HEADERS).status_code == 200
