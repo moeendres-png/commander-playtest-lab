@@ -72,7 +72,10 @@ const StudioKartenverstaendnis = (() => {
     if (coverageBezug) out.append(h("p", { class: "understanding-note" }, `Abdeckung n/N: ${coverageBezug}.`));
     out.append(...spreadNodes(h, detail.streuung));
     if (detail.vertrauen) out.append(h("p", {}, `Rater-Vertrauen (Selbstauskunft): ${CONFIDENCE[detail.vertrauen] || detail.vertrauen}.`));
-    out.append(h("h4", {}, "Begründung des Raters"), h("p", { class: detail.begruendung ? "" : "unknown" }, detail.begruendung || UNKNOWN));
+    const reasonNotes = (Array.isArray(detail.regelclaim_befunde) ? detail.regelclaim_befunde : []).map((f) => f.begruendung_hinweis).filter(Boolean);
+    out.append(h("h4", {}, "Begründung des Raters"),
+      ...reasonNotes.map((note) => h("p", { class: "regelclaim-befund-detail begruendung-befund" }, h("span", { class: "badge warn regelclaim-befund" }, "Begründung laut Audit D betroffen"), ` ${note}.`)),
+      h("p", { class: detail.begruendung ? "" : "unknown" }, detail.begruendung || UNKNOWN));
     out.append(h("h4", {}, detail.regelclaims_titel || CLAIMS_HEADING),
       h("p", { class: "understanding-note claims-note" }, `${detail.regelclaims_hinweis || CLAIMS_NOTE}.`),
       ...claimNodes(h, detail.regelclaims, detail.regelclaim_befunde));

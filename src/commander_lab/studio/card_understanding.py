@@ -399,17 +399,19 @@ def match_audit(rows: dict[str, UnderstandingRow], flags: list[AuditFlag]) -> Au
     }
 
 
-# --- the rules-claim review of rubric v2.1 (Audit D): findings outside its random sample -------
+# --- the rules-claim review of rubric v2.1 (Audit D) ------------------------------------------
 #
-# Audit D checked 100 random rules claims (100 right) and then looked at about 280 risky claims on
-# purpose; that look found one claim wrong and one unsharp. Copied from the table "Zusatzprobe" of
-# AUDIT_D_rule_claims.md (a test compares them with the file); ``index`` is the claim's position
-# in the card's ``rule_claims`` (the "#0" of the table).
+# Audit D checked 100 random rules claims (100 right, 5 of them right but unsharply worded) and
+# then looked at about 280 risky claims on purpose; that look found one claim wrong and one
+# unsharp. Copied from the tables "Richtig, aber unscharf formuliert" and "Zusatzprobe" of
+# AUDIT_D_rule_claims.md and the sample file audit_D_rule_claims.jsonl (tests compare them);
+# ``index`` is the claim's position in the card's ``rule_claims``.
 
 AUDIT_D_SOURCE: Final = (
-    "Audit D der Regelclaims (Zusatzprobe außerhalb der Zufallsstichprobe), "
-    "data/research/chulane_rubric_v2_20261118/audit/AUDIT_D_rule_claims.md"
+    "Audit D der Regelclaims, data/research/chulane_rubric_v2_20261118/audit/AUDIT_D_rule_claims.md"
 )
+AUDIT_D_SAMPLE: Final = "Zufallsstichprobe (100 Claims): richtig, aber unscharf formuliert"
+AUDIT_D_EXTRA: Final = "Zusatzprobe außerhalb der Zufallsstichprobe"
 
 
 class ClaimFinding(TypedDict):
@@ -417,6 +419,8 @@ class ClaimFinding(TypedDict):
     index: int
     verdict: str
     correction: str
+    part: str
+    reason_note: str | None
 
 
 RULE_CLAIM_FINDINGS: Final[tuple[ClaimFinding, ...]] = (
@@ -428,11 +432,66 @@ RULE_CLAIM_FINDINGS: Final[tuple[ClaimFinding, ...]] = (
             "Das Opfern bei Evoke ist eine ausgelöste Fähigkeit (CR 702.74a). Mit ihr auf dem "
             "Stapel kann Chulane für {3},{T} Wavesifter auf die Hand zurückholen."
         ),
+        "part": AUDIT_D_EXTRA,
+        "reason_note": (
+            "Die Begründung des Raters wiederholt den falschen Regelclaim („cannot be bounced“, "
+            "Audit D)"
+        ),
     },
     {
         "card": "Appeal to Eirdu",
         "index": 0,
         "verdict": "unscharf",
         "correction": "{W} zahlt nur eine weiße Kreatur; sonst {1} (CR 702.51).",
+        "part": AUDIT_D_EXTRA,
+        "reason_note": None,
+    },
+    {
+        "card": "Hada Freeblade",
+        "index": 0,
+        "verdict": "unscharf formuliert",
+        "correction": (
+            "Chulanes Effekt ist kein Landspiel (CR 305.4); inhaltlich korrekt, an anderer Stelle "
+            "(Augur of Autumn, Explore) trennt der Rater das sauber."
+        ),
+        "part": AUDIT_D_SAMPLE,
+        "reason_note": None,
+    },
+    {
+        "card": "Molder Beast",
+        "index": 0,
+        "verdict": "unscharf formuliert",
+        "correction": "Das Land ist optional („may“) und braucht eine Landkarte auf der Hand.",
+        "part": AUDIT_D_SAMPLE,
+        "reason_note": None,
+    },
+    {
+        "card": "Tam, Observant Sequencer // Deep Sight",
+        "index": 0,
+        "verdict": "unscharf formuliert",
+        "correction": "Ist Tam schon vorbereitet, entsteht keine zweite Kopie (Ruling).",
+        "part": AUDIT_D_SAMPLE,
+        "reason_note": None,
+    },
+    {
+        "card": "Mindseeker Oculus",
+        "index": 2,
+        "verdict": "unscharf formuliert",
+        "correction": (
+            "Nur eine Loyalitätsfähigkeit je Zug (CR 606.3); der Wert verteilt sich auf zwei Züge."
+        ),
+        "part": AUDIT_D_SAMPLE,
+        "reason_note": None,
+    },
+    {
+        "card": "Strixhaven Skycoach",
+        "index": 2,
+        "verdict": "unscharf formuliert",
+        "correction": (
+            "Stimmt für die Karte allein; Chulane selbst kann nicht bemannen und danach noch {T} "
+            "zahlen."
+        ),
+        "part": AUDIT_D_SAMPLE,
+        "reason_note": None,
     },
 )

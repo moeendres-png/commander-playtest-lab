@@ -182,11 +182,16 @@ def test_the_field_marks_35_of_35_doubts_and_65_lands_on_their_own_scale() -> No
     # Audit D: the wrong claim of Wavesifter and the unsharp one of Appeal to Eirdu carry a mark
     findings = field["regelclaim_befunde"]["karten"]
     names = {by_id[i]["id"]: i for i in by_id}
-    assert len(findings) == 2 and len(names) == 922
+    assert len(findings) == 7 and len(names) == 922  # all 7 findings placed on the data set
     verdicts = sorted(item["kurz"] for found in findings.values() for item in found)
-    assert verdicts == ["Regelclaim laut Audit D falsch", "Regelclaim laut Audit D unscharf"]
+    assert verdicts == [
+        "Regelclaim laut Audit D falsch",
+        "Regelclaim laut Audit D unscharf",
+        *["Regelclaim laut Audit D unscharf formuliert"] * 5,
+    ]
     for card_id, found in findings.items():
-        assert any(note == f"{found[0]['kurz']} (Claim 1)" for note in by_id[card_id]["hinweise"])
+        claim = f"{found[0]['kurz']} (Claim {found[0]['index'] + 1})"
+        assert any(note == claim for note in by_id[card_id]["hinweise"])
     lands = field["laender_skala"]
     assert (lands["n_laender"], lands["n_t_null"]) == (65, 58)  # Gutachten C §4: 65, T = 0 at 58
     assert "Gutachten C §4" in lands["quelle"] and len(lands["karten"]) == 65
@@ -634,6 +639,9 @@ const h = (tag, props, ...kids) => { const node = {tag, props: props || {}, kids
   append(...more) { this.kids.push(...more.flat(Infinity).filter((k) => k !== null && k !== undefined && k !== false)); }};
   node.append(...kids); return node; };
 const text = (n) => (n === null || n === undefined ? '' : typeof n === 'object' ? n.kids.map(text).join(' ') : String(n));
+const hasCls = (n, cls) => Boolean(n && typeof n === 'object' && ((n.props.class || '').split(' ').includes(cls) || n.kids.some((k) => hasCls(k, cls))));
+const findCls = (n, cls) => (n && typeof n === 'object' ? ((n.props.class || '').split(' ').includes(cls) ? n : n.kids.map((k) => findCls(k, cls)).find(Boolean) || null) : null);
+const claimMarks = (n) => { const list = findCls(n, 'understanding-claims'); return list ? list.kids.map((li, i) => (hasCls(li, 'regelclaim-befund') ? i : -1)).filter((i) => i >= 0) : []; };
 const rowsOf = (n, out = []) => { if (n && typeof n === 'object') { if (n.tag === 'tr' && n.props['data-kriterium']) out.push([n.props['data-kriterium'], text(n)]); n.kids.forEach((k) => rowsOf(k, out)); } return out; };
 """
     return _node_json(_ui_helpers_prelude() + zahl + "\n" + box + "\n" + stub + body)
@@ -665,6 +673,14 @@ def test_the_card_window_shows_seven_criteria_reason_claims_and_marks(
     ).fetchone()[0]
     wavesifter = understanding_field.card_detail(real_store, wave_id, CHULANE)
     assert [f["urteil"] for f in wavesifter["regelclaim_befunde"]] == ["falsch"]
+    assert "cannot be bounced" in str(wavesifter["begruendung"])  # the reason repeats the error
+    sky = next(o for o, r in real.items() if r["card"] == "Strixhaven Skycoach")
+    sky_id = real_store.connection.execute(
+        "SELECT card_id FROM card WHERE oracle_id = ?", (sky,)
+    ).fetchone()[0]
+    skycoach = understanding_field.card_detail(real_store, sky_id, CHULANE)
+    assert len(skycoach["regelclaims"]) >= 3
+    assert [f["index"] for f in skycoach["regelclaim_befunde"]] == [2]
     answers = {
         "rated": rated,
         "unrated": unrated,
@@ -672,12 +688,13 @@ def test_the_card_window_shows_seven_criteria_reason_claims_and_marks(
         "other": other,
         "no_coverage": no_coverage,
         "wavesifter": wavesifter,
+        "skycoach": skycoach,
     }
     script = f"""
 const answers = {json.dumps(answers)};
 const out = {{}};
 for (const [key, detail] of Object.entries(answers)) {{ const node = StudioKartenverstaendnis.box(h, detail);
-  out[key] = node === null ? null : {{text: text(node), rows: rowsOf(node)}}; }}
+  out[key] = node === null ? null : {{text: text(node), rows: rowsOf(node), marked: claimMarks(node)}}; }}
 console.log(JSON.stringify(out));
 """
     result = _detail_script(script)
@@ -720,6 +737,12 @@ console.log(JSON.stringify(out));
     wave_text = result["wavesifter"]["text"]
     assert "Regelclaim laut Audit D falsch (Claim 1)" in wave_text
     assert "CR 702.74a" in wave_text
+    assert "Begründung laut Audit D betroffen" in wave_text and "cannot be bounced" in wave_text
+    assert result["wavesifter"]["marked"] == [0]
+    # the mark sits at the claim it belongs to (claim 3 of Strixhaven Skycoach), not elsewhere
+    assert result["skycoach"]["marked"] == [2]
+    assert "Regelclaim laut Audit D unscharf formuliert (Claim 3)" in result["skycoach"]["text"]
+    assert result["rated"]["marked"] == []
 
 
 def test_compact_zahl_cells_keep_class_and_origin_and_refuse_invalid_figures() -> None:
@@ -769,23 +792,47 @@ def test_the_page_scripts_load_the_card_window_part_after_zahl_js() -> None:
     assert "#tier-table td{padding-top:2px;padding-bottom:2px;white-space:nowrap" in css
 
 
-def test_the_audit_d_findings_match_the_table_of_the_report() -> None:
-    """The two findings copied into ``RULE_CLAIM_FINDINGS`` are the rows of the table
-    "Zusatzprobe" of AUDIT_D with the verdict "falsch" or "unscharf"."""
-    report = (RESEARCH / "audit" / "AUDIT_D_rule_claims.md").read_text(encoding="utf-8")
-    table = report.split("## Zusatzprobe", 1)[1].split("Bemerkenswert", 1)[0]
-    rows = [
+def _table(report: str, start: str, end: str) -> list[list[str]]:
+    part = report.split(start, 1)[1].split(end, 1)[0]
+    return [
         [cell.strip() for cell in line.strip().strip("|").split("|")]
-        for line in table.splitlines()
-        if line.startswith("| ") and "(#" in line
+        for line in part.splitlines()
+        if line.startswith("| ") and not line.startswith("| Karte")
     ]
-    parsed = [
-        (row[0].split(" (#")[0], int(row[0].split("(#")[1].rstrip(")")), row[2]) for row in rows
-    ]
+
+
+def test_the_audit_d_findings_match_the_report_and_the_sample_file() -> None:
+    """``RULE_CLAIM_FINDINGS`` are the rows of the tables "Zusatzprobe" (verdict "falsch" or
+    "unscharf") and "Richtig, aber unscharf formuliert" of AUDIT_D; the five unsharp cases are
+    the lines of audit_D_rule_claims.jsonl with ``precision_note`` (card and claim index), and
+    the counts in ``CLAIMS_NOTE`` (100 of 100 right, 5 unsharp) are derived from that file."""
+    report = (RESEARCH / "audit" / "AUDIT_D_rule_claims.md").read_text(encoding="utf-8")
+    extra = _table(report, "## Zusatzprobe", "Bemerkenswert")
+    unsharp = _table(report, "## Richtig, aber unscharf formuliert", "## Zusatzprobe")
     copied = card_understanding.RULE_CLAIM_FINDINGS
-    assert parsed == [(f["card"], f["index"], f["verdict"]) for f in copied]
-    for row, finding in zip(rows, copied, strict=True):
+    extra_copied = [f for f in copied if f["part"] == card_understanding.AUDIT_D_EXTRA]
+    sample_copied = [f for f in copied if f["part"] == card_understanding.AUDIT_D_SAMPLE]
+    assert [
+        (row[0].split(" (#")[0], int(row[0].split("(#")[1].rstrip(")")), row[2]) for row in extra
+    ] == [(f["card"], f["index"], f["verdict"]) for f in extra_copied]
+    for row, finding in zip(extra, extra_copied, strict=True):
         assert row[3].startswith(finding["correction"]), finding["card"]
+    assert "Die `reason` wiederholt den Fehler („cannot be bounced“)" in extra[0][3]
+    assert extra_copied[0]["reason_note"] and "cannot be bounced" in extra_copied[0]["reason_note"]
+    assert len(unsharp) == len(sample_copied) == 5
+    for row, finding in zip(unsharp, sample_copied, strict=True):
+        assert finding["card"].startswith(row[0]) and row[2] == finding["correction"]
+    sample = _jsonl(RESEARCH / "audit" / "audit_D_rule_claims.jsonl")
+    right = sum(1 for line in sample if line["verdict"] == "richtig")
+    noted = {(line["card"], line["claim_idx"]) for line in sample if line["precision_note"]}
+    assert (len(sample), right, len(noted)) == (100, 100, 5)
+    assert noted == {(f["card"], f["index"]) for f in sample_copied}
+    names = {row["card"] for row in card_understanding.load().values()}
+    assert {card for card, _ in noted} <= names  # all five are in the data set
+    note = understanding_field.CLAIMS_NOTE
+    assert (
+        f"{right} von {len(sample)} Stichproben-Claims richtig, davon {len(noted)} unscharf" in note
+    )
 
 
 def test_a_changed_audit_file_changes_the_remembered_strength_answer(

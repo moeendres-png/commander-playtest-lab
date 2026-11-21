@@ -56,8 +56,8 @@ CLAIMS_HEADING: Final = (
 )
 CLAIMS_NOTE: Final = (
     "Zitate nicht einzeln geprüft (Audit A: 11 von 1708 Zitaten, 0,6 %, nicht wörtlich; Audit D: "
-    "100 von 100 Stichproben-Claims richtig, in einer gezielten Sichtung ein Sachfehler beim "
-    "Evoke-Opferfenster)"
+    "100 von 100 Stichproben-Claims richtig, davon 5 unscharf formuliert; in einer gezielten "
+    "Sichtung ein Sachfehler beim Evoke-Opferfenster)"
 )
 NOT_STRENGTH: Final = (
     "Modellurteil aus dem Regeltext, keine Spielstärke; keine Stufe, kein Rang, nicht Teil des "
@@ -216,7 +216,9 @@ def _claim_findings(
                 "urteil": item["verdict"],
                 "kurz": f"Regelclaim laut Audit D {item['verdict']}",
                 "korrektur": item["correction"],
-                "quelle": card_understanding.AUDIT_D_SOURCE,
+                "teil": item["part"],
+                "begruendung_hinweis": item["reason_note"],
+                "quelle": f"{card_understanding.AUDIT_D_SOURCE} ({item['part']})",
             }
         )
     return found

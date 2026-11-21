@@ -463,8 +463,11 @@ no strength in play, no tier, no rank, no sort key, not part of the index.
   finds outside its samples): the head and the tooltip say that a card without a mark was not
   checked or checked without finding (`pruefbasis`). The findings of Audit D outside its random
   sample (Wavesifter claim 1 wrong, Evoke sacrifice is a triggered ability, CR 702.74a; Appeal to
-  Eirdu claim 1 unsharp) mark the card ("Regelclaim laut Audit D falsch / unscharf") and the claim
-  in the card window (`regelclaim_befunde`; a test compares them with the report's table).
+  Eirdu claim 1 unsharp) and the five claims of its random sample that are right but unsharply
+  worded (Hada Freeblade, Molder Beast, Tam Observant Sequencer, Mindseeker Oculus, Strixhaven
+  Skycoach) mark the card ("Regelclaim laut Audit D falsch / unscharf / unscharf formuliert") and
+  the claim in the card window (`regelclaim_befunde`; tests compare them with the report's tables
+  and the sample file); Wavesifter's reason, which repeats the wrong claim, is marked as well.
 - **T4 rank bands.** The index has one decimal, so many cards share a value (the audit counted 777
   of 922 in tie groups). Each card with a tier gets the band of places its tie group takes among
   all cards with a tier of the answer; in tier D the band ("Rang 824–922") replaces the decimal (the
