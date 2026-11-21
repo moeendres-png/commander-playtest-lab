@@ -23,6 +23,12 @@ the recorder input, so it only catches driver bugs); ``check_groups`` counts n/N
 ``all_checks_passed`` needs both groups to pass. An unknown value is counted as unknown, never
 as 0 or as a pass. More than four seats require ``--jar`` (exit 2 otherwise); the archive is
 hashed again after the run and a changed or vanished file is a red ``jar_unchanged`` check.
+The ``seat_gate.jar`` block names the effective start command (with COMMANDER_LAB_XMAGE_JVM_FLAGS
+spliced in). A bridge command from the environment must be a plain java launcher with only JVM
+options before one ``-jar`` and an absolute archive path equal to ``--jar``. The deck list is
+labelled "plan" and carries the SHA-256 of each deck file. A winner list that does not match
+the ``won`` outcomes, or that nobody wins, is not a pass. With 6 seats the report says that no
+replay is claimed.
 A seat gap (seats must be exactly 1..N, engine seats 0..N-1) or a player_count that differs
 between plan, result and tape fails the gate. Without those flags no key is added.
 
