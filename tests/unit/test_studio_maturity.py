@@ -810,6 +810,7 @@ def test_the_diff_names_the_opened_state_the_table_and_the_main_reference() -> N
     # #1729 review P2-1: the opened state is "geöffneter Stand", never "aktueller Stand" (that is
     # main in the finding's own text); a pair without main and without its predecessor
     r = _run_diff_js()
+    assert len(r["allTexts"]) == 5  # type: ignore[arg-type]
     for text in r["allTexts"]:  # type: ignore[union-attr]
         assert "aktueller Stand" not in text and "aktuelle Stand" not in text, text
     series = r["series"]
@@ -839,6 +840,7 @@ def test_the_diff_evidence_children_are_exact_no_extra_line_and_no_sum() -> None
     assert r["kids"] == ["h3.", "p.note note-compact"] + ["div.diff-evidence-series"] * 3
     for item in r["series"]:  # type: ignore[union-attr]
         assert item["kids"] == ["p.muted", "p.muted", "div.evidence-row"]
+    assert len(r["allTexts"]) == 5  # type: ignore[arg-type]
     for text in r["allTexts"]:  # type: ignore[union-attr]
         assert "Summe" not in text and "insgesamt" not in text
 
@@ -846,6 +848,7 @@ def test_the_diff_evidence_children_are_exact_no_extra_line_and_no_sum() -> None
 def test_unknown_pairs_stay_unknown_never_zero() -> None:
     # #1729 review M2b: a missing n or N is "Paare unbekannt", never "n/N 0"
     r = _run_diff_js()
+    assert len(r["unknownPairs"]) == 3  # type: ignore[arg-type]
     for text in r["unknownPairs"]:  # type: ignore[union-attr]
         assert "Paare unbekannt" in text and "n/N" not in text, text
 
