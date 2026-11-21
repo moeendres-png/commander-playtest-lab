@@ -18,8 +18,13 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from commander_lab.candidates.models import FutureXmageScenario
-from commander_lab.engine.rules.full_game import FullGameConformanceResult
-from commander_lab.engine.rules.full_game_batch import _games_per_jvm_permitted
+from commander_lab.engine.rules.full_game import (
+    ExternalPilotDecisionPolicy,
+    FullGameBridgeClient,
+    FullGameConformanceResult,
+    ProgressEntry,
+)
+from commander_lab.engine.rules.full_game_batch import games_per_jvm_permitted
 
 from .games import SERIES_GZIP_COMPRESSLEVEL, GameRecorder
 from .launch import bridge_jar_sha256, engine_command
@@ -91,16 +96,30 @@ class BatchRecordingRunner(_RecordingRunner):
         self._current_game_id = game_id
         return recorder
 
-    def _drive(  # type: ignore[override]
-        self, client: object, policy: object, *, stop_after: int | None = None, **kwargs: object
-    ) -> tuple[int, object, bool]:
+    def _drive(
+        self,
+        client: FullGameBridgeClient,
+        policy: ExternalPilotDecisionPolicy,
+        *,
+        stop_after: int | None,
+        stop_at_turn: int | None = None,
+        progress: list[ProgressEntry] | None = None,
+        stop: dict[str, object] | None = None,
+    ) -> tuple[int, list[str], bool]:
         """Drive one game; tell ``on_played`` once the engine has played it to its end.
 
         The outcome of the drive is returned untouched, and a progress callback that raises
         changes nothing about the game. A game played again (after an unclean engine end, or a
         start-up collision) is announced once.
         """
-        outcome = super()._drive(client, policy, stop_after=stop_after, **kwargs)
+        outcome = super()._drive(
+            client,
+            policy,
+            stop_after=stop_after,
+            stop_at_turn=stop_at_turn,
+            progress=progress,
+            stop=stop,
+        )
         game_id = self._current_game_id
         if (
             outcome[2] is True
@@ -212,7 +231,7 @@ def play_recorded_games(
                 item.header.get("covered_by_sealed_epoch", False),
             )
     runner.on_played = on_played
-    permitted = _games_per_jvm_permitted(runner.command) if runner.command else 1
+    permitted = games_per_jvm_permitted(runner.command) if runner.command else 1
     summaries: list[dict[str, object]] = []
     for start in range(0, len(prepared), permitted):
         piece = prepared[start : start + permitted]

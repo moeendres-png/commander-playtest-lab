@@ -15,11 +15,15 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from commander_lab.engine.rules.failure_privacy import redacted_summary
+from commander_lab.engine.rules.failure_privacy import (
+    public_full_game_exception_message,
+    redacted_summary,
+)
 from commander_lab.engine.rules.full_game import (
     FULL_GAME_DECISION_PROTOCOL_VERSION,
     FULL_GAME_EVIDENCE_CLASS,
     FULL_GAME_LANE,
+    FullGameConformanceError,
     FullGameProtocolError,
 )
 from commander_lab.models import RulesDeckInput
@@ -81,7 +85,58 @@ def _pilot_state(
     }
 
 
-class _FakeInteractiveClient:
+def _actor_view(status: dict[str, object]) -> dict[str, object]:
+    """A fake status shaped like the bridge's actor view, so the match's audit passes.
+
+    The actor row of the decision's state is marked ``is_actor``. In the human seat's (seat 0)
+    frames the AI row keeps its hand, flagged ``private_state_visible`` (an engine-visible hand,
+    e.g. a reveal effect): the Studio must still hide it until the game ends (Owner decision
+    2026-11-17). In an AI seat's frames the other rows carry no private keys (actor-scoped)."""
+    decision = status.get("decision")
+    state = decision.get("pilot_state") if isinstance(decision, dict) else None
+    if not isinstance(decision, dict) or not isinstance(state, dict):
+        return status
+    actor_seat = decision.get("seat")
+    players = state.get("players")
+    assert isinstance(players, list)
+    for row in players:
+        assert isinstance(row, dict)
+        row["is_actor"] = row.get("seat") == actor_seat
+        if row["is_actor"]:
+            continue
+        if actor_seat == 0:
+            row["private_state_visible"] = True
+        else:
+            for key in ("hand", "hand_cards", "mana_pool", "land_plays_remaining"):
+                row.pop(key, None)
+    return status
+
+
+class _BridgeLifecycle:
+    """What a ``FullGameBridgeSession`` asks of its client besides ``request`` (fakes)."""
+
+    shutdown_disposition: str | None = None
+    transport_failure: str | None = None
+    exited = False
+    killed = False
+    starts = 0
+    closes = 0
+
+    def start(self) -> None:
+        self.starts += 1
+
+    def close(self) -> str:
+        self.closes += 1
+        return "graceful_shutdown"
+
+    def process_exited(self) -> bool:
+        return self.exited
+
+    def kill(self) -> None:
+        self.killed = True
+
+
+class _FakeInteractiveClient(_BridgeLifecycle):
     """Simulated XMage bridge client driving one interactive human-vs-AI game."""
 
     SECRET_CARD = "Secret Opponent Force of Will"
@@ -92,6 +147,7 @@ class _FakeInteractiveClient:
         self.conceded = False
         self.decision_count = 0
         self.submitted_responses: list[dict[str, object]] = []
+        self.requests: list[str] = []
 
     def __enter__(self) -> _FakeInteractiveClient:
         return self
@@ -210,7 +266,10 @@ class _FakeInteractiveClient:
         }
 
     def request(self, method: str, payload: dict[str, object] | None = None) -> dict[str, object]:
-        payload = payload or {}
+        self.requests.append(method)
+        return _actor_view(self._answer(method, payload or {}))
+
+    def _answer(self, method: str, payload: dict[str, object]) -> dict[str, object]:
         if method == "start_engine":
             return {"lane": FULL_GAME_LANE}
         if method == "get_provider_version":
@@ -249,6 +308,8 @@ class _FakeInteractiveClient:
         if method == "create_full_game":
             self.created_payload = dict(payload)
             return {
+                "player_count": len(payload["deck_handles"]),  # type: ignore[arg-type]
+                "seed": payload["seed"],
                 "evidence_class": FULL_GAME_EVIDENCE_CLASS,
                 "holdout_consumed": False,
             }
@@ -272,7 +333,7 @@ class _FakeInteractiveClient:
             self.phase += 1
             return self._status()
         if method == "export_event_log":
-            return {"events": [{"turn": 1, "text": "Game started"}]}
+            return _event_page([{"turn": 1, "text": "Game started"}], payload)
         if method == "get_full_game_result":
             return {
                 "evidence_class": FULL_GAME_EVIDENCE_CLASS,
@@ -293,6 +354,12 @@ class _FakeInteractiveClient:
                 ],
             }
         raise AssertionError(f"unexpected bridge method: {method}")
+
+
+def _event_page(events: list[dict[str, object]], payload: dict[str, object]) -> dict[str, object]:
+    """``export_event_log`` as the bridge answers it: the events after ``after_offset``."""
+    offset = int(payload.get("after_offset", 0))  # type: ignore[call-overload]
+    return {"events": events[offset:], "latest_offset": len(events)}
 
 
 def _wait_for_pending(client: TestClient, game_id: str, decision_id: str) -> dict[str, object]:
@@ -774,9 +841,14 @@ def test_delete_during_slow_startup_discards_without_orphan_gz(tmp_path: Path) -
     release_gate = threading.Event()
 
     class _SlowStartupClient(_FakeInteractiveClient):
+        def __init__(self) -> None:
+            super().__init__()
+            self.methods: list[str] = []
+
         def request(
             self, method: str, payload: dict[str, object] | None = None
         ) -> dict[str, object]:
+            self.methods.append(method)
             if method == "start_engine":
                 started_gate.set()
                 release_gate.wait(timeout=2.0)
@@ -800,8 +872,9 @@ def test_delete_during_slow_startup_discards_without_orphan_gz(tmp_path: Path) -
         human_seats=[0],
         decision_timeout_seconds=0,
         command=("fake-bridge",),
-        client_factory=lambda *_a, **_kw: _SlowStartupClient(),
+        client_factory=lambda *_a, **_kw: slow,
     )
+    slow = _SlowStartupClient()
     with app.state.play_manager._lock:
         app.state.play_manager._sessions["slow-delete"] = session
     session._thread.start()
@@ -813,6 +886,8 @@ def test_delete_during_slow_startup_discards_without_orphan_gz(tmp_path: Path) -
         release_gate.set()
         session._thread.join(timeout=2.0)
         assert deleted.status_code == 200
+        # the stop is seen between the deck imports: no deck is imported, no game is created
+        assert "import_deck" not in slow.methods and "create_full_game" not in slow.methods
         assert not (games.games_folder(tmp_path) / "slow-delete.jsonl").exists()
         assert not (games.games_folder(tmp_path) / "slow-delete.jsonl.gz").exists()
     finally:
@@ -1595,25 +1670,507 @@ def test_rejected_answer_with_the_same_decision_open_stays_retryable(tmp_path: P
 def test_dead_bridge_while_the_human_thinks_fails_the_game(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    class _Process:
-        exited = False
-
-        def poll(self) -> int | None:
-            return 1 if self.exited else None
-
-    process = _Process()
     fake = _FakeInteractiveClient()
-    fake._process = process  # type: ignore[attr-defined]
     monkeypatch.setattr(play, "_PARK_POLL_SECONDS", 0.02)
     app, client = _start_fake_session(tmp_path, "dead-bridge", fake)
     try:
         _wait_for_pending(client, "dead-bridge", "dec-h-1")
-        process.exited = True
+        fake.exited = True  # the session asks the client's public process_exited()
         final = _wait_finished(client, "dead-bridge")
         assert final["result"]["status"] == "failed"  # type: ignore[index]
         assert "BRIDGE_EXITED" in str(final["result"]["failure_message"])  # type: ignore[index]
     finally:
         app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+LEAKED_CARD = "Leaked Hidden Card"
+
+
+class _LeakingClient(_FakeInteractiveClient):
+    """Puts a hidden hand of a non-actor seat into one decision frame, without the engine's
+    ``private_state_visible`` flag: a bridge that broke the actor-scoped contract."""
+
+    def __init__(self, leak_decision: str) -> None:
+        super().__init__()
+        self.leak_decision = leak_decision
+
+    def request(self, method: str, payload: dict[str, object] | None = None) -> dict[str, object]:
+        status = super().request(method, payload)
+        decision = status.get("decision")
+        if isinstance(decision, dict) and decision.get("decision_id") == self.leak_decision:
+            state = decision["pilot_state"]
+            assert isinstance(state, dict)
+            for row in state["players"]:  # type: ignore[union-attr]
+                if not row["is_actor"]:
+                    row.pop("private_state_visible", None)
+                    row["hand"] = [{"name": LEAKED_CARD}]
+        return status
+
+
+@pytest.mark.parametrize(
+    ("leak_decision", "human_answer_status"),
+    [
+        ("dec-h-1", None),  # the first frame (start of play)
+        ("dec-ai-1", 409),  # the frame after the human's answer
+        ("dec-h-2", 200),  # the frame after the AI's answer, the human's next decision
+    ],
+)
+def test_a_leaking_frame_never_reaches_the_human_and_ends_the_game(
+    tmp_path: Path, leak_decision: str, human_answer_status: int | None
+) -> None:
+    """Leak test of the PLAY path (#1663): every engine frame passes the match's actor-scoped
+    audit before it is published or recorded; a frame that carries another seat's hidden
+    information ends the game as failed (fail closed) and no snapshot, answer or log shows it."""
+    fake = _LeakingClient(leak_decision)
+    game_id = f"leak-{leak_decision}"
+    app, client = _start_fake_session(tmp_path, game_id, fake, ai_delay_ms=0)
+    seen: list[str] = []
+    try:
+        if human_answer_status is not None:
+            seen.append(json.dumps(_wait_for_pending(client, game_id, "dec-h-1")))
+            answered = client.post(
+                f"/api/play/{game_id}/decision",
+                json={"decision_id": "dec-h-1", "selected_option_ids": ["pass-1"], "ordering": []},
+            )
+            seen.append(answered.text)
+            assert answered.status_code == human_answer_status, answered.text
+        final = _wait_finished(client, game_id)
+        seen.append(json.dumps(final))
+        result = final["result"]
+        assert isinstance(result, dict) and result["status"] == "failed", result
+        assert final["pending_decision"] is None
+        # the leaking frame was neither answered nor recorded
+        assert leak_decision not in [r["decision_id"] for r in fake.submitted_responses]
+        assert fake.closes == 1
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+    log = Path(str(result["log"]))
+    seen.append(gzip.decompress(log.read_bytes()).decode("utf-8"))
+    assert all(LEAKED_CARD not in text for text in seen)
+
+
+def _leak_into(status: dict[str, object], key: str = "hand") -> dict[str, object]:
+    """``status`` with hidden information of a non-actor seat under ``key`` in its decision
+    frame, without the engine's flag."""
+    decision = status["decision"]
+    assert isinstance(decision, dict)
+    for row in decision["pilot_state"]["players"]:  # type: ignore[index]
+        if not row["is_actor"]:
+            row.pop("private_state_visible", None)
+            row[key] = [{"name": LEAKED_CARD}]
+    return status
+
+
+class _LeakAfterConcedeClient(_FakeInteractiveClient):
+    """The engine answers the concede with another open decision that leaks."""
+
+    def request(self, method: str, payload: dict[str, object] | None = None) -> dict[str, object]:
+        if method == "submit_concede":
+            self.phase = 2
+            return _leak_into(super().request("get_full_game_decision"))
+        return super().request(method, payload)
+
+
+class _LeakAfterRejectionClient(_FakeInteractiveClient):
+    """The engine rejects the answer, and its status read then shows a moved, leaking frame."""
+
+    rejected = False
+
+    def request(self, method: str, payload: dict[str, object] | None = None) -> dict[str, object]:
+        if method == "submit_full_game_decision" and not self.rejected:
+            self.rejected = True
+            raw = ("external_pilot_decision_rejected", "ILLEGAL_ACTION: option not offered")
+            raise FullGameProtocolError(
+                "submit_full_game_decision failed: " + redacted_summary("BRIDGE_ERROR", raw),
+                code="BRIDGE_ERROR",
+                diagnostics=raw,
+            )
+        if method == "get_full_game_decision" and self.rejected:
+            self.phase = 2
+            return _leak_into(super().request(method, payload))
+        return super().request(method, payload)
+
+
+@pytest.mark.parametrize("route", ["concede", "decision"])
+def test_a_leaking_frame_after_a_concede_or_a_rejected_answer_ends_the_game(
+    tmp_path: Path, route: str
+) -> None:
+    """The two status reads outside the answer step (concede, the probe after a rejected
+    answer) pass the same audit: the request is refused, the game fails, nothing leaks."""
+    fake: _FakeInteractiveClient = (
+        _LeakAfterConcedeClient() if route == "concede" else _LeakAfterRejectionClient()
+    )
+    game_id = f"leak-{route}"
+    app, client = _start_fake_session(tmp_path, game_id, fake, ai_delay_ms=0)
+    try:
+        seen = [json.dumps(_wait_for_pending(client, game_id, "dec-h-1"))]
+        body = {"decision_id": "dec-h-1", "selected_option_ids": ["pass-1"], "ordering": []}
+        posted = client.post(
+            f"/api/play/{game_id}/{route}", json={} if route == "concede" else body
+        )
+        seen.append(posted.text)
+        assert posted.status_code == 409, posted.text
+        final = _wait_finished(client, game_id)
+        seen.append(json.dumps(final))
+        result = final["result"]
+        assert isinstance(result, dict) and result["status"] == "failed", result
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+    seen.append(gzip.decompress(Path(str(result["log"])).read_bytes()).decode("utf-8"))
+    assert all(LEAKED_CARD not in text for text in seen)
+
+
+class _PrivateKeyLeakClient(_FakeInteractiveClient):
+    """Puts a private key the Studio redaction does not remove (``mana_pool``,
+    ``land_plays_remaining``) or an unlisted row key into the AI row of the human's frame."""
+
+    def __init__(self, key: str) -> None:
+        super().__init__()
+        self.key = key
+
+    def request(self, method: str, payload: dict[str, object] | None = None) -> dict[str, object]:
+        status = super().request(method, payload)
+        decision = status.get("decision")
+        if isinstance(decision, dict) and decision.get("decision_id") == "dec-h-2":
+            for row in decision["pilot_state"]["players"]:  # type: ignore[index]
+                if not row["is_actor"]:
+                    row.pop("private_state_visible", None)
+                    row[self.key] = [{"name": LEAKED_CARD}]
+        return status
+
+
+@pytest.mark.parametrize("key", ["mana_pool", "land_plays_remaining", "secret_zone"])
+def test_a_private_key_the_redaction_keeps_never_reaches_a_snapshot(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, key: str
+) -> None:
+    """The audit runs before a status is published (#1663 review P2-1): a hidden key that the
+    Studio's hand redaction would let through is never in a published pending decision, a
+    long-poll snapshot, an answer or the log; the game ends as failed."""
+    published: list[str] = []
+    original = play.InteractiveGameSession._publish_status
+
+    def spying(self: play.InteractiveGameSession, status: object, match: object) -> None:
+        original(self, status, match)  # type: ignore[arg-type]
+        with self._lock:
+            published.append(json.dumps(self._pending_decision))
+
+    monkeypatch.setattr(play.InteractiveGameSession, "_publish_status", spying)
+    fake = _PrivateKeyLeakClient(key)
+    game_id = f"leak-key-{key}"
+    app, client = _start_fake_session(tmp_path, game_id, fake, ai_delay_ms=0)
+    seen: list[str] = []
+    try:
+        snap = _wait_for_pending(client, game_id, "dec-h-1")
+        seen.append(json.dumps(snap))
+        answered = client.post(
+            f"/api/play/{game_id}/decision",
+            json={"decision_id": "dec-h-1", "selected_option_ids": ["pass-1"], "ordering": []},
+        )
+        seen.append(answered.text)
+        revision = snap["revision"]
+        while True:
+            held = client.get(f"/api/play/{game_id}?since={revision}&wait_ms=2000").json()
+            seen.append(json.dumps(held))
+            if not held["running"]:
+                break
+            revision = held["revision"]
+        result = held["result"]
+        assert isinstance(result, dict) and result["status"] == "failed", result
+        assert "dec-h-2" not in [r["decision_id"] for r in fake.submitted_responses]
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+    seen.append(gzip.decompress(Path(str(result["log"])).read_bytes()).decode("utf-8"))
+    assert published, "the spy saw no publication"
+    assert all(LEAKED_CARD not in text and key not in text for text in published)
+    assert all(LEAKED_CARD not in text for text in seen)
+
+
+def test_a_human_who_thinks_longer_than_the_park_poll_keeps_the_game_running(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """No time limit in PLAY (review P2-2, cross review P3): more than 300 park polls pass while
+    the human thinks; the game keeps waiting and goes on with the answer."""
+    monkeypatch.setattr(play, "_PARK_POLL_SECONDS", 0.0005)
+    polls = [0]
+    gone = play.InteractiveGameSession._raise_if_bridge_gone
+
+    def counting(bridge: object) -> None:
+        polls[0] += 1
+        gone(bridge)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(
+        play.InteractiveGameSession, "_raise_if_bridge_gone", staticmethod(counting)
+    )
+    fake = _FakeInteractiveClient()
+    app, client = _start_fake_session(tmp_path, "long-park", fake, ai_delay_ms=0)
+    try:
+        _wait_for_pending(client, "long-park", "dec-h-1")
+        deadline = time.monotonic() + 10.0
+        while polls[0] < 400 and time.monotonic() < deadline:
+            time.sleep(0.02)
+        assert polls[0] >= 400
+        snap = client.get("/api/play/long-park").json()
+        assert snap["running"] is True and snap["pending_decision"]["decision_id"] == "dec-h-1"
+        answered = client.post(
+            "/api/play/long-park/decision",
+            json={"decision_id": "dec-h-1", "selected_option_ids": ["pass-1"], "ordering": []},
+        )
+        assert answered.status_code == 200, answered.text
+        _wait_for_pending(client, "long-park", "dec-h-2")
+        assert fake.killed is False and fake.closes == 0
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def test_an_interactive_bridge_request_may_take_an_hour(tmp_path: Path) -> None:
+    """The IPC limit of one bridge request in PLAY is 3,600 s (the human's thinking time is not
+    in it; the loop parks instead)."""
+    seen: list[dict[str, object]] = []
+    fake = _FakeInteractiveClient()
+
+    def factory(*_args: object, **kwargs: object) -> _FakeInteractiveClient:
+        seen.append(dict(kwargs))
+        return fake
+
+    decks = (
+        _make_deck("own", "Chulane, Teller of Tales"),
+        _make_deck("opp", "Kinnan, Bonder Prodigy"),
+    )
+    prepared = play.prepare_game(
+        decks, seed=11, game_id="ipc", human_seats=[0], decision_timeout_seconds=0
+    )
+    session = play.InteractiveGameSession(
+        tmp_path,
+        prepared,
+        human_seats=[0],
+        decision_timeout_seconds=0,
+        command=("fake-bridge",),
+        client_factory=factory,
+    )
+    session.start()
+    try:
+        assert seen and seen[0]["request_timeout_seconds"] == 3_600.0
+    finally:
+        session.shutdown()
+
+
+class _SeedEchoEndingClient(_FakeInteractiveClient):
+    """Ends after the second human answer with a result for the game's own seed; ``close``
+    reports the given process end."""
+
+    def __init__(self, disposition: str) -> None:
+        super().__init__()
+        self.disposition = disposition
+
+    def _status(self) -> dict[str, object]:
+        if self.phase >= 3:
+            self.conceded = True  # the engine reports the end (terminal), as _EndingFakeClient
+        return super()._status()
+
+    def close(self) -> str:
+        super().close()
+        return self.disposition
+
+    def _answer(self, method: str, payload: dict[str, object]) -> dict[str, object]:
+        answer = super()._answer(method, payload)
+        if method == "get_full_game_result":
+            answer["seed"] = (self.created_payload or {}).get("seed")
+        return answer
+
+
+@pytest.mark.parametrize(
+    ("disposition", "status"),
+    [
+        ("graceful_shutdown", "finished"),
+        ("forced_kill", "failed"),
+        ("unacked_exit", "failed"),
+        ("already_exited", "failed"),
+    ],
+)
+def test_the_result_rests_on_how_the_bridge_process_really_ended(
+    tmp_path: Path, disposition: str, status: str
+) -> None:
+    """A game the engine played to its end counts as finished only after a graceful bridge
+    shutdown; any other observed process end makes it failed (fail closed, #1663)."""
+    fake = _SeedEchoEndingClient(disposition)
+    game_id = f"end-{disposition}"
+    app, client = _start_fake_session(tmp_path, game_id, fake, ai_delay_ms=0)
+    try:
+        for decision_id, option in (("dec-h-1", "pass-1"), ("dec-h-2", "tgt-1")):
+            _wait_for_pending(client, game_id, decision_id)
+            answered = client.post(
+                f"/api/play/{game_id}/decision",
+                json={"decision_id": decision_id, "selected_option_ids": [option], "ordering": []},
+            )
+            assert answered.status_code == 200, answered.text
+        final = _wait_finished(client, game_id)
+        assert "get_full_game_result" in fake.requests and fake.closes == 1
+        assert final["result"]["status"] == status, final["result"]  # type: ignore[index]
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+class _SpyLeakClient(_FakeInteractiveClient):
+    """Puts ``mana_pool`` of a non-actor seat (a key the Studio redaction keeps) into the frame
+    reached on one path: start, the frame after the human's answer, after a concede, the moved
+    frame read after a rejected answer, or the frame read by the poll at the loop's end."""
+
+    def __init__(self, path: str) -> None:
+        super().__init__()
+        self.path = path
+        self.rejected = False
+        self.leak_next = False
+
+    def request(self, method: str, payload: dict[str, object] | None = None) -> dict[str, object]:
+        status = super().request(method, payload)  # the fake's actor view, then the leak
+        if self.leak_next:
+            self.leak_next = False
+            return _leak_into(status, "mana_pool")
+        return status
+
+    def _answer(self, method: str, payload: dict[str, object]) -> dict[str, object]:
+        path = self.path
+        if (path == "start" and method == "start_full_game") or (
+            path == "human_answer" and method == "submit_full_game_decision" and self.phase == 0
+        ):
+            self.leak_next = True
+        elif path == "concede" and method == "submit_concede":
+            self.phase = 2
+            self.leak_next = True
+            return super()._answer("get_full_game_decision", payload)
+        elif path == "moved" and method == "submit_full_game_decision" and not self.rejected:
+            self.rejected = True
+            raw = ("external_pilot_decision_rejected", "ILLEGAL_ACTION: option not offered")
+            raise FullGameProtocolError(
+                "submit_full_game_decision failed: " + redacted_summary("BRIDGE_ERROR", raw),
+                code="BRIDGE_ERROR",
+                diagnostics=raw,
+            )
+        elif path == "moved" and method == "get_full_game_decision" and self.rejected:
+            self.phase = 2
+            self.leak_next = True
+        elif path == "poll" and method == "submit_full_game_decision" and self.phase == 0:
+            super()._answer(method, payload)
+            self.phase = 2
+            return {"terminal": False, "decision": None}
+        elif path == "poll" and method == "get_full_game_decision" and self.phase == 2:
+            self.leak_next = True
+        return super()._answer(method, payload)
+
+
+@pytest.mark.parametrize("path", ["start", "human_answer", "concede", "moved", "poll"])
+def test_nothing_is_published_before_its_audit_on_any_status_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, path: str
+) -> None:
+    """Cross review P2-2: a spy on ``_publish_status`` sees every status the session publishes;
+    on each of the five status paths a frame with another seat's ``mana_pool`` (which the hand
+    redaction keeps) fails the audit before it is published, and the game ends as failed."""
+    published: list[str] = []
+    original = play.InteractiveGameSession._publish_status
+
+    def spying(self: play.InteractiveGameSession, status: object, match: object) -> None:
+        published.append(json.dumps(status))
+        original(self, status, match)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(play.InteractiveGameSession, "_publish_status", spying)
+    fake = _SpyLeakClient(path)
+    game_id = f"spy-{path}"
+    app, client = _start_fake_session(tmp_path, game_id, fake, ai_delay_ms=0)
+    try:
+        if path != "start":
+            _wait_for_pending(client, game_id, "dec-h-1")
+            if path == "concede":
+                posted = client.post(f"/api/play/{game_id}/concede", json={})
+            else:
+                posted = client.post(
+                    f"/api/play/{game_id}/decision",
+                    json={
+                        "decision_id": "dec-h-1",
+                        "selected_option_ids": ["pass-1"],
+                        "ordering": [],
+                    },
+                )
+            assert posted.status_code in {200, 409}, posted.text
+        final = _wait_finished(client, game_id)
+        assert final["result"]["status"] == "failed", final["result"]  # type: ignore[index]
+        assert LEAKED_CARD not in json.dumps(final)
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+    assert all(LEAKED_CARD not in text and "mana_pool" not in text for text in published)
+
+
+class _HangingClient(_FakeInteractiveClient):
+    """The AI's answer hangs in the bridge until the process is killed (review P2-3)."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.released = threading.Event()
+
+    def request(self, method: str, payload: dict[str, object] | None = None) -> dict[str, object]:
+        if method == "submit_full_game_decision" and self.phase == 1:
+            self.released.wait(timeout=20.0)
+            raise FullGameProtocolError("bridge killed", code="BRIDGE_EXITED")
+        return super().request(method, payload)
+
+    def kill(self) -> None:
+        super().kill()
+        self.released.set()
+
+
+def test_stop_kills_a_bridge_stuck_in_a_request_and_lets_go_of_it(tmp_path: Path) -> None:
+    fake = _HangingClient()
+    app, client = _start_fake_session(tmp_path, "hang-stop", fake, ai_delay_ms=0)
+    _wait_for_pending(client, "hang-stop", "dec-h-1")
+    answered = client.post(
+        "/api/play/hang-stop/decision",
+        json={"decision_id": "dec-h-1", "selected_option_ids": ["pass-1"], "ordering": []},
+    )
+    assert answered.status_code == 200
+    session = app.state.play_manager.get("hang-stop")  # type: ignore[attr-defined]
+    session.shutdown(discard=True)  # the stop command cannot be served: the thread is stuck
+    session._thread.join(timeout=5.0)
+    assert fake.killed is True
+    assert not session._thread.is_alive()
+    assert session._active_bridge is None
+    assert fake.closes == 1
+
+
+def test_concede_ends_the_game_and_closes_the_bridge_once(tmp_path: Path) -> None:
+    """Concede and end clean up (#1663): the engine thread ends, the bridge session is closed
+    exactly once (graceful), and the session holds no bridge any more."""
+    fake = _FakeInteractiveClient()
+    app, client = _start_fake_session(tmp_path, "clean-concede", fake)
+    try:
+        _wait_for_pending(client, "clean-concede", "dec-h-1")
+        assert client.post("/api/play/clean-concede/concede", json={}).status_code == 200
+        final = _wait_finished(client, "clean-concede")
+        session = app.state.play_manager.get("clean-concede")  # type: ignore[attr-defined]
+        session._thread.join(timeout=5.0)
+        assert not session._thread.is_alive()
+        assert session._active_bridge is None
+        assert (fake.starts, fake.closes, fake.killed) == (1, 1, False)
+        assert fake.shutdown_disposition == "graceful_shutdown"
+        assert final["result"]["status"] in {"finished", "failed"}  # type: ignore[index]
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def test_shutdown_while_the_human_thinks_closes_the_bridge_once(tmp_path: Path) -> None:
+    fake = _FakeInteractiveClient()
+    app, client = _start_fake_session(tmp_path, "clean-stop", fake)
+    _wait_for_pending(client, "clean-stop", "dec-h-1")
+    session = app.state.play_manager.get("clean-stop")  # type: ignore[attr-defined]
+    app.state.play_manager.shutdown_game("clean-stop")  # type: ignore[attr-defined]
+    assert not session._thread.is_alive()
+    assert session._active_bridge is None
+    assert (fake.starts, fake.closes, fake.killed) == (1, 1, False)
+    # a stopped game reads no result: it ends as stopped by the user, as before
+    assert "get_full_game_result" not in fake.requests
+    stopped = public_full_game_exception_message(
+        FullGameConformanceError("Spiel durch Benutzer beendet")
+    )
+    result = session.snapshot()["result"]
+    assert result["status"] == "failed" and result["failure_message"] == stopped
 
 
 def test_speed_zero_hurries_the_ai_but_never_answers_the_human(tmp_path: Path) -> None:
