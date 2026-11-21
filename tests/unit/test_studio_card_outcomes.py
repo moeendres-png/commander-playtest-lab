@@ -1165,12 +1165,15 @@ def test_header_seats_give_the_table_size_and_never_a_guess(tmp_path: Path) -> N
         (_seats(1, start=3), None),  # a gap (0, 1, 3): incomplete seat list
         ([{"seat": 1, "deck_id": "deck/x"}], None),  # a repeated seat
         ([{"deck_id": "deck/x"}], None),  # a seat row without a seat number
-        (["not a row"], None),
     ]
     for index, (extra, size) in enumerate(cases):
         path = _write_log(tmp_path, f"g{index}", _simple_frames(["X"]), extra_seats=extra)
         game = game_exposures(path)
         assert game is not None and game.get("table_size") == size, (extra, size)
+    # #1662: a seat row that is no mapping cannot say whether a human sat there: the log is of
+    # unreadable cohort (fail-closed), stricter than "Tischgröße unbekannt", and never counted
+    path = _write_log(tmp_path, "g-row", _simple_frames(["X"]), extra_seats=["not a row"])
+    assert game_exposures(path) is None
     assert card_outcomes._table_size(None) is None and card_outcomes._table_size([]) is None
 
 
@@ -1695,6 +1698,8 @@ def _cohort_folder(folder: Path, *played: dict[str, object]) -> None:
         ({"human_seats": "0"}, "UNKNOWN"),
         ({"human_seats": [True]}, "UNKNOWN"),
         ({"human_seats": None, "seats": "x"}, "UNKNOWN"),
+        ({"seats": [{"seat": 0, "pilot": "KI"}, "not a row"]}, "UNKNOWN"),
+        ({"seats": ["not a row", {"seat": 1, "pilot": "Mensch"}]}, "PLAYED_GAME"),
         ({"data_class": "SOMETHING_ELSE"}, "UNKNOWN"),
         ("not a header", "UNKNOWN"),
     ],
@@ -1772,6 +1777,7 @@ def test_api_outcomes_and_decks_keep_played_games_apart(
         decks=("deck/h", OTHER),
         header_extra=PLAYED_NEW,
     )
+    _write_log(games, "unknown", _simple_frames(["X"]), seed=40, header_extra={"human_seats": "0"})
     with TestClient(create_app(tmp_path)) as client:
         body = client.get("/api/outcomes", params={"deck_id": DECK, "min_exposed": 1}).json()
         decks = {row["deck_id"]: row for row in client.get("/api/outcomes/decks").json()["decks"]}
@@ -1779,13 +1785,30 @@ def test_api_outcomes_and_decks_keep_played_games_apart(
     assert body["games_total"] == 1 and body["played_cohort"]["games"] == 1
     assert all(z["N"] == 1 for z in body["zahlen"] if z["id"].startswith("outcome."))
     assert decks[DECK]["games"] == 1 and decks[DECK]["games_skipped"] == 0
-    assert decks[DECK]["played_games"] == 1 and decks[DECK]["games_cohort_unknown"] == 0
+    assert decks[DECK]["played_games"] == 1 and decks[DECK]["games_cohort_unknown"] == 1
     assert decks[OTHER]["games"] == 1 and decks[OTHER]["played_games"] == 2
+    assert (
+        decks[OTHER]["games_cohort_unknown"] == 1 and decks["deck/h"]["games_cohort_unknown"] == 0
+    )
     # a deck named only by a game with a human seat: listed, no simulated game, n apart
     assert decks["deck/h"]["games"] == 0 and decks["deck/h"]["games_skipped"] == 0
     assert decks["deck/h"]["played_games"] == 1
     assert human["status"] == "NO_GAMES" and human["games_total"] == 0
     assert human["played_cohort"]["games"] == 1 and human["zahlen"] == []
+    assert body["played_cohort"]["games_cohort_unknown"] == 1
+    # the same counts on the all-decks path (CLI ``card-outcomes`` without a deck)
+    every = card_outcomes.outcomes_for_all_decks(games, min_exposed=1)
+    assert {d: t["played_cohort"]["games"] for d, t in every.items()} == {
+        DECK: 1,
+        OTHER: 2,
+        "deck/h": 1,
+    }
+    assert {d: t["played_cohort"]["games_cohort_unknown"] for d, t in every.items()} == {
+        DECK: 1,
+        OTHER: 1,
+        "deck/h": 0,
+    }
+    assert every[DECK]["games_total"] == 1 and every["deck/h"]["games_total"] == 0
 
 
 def test_cache_entry_of_before_the_cohort_is_read_again(tmp_path: Path) -> None:
@@ -1882,3 +1905,55 @@ console.log(JSON.stringify([
     assert "n = unbekannt" in unknown and "unlesbarer Kohorte: unbekannt" in unknown
     assert "n = 0" not in unknown
     assert missing.startswith("Mensch-Partien (PLAYED_GAME): unbekannt")
+
+
+def test_card_page_shows_played_games_in_the_ok_and_no_games_answers(tmp_path: Path) -> None:
+    """The line stands in every answer the page renders: OK (cards measured) and NO_GAMES (a
+    deck named only by games with a human seat), not only in NOT_POOLED."""
+    from tests.unit.test_studio_static_guards import _node_json
+
+    _cohort_folder(tmp_path, PLAYED_NEW)
+    _write_log(
+        tmp_path,
+        "only-human",
+        _simple_frames(["X"]),
+        seed=30,
+        decks=("deck/h", OTHER),
+        header_extra=PLAYED_OLD,
+    )
+    ok = outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
+    none = outcomes_for_folder(tmp_path, deck_id="deck/h", min_exposed=1)
+    assert ok["status"] == "OK" and ok["cards"] and none["status"] == "NO_GAMES"
+    script = f"""
+global.StudioUI = {{
+  num: (n, d = 0) => Number(n).toFixed(d),
+  pct: (r) => `${{(Number(r) * 100).toFixed(1)}} %`,
+  kids: (...a) => a.flat(Infinity).filter((x) => x !== null && x !== undefined && x !== false),
+}};
+const mod = require('./kartenauswertung.js');
+const textOf = (node) => {{
+  if (node === null || node === undefined) return '';
+  if (typeof node === 'string' || typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(textOf).join('');
+  return (node.kids || []).map(textOf).join(' ');
+}};
+const h = (tag, attrs, ...kids) => ({{ tag, attrs: attrs || {{}}, kids: kids.flat(Infinity) }});
+const render = async (deckId, payload) => {{
+  const slot = {{ children: [], replaceChildren(...kids) {{ this.children = kids; }} }};
+  await mod.renderCardOutcomes(slot, {{
+    h, deckId, baseRevision: null, dirty: false,
+    api: async (url) => (url === '/api/outcomes/decks' ? {{ decks: [] }} : payload),
+  }});
+  return textOf(slot.children);
+}};
+(async () => {{
+  console.log(JSON.stringify([
+    await render('deck/a', {json.dumps(ok)}),
+    await render('deck/h', {json.dumps(none)}),
+  ]));
+}})();
+"""
+    ok_text, none_text = _node_json(script)  # type: ignore[misc]
+    line = "Mensch-Partien (PLAYED_GAME): n = 1 · Herkunft: " + card_outcomes.PLAYED_SOURCE
+    assert line in ok_text and "Karten-Auswertung aus simulierten Partien" in ok_text
+    assert line in none_text and "liegen noch keine abgeschlossenen Partien" in none_text

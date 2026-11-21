@@ -359,8 +359,8 @@ def game_cohort(header: object) -> str:
     ``pilot`` "Mensch"). The last two also recognise logs written before #1662, whose header
     still says ``SIMULATED_RESULT``: no backfill is needed. ``human_seats: []`` (written for a
     non-default timeout without a human) is no human seat. A header whose cohort fields cannot
-    be read (no mapping, ``human_seats`` not a list of seat numbers, a seat list that is no list,
-    a ``data_class`` that is neither cohort) is ``UNKNOWN`` and never read as a simulation. A
+    be read (no mapping, ``human_seats`` not a list of seat numbers, a seat list that is no list
+    or holds a row that is no mapping, a ``data_class`` that is neither cohort) is ``UNKNOWN`` and never read as a simulation. A
     header without ``data_class`` and without a human seat stays a simulation (older logs).
     """
     if not isinstance(header, Mapping):
@@ -379,7 +379,9 @@ def game_cohort(header: object) -> str:
     if raw_seats is not None and not isinstance(raw_seats, list):
         unknown = True
     for row in raw_seats if isinstance(raw_seats, list) else []:
-        if isinstance(row, Mapping) and row.get("pilot") == HUMAN_PILOT_LABEL:
+        if not isinstance(row, Mapping):
+            unknown = True  # a seat row that is no mapping cannot say whether a human sat there
+        elif row.get("pilot") == HUMAN_PILOT_LABEL:
             return COHORT_PLAYED
     return COHORT_UNKNOWN if unknown else COHORT_SIMULATED
 
