@@ -424,11 +424,18 @@ def test_full_game_series_reaches_no_private_runner_name(repo_root: Path) -> Non
     assert _COUNTS.private_runner_accesses([series], _runner_modules(repo_root)) == []
 
 
-#: Private runner names reached from studio/ (strict count); the second package of #1663 lowers
-#: it to 0. May only go down.
-STUDIO_PRIVATE_RUNNER_ACCESS_CEILING = 12
+#: Private runner names reached from studio/ (strict count): 12 on main d63a6e64, 0 since the
+#: second package of #1663 (PLAY on the public steps). May only go down.
+STUDIO_PRIVATE_RUNNER_ACCESS_CEILING = 0
 
-#: Studio overrides of private engine hooks, frozen (file, name); a new one needs a review.
+#: ``type: ignore`` comments in studio/play.py: 18 on main d63a6e64, the acceptance of #1663 allows
+#: at most 2; held at the value the second package reached. May only go down.
+PLAY_TYPE_IGNORE_CEILING = 1
+
+#: Studio overrides of private engine hooks, frozen (file, name); a new one needs a review. They
+#: are not counted as accesses (#1663, recommendation B of the first package): a subclass hook
+#: that ``run()`` itself calls. Their number (3) is a ratchet of its own; removing one means
+#: removing it here too.
 STUDIO_PRIVATE_OVERRIDES = {
     ("play.py", "_drive"),
     ("play.py", "_validated_policy"),
@@ -448,6 +455,11 @@ def test_studio_private_runner_accesses_do_not_grow(repo_root: Path) -> None:
     studio, _engine = _studio_and_engine_files(repo_root)
     sites = _COUNTS.private_runner_accesses(studio, _runner_modules(repo_root))
     assert len(sites) <= STUDIO_PRIVATE_RUNNER_ACCESS_CEILING, sites
+
+
+def test_play_type_ignores_do_not_grow(repo_root: Path) -> None:
+    play = repo_root / "src" / "commander_lab" / "studio" / "play.py"
+    assert _COUNTS.type_ignores(play) <= PLAY_TYPE_IGNORE_CEILING
 
 
 def test_studio_overrides_of_private_engine_hooks_are_frozen(repo_root: Path) -> None:
