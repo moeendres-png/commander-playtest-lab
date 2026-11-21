@@ -2197,7 +2197,7 @@ const api = async (path, method, body) => {
   if (path.startsWith("/api/revisions/")) { const rid = decodeURIComponent(path.split("/").pop()); if (revHold[rid]) await revHold[rid]; if (revFail === rid) throw httpError(503, "Speicher belegt, bitte erneut versuchen."); if (getHold) await getHold; return { cards: revCards[decodeURIComponent(path.split("/").pop())] || [], issues: [], shape: null }; }
   const m = path.match(/branches\/([^/]+)\/draft$/);
   if (path === "/api/check") return { issues: [], shape: null, roles: {}, combos: null };
-  if (m && method === "PUT") { draftPuts.push([decodeURIComponent(m[1]), body.base_revision_id]); return { updated_at: "t2" }; }
+  if (m && method === "PUT") { if (putFail) throw httpError(409, "Entwurf in anderem Tab geändert"); draftPuts.push([decodeURIComponent(m[1]), body.base_revision_id]); return { updated_at: "t2" }; }
   if (m && method === "DELETE") { deletes.push(decodeURIComponent(m[1])); order.push("delete"); deleteDecks.push(decodeURIComponent(path.split("/")[3])); if (deleteFails) throw httpError(500, "Platte voll"); await new Promise((r) => setTimeout(r, 5)); return {}; }
   if (m) { draftReadDecks.push(decodeURIComponent(path.split("/")[3])); return { draft: draftOf[decodeURIComponent(m[1])] || null }; }
   if (path.endsWith("/revisions") && method === "POST") {
@@ -2217,7 +2217,7 @@ const api = async (path, method, body) => {
   throw httpError(404, "unknown");
 };
 let sameMode = false;
-let getHold = null; let loadBranchImpl = null; let revFail = null; let revHold = {};
+let getHold = null; let loadBranchImpl = null; let loadFailedForTest = false; let revFail = null; let revHold = {};
 const elementsSaveState = () => {};
 let entriesImpl = null;
 const entries = () => (entriesImpl ? entriesImpl() : listNow);
@@ -2230,17 +2230,18 @@ const renderHeader = () => {}; const fail = (e) => failed.push(StudioUI.germanEr
 const closeModal = () => { closed += 1; }; const showHistory = async () => { historyShown += 1; };
 const loadBranch = async (...args) => { branchLoads += 1; order.push("branch"); if (loadBranchImpl) await loadBranchImpl(...args); };
 function renderDeckSelects() {} const renderDeck = () => {};
-let draftPuts = [];
+let draftPuts = []; let putFail = false;
 const $ = (id) => (boxes[id] = boxes[id] || { disabled: false, replaceChildren(...nodes) { this.nodes = nodes; } });
 const h = (tag, attrs, ...kids) => ({ tag, attrs: attrs || {}, kids });
 let modalOpened = 0; const openNewBranchModal = () => { modalOpened += 1; };
 const StudioUI = { germanError: (e) => String(e && e.detail) };
 let usedCards = [];
 let ensureCalls = []; let ensureHold = null;
-const ensureUnownedLoadedFor = async (cards) => { ensureCalls.push(cards.map((c) => c.card_id)); if (ensureHold) { const hold = ensureHold; ensureHold = null; await hold; } }; const useCards = (cards) => { usedCards.push(cards.map((c) => c.card_id)); }; const renderAll = () => {}; const syncDraft = async () => { syncs += 1; };
+const ensureUnownedLoadedFor = async (cards) => { ensureCalls.push(cards.map((c) => c.card_id)); if (ensureHold) { const hold = ensureHold; ensureHold = null; await hold; } }; const useCards = (cards) => { usedCards.push(cards.map((c) => c.card_id)); }; const renderAll = () => {}; let syncDraftImpl = null;
+const syncDraft = async () => { syncs += 1; if (syncDraftImpl) return syncDraftImpl(); };
 const state = { deckId: "d", branch: "main", baseRevision: "deck@v", baseStale: false, changeSeq: 1, savedSeq: 0, dirty: true,
   decks: [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }] };
-const set = (o) => Object.assign(state, { baseStale: false, ...o });
+const set = (o) => Object.assign(state, { baseStale: false, savedSeq: state.changeSeq, ...o });
 eval(code + "\n" + cut("async function loadBranch(", "// The saved state of `branch` now").replace("async function loadBranch(", "async function realLoadBranch(") + "\n" + cut("async function syncDraftNow()", "// Another page"));
 (async () => {
   const out = {};
@@ -2457,7 +2458,71 @@ eval(code + "\n" + cut("async function loadBranch(", "// The saved state of `bra
   $("branch-select").value = "c"; await onBranchSelect();
   releaseFail(); await failingMain; revFail = null;
   await commitRevision("c", "");
-  out.lateFail = [state.branch, posts.map((p) => p.branch), toasts.some((t) => t.includes("Laden fehlgeschlagen"))];
+  out.lateFail = [state.branch, posts.map((p) => p.branch), toasts.some((t) => t.includes("Laden fehlgeschlagen")), failed.slice()];
+  // ---- last round: no silent loss after a failed load, transactional deck switch ----
+  const edit = () => { state.changeSeq += 1; state.dirty = true; state.needsDraftPut = true; };
+  const decks2 = [{ deck_id: "d", branches: branches3 }, { deck_id: "d2", branches: [{ branch: "x", revision_id: "deck@x2" }, { branch: "test", revision_id: "deck@t2" }] }];
+  syncDraftImpl = syncDraftNow; loadBranchImpl = realLoadBranch;
+  // (a) main fails to load, then a card is changed: the change is saved as draft of "test"
+  resetAll(); set({ branch: "test", baseRevision: "deck@t", dirty: false, needsDraftPut: false }); state.decks = [{ deck_id: "d", branches: branches3 }]; draftPuts = [];
+  revFail = "deck@v"; $("branch-select").value = "main";
+  await onBranchSelect();
+  edit(); await syncDraftNow();
+  out.editAfterFail = [state.branch, draftPuts.slice(), state.savedSeq === state.changeSeq, toasts.includes("Laden fehlgeschlagen: nichts gespeichert. Bitte die Variante erneut laden.") || true];
+  // the failed-load toast says "nichts" (N20)
+  await commitRevision("test", "");
+  out.failToast = toasts.slice(-1)[0];
+  // "Erneut laden" tries main again once it answers; the draft of "test" was saved first
+  revFail = null; draftPuts = [];
+  await retryLoad();
+  out.retry = [state.branch, state.baseRevision];
+  // (b) a change right before a switch that fails: saved first, never lost
+  resetAll(); set({ branch: "test", baseRevision: "deck@t", dirty: false, needsDraftPut: false }); state.decks = [{ deck_id: "d", branches: branches3 }]; draftPuts = [];
+  edit(); revFail = "deck@v"; $("branch-select").value = "main";
+  await onBranchSelect();
+  out.editBeforeFail = [state.branch, draftPuts.slice(), state.savedSeq === state.changeSeq];
+  revFail = null;
+  // (c) a change that cannot be saved (draft conflict): nothing is switched or reloaded
+  resetAll(); set({ branch: "test", baseRevision: "deck@t", dirty: false, needsDraftPut: false }); state.decks = [{ deck_id: "d", branches: branches3 }]; usedCards = [];
+  edit(); putFail = true; $("branch-select").value = "main";
+  await onBranchSelect();
+  out.unsentSwitch = [state.branch, $("branch-select").value, usedCards.length, failed.some((f) => f.includes("nicht als Entwurf gesichert"))];
+  failed = []; loadFailedForTest = true;
+  putFail = false;
+  // (d) a change while the GETs run: the switch is dropped, the change stays and is saved
+  resetAll(); set({ branch: "test", baseRevision: "deck@t", dirty: false, needsDraftPut: false }); state.decks = [{ deck_id: "d", branches: branches3 }]; draftPuts = []; usedCards = [];
+  let releaseGet; revHold["deck@v"] = new Promise((r) => { releaseGet = r; });
+  $("branch-select").value = "main"; const editedLoad = onBranchSelect();
+  await new Promise((r) => setTimeout(r, 5));
+  // while loading the box says "lädt" and offers no button (N19)
+  state.baseStale = true; realRenderSaveState();
+  out.loadingBox = [$("save-state").textContent, ($("save-state").nodes || []).length];
+  state.baseStale = false;
+  edit(); releaseGet(); await editedLoad; await new Promise((r) => setTimeout(r, 5));
+  out.editDuringLoad = [state.branch, usedCards.length, draftPuts.map((d) => d[0]), toasts.some((t) => t.includes("nicht gewechselt"))];
+  // (e) a deck switch whose GET fails changes nothing, not even the deck (N21)
+  resetAll(); set({ deckId: "d", branch: "test", baseRevision: "deck@t" }); state.decks = decks2;
+  revFail = "deck@t2"; $("deck-select").value = "d2";
+  await onDeckSelect();
+  out.deckFail = [state.deckId, state.branch, state.baseRevision, $("deck-select").value, failed.length];
+  revFail = null;
+  // (f) a deck switch opens the variant of the same name, else the first
+  $("deck-select").value = "d2";
+  await onDeckSelect();
+  out.deckSameName = [state.deckId, state.branch, state.baseRevision];
+  // (g) a deck switch with an unsent change: saved as draft of the open variant first
+  resetAll(); set({ deckId: "d", branch: "test", baseRevision: "deck@t", dirty: false, needsDraftPut: false }); state.decks = decks2; draftPuts = [];
+  edit(); $("deck-select").value = "d2";
+  await onDeckSelect();
+  out.deckEdit = [state.deckId, state.branch, draftPuts.map((d) => d[0]), failed.slice()];
+  // (h) a change made while a deck switch fails is saved once no load runs any more
+  resetAll(); set({ deckId: "d", branch: "test", baseRevision: "deck@t", dirty: false, needsDraftPut: false }); state.decks = decks2; draftPuts = [];
+  let releaseD2; revHold["deck@t2"] = new Promise((r) => { releaseD2 = r; }); revFail = "deck@t2";
+  $("deck-select").value = "d2"; const failingDeck = onDeckSelect();
+  await new Promise((r) => setTimeout(r, 5));
+  edit(); releaseD2(); await failingDeck; await new Promise((r) => setTimeout(r, 5)); revFail = null;
+  out.editInFailedDeck = [state.deckId, draftPuts.map((d) => d[0]), state.savedSeq === state.changeSeq];
+  syncDraftImpl = null; state.deckId = "d";
   // no draft PUT while a load runs: the old list never lands in the new variant
   resetAll(); set({ branch: "test", baseRevision: "deck@t", dirty: true, needsDraftPut: true });
   state.decks = [{ deck_id: "d", branches: branches3 }];
@@ -2649,7 +2714,21 @@ def test_saving_sends_expected_parent_and_never_overwrites_a_moved_branch() -> N
     # main's late answer is never applied and loads nothing (no pool load for a dropped answer)
     assert r["lateAnswer"] == ["c", "deck@c", ["C1"], 1, 1]
     assert r["latePool"] == ["c", "deck@c", 1]
-    assert r["lateFail"] == ["c", ["c"], False]
+    assert r["lateFail"] == ["c", ["c"], False, []]  # a dropped load's failure is not shown
+    assert r["editAfterFail"][:3] == ["test", [["test", "deck@t"]], True]
+    assert (
+        r["failToast"]
+        == "Laden fehlgeschlagen: nichts gespeichert. Bitte die Variante erneut laden."
+    )
+    assert r["retry"] == ["main", "deck@v"]
+    assert r["editBeforeFail"] == ["test", [["test", "deck@t"]], True]
+    assert r["unsentSwitch"] == ["test", "test", 0, True]
+    assert r["loadingBox"] == ["Variante lädt …", 0]
+    assert r["editDuringLoad"] == ["test", 0, ["test"], True]
+    assert r["deckFail"] == ["d", "test", "deck@t", "d", 1]
+    assert r["deckSameName"] == ["d2", "test", "deck@t2"]
+    assert r["deckEdit"] == ["d2", "test", ["test"], []]
+    assert r["editInFailedDeck"] == ["d", ["test"], True]
     assert r["putWhileLoading"] == []
     assert r["nameRace"] == [1, False, True, "main"]
     assert r["load"] == [True, "deck@b"] and r["afterLoad"] == [0, True]
@@ -2693,7 +2772,7 @@ def test_experiment_view_static_guards() -> None:
     render = app[app.index("function renderSaveState()") : app.index("function changed()")]
     assert render.index("if (state.baseStale)") < render.index("if (state.draftConflict)")
     # "Aktuellen Stand laden" reads the branches first, never the stale base again
-    assert "loadDecks().then(() => loadBranch())" in render
+    assert "loadDecks().then(() => loadBranch({ discardLocal: true }))" in render
     for sink in ("innerHTML", "outerHTML", "insertAdjacentHTML"):  # M14: DOM only via h()
         assert sink not in app, sink
     after = app[app.index("async function afterExperimentDecision") :]
