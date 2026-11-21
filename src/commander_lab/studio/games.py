@@ -431,10 +431,9 @@ class GameRecorder:
             **header,
         }
         # A game with a human seat is its own cohort (#1662), never a simulation; the class is
-        # set after the caller's header so no header field can turn it back.
-        entry["data_class"] = (
-            COHORT_PLAYED if game_cohort(entry) == COHORT_PLAYED else COHORT_SIMULATED
-        )
+        # set after the caller's header so no header field can turn it back. A header whose
+        # cohort fields cannot be read is written UNKNOWN, never stamped as a simulation.
+        entry["data_class"] = game_cohort(entry)
         self._write(entry)
 
     def _write(self, entry: Mapping[str, object]) -> None:

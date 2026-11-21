@@ -330,6 +330,15 @@ def test_prepare_game_human_seat_and_timeout_validation() -> None:
     assert human_prep.header["decision_timeout_seconds"] == 0
     assert human_prep.header["seats"][0]["pilot"] == "Mensch"  # type: ignore[index]
     assert human_prep.header["seats"][1]["pilot"] == "KI"  # type: ignore[index]
+    # #1662: the writer's human label is the one the cohort reader recognises, so a header
+    # written without ``human_seats`` is still a PLAYED_GAME by its seat pilot
+    from commander_lab.studio.games import HUMAN_PILOT_LABEL, game_cohort
+
+    assert human_prep.header["seats"][0]["pilot"] == HUMAN_PILOT_LABEL  # type: ignore[index]
+    assert game_cohort(human_prep.header) == "PLAYED_GAME"
+    without = {k: v for k, v in human_prep.header.items() if k != "human_seats"}
+    assert game_cohort(without) == "PLAYED_GAME"
+    assert game_cohort(default_prep.header) == "SIMULATED_RESULT"
 
     with pytest.raises(ValueError, match="out of range"):
         play.prepare_game(decks, seed=7, game_id="g-bad-seat", human_seats=[2])

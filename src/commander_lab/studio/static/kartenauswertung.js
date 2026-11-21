@@ -255,8 +255,12 @@ function outcomesPlayedNote(h, data) {
     : played.games_cohort_unknown === null || played.games_cohort_unknown === undefined
       ? " · Partien mit unlesbarer Kohorte: unbekannt"
       : "";
+  // n counts each game once by its game id, any status; the ended ones are named apart
+  const status = typeof played.games === "number"
+    ? ` (beendet ${outcomesInt(played.games_finished)}, nicht beendet ${typeof played.games_finished === "number" ? outcomesInt(played.games - played.games_finished) : "unbekannt"})`
+    : "";
   return h("p", { class: "muted" },
-    `Mensch-Partien (${played.data_class || "PLAYED_GAME"}): n = ${outcomesInt(played.games)} · Herkunft: ${played.source || "unbekannt"} · eigene Kohorte, in keiner Zahl oben enthalten${unknown}`);
+    `Mensch-Partien (${played.data_class || "PLAYED_GAME"}, je Spiel-ID, jeder Status): n = ${outcomesInt(played.games)}${status} · Herkunft: ${played.source || "unbekannt"} · eigene Kohorte, in keiner Zahl oben enthalten${unknown}`);
 }
 
 const outcomesQueryLabel = (queryId, baseRevision, revHash) =>
