@@ -81,6 +81,35 @@ EXTRA_DECK_SELECTION_SEED = BASE_SEED
 PRECON_DIR = Path("data/decks/precons")
 PRECON_FAMILY_PREFIX = "precon-"
 RESULT_CLASS = "SIMULATED_RESULT"
+# Table A5 of the 5/6-seat measurements (docs/analysis-reports/seats_5_6_part_b_report.md): five
+# precons. The gate's first four seats are the reference decks, so its pods are never table A5;
+# the report says so explicitly instead of leaving a reader to assume it.
+TABLE_A5_PRECONS = frozenset(
+    {
+        "2023_eldrazi_unbound",
+        "2026_lorehold_spirit",
+        "2024_animated_army",
+        "2022_token_triumph",
+        "2023_veloci_ramp_tor",
+    }
+)
+# "engine": observed from the engine result, the recorded tape steps or the archive that ran.
+# "plan": copied from the gate's own plan or recorder input; compared with itself, so it can
+# catch a driver bug but is no evidence about the engine.
+CHECK_GROUPS = {
+    "terminal": "engine",
+    "outcome_seats_contiguous": "engine",
+    "decision_seats_observed": "engine",
+    "winner_seats_in_range": "engine",
+    "tape_actor_seats_in_range": "engine",
+    "tape_decision_seats_observed": "engine",
+    "jar_unchanged": "engine",
+    "seat_plan_contiguous": "plan",
+    "scenario_player_count": "plan",
+    "tape_player_count": "plan",
+    "tape_seats_contiguous": "plan",
+    "tape_deck_order": "plan",
+}
 JAR_MAIN_COMMAND = "full-game"
 # Bound at import: the static check must not follow a replaced runner class.
 _validate_deck_construction = XmageFullGameRunner._validate_deck_construction
@@ -394,8 +423,13 @@ def resolve_options(args: argparse.Namespace) -> GateOptions:
     raw_jar = getattr(args, "jar", None)
     if isinstance(raw_extra, str):
         raw_extra = _stem_list(raw_extra)
+    count = _check_player_count(DEFAULT_PLAYER_COUNT if raw_count is None else raw_count)
+    if count > DEFAULT_PLAYER_COUNT and raw_jar is None:
+        raise GateConfigError(
+            f"--jar is required for {count} seats: the report must name the archive that ran"
+        )
     return GateOptions(
-        player_count=_check_player_count(DEFAULT_PLAYER_COUNT if raw_count is None else raw_count),
+        player_count=count,
         extra_decks=None if raw_extra is None else tuple(raw_extra),
         jar=None if raw_jar is None else Path(raw_jar),
         extended=raw_count is not None or raw_extra is not None or raw_jar is not None,
@@ -454,6 +488,8 @@ class _Checks:
         self._data: dict[str, dict[str, int]] = {}
 
     def add(self, name: str, state: bool | None) -> None:
+        if name not in CHECK_GROUPS:
+            raise KeyError(f"check {name!r} has no group")
         entry = self._data.setdefault(name, {"passed": 0, "failed": 0, "unknown": 0, "total": 0})
         entry["total"] += 1
         entry["unknown" if state is None else "passed" if state else "failed"] += 1
@@ -462,15 +498,31 @@ class _Checks:
         for name, state in states.items():
             self.add(name, state)
 
-    def render(self) -> dict[str, dict[str, int]]:
-        return {name: dict(entry) for name, entry in sorted(self._data.items())}
+    def render(self) -> dict[str, dict[str, Any]]:
+        return {
+            name: {**entry, "group": CHECK_GROUPS[name]}
+            for name, entry in sorted(self._data.items())
+        }
+
+    def group_summary(self) -> dict[str, dict[str, int]]:
+        """n/N per group, counted over every single check instance."""
+        summary = {
+            group: {"passed": 0, "failed": 0, "unknown": 0, "total": 0}
+            for group in ("engine", "plan")
+        }
+        for name, entry in self._data.items():
+            for key in ("passed", "failed", "unknown", "total"):
+                summary[CHECK_GROUPS[name]][key] += entry[key]
+        return summary
+
+    def group_passed(self, group: str) -> bool:
+        counts = self.group_summary()[group]
+        return counts["total"] > 0 and counts["passed"] == counts["total"]
 
     @property
     def all_passed(self) -> bool:
-        return bool(self._data) and all(
-            entry["total"] > 0 and entry["passed"] == entry["total"]
-            for entry in self._data.values()
-        )
+        """Engine and plan checks all passed; a group without a check is not a pass."""
+        return self.group_passed("engine") and self.group_passed("plan")
 
 
 def result_seat_checks(result: Any, player_count: int) -> dict[str, bool | None]:
@@ -605,10 +657,39 @@ def seat_gate_block(
             "selection_seed": None if explicit or not extras else EXTRA_DECK_SELECTION_SEED,
             "stems": [Path(d.source_path).stem for d in extras if d.source_path],
         },
+        "pod": "reference_x2_plus_precons" if extras else "reference_x2",
+        "table_a5": _is_table_a5(decks),
+        "table_a5_basis": "true only when the seats are exactly the five A5 precons "
+        "(seats_5_6_part_b_report.md); seats 1-4 of this gate are reference decks",
         "jar": jar,
         "checks": checks.render(),
+        "check_groups": checks.group_summary(),
+        "engine_checks_passed": checks.group_passed("engine"),
+        "plan_checks_passed": checks.group_passed("plan"),
         "all_checks_passed": checks.all_passed,
     }
+
+
+def _is_table_a5(decks: Sequence[RulesDeckInput]) -> bool:
+    stems = [
+        deck.deck_id.removeprefix(PRECON_FAMILY_PREFIX).split("/", 1)[0]
+        for deck in decks
+        if deck.deck_id.startswith(PRECON_FAMILY_PREFIX)
+    ]
+    return len(stems) == len(decks) and set(stems) == TABLE_A5_PRECONS
+
+
+def _jar_after_run(options: GateOptions, jar: dict[str, Any], checks: _Checks) -> dict[str, Any]:
+    """Hash the archive again after the run: a changed or vanished archive is a red check."""
+    if options.jar is None:
+        return jar
+    try:
+        after: str | None = jar_identity(options.jar)["sha256"]
+    except GateConfigError:
+        after = None
+    unchanged = after is not None and after == jar["sha256"]
+    checks.add("jar_unchanged", unchanged)
+    return {**jar, "sha256_after_run": after, "unchanged": unchanged}
 
 
 def _plan_checks(checks: _Checks, count: int = 1) -> None:
@@ -650,6 +731,7 @@ def cmd_single(args: argparse.Namespace) -> int:
         checks = _Checks()
         _plan_checks(checks)
         checks.add_all(result_seat_checks(result, options.player_count))
+        jar = _jar_after_run(options, jar, checks)
         summary["seat_gate"] = seat_gate_block(root, options, decks, checks, jar)
         passed = passed and checks.all_passed
     out = Path(args.out)
@@ -703,6 +785,7 @@ def cmd_replay(args: argparse.Namespace) -> int:
     natural_terminal_runs_verified = all(run["terminal"] is True for run in runs)
     gate_passed = semantic_match and natural_terminal_runs_verified
     if options.extended:
+        jar = _jar_after_run(options, jar, checks)
         gate_passed = gate_passed and checks.all_passed
     twin_match = runs[0]["semantic_transcript_sha256"] == runs[1]["semantic_transcript_sha256"]
     raw_match = runs[0]["raw_result_sha256"] == runs[1]["raw_result_sha256"]
@@ -810,6 +893,7 @@ def cmd_batch(args: argparse.Namespace) -> int:
             record = by_id.get(case.case_id)
             result = record.result if record is not None and record.status == "completed" else None
             checks.add_all(result_seat_checks(result, options.player_count))
+        jar = _jar_after_run(options, jar, checks)
         summary["seat_gate"] = seat_gate_block(root, options, cases[0].decks, checks, jar)
         summary["usability_gate_passed"] = gate_passed and checks.all_passed
         gate_passed = summary["usability_gate_passed"]
