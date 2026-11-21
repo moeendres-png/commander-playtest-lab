@@ -49,7 +49,7 @@ Datei widersprechen, gilt diese Datei.
 | Deckbauer | Der Studio-BUILD dieses Repositorys bleibt der Deckbauer des Projekts. `deckbuild-studio` ist eine eigene Ausgründung außerhalb der PLAY/SIMULATE-Pipeline; kein Austauschvertrag, kein Einfrieren des Deckbauers hier. Der generische Text-Import `scripts/import_deck.py` bleibt, wie er ist. | E1 |
 | Tierliste | Standardansicht ist der Nutzungsindex (objektiv, Schnitte 54/35/20/5). Das Gesamtrating v1 ist seit E15 Q1 (2026-11-20) entfernt (#1691); es bleibt nur das Feld „Kartenverständnis (Modellurteil)“ (Rubrik v2, Klasse URTEIL) für Chulane, nicht sortierbar. Standard bleibt „Nutzung“; Guide v2.2 wird nicht ausgerollt. | B10, E6 (überholt durch E15 Q1), E7 (C6) |
 | Simulation in der Tierliste | Das Gewicht `simulation` ist seit E15 Q1 entfernt (#1696); die Komponente existiert nicht mehr (Test: „Komponente existiert nicht mehr“). Simulation erscheint als Evidenz mit Reifegrad R0-R3 im Deckbauer (Q1-c, #1666), nie als Tierlisten-Gewicht. | B11, E2 (überholt durch E15 Q1) |
-| Offene Punkte | Entfernen der Rating-Teile (E15 Q1: #1684, #1686, #1691, #1696 gemergt, #1680 offen); Datenlücken für eine objektivere Bewertung (#1261). Pausiert und owner-vorbehalten: #1210, #1187/#1176. | Issues |
+| Offene Punkte | Entfernen der Rating-Teile (E15 Q1: #1684, #1686, #1691, #1696 und #1701 gemergt, #1680 erledigt); Datenlücken für eine objektivere Bewertung (#1261). Pausiert und owner-vorbehalten: #1210, #1187/#1176. | Issues |
 
 ## PLAY
 
