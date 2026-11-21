@@ -228,8 +228,11 @@ So wird der Scope oben abgearbeitet, von jedem Agenten gleich.
    Oberfläche, die Aussagen über Ratings oder Simulationsergebnisse machen, review-pflichtig; eine
    solche Änderung wird wie MATERIAL behandelt. Ein Merge vor dem erforderlichen Review ist nach
    §10 ein Gate-Verstoß, soweit die Änderung unter die MATERIAL-Liste in §10 fällt. Kreuz-Review
-   (E7/C7): Arbeiten zwei Agenten parallel, prüft eine Sitzung des jeweils anderen Agenten den
-   MATERIAL-PR; der Autor mergt frühestens nach diesem Kommentar. Wer Development Lead ist und
+   (E7/C7, seit E15 Q10 nur Klasse A, `AGENTS.md` §10): Arbeiten zwei Agenten parallel, prüft eine
+   Sitzung des jeweils anderen Agenten den MATERIAL-PR der Klasse A; der Autor mergt frühestens
+   nach diesem Kommentar. Befristete Ausnahme seit 2026-11-21, solange der andere Agent nicht
+   verfügbar ist: ein zweites Review aus frischem Kontext auf einem anderen Modell ersetzt das
+   Kreuz-Review (`docs/OWNER_DECISIONS_STUDIO_20261118.md`, „Entscheide 2026-11-20/21“ Nr. 4). Wer Development Lead ist und
    fremde PRs mergt, bleibt Owner-Sache. Anlass dieser Klarstellung sind zwei Merges vom
    2026-11-18 (#1509, #1510), bei denen Review-Befunde bzw. ein Halte-Hinweis erst nach dem Merge
    aufgelöst wurden.
@@ -247,7 +250,8 @@ So wird der Scope oben abgearbeitet, von jedem Agenten gleich.
    Client als erledigt gemeldet.
 8. **Simulation:** Ergebnisse nur als `SIMULATED_RESULT` mit Herkunft; kein Gewicht in der
    Tierliste (seit E15 Q1 entfernt; die Fassung „bevor G-SIM erfüllt ist (E2)“ ist überholt),
-   Evidenz mit Reifegrad R0-R3 im Deckbauer (Q1-c, #1666, noch nicht gebaut).
+   Evidenz mit Reifegrad R0-R3 im Deckbauer (Q1-c, #1666; Paket 1 mit #1717 im Serien-Verlauf
+   gebaut, höchstens R1 erreichbar, Diff und Kürzen/Tauschen offen).
 
 Regeln für Hilfs-Agenten (keine rekursiven Teams, kurze Berichte) stehen in `CLAUDE.md`.
 
