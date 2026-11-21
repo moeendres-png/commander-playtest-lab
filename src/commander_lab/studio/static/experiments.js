@@ -107,7 +107,7 @@ function experimentFinding(h, detail, zahlen) {
     ? h("div", { class: "muted" }, `nicht als Ergebnis gezählt (${result ? result.status_text : "Status unbekannt"})`)
     : zahl
       ? h("div", {}, "Differenz (B − A): ", StudioZahl.knoten(h, zahl))
-      : h("div", {}, `Differenz (B − A, simuliert): ${experimentPp(result.difference_pp)}`);
+      : h("div", { class: "muted" }, "Differenz (B − A): unbekannt (keine gültige Zahl im Zahl-Vertrag)");
   return h("div", {},
     h("h4", {}, "Befund"),
     h("p", { class: "note note-compact" }, EXPERIMENT_SIMULATED),
@@ -158,6 +158,12 @@ function experimentProvenance(h, detail) {
     `Engine-Pin: ${experimentShort(p.engine_pin)} · Bridge-JAR: ${experimentShort(p.bridge_jar_sha256)} · Bridge-Zustand: ${experimentText(p.bridge_state)} · Pilot-Fingerabdruck: ${experimentShort(p.pilot_fingerprint)}`);
 }
 
+// Whether the route already says the server will refuse the adoption (main moved off the base).
+function experimentAdoptRefused(detail) {
+  const base = (detail.arms || []).find((arm) => arm.role === "base");
+  return !base || detail.current_main_revision_id !== base.revision_id;
+}
+
 // The consequences of a decision, only from fields of the route.
 function experimentConsequences(decision, detail, labels) {
   const arms = detail.arms || [];
@@ -175,10 +181,31 @@ function experimentConsequences(decision, detail, labels) {
     "Der Klick gilt als Owner-Entscheid zur Basis (E15 Q2); keine Deck-Datei wird geschrieben.",
   ];
   if (!detail.result || !detail.result.counts_as_result) lines.push("Ohne gezählten Befund wird die Übernahme als „ungetestet“ vermerkt.");
-  if (!base || detail.current_main_revision_id !== base.revision_id) {
+  if (experimentAdoptRefused(detail)) {
     lines.push("main steht nicht mehr auf der Basis dieses Experiments: der Server lehnt die Übernahme ab, nichts wird überschrieben.");
   }
   return lines;
+}
+
+// Adopting moves main: an unsaved draft on main (this tab or stored on the server) would later
+// put the old base back. While one exists, or the server will refuse anyway, "Ja, übernehmen"
+// stays disabled and the panel says why.
+async function experimentCheckDraft(detail, deps, lines, done) {
+  const h = deps.h;
+  const reasons = [];
+  if (experimentAdoptRefused(detail)) reasons.push("Übernehmen ist gesperrt, solange main nicht auf der Basis steht.");
+  let open = Boolean(deps.localMainDraft && deps.localMainDraft());
+  if (!open) {
+    try {
+      const found = await deps.api(`/api/decks/${encodeURIComponent(detail.deck_id)}/branches/main/draft`);
+      open = Boolean(found && found.draft);
+    } catch (error) {
+      reasons.push(`Entwurf auf main nicht prüfbar (${StudioUI.germanError(error)}): Übernehmen bleibt gesperrt.`);
+    }
+  }
+  if (open) reasons.push("Es gibt einen ungespeicherten Entwurf auf main; erst speichern oder verwerfen.");
+  for (const reason of reasons) lines.append(h("li", { class: "bad" }, reason));
+  done(reasons.length === 0);
 }
 
 function experimentDecision(h, detail, labels, deps) {
@@ -196,14 +223,21 @@ function experimentDecision(h, detail, labels, deps) {
   function confirmPanel(decision) {
     const note = h("textarea", { name: "experiment-decision-note", rows: 2, "aria-label": "Notiz zur Entscheidung (darf leer sein)", placeholder: "Notiz (darf leer sein)" });
     const status = h("p", { class: "muted", role: "status" });
+    const lines = h("ul", {}, experimentConsequences(decision, detail, labels).map((line) => h("li", {}, line)));
+    let sending = false;
+    let blocked = decision === "adopted"; // until the draft check below has answered
     const yes = h("button", {
       type: "button",
       class: decision === "adopted" ? "primary" : "",
+      disabled: blocked,
       onclick: async () => {
+        if (sending || blocked) return; // one POST per confirmation, never while blocked
+        sending = true;
         yes.disabled = true;
         try {
           await deps.api(`/api/experiments/${encodeURIComponent(detail.experiment_id)}/decision`, "POST", { decision, note: note.value || "" });
         } catch (error) {
+          sending = false;
           yes.disabled = false;
           status.replaceChildren(StudioUI.germanError(error));
           return;
@@ -213,10 +247,12 @@ function experimentDecision(h, detail, labels, deps) {
     }, decision === "adopted" ? "Ja, übernehmen" : "Ja, verwerfen");
     box.replaceChildren(h("div", { class: "note", role: "group", "aria-label": "Entscheidung bestätigen" },
       h("b", {}, decision === "adopted" ? "Variante übernehmen?" : "Variante verwerfen?"),
-      h("ul", {}, experimentConsequences(decision, detail, labels).map((line) => h("li", {}, line))),
+      lines,
       note,
       h("div", { class: "actions" }, yes, h("button", { type: "button", onclick: showChoice }, "Abbrechen")),
       status));
+    if (decision === "adopted") return experimentCheckDraft(detail, deps, lines, (ok) => { blocked = !ok; yes.disabled = !ok; });
+    return null;
   }
   showChoice();
   return h("div", {}, h("h4", {}, "Entscheidung"), h("p", { class: "muted" }, "offen: nichts wird automatisch übernommen oder verworfen."), box);
@@ -234,16 +270,19 @@ function experimentDetailView(h, detail, ctx) {
 
 async function experimentOpen(target, key, ctx) {
   const { h } = ctx;
+  const token = (ctx.openSeq.n += 1); // a late answer for an earlier click never covers a later one
   target.replaceChildren(h("p", { class: "muted" }, "lädt …"));
   let detail = null;
   try {
     detail = await ctx.api(`/api/experiments/${encodeURIComponent(key)}`);
   } catch (error) {
+    if (token !== ctx.openSeq.n) return;
     target.replaceChildren(h("p", { class: "muted" }, error && error.status === 404
       ? "nicht im Index (ältere Serie): erst nach einem Neuaufbau des Index sichtbar; nichts wird automatisch neu aufgebaut."
       : StudioUI.germanError(error)));
     return;
   }
+  if (token !== ctx.openSeq.n) return;
   target.replaceChildren(experimentDetailView(h, detail, ctx));
 }
 
@@ -257,11 +296,11 @@ async function renderExperiments(slot, historyRows, deps) {
     try {
       data = await deps.api(`/api/decks/${encodeURIComponent(deps.deckId)}/series`);
     } catch (error) {
-      slot.replaceChildren(title, h("p", { class: "muted" }, "Experimente konnten nicht gelesen werden (unbekannt, nicht 0)."));
+      slot.replaceChildren(title, h("p", { class: "muted" }, `Experimente konnten nicht gelesen werden (unbekannt, nicht 0): ${StudioUI.germanError(error)}`));
       return;
     }
     const detailBox = h("div", {});
-    const ctx = { ...deps, labels, zahlen: StudioZahl.index(data.zahlen) };
+    const ctx = { ...deps, labels, zahlen: StudioZahl.index(data.zahlen), openSeq: { n: 0 } };
     const legacy = experimentLegacyNote(data);
     slot.replaceChildren(title,
       h("p", { class: "note note-compact" }, EXPERIMENT_SIMULATED, legacy ? ` ${legacy}` : ""),
@@ -272,5 +311,5 @@ async function renderExperiments(slot, historyRows, deps) {
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { renderExperiments, experimentDetailView, experimentListTable, experimentLegacyNote, experimentConsequences, experimentPairs };
+  module.exports = { renderExperiments, experimentDetailView, experimentListTable, experimentLegacyNote, experimentConsequences, experimentPairs, experimentOpen };
 }
