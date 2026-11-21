@@ -4500,3 +4500,22 @@ def test_fast_forward_chain_sends_one_request_per_pass_and_follows_only_at_its_e
     assert out["starts"] == [2, 3]
     assert out["follows"] == 1 and out["whileSending"] == [False]
     assert out["frames"] == [1, 2, 3, 4] and out["pending"] == "d3"
+
+
+def test_a_live_human_game_is_served_as_played_game_with_its_seat(tmp_path: Path) -> None:
+    """#1662: the live state names the cohort (``PLAYED_GAME``) and the human seat from the game's
+    own header, so the page never has to guess; the finished log says the same."""
+    fake = _FakeInteractiveClient()
+    app, client = _start_fake_session(tmp_path, "cohort-live", fake)
+    try:
+        _wait_for_pending(client, "cohort-live", "dec-h-1")
+        live = client.get("/api/play/cohort-live").json()
+        assert live["running"] is True
+        assert (live["cohort"], live["played_seats"]) == ("PLAYED_GAME", [0])
+        listed = {g["game_id"]: g for g in client.get("/api/games").json()}
+        assert (listed["cohort-live"]["cohort"], listed["cohort-live"]["played_seats"]) == (
+            "PLAYED_GAME",
+            [0],
+        )
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]

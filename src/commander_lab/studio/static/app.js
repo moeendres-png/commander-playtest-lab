@@ -66,6 +66,23 @@ function h(tag, props, ...children) {
   }
   return el;
 }
+// One row of "Aufgezeichnete Einzelpartien" (SIMULATE).
+function recordedGameRow(g) {
+  const hdr = g.header || {};
+  const end = g.running ? "läuft" : g.result && g.result.status === "finished" ? `Sieger Sitz ${((g.result.winner_seats || []).map((s) => s + 1)).join(", ") || "keiner"}` : "abgebrochen";
+  const jarShort = hdr.bridge_jar_sha256 ? String(hdr.bridge_jar_sha256).slice(0, 12) : "–";
+  const jarTitle = [hdr.bridge_jar_sha256 ? `SHA-256: ${hdr.bridge_jar_sha256}` : null, hdr.bridge_qualification_state ? `Stand: ${hdr.bridge_qualification_state}` : null].filter(Boolean).join(" · ");
+  // The cohort comes from the server (game log header); a game a human played, or one whose
+  // origin is unknown, carries its mark and is never listed as a simulation (#1662).
+  const cohortMark = StudioCohort.mark(g);
+  return h("tr", {},
+    h("td", {}, h("code", {}, g.game_id), cohortMark && " ", cohortMark && h("span", { class: cohortMark.cohort === StudioCohort.PLAYED ? "pill good" : "pill warn", title: cohortMark.title }, cohortMark.text)),
+    h("td", { class: "num" }, hdr.seed == null ? "–" : StudioUI.num(hdr.seed, 0)),
+    h("td", { class: "num" }, StudioUI.num(g.frames ?? 0, 0)),
+    h("td", {}, h("code", { title: jarTitle }, jarShort)),
+    h("td", {}, end),
+    h("td", {}, h("a", { href: `partie.html?partie=${encodeURIComponent(g.game_id)}` }, "Ansehen →")));
+}
 const api = StudioUI.request;
 const toast = (text) => StudioUI.toast(text);
 const fail = (error, asText = false) => {
@@ -1605,19 +1622,7 @@ function renderSimulations(body) {
   if (state.recordedGames && state.recordedGames.length) {
     const gTable = h("div", { class: "table-wrap" }, h("table", {},
       h("thead", {}, h("tr", {}, h("th", {}, "Partie"), h("th", { class: "num" }, "Seed"), h("th", { class: "num" }, "Entscheidungen"), h("th", {}, "Bridge-JAR"), h("th", {}, "Status / Sieger"), h("th", {}, ""))),
-      h("tbody", {}, state.recordedGames.slice(0, 15).map((g) => {
-        const hdr = g.header || {};
-        const end = g.running ? "läuft" : g.result && g.result.status === "finished" ? `Sieger Sitz ${((g.result.winner_seats || []).map((s) => s + 1)).join(", ") || "keiner"}` : "abgebrochen";
-        const jarShort = hdr.bridge_jar_sha256 ? String(hdr.bridge_jar_sha256).slice(0, 12) : "–";
-        const jarTitle = [hdr.bridge_jar_sha256 ? `SHA-256: ${hdr.bridge_jar_sha256}` : null, hdr.bridge_qualification_state ? `Stand: ${hdr.bridge_qualification_state}` : null].filter(Boolean).join(" · ");
-        return h("tr", {},
-          h("td", {}, h("code", {}, g.game_id)),
-          h("td", { class: "num" }, hdr.seed == null ? "–" : StudioUI.num(hdr.seed, 0)),
-          h("td", { class: "num" }, StudioUI.num(g.frames ?? 0, 0)),
-          h("td", {}, h("code", { title: jarTitle }, jarShort)),
-          h("td", {}, end),
-          h("td", {}, h("a", { href: `partie.html?partie=${encodeURIComponent(g.game_id)}` }, "Ansehen →")));
-      }))));
+      h("tbody", {}, state.recordedGames.slice(0, 15).map(recordedGameRow))));
     body.append(h("h3", {}, "Aufgezeichnete Einzelpartien"), gTable);
   }
   if (!state.simulations || !state.simulations.length) {

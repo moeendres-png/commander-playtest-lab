@@ -16,7 +16,7 @@ const SPEEDS = [[2000, "langsam"], [1000, "1 pro Sekunde"], [500, "2 pro Sekunde
 const POOL_COLORS = { white: "Weiß", blue: "Blau", black: "Schwarz", red: "Rot", green: "Grün", colorless: "Farblos" };
 const OPTION_TYPES = { pass_priority: "Passen", play_land: "Land spielen", cast_spell: "Zauber wirken", activated_ability: "Fähigkeit aktivieren", mana_ability: "Mana-Fähigkeit", special_action: "Sonderaktion", target: "Ziel", choose_object: "Objekt wählen", attacker: "Angreifer", blocker: "Blocker", mode: "Modus", choice: "Auswahl", mana_payment: "Mana", trigger_order: "Auslöser", yes: "Ja", no: "Nein" };
 
-const state = { click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
+const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
 
 const $ = (id) => document.getElementById(id);
 function h(tag, props, ...children) {
@@ -55,6 +55,16 @@ function toast(text, milliseconds = 3500) {
 }
 
 const seatName = (seat) => (seat === null || seat === undefined ? "?" : `Sitz ${seat + 1}`);
+// The pill in the header says what the open game is, from the server's reading of the game log
+// (`cohort`, `played_seats`; StudioCohort). Nothing is guessed here: with no record yet it claims
+// nothing, and an unreadable origin is never worded as a simulation (#1662).
+function renderCohortPill() {
+  const pill = $("sim-pill");
+  const view = StudioCohort.pill(state.cohortRecord);
+  pill.className = view.cls;
+  pill.title = view.title;
+  pill.textContent = view.text;
+}
 function seatInfo(seat) { return ((state.header && state.header.seats) || []).find((entry) => entry.seat === seat) || {}; }
 function seatLabel(seat) {
   const info = seatInfo(seat);
@@ -1469,6 +1479,8 @@ async function loadMoreOnce(hold, prefetched) {
     }
     if (page.frames.length && page.start !== requestedStart) continue; // stale page: ask again
     state.header = page.header;
+    state.cohortRecord = { cohort: page.cohort, played_seats: page.played_seats };
+    renderCohortPill();
     state.result = page.result;
     state.running = page.running;
     state.revision = state.interactive ? StudioFollow.parseRevision(page) : null;
@@ -1502,8 +1514,8 @@ async function openGame(gameId) {
   restoreAiDelayOnLeave(state.gameId);
   const listed = state.games.find((entry) => entry.game_id === gameId);
   const listedInteractive = Boolean(listed && listed.header && Array.isArray(listed.header.human_seats) && listed.header.human_seats.length);
-  Object.assign(state, { gameId, frames: [], lines: [], index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, revision: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
-  ffStatus(""); showConnectionLost(0, "");
+  Object.assign(state, { gameId, cohortRecord: null, frames: [], lines: [], index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, revision: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
+  ffStatus(""); showConnectionLost(0, ""); renderCohortPill();
   $("log").textContent = ""; $("table").textContent = ""; delete $("table").dataset.banner;
   await loadMore();
   const header = state.header || {};
@@ -1591,11 +1603,11 @@ async function refreshTitles() {
 }
 function gameTitle(game) {
   const seats = (game.header.seats || []).map((seat) => (seat.commanders || []).join(" + ") || seat.deck_id).join(" · ");
-  const hasHuman = Array.isArray(game.header.human_seats) && game.header.human_seats.length > 0;
+  const cohortMark = StudioCohort.mark(game);
   const end = game.running ? "läuft" : game.result && game.result.status === "finished" ? `Sieger ${(game.result.winner_seats || []).map(seatName).join(", ") || "keiner"}` : "abgebrochen";
   const skipped = Number((game.result && game.result.forced_decisions_skipped) || 0);
   const skippedPart = skipped > 0 ? ` (+ ${skipped} erzwungene Pässe)` : "";
-  return `${hasHuman ? "[Mensch] " : ""}${seats} · Seed ${game.header.seed} · ${game.frames} Entscheidungen${skippedPart} · ${end}`;
+  return `${cohortMark ? `[${cohortMark.cohort === StudioCohort.PLAYED ? "Mensch" : cohortMark.text}] ` : ""}${seats} · Seed ${game.header.seed} · ${game.frames} Entscheidungen${skippedPart} · ${end}`;
 }
 // ---- new game ------------------------------------------------------------------------------
 async function newGame(wantedRevision) {
@@ -1717,6 +1729,8 @@ async function listGames(wanted) {
   for (const game of state.games) select.append(h("option", { value: game.game_id }, gameTitle(game)));
   if (!state.games.length) {
     state.gameId = null;
+    state.cohortRecord = null;
+    renderCohortPill();
     state.interactive = false;
     state.pendingDecision = null;
     state.canConcede = false;
