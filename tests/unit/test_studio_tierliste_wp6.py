@@ -91,8 +91,25 @@ def test_the_spread_constants_are_recomputed_from_the_raw_research_files() -> No
         "Unabhängiger Rater aus einer anderen Modellfamilie",
         "Rating-Audit A",
     ]
+    # the bands per H range are the audit's estimate (text), each band names that source
     assert "H \u2264 10: etwa \u00b15. H 40\u201355: etwa \u00b110" in audit
-    assert "\u00b110 bei H 40 bis 55" in str(spread["art"])
+    assert "H \u2265 60: asymmetrisch, etwa \u221215 bis +5" in audit
+    bands = spread["baender"]
+    assert isinstance(bands, list)
+    assert [(b["ab"], b["bis"], b["kurz"]) for b in bands] == [
+        (0, 10, "\u00b15"),
+        (40, 55, "\u00b110"),
+        (60, 100, "\u221215/+5"),
+    ]
+    assert all("Schätzung Rating-Audit A §4" in b["quelle"] for b in bands)
+    # the 230 of audit A is an estimate from its text, not a sigma of paired ratings
+    assert [q["gemessen"] for q in sources] == [True, True, False]
+    assert "Schätzung" in sources[2]["name"] and "Schätzung" in sources[2]["kennzahl"]
+    assert "11 von 1708 Zitaten (0,6 %) nicht wörtlich" in audit
+    claims = (RESEARCH / "audit" / "AUDIT_D_rule_claims.md").read_text(encoding="utf-8")
+    assert (
+        "| richtig | 100    | 100 %  |" in claims and "Wavesifter" in claims and "Evoke" in claims
+    )
 
 
 # ---------- T3 / T5 on the real data set ----------
@@ -141,11 +158,20 @@ def test_the_field_marks_35_of_35_doubts_and_65_lands_on_their_own_scale() -> No
     assert len(doubt["karten"]) == 35
     by_id = {f["id"].removeprefix(understanding_field.ID_PREFIX): f for f in figures}
     marked = [
-        i for i, f in by_id.items() if any("vom Prüfer bezweifelt" in n for n in f["hinweise"])
+        i for i, f in by_id.items() if any(n.startswith("Prüfer-Modell") for n in f["hinweise"])
     ]
     assert sorted(marked) == sorted(doubt["karten"])
     first = doubt["karten"][marked[0]]
     assert first["art"] in card_understanding.AUDIT_KINDS and first["grund"]
+    labels = sorted(entry["kurz"] for entry in doubt["karten"].values())
+    # a wrong reason is no doubt about H; every label says the reviewer is a model
+    assert labels.count("Prüfer-Modell: Begründung faktisch falsch") == 2
+    assert all(
+        label.startswith("Prüfer-Modell bezweifelt H: zu ")
+        for label in labels
+        if "Begründung" not in label
+    )
+    assert all("kein Mensch" in entry["text"] for entry in doubt["karten"].values())
     lands = field["laender_skala"]
     assert (lands["n_laender"], lands["n_t_null"]) == (65, 58)  # Gutachten C §4: 65, T = 0 at 58
     assert "Gutachten C §4" in lands["quelle"] and len(lands["karten"]) == 65
@@ -264,6 +290,13 @@ def test_the_understanding_layer_leaves_the_ranking_answer_byte_identical(
     assert tiers.count("U") < len(tiers)  # the synthetic answer has real tiers to compare
     field = after[FIELD]
     assert field["laender_skala"]["n_laender"] == 1 and field["laender_skala"]["n_t_null"] == 1
+    # the commander card has no row: the pool coverage counts n < N per criterion
+    coverage = field["abdeckung"]
+    assert field["n_bewertet"] == 9 and field["n_gesamt"] == len(answer["cards"]) > 9
+    assert (
+        all((c["n"], c["N"]) == (9, field["n_gesamt"]) for c in coverage.values())
+        and len(coverage) == 7
+    )
     assert field["pruefer_zweifel"]["n_markiert"] == 0  # an empty audit is a real 0, not missing
 
 
@@ -316,7 +349,14 @@ def test_the_card_detail_gives_all_seven_criteria_with_reason_and_claims() -> No
     doubt = detail["pruefer_zweifel"]
     assert doubt["art"] == "H zu hoch" and doubt["spanne"] == [30.0, 45.0]
     h_figure = criteria[-1]["zahl"]
-    assert any("vom Prüfer bezweifelt" in note for note in h_figure["hinweise"])
+    assert any(n.startswith("Prüfer-Modell bezweifelt H: zu hoch") for n in h_figure["hinweise"])
+    assert doubt["kurz"] == "Prüfer-Modell bezweifelt H: zu hoch"
+    assert detail["regelclaims_titel"] == (
+        "Regelclaims des Raters (Modellurteil, keine Regelaussage; Regelautorität XMage/CR)"
+    )
+    assert detail["regelclaims_hinweis"].startswith(
+        "Zitate nicht einzeln geprüft (Audit A: 11 von 1708 Zitaten, 0,6 %, nicht wörtlich"
+    )
     assert detail["laender_skala"] is None
     assert "Bracket 3" in detail["kohorte"] and "keine Spielstärke" in detail["hinweis"]
     assert detail["streuung"] == understanding_field.SPREAD
@@ -390,8 +430,10 @@ const REASON_SHORT = {}, CONF_WORDS = {}, CONFIDENCE_NAMES = {}, CONFIDENCE_TEXT
 const roleName = (r) => r, codeLabel = (c) => c, $ = () => null;
 const unknown = (t = 'unbekannt') => h('span', {class: 'unknown'}, t);
 const spreadKnown = () => false, presentCount = () => 0, corpusAll = () => null, widest = () => null, textfitOf = () => null;
-const SPREAD = {kriterium: 'H', text: '± rund 5 bis 8 Punkte (1\u03c3), ein Lauf je Karte', kurz: '±5\u20138', unten: 5, oben: 8, laeufe_je_karte: 1,
-  art: 'typische Streuung', quellen: [{name: 'Drift', n: 49, N: 922, bezug: 'Karten', kennzahl: 'mittlere |ΔH| 5,10', datei: 'PILOT_REPORT.md'}]};
+const SPREAD = {kriterium: 'H', text: 'typisch ± rund 5 bis 8 Punkte (1\u03c3), ein Lauf je Karte', kurz: '±5\u20138', unten: 5, oben: 8, laeufe_je_karte: 1,
+  baender: [{ab: 0, bis: 10, kurz: '±5', text: 'etwa ±5 bei H bis 10', quelle: 'Schätzung Rating-Audit A §4'},
+    {ab: 60, bis: 100, kurz: '\u221215/+5', text: 'asymmetrisch', quelle: 'Schätzung Rating-Audit A §4'}],
+  art: 'typische Streuung', quellen: [{name: 'Audit', kurzname: 'Audit A', gemessen: false, n: 230, N: 922, bezug: 'Karten', kennzahl: 'Schätzung 7 bis 8', datei: 'AUDIT_A'}, {name: 'Drift', kurzname: 'Drift', gemessen: true, n: 49, N: 922, bezug: 'Karten', kennzahl: 'mittlere |ΔH| 5,10', datei: 'PILOT_REPORT.md'}]};
 const item = (id, tier, index, roles = {}) => ({card_id: id, tier, index, components: [], role_ranks: roles, confidence: null, reason: 'X', note: 'n'});
 const figure = (id, wert, notes = []) => ({id: 'kartenverstaendnis:' + id, bezeichnung: 'H Gesamtwert (0 bis 100)', wert, einheit: 'Punkte',
   n: null, N: null, bezug: null, intervall: null, klasse: 'URTEIL', kohorte: 'Chulane, Teller of Tales · Bracket 3 (Annahme der Rater)',
@@ -489,13 +531,14 @@ def test_the_judgement_cell_shows_spread_confidence_doubt_and_land_scale() -> No
 const cards = [item('A', 'S', 70), item('B', 'S', 60), item('L', 'D', 1), item('X', 'D', 1)];
 const field = (extra) => ({verfuegbar: true, grund: null, name: 'Kartenverständnis (Modellurteil)', kriterium: 'H', n_bewertet: 3, n_gesamt: 4,
   herkunft: {version: 'v2.1', rubric: 'chulane-rubric-v2.1'},
-  zahlen: [figure('A', 90, ['vom Prüfer bezweifelt: H zu hoch; Prüfer-Spanne 30 bis 45 (Rating-Audit A)']), figure('B', 0), figure('L', 30, ['Länder-Skala: x'])],
+  zahlen: [figure('A', 90, ['Prüfer-Modell bezweifelt H: zu hoch; Spanne des Prüfers für H 30 bis 45']), figure('B', 0), figure('L', 30, ['Länder-Skala: x'])],
   streuung: SPREAD, abdeckung: {},
   pruefer_zweifel: {verfuegbar: true, quelle: 'Rating-Audit A', n_markiert: 35, n_zugeordnet: 35, n_im_pool: 1,
-    karten: {A: {art: 'H zu hoch', spanne: [30, 45], text: 'vom Prüfer bezweifelt: H zu hoch; Prüfer-Spanne 30 bis 45 (Rating-Audit A)', grund: 'Einmal-Effekt'}}},
+    karten: {A: {art: 'H zu hoch', spanne: [30, 45], kurz: 'Prüfer-Modell bezweifelt H: zu hoch', text: 'Prüfer-Modell bezweifelt H: zu hoch; Spanne des Prüfers für H 30 bis 45', grund: 'Einmal-Effekt'}}},
   laender_skala: {text: 'Länder-Skala: eigene Skala', quelle: 'Gutachten C §4', n_laender: 1, n_t_null: 1, karten: ['L']}, ...extra});
+const bandTitle = (n) => (n && typeof n === 'object' ? ((n.props.class || '').split(' ').includes('zahl-band') ? n.props.title : n.kids.map(bandTitle).find(Boolean) || '') : '');
 const show = () => ({cells: cards.map((c) => { const cell = understandingCell(c); return {text: text(cell), title: titleOf(cell),
-  doubt: has(cell, 'pruefer-zweifel'), land: has(cell, 'laender-skala'), band: has(cell, 'zahl-band')}; }),
+  doubt: has(cell, 'pruefer-zweifel'), land: has(cell, 'laender-skala'), band: has(cell, 'zahl-band'), band_title: bandTitle(cell)}; }),
   hint: understandingHint().map(text).join(' ')});
 setup(cards, field({})); const out = {full: show()};
 setup(cards, field({streuung: null, pruefer_zweifel: {verfuegbar: false, grund: 'Audit-Datei nicht gefunden', n_markiert: null, karten: {}}})); out.missing = show();
@@ -505,17 +548,24 @@ console.log(JSON.stringify(out));
     result = _node_json(script)
     assert isinstance(result, dict)
     a, b, land, unrated = result["full"]["cells"]
-    assert a["text"].startswith("90") and "±5\u20138" in a["text"] and "mittel" in a["text"]
+    # the band of the H range: 90 -> -15/+5, 0 -> +-5, 30 (no band) -> the typical spread
+    assert a["text"].startswith("90") and "\u221215/+5" in a["text"] and "mittel" in a["text"]
+    assert "Prüfer-Modell bezweifelt H: zu hoch" in a["text"]
+    assert "Schätzung Rating-Audit A §4" in a["band_title"]
     assert "Modellurteil" in a["text"] and a["band"] and a["doubt"] and not a["land"]
     assert "Quelle: Rubrik v2.1" not in a["text"]  # the origin is in the head line, not per row
     assert "Quelle: Rubrik v2.1" in a["title"] and "Kohorte: Chulane" in a["title"]
     assert b["text"].startswith("0") and b["band"] and not b["doubt"]  # a real 0 stays 0
     assert land["land"] and "Länder-Skala" in land["text"] and not land["doubt"]
+    assert "±5\u20138 typ." in land["text"] and "typische Streuung" in land["band_title"]
+    assert " ±5 " in b["text"] + " " and "\u221215" not in b["text"]
     assert unrated["text"] == "unbekannt" and not unrated["band"]
     hint = result["full"]["hint"]
     assert "Quelle: Rubrik v2.1 (chulane-rubric-v2.1)" in hint and "Kohorte: Chulane" in hint
-    assert "Streuung ±5\u20138 (1\u03c3, 1 Lauf je Karte; n = 49)" in hint
-    assert "vom Prüfer bezweifelt: 35 von 35 zugeordnet, 1 im Pool" in hint
+    assert "Streuung ±5\u20138 typisch (1\u03c3, 1 Lauf je Karte)" in hint
+    assert "je H-Bereich ±5 / \u221215/+5 (Schätzung Audit A); gemessen: Drift n = 49" in hint
+    assert "230" not in hint  # the audit's estimate is no measured n beside the sigma
+    assert "Prüfer-Modell-Zweifel: 35 von 35 zugeordnet, 1 im Pool" in hint
     assert "Länder-Skala: 1 Länder, T = 0 bei 1" in hint and "3 von 4 Karten bewertet" in hint
     assert "nicht gegen Spielergebnisse validiert" in hint and "keine Spielstärke" in hint
     missing = result["missing"]
@@ -573,8 +623,19 @@ console.log(JSON.stringify(out));
     assert "Abdeckung n/N: Zeilen des Datensatzes (mit Wert / gesamt)." in rated_view["text"]
     text = rated_view["text"]
     assert "It does one small thing." in text and "Draw a card." in text
-    assert "vom Prüfer bezweifelt" in text and "Prüfer-Spanne 30 bis 45" in text
-    assert "keine Spielstärke" in text and "Streuung von H: ± rund 5 bis 8 Punkte" in text
+    assert (
+        "Prüfer-Modell bezweifelt H: zu hoch" in text
+        and "Spanne des Prüfers für H 30 bis 45" in text
+    )
+    assert (
+        "Regelclaims des Raters (Modellurteil, keine Regelaussage; Regelautorität XMage/CR)" in text
+    )
+    assert (
+        "Zitate nicht einzeln geprüft (Audit A: 11 von 1708 Zitaten, 0,6 %, nicht wörtlich" in text
+    )
+    assert "Zitat laut Rater:" in text and "Aussage des Raters:" in text
+    assert "H 0 bis 10: etwa ±5 bei H bis 10" in text
+    assert "keine Spielstärke" in text and "Streuung von H: typisch ± rund 5 bis 8 Punkte" in text
     assert "Kohorte: Chulane, Teller of Tales · Bracket 3" in text
     unrated_rows = dict(result["unrated"]["rows"])
     assert len(unrated_rows) == 7

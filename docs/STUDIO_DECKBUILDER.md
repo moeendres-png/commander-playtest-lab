@@ -430,8 +430,11 @@ no strength in play, no tier, no rank, no sort key, not part of the index.
   another model family (70 cards, mean |ΔH| 7,9, 13 of 70 with |ΔH| ≥ 15, ≈ 7,3) and the combined
   estimate of rating audit A (230 cards, 1σ about 7 to 8); files under
   `data/research/chulane_rubric_v2_20261118/` (`PILOT_REPORT.md` §10/§11, `audit/AUDIT_A_ratings.md`
-  §0/§4). A test recomputes these figures from the raw files. The figures keep `intervall: null`: a
-  typical spread is no measured per-card interval. The origin shared by all figures (source,
+  §0/§4). The spread grows with H, so each cell shows the band of its H range from the audit's
+  estimate (AUDIT_A §4: about ±5 at H up to 10, about ±10 at H 40 to 55, about −15/+5 from H 60)
+  and otherwise "±5–8 typ."; the head names the audit's 7 to 8 as an estimate and only the drift
+  and the other rater as measured n. A test recomputes these figures from the raw files. The
+  figures keep `intervall: null`: a typical spread is no measured per-card interval. The origin shared by all figures (source,
   cohort, "nicht gegen Spielergebnisse validiert") stands once, visible, above the table; each
   cell shows value, "±5–8", the class badge "Modellurteil", the rater's confidence and the marks,
   with its full origin in the tooltip (`StudioZahl.zelle(..., { kompakt: true })`; without the
@@ -444,14 +447,19 @@ no strength in play, no tier, no rank, no sort key, not part of the index.
   n of N per criterion over the data set. A card the data set does not list has all seven values
   "unbekannt", never 0; a missing note is "unbekannt". For any other commander the answer says
   `anzeigen: false` and the page shows nothing. The card window of the tier list (while the column
-  is shown) and of the deck builder render it (`static/kartenverstaendnis.js`). The field itself
+  is shown) and of the deck builder render it (`static/kartenverstaendnis.js`). The rules claims
+  are headed "Regelclaims des Raters (Modellurteil, keine Regelaussage; Regelautorität XMage/CR)"
+  with the note that quotes are not checked one by one (Audit A: 11 of 1708 quotes not literal;
+  Audit D: 100 of 100 sampled claims right, one factual error in a targeted look at Evoke). The field itself
   carries `abdeckung` (n of N pool cards per criterion).
 - **T3 audit mark.** `pruefer_zweifel` places the lines of
   `audit/audit_A_flagged.jsonl` (blind rating audit, reviewer of another model family) on the data
   set by exact card name: 35 of 35 placed on the current data set. A line whose seen H is not the
   current H counts as outdated and is not shown; an unknown name counts as unmatched. A missing
-  audit file is "nicht verfügbar", never "no card doubted". The cell shows "vom Prüfer bezweifelt"
-  with kind, the reviewer's range and reason in the tooltip.
+  audit file is "nicht verfügbar", never "no card doubted". The reviewer is a model, and the label
+  says so: "Prüfer-Modell bezweifelt H: zu hoch / zu niedrig", or for the two lines of the kind
+  "Begründung faktisch falsch" "Prüfer-Modell: Begründung faktisch falsch" (no doubt about H); the
+  reviewer's range for H and the reason are in the tooltip.
 - **T4 rank bands.** The index has one decimal, so many cards share a value (the audit counted 777
   of 922 in tie groups). Each card with a tier gets the band of places its tie group takes among
   all cards with a tier of the answer; in tier D the band ("Rang 824–922") replaces the decimal (the

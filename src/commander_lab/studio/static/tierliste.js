@@ -579,14 +579,22 @@ function understandingFigure(card) {
   return understandingCache.figures.get(UNDERSTANDING_ID + card.card_id) || null;
 }
 const CONFIDENCE_SHORT = { high: "hoch", medium: "mittel", low: "niedrig" };
-// The spread of one rating (T1): the same short band at every H figure, its sources in the tooltip.
+// The spread of one rating (T1): the band of the H range the value lies in (the audit's estimate per range), else the
+// typical spread; band, estimate and the measured sources in the tooltip.
 function spreadTitle(spread) {
-  const sources = (spread.quellen || []).map((q) => `${q.name}: ${q.kennzahl} (n = ${nf(q.n)} von ${nf(q.N)} ${q.bezug}; ${q.datei})`);
+  const sources = (spread.quellen || []).map((q) => `${q.name}: ${q.kennzahl} (${q.gemessen === false ? "Schätzung" : "gemessen"}, n = ${nf(q.n)} von ${nf(q.N)} ${q.bezug}; ${q.datei})`);
   return [`Streuung von H: ${spread.text} (${spread.art})`, ...sources].join(" · ");
 }
-function spreadNode(field) {
+function spreadBandOf(spread, wert) {
+  const bands = Array.isArray(spread.baender) ? spread.baender : [];
+  return typeof wert === "number" ? bands.find((b) => wert >= b.ab && wert <= b.bis) || null : null;
+}
+function spreadNode(field, wert) {
   const spread = field && field.streuung;
-  return spread && spread.kurz ? h("span", { class: "zahl-band", title: spreadTitle(spread) }, ` ${spread.kurz}`) : h("span", { class: "zahl-band unknown", title: "Streuung nicht geliefert" }, " ± unbekannt");
+  if (!spread || !spread.kurz) return h("span", { class: "zahl-band unknown", title: "Streuung nicht geliefert" }, " ± unbekannt");
+  const band = spreadBandOf(spread, wert);
+  const title = band ? `${band.text}: ${band.quelle} · ${spreadTitle(spread)}` : `typische Streuung · ${spreadTitle(spread)}`;
+  return h("span", { class: band ? "zahl-band" : "zahl-band typisch", title }, ` ${band ? band.kurz : `${spread.kurz} typ.`}`);
 }
 // Visible extras of one H cell: spread band, the rater's confidence, the audit doubt (T3) and the land scale (T5).
 function understandingExtras(card, figure) {
@@ -596,9 +604,9 @@ function understandingExtras(card, figure) {
   const doubts = field && field.pruefer_zweifel && field.pruefer_zweifel.karten ? field.pruefer_zweifel.karten : {};
   const doubt = doubts[card.card_id];
   return [
-    spreadNode(field),
+    spreadNode(field, figure.wert),
     said ? h("span", { class: "zahl-vertrauen", title: "Rater-Vertrauen (Selbstauskunft des Raters)" }, ` · ${CONFIDENCE_SHORT[said[1]] || said[1]}`) : null,
-    doubt ? h("span", { class: "badge warn pruefer-zweifel", title: `${doubt.text}. ${doubt.grund}` }, "vom Prüfer bezweifelt") : null,
+    doubt ? h("span", { class: "badge warn pruefer-zweifel", title: `${doubt.text}. ${doubt.grund}` }, doubt.kurz || "Prüfer-Modell-Zweifel") : null,
     understandingCache.lands.has(card.card_id) ? h("span", { class: "badge laender-skala", title: field.laender_skala.text }, "Länder-Skala") : null,
   ];
 }
@@ -623,12 +631,13 @@ function understandingHint() {
   const sources = [...new Set(figures.map((f) => f.quelle))];
   const cohorts = [...new Set(figures.map((f) => f.kohorte).filter(Boolean))];
   const spread = field.streuung;
+  const measured = spread ? (spread.quellen || []).filter((q) => q.gemessen !== false) : [];
   const spreadText = spread
-    ? `Streuung ${spread.kurz} (1\u03c3, ${nf(spread.laeufe_je_karte)} Lauf je Karte; n = ${(spread.quellen || []).map((q) => nf(q.n)).join(" · ")})`
+    ? `Streuung ${spread.kurz} typisch (1\u03c3, ${nf(spread.laeufe_je_karte)} Lauf je Karte), je H-Bereich ${(spread.baender || []).map((b) => b.kurz).join(" / ")} (Schätzung Audit A); gemessen: ${measured.map((q) => `${q.kurzname || q.name} n = ${nf(q.n)}`).join(", ")}`
     : "Streuung unbekannt";
   const doubt = field.pruefer_zweifel;
   const doubtText = !doubt ? "" : doubt.verfuegbar === true
-    ? ` · vom Prüfer bezweifelt: ${nf(doubt.n_zugeordnet)} von ${nf(doubt.n_markiert)} zugeordnet, ${nf(doubt.n_im_pool)} im Pool`
+    ? ` · Prüfer-Modell-Zweifel: ${nf(doubt.n_zugeordnet)} von ${nf(doubt.n_markiert)} zugeordnet, ${nf(doubt.n_im_pool)} im Pool`
     : ` · Prüfer-Audit nicht verfügbar: ${doubt.grund || "kein Grund geliefert"}`;
   const lands = field.laender_skala;
   const landText = lands ? ` · Länder-Skala: ${nf(lands.n_laender)} Länder, T = 0 bei ${nf(lands.n_t_null)}` : "";

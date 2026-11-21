@@ -51,6 +51,14 @@ CRITERION_NAME: Final = "Gesamtwert"
 RATER_BRACKET: Final = "upgraded"  # Bracket 3, the cohort the raters judged for
 ID_PREFIX: Final = "kartenverstaendnis:"
 NOT_VALIDATED: Final = "nicht gegen Spielergebnisse validiert"
+CLAIMS_HEADING: Final = (
+    "Regelclaims des Raters (Modellurteil, keine Regelaussage; Regelautorität XMage/CR)"
+)
+CLAIMS_NOTE: Final = (
+    "Zitate nicht einzeln geprüft (Audit A: 11 von 1708 Zitaten, 0,6 %, nicht wörtlich; Audit D: "
+    "100 von 100 Stichproben-Claims richtig, in einer gezielten Sichtung ein Sachfehler beim "
+    "Evoke-Opferfenster)"
+)
 NOT_STRENGTH: Final = (
     "Modellurteil aus dem Regeltext, keine Spielstärke; keine Stufe, kein Rang, nicht Teil des "
     "Stärke-Index"
@@ -70,20 +78,43 @@ RESEARCH: Final = "data/research/chulane_rubric_v2_20261118"
 # other model family: RMS of the 70 differences / sqrt 2; the audit's combined estimate is text).
 SPREAD: Final[dict[str, object]] = {
     "kriterium": "H",
-    "text": "± rund 5 bis 8 Punkte (1\u03c3), ein Lauf je Karte",
+    "text": "typisch ± rund 5 bis 8 Punkte (1\u03c3), ein Lauf je Karte; je nach H-Bereich anders",
     "kurz": "±5\u20138",
     "unten": 5,
     "oben": 8,
     "einheit": "Punkte",
     "laeufe_je_karte": 1,
-    "art": (
-        "typische Streuung eines Einzelwerts, kein gemessenes Intervall je Karte; sie wächst mit H "
-        "(Rating-Audit A §4: etwa \u00b15 bei H bis 10, etwa \u00b110 bei H 40 bis 55, ab H 60 "
-        "asymmetrisch etwa \u221215 bis +5)"
-    ),
+    "art": "typische Streuung eines Einzelwerts, kein gemessenes Intervall je Karte",
+    # The spread grows with H. The bands are the audit's estimate (text of AUDIT_A §4, not
+    # computable from paired ratings); a value outside every band shows the typical spread.
+    "baender": [
+        {
+            "ab": 0,
+            "bis": 10,
+            "kurz": "±5",
+            "text": "etwa ±5 bei H bis 10",
+            "quelle": f"Schätzung Rating-Audit A §4 ({RESEARCH}/audit/AUDIT_A_ratings.md)",
+        },
+        {
+            "ab": 40,
+            "bis": 55,
+            "kurz": "±10",
+            "text": "etwa ±10 bei H 40 bis 55",
+            "quelle": f"Schätzung Rating-Audit A §4 ({RESEARCH}/audit/AUDIT_A_ratings.md)",
+        },
+        {
+            "ab": 60,
+            "bis": 100,
+            "kurz": "\u221215/+5",
+            "text": "asymmetrisch etwa \u221215 bis +5 ab H 60 (hohe Werte eher zu hoch)",
+            "quelle": f"Schätzung Rating-Audit A §4 ({RESEARCH}/audit/AUDIT_A_ratings.md)",
+        },
+    ],
     "quellen": [
         {
             "name": "Drift-Test: zweiter Lauf derselben Rater-Stufe",
+            "kurzname": "Drift",
+            "gemessen": True,
             "n": 49,
             "N": 922,
             "bezug": "Karten (zweimal bewertet / Datensatz)",
@@ -92,6 +123,8 @@ SPREAD: Final[dict[str, object]] = {
         },
         {
             "name": "Unabhängiger Rater aus einer anderen Modellfamilie",
+            "kurzname": "anderer Rater",
+            "gemessen": True,
             "n": 70,
             "N": 922,
             "bezug": "Karten (geschichtete Stichprobe / Datensatz)",
@@ -99,11 +132,16 @@ SPREAD: Final[dict[str, object]] = {
             "datei": f"{RESEARCH}/PILOT_REPORT.md §11; audit/independent_rater_ratings.jsonl",
         },
         {
-            "name": "Rating-Audit A (Gesamtschätzung inklusive Fehler)",
+            "name": "Rating-Audit A (Schätzung aus der Prüfung, kein gepaartes \u03c3)",
+            "kurzname": "Audit A",
+            "gemessen": False,
             "n": 230,
             "N": 922,
             "bezug": "Karten (geprüft / Datensatz)",
-            "kennzahl": "1\u03c3 etwa 7 bis 8 Punkte; Unterschiede unter 10 Punkten nicht belastbar",
+            "kennzahl": (
+                "Schätzung: 1\u03c3 etwa 7 bis 8 Punkte inklusive Fehler; Unterschiede unter 10 "
+                "Punkten nicht belastbar"
+            ),
             "datei": f"{RESEARCH}/audit/AUDIT_A_ratings.md §0, §4",
         },
     ],
@@ -147,10 +185,24 @@ def _unavailable(reason: str, n_total: int) -> dict[str, object]:
     }
 
 
+def _doubt_short(flag: card_understanding.AuditFlag) -> str:
+    """The visible label: the reviewer is a model, and a wrong reason is no doubt about H."""
+    if flag["kind"] == "Begründung faktisch falsch":
+        return "Prüfer-Modell: Begründung faktisch falsch"
+    return f"Prüfer-Modell bezweifelt H: {flag['kind'].removeprefix('H ')}"
+
+
 def _doubt_text(flag: card_understanding.AuditFlag) -> str:
     low, high = flag["proposed_H_low"], flag["proposed_H_high"]
-    span = f"; Prüfer-Spanne {low:g} bis {high:g}" if low is not None and high is not None else ""
-    return f"vom Prüfer bezweifelt: {flag['kind']}{span} (Rating-Audit A)"
+    span = (
+        f"; Spanne des Prüfers für H {low:g} bis {high:g}"
+        if low is not None and high is not None
+        else ""
+    )
+    return (
+        f"{_doubt_short(flag)}{span} (Rating-Audit A; der Prüfer ist ein Modell einer anderen "
+        "Modellfamilie, kein Mensch)"
+    )
 
 
 def card_figure(
@@ -216,6 +268,7 @@ def _doubt_entry(flag: card_understanding.AuditFlag) -> dict[str, object]:
         "spanne": [low, high] if low is not None and high is not None else None,
         "h_gesehen": flag["rater_H"],
         "grund": flag["reason"],
+        "kurz": _doubt_short(flag),
         "text": _doubt_text(flag),
     }
 
@@ -440,6 +493,8 @@ def card_detail(
         "begruendung": row["reason"] if row is not None else None,
         "vertrauen": row["confidence"] if row is not None else None,
         "regelclaims": list(row["rule_claims"]) if row is not None else [],
+        "regelclaims_titel": CLAIMS_HEADING,
+        "regelclaims_hinweis": CLAIMS_NOTE,
         "pruefer_zweifel": _doubt_entry(flag) if flag is not None else None,
         "pruefer_audit": {
             "verfuegbar": match is not None,

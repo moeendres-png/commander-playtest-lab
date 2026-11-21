@@ -9,6 +9,9 @@ const StudioKartenverstaendnis = (() => {
   const NAME = "Kartenverständnis (Modellurteil)";
   const UNKNOWN = "unbekannt";
   const CONFIDENCE = { high: "hoch", medium: "mittel", low: "niedrig" };
+  // fallback wording when an older answer carries no heading or note of its own
+  const CLAIMS_HEADING = "Regelclaims des Raters (Modellurteil, keine Regelaussage; Regelautorität XMage/CR)";
+  const CLAIMS_NOTE = "Zitate nicht einzeln geprüft";
   const num = (value) => (typeof StudioUI !== "undefined" ? StudioUI.num(value, 0) : String(value));
 
   function coverageText(entry) {
@@ -19,16 +22,17 @@ const StudioKartenverstaendnis = (() => {
     if (!spread) return [h("p", { class: "understanding-spread" }, "Streuung: unbekannt.")];
     return [
       h("p", { class: "understanding-spread" }, `Streuung von ${spread.kriterium || "H"}: ${spread.text} (${spread.art}).`),
-      h("ul", { class: "understanding-sources" }, (spread.quellen || []).map((q) => h("li", {}, `${q.name}: ${q.kennzahl} · n/N ${num(q.n)} / ${num(q.N)} ${q.bezug} · ${q.datei}`))),
+      h("ul", { class: "understanding-bands" }, (spread.baender || []).map((b) => h("li", {}, `H ${num(b.ab)} bis ${num(b.bis)}: ${b.text} (${b.quelle})`))),
+      h("ul", { class: "understanding-sources" }, (spread.quellen || []).map((q) => h("li", {}, `${q.name}: ${q.kennzahl} · ${q.gemessen === false ? "Schätzung" : "gemessen"} · n/N ${num(q.n)} / ${num(q.N)} ${q.bezug} · ${q.datei}`))),
     ];
   }
 
   function claimNodes(h, claims) {
     if (!Array.isArray(claims) || !claims.length) return [h("p", { class: "muted" }, "Keine Regelclaims im Datensatz für diese Karte.")];
     return [h("ol", { class: "understanding-claims" }, claims.map((claim) => h("li", {},
-      claim.quote ? h("div", {}, h("b", {}, "Zitat: "), `„${claim.quote}“`) : null,
+      claim.quote ? h("div", {}, h("b", {}, "Zitat laut Rater: "), `„${claim.quote}“`) : null,
       claim.interaction ? h("div", {}, h("b", {}, "Zusammenspiel: "), String(claim.interaction)) : null,
-      claim.claim ? h("div", {}, h("b", {}, "Aussage: "), String(claim.claim)) : null,
+      claim.claim ? h("div", {}, h("b", {}, "Aussage des Raters: "), String(claim.claim)) : null,
       claim.basis ? h("div", { class: "muted" }, h("b", {}, "Grundlage: "), String(claim.basis)) : null)))];
   }
 
@@ -44,7 +48,7 @@ const StudioKartenverstaendnis = (() => {
     if (detail.bewertet !== true) out.append(h("p", { class: "understanding-unrated" }, "Diese Karte ist im Datensatz nicht bewertet: alle sieben Kriterien sind unbekannt, nicht 0."));
     if (detail.pruefer_zweifel) {
       const d = detail.pruefer_zweifel;
-      out.append(h("p", { class: "pruefer-zweifel-detail" }, h("span", { class: "badge warn pruefer-zweifel" }, "vom Prüfer bezweifelt"), ` ${d.text}. ${d.grund}`));
+      out.append(h("p", { class: "pruefer-zweifel-detail" }, h("span", { class: "badge warn pruefer-zweifel" }, d.kurz || "Prüfer-Modell-Zweifel"), ` ${d.text}. ${d.grund}`));
     } else if (detail.pruefer_audit && detail.pruefer_audit.verfuegbar === false) {
       out.append(h("p", { class: "muted" }, `Prüfer-Audit nicht verfügbar: ${detail.pruefer_audit.grund || "kein Grund geliefert"}.`));
     }
@@ -64,7 +68,9 @@ const StudioKartenverstaendnis = (() => {
     out.append(...spreadNodes(h, detail.streuung));
     if (detail.vertrauen) out.append(h("p", {}, `Rater-Vertrauen (Selbstauskunft): ${CONFIDENCE[detail.vertrauen] || detail.vertrauen}.`));
     out.append(h("h4", {}, "Begründung des Raters"), h("p", { class: detail.begruendung ? "" : "unknown" }, detail.begruendung || UNKNOWN));
-    out.append(h("h4", {}, "Regelclaims (worauf sich die Bewertung stützt)"), ...claimNodes(h, detail.regelclaims));
+    out.append(h("h4", {}, detail.regelclaims_titel || CLAIMS_HEADING),
+      h("p", { class: "understanding-note claims-note" }, `${detail.regelclaims_hinweis || CLAIMS_NOTE}.`),
+      ...claimNodes(h, detail.regelclaims));
     return out;
   }
 
