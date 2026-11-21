@@ -1,0 +1,318 @@
+{
+  "bit_exact_replay_validated": false,
+  "full_natural_terminal_replay_validated": false,
+  "gate": "REAL_CARD_TECHNICAL_USABILITY_GATE",
+  "natural_terminal_runs_verified": true,
+  "raw_result_match": false,
+  "runs": [
+    {
+      "candidate_id": "rogshai/seat-1",
+      "claim_basis": {
+        "bit_exact_replay_validated": "NOT_CLAIMED",
+        "commander_lab_pilot_decision_authority": "CODE_DERIVED",
+        "decision_count": "OBSERVED",
+        "fallback_used": "CODE_DERIVED",
+        "hidden_information_actor_scoped": "OBSERVED",
+        "shutdown_disposition": "OBSERVED",
+        "terminal": "OBSERVED",
+        "xmage_rules_authority": "CODE_DERIVED"
+      },
+      "consumed_gameplay_evidence": false,
+      "decision_authority": true,
+      "decision_count": 4719,
+      "engine_version": "1.4.62",
+      "evidence_class": "technical_conformance_only",
+      "fallback_used": false,
+      "gate": "REAL_CARD_TECHNICAL_USABILITY_GATE",
+      "hidden_information_actor_scoped": true,
+      "holdout_consumed": false,
+      "observed_decision_classes": [
+        "announce_x",
+        "choice",
+        "choose_object",
+        "choose_use",
+        "declare_attacker",
+        "declare_blocker",
+        "mana_payment",
+        "mode",
+        "mulligan",
+        "priority",
+        "target",
+        "trigger_order"
+      ],
+      "opponent_deck_ids": [
+        "kaervek/seat-2",
+        "rogshai/seat-3",
+        "kaervek/seat-4",
+        "precon-2022_heads_i_win__tails_you_lose/seat-5"
+      ],
+      "player_count": 5,
+      "raw_result_sha256": "62cbaec1842dd45bd5dda1e4fa2b277bc4925d2a88e71cc76a393c5ef5a6bc8b",
+      "rules_authority": true,
+      "scenario_id": "real-deck-technical-gate-5p-2",
+      "seed": 2,
+      "semantic_transcript_sha256": "9351513dffb88dddb1a4270051933135d4c31885e97aee285639b92fe144a885",
+      "terminal": true,
+      "winner_seats": [
+        1
+      ],
+      "xmage_commit": "f4d12f6e8066203fba7aa38bd35ea3358117393d"
+    },
+    {
+      "candidate_id": "rogshai/seat-1",
+      "claim_basis": {
+        "bit_exact_replay_validated": "NOT_CLAIMED",
+        "commander_lab_pilot_decision_authority": "CODE_DERIVED",
+        "decision_count": "OBSERVED",
+        "fallback_used": "CODE_DERIVED",
+        "hidden_information_actor_scoped": "OBSERVED",
+        "shutdown_disposition": "OBSERVED",
+        "terminal": "OBSERVED",
+        "xmage_rules_authority": "CODE_DERIVED"
+      },
+      "consumed_gameplay_evidence": false,
+      "decision_authority": true,
+      "decision_count": 4719,
+      "engine_version": "1.4.62",
+      "evidence_class": "technical_conformance_only",
+      "fallback_used": false,
+      "gate": "REAL_CARD_TECHNICAL_USABILITY_GATE",
+      "hidden_information_actor_scoped": true,
+      "holdout_consumed": false,
+      "observed_decision_classes": [
+        "announce_x",
+        "choice",
+        "choose_object",
+        "choose_use",
+        "declare_attacker",
+        "declare_blocker",
+        "mana_payment",
+        "mode",
+        "mulligan",
+        "priority",
+        "target",
+        "trigger_order"
+      ],
+      "opponent_deck_ids": [
+        "kaervek/seat-2",
+        "rogshai/seat-3",
+        "kaervek/seat-4",
+        "precon-2022_heads_i_win__tails_you_lose/seat-5"
+      ],
+      "player_count": 5,
+      "raw_result_sha256": "e422eb57ed041411340f7418feb09b7443f4e2a0ab68a7efd5d8ed597ba18d27",
+      "rules_authority": true,
+      "scenario_id": "real-deck-technical-gate-5p-2",
+      "seed": 2,
+      "semantic_transcript_sha256": "9351513dffb88dddb1a4270051933135d4c31885e97aee285639b92fe144a885",
+      "terminal": true,
+      "winner_seats": [
+        1
+      ],
+      "xmage_commit": "f4d12f6e8066203fba7aa38bd35ea3358117393d"
+    }
+  ],
+  "seat_gate": {
+    "all_checks_passed": true,
+    "check_groups": {
+      "engine": {
+        "failed": 0,
+        "passed": 13,
+        "total": 13,
+        "unknown": 0
+      },
+      "plan": {
+        "failed": 0,
+        "passed": 9,
+        "total": 9,
+        "unknown": 0
+      }
+    },
+    "checks": {
+      "decision_seats_observed": {
+        "failed": 0,
+        "group": "engine",
+        "passed": 2,
+        "total": 2,
+        "unknown": 0
+      },
+      "jar_unchanged": {
+        "failed": 0,
+        "group": "engine",
+        "passed": 1,
+        "total": 1,
+        "unknown": 0
+      },
+      "outcome_seats_contiguous": {
+        "failed": 0,
+        "group": "engine",
+        "passed": 2,
+        "total": 2,
+        "unknown": 0
+      },
+      "scenario_player_count": {
+        "failed": 0,
+        "group": "plan",
+        "passed": 2,
+        "total": 2,
+        "unknown": 0
+      },
+      "seat_plan_contiguous": {
+        "failed": 0,
+        "group": "plan",
+        "passed": 1,
+        "total": 1,
+        "unknown": 0
+      },
+      "tape_actor_seats_in_range": {
+        "failed": 0,
+        "group": "engine",
+        "passed": 2,
+        "total": 2,
+        "unknown": 0
+      },
+      "tape_decision_seats_observed": {
+        "failed": 0,
+        "group": "engine",
+        "passed": 2,
+        "total": 2,
+        "unknown": 0
+      },
+      "tape_deck_order": {
+        "failed": 0,
+        "group": "plan",
+        "passed": 2,
+        "total": 2,
+        "unknown": 0
+      },
+      "tape_player_count": {
+        "failed": 0,
+        "group": "plan",
+        "passed": 2,
+        "total": 2,
+        "unknown": 0
+      },
+      "tape_seats_contiguous": {
+        "failed": 0,
+        "group": "plan",
+        "passed": 2,
+        "total": 2,
+        "unknown": 0
+      },
+      "terminal": {
+        "failed": 0,
+        "group": "engine",
+        "passed": 2,
+        "total": 2,
+        "unknown": 0
+      },
+      "winner_seats_in_range": {
+        "failed": 0,
+        "group": "engine",
+        "passed": 2,
+        "total": 2,
+        "unknown": 0
+      }
+    },
+    "decks": [
+      {
+        "deck_hash": "756e6beaa1cb33ea06b52b92dbb21039f80563b3d7b0e31b9162cf6db894358d",
+        "deck_id": "rogshai/seat-1",
+        "deck_name": "Ishai + Rograkh \u2014 Current Physical Photo-Verified Build",
+        "group": "plan",
+        "seat": 1,
+        "source_file": "data/decks/rogshai_current.json",
+        "source_file_sha256": "2991799ba720be02bca25f37dd6727935117f2f3ac11b11fc2d38719ae391cbe"
+      },
+      {
+        "deck_hash": "9c642759fe47f0ffdc62427936e588e20d6b42c74253961d03f7cb850b77b713",
+        "deck_id": "kaervek/seat-2",
+        "deck_name": "Kaervek the Merciless \u2014 Current Verified",
+        "group": "plan",
+        "seat": 2,
+        "source_file": "data/decks/opponents/kaervek/current/deck.json",
+        "source_file_sha256": "86d800b0bd9d633f636753b840cb9d5a041fc254e69c22c8ebe6db4846e9b937"
+      },
+      {
+        "deck_hash": "71a970218355d85b54cc246133990313d021966da95e1972609fb984cc31797f",
+        "deck_id": "rogshai/seat-3",
+        "deck_name": "Ishai + Rograkh \u2014 Current Physical Photo-Verified Build",
+        "group": "plan",
+        "seat": 3,
+        "source_file": "data/decks/rogshai_current.json",
+        "source_file_sha256": "2991799ba720be02bca25f37dd6727935117f2f3ac11b11fc2d38719ae391cbe"
+      },
+      {
+        "deck_hash": "d05ce51caff541c4f8b701d28b944887728bbfb2ccf47e6b3998a2f9b779e61e",
+        "deck_id": "kaervek/seat-4",
+        "deck_name": "Kaervek the Merciless \u2014 Current Verified",
+        "group": "plan",
+        "seat": 4,
+        "source_file": "data/decks/opponents/kaervek/current/deck.json",
+        "source_file_sha256": "86d800b0bd9d633f636753b840cb9d5a041fc254e69c22c8ebe6db4846e9b937"
+      },
+      {
+        "deck_hash": "886e16515dbef5971b9332ba7a66308df2bb902f0706f823d2fff11ee386e871",
+        "deck_id": "precon-2022_heads_i_win__tails_you_lose/seat-5",
+        "deck_name": "Heads I Win, Tails You Lose",
+        "group": "plan",
+        "seat": 5,
+        "source_file": "data/decks/precons/2022_heads_i_win__tails_you_lose.json",
+        "source_file_sha256": "f2233eedb840bfa9fa89454340cec0732394f8e4d68da405f21e82e54166a71e"
+      }
+    ],
+    "engine_checks_passed": true,
+    "extra_deck_selection": {
+      "mode": "seeded",
+      "selection_seed": 20260923,
+      "stems": [
+        "2022_heads_i_win__tails_you_lose"
+      ]
+    },
+    "jar": {
+      "command": [
+        "java",
+        "-jar",
+        "/tmp/claude-0/-home-user/ef006e8b-893c-5ebd-80a1-8743a09c7458/scratchpad/jarbuild/out/xmage-engine-bridge.jar",
+        "full-game"
+      ],
+      "java_tool_options": "-Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=33133 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=",
+      "jdk_java_options": "NOT_SET",
+      "jvm_flags_env": null,
+      "path": "/tmp/claude-0/-home-user/ef006e8b-893c-5ebd-80a1-8743a09c7458/scratchpad/jarbuild/out/xmage-engine-bridge.jar",
+      "sha256": "49d18f2f8ad7e7fdf8a0df07c8fdc3f209cebaec0f75b37ef0fe85990e2d51e4",
+      "sha256_after_run": "49d18f2f8ad7e7fdf8a0df07c8fdc3f209cebaec0f75b37ef0fe85990e2d51e4",
+      "size_bytes": 79768444,
+      "status": "HASHED",
+      "unchanged": true
+    },
+    "plan_checks_passed": true,
+    "player_count": 5,
+    "pod": "reference_x2_plus_precons",
+    "qualification_evidence": false,
+    "replay_claim": null,
+    "result_class": "SIMULATED_RESULT",
+    "seat_numbering": "pilot seats 1..5; engine seats 0..4",
+    "table_a5": false,
+    "table_a5_basis": "true only when the seats are exactly the five A5 precons (seats_5_6_part_b_report.md); seats 1-4 of this gate are reference decks"
+  },
+  "seed": 2,
+  "semantic_replay_match": true,
+  "semantic_replay_scope": "bounded_decision_tape_with_native_concessions",
+  "semantic_tape": {
+    "basis": "semantic_replay_tape",
+    "compared_steps": 130,
+    "first_divergence_kind": null,
+    "first_tape_id": "6a92a32900c3306a717ae16b2a9f4583ae724740b8b34be731c3de03977d5fe4",
+    "fresh_process_replay_pass": true,
+    "recorded_steps": 130,
+    "replay_divergence_class": null,
+    "replay_divergence_detail": null,
+    "replay_steps_verified": 130,
+    "second_tape_id": "6a92a32900c3306a717ae16b2a9f4583ae724740b8b34be731c3de03977d5fe4",
+    "tape_comparison_match": true,
+    "tape_schema_version": "semantic-replay-tape/1.0.0"
+  },
+  "twin_transcript_hash_match": true,
+  "usability_gate_passed": true
+}

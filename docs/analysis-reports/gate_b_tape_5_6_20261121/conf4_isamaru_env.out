@@ -1,0 +1,26 @@
+{
+  "decision_count": 3095,
+  "decision_protocol_version": "xmage-external-decision-protocol-1.0.0",
+  "evidence_class": "technical_conformance_only",
+  "mode": "full_gate",
+  "observed_decision_classes": [
+    "choose_object",
+    "choose_use",
+    "declare_attacker",
+    "declare_blocker",
+    "mana_payment",
+    "mulligan",
+    "priority",
+    "target"
+  ],
+  "player_count": 4,
+  "raw_result_match": false,
+  "semantic_replay_basis": "semantic_replay_tape",
+  "semantic_replay_match": true,
+  "semantic_tape_steps_verified": 127,
+  "status": "PASS",
+  "twin_transcript_hash_match": true,
+  "winner_seats": [
+    4
+  ]
+}

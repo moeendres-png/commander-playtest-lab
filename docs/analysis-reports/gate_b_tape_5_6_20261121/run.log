@@ -1,0 +1,22 @@
+=== ctrl4_replay_s1 22:42:55
+exit 1 ctrl4_replay_s1
+=== seats5_replay_s1 22:42:58
+exit 0 seats5_replay_s1
+=== seats5_replay_s2 22:44:55
+exit 0 seats5_replay_s2
+=== seats5_replay_s3 22:46:48
+exit 0 seats5_replay_s3
+=== seats6_single_s1 22:48:31
+exit 0 seats6_single_s1
+=== seats6_single_s2 22:49:14
+exit 0 seats6_single_s2
+=== conf5_isamaru 22:50:00
+exit 1 conf5_isamaru
+done
+=== ctrl4_replay_s1_jar 22:55:01
+exit 0 ctrl4_replay_s1_jar
+=== conf5_isamaru_env 22:55:56
+exit 0 conf5_isamaru_env
+=== conf4_isamaru_env 22:57:03
+exit 0 conf4_isamaru_env
+done2
