@@ -41,7 +41,7 @@ import shlex
 import sys
 import tempfile
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -49,12 +49,16 @@ from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.full_game import (
     FullGamePilotBinding,
     XmageFullGameRunner,
+    _with_jvm_flags,
 )
 from commander_lab.engine.rules.full_game_batch import (
     FullGameBatchCase,
     XmageFullGameBatchRunner,
 )
-from commander_lab.engine.rules.full_game_pilot.common import XMAGE_FULL_GAME_COMMAND_ENV
+from commander_lab.engine.rules.full_game_pilot.common import (
+    XMAGE_FULL_GAME_COMMAND_ENV,
+    XMAGE_JVM_FLAGS_ENV,
+)
 from commander_lab.engine.rules.full_game_series import FullGameSeriesResult
 from commander_lab.engine.rules.project import load_project_rules_decks, load_rules_deck_snapshot
 from commander_lab.models import (
@@ -272,8 +276,10 @@ def validate_seat_plan(
     if len(decks) != player_count:
         raise GateConfigError(f"{len(decks)} decks for {player_count} seats")
     deck_ids = [deck.deck_id for deck in decks]
-    if len(set(deck_ids)) != len(deck_ids):
-        raise GateConfigError("seat deck ids are not unique")
+    for index, deck_id in enumerate(deck_ids, start=1):
+        # every seat deck id ends in its own seat index; that is what keeps the ids unique
+        if not deck_id.endswith(f"/seat-{index}"):
+            raise GateConfigError(f"seat {index} deck id {deck_id!r} does not carry its seat index")
     if [pilot.deck_id for pilot in pilots] != deck_ids:
         raise GateConfigError("pilot deck ids do not follow the seat deck order")
     if scenario.player_count != player_count:
@@ -401,6 +407,8 @@ class GateOptions:
     # True once --player-count, --extra-decks or --jar was passed: only then the output
     # gains the ``seat_gate`` block and the extra fail-closed seat checks.
     extended: bool
+    # The start command that runs ``jar`` (set by ``_prepare`` once it is validated).
+    command: tuple[str, ...] | None = None
 
 
 def _stem_list(value: str) -> tuple[str, ...]:
@@ -466,25 +474,52 @@ def jar_identity(jar: Path | None) -> dict[str, Any]:
     return {"status": "HASHED", "path": str(jar), "sha256": digest.hexdigest(), "size_bytes": size}
 
 
+_JAVA_LAUNCHERS = ("java", "javaw", "java.exe")
+_CLASSPATH_OPTIONS = ("-cp", "-classpath", "--class-path", "-p", "--module-path")
+
+
 def bridge_command_for_jar(jar: Path) -> tuple[str, ...]:
-    """The start command that runs exactly ``jar`` (a given environment command must match)."""
+    """The start command that runs exactly ``jar``.
+
+    Without ``COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD`` it is ``java -jar <absolute jar>
+    full-game``. A given environment command must be a plain java launcher: only options
+    (``-X...``, ``-D...``, ``-javaagent:...``) before one ``-jar``, no classpath option, and an
+    absolute archive path equal to ``--jar``. The bridge JVM starts in its own working
+    directory, so a relative archive token would not name the file that was hashed.
+    """
     raw = os.environ.get(XMAGE_FULL_GAME_COMMAND_ENV, "").strip()
     if not raw:
         return ("java", "-jar", str(jar.resolve()), JAR_MAIN_COMMAND)
     command = tuple(shlex.split(raw))
-    if "-jar" in command:
-        index = command.index("-jar")
-        if index + 1 < len(command) and Path(command[index + 1]).resolve() == jar.resolve():
-            return command
-    raise GateConfigError(
-        f"--jar {jar} is not the archive started by {XMAGE_FULL_GAME_COMMAND_ENV}"
-    )
+    reason = _launcher_problem(command, jar)
+    if reason is not None:
+        raise GateConfigError(f"{XMAGE_FULL_GAME_COMMAND_ENV} does not start --jar {jar}: {reason}")
+    return command
+
+
+def _launcher_problem(command: tuple[str, ...], jar: Path) -> str | None:
+    if not command or os.path.basename(command[0]).lower() not in _JAVA_LAUNCHERS:
+        return "it is not a plain java launcher"
+    if command.count("-jar") != 1:
+        return "it needs exactly one -jar"
+    index = command.index("-jar")
+    for token in command[1:index]:
+        if not token.startswith("-") or token.split("=", 1)[0] in _CLASSPATH_OPTIONS:
+            return f"only JVM options may precede -jar, found {token!r}"
+    if index + 1 >= len(command):
+        return "-jar names no archive"
+    archive = Path(command[index + 1])
+    if not archive.is_absolute():
+        return "the -jar archive must be an absolute path (the bridge starts in its own directory)"
+    if archive.resolve() != jar.resolve():
+        return "the -jar archive is another file"
+    return None
 
 
 def _make_runner(options: GateOptions) -> XmageFullGameRunner:
-    if options.jar is None:
+    if options.jar is None or options.command is None:
         return XmageFullGameRunner()
-    return XmageFullGameRunner(command=bridge_command_for_jar(options.jar))
+    return XmageFullGameRunner(command=options.command)
 
 
 class _Checks:
@@ -564,10 +599,26 @@ def result_seat_checks(result: Any, player_count: int) -> dict[str, bool | None]
         "scenario_player_count": result.scenario.player_count == player_count,
         "outcome_seats_contiguous": outcome_state,
         "decision_seats_observed": (actors == set(range(player_count)) if actors else None),
-        "winner_seats_in_range": all(
-            1 <= int(seat) <= player_count for seat in result.winner_seats
-        ),
+        "winner_seats_in_range": _winner_state(result, outcomes, player_count),
     }
+
+
+def _winner_state(result: Any, outcomes: Any, player_count: int) -> bool | None:
+    """Winners must equal the seats whose outcome says ``won`` and lie in 1..N.
+
+    Unknown (None) when an outcome has no boolean ``won`` or nobody won: an empty winner
+    list is never a pass.
+    """
+    if not isinstance(outcomes, list) or not all(
+        isinstance(o, dict) and type(o.get("seat")) is int and type(o.get("won")) is bool
+        for o in outcomes
+    ):
+        return None
+    won = {o["seat"] + 1 for o in outcomes if o["won"]}
+    if not won:
+        return None
+    winners = {int(seat) for seat in result.winner_seats}
+    return winners == won and all(1 <= seat <= player_count for seat in winners)
 
 
 def read_tape(path: Path) -> dict[str, Any] | None:
@@ -654,7 +705,10 @@ def seat_gate_block(
                 "deck_id": deck.deck_id,
                 "deck_name": deck.name,
                 "source_file": _relative_source(root, deck.source_path),
+                "source_file_sha256": _file_sha256(deck.source_path),
                 "deck_hash": deck.deck_hash,
+                # copied from the gate's own plan, not observed in the engine
+                "group": "plan",
             }
             for index, deck in enumerate(decks, start=1)
         ],
@@ -663,6 +717,11 @@ def seat_gate_block(
             "selection_seed": None if explicit or not extras else EXTRA_DECK_SELECTION_SEED,
             "stems": [Path(d.source_path).stem for d in extras if d.source_path],
         },
+        "replay_claim": (
+            f"NOT_CLAIMED: the semantic tape model holds at most {tape_max_seats()} seats"
+            if options.player_count > tape_max_seats()
+            else None
+        ),
         "pod": "reference_x2_plus_precons" if extras else "reference_x2",
         "table_a5": _is_table_a5(decks),
         "table_a5_basis": "true only when the seats are exactly the five A5 precons "
@@ -674,6 +733,16 @@ def seat_gate_block(
         "plan_checks_passed": checks.group_passed("plan"),
         "all_checks_passed": checks.all_passed,
     }
+
+
+def _file_sha256(source_path: str | None) -> str | None:
+    """SHA-256 of a deck file; None (unknown, never a digest of nothing) when unreadable."""
+    if source_path is None:
+        return None
+    try:
+        return hashlib.sha256(Path(source_path).read_bytes()).hexdigest()
+    except OSError:
+        return None
 
 
 def _is_table_a5(decks: Sequence[RulesDeckInput]) -> bool:
@@ -712,7 +781,14 @@ def _config_error(exc: Exception) -> int:
 def _prepare(args: argparse.Namespace) -> tuple[GateOptions, dict[str, Any]] | int:
     try:
         options = resolve_options(args)
-        return options, jar_identity(options.jar)
+        jar = jar_identity(options.jar)
+        if options.jar is not None:
+            command = bridge_command_for_jar(options.jar)
+            options = replace(options, command=command)
+            # what the bridge JVM really gets: COMMANDER_LAB_XMAGE_JVM_FLAGS is spliced in
+            jar["command"] = list(_with_jvm_flags(command))
+            jar["jvm_flags_env"] = os.environ.get(XMAGE_JVM_FLAGS_ENV) or None
+        return options, jar
     except GateConfigError as exc:
         return _config_error(exc)
 
@@ -897,7 +973,9 @@ def cmd_batch(args: argparse.Namespace) -> int:
         for case in cases:
             _plan_checks(checks)
             record = by_id.get(case.case_id)
-            result = record.result if record is not None and record.status == "completed" else None
+            # a failed record carries no result (FullGameBatchRecord enforces it), so a
+            # missing result stays unknown; no status condition is needed here
+            result = record.result if record is not None else None
             checks.add_all(result_seat_checks(result, options.player_count))
         jar = _jar_after_run(options, jar, checks)
         summary["seat_gate"] = seat_gate_block(root, options, cases[0].decks, checks, jar)

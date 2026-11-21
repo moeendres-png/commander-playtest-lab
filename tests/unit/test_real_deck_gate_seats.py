@@ -284,7 +284,7 @@ def _plan(count: int = 5) -> tuple[Any, Any, Any]:
 
 def test_valid_seat_plan_passes_the_validator() -> None:
     scenario, decks, pilots = _plan()
-    gate.validate_seat_plan(scenario, decks, pilots, 5)
+    assert gate.validate_seat_plan(scenario, decks, pilots, 5) is None
 
 
 @pytest.mark.parametrize(
@@ -311,8 +311,25 @@ def test_plan_validator_rejects_mismatched_player_count_and_decks() -> None:
         gate.validate_seat_plan(scenario.model_copy(update={"player_count": 4}), decks, pilots, 5)
     with pytest.raises(gate.GateConfigError, match="decks for 5 seats"):
         gate.validate_seat_plan(scenario, decks[:4], pilots, 5)
-    with pytest.raises(gate.GateConfigError, match="not unique"):
+    # an id that does not carry its own seat index (this is what keeps the ids unique)
+    with pytest.raises(gate.GateConfigError, match="does not carry its seat index"):
         gate.validate_seat_plan(scenario, (*decks[:4], decks[0]), pilots, 5)
+
+
+def test_plan_validator_rejects_a_pilot_deck_order_and_scenario_opponents_that_differ() -> None:
+    scenario, decks, pilots = _plan()
+    swapped = (
+        pilots[0].model_copy(update={"deck_id": pilots[1].deck_id}),
+        pilots[1].model_copy(update={"deck_id": pilots[0].deck_id}),
+        *pilots[2:],
+    )
+    with pytest.raises(gate.GateConfigError, match="pilot deck ids do not follow"):
+        gate.validate_seat_plan(scenario, decks, swapped, 5)
+    reordered = scenario.model_copy(
+        update={"opponent_deck_ids": tuple(reversed(scenario.opponent_deck_ids))}
+    )
+    with pytest.raises(gate.GateConfigError, match="scenario opponents differ"):
+        gate.validate_seat_plan(reordered, decks, pilots, 5)
 
 
 # --- rejected before any engine call -----------------------------------------------------
@@ -371,7 +388,7 @@ def test_jar_must_match_the_environment_start_command(
     constructed = _install_runner(monkeypatch)
     monkeypatch.setenv(XMAGE_FULL_GAME_COMMAND_ENV, f"java -jar {other} full-game")
     assert gate.cmd_single(_single_args(tmp_path, jar=jar)) == 2
-    assert "not the archive started by" in capsys.readouterr().err
+    assert "the -jar archive is another file" in capsys.readouterr().err
     assert constructed == []
     # the same archive in a command with JVM options is accepted and kept as given
     monkeypatch.setenv(XMAGE_FULL_GAME_COMMAND_ENV, f"java -Xmx3g -jar {jar} full-game")
@@ -404,8 +421,18 @@ def test_single_report_carries_class_deck_manifest_counts_and_jar_hash(
         "size_bytes": len(b"synthetic jar bytes"),
         "sha256_after_run": digest,
         "unchanged": True,
+        "command": ["java", "-jar", str(jar.resolve()), "full-game"],
+        "jvm_flags_env": None,
     }
     assert constructed == [("java", "-jar", str(jar.resolve()), "full-game")]
+    # the deck manifest is labelled as plan and carries the SHA-256 of every deck file
+    for entry in block["decks"]:
+        assert entry["group"] == "plan"
+        source = gate.ROOT / entry["source_file"]
+        assert entry["source_file_sha256"] == hashlib.sha256(source.read_bytes()).hexdigest()
+    assert block["replay_claim"] == (
+        "NOT_CLAIMED: the semantic tape model holds at most 5 seats" if count == 6 else None
+    )
     assert [d["seat"] for d in block["decks"]] == list(range(1, count + 1))
     assert [d["deck_id"] for d in block["decks"][:4]] == REFERENCE_SEAT_IDS
     for entry, stem in zip(block["decks"][4:], SEEDED_EXTRA_STEMS, strict=False):
@@ -914,3 +941,176 @@ def test_a_jar_that_changes_during_the_run_turns_the_gate_red(
     assert block["checks"]["jar_unchanged"]["failed"] == 1
     assert block["engine_checks_passed"] is False
     assert block["all_checks_passed"] is False
+
+
+# --- review round 2: launcher command, effective command, winners, markers, M21/M24/M25 ----
+
+
+def test_a_relative_jar_token_in_the_environment_command_is_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    # --jar and the command token look equal from the caller's directory, but the bridge JVM
+    # starts in its own working directory, where another bridge.jar can sit
+    monkeypatch.chdir(tmp_path)
+    jar = _fake_jar(tmp_path)
+    (tmp_path / ".runtime" / "engine").mkdir(parents=True)
+    (tmp_path / ".runtime" / "engine" / "bridge.jar").write_bytes(b"a different archive")
+    constructed = _install_runner(monkeypatch)
+    monkeypatch.setenv(XMAGE_FULL_GAME_COMMAND_ENV, "java -jar bridge.jar full-game")
+    args = _single_args(tmp_path, jar=Path("bridge.jar"))
+    assert gate.cmd_single(args) == 2
+    assert "must be an absolute path" in capsys.readouterr().err
+    assert constructed == []
+    assert jar.is_file()
+
+
+@pytest.mark.parametrize(
+    ("template", "reason"),
+    [
+        ("java -cp other.jar org.example.Main -jar {jar} full-game", "only JVM options"),
+        ("java -cp other.jar -jar {jar} full-game", "only JVM options"),
+        ("java --class-path=other.jar -jar {jar} full-game", "only JVM options"),
+        ("java -jar {jar} -jar {jar} full-game", "exactly one -jar"),
+        ("java -jar", "-jar names no archive"),
+        ("java full-game", "exactly one -jar"),
+        ("wsl.exe java -jar {jar} full-game", "not a plain java launcher"),
+        ("python3 -jar {jar} full-game", "not a plain java launcher"),
+    ],
+)
+def test_environment_command_must_be_a_plain_java_launcher_of_the_jar(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    template: str,
+    reason: str,
+) -> None:
+    jar = _fake_jar(tmp_path)
+    constructed = _install_runner(monkeypatch)
+    monkeypatch.setenv(XMAGE_FULL_GAME_COMMAND_ENV, template.format(jar=jar))
+    assert gate.cmd_single(_single_args(tmp_path, jar=jar)) == 2
+    assert reason in capsys.readouterr().err
+    assert constructed == []
+
+
+def test_environment_command_with_jvm_options_and_agent_is_accepted_and_reported(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    jar = _fake_jar(tmp_path)
+    constructed = _install_runner(monkeypatch)
+    command = f"java -XX:+UseSerialGC -javaagent:/opt/agent.jar -jar {jar} full-game"
+    monkeypatch.setenv(XMAGE_FULL_GAME_COMMAND_ENV, command)
+    assert gate.cmd_single(_single_args(tmp_path, player_count=5, jar=jar)) == 0
+    reported = json.loads((tmp_path / "single.json").read_text())["seat_gate"]["jar"]
+    assert constructed == [tuple(command.split())]
+    assert reported["command"] == command.split()
+    assert reported["jvm_flags_env"] is None
+
+
+def test_the_effective_command_names_the_jvm_flags_the_client_splices_in(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    jar = _fake_jar(tmp_path)
+    _install_runner(monkeypatch)
+    monkeypatch.setenv(gate.XMAGE_JVM_FLAGS_ENV, "-javaagent:/opt/a.jar -Xmx1g")
+    assert gate.cmd_single(_single_args(tmp_path, player_count=5, jar=jar)) == 0
+    reported = json.loads((tmp_path / "single.json").read_text())["seat_gate"]["jar"]
+    assert reported["command"] == [
+        "java",
+        "-javaagent:/opt/a.jar",
+        "-Xmx1g",
+        "-jar",
+        str(jar.resolve()),
+        "full-game",
+    ]
+    assert reported["jvm_flags_env"] == "-javaagent:/opt/a.jar -Xmx1g"
+
+
+@pytest.mark.parametrize(
+    "winner_seats",
+    [(6,), (1, 6), (2,), ()],  # N+1, a real winner plus N+1, the wrong seat, none listed
+)
+def test_winner_seats_must_match_the_outcomes_and_lie_in_range(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, winner_seats: tuple[int, ...]
+) -> None:
+    _install_runner(monkeypatch, lambda s: _seat_result(s, winner_seats=winner_seats))
+    assert gate.cmd_single(_single_args(tmp_path, player_count=5)) == 1
+    block = json.loads((tmp_path / "single.json").read_text())["seat_gate"]
+    entry = block["checks"]["winner_seats_in_range"]
+    assert (entry["failed"], entry["unknown"], entry["passed"]) == (1, 0, 0)
+    assert block["engine_checks_passed"] is False
+
+
+def test_nobody_winning_is_unknown_never_a_pass() -> None:
+    scenario, _, _ = _plan()
+    result = _seat_result(scenario, winner_seats=())
+    outcomes = [{"seat": seat, "won": False} for seat in range(5)]
+    payload = {**result.result_payload, "outcomes": outcomes}
+    result = result.model_copy(update={"result_payload": payload})
+    assert gate.result_seat_checks(result, 5)["winner_seats_in_range"] is None
+
+
+@pytest.mark.parametrize(
+    "outcomes",
+    [
+        [{"seat": 0}, {"seat": 1}, {"seat": 2}, {"seat": 3}, {"seat": 4}],  # no "won" at all
+        [{"seat": 0, "won": "yes"}, {"seat": 1, "won": False}],  # not a boolean
+        [],
+    ],
+)
+def test_outcomes_without_a_boolean_won_leave_the_winner_check_unknown(
+    outcomes: list[dict[str, Any]],
+) -> None:
+    scenario, _, _ = _plan()
+    result = _result(scenario)
+    result = result.model_copy(
+        update={"result_payload": {**result.result_payload, "outcomes": outcomes}}
+    )
+    assert gate.result_seat_checks(result, 5)["winner_seats_in_range"] is None
+
+
+def test_a_correct_winner_passes() -> None:
+    scenario, _, _ = _plan()
+    assert gate.result_seat_checks(_seat_result(scenario), 5)["winner_seats_in_range"] is True
+
+
+@pytest.mark.parametrize("command", ["single", "batch"])
+def test_six_seat_reports_say_that_no_replay_is_claimed(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    command: str,
+) -> None:
+    _install_runner(monkeypatch)
+    _install_batch(monkeypatch, lambda case: _seat_result(case.scenario))
+    jar = _fake_jar(tmp_path)
+    if command == "single":
+        assert gate.cmd_single(_single_args(tmp_path, player_count=6, jar=jar)) == 0
+        block = json.loads((tmp_path / "single.json").read_text())["seat_gate"]
+    else:
+        args = argparse.Namespace(
+            root=gate.ROOT, base_seed=1, count=1, out_dir=tmp_path, player_count=6, jar=jar
+        )
+        assert gate.cmd_batch(args) == 0
+        block = json.loads(capsys.readouterr().out)["seat_gate"]
+    assert block["replay_claim"].startswith("NOT_CLAIMED")
+    assert "5 seats" in block["replay_claim"]
+
+
+def test_jar_alone_switches_the_seat_gate_report_on(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _install_runner(monkeypatch, lambda scenario: _seat_result(scenario))
+    jar = _fake_jar(tmp_path)
+    assert gate.main(["single", "--jar", str(jar), "--out", str(tmp_path / "o.json")]) == 0
+    block = json.loads((tmp_path / "o.json").read_text())["seat_gate"]
+    assert block["player_count"] == 4
+    assert block["jar"]["status"] == "HASHED"
+
+
+def test_extra_decks_alone_is_refused_at_the_default_four_seats(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _forbid_engine(monkeypatch)
+    argv = ["single", "--extra-decks", "2023_veloci_ramp_tor", "--out", str(tmp_path / "o.json")]
+    assert gate.main(argv) == 2
+    assert "exactly 0" in capsys.readouterr().err
