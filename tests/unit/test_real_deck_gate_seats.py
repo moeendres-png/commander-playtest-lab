@@ -585,19 +585,22 @@ def test_five_seat_replay_checks_both_tapes(
 @pytest.mark.parametrize(
     ("bad_tape", "failing"),
     [
-        (_tape_json(5, player_count=4), "tape_player_count"),
-        (_tape_json(5, seats=[1, 2, 3, 4, 6]), "tape_seats_contiguous"),
-        (_tape_json(5, seats=[0, 1, 2, 3, 4]), "tape_seats_contiguous"),
-        (_tape_json(5, swap_decks=True), "tape_deck_order"),
-        (_tape_json(5, actors=[1, 2, 3, 4, 6]), "tape_actor_seats_in_range"),
-        (_tape_json(5, actors=[1, 2, 3, 4, 4]), "tape_decision_seats_observed"),
+        ({"player_count": 4}, "tape_player_count"),
+        ({"seats": [1, 2, 3, 4, 6]}, "tape_seats_contiguous"),
+        ({"seats": [0, 1, 2, 3, 4]}, "tape_seats_contiguous"),
+        ({"swap_decks": True}, "tape_deck_order"),
+        ({"actors": [1, 2, 3, 4, 6]}, "tape_actor_seats_in_range"),
+        ({"actors": [1, 2, 3, 4, 4]}, "tape_decision_seats_observed"),
     ],
 )
 def test_tape_with_gap_or_wrong_player_count_fails_the_replay_gate(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, bad_tape: dict[str, Any], failing: str
 ) -> None:
     _install_runner(monkeypatch)
-    _install_tapes(monkeypatch, {"first.tape.json": _tape_json(5), "second.tape.json": bad_tape})
+    _install_tapes(
+        monkeypatch,
+        {"first.tape.json": _tape_json(5), "second.tape.json": _tape_json(5, **bad_tape)},
+    )
     assert gate.cmd_replay(_replay_args(tmp_path, player_count=5)) == 1
     payload = json.loads((tmp_path / "replay.json").read_text())
     assert payload["semantic_replay_match"] is True  # the tape system itself said PASS
