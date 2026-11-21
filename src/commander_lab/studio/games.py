@@ -386,6 +386,39 @@ def game_cohort(header: object) -> str:
     return COHORT_UNKNOWN if unknown else COHORT_SIMULATED
 
 
+def played_seats(header: object) -> list[int]:
+    """The seat numbers (0-based) a human sits on, from the header's own fields, sorted.
+
+    The union of ``human_seats`` (a list of seat numbers) and every seat row whose ``pilot`` is
+    "Mensch". Anything unreadable adds nothing; the page then names no seat rather than a guess.
+    """
+    if not isinstance(header, Mapping):
+        return []
+    seats: set[int] = set()
+    raw_humans = header.get("human_seats")
+    if isinstance(raw_humans, list):
+        seats.update(s for s in raw_humans if type(s) is int)
+    raw_rows = header.get("seats")
+    for row in raw_rows if isinstance(raw_rows, list) else []:
+        if (
+            isinstance(row, Mapping)
+            and row.get("pilot") == HUMAN_PILOT_LABEL
+            and type(row.get("seat")) is int
+        ):
+            seats.add(row["seat"])
+    return sorted(seats)
+
+
+def cohort_fields(header: object) -> dict[str, object]:
+    """The read fields the pages show instead of guessing (#1662): ``cohort`` (see
+    ``game_cohort``) and, for a ``PLAYED_GAME``, ``played_seats`` (empty otherwise)."""
+    cohort = game_cohort(header)
+    return {
+        "cohort": cohort,
+        "played_seats": played_seats(header) if cohort == COHORT_PLAYED else [],
+    }
+
+
 class GameRecorder:
     """Writes one game log.
 
@@ -619,7 +652,8 @@ def _read_orphaned_out(data_folder: str | Path, game_id: str) -> dict[str, objec
         "kind": "header",
         "schema": LOG_SCHEMA,
         "game_id": game_id,
-        "data_class": DataClass.SIMULATED_RESULT.value,
+        # made up by this reader: whether a human sat at the table is not known
+        "data_class": COHORT_UNKNOWN,
         "rules_authority": "xmage",
         "started_at": mtime,
         "seats": [],
@@ -639,6 +673,10 @@ def _read_orphaned_out(data_folder: str | Path, game_id: str) -> dict[str, objec
         "start": 0,
         "total": 0,
         "running": False,
+        # The header above is made up by this reader (the game never wrote a log), so it cannot
+        # say whether a human sat at the table: the cohort is unknown, never a simulation.
+        "cohort": COHORT_UNKNOWN,
+        "played_seats": [],
         "result": result,
     }
 
@@ -778,6 +816,7 @@ def read_game(
         "total": total,
         "running": result is None,
         "hands_revealed": bool(human_seats) and not hands_hidden,
+        **cohort_fields(header),
         "result": result,
     }
 
@@ -823,6 +862,8 @@ def list_games(
                 "header": game["header"],
                 "frames": game["total"],
                 "running": game["running"],
+                "cohort": game["cohort"],
+                "played_seats": game["played_seats"],
                 "result": game["result"],
             }
         )
@@ -841,6 +882,8 @@ def list_games(
                     "header": game["header"],
                     "frames": 0,
                     "running": False,
+                    "cohort": game["cohort"],
+                    "played_seats": game["played_seats"],
                     "result": game["result"],
                 }
             )
