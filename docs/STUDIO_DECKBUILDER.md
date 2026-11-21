@@ -416,6 +416,52 @@ The number of notes inside it is shown next to the title.
   favorites says so instead of showing an empty table. The count line names the active filters
   ("926 von 927 Karten · Filter: nur freie").
 
+### Tierliste honest and readable (WP-6 of the builder audit, #1404)
+
+Display and an additive field only: the strength index, the tiers, the cuts 54/35/20/5, the sort
+order and every field of the `POST /api/strength` answer stay the same bytes (test); the only
+addition is inside the field `kartenverstaendnis` (Chulane only, Bracket 3, never TAM, never a
+price). "Kartenverständnis (Modellurteil)" stays a labelled model judgement from the rules text:
+no strength in play, no tier, no rank, no sort key, not part of the index.
+
+- **T1 spread and one origin.** The field carries `streuung`: the typical spread of one rating H,
+  "± rund 5 bis 8 Punkte (1σ), ein Lauf je Karte", with its sources and n: the drift test (49 of
+  922 cards rated twice by the same rater tier, repeat spread RMS 7,1 / √2 ≈ 5), the rater of
+  another model family (70 cards, mean |ΔH| 7,9, 13 of 70 with |ΔH| ≥ 15, ≈ 7,3) and the combined
+  estimate of rating audit A (230 cards, 1σ about 7 to 8); files under
+  `data/research/chulane_rubric_v2_20261118/` (`PILOT_REPORT.md` §10/§11, `audit/AUDIT_A_ratings.md`
+  §0/§4). A test recomputes these figures from the raw files. The figures keep `intervall: null`: a
+  typical spread is no measured per-card interval. The origin shared by all figures (source,
+  cohort, "nicht gegen Spielergebnisse validiert") stands once, visible, above the table; each
+  cell shows value, "±5–8", the class badge "Modellurteil", the rater's confidence and the marks,
+  with its full origin in the tooltip (`StudioZahl.zelle(..., { kompakt: true })`; without the
+  option a cell is unchanged). One line per card: at 1600 × 1000 the synthetic browser check
+  showed 3 cards in the table area before and 16 after.
+- **T2 single ratings.** `GET /api/cards/{card_id}/understanding?commander=NAME` gives all seven
+  criteria E (Effizienz), F (Passung zu Chulane), T (Wirkung am Tisch), R (Verlässlichkeit), K
+  (Motor- und Kombo-Potenzial), D (Deck-Kosten und Risiko) and H (Gesamtwert) as URTEIL figures
+  with the rater's note, the reason, the rules claims, the confidence, the spread and the coverage
+  n of N per criterion over the data set. A card the data set does not list has all seven values
+  "unbekannt", never 0; a missing note is "unbekannt". For any other commander the answer says
+  `anzeigen: false` and the page shows nothing. The card window of the tier list (while the column
+  is shown) and of the deck builder render it (`static/kartenverstaendnis.js`). The field itself
+  carries `abdeckung` (n of N pool cards per criterion).
+- **T3 audit mark.** `pruefer_zweifel` places the lines of
+  `audit/audit_A_flagged.jsonl` (blind rating audit, reviewer of another model family) on the data
+  set by exact card name: 35 of 35 placed on the current data set. A line whose seen H is not the
+  current H counts as outdated and is not shown; an unknown name counts as unmatched. A missing
+  audit file is "nicht verfügbar", never "no card doubted". The cell shows "vom Prüfer bezweifelt"
+  with kind, the reviewer's range and reason in the tooltip.
+- **T4 rank bands.** The index has one decimal, so many cards share a value (the audit counted 777
+  of 922 in tie groups). Each card with a tier gets the band of places its tie group takes among
+  all cards with a tier of the answer; in tier D the band ("Rang 824–922") replaces the decimal (the
+  index stays in the tooltip), a tied card of S to C keeps its index and gets the band, and the
+  function rank reads "Rang k–m von n (j gleichauf)". Computed in the page from the answer; the
+  order of the list does not change.
+- **T5 land scale.** Lands were rated against land anchors (Gutachten C §4: 65 lands, T = 0 at 58
+  of 65; reproduced from the data set and the research facts by a test). `laender_skala` lists the
+  rated lands of the answer and counts T = 0; their cells carry "Länder-Skala".
+
 ### Strength index v3: purely empirical ("Tierliste v3", #1364)
 
 This section supersedes the weights, scale, cuts and missing-value defaults named above (the
