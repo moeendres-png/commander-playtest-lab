@@ -6,7 +6,7 @@ Kreislauf. Einrichtung und Vorbedingungen: `docs/STUDIO_OWNER_PC_SETUP.md`.
 
 > **Verbindliche Einordnung:**
 > - Alle Spiel- und Serienergebnisse sind `SIMULATED_RESULT` und **kein Qualifikationsbeleg**
->   (`docs/STUDIO_SCOPE.md`, `AGENTS.md` §4).
+>   (`docs/OWNER_DECISIONS_STUDIO_20261118.md` Abschnitt 6, `AGENTS.md` §4).
 > - **Jede Zahl braucht `n/N` und Herkunft** (Dateipfad, JSON-Ausgabe oder Bildschirmfoto).
 > - **Fehlendes oder nicht Vorgekommenes bleibt `UNKNOWN`**, niemals `0` und niemals `PASS`.
 

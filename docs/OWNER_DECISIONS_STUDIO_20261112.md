@@ -23,7 +23,7 @@ When a later Owner instruction differs, the later instruction wins and this file
 | A5 | Every count carries its denominator. Cohorts are never added together. A REVIEW data set never silently becomes ACTIVE. | Issues #1185, #1187 |
 | A6 | By Owner decision 2026-11-13 (`data/research/collection_1655/`) and Owner relaxation 2026-11-15 (`AGENTS.md` §12), the former ban keeping collection, deck, and store card lists strictly local is lifted: collection/deck/store data may leave the Owner's machine, live in the working/private repository, and query external public MTG APIs/tools without local-only blocking. Only credentials, secrets, raw tokens, and unrelated personal/third-party names stay strictly redacted/local. | `AGENTS.md` §12, Owner instructions 2026-11-13 & 2026-11-15 |
 | A7 | Several agents may work in parallel, each on its own issues. One issue has one working owner at a time; another active agent's open issue or pull request is not overwritten without handover, except that the Owner-appointed Development Lead may take over, review, integrate, and merge handed-over or completed items under `AGENTS.md` §8 and §10. | Owner messages 2026-11-11, 2026-11-12, and 2026-11-15 |
-| A8 | A fork push, a repin, rewriting sealed qualification records (and touching `WS17_SHA256SUMS` outside S3 D5 root manifest regeneration for `pyproject.toml`), the release of five and six seats, publication and repository visibility each need their own Owner go. Java bridge changes for the Studio merge under the Studio bridge gate (`AGENTS.md` §10, `docs/STUDIO_PLAN_SIMULATOR.md`), and the Owner-appointed Development Lead holds full Coordinator/Lead decision and merge authority across `moeendres-png/commander-playtest-lab`. | Owner decision 2026-11-10, changed 2026-11-12 (evening) & 2026-11-15 |
+| A8 | A fork push, a repin, rewriting sealed qualification records (and touching `WS17_SHA256SUMS` outside S3 D5 root manifest regeneration for `pyproject.toml`), the release of five and six seats, publication and repository visibility each need their own Owner go. Java bridge changes for the Studio merge under the Studio bridge gate (`AGENTS.md` §10, reference set in `docs/STUDIO_BRIDGE_GATE_TOOLING.md`), and the Owner-appointed Development Lead holds full Coordinator/Lead decision and merge authority across `moeendres-png/commander-playtest-lab`. | Owner decision 2026-11-10, changed 2026-11-12 (evening) & 2026-11-15 |
 
 ## BUILD: Commander deck building
 
@@ -80,8 +80,9 @@ field stays unrated.
 5. Whether bracket 5 deck lists are harvested or only counted (issue #1210; currently parked with `#1210`), and whether Moxfield harvesting (without an official open API) is explicitly authorized for `#1388` step 3.
 6. Fork pushes to `moeendres-png/mage`, engine repins (`#1093` / v16), and account-level actions (`#1108`: switching repos to private / Drive access).
 
-The plan that follows from these decisions, with recommendations, is
-`docs/STUDIO_ROADMAP_20261112.md`.
+The plan that followed from these decisions, with recommendations, was
+`STUDIO_ROADMAP_20261112.md` (archived 2026-11-21, Owner answer 8a; still binding rules in
+`docs/OWNER_DECISIONS_STUDIO_20261118.md`, section 6).
 
 ## Addenda
 
@@ -91,4 +92,5 @@ The plan that follows from these decisions, with recommendations, is
   A4 has one exception, the labelled, generated overall rating of the tier list (*superseded 2026-11-20, E15 Q1: the overall rating was removed; only the model judgement "Kartenverständnis (Modellurteil)" for Chulane remains*). It also records
   the PLAY decisions of 2026-11-17 and the tier-list decisions of 2026-11-18 verbatim. On A3: two
   to four seats are active; five and six stay locked until their own qualification and the Owner's
-  release (A8). The binding scope is `docs/STUDIO_SCOPE.md`.
+  release (A8). The binding scope was `STUDIO_SCOPE.md`; since 2026-11-21 (Owner answer 8a) it is
+  archived and its still binding rules are in `docs/OWNER_DECISIONS_STUDIO_20261118.md`, section 6.
