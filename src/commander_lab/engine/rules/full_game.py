@@ -2050,7 +2050,7 @@ class FullGameMatch:
         stop_after: int | None = None,
         stop_at_turn: int | None = None,
         progress: list[ProgressEntry] | None = None,
-        stop: dict[str, Any] | None = None,
+        stop: dict[str, object] | None = None,
     ) -> tuple[int, list[str], bool]:
         """Let the pilots answer until terminal; ``(decision_count, decision_classes, terminal)``.
 
@@ -2071,18 +2071,20 @@ class FullGameMatch:
         finally:
             runner._hidden_audit = None
 
-    def _request(self, message_type: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
+    def _request(
+        self, message_type: str, payload: dict[str, object] | None = None
+    ) -> dict[str, object]:
         return self._session.client.request(message_type, payload)
 
-    def start(self) -> dict[str, Any]:
+    def start(self) -> dict[str, object]:
         """Start play; the status with the first open decision (or terminal)."""
         return self._request("start_full_game")
 
-    def next_decision(self) -> dict[str, Any]:
+    def next_decision(self) -> dict[str, object]:
         """The current status: the open decision, terminal or failure."""
         return self._request("get_full_game_decision")
 
-    def answer(self, response: dict[str, Any]) -> dict[str, Any]:
+    def answer(self, response: dict[str, object]) -> dict[str, object]:
         """Submit the answer to the open decision; the status after it."""
         return self._request("submit_full_game_decision", {"response": response})
 
@@ -2096,11 +2098,11 @@ class FullGameMatch:
             return []
         return list(events[offset:])
 
-    def concede_offer(self, player_id: str) -> dict[str, Any]:
+    def concede_offer(self, player_id: str) -> dict[str, object]:
         """Whether the engine lets ``player_id`` concede now."""
         return self._request("get_concede_offer", {"player_id": player_id})
 
-    def concede(self, player_id: str) -> dict[str, Any]:
+    def concede(self, player_id: str) -> dict[str, object]:
         """Concede for ``player_id``; the status after it."""
         return self._request(
             "submit_concede", {"proposal": {"actor_id": player_id, "player_id": player_id}}
