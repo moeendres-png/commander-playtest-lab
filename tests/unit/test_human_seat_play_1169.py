@@ -1735,6 +1735,76 @@ def test_a_leaking_frame_never_reaches_the_human_and_ends_the_game(
     assert all(LEAKED_CARD not in text for text in seen)
 
 
+def _leak_into(status: dict[str, object]) -> dict[str, object]:
+    """``status`` with a hidden AI hand in its decision frame, without the engine's flag."""
+    decision = status["decision"]
+    assert isinstance(decision, dict)
+    for row in decision["pilot_state"]["players"]:  # type: ignore[index]
+        if not row["is_actor"]:
+            row.pop("private_state_visible", None)
+            row["hand"] = [{"name": LEAKED_CARD}]
+    return status
+
+
+class _LeakAfterConcedeClient(_FakeInteractiveClient):
+    """The engine answers the concede with another open decision that leaks."""
+
+    def request(self, method: str, payload: dict[str, object] | None = None) -> dict[str, object]:
+        if method == "submit_concede":
+            self.phase = 2
+            return _leak_into(super().request("get_full_game_decision"))
+        return super().request(method, payload)
+
+
+class _LeakAfterRejectionClient(_FakeInteractiveClient):
+    """The engine rejects the answer, and its status read then shows a moved, leaking frame."""
+
+    rejected = False
+
+    def request(self, method: str, payload: dict[str, object] | None = None) -> dict[str, object]:
+        if method == "submit_full_game_decision" and not self.rejected:
+            self.rejected = True
+            raw = ("external_pilot_decision_rejected", "ILLEGAL_ACTION: option not offered")
+            raise FullGameProtocolError(
+                "submit_full_game_decision failed: " + redacted_summary("BRIDGE_ERROR", raw),
+                code="BRIDGE_ERROR",
+                diagnostics=raw,
+            )
+        if method == "get_full_game_decision" and self.rejected:
+            self.phase = 2
+            return _leak_into(super().request(method, payload))
+        return super().request(method, payload)
+
+
+@pytest.mark.parametrize("route", ["concede", "decision"])
+def test_a_leaking_frame_after_a_concede_or_a_rejected_answer_ends_the_game(
+    tmp_path: Path, route: str
+) -> None:
+    """The two status reads outside the answer step (concede, the probe after a rejected
+    answer) pass the same audit: the request is refused, the game fails, nothing leaks."""
+    fake: _FakeInteractiveClient = (
+        _LeakAfterConcedeClient() if route == "concede" else _LeakAfterRejectionClient()
+    )
+    game_id = f"leak-{route}"
+    app, client = _start_fake_session(tmp_path, game_id, fake, ai_delay_ms=0)
+    try:
+        seen = [json.dumps(_wait_for_pending(client, game_id, "dec-h-1"))]
+        body = {"decision_id": "dec-h-1", "selected_option_ids": ["pass-1"], "ordering": []}
+        posted = client.post(
+            f"/api/play/{game_id}/{route}", json={} if route == "concede" else body
+        )
+        seen.append(posted.text)
+        assert posted.status_code == 409, posted.text
+        final = _wait_finished(client, game_id)
+        seen.append(json.dumps(final))
+        result = final["result"]
+        assert isinstance(result, dict) and result["status"] == "failed", result
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+    seen.append(gzip.decompress(Path(str(result["log"])).read_bytes()).decode("utf-8"))
+    assert all(LEAKED_CARD not in text for text in seen)
+
+
 def test_concede_ends_the_game_and_closes_the_bridge_once(tmp_path: Path) -> None:
     """Concede and end clean up (#1663): the engine thread ends, the bridge session is closed
     exactly once (graceful), and the session holds no bridge any more."""
