@@ -1752,6 +1752,167 @@ console.log(JSON.stringify({
     assert app_js.count("await ensureUnownedLoadedFor(") >= 4
 
 
+# ---- #1662: the pill and the list of single games say what a game is -------------------------
+
+_COHORT_PRELUDE = f"""
+const fs = require('fs');
+const C = require('./cohort.js');
+const read = (name) => fs.readFileSync({json.dumps(str(STATIC))} + '/' + name, 'utf8');
+const grab = (src, name) => {{
+  const start = src.indexOf('function ' + name + '(');
+  if (start < 0) throw new Error('missing ' + name);
+  let depth = 0, i = src.indexOf('{{', start);
+  for (; i < src.length; i += 1) {{ if (src[i] === '{{') depth += 1; else if (src[i] === '}}' && --depth === 0) break; }}
+  return src.slice(start, i + 1);
+}};
+const SIM = {{cohort: 'SIMULATED_RESULT', played_seats: []}};
+const HUMAN = {{cohort: 'PLAYED_GAME', played_seats: [0]}};
+const UNKNOWN = {{cohort: 'UNKNOWN', played_seats: []}};
+"""
+
+
+def test_cohort_js_words_each_cohort_and_never_calls_an_unknown_game_simulated() -> None:
+    out = _node_json(
+        _COHORT_PRELUDE
+        + """
+const cases = {
+  none: null, sim: SIM, human: HUMAN,
+  humanTwo: {cohort: 'PLAYED_GAME', played_seats: [3, 1, 1, -2, 'x', 1.5]},
+  humanNoSeat: {cohort: 'PLAYED_GAME', played_seats: []}, humanNoField: {cohort: 'PLAYED_GAME'},
+  unknown: UNKNOWN, missing: {}, garbage: {cohort: 'simulated'}, nullCohort: {cohort: null},
+  oldServer: {header: {human_seats: [0]}},
+};
+const pills = {}, marks = {};
+for (const [name, record] of Object.entries(cases)) { pills[name] = C.pill(record); marks[name] = C.mark(record); }
+console.log(JSON.stringify({pills, marks}));
+"""
+    )
+    assert isinstance(out, dict)
+    pills, marks = out["pills"], out["marks"]
+    assert pills["sim"]["text"] == "simuliert (KI auf allen Plätzen)"
+    assert pills["human"]["text"] == "gespielt (Mensch an Sitz 1), zählt in keiner Simulationszahl"
+    assert pills["humanTwo"]["text"] == (
+        "gespielt (Mensch an Sitz 2, Sitz 4), zählt in keiner Simulationszahl"
+    )
+    for name in ("humanNoSeat", "humanNoField"):
+        assert pills[name]["text"] == "gespielt (Mensch), zählt in keiner Simulationszahl", name
+    assert pills["none"]["text"] == "Herkunft noch nicht bekannt"
+    # before the game is known, and for every cohort that is not readable, nothing is called a
+    # simulation: "unknown" is never "simulated"
+    for name in ("none", "unknown", "missing", "garbage", "nullCohort", "oldServer"):
+        assert "simuliert" not in pills[name]["text"].lower(), name
+        assert "KI auf allen" not in pills[name]["text"] + pills[name]["title"], name
+    for name in ("unknown", "missing", "garbage", "nullCohort", "oldServer"):
+        assert pills[name]["text"] == "Herkunft unbekannt, nicht als Simulation gewertet", name
+    for name in ("human", "humanTwo", "humanNoSeat"):
+        assert "simuliert" not in pills[name]["text"].lower(), name
+        assert pills[name]["cls"] == "pill good"
+    # the list of single games marks everything that is not a simulation
+    assert marks["sim"] is None
+    assert marks["human"]["text"] == "gespielt (Mensch)"
+    assert "Sitz 1" in marks["human"]["title"]
+    for name in ("unknown", "missing", "garbage", "oldServer"):
+        assert marks[name]["text"] == "Herkunft unbekannt", name
+
+
+def test_partie_pill_and_game_list_follow_the_cohort_the_server_reported() -> None:
+    """The page's own renderCohortPill, gameTitle and the SIMULATE list row run with fake DOM
+    nodes: a human game is "gespielt", a simulated one "simuliert", an unknown one neither."""
+    out = _node_json(
+        _COHORT_PRELUDE
+        + """
+const partie = read('partie.js'), app = read('app.js');
+function pillOf(record) {
+  const el = {className: 'pill warn', title: 'FIXED-OLD', textContent: 'simuliert'};
+  const state = {cohortRecord: record};
+  const make = new Function('state', '$', 'StudioCohort', grab(partie, 'renderCohortPill') + '; return renderCohortPill;');
+  make(state, () => el, C)();
+  return el;
+}
+function titleOf(game) {
+  const make = new Function('StudioCohort', 'seatName', grab(partie, 'gameTitle') + '; return gameTitle;');
+  return make(C, (s) => 'Sitz ' + (s + 1))(game);
+}
+const base = {header: {seats: [{deck_id: 'd1', commanders: ['Chulane']}], seed: 5}, frames: 3, running: false,
+  result: {status: 'finished', winner_seats: [0]}};
+// a fake h(): the element tree as plain data
+const fakeH = (tag, props, ...kids) => ({tag, props: props || {}, kids: kids.flat().filter((k) => k !== null && k !== undefined && k !== false)});
+const texts = (node) => (typeof node === 'string' ? [node] : node.kids.flatMap(texts));
+const marks = (node) => (node.props && String(node.props.class || '').startsWith('pill') ? [node] : (node.kids || []).flatMap((k) => (typeof k === 'string' ? [] : marks(k))));
+function rowOf(game) {
+  const make = new Function('h', 'StudioUI', 'StudioCohort',
+    grab(app, 'recordedGameRow') + '; return recordedGameRow;');
+  return make(fakeH, {num: (n) => String(n)}, C)(game);
+}
+const row = (cohort) => { const r = rowOf(Object.assign({game_id: 'g-' + cohort}, base, cohort)); return {text: texts(r).join('|'), pills: marks(r).map((p) => [p.props.class, texts(p).join('')])}; };
+console.log(JSON.stringify({
+  pills: {none: pillOf(null), sim: pillOf(SIM), human: pillOf(HUMAN), unknown: pillOf(UNKNOWN), absent: pillOf({})},
+  titles: {sim: titleOf(Object.assign({}, base, SIM)), human: titleOf(Object.assign({}, base, HUMAN)), unknown: titleOf(Object.assign({}, base, UNKNOWN))},
+  rows: {sim: row(SIM), human: row(HUMAN), unknown: row(UNKNOWN), absent: row({})},
+}));
+"""
+    )
+    assert isinstance(out, dict)
+    pills = out["pills"]
+    assert pills["sim"]["textContent"] == "simuliert (KI auf allen Plätzen)"
+    assert pills["human"]["textContent"] == (
+        "gespielt (Mensch an Sitz 1), zählt in keiner Simulationszahl"
+    )
+    assert pills["none"]["textContent"] == "Herkunft noch nicht bekannt"
+    for name in ("none", "unknown", "absent", "human"):
+        assert "simuliert" not in pills[name]["textContent"].lower(), name
+        assert (
+            "FIXED-OLD" not in pills[name]["title"] and "KI auf allen" not in pills[name]["title"]
+        )
+    assert pills["human"]["className"] == "pill good" and pills["none"]["className"] == "pill"
+    # the drop-down of games
+    assert out["titles"]["human"].startswith("[Mensch] ")
+    assert out["titles"]["unknown"].startswith("[Herkunft unbekannt] ")
+    assert not out["titles"]["sim"].startswith("[")
+    # the list of single games in SIMULATE
+    rows = out["rows"]
+    assert rows["sim"]["pills"] == []
+    assert [text for _cls, text in rows["human"]["pills"]] == ["gespielt (Mensch)"]
+    assert rows["human"]["pills"][0][0] == "pill good"
+    for name in ("unknown", "absent"):
+        assert [text for _cls, text in rows[name]["pills"]] == ["Herkunft unbekannt"], name
+    assert "simuliert" not in rows["human"]["text"].lower()
+
+
+def test_partie_cohort_wiring_reads_the_server_value_and_uses_no_html_sinks() -> None:
+    html = (STATIC / "partie.html").read_text(encoding="utf-8")
+    index = (STATIC / "index.html").read_text(encoding="utf-8")
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    cohort = (STATIC / "cohort.js").read_text(encoding="utf-8")
+    # the pill in the page starts neutral and is never a fixed claim about the game
+    pill = re.search(r'<span id="sim-pill"[^>]*>([^<]*)</span>', html)
+    assert pill is not None and pill.group(1) == "Herkunft noch nicht bekannt"
+    assert "KI auf allen" not in pill.group(0) and 'class="pill"' in pill.group(0)
+    assert html.index('src="cohort.js"') < html.index('src="partie.js"')
+    assert index.index('src="cohort.js"') < index.index('src="app.js"')
+    # the value is the server's: set from every state answer, reset when another game opens
+    assert "state.cohortRecord = { cohort: page.cohort, played_seats: page.played_seats };" in js
+    assert "Object.assign(state, { gameId, cohortRecord: null," in js
+    assert (
+        "human_seats" not in cohort and "pilot" not in cohort
+    )  # nothing is derived in the browser
+    for name, src in (("cohort.js", cohort), ("partie.html", html), ("index.html", index)):
+        for forbidden in ("innerHTML", "outerHTML", "style=", 'setAttribute("style"', "eval("):
+            assert forbidden not in src, f"{name}: {forbidden}"
+    for sink in ("document.", "window.", "fetch("):
+        assert sink not in cohort, sink
+    for name, src, func in (
+        ("partie.js", js, "renderCohortPill"),
+        ("partie.js", js, "gameTitle"),
+        ("app.js", app, "recordedGameRow"),
+    ):
+        start = src.index(f"function {func}(")
+        body = src[start : src.index("\n}\n", start)]
+        for forbidden in ("innerHTML", "outerHTML", "style:", "style=", "insertAdjacentHTML"):
+            assert forbidden not in body, f"{name} {func}: {forbidden}"
+
+
 # -- B2b (#1658): experiment view (experiments.js) ----------------------------------------
 
 _EXPERIMENT_JS = r"""

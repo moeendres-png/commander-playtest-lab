@@ -18,7 +18,7 @@
 <header id="top">
   <h1>Commander Studio <span>Partie ansehen</span></h1>
   <label>Partie <select id="game-select"></select></label>
-  <span id="sim-pill" class="pill warn" title="Eine einzelne simulierte Partie: ein Seed, KI auf allen Plätzen. Sie zeigt, was in dieser Partie passiert ist, nicht wie stark ein Deck ist.">simuliert</span>
+  <span id="sim-pill" class="pill" title="Ob diese Partie simuliert oder von einem Menschen gespielt wurde, steht im Spielprotokoll; es ist noch nicht geladen.">Herkunft noch nicht bekannt</span>
   <span id="game-info" class="muted"></span>
   <span class="spacer"></span>
   <button id="concede-btn" type="button" class="danger" hidden title="Aktive Partie regelkonform aufgeben">Aufgeben</button>
@@ -83,6 +83,7 @@
 <script src="replay.js"></script>
 <script src="play_p1a.js"></script>
 <script src="follow.js"></script>
+<script src="cohort.js"></script>
 <script src="partie.js"></script>
 </body>
 </html>
