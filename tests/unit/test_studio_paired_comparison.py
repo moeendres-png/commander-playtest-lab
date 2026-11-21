@@ -1664,3 +1664,33 @@ def test_a_journal_without_a_readable_manifest_blocks_the_resume(tmp_path: Path)
     assert view is not None and view["resumable"] is False
     with pytest.raises(series_record.ManifestMismatch, match="nicht prüfbar"):
         manager.resume_series(tmp_path, "nomani", play_override=lambda *_a: {})  # type: ignore[arg-type,return-value]
+
+
+def test_the_series_status_shows_the_unguarded_count_and_unknown_without_a_journal(
+    tmp_path: Path,
+) -> None:
+    from commander_lab.studio import paired_series, series_record
+
+    manager = paired_series.PairedSeriesManager()
+    _stored_series_with_journal(tmp_path, "guarded", violation=False)
+    record = series_record.SeriesRecord.open(
+        tmp_path,
+        "guarded",
+        games=[{"game_id": "g1", "game_key": "k" * 64}, {"game_id": "g2", "game_key": "k" * 64}],
+        table_hash=None,
+        table=None,
+    )
+    record.record("g2", {"status": "finished", "semantic_transcript_sha256": None})  # no hash
+    view = manager.get_series(tmp_path, "guarded")
+    assert view is not None
+    assert view["determinism_guard"] == {"violation": False, "unguarded": 1, "finished": 2}
+    _stored_series_with_journal(tmp_path, "violated", violation=True)
+    violated = manager.get_series(tmp_path, "violated")
+    assert violated is not None
+    assert violated["determinism_guard"] == {"violation": True, "unguarded": None, "finished": None}
+    series_record.series_folder(tmp_path, "guarded").joinpath("journal.jsonl").unlink()
+    unknown = manager.get_series(tmp_path, "guarded")  # chunked path: no journal, never "0 of 0"
+    assert unknown is not None and unknown["determinism_guard"] is None
+    series_record.series_folder(tmp_path, "violated").joinpath("manifest.json").unlink()
+    broken = manager.get_series(tmp_path, "violated")
+    assert broken is not None and "nicht prüfbar" in str(broken["determinism_guard"])

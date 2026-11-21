@@ -351,6 +351,31 @@ def series_violation(data_folder: str | Path, series_id: str) -> DeterminismViol
     no journal or no violation in it. A journal without a readable manifest cannot be checked
     and raises ``ManifestMismatch`` (fail-closed, never "no violation").
     """
+    try:
+        _stored_record(data_folder, series_id)
+    except DeterminismViolation as violation:
+        return violation
+    return None
+
+
+def series_guard(data_folder: str | Path, series_id: str) -> dict[str, object] | None:
+    """What the guard of a stored series saw, for its status: ``unguarded`` n of ``finished`` N.
+
+    ``None``: no journal (a chunked series, or nothing played yet), so unknown, never "0 of 0".
+    After a violation the journal is not read to its end: both counts are ``None``.
+    """
+    try:
+        record = _stored_record(data_folder, series_id)
+    except DeterminismViolation:
+        return {"violation": True, "unguarded": None, "finished": None}
+    if record is None:
+        return None
+    unguarded, finished = record.unguarded()
+    return {"violation": False, "unguarded": unguarded, "finished": finished}
+
+
+def _stored_record(data_folder: str | Path, series_id: str) -> SeriesRecord | None:
+    """The stored manifest and journal of a series (journal read); ``None`` without a journal."""
     folder = series_folder(data_folder, series_id)
     record = SeriesRecord(folder, {})
     if not record.journal_path.is_file():
@@ -364,11 +389,8 @@ def series_violation(data_folder: str | Path, series_id: str) -> DeterminismViol
     if not isinstance(stored, dict):
         raise ManifestMismatch(f"Manifest der Serie {series_id} ist kein Objekt")
     record.manifest = stored
-    try:
-        record._read_journal()
-    except DeterminismViolation as violation:
-        return violation
-    return None
+    record._read_journal()
+    return record
 
 
 def _create_exclusive(path: Path, data: bytes) -> None:
@@ -411,5 +433,6 @@ __all__ = [
     "file_sha256",
     "game_key",
     "series_folder",
+    "series_guard",
     "series_violation",
 ]

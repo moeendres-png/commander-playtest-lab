@@ -61,7 +61,12 @@ from .launch import (
     bridge_jar_sha256 as command_bridge_jar_sha256,
 )
 from .play import header_pilot_fingerprint
-from .series_record import DETERMINISM_VIOLATION, ManifestMismatch, series_violation
+from .series_record import (
+    DETERMINISM_VIOLATION,
+    ManifestMismatch,
+    series_guard,
+    series_violation,
+)
 from .store import StudioStore, now_utc
 from .strength import StrengthSettings
 
@@ -1393,17 +1398,24 @@ class PairedSeriesManager:
         target_folder = Path(data_folder).resolve()
         with self._lock:
             job = self._jobs.get(safe_id)
+        found: dict[str, object] | None = None
         if job is not None and job.data_folder == target_folder:
-            return job.to_dict()
+            found = job.to_dict()
         disk = games_folder(target_folder) / f"{safe_id}.paired.json"
-        if disk.is_file():
+        if found is None and disk.is_file():
             try:
                 raw = json.loads(disk.read_text(encoding="utf-8"))
             except ValueError:
                 return None
             if isinstance(raw, dict):
-                return self._normalize_disk_series(raw, target_folder)
-        return None
+                found = self._normalize_disk_series(raw, target_folder)
+        if found is not None:
+            # the determinism guard of the pool path: "unbewacht n/N", None when unknown
+            try:
+                found["determinism_guard"] = series_guard(target_folder, safe_id)
+            except ManifestMismatch as error:
+                found["determinism_guard"] = {"error": str(error)}
+        return found
 
     def get_job(self, series_id: str) -> PairedSeriesJob | None:
         """The running (or finished) job of this process, if it started here."""
