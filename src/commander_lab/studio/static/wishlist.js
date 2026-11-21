@@ -139,10 +139,13 @@ const StudioWishlist = (() => {
     return `${euros},${String(value % 100).padStart(2, "0")} €`;
   }
 
-  // "12", "12,5", "12.50" -> cents; empty or unreadable -> null (no filter).
+  // German or plain input -> cents: "12", "12,5", "12.50", "1.000" (thousands), "1.234,56",
+  // "10 €"; empty, zero or unreadable -> null (no filter; the view says when it could not read).
   function parseBudget(text) {
-    const clean = String(text === undefined || text === null ? "" : text).trim().replace(",", ".");
-    if (!/^\d{1,6}(\.\d{1,2})?$/.test(clean)) return null;
+    let clean = String(text === undefined || text === null ? "" : text).trim().replace(/\s*€$/, "").replace(/\s/g, "");
+    if (/^\d{1,3}(\.\d{3})+(,\d{1,2})?$/.test(clean)) clean = clean.replace(/\./g, "");
+    clean = clean.replace(",", ".");
+    if (!/^\d{1,7}(\.\d{1,2})?$/.test(clean)) return null;
     const [whole, part = ""] = clean.split(".");
     const cents = Number(whole) * 100 + Number((part + "00").slice(0, 2));
     return cents > 0 ? cents : null;
@@ -152,8 +155,9 @@ const StudioWishlist = (() => {
   function tamPurchaseRows(missingCards, answer) {
     const byId = new Map(((answer && answer.cards) || []).map((item) => [item.card_id, item]));
     return (missingCards || []).map((card) => {
-      const item = byId.get(card.card_id) || {};
-      const status = item.status === "owned" ? "owned" : item.status === "value" && validCents(item.eur_cents) !== null ? "value" : "unknown";
+      const item = byId.get(card.card_id);
+      // a card the server did not answer (not in the stored deck list) is "absent", not unknown
+      const status = !item ? "absent" : item.status === "owned" ? "owned" : item.status === "value" && validCents(item.eur_cents) !== null ? "value" : "unknown";
       return {
         card_id: card.card_id,
         name: String(card.name || card.card_id),
@@ -227,6 +231,7 @@ const StudioWishlist = (() => {
 
   function cellText(row) {
     if (row.status === "owned") return "im Besitz (kein Preis)";
+    if (row.status === "absent") return "nicht im gespeicherten Deck (kein Preis)";
     return formatEur(row.cents);
   }
 
@@ -237,11 +242,21 @@ const StudioWishlist = (() => {
     const snap = answer && answer.snapshot;
     const results = h("div", { id: "tam-zukauf-results" });
     const draw = () => {
-      const filtered = filterTamBudget(rows, parseBudget(state.budget));
+      const budgetText = String(state.budget || "").trim();
+      const limit = parseBudget(budgetText);
+      const filtered = filterTamBudget(rows, limit);
+      const absent = rows.filter((row) => row.status === "absent").length;
+      const unreadable = budgetText !== "" && !(limit > 0);
       const shown = sortTamRows(filtered.rows, state.sort);
       const summary = summarizeTamRows(shown);
       results.replaceChildren(
         h("p", { id: "tam-zukauf-sum" }, h("b", {}, tamSumText(summary))),
+        unreadable
+          ? h("p", { class: "note", id: "tam-zukauf-budget-invalid" }, `Budget „${budgetText}“ nicht lesbar (Beispiele: 10, 12,50, 1.000): Filter aus.`)
+          : "",
+        absent
+          ? h("p", { class: "note", id: "tam-zukauf-absent" }, `${absent} Karten stehen nicht in der gespeicherten Deckliste und haben keinen Richtwert; erst speichern.`)
+          : "",
         filtered.active
           ? h("p", { class: "note", id: "tam-zukauf-hidden" }, `Budgetfilter: ${filtered.hiddenOver} Karten über dem Höchstwert, ${filtered.hiddenUnknown} Karten ohne Preis und ${filtered.hiddenOwned} im Besitz ausgeblendet.`)
           : "",

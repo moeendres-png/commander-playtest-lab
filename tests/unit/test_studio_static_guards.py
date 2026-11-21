@@ -120,6 +120,10 @@ def test_price_wording_is_opened_only_for_the_one_tam_block() -> None:
     opener = app[app.index("async function openTamPurchase(") :]
     opener = opener[: opener.index("\n}\n")]
     assert TAM_PRICE_ROUTE in opener and "tamPurchaseView" in opener
+    # the working list reaches the server before the question (the server reads the draft)
+    assert "if (state.dirty && state.needsDraftPut) await syncDraft();" in opener
+    assert opener.index("await syncDraft();") < opener.index(TAM_PRICE_ROUTE)
+    assert "deck_id: state.deckId, branch: state.branch" in opener
     gate = "!StudioWishlist.tamPricesAllowed(COMMANDER, state.includeUnowned)) return;"
     assert gate in opener and opener.index(gate) < opener.index(TAM_PRICE_ROUTE)
     assert app.count("openTamPurchase(") == 2  # the definition and the gated button
@@ -1870,7 +1874,12 @@ console.log(JSON.stringify({
     W.tamPricesAllowed('Chulane, Teller of Tales', true), W.tamPricesAllowed('tam, the possibility', true),
     W.tamPricesAllowed('Tam, the Possibility', 'true')],
   fmt: [W.formatEur(123456), W.formatEur(5), W.formatEur(0), W.formatEur(null), W.formatEur(undefined), W.formatEur(-100), W.formatEur(1.5), W.formatEur('250')],
-  budget: [W.parseBudget('12'), W.parseBudget('12,5'), W.parseBudget('0'), W.parseBudget(''), W.parseBudget('abc'), W.parseBudget('3.999')],
+  budget: [W.parseBudget('12'), W.parseBudget('12,5'), W.parseBudget('0'), W.parseBudget(''), W.parseBudget('abc'), W.parseBudget('3.999'),
+    W.parseBudget('1.000'), W.parseBudget('1.234,56'), W.parseBudget('10 €'), W.parseBudget('1,234'), W.parseBudget('12.505')],
+  atLimit: names(W.filterTamBudget(rows, 250).rows),
+  absent: W.tamPurchaseRows([{ card_id: 'q', name: 'Not Saved', missing: 1 }], answer).map((r) => [r.status, r.cents]),
+  absentView: text(W.tamPurchaseView(h, answer, [{ card_id: 'q', name: 'Not Saved', missing: 1 }], { sort: 'name', budget: '' })),
+  invalidView: text(W.tamPurchaseView(h, answer, missing, { sort: 'name', budget: '12,345' })),
   status: rows.map((r) => [r.status, r.cents]),
   asc: names(W.sortTamRows(rows, 'price-asc')),
   desc: names(W.sortTamRows(rows, 'price-desc')),
@@ -1893,7 +1902,16 @@ console.log(JSON.stringify({
         "1.234,56 €", "0,05 €", "unbekannt", "unbekannt", "unbekannt", "unbekannt", "unbekannt",
         "unbekannt",
     ]  # fmt: skip
-    assert result["budget"] == [1200, 1250, None, None, None, None]
+    # German input: thousands dot and decimal comma; three decimals are unreadable
+    assert result["budget"] == [
+        1200, 1250, None, None, None, 399900, 100000, 123456, 1000, None, 1250500,
+    ]  # fmt: skip
+    assert result["atLimit"] == ["Beta Key"]  # a value equal to the limit stays in
+    # a card the server did not answer (not in the saved list) is "absent", not unknown
+    assert result["absent"] == [["absent", None]]
+    assert "nicht im gespeicherten Deck (kein Preis)" in str(result["absentView"])
+    assert "1 Karten stehen nicht in der gespeicherten Deckliste" in str(result["absentView"])
+    assert "Budget „12,345“ nicht lesbar" in str(result["invalidView"])
     # owned: no value although the answer has one; a 0 value is unknown
     assert result["status"] == [
         ["value", 123456], ["value", 250], ["unknown", None], ["owned", None], ["unknown", None],

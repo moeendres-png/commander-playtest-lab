@@ -2450,7 +2450,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         """Guide values (Richtwerte) of the TAM purchase list (#1637, register entry "Preise für
         TAM"): only for the commander TAM and only for cards not owned, from the local Scryfall
         bulk snapshot with source and date; a card without a value is unknown. The commander is
-        the one stored for the deck (draft, else branch head); any other commander is refused, and
+        the one stored for the deck: the saved revision of the variant and, when there is one, its
+        draft must both have TAM as their one commander, else 403 (404 without a saved revision);
         only cards of that deck are answered. No other route reads these values."""
         store = open_store()
         try:

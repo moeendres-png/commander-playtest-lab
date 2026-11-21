@@ -20,6 +20,7 @@ from __future__ import annotations
 import json
 import re
 from collections.abc import Sequence
+from datetime import UTC, datetime, timedelta
 from datetime import date as calendar_date
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -32,7 +33,8 @@ from .tam_import import TAM_COMMANDER_NAME
 SOURCE_LABEL = "Scryfall prices.eur (lokale Bulk-Datei)"
 VALUE_KIND = "Richtwert"
 VALUE_RULE = (
-    "niedrigster prices.eur-Wert über die Drucke dieser Karte in der Bulk-Datei (Non-Foil); "
+    "niedrigster prices.eur-Wert über die spielbaren Papierdrucke dieser Karte in der Bulk-Datei "
+    "(Non-Foil; ohne Übergröße, digital, Gold-/Silberrand, Sammlerstücke, Token-Layouts); "
     "prices.eur_foil wird nicht gelesen"
 )
 NOTICE = (
@@ -40,18 +42,38 @@ NOTICE = (
     "EX, nicht das günstigste Angebot."
 )
 MAX_CARD_IDS = 250
-_EUR = re.compile(r"\d{1,6}(?:\.\d{1,2})?")
-_ISO_DATE = re.compile(r"20\d{2}-\d{2}-\d{2}")
+_EUR = re.compile(r"\d{1,6}(?:\.\d{1,2})?", re.ASCII)
+_ISO_DATE = re.compile(r"20\d{2}-\d{2}-\d{2}", re.ASCII)
+# Printings whose value is no guide for a playable copy (Scryfall card fields ``oversized``,
+# ``digital``, ``border_color``, ``set_type``, ``layout``; scryfall.com/docs/api/cards):
+# oversized cards, digital-only printings, gold-bordered (World Championship / Collectors'
+# Edition) and silver-bordered cards, memorabilia sets and non-card layouts.
+_NOT_PLAYABLE_BORDERS = frozenset({"gold", "silver"})
+_NOT_PLAYABLE_SET_TYPES = frozenset({"memorabilia", "token", "minigame"})
 
 
-def _valid_date(text: str) -> str:
-    """A real calendar date in ``YYYY-MM-DD`` form; anything else (``2026-99-99``) refuses."""
+def _playable_paper(card: dict[str, object]) -> bool:
+    return not (
+        card.get("oversized") is True
+        or card.get("digital") is True
+        or card.get("border_color") in _NOT_PLAYABLE_BORDERS
+        or card.get("set_type") in _NOT_PLAYABLE_SET_TYPES
+        or card.get("layout") in catalog._SKIPPED_LAYOUTS
+    )
+
+
+def _valid_date(text: str, today: calendar_date | None = None) -> str:
+    """A real calendar date in ``YYYY-MM-DD`` form, not after tomorrow (UTC); anything else
+    (``2026-99-99``, ``2099-12-31``) refuses."""
     if not _ISO_DATE.fullmatch(text):
         raise ValueError(f"bulk date must be YYYY-MM-DD: {text!r}")
     try:
-        calendar_date.fromisoformat(text)
+        day = calendar_date.fromisoformat(text)
     except ValueError as error:
         raise ValueError(f"bulk date is no calendar date: {text!r}") from error
+    limit = (today or datetime.now(UTC).date()) + timedelta(days=1)
+    if day > limit:
+        raise ValueError(f"bulk date lies in the future: {text!r}")
     return text
 
 
@@ -81,10 +103,14 @@ def import_scryfall_prices(
     ``bulk_date`` (``YYYY-MM-DD``); without either the import is refused, never the file time.
     Per oracle_id the lowest usable ``prices.eur`` over the printings in the file is kept."""
     files = catalog._source_files(Path(bulk_path))
+    found = catalog._date_from_name(files[0].name)
     if bulk_date is not None:
+        if found is not None and found != bulk_date:
+            raise ValueError(
+                f"bulk date conflict: --bulk-date {bulk_date} but the file name says {found}"
+            )
         date, basis = _valid_date(bulk_date), "angegeben"
     else:
-        found = catalog._date_from_name(files[0].name)
         if found is None:
             raise ValueError(
                 "no bulk date: the file name carries no date; pass --bulk-date YYYY-MM-DD "
@@ -100,6 +126,8 @@ def import_scryfall_prices(
             if not isinstance(oracle_id, str) or not oracle_id:
                 continue
             seen.add(oracle_id)
+            if not _playable_paper(card):
+                continue
             prices = card.get("prices")
             cents = _cents(prices.get("eur")) if isinstance(prices, dict) else None
             if cents is None:
@@ -159,19 +187,9 @@ def _owned(store: StudioStore, card_id: str, oracle_id: str | None) -> int:
     return int(row[0] or 0)
 
 
-def _deck_cards(store: StudioStore, deck_id: str, branch: str) -> list[tuple[str, str]]:
-    """(card_id, zone) of the list the builder works on: the stored draft of the branch, else
-    the saved revision the branch points to. ``KeyError`` for an unknown deck or branch."""
-    row = store.connection.execute(
-        "SELECT cards FROM deck_draft WHERE deck_id = ? AND branch = ?", (deck_id, branch)
-    ).fetchone()
-    if row is not None:
-        raw = json.loads(str(row[0]))
-        return [
-            (str(item.get("card_id")), str(item.get("zone") or "main"))
-            for item in (raw if isinstance(raw, list) else [])
-            if isinstance(item, dict) and item.get("card_id")
-        ]
+def _saved_cards(store: StudioStore, deck_id: str, branch: str) -> list[tuple[str, str]]:
+    """(card_id, zone) of the saved revision the branch points to; ``KeyError`` when the deck
+    or the branch has no saved revision (a draft alone never counts)."""
     head = branch_head(store.connection, deck_id, branch)
     if head is None:
         raise KeyError(f"{deck_id}/{branch}")
@@ -179,6 +197,27 @@ def _deck_cards(store: StudioStore, deck_id: str, branch: str) -> list[tuple[str
         "SELECT card_id, zone FROM deck_revision_card WHERE revision_id = ?", (head,)
     ).fetchall()
     return [(str(r[0]), str(r[1])) for r in rows]
+
+
+def _draft_cards(store: StudioStore, deck_id: str, branch: str) -> list[tuple[str, str]] | None:
+    """(card_id, zone) of the stored working draft of the branch, or ``None``."""
+    row = store.connection.execute(
+        "SELECT cards FROM deck_draft WHERE deck_id = ? AND branch = ?", (deck_id, branch)
+    ).fetchone()
+    if row is None:
+        return None
+    raw = json.loads(str(row[0]))
+    return [
+        (str(item.get("card_id")), str(item.get("zone") or "main"))
+        for item in (raw if isinstance(raw, list) else [])
+        if isinstance(item, dict) and item.get("card_id")
+    ]
+
+
+def _is_tam_only(store: StudioStore, cards: list[tuple[str, str]]) -> bool:
+    """Exactly one commander, a known card, and it is TAM; an unknown commander card refuses."""
+    names = [_card_name(store, cid) for cid, zone in cards if zone == "commander"]
+    return names == [TAM_COMMANDER_NAME]
 
 
 def _card_name(store: StudioStore, card_id: str) -> str | None:
@@ -203,27 +242,32 @@ def purchase_guide_values(
 ) -> dict[str, object]:
     """Guide values of the purchase list of a stored TAM deck.
 
-    The commander is the one stored for the deck (its draft, else the revision the branch points
-    to), never a name the caller sends: unless that is exactly TAM and nothing else,
-    :class:`NotTamError` (Chulane and every other commander get no price). A ``commander`` the
-    caller names must match it. Only cards of the deck's main list are answered; other ids are
-    left out and counted (``not_in_deck``). A card owned in any printing gets ``status="owned"``
+    The commander is the one stored for the deck, never a name the caller sends: the saved
+    revision the branch points to must exist (else ``KeyError``) and have exactly TAM as its
+    one commander, and so must the working draft when there is one; otherwise
+    :class:`NotTamError` (Chulane and every other commander get no price; a draft alone never
+    turns a deck into a TAM deck). A ``commander`` the caller names must match. Only cards of
+    the working list (draft, else saved revision; main and commander zone) are answered; other
+    ids are left out and counted (``not_in_deck``). A card owned in any printing gets ``status="owned"``
     and no value; a card without a value ``status="unknown"``; only ``status="value"`` carries
     ``eur_cents``. Without an imported snapshot every card is unknown and ``snapshot`` is
     ``None``."""
     requested = list(dict.fromkeys(str(card_id) for card_id in card_ids if card_id))
     if len(requested) > MAX_CARD_IDS:
         raise ValueError(f"at most {MAX_CARD_IDS} cards")
-    deck = _deck_cards(store, deck_id, branch)
-    commanders = sorted(
-        {_card_name(store, cid) or cid for cid, zone in deck if zone == "commander"}
-    )
-    if commanders != [TAM_COMMANDER_NAME] or commander not in (None, TAM_COMMANDER_NAME):
+    saved = _saved_cards(store, deck_id, branch)
+    draft = _draft_cards(store, deck_id, branch)
+    deck = saved if draft is None else draft
+    if (
+        not _is_tam_only(store, saved)
+        or not _is_tam_only(store, deck)
+        or commander not in (None, TAM_COMMANDER_NAME)
+    ):
         raise NotTamError(
             f"Richtwerte nur für ein Deck mit dem Commander TAM ({TAM_COMMANDER_NAME})"
         )
-    main = {cid for cid, zone in deck if zone == "main"}
-    ids = [card_id for card_id in requested if card_id in main]
+    listed = {cid for cid, zone in deck if zone in ("main", "commander")}
+    ids = [card_id for card_id in requested if card_id in listed]
     snap = store.connection.execute(
         "SELECT bulk_date, date_basis, imported_at, file_sha256 FROM tam_price_snapshot "
         "WHERE snapshot_id = 1"
