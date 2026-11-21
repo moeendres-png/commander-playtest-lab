@@ -21,8 +21,8 @@ plays real 100-card Commander decks rules-correctly, so simulated games can stan
   the charter `docs/STUDIO_CHARTA_V2.md` (the Owner accepted only its §5, Q1 to Q11; the rest is
   the Lead's planning) with the decision register `docs/OWNER_DECISIONS_STUDIO_20261118.md`
   (Owner decision of 2026-11-20, E15 Q10). The binding scope stays `docs/STUDIO_SCOPE.md`; the
-  older Owner decisions are in `docs/OWNER_DECISIONS_STUDIO_20261112.md`, and
-  `docs/STUDIO_PLAN_SIMULATOR.md` is the reference set of the Studio bridge gate (§10). Binding in
+  older Owner decisions are in `docs/OWNER_DECISIONS_STUDIO_20261112.md` and
+  `docs/STUDIO_PLAN_SIMULATOR.md` (also the reference set of the Studio bridge gate, §10). Binding in
   short: only objective data with provenance; every count with its denominator; cohorts never
   added; source data bound to one commander; no guessed tier. Since the Owner decision of
   2026-11-20 (`docs/OWNER_DECISIONS_STUDIO_20261118.md` E15 Q1) the tier list is the usage view

@@ -121,7 +121,8 @@ geplant.
 - Neue Repository-Inhalte nennen kein KI-Modell und keinen Anbieter (`AGENTS.md` §12).
 - Ergebnisse aus Simulation heißen `SIMULATED_RESULT` und haben kein Gewicht in der Tierliste
   (seit E15 Q1, 2026-11-20, entfernt; die Fassung „bevor G-SIM erfüllt ist“ ist überholt); sie
-  erscheinen als Evidenz mit Reifegrad R0-R3 im Deckbauer (Q1-c, #1666, noch nicht gebaut).
+  erscheinen als Evidenz mit Reifegrad R0-R3 im Deckbauer (Q1-c, #1666; Paket 1 mit #1717 im
+  Serien-Verlauf gebaut, höchstens R1 erreichbar, Diff und Kürzen/Tauschen offen).
 - Jede Zahl mit n/N und Herkunft. Was nicht belegt ist, heißt `UNKNOWN`, nie PASS.
 
 ## 8. Übergabe
