@@ -782,6 +782,15 @@ const variants = [found, deckSeriesDiffEvidence(h, data, "rev-y", null), deckSer
   deckSeriesDiffEvidence(h, data, "rev-y", "rev-zzz"), deckSeriesDiffEvidence(h, { series: "x" }, "rev-y", "rev-x")];
 const unknownPairs = [deckSeriesEvidence(h, { ...base, n: null, N: null }), deckSeriesEvidence(h, { ...base, n: null, N: 4 }), deckSeriesEvidence(h, { ...base, n: 3, N: null })];
 const card = deckSeriesCardEvidence(h);
+// the most common case: the opened state is main, the finding says "Befund zum aktuellen Stand"
+const mainData = { series: [mk("m1", "rev-prev", "rev-main", "pod-1")],
+  reifegrad: { befunde: { m1: { ...base, stand: { bezug: "aktuell", text: "Befund zum aktuellen Stand" } } } } };
+const mainCase = deckSeriesDiffEvidence(h, mainData, "rev-prev", "rev-main");
+const lastNode = (n) => n.kids[n.kids.length - 1];
+// the "no series" nodes, whole: complete list, cut by 200 series (truncated), cut by scan limit
+const noSeries = deckSeriesDiffEvidence(h, data, "rev-y", "rev-zzz");
+const noSeriesTruncated = deckSeriesDiffEvidence(h, { ...data, truncated: true }, "rev-y", "rev-zzz");
+const noSeriesScanCut = deckSeriesDiffEvidence(h, { ...data, scan_truncated: 3 }, "rev-y", "rev-zzz");
 (async () => {
   const urls = [];
   const ok = await deckSeriesLoad(async (url) => { urls.push(url); return { series: [] }; }, "deck 1");
@@ -791,9 +800,20 @@ const card = deckSeriesCardEvidence(h);
     series: found.kids.filter((k) => typeof k !== "string" && k.attrs.class === "diff-evidence-series").map((k) => ({ kids: k.kids.map(shape), texts: k.kids.map(text) })),
     allTexts: variants.map(text), unknownPairs: unknownPairs.map(text),
     card, cardPill: anyPill(card), loadOk: ok, loadFailed: failed, urls,
+    mainCase: { kids: mainCase.kids.map(shape), series: mainCase.kids.filter((k) => typeof k !== "string" && k.attrs.class === "diff-evidence-series").map((k) => k.kids.map(text)) },
+    noSeries: lastNode(noSeries), noSeriesTruncated: lastNode(noSeriesTruncated), noSeriesScanCut: lastNode(noSeriesScanCut),
   }));
 })();
 """
+
+
+# #1729 delta review P3-1: neutral on which state is opened. In the most common case the opened
+# state is main and the finding below says "Befund zum aktuellen Stand"; the line must not
+# contradict it, so it never claims the finding is about (or is not about) the opened state.
+REFERENCE_LINE = (
+    "Stand-Bezug des Befunds darunter: gemessen an main bzw. dessen direktem Vorgänger, "
+    "unabhängig davon, welcher Stand geöffnet ist."
+)
 
 
 def _run_diff_js() -> dict[str, object]:
@@ -822,14 +842,51 @@ def test_the_diff_names_the_opened_state_the_table_and_the_main_reference() -> N
         "Serie vom 2026-11-20 10:00 · Tisch pod-2: A = Vergleichsbasis, B = geöffneter Stand",
         "Serie vom 2026-11-20 10:00 · Tisch unbekannt: A = geöffneter Stand, B = Vergleichsbasis",
     ]
-    reference = (
-        "Stand-Bezug des Befunds darunter: bezogen auf main bzw. dessen direkten Vorgänger, "
-        "nicht auf den geöffneten Stand."
-    )
     for item in series:
-        assert item["texts"][1] == reference
+        assert item["texts"][1] == REFERENCE_LINE
         assert "Befund zu einem anderen Stand (nicht der aktuelle)" in item["texts"][2]
     assert "der geöffnete Stand ist nicht gespeichert" in r["allTexts"][1]  # type: ignore[index]
+
+
+def test_the_reference_line_is_neutral_when_the_opened_state_is_main() -> None:
+    # #1729 delta review P3-1: opened state = main, the finding says "Befund zum aktuellen
+    # Stand"; both pairs (main case and non-main case) are pinned exactly and the line never
+    # claims the finding is (or is not) about the opened state
+    r = _run_diff_js()
+    main = r["mainCase"]
+    assert isinstance(main, dict)
+    assert main["kids"] == ["h3.", "p.note note-compact", "div.diff-evidence-series"]
+    (texts,) = main["series"]
+    assert texts[0] == (
+        "Serie vom 2026-11-20 10:00 · Tisch pod-1: A = Vergleichsbasis, B = geöffneter Stand"
+    )
+    assert texts[1] == REFERENCE_LINE
+    assert "Befund zum aktuellen Stand" in texts[2]
+    # non-main case: the very same line, next to a finding of another state
+    for item in r["series"]:  # type: ignore[union-attr]
+        assert item["texts"][1] == REFERENCE_LINE
+    for line in (REFERENCE_LINE, texts[1]):
+        assert "nicht auf den geöffneten" not in line and "bezogen auf den geöffneten" not in line
+        assert "unabhängig davon, welcher Stand geöffnet ist" in line
+
+
+def test_the_no_series_node_is_exact_and_names_the_cut_never_zero() -> None:
+    # #1729 delta review P3-2 (M12) and P3-3 (M18): the whole node is pinned. A cut by 200 series
+    # (truncated, no scan_truncated) and a cut by the file limit both name "ältere Serien nicht
+    # geprüft"; the plain case does not; the text says "unbekannt, nicht 0", never "0 Paare"
+    r = _run_diff_js()
+    stem = "kein Befund: keine gespeicherte Serie für genau diese beiden Stände"
+
+    def node(text: str) -> dict[str, object]:
+        return {"tag": "p", "attrs": {"class": "muted"}, "kids": [text]}
+
+    assert r["noSeries"] == node(f"{stem} (unbekannt, nicht 0).")
+    assert r["noSeriesTruncated"] == node(
+        f"{stem} (ältere Serien nicht geprüft) (unbekannt, nicht 0)."
+    )
+    assert r["noSeriesScanCut"] == node(
+        f"{stem} (ältere Serien nicht geprüft) (unbekannt, nicht 0)."
+    )
 
 
 def test_the_diff_evidence_children_are_exact_no_extra_line_and_no_sum() -> None:

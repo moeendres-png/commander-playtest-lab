@@ -170,7 +170,7 @@ function deckSeriesDiffEvidence(h, data, baseRev, targetRev) {
   if (!found.length) return h("div", { id: "diff-evidence" }, title, note, h("p", { class: "muted" }, `kein Befund: keine gespeicherte Serie für genau diese beiden Stände${incomplete} (unbekannt, nicht 0).`));
   return h("div", { id: "diff-evidence" }, title, note, ...found.map((item) => h("div", { class: "diff-evidence-series" },
     h("p", { class: "muted" }, `Serie vom ${deckSeriesDate(item.created_at)} · Tisch ${item.pod || "unbekannt"}: A = ${side(item.base_ref)}, B = ${side(item.variant_ref)}`),
-    h("p", { class: "muted" }, "Stand-Bezug des Befunds darunter: bezogen auf main bzw. dessen direkten Vorgänger, nicht auf den geöffneten Stand."),
+    h("p", { class: "muted" }, "Stand-Bezug des Befunds darunter: gemessen an main bzw. dessen direktem Vorgänger, unabhängig davon, welcher Stand geöffnet ist."),
     deckSeriesEvidence(h, befunde[item.series_id]))));
 }
 
