@@ -563,7 +563,8 @@ console.log(JSON.stringify(out));
     rows = dict(rated_view["rows"])
     assert rows["E"].startswith("E Effizienz") and "60" in rows["E"] and "cheap" in rows["E"]
     assert "Modellurteil" in rows["H"] and "65" in rows["H"] and "unbekannt" in rows["H"]
-    assert "2 / 2 Zeilen des Datensatzes" in rows["K"]
+    assert rows["K"].endswith("2 / 2")
+    assert "Abdeckung n/N: Zeilen des Datensatzes (mit Wert / gesamt)." in rated_view["text"]
     text = rated_view["text"]
     assert "It does one small thing." in text and "Draw a card." in text
     assert "vom Prüfer bezweifelt" in text and "Prüfer-Spanne 30 bis 45" in text

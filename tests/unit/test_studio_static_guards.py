@@ -856,7 +856,9 @@ console.log(JSON.stringify(out));
     # WP-6 (T1): a compact cell; the shared origin stands once, visible, above the table and every
     # cell carries its own origin and notes in the tooltip
     assert a.startswith("90") and "Modellurteil" in a and "Quelle:" not in a
-    assert "Quelle: Rubrik v2.1" in chulane["titles"][0] and "Kohorte: Chulane" in chulane["titles"][0]
+    assert (
+        "Quelle: Rubrik v2.1" in chulane["titles"][0] and "Kohorte: Chulane" in chulane["titles"][0]
+    )
     assert "nicht gegen Spielergebnisse validiert" in chulane["titles"][0]
     assert b == "unbekannt"  # no figure: unknown, never 0
     assert c.startswith("0") and "Modellurteil" in c  # a real 0 stays a real 0

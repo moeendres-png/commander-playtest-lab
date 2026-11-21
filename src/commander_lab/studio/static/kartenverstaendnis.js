@@ -12,7 +12,7 @@ const StudioKartenverstaendnis = (() => {
   const num = (value) => (typeof StudioUI !== "undefined" ? StudioUI.num(value, 0) : String(value));
 
   function coverageText(entry) {
-    return entry && Number.isInteger(entry.n) && Number.isInteger(entry.N) ? `${num(entry.n)} / ${num(entry.N)} ${entry.bezug || ""}`.trim() : UNKNOWN;
+    return entry && Number.isInteger(entry.n) && Number.isInteger(entry.N) ? `${num(entry.n)} / ${num(entry.N)}` : UNKNOWN;
   }
 
   function spreadNodes(h, spread) {
@@ -54,10 +54,13 @@ const StudioKartenverstaendnis = (() => {
       h("th", { scope: "row" }, `${entry.kriterium} ${entry.name}`),
       StudioZahl.zelle(h, entry.zahl || null, "URTEIL", { class: "num" }, { kompakt: true }),
       h("td", { class: entry.notiz ? "" : "unknown" }, entry.notiz || UNKNOWN),
-      h("td", { class: "num" }, coverageText(coverage[entry.kriterium]))));
+      h("td", { class: "num nowrap", title: (coverage[entry.kriterium] || {}).bezug || "" }, coverageText(coverage[entry.kriterium]))));
+    const firstCoverage = Object.values(coverage)[0];
+    const coverageBezug = firstCoverage && firstCoverage.bezug ? firstCoverage.bezug : "";
     out.append(h("div", { class: "table-wrap" }, h("table", { class: "understanding-criteria" },
-      h("thead", {}, h("tr", {}, h("th", {}, "Kriterium (0 bis 100)"), h("th", {}, "Wert"), h("th", {}, "Notiz des Raters"), h("th", {}, "Abdeckung n/N"))),
+      h("thead", {}, h("tr", {}, h("th", {}, "Kriterium (0 bis 100)"), h("th", {}, "Wert"), h("th", {}, "Notiz des Raters"), h("th", { title: coverageBezug }, "Abdeckung n/N"))),
       h("tbody", {}, rows))));
+    if (coverageBezug) out.append(h("p", { class: "understanding-note" }, `Abdeckung n/N: ${coverageBezug}.`));
     out.append(...spreadNodes(h, detail.streuung));
     if (detail.vertrauen) out.append(h("p", {}, `Rater-Vertrauen (Selbstauskunft): ${CONFIDENCE[detail.vertrauen] || detail.vertrauen}.`));
     out.append(h("h4", {}, "Begründung des Raters"), h("p", { class: detail.begruendung ? "" : "unknown" }, detail.begruendung || UNKNOWN));

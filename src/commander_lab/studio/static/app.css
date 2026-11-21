@@ -328,3 +328,6 @@ code.cmd{white-space:pre-wrap;word-break:break-all;font-size:12px}
 .understanding-sources,.understanding-claims{margin:var(--s1) 0;padding-left:var(--s4);font-size:13px}
 .understanding-claims li{margin:var(--s2) 0}
 .zahl-kompakt{white-space:nowrap}
+.understanding-criteria .nowrap{white-space:nowrap}
+.understanding-criteria td:nth-child(3){min-width:200px}
+.understanding-criteria th{white-space:normal}

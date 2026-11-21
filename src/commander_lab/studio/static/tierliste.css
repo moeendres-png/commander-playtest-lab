@@ -197,3 +197,5 @@ td.spread{min-width:160px}
 .understanding-criteria td,.understanding-criteria th{vertical-align:top}
 .understanding-sources,.understanding-claims{margin:var(--s1) 0;padding-left:var(--s4);font-size:13px}
 .understanding-claims li{margin:var(--s2) 0}
+.understanding-criteria td:nth-child(3){min-width:200px}
+.understanding-criteria th{white-space:normal}
