@@ -301,6 +301,54 @@ def test_after_holm_the_text_claims_no_uncorrected_sensitivity() -> None:
 # -- verdict in four steps ---------------------------------------------------------------------
 
 
+def test_five_zero_wins_on_the_own_level_is_undecided() -> None:
+    # 5 : 0 gives p = 2 * 0.5**5 = 0.0625 > 0.05: undecided, never "belegt besser" (#1717 F4)
+    got = _assess(_finding("c", wins=5))["c"]
+    assert got["urteil"] == m.NO_DIFFERENCE and got["belegt"] is False
+    assert got["effektives_p"] == pytest.approx(0.0625)
+    assert got["urteil_text"] == (
+        "kein nachweisbarer Unterschied ab 20.0 pp (y = nachweisbar mit 80 % Power)"
+    )
+    # the same pairs decide at a level above 0.0625 (strictly below) and not at exactly 0.0625
+    assert _assess(_finding("c", wins=5, alpha=0.07))["c"]["urteil"] == m.BETTER
+    assert _assess(_finding("c", wins=5, alpha=0.0625))["c"]["urteil"] == m.NO_DIFFERENCE
+    # six wins do decide at 0.05: the boundary is the p-value, not the count
+    assert _assess(_finding("c", wins=6))["c"]["urteil"] == m.BETTER
+
+
+def test_undecided_member_of_a_family_at_equal_alpha_labels_the_single_test() -> None:
+    # a: 1 : 1 with 4 ties (undecided, y = 20 pp), b: another confirmation of the same family,
+    # same alpha: y is the uncorrected single test's, the text says so
+    a = _finding("a", wins=1, losses=1, ties=4)
+    b = _finding("b", variant="rev-var2", first_seed=600, wins=1, losses=1, ties=4)
+    got = _assess(a, b)["a"]
+    assert got["urteil"] == m.NO_DIFFERENCE and got["y_pp"] == 20.0
+    assert got["urteil_text"] == (
+        "kein nachweisbarer Unterschied ab 20.0 pp (y = nachweisbar mit 80 % Power) "
+        "(Einzeltest, vor Holm)"
+    )
+    # a single-member family is the test itself: no label
+    assert "Einzeltest" not in str(_assess(a)["a"]["urteil_text"])
+    # a smaller family level or a Holm withhold shows no y at all, so no label either
+    low = _finding("b", variant="rev-var2", first_seed=600, wins=1, losses=1, ties=4, alpha=0.01)
+    assert "Einzeltest" not in str(_assess(a, low)["a"]["urteil_text"])
+    both = _assess(_finding("a"), _finding("b", variant="rev-var2", first_seed=600))
+    assert "Einzeltest" not in str(both["a"]["urteil_text"])
+
+
+def test_decided_or_not_evaluable_family_member_gets_no_single_test_label() -> None:
+    # the label belongs to an undecided member only: its y is the uncorrected single test's
+    decided = _finding("a", wins=10)  # p about 0.002: decided and kept by Holm in a family of two
+    other = _finding("b", variant="rev-var2", first_seed=600, wins=1, losses=1, ties=4)
+    got = _assess(decided, other)["a"]
+    assert got["urteil"] == m.BETTER and got["belegt"] is True and got["y_pp"] == 20.0
+    assert "Einzeltest" not in str(got["urteil_text"])
+    # a contradicting stored difference is not evaluable (y is still stored): no label either
+    odd = _finding("c", wins=10, difference_pp=-3.0)
+    got = _assess(odd, other)["c"]
+    assert got["urteil"] == m.NOT_EVALUABLE and "Einzeltest" not in str(got["urteil_text"])
+
+
 def test_verdict_in_four_steps() -> None:
     # one table each: five confirmations of one table would be one Holm family
     got = _assess(
@@ -630,8 +678,31 @@ const r0 = deckSeriesEvidence(h, { ...base, stufe: "R0", stufe_text: "R0 Erkundu
 const r0cls = (function find(n) { if (typeof n === "string") return null; if (text(n) === "R0 Erkundung" && n.tag === "span") return n.attrs.class; for (const k of n.kids) { const c = find(k); if (c) return c; } return null; })(r0);
 const r2 = deckSeriesEvidence(h, { ...base, stufe: "R2", stufe_text: "R2 bestätigt mit Kontrollen", empfehlungsfaehig: true, empfehlungsfaehig_gruende: [],
   stand: { bezug: "aktuell", text: "Befund zum aktuellen Stand" } });
+// belegt, not urteil, decides: a decided step below R1 (urteil belegt_*, belegt false) is a hint
+// even when the answer's text claims more
+const hint = deckSeriesEvidence(h, { ...base, stufe: "R0", stufe_text: "R0 Erkundung", urteil: "belegt_besser", belegt: false, urteil_text: "belegt besser (B gegenüber A)" });
+const proven = deckSeriesEvidence(h, { ...base, stufe: "R1", stufe_text: "R1 bestätigt (frische Seeds, Holm)", urteil: "belegt_besser", belegt: true, urteil_text: "belegt besser (B gegenüber A)" });
+const single = deckSeriesEvidence(h, { ...base, stufe: "R1", stufe_text: "R1 bestätigt (frische Seeds, Holm)", urteil: "kein_nachweisbarer_unterschied", belegt: false,
+  urteil_text: "kein nachweisbarer Unterschied ab 20.0 pp (y = nachweisbar mit 80 % Power) (Einzeltest, vor Holm)" });
+// the diff: only a series of exactly the two compared states, in either order
+const mk = (id, a, b) => ({ series_id: id, base_ref: a, variant_ref: b, created_at: "2026-11-20T10:00:00" });
+const data = { series: [mk("s1", "rev-a", "rev-b"), mk("s2", "rev-b", "rev-a"), mk("s3", "rev-a", "rev-c")],
+  reifegrad: { befunde: { s1: { ...base, stufe: "R1", stufe_text: "R1 bestätigt (frische Seeds, Holm)", urteil: "belegt_besser", belegt: true, urteil_text: "belegt besser (B gegenüber A)", stand: { bezug: "aktuell", text: "Befund zum aktuellen Stand" } },
+    s3: { ...base, stufe: "R1", stufe_text: "R1 bestätigt (frische Seeds, Holm)", urteil_text: "belegt schlechter (B gegenüber A)" } } } };
+const diffFound = deckSeriesDiffEvidence(h, data, "rev-a", "rev-b");
+const diffNone = deckSeriesDiffEvidence(h, data, "rev-a", "rev-zzz");
+const diffDirty = deckSeriesDiffEvidence(h, data, "rev-a", null);
+const diffBroken = deckSeriesDiffEvidence(h, null, "rev-a", "rev-b");
+const diffCut = deckSeriesDiffEvidence(h, { ...data, scan_truncated: 3 }, "rev-a", "rev-zzz");
+const card = deckSeriesCardEvidence(h);
+const diffNoList = deckSeriesDiffEvidence(h, { reifegrad: { befunde: {} } }, "rev-a", "rev-b");
+const diffBadList = deckSeriesDiffEvidence(h, { series: "x" }, "rev-a", "rev-b");
 process.stdout.write(JSON.stringify({ none: [text(none), pills(none)], missing: [text(missing), pills(missing)],
-  r1: [text(r1), pills(r1)], r2: [text(r2), pills(r2)], r0: [text(r0), pills(r0), r0cls] }));
+  r1: [text(r1), pills(r1)], r2: [text(r2), pills(r2)], r0: [text(r0), pills(r0), r0cls],
+  hint: text(hint), proven: text(proven), single: text(single),
+  diffFound: [text(diffFound), pills(diffFound)], diffNone: text(diffNone), diffDirty: text(diffDirty), diffBroken: text(diffBroken), diffCut: text(diffCut), card: text(card),
+  diffNoList: text(diffNoList), diffBadList: text(diffBadList),
+  rowTexts: [...diffFound.kids.flatMap(function rows(n) { return typeof n === "string" ? [] : n.attrs.class === "diff-evidence-series" ? [text(n)] : n.kids.flatMap(rows); })] }));
 """
 
 
@@ -651,6 +722,194 @@ def test_evidence_row_shows_no_badge_without_proof_and_names_other_states() -> N
     assert r["r0"][1] == [] and r["r0"][2] == "pill"  # R0 exploration: neutral, never green
 
 
+def test_verdict_reads_belegt_the_diff_shows_only_the_exact_pair_and_cards_say_no_finding() -> None:
+    node = _node()
+    script = _JS.replace("__SERIES__", json.dumps(str(STATIC / "deckseries.js")))
+    r = json.loads(
+        subprocess.run(
+            [node, "-e", script], capture_output=True, text=True, timeout=30, check=True
+        ).stdout
+    )
+    # below R1 urteil says belegt_besser, belegt is false: shown as a hint, never as proven
+    assert "Hinweis besser (nicht belegt" in r["hint"] and "belegt besser (B" not in r["hint"]
+    assert "Ergebnis (simuliert): belegt besser (B gegenüber A)" in r["proven"]
+    # the single-test label of the answer is shown as it is
+    assert "(Einzeltest, vor Holm)" in r["single"]
+    # the diff: the exact pair in either order (A/B named), another pair's series never
+    found, found_pills = r["diffFound"]
+    assert (
+        "Serie vom 2026-11-20 10:00 · Tisch unbekannt: A = Vergleichsbasis, B = geöffneter Stand"
+        in found
+    )
+    assert "A = geöffneter Stand, B = Vergleichsbasis" in found
+    assert "belegt besser (B gegenüber A)" in found and "belegt schlechter" not in found
+    assert found_pills == ["R1 bestätigt (frische Seeds, Holm)"]  # s2 has no finding: no badge
+    assert "kein Reifegrad (kein Befund)" in found
+    for key in ("diffNone", "diffDirty", "diffBroken", "diffCut"):
+        assert "kein Befund" in r[key] and "belegt" not in r[key].replace("kein Befund", "")
+    assert "der geöffnete Stand ist nicht gespeichert" in r["diffDirty"]
+    assert "nicht gelesen werden (unbekannt, nicht 0)" in r["diffBroken"]
+    assert "ältere Serien nicht geprüft" in r["diffCut"]
+    assert "keine Serie je Karte gespeichert" in r["card"] and "unbekannt, nicht 0" in r["card"]
+    # a missing or non-array series list drops only the evidence row, with the honest text
+    for key in ("diffNoList", "diffBadList"):
+        assert "kein Befund" in r[key] and "keine Serienliste" in r[key]
+    # A and B are named per series on its own row: s1 base = A, s2 reversed
+    first, second = r["rowTexts"]
+    assert "A = Vergleichsbasis, B = geöffneter Stand" in first and "belegt besser" in first
+    assert "A = geöffneter Stand, B = Vergleichsbasis" in second
+    assert "A = geöffneter Stand" not in first and "A = Vergleichsbasis" not in second
+
+
+_JS_DIFF = r"""
+const vm = require("vm");
+const fs = require("fs");
+function h(tag, attrs, ...kids) { return { tag, attrs: attrs || {}, kids: kids.flat(9).filter((k) => k !== null && k !== undefined && k !== false) }; }
+const text = (n) => typeof n === "string" ? n : n.kids.map(text).join("");
+const shape = (n) => typeof n === "string" ? "#text" : `${n.tag}.${n.attrs.class || ""}${n.attrs.id ? "#" + n.attrs.id : ""}`;
+const anyPill = (n) => typeof n !== "string" && (/pill/.test(n.attrs.class || "") || n.kids.some(anyPill));
+globalThis.StudioUI = { num: (v) => String(v) };
+vm.runInThisContext(fs.readFileSync(__SERIES__, "utf8"));
+const base = { stufe: null, stufe_text: "kein Reifegrad (Beleg fehlt)", urteil_text: "nicht auswertbar (keine Auswertungsbasis)",
+  n: 4, N: 4, bezug: "Paare (abgeschlossen / geplant)", stand: { bezug: "anderer_stand", text: "Befund zu einem anderen Stand (nicht der aktuelle)" },
+  empfehlungsfaehig: false, empfehlungsfaehig_gruende: ["Reifegrad unter R2"], hinweise: [] };
+// a pair without main and without its predecessor: rev-x (opened) against rev-y (comparison base)
+const mk = (id, a, b, pod) => ({ series_id: id, base_ref: a, variant_ref: b, created_at: "2026-11-20T10:00:00", pod });
+const data = { series: [mk("t1", "rev-y", "rev-x", "pod-1"), mk("t2", "rev-y", "rev-x", "pod-2"), mk("t3", "rev-x", "rev-y", null)],
+  reifegrad: { befunde: { t1: base, t2: base, t3: base } } };
+const found = deckSeriesDiffEvidence(h, data, "rev-y", "rev-x");
+const variants = [found, deckSeriesDiffEvidence(h, data, "rev-y", null), deckSeriesDiffEvidence(h, null, "rev-y", "rev-x"),
+  deckSeriesDiffEvidence(h, data, "rev-y", "rev-zzz"), deckSeriesDiffEvidence(h, { series: "x" }, "rev-y", "rev-x")];
+const unknownPairs = [deckSeriesEvidence(h, { ...base, n: null, N: null }), deckSeriesEvidence(h, { ...base, n: null, N: 4 }), deckSeriesEvidence(h, { ...base, n: 3, N: null })];
+const card = deckSeriesCardEvidence(h);
+(async () => {
+  const urls = [];
+  const ok = await deckSeriesLoad(async (url) => { urls.push(url); return { series: [] }; }, "deck 1");
+  const failed = await deckSeriesLoad(async () => { throw new Error("HTTP 500"); }, "deck 1");
+  process.stdout.write(JSON.stringify({
+    kids: found.kids.map(shape), id: found.attrs.id,
+    series: found.kids.filter((k) => typeof k !== "string" && k.attrs.class === "diff-evidence-series").map((k) => ({ kids: k.kids.map(shape), texts: k.kids.map(text) })),
+    allTexts: variants.map(text), unknownPairs: unknownPairs.map(text),
+    card, cardPill: anyPill(card), loadOk: ok, loadFailed: failed, urls,
+  }));
+})();
+"""
+
+
+def _run_diff_js() -> dict[str, object]:
+    node = _node()
+    script = _JS_DIFF.replace("__SERIES__", json.dumps(str(STATIC / "deckseries.js")))
+    done = subprocess.run(
+        [node, "-e", script], capture_output=True, text=True, timeout=30, check=True
+    )
+    result: dict[str, object] = json.loads(done.stdout)
+    return result
+
+
+def test_the_diff_names_the_opened_state_the_table_and_the_main_reference() -> None:
+    # #1729 review P2-1: the opened state is "geöffneter Stand", never "aktueller Stand" (that is
+    # main in the finding's own text); a pair without main and without its predecessor
+    r = _run_diff_js()
+    assert len(r["allTexts"]) == 5  # type: ignore[arg-type]
+    for text in r["allTexts"]:  # type: ignore[union-attr]
+        assert "aktueller Stand" not in text and "aktuelle Stand" not in text, text
+    series = r["series"]
+    assert isinstance(series, list) and len(series) == 3
+    headers = [item["texts"][0] for item in series]
+    # the table and the date tell two series of the same pair apart; no table is "unbekannt"
+    assert headers == [
+        "Serie vom 2026-11-20 10:00 · Tisch pod-1: A = Vergleichsbasis, B = geöffneter Stand",
+        "Serie vom 2026-11-20 10:00 · Tisch pod-2: A = Vergleichsbasis, B = geöffneter Stand",
+        "Serie vom 2026-11-20 10:00 · Tisch unbekannt: A = geöffneter Stand, B = Vergleichsbasis",
+    ]
+    reference = (
+        "Stand-Bezug des Befunds darunter: bezogen auf main bzw. dessen direkten Vorgänger, "
+        "nicht auf den geöffneten Stand."
+    )
+    for item in series:
+        assert item["texts"][1] == reference
+        assert "Befund zu einem anderen Stand (nicht der aktuelle)" in item["texts"][2]
+    assert "der geöffnete Stand ist nicht gespeichert" in r["allTexts"][1]  # type: ignore[index]
+
+
+def test_the_diff_evidence_children_are_exact_no_extra_line_and_no_sum() -> None:
+    # #1729 review M4b: a syntax guard is not enough; the block holds the title, the note and one
+    # block per series, each exactly header, main reference and evidence row; nothing else
+    r = _run_diff_js()
+    assert r["id"] == "diff-evidence"
+    assert r["kids"] == ["h3.", "p.note note-compact"] + ["div.diff-evidence-series"] * 3
+    for item in r["series"]:  # type: ignore[union-attr]
+        assert item["kids"] == ["p.muted", "p.muted", "div.evidence-row"]
+    assert len(r["allTexts"]) == 5  # type: ignore[arg-type]
+    for text in r["allTexts"]:  # type: ignore[union-attr]
+        assert "Summe" not in text and "insgesamt" not in text
+
+
+def test_unknown_pairs_stay_unknown_never_zero() -> None:
+    # #1729 review M2b: a missing n or N is "Paare unbekannt", never "n/N 0"
+    r = _run_diff_js()
+    assert len(r["unknownPairs"]) == 3  # type: ignore[arg-type]
+    for text in r["unknownPairs"]:  # type: ignore[union-attr]
+        assert "Paare unbekannt" in text and "n/N" not in text, text
+
+
+def test_a_failed_series_read_is_named_as_such_not_as_an_empty_list() -> None:
+    # #1729 review M12: a read error gives null ("konnten nicht gelesen werden"), never an empty
+    # list that would read as "keine gespeicherte Serie"
+    r = _run_diff_js()
+    assert r["loadFailed"] is None and r["loadOk"] == {"series": []}
+    assert r["urls"] == ["/api/decks/deck%201/series"]
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    diff = app[app.index("async function renderDiff") : app.index("function pollBatch")]
+    assert "const seriesData = await deckSeriesLoad(api, state.deckId);" in diff
+    assert diff.index("deckSeriesLoad(") < diff.index(
+        "if (token !== state.renderToken) return;\n    box.append(deckSeriesDiffEvidence"
+    )
+
+
+def test_the_card_and_swap_cells_are_exactly_the_no_finding_text() -> None:
+    # #1729 review P2-2 (M8a, M8c): the column has no data path yet; the cell is a fixed text, no
+    # pill, no "belegt", "R1" or "empfehlungsfähig"
+    r = _run_diff_js()
+    assert r["card"] == {
+        "tag": "span",
+        "attrs": {"class": "muted evidence-card"},
+        "kids": ["kein Befund (keine Serie je Karte gespeichert; unbekannt, nicht 0)"],
+    }
+    assert r["cardPill"] is False
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    cut = (STATIC / "cutlab.js").read_text(encoding="utf-8")
+    swap_lines = [line.strip() for line in app.splitlines() if "deckSeriesCardEvidence(" in line]
+    assert swap_lines == ['h("td", {}, deckSeriesCardEvidence(h)),']
+    assert app.count('h("th", {}, "Simulation (SIMULIERT, Reifegrad)"),') == 1
+    cut_lines = [line.strip() for line in cut.splitlines() if "deckSeriesCardEvidence(" in line]
+    assert cut_lines == [
+        'h("p", { id: "cut-evidence", class: "muted" }, "Simulation (SIMULIERT, Reifegrad): ", '
+        "deckSeriesCardEvidence(h)),"
+    ]
+    for line in swap_lines + cut_lines:
+        for word in ("belegt", "R1", "R2", "R3", "empfehlungsfähig", "pill"):
+            assert word not in line, (word, line)
+
+
+def test_the_diff_and_the_cut_swap_surfaces_are_wired_without_forbidden_patterns() -> None:
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    diff = app[app.index("async function renderDiff") : app.index("function pollBatch")]
+    assert "deckSeriesDiffEvidence(h, seriesData, state.diffBaseRev" in diff
+    assert "state.dirty ? null : state.baseRevision" in diff  # an unsaved state has no finding
+    swap = app[app.index("async function renderSwapBox") :]
+    assert "Simulation (SIMULIERT, Reifegrad)" in swap and "deckSeriesCardEvidence(h)" in swap
+    cut = (STATIC / "cutlab.js").read_text(encoding="utf-8")
+    assert 'id: "cut-evidence"' in cut and "deckSeriesCardEvidence(h)" in cut
+    series = (STATIC / "deckseries.js").read_text(encoding="utf-8")
+    tail = series[series.index("function deckSeriesDiffEvidence") :]
+    for source in (diff, tail):
+        for forbidden in ("innerHTML", "outerHTML", "style:", "style=", ".toFixed(", "eval("):
+            assert forbidden not in source, forbidden
+    # no figure of this surface enters a sum or the tier list
+    assert "+=" not in tail and "reduce(" not in tail
+
+
 def test_evidence_row_static_guards() -> None:
     js = (STATIC / "deckseries.js").read_text(encoding="utf-8")
     row = js[js.index("function deckSeriesEvidence") : js.index("function deckSeriesRefLabel")]
@@ -658,4 +917,9 @@ def test_evidence_row_static_guards() -> None:
         assert forbidden not in row, forbidden
     # the badge and the flag come only from the answer, never from a local rule
     assert re.search(r"befund\.stufe \?", row) and "befund.empfehlungsfaehig" in row
+    verdict_fn = js[
+        js.index("function deckSeriesVerdictText") : js.index("function deckSeriesEvidence")
+    ]
+    assert "befund.belegt === true" in verdict_fn  # the verdict reads belegt, not urteil alone
+    assert "deckSeriesVerdictText(befund)" in row and "befund.urteil_text" not in row
     assert "R2" not in row and "R3" not in row

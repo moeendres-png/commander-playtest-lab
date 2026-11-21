@@ -1376,6 +1376,9 @@ async function renderDiff(body) {
       cohortLabel: cohortName(state.cohort), roleName,
       open: (cardId) => { const c = state.byId.get(cardId); if (c) openCard(c); },
     }));
+    const seriesData = await deckSeriesLoad(api, state.deckId);
+    if (token !== state.renderToken) return;
+    box.append(deckSeriesDiffEvidence(h, seriesData, state.diffBaseRev, state.dirty ? null : state.baseRevision));
   } catch (error) {
     box.replaceChildren(h("p", { class: "muted" }, "Differenz nicht lesbar: " + StudioUI.germanError(error)));
   }
@@ -2316,6 +2319,7 @@ async function renderSwapBox(into, card, initialMode = null) {
           ...(!compare.length || showOwnGroup ? [h("th", { class: "num" }, `Decks ${cohortName(res.source_label)} n/N`)] : []),
           h("th", { class: "num" }, `Anteil (${cohortName(res.source_label)})`),
           h("th", { class: "num" }, `Lift (${cohortName(res.source_label)}, n ≥ ${fmtInt(res.lift_min_n)})`),
+          h("th", {}, "Simulation (SIMULIERT, Reifegrad)"),
           h("th", {}, ""))),
         h("tbody", {}, shown.map((cand) => {
           const other = state.byId.get(cand.card_id);
@@ -2351,6 +2355,7 @@ async function renderSwapBox(into, card, initialMode = null) {
             h("td", { class: "num", title: cand.lift_unknown_reason || "" }, liftText,
               !liftThin && cand.lift_unknown_reason && (cand.lift === null || cand.lift === undefined)
                 ? h("div", { class: "note note-compact" }, cand.lift_unknown_reason) : null),
+            h("td", {}, deckSeriesCardEvidence(h)),
             h("td", {}, actionBtn));
         }))));
       into.replaceChildren(h("h3", {}, "Tausch-Helfer (gleiche Rolle)"), modeSwitch, ...[headerNote, orderNote, tbl].filter(Boolean));
