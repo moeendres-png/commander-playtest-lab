@@ -62,12 +62,12 @@ def _deck_input(rows: Sequence[Mapping[str, object] | sqlite3.Row]) -> object:
 
 
 def construction_check(rows: Sequence[Mapping[str, object] | sqlite3.Row]) -> dict[str, object]:
-    """Run the runner's own ``_validate_deck_construction`` on the deck rows."""
+    """Run the runner's own deck construction gate (``validate_deck_construction``) on the rows."""
     from pydantic import ValidationError
 
     from commander_lab.engine.rules.full_game import (
         FullGameConformanceError,
-        _validate_deck_construction,
+        validate_deck_construction,
     )
 
     try:
@@ -83,7 +83,7 @@ def construction_check(rows: Sequence[Mapping[str, object] | sqlite3.Row]) -> di
             "text": _CODE_TEXT["deck_not_buildable"],
         }
     try:
-        _validate_deck_construction(deck)  # type: ignore[arg-type]
+        validate_deck_construction(deck)  # type: ignore[arg-type]
     except FullGameConformanceError as error:
         message = str(error)
         code = message.split(":", 1)[0].strip()
