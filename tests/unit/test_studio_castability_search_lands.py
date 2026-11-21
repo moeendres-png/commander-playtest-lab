@@ -231,6 +231,9 @@ def test_search_land_without_target_is_a_known_zero_not_unknown() -> None:
         }
     ]
     assert result["land_sources_with_search"] == result["land_sources"]
+    seeker = next(e for e in castability.search_land_reach(rows) if e["name"] == "Seeker")
+    assert seeker["reach"] == frozenset() and seeker["targets"] == 0  # known, not None
+    assert land_advisor.deck_profile(rows)["lands_search"] == 1
 
 
 def test_unknown_land_is_neither_source_nor_zero_and_stays_in_the_denominator() -> None:
@@ -478,13 +481,14 @@ def test_land_advisor_counts_search_sources_apart_within_the_identity() -> None:
         _land("Maze", "C", text="{3}, {T}: Search your library for a Gate card, put it onto "
               "the battlefield, then shuffle."),
         _spell("Spell", "{W}{U}", 2, qty=5),
+        _spell("Off Colour", "{G}", 1),  # a green pip outside the identity shows the G row
     ]  # fmt: skip
     deck = land_advisor.deck_profile(rows)
     colours = {entry["colour"]: entry for entry in deck["colours"]}
-    assert set(colours) == {"W", "U"}
-    assert {c: colours[c]["land_sources"] for c in colours} == {"W": 1, "U": 4}
+    assert set(colours) == {"W", "U", "G"} and colours["G"]["in_identity"] is False
+    assert {c: colours[c]["land_sources"] for c in colours} == {"W": 1, "U": 4, "G": 0}
     # the fetch reaches G through the Forest Plains dual, but G is outside the identity
-    assert {c: colours[c]["search_sources"] for c in colours} == {"W": 1, "U": 1}
+    assert {c: colours[c]["search_sources"] for c in colours} == {"W": 1, "U": 1, "G": 0}
     assert deck["lands_search"] == 1 and deck["lands_search_unknown"] == 1
     assert deck["search_assumption"] == castability.LAND_SEARCH_ASSUMPTION
 
