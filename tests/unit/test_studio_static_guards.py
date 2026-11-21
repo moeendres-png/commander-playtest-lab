@@ -2011,10 +2011,10 @@ const code = [
   cut("async function afterExperimentDecision(", "async function openSeriesFromHistory("),
 ].join("\n");
 // a small server with the contract of #1733: expected_parent must be the head (null = new)
-let server, posts, deletes, gets, toasts, failed, rendered, branchLoads, historyShown, closed, deleteFails, onAfterPrecheck, busy, draftOf;
+let revCards, server, posts, deletes, gets, toasts, failed, rendered, branchLoads, historyShown, closed, deleteFails, onAfterPrecheck, busy, draftOf;
 function resetAll() {
   server = { main: "deck@v", variant2: "deck@w" }; posts = []; deletes = []; gets = 0; toasts = []; failed = []; rendered = 0;
-  branchLoads = 0; historyShown = 0; closed = 0; deleteFails = false; onAfterPrecheck = null; busy = false; draftOf = {};
+  branchLoads = 0; historyShown = 0; closed = 0; deleteFails = false; onAfterPrecheck = null; busy = false; draftOf = {}; revCards = {};
 }
 resetAll();
 const httpError = (status, detail) => Object.assign(new Error(detail), { status, detail });
@@ -2025,7 +2025,7 @@ const api = async (path, method, body) => {
     if (onAfterPrecheck) { const hook = onAfterPrecheck; onAfterPrecheck = null; hook(); }
     return answer;
   }
-  if (path.startsWith("/api/revisions/")) return { cards: [], issues: [], shape: null };
+  if (path.startsWith("/api/revisions/")) return { cards: revCards[decodeURIComponent(path.split("/").pop())] || [], issues: [], shape: null };
   const m = path.match(/branches\/([^/]+)\/draft$/);
   if (m && method === "DELETE") { deletes.push(decodeURIComponent(m[1])); if (deleteFails) throw httpError(500, "Platte voll"); await new Promise((r) => setTimeout(r, 5)); return {}; }
   if (m) return { draft: draftOf[decodeURIComponent(m[1])] || null };
@@ -2035,6 +2035,7 @@ const api = async (path, method, body) => {
     if (busy) throw httpError(503, "Speicher belegt, bitte erneut versuchen.");
     const head = Object.prototype.hasOwnProperty.call(server, body.branch) ? server[body.branch] : null;
     if (!("expected_parent" in body)) { server[body.branch] = "deck@unchecked"; return { revision_id: "deck@unchecked", expected_parent_missing: true }; }
+    if (body.expected_parent === null && head !== null) throw httpError(409, "Variante wurde inzwischen angelegt");
     if (body.expected_parent !== head) throw httpError(409, "Zweig hat sich geändert; Entwurf ist veraltet");
     const id = sameMode ? head : `deck@${body.branch}-${posts.length}`;
     server[body.branch] = id; return { revision_id: id };
@@ -2077,6 +2078,18 @@ eval(code + "\n" + cut("async function loadBranch()", "// The saved state of `br
   // the work of the stale tab is kept as a new variant
   await commitRevision("rettung", "");
   out.rescue = [posts.map((p) => [p.branch, p.expected_parent, p.parent_revision_id]), state.baseStale, state.branch, server.main];
+  // the answer of an earlier save was lost: the head holds exactly this list, so it is saved
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.main = "deck@lost"; revCards["deck@lost"] = entries();
+  await commitRevision("main", "");
+  out.lost = [posts.length, state.baseStale, state.baseRevision, toasts.some((t) => t.includes("schon gespeichert"))];
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); server.main = "deck@lost"; revCards["deck@lost"] = [{ card_id: "c9", zone: "main", quantity: 1 }];
+  await commitRevision("main", "");
+  out.lostOther = [posts.length, state.baseStale];
+  // a new variant of the same name appears between the check and the POST: the server's text
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  onAfterPrecheck = () => { server.neu2 = "deck@x"; };
+  await commitRevision("neu2", "");
+  out.nameRace = [posts.length, state.baseStale, toasts.includes("Variante wurde inzwischen angelegt"), state.branch];
   // "Neue Variante" named main from another branch never overwrites main
   resetAll(); set({ branch: "variant2", baseRevision: "deck@w" });
   await commitRevision("main", "");
@@ -2084,7 +2097,7 @@ eval(code + "\n" + cut("async function loadBranch()", "// The saved state of `br
   // three clicks, one POST
   resetAll(); set({ branch: "main", baseRevision: "deck@v" });
   await Promise.all([commitRevision("main", ""), commitRevision("main", ""), commitRevision("main", "")]);
-  out.clicks = posts.length;
+  out.clicks = [posts.length, toasts.filter((t) => t.includes("Speichern läuft schon")).length];
   // 503 is shown honestly, nothing marked stale
   resetAll(); set({ branch: "main", baseRevision: "deck@v" }); busy = true;
   await commitRevision("main", "");
@@ -2106,6 +2119,13 @@ eval(code + "\n" + cut("async function loadBranch()", "// The saved state of `br
   draftOf.main = { base_revision_id: "deck@v", cards: [{ card_id: "c2", zone: "main", quantity: 1 }] };
   await commitRevision("main", "");
   out.sameOther = deletes.slice();
+  // same base, the draft differs only in a quantity, or only in a zone: it stays
+  for (const [key, cards] of [["sameQty", [{ card_id: "c1", zone: "main", quantity: 2 }]], ["sameZone", [{ card_id: "c1", zone: "commander", quantity: 1 }]]]) {
+    resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+    draftOf.main = { base_revision_id: "deck@v", cards };
+    await commitRevision("main", "");
+    out[key] = deletes.slice();
+  }
   sameMode = false;
   // loadBranch: a draft on another saved state keeps its base (sent as expected_parent later)
   resetAll(); set({ branch: "main", decks: [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }] });
@@ -2152,17 +2172,32 @@ def test_saving_sends_expected_parent_and_never_overwrites_a_moved_branch() -> N
         "deck@other-tab",
     ]
     assert r["otherBranch"] == [0, True, "deck@v"]
-    assert r["clicks"] == 1
+    assert r["clicks"] == [1, 2]  # one POST; the other clicks are told, not dropped silently
     assert r["busy"] == [1, ["Speicher belegt, bitte erneut versuchen."], False]
     assert r["rescueDeleteFails"] == [1, "rettung2", True, 0]
     assert r["rescueAgain"] == 2  # now on the new variant itself: a normal save, no new branch
     assert r["same"] == ["main"] and r["sameOther"] == [] and r["sameNoop"] is None
+    assert r["sameQty"] == [] and r["sameZone"] == []
+    assert r["lost"] == [0, False, "deck@lost", True]
+    assert r["lostOther"] == [0, True]
+    assert r["nameRace"] == [1, False, True, "main"]
     assert r["load"] == [True, "deck@b"] and r["afterLoad"] == [0, True]
     assert r["loadOk"] == [False, "deck@v"]
     assert r["afterDirty"] == [True, 0, 1] and r["afterClean"] == [False, 1]
     assert r["afterFail"] == [0, "Speicher belegt, bitte erneut versuchen."]
     assert r["afterReject"] == 1
     assert r["deleted"] == 1
+
+
+def test_the_compile_request_never_names_a_branch() -> None:
+    """#1727: compile with ``save`` writes into the server's ``module:<package>`` branch; the
+    UI sends no ``branch`` (a client branch such as main would be an unchecked write)."""
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    start = app.index("/modules/compile`")
+    body = app[app.index("{", start) : app.index("});", start)]
+    assert "module_ids" in body and "save:" in body
+    assert "branch" not in body and "expected_parent" not in body
+    assert app.count("/modules/compile`") == 1
 
 
 def test_experiment_view_static_guards() -> None:

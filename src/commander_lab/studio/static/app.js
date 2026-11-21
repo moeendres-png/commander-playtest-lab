@@ -3020,7 +3020,7 @@ let committing = false;
 // work can still be saved as a new variant. The target branch is read fresh from the server,
 // never from `state.decks`.
 async function commitRevision(branch = state.branch, note = "") {
-  if (committing) return; // one POST per click series
+  if (committing) { toast("Speichern läuft schon, bitte warten."); return; } // one POST per click series
   committing = true;
   const seq = state.changeSeq;
   const fromBranch = state.branch;
@@ -3032,13 +3032,22 @@ async function commitRevision(branch = state.branch, note = "") {
       toast(`Variante „${branch}“ gibt es schon: nichts gespeichert, bitte einen anderen Namen wählen.`);
       return;
     }
+    const cards = entries();
     if (current !== null && current !== base) {
+      // the head moved: if it holds exactly this list, an earlier save went through and only
+      // its answer was lost; that is reported as saved, not as a stale draft
+      const head = await api(`/api/revisions/${encodeURIComponent(current)}`);
+      if (cardsKey(head.cards || []) === cardsKey(cards)) {
+        state.baseRevision = current; state.baseStale = false; state.dirty = state.changeSeq !== seq; state.savedSeq = Math.max(state.savedSeq, seq);
+        state.draftUpdatedAt = ""; state.draftConflict = false; state.needsDraftPut = state.dirty;
+        await loadDecks(); renderHeader(); renderSaveState(); toast("Dieser Stand war schon gespeichert (die Antwort ging verloren).");
+        return;
+      }
       state.baseStale = true;
       renderSaveState();
       toast(STALE_DRAFT_TEXT);
       return;
     }
-    const cards = entries();
     let result;
     try {
       result = await api(`/api/decks/${encodeURIComponent(state.deckId)}/revisions`, "POST", {
