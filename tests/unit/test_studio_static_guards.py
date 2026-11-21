@@ -1915,6 +1915,7 @@ const out = {};
   const zahlNodes = (root) => all(root).filter((x) => String(x.attrs.class || "").includes("zahl-simuliert")).length;
   out.zahlNode = [zahlNodes(experimentDetailView(h, base, { ...deps, zahlen })), zahlNodes(experimentDetailView(h, base, deps))];
   out.seedsBig = text(experimentDetailView(h, { ...base, seeds: { first: 1200000, last: 1200003, count: 4, rule: "consecutive" } }, deps));
+  out.seedsHalf = text(experimentDetailView(h, { ...base, seeds: { first: 7, last: null, count: null, rule: null } }, deps));
 
   // the list's error page names the server's reason
   const slot = h("div", {});
@@ -1997,6 +1998,7 @@ def test_experiment_view_shows_route_fields_and_decides_only_on_confirmation() -
     assert "empfehlungsfähig" not in r["empfR3"] and "R3 voll belegt" in r["empfR3"]
     assert r["zahlNode"] == [1, 0]
     assert "Seeds: 1200000 bis 1200003" in r["seedsBig"]
+    assert "Seeds: 7 bis unbekannt (unbekannt Seeds)" in r["seedsHalf"]
 
 
 _APP_JS = r"""
@@ -2008,76 +2010,157 @@ const code = [
   cut("// The saved state of `branch` now", "function saveRevision("),
   cut("async function afterExperimentDecision(", "async function openSeriesFromHistory("),
 ].join("\n");
-let posted = []; let deleted = 0; let toasts = []; let rendered = 0; let branchLoads = 0; let historyShown = 0;
-let server = { main: "deck@v", variant2: "deck@w" };
-let draft = null;
-const state = { deckId: "d", branch: "main", baseRevision: "deck@b", baseStale: false, changeSeq: 1, savedSeq: 0, dirty: true,
-  decks: [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }] };
+// a small server with the contract of #1733: expected_parent must be the head (null = new)
+let server, posts, deletes, gets, toasts, failed, rendered, branchLoads, historyShown, closed, deleteFails, onAfterPrecheck, busy, draftOf;
+function resetAll() {
+  server = { main: "deck@v", variant2: "deck@w" }; posts = []; deletes = []; gets = 0; toasts = []; failed = []; rendered = 0;
+  branchLoads = 0; historyShown = 0; closed = 0; deleteFails = false; onAfterPrecheck = null; busy = false; draftOf = {};
+}
+resetAll();
+const httpError = (status, detail) => Object.assign(new Error(detail), { status, detail });
 const api = async (path, method, body) => {
-  if (path === "/api/decks") return [{ deck_id: "d", branches: Object.entries(server).map(([branch, revision_id]) => ({ branch, revision_id })) }];
+  if (path === "/api/decks") {
+    gets += 1;
+    const answer = [{ deck_id: "d", branches: Object.entries(server).map(([branch, revision_id]) => ({ branch, revision_id })) }];
+    if (onAfterPrecheck) { const hook = onAfterPrecheck; onAfterPrecheck = null; hook(); }
+    return answer;
+  }
   if (path.startsWith("/api/revisions/")) return { cards: [], issues: [], shape: null };
-  if (path.endsWith("/draft") && method === "DELETE") { deleted += 1; await new Promise((r) => setTimeout(r, 5)); return {}; }
-  if (path.endsWith("/draft")) return { draft };
-  posted.push([path, method, body && body.branch, body && body.parent_revision_id]); return { revision_id: "deck@n" };
+  const m = path.match(/branches\/([^/]+)\/draft$/);
+  if (m && method === "DELETE") { deletes.push(decodeURIComponent(m[1])); if (deleteFails) throw httpError(500, "Platte voll"); await new Promise((r) => setTimeout(r, 5)); return {}; }
+  if (m) return { draft: draftOf[decodeURIComponent(m[1])] || null };
+  if (path.endsWith("/revisions") && method === "POST") {
+    posts.push({ ...body, cards: undefined });
+    await new Promise((r) => setTimeout(r, 5));
+    if (busy) throw httpError(503, "Speicher belegt, bitte erneut versuchen.");
+    const head = Object.prototype.hasOwnProperty.call(server, body.branch) ? server[body.branch] : null;
+    if (!("expected_parent" in body)) { server[body.branch] = "deck@unchecked"; return { revision_id: "deck@unchecked", expected_parent_missing: true }; }
+    if (body.expected_parent !== head) throw httpError(409, "Zweig hat sich geändert; Entwurf ist veraltet");
+    const id = sameMode ? head : `deck@${body.branch}-${posts.length}`;
+    server[body.branch] = id; return { revision_id: id };
+  }
+  throw httpError(404, "unknown");
 };
-const entries = () => []; const toast = (t) => toasts.push(t); const renderSaveState = () => { rendered += 1; };
-const rememberVariant = () => {}; const loadDecks = async () => {}; const renderHeader = () => {}; const fail = (e) => toasts.push(String(e));
-const ensureUnownedLoadedFor = async () => {}; const useCards = () => {}; const renderAll = () => {}; const syncDraft = async () => {};
-const closeModal = () => {}; const showHistory = async () => { historyShown += 1; };
-eval(code + "\n" + cut("async function loadBranch()", "// The saved state of `branch` now").replace("async function loadBranch()", "async function realLoadBranch()"));
+let sameMode = false;
+const entries = () => [{ card_id: "c1", zone: "main", quantity: 1 }];
+const toast = (t) => toasts.push(t); const renderSaveState = () => { rendered += 1; };
+const rememberVariant = () => {}; let decksFail = false;
+const loadDecks = async () => { if (decksFail) throw httpError(503, "Speicher belegt, bitte erneut versuchen."); };
+const renderHeader = () => {}; const fail = (e) => failed.push(StudioUI.germanError(e));
+const closeModal = () => { closed += 1; }; const showHistory = async () => { historyShown += 1; };
 const loadBranch = async () => { branchLoads += 1; };
+const StudioUI = { germanError: (e) => String(e && e.detail) };
+const ensureUnownedLoadedFor = async () => {}; const useCards = () => {}; const renderAll = () => {}; const syncDraft = async () => {};
+const state = { deckId: "d", branch: "main", baseRevision: "deck@v", baseStale: false, changeSeq: 1, savedSeq: 0, dirty: true,
+  decks: [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }] };
+const set = (o) => Object.assign(state, { baseStale: false, ...o });
+eval(code + "\n" + cut("async function loadBranch()", "// The saved state of `branch` now").replace("async function loadBranch()", "async function realLoadBranch()"));
 (async () => {
   const out = {};
-  // same branch, base moved: refused
+  // own branch on its own head: one POST with expected_parent = the base
+  set({ branch: "main", baseRevision: "deck@v" });
   await commitRevision("main", "");
-  out.stale = [posted.length, state.baseStale, toasts.some((t) => t.includes("Entwurf ist veraltet, neu laden"))];
-  // "Neue Variante" named main from another branch: never overwrites main
-  state.branch = "variant2"; state.baseRevision = "deck@w"; state.baseStale = false; toasts = [];
+  out.own = [posts.map((p) => [p.branch, p.expected_parent, p.parent_revision_id]), state.baseStale];
+  // new variant: expected_parent null, parent = base; the old draft goes
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  await commitRevision("neu", "");
+  out.newVariant = [posts.map((p) => [p.branch, p.expected_parent, p.parent_revision_id]), deletes, state.branch];
+  // the pre-check reads the server, never state.decks (D1c): state.decks says deck@b
+  resetAll(); set({ branch: "main", baseRevision: "deck@b", decks: [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@b" }] }] });
   await commitRevision("main", "");
-  out.otherBranch = [posted.length, toasts.some((t) => t.includes("gibt es schon"))];
-  // a stale draft may be saved as a new variant (the work is kept)
-  state.branch = "main"; state.baseRevision = "deck@b"; state.baseStale = true;
+  out.precheck = [posts.length, state.baseStale, toasts.some((t) => t.includes("Entwurf ist veraltet, neu laden oder als „Neue Variante“ speichern"))];
+  // race of two tabs: the other tab saves between the pre-check and the POST: 409, no retry
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  onAfterPrecheck = () => { server.main = "deck@other-tab"; };
+  await commitRevision("main", "");
+  out.race = [posts.length, state.baseStale, server.main, toasts.some((t) => t.includes("Entwurf ist veraltet")), failed.length];
+  // the work of the stale tab is kept as a new variant
   await commitRevision("rettung", "");
-  out.rescue = [posted.map((p) => [p[2], p[3]]), state.baseStale, state.branch];
-  // the own branch on its own base: saved
-  posted = []; server.rettung = "deck@n";
-  await commitRevision("rettung", "");
-  out.fresh = posted.map((p) => [p[2], p[3]]);
-  // loadBranch names a draft on another saved state stale and keeps its base
-  state.branch = "main"; state.decks = [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }];
-  draft = { cards: [], base_revision_id: "deck@b", updated_at: "t" };
+  out.rescue = [posts.map((p) => [p.branch, p.expected_parent, p.parent_revision_id]), state.baseStale, state.branch, server.main];
+  // "Neue Variante" named main from another branch never overwrites main
+  resetAll(); set({ branch: "variant2", baseRevision: "deck@w" });
+  await commitRevision("main", "");
+  out.otherBranch = [posts.length, toasts.some((t) => t.includes("gibt es schon")), server.main];
+  // three clicks, one POST
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  await Promise.all([commitRevision("main", ""), commitRevision("main", ""), commitRevision("main", "")]);
+  out.clicks = posts.length;
+  // 503 is shown honestly, nothing marked stale
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); busy = true;
+  await commitRevision("main", "");
+  out.busy = [posts.length, failed, state.baseStale];
+  // the old draft cannot be deleted after a rescue: a hint, and no second variant on a new click
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); deleteFails = true;
+  await commitRevision("rettung2", "");
+  out.rescueDeleteFails = [posts.length, state.branch, toasts.some((t) => t.includes("nicht erneut speichern")), failed.length];
+  await commitRevision("rettung2", "");
+  out.rescueAgain = posts.length;
+  // the same content as the head: the identical draft goes (else it blocks the adoption)
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  draftOf.main = { base_revision_id: "deck@v", cards: entries() };
+  sameMode = true; // the server answers the head itself for the same content
+  out.sameNoop = null;
+  try { await commitRevision("main", ""); } catch (e) { out.sameNoop = String(e); }
+  out.same = deletes.slice();
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" });
+  draftOf.main = { base_revision_id: "deck@v", cards: [{ card_id: "c2", zone: "main", quantity: 1 }] };
+  await commitRevision("main", "");
+  out.sameOther = deletes.slice();
+  sameMode = false;
+  // loadBranch: a draft on another saved state keeps its base (sent as expected_parent later)
+  resetAll(); set({ branch: "main", decks: [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }] });
+  draftOf.main = { cards: [], base_revision_id: "deck@b", updated_at: "t" };
   await realLoadBranch();
   out.load = [state.baseStale, state.baseRevision];
-  draft = { cards: [], base_revision_id: "deck@v", updated_at: "t" };
+  await commitRevision("main", "");
+  out.afterLoad = [posts.length, state.baseStale];
+  draftOf.main = { cards: [], base_revision_id: "deck@v", updated_at: "t" };
   await realLoadBranch();
   out.loadOk = [state.baseStale, state.baseRevision];
-  // after an adoption: a dirty main is named stale, a clean main is loaded
-  state.branch = "main"; state.dirty = true; state.baseStale = false; branchLoads = 0;
+  // after an adoption: decks are read while the dialog is open; a failure keeps it open
+  resetAll(); set({ branch: "main", dirty: true });
   await afterExperimentDecision("adopted");
-  out.afterDirty = [state.baseStale, branchLoads];
-  state.dirty = false; state.baseStale = false;
+  out.afterDirty = [state.baseStale, branchLoads, closed];
+  set({ dirty: false });
   await afterExperimentDecision("adopted");
   out.afterClean = [state.baseStale, branchLoads];
+  decksFail = true; closed = 0; let thrown = null;
+  try { await afterExperimentDecision("adopted"); } catch (e) { thrown = e.detail; }
+  out.afterFail = [closed, thrown]; decksFail = false;
   await afterExperimentDecision("rejected");
   out.afterReject = historyShown;
-  // discarding a stale draft: one DELETE per click series
-  deleted = 0;
+  resetAll();
   await Promise.all([discardStaleDraft(), discardStaleDraft(), discardStaleDraft()]);
-  out.deleted = deleted;
+  out.deleted = deletes.length;
   process.stdout.write(JSON.stringify(out));
 })();
 """
 
 
-def test_saving_never_overwrites_a_moved_or_foreign_branch_and_keeps_rescue() -> None:
+def test_saving_sends_expected_parent_and_never_overwrites_a_moved_branch() -> None:
     r = _node_json(_APP_JS)
     assert isinstance(r, dict)
-    assert r["stale"] == [0, True, True]
-    assert r["otherBranch"] == [0, True]  # "Neue Variante" named main never overwrites main
-    assert r["rescue"] == [[["rettung", "deck@b"]], False, "rettung"]
-    assert r["fresh"] == [["rettung", "deck@n"]]
-    assert r["load"] == [True, "deck@b"] and r["loadOk"] == [False, "deck@v"]
-    assert r["afterDirty"] == [True, 0] and r["afterClean"] == [False, 1]
+    assert r["own"] == [[["main", "deck@v", "deck@v"]], False]
+    assert r["newVariant"] == [[["neu", None, "deck@v"]], ["main"], "neu"]
+    assert r["precheck"] == [0, True, True]
+    # race: exactly one POST, refused by the server, never retried, main untouched
+    assert r["race"] == [1, True, "deck@other-tab", True, 0]
+    assert r["rescue"] == [
+        [["main", "deck@v", "deck@v"], ["rettung", None, "deck@v"]],
+        False,
+        "rettung",
+        "deck@other-tab",
+    ]
+    assert r["otherBranch"] == [0, True, "deck@v"]
+    assert r["clicks"] == 1
+    assert r["busy"] == [1, ["Speicher belegt, bitte erneut versuchen."], False]
+    assert r["rescueDeleteFails"] == [1, "rettung2", True, 0]
+    assert r["rescueAgain"] == 2  # now on the new variant itself: a normal save, no new branch
+    assert r["same"] == ["main"] and r["sameOther"] == [] and r["sameNoop"] is None
+    assert r["load"] == [True, "deck@b"] and r["afterLoad"] == [0, True]
+    assert r["loadOk"] == [False, "deck@v"]
+    assert r["afterDirty"] == [True, 0, 1] and r["afterClean"] == [False, 1]
+    assert r["afterFail"] == [0, "Speicher belegt, bitte erneut versuchen."]
     assert r["afterReject"] == 1
     assert r["deleted"] == 1
 

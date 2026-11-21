@@ -427,11 +427,14 @@ function entries() {
 let saveTimer = 0;
 function renderSaveState() {
   const box = $("save-state");
-  // B2b (#1658): the saved state under this draft moved (an adoption): saving is refused until
-  // the draft is discarded and the current state loaded; the notice stays until then.
+  // B2b (#1658), #1727: the saved state under this draft moved (an adoption, another tab):
+  // saving into this variant is refused; the work can be kept as a new variant, or the draft is
+  // discarded and the current state loaded. The notice stays until one of the two is done.
   if (state.baseStale) {
     box.replaceChildren(
-      h("span", { class: "pill bad" }, "Entwurf ist veraltet: der Stand darunter wurde inzwischen geändert, neu laden"),
+      h("span", { class: "pill bad" }, "Entwurf ist veraltet: der Stand darunter wurde inzwischen geändert. Neu laden oder als neue Variante speichern"),
+      " ",
+      h("button", { type: "button", class: "small", onclick: () => openNewBranchModal() }, "Als neue Variante speichern"),
       " ",
       h("button", { type: "button", class: "small", onclick: () => discardStaleDraft().catch((error) => fail(error)) }, "Entwurf verwerfen und aktuellen Stand laden"),
     );
@@ -3008,30 +3011,75 @@ async function currentBranchRevision(branch) {
   const row = deck && (deck.branches || []).find((item) => item.branch === branch);
   return row ? row.revision_id : null;
 }
+const STALE_DRAFT_TEXT = "Entwurf ist veraltet, neu laden oder als „Neue Variante“ speichern: der Stand darunter wurde inzwischen geändert. Nichts gespeichert.";
+const cardsKey = (cards) => JSON.stringify(cards.map((card) => [card.card_id, card.zone, card.quantity]).sort());
+let committing = false;
+// #1727: every save names the head it expects (`expected_parent`): the base of this draft for
+// the own variant, null for a new variant (with the base as `parent_revision_id`). A 409 from
+// the server means the variant moved: nothing is retried, the draft is named stale, and the
+// work can still be saved as a new variant. The target branch is read fresh from the server,
+// never from `state.decks`.
 async function commitRevision(branch = state.branch, note = "") {
+  if (committing) return; // one POST per click series
+  committing = true;
   const seq = state.changeSeq;
+  const fromBranch = state.branch;
+  const base = state.baseRevision;
+  const isNew = branch !== fromBranch;
   try {
-    // never overwrite an existing branch silently (B2b, #1658): the target branch is read
-    // fresh; it must not exist, or be this tab's branch still standing on this draft's base.
-    // A new variant may start from an old base (the work of a stale draft can be saved there).
     const current = await currentBranchRevision(branch);
-    if (current !== null && branch !== state.branch) {
+    if (current !== null && isNew) {
       toast(`Variante „${branch}“ gibt es schon: nichts gespeichert, bitte einen anderen Namen wählen.`);
       return;
     }
-    if (current !== null && current !== state.baseRevision) {
+    if (current !== null && current !== base) {
       state.baseStale = true;
       renderSaveState();
-      toast("Entwurf ist veraltet, neu laden: der Stand darunter wurde inzwischen geändert. Nichts gespeichert.");
+      toast(STALE_DRAFT_TEXT);
       return;
     }
-    const result = await api(`/api/decks/${encodeURIComponent(state.deckId)}/revisions`, "POST", { cards: entries(), branch, note, parent_revision_id: state.baseRevision });
-    if (branch !== state.branch) await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "DELETE");
+    const cards = entries();
+    let result;
+    try {
+      result = await api(`/api/decks/${encodeURIComponent(state.deckId)}/revisions`, "POST", {
+        cards, branch, note, parent_revision_id: base, expected_parent: isNew ? null : base,
+      });
+    } catch (error) {
+      if (error && error.status === 409) {
+        if (isNew) { toast(StudioUI.germanError(error)); return; }
+        state.baseStale = true;
+        renderSaveState();
+        toast(STALE_DRAFT_TEXT);
+        return;
+      }
+      throw error;
+    }
+    const hints = [];
+    if (result.hinweis) hints.push(result.hinweis);
+    if (isNew) {
+      // the work moved to the new variant; the old draft goes, and a failure is only named
+      try {
+        await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(fromBranch)}/draft`, "DELETE");
+      } catch (error) {
+        hints.push(`Der alte Entwurf in „${fromBranch}“ konnte nicht verworfen werden (${StudioUI.germanError(error)}); bitte dort verwerfen, nicht erneut speichern.`);
+      }
+    } else if (result.revision_id === base) {
+      // the same content as the head: the server keeps a draft on that head (#1733); this
+      // tab's draft is that content, so it goes, otherwise it would block "Ja, übernehmen"
+      try {
+        const found = await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(branch)}/draft`);
+        if (found.draft && found.draft.base_revision_id === base && cardsKey(found.draft.cards) === cardsKey(cards)) {
+          await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(branch)}/draft`, "DELETE");
+        }
+      } catch (error) {
+        hints.push(`Der unveränderte Entwurf konnte nicht verworfen werden (${StudioUI.germanError(error)}).`);
+      }
+    }
     state.branch = branch; state.baseRevision = result.revision_id; state.baseStale = false; state.dirty = state.changeSeq !== seq; state.savedSeq = Math.max(state.savedSeq, seq);
     state.draftUpdatedAt = ""; state.draftConflict = false; state.needsDraftPut = state.dirty;
     rememberVariant();
-    await loadDecks(); renderHeader(); renderSaveState(); toast("Stand gespeichert.");
-  } catch (error) { fail(error); }
+    await loadDecks(); renderHeader(); renderSaveState(); toast(["Stand gespeichert.", ...hints].join(" "));
+  } catch (error) { fail(error); } finally { committing = false; }
 }
 function saveRevision(branch = state.branch) {
   openInputModal({
@@ -3092,8 +3140,8 @@ async function showHistory() {
 // main on the server; a clean editor on main loads it, a draft is kept and named as outdated.
 async function afterExperimentDecision(decision) {
   if (decision !== "adopted") { await showHistory(); return; }
+  await loadDecks(); // while the dialog is open: a failure is shown there
   closeModal();
-  await loadDecks();
   if (state.branch !== "main") { toast("Variante übernommen: main zeigt jetzt den Variantenstand."); return; }
   if (state.dirty) { state.baseStale = true; renderSaveState(); return; }
   await loadBranch();
