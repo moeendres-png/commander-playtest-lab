@@ -1509,9 +1509,14 @@ The tab "Zahlen" shows, for every distinct coloured requirement of the deck's no
 probability to hit the land drops by that turn and, only among those draws, to hold the
 coloured sources the cost needs (`POST /api/castability`, `studio/castability.py`). Method:
 Frank Karsten, 2022 update. Missing the land drop is reported apart; two pips of one colour and
-several colours are one joint event computed over land groups by produced colours (a dual land
-counts for both colours of one draw), never a product of single probabilities; every value
-carries its condition ("bedingt auf mindestens T Länder unter 7 + T gezogenen Karten"). Sources
+several colours are one joint event computed over land groups by produced colours, never a
+product of single probabilities. Each coloured symbol needs its own land: a dual land can pay
+either of its colours but only one symbol (exact assignment of lands to symbols by Hall's
+condition, review round 1 of #1751; before, a dual land counted for both colours of one draw at
+once, which overstated multicoloured costs by up to 2.9 pp on the Chulane baseline); every value
+carries its condition ("bedingt auf mindestens T Länder unter 7 + T gezogenen Karten", for the
+player who is not the starting player and draws in turn 1; the starting player sees one card
+less). Sources
 are lands only; lands without coloured mana per card data and lands without card data are
 counted as lands but not as direct sources and are listed; hybrid and Phyrexian symbols are
 not part of the requirement and the cards are named. No mulligan, no extra draws. The opening
@@ -1527,7 +1532,8 @@ text, without a target, searches *your* library for a basic land card, for cards
 land types such as "Plains or Island" or "basic Forest, Plains, or Island", or for a land card
 with a basic land type, and puts the card onto the battlefield), `ohne_farbe` (known to produce
 no coloured mana, no such search) and `unbekannt` (no card data, no rules text, or a search text
-of another form: a Gate, any land card, into the hand, or bound to a target). The page shows the
+of another form: a Gate, any land card, into the hand, bound to a target, or a search of "their
+library" such as Field of Ruin's "each player searches"). The page shows the
 counts and "Klasse bestimmt für n von N Ländern"; unknown lands are named with the reason and are
 never counted as 0 sources. Land ramp spells are not part of this count.
 
@@ -1549,22 +1555,30 @@ Measured on the QA store copy (import of 2026-11-19, schema 21): the collection 
 facts with an inventory row, commander-legal) holds 134 lands, of which 132 of 134 (98.5 %) get a
 class (106 direkt, 14 suchland, 12 ohne_farbe); unknown are Maze's End (searches for a Gate) and
 Demolition Field (search bound to a target). The public card data of the same store (Zukauf
-universe, a separate figure) gives 1,224 of 1,231 lands. For the Chulane baseline (36 lands, 3
+universe, a separate figure) gives 1,221 of 1,231 lands. For the Chulane baseline (36 lands, 3
 search lands with basic land search) the colour figures given land drops rise by 1.8 to 11.1 pp,
-on average 5.5 pp over the 26 coloured requirements; UU on turn 3 goes from 65.2 % to 76.4 %.
+on average 5.6 pp (5.571) over the 26 coloured requirements; UU on turn 3 goes from 65.2 % to
+76.4 %.
 
 **Commander on curve.** The commander's own cost is one more requirement at the turn of its
 mana value (`commander`): land drops, colours given the land drops, and both together ("auf
 Kurve"), each direct and with search lands; library = main deck without the commander, first
 cast without commander tax. Chulane `{2}{G}{W}{U}` on the baseline: turn 5 (12 cards), land drops
-45.6 % × colours 92.8 % = 42.4 % direct, colours 97.3 % and 44.4 % with search lands. A
+45.6 % × colours 92.0 % = 42.0 % direct, colours 97.1 % and 44.3 % with search lands (for the
+player who draws in turn 1; a starting player sees 11 cards by turn 5). A
 commander without mana value is "unbekannt". The overview shows the same line.
 
 **Land count table.** `land_count_table`: for 30 to 40 lands (and the deck's own count, marked,
 also when outside that range) in the library of the list (main deck without commander), the
 exact hypergeometric share of draws with at least `T` lands among the `7 + T` cards seen by turn
-`T`, for turns 2 to 7; the column headers name the card count. The deck's own row equals the land
-drops of the requirements of the same turn. No land count recommendation.
+`T`, for turns 2 to 7; the column headers name the card count and the player who draws in turn
+1 ("Nichtstartspieler"; the starting player reads the column one turn earlier). The deck's own
+row equals the land drops of the requirements of the same turn. No land count recommendation.
+
+Runtime of the exact assignment, measured in this container: Chulane baseline 0.04 s for the
+whole `deck_castability`; a synthetic five-colour deck with 27 different land groups and five
+costs of up to seven symbols in all five colours 1.05 s. Without a search land in the deck the
+"mit Suchland" figures reuse the direct ones.
 
 #### Roles in the opening hand ("Rollen in der Starthand", #1404)
 

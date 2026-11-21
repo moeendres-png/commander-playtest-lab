@@ -10,8 +10,11 @@ Spells? A 2022 Update", https://github.com/frankkarsten/MTG-Math):
 2. Two or more pips of one colour are one compound event (at least that many sources of the
    colour among the same drawn lands), never a product of single-pip probabilities.
 3. A multicoloured cost is one joint event over all its colours, computed directly over land
-   groups by the colours they produce (a dual land counts for both colours of one draw, but
-   only once as a land). Products of per-colour probabilities are not used anywhere.
+   groups by the colours they produce. Each coloured symbol needs its own land: a dual land
+   can pay either of its colours, but only one symbol (exact assignment of lands to symbols
+   by Hall's condition, since review round 1 of #1751; before, a dual land counted for both
+   colours of one draw at once, which overstated multicoloured costs). Products of
+   per-colour probabilities are not used anywhere.
 4. Every probability carries its condition and the counts it was computed from.
 
 Counting rules, shown with the result: sources are lands only (``produced_mana`` of the card
@@ -107,7 +110,9 @@ REASON_UNREADABLE_SEARCH = "Suchtext ist keine Suche nach Standardland oder Stan
 REASON_TARGETED_SEARCH = "Suche hängt an einem Ziel (Fähigkeit mit „target“)"
 _TARGET = re.compile(r"\btargets?\b", re.IGNORECASE)
 _REMINDER = re.compile(r"\([^()]*\)")
-_ANY_SEARCH = re.compile(r"\bsearch your library\b", re.IGNORECASE)
+# Any library search in the text: your own, or "their library" (each player / another player,
+# for example Field of Ruin), which is no readable search of your own and so unknown.
+_ANY_SEARCH = re.compile(r"\bsearch(?:es)? (?:your|their) library\b", re.IGNORECASE)
 _LAND_SEARCH = re.compile(
     r"\bsearch your library for (?P<spec>[^.;:]+?) cards?"
     r"(?P<suffix> with a basic land type| that share a land type)?"
@@ -345,7 +350,9 @@ def land_count_table(library: int, deck_lands: int) -> dict[str, object]:
         "rows": rows,
         "rule": (
             f"Bibliothek {library} Karten (Deck ohne Commander), davon die genannte Zahl Länder; "
-            "bis Zug T sind 7 + T Karten gesehen (Zug 1 zieht, ohne Mulligan, ohne Extraziehen); "
+            "gerechnet für den Nichtstartspieler (zieht in Zug 1): bis Zug T sind 7 + T Karten "
+            "gesehen; der Startspieler (zieht in Zug 1 nicht) sieht eine Karte weniger, für ihn "
+            "gilt die Spalte einen Zug früher. Ohne Mulligan, ohne Extraziehen; "
             "Wert: Anteil der Ziehungen mit mindestens T Ländern, exakte Hypergeometrie. "
             "Keine Empfehlung einer Landzahl."
         ),
@@ -360,18 +367,27 @@ def _joint(
     need: Mapping[str, int],
 ) -> tuple[int, int, int]:
     """Exact counts of draws (as numbers of card subsets of size ``draws``): all draws, draws
-    with at least ``min_lands`` lands, and draws with at least ``min_lands`` lands AND, for
-    every colour in ``need``, at least ``need[colour]`` drawn lands producing it.
+    with at least ``min_lands`` lands, and draws with at least ``min_lands`` lands AND an
+    assignment of distinct drawn lands to the coloured symbols of ``need`` (every symbol of
+    colour ``c`` gets its own land producing ``c``; one land pays one symbol).
 
-    Dynamic programme over the land groups (lands with the same produced colours): the state
-    is the number of lands drawn and, per needed colour, the sources drawn capped at the need.
+    Such an assignment exists exactly when Hall's condition holds: for every non-empty set
+    ``S`` of needed colours, the drawn lands producing at least one colour of ``S`` number at
+    least the symbols of ``S``. Dynamic programme over the land groups (lands with the same
+    produced colours): the state is the number of lands drawn and, per colour set ``S``, those
+    lands capped at the symbols of ``S``. With one needed colour this is the plain count of
+    its sources; a dual land is one land and pays one symbol, never one of each colour. The
+    generic part is paid by the other lands, since at least ``min_lands`` (= mana value) lands
+    are drawn.
     """
     colours = sorted(need)
-    caps = tuple(need[c] for c in colours)
-    states: dict[tuple[int, tuple[int, ...]], int] = {(0, tuple(0 for _ in colours)): 1}
+    masks = range(1, 1 << len(colours))
+    caps = tuple(sum(need[c] for bit, c in enumerate(colours) if mask >> bit & 1) for mask in masks)
+    states: dict[tuple[int, tuple[int, ...]], int] = {(0, tuple(0 for _ in caps)): 1}
     for produced, size in groups:
         nxt: dict[tuple[int, tuple[int, ...]], int] = {}
-        hits = tuple(1 if c in produced else 0 for c in colours)
+        own = sum(1 << bit for bit, c in enumerate(colours) if c in produced)
+        hits = tuple(1 if own & mask else 0 for mask in masks)
         for (lands, got), ways in states.items():
             for take in range(0, min(size, draws - lands) + 1):
                 key = (
@@ -544,8 +560,13 @@ def _with_search(
     nonland: int,
     need: Mapping[str, int],
     turn: int,
+    direct: Mapping[str, object] | None = None,
 ) -> dict[str, object]:
-    result = colour_probability(search_groups, nonland, need, turn)
+    """The figures with search lands; ``direct`` is reused when no search land changes a
+    group (the same groups give the same exact result, so it is not computed twice)."""
+    result = (
+        direct if direct is not None else colour_probability(search_groups, nonland, need, turn)
+    )
     return {
         "sources": result["sources"],
         "p_colours_given_lands": result["p_colours_given_lands"],
@@ -581,7 +602,13 @@ def _commander_entries(
                 **result,
                 "label": "".join(colour * count for colour, count in sorted(need.items())),
                 "hybrid_or_phyrexian": skipped,
-                "with_search": _with_search(search_groups, nonland, need, turn),
+                "with_search": _with_search(
+                    search_groups,
+                    nonland,
+                    need,
+                    turn,
+                    result if list(search_groups) == list(land_groups) else None,
+                ),
             }
         )
     return out
@@ -663,7 +690,13 @@ def deck_castability(rows: Iterable[Mapping[str, object]]) -> dict[str, object]:
                 **result,
                 "label": "".join(colour * count for colour, count in need_items),
                 "cards": sorted(cards, key=lambda card: str(card["name"])),
-                "with_search": _with_search(search_groups, nonland, dict(need_items), turn),
+                "with_search": _with_search(
+                    search_groups,
+                    nonland,
+                    dict(need_items),
+                    turn,
+                    result if search_groups == land_groups else None,
+                ),
             }
         )
     search_lands = [
@@ -720,7 +753,9 @@ def deck_castability(rows: Iterable[Mapping[str, object]]) -> dict[str, object]:
             "Exakte multivariate Hypergeometrie nach Karsten (2022): Farbwahrscheinlichkeit "
             "bedingt auf die Land-Drops bis zum Zug des Manawerts; Landmangel getrennt; "
             "mehrere Symbole einer Farbe und mehrere Farben als ein gemeinsames Ereignis. "
-            "Ziehen: 7 + Zug Karten, ohne Mulligan und ohne Extraziehen. Quellen: nur Länder; "
+            "Jedes Farbsymbol braucht ein eigenes Land (ein Dual-Land bezahlt ein Symbol). "
+            "Ziehen: 7 + Zug Karten (Nichtstartspieler, zieht in Zug 1; der Startspieler sieht "
+            "eine Karte weniger), ohne Mulligan und ohne Extraziehen. Quellen: nur Länder; "
             "„direkt“ ohne Suchländer, „mit Suchland“ unter der genannten Rechenannahme."
         ),
         "source": (

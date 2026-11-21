@@ -79,7 +79,8 @@ function commanderNodes(h, commanders) {
         h("th", { class: "num" }, "auf Kurve direkt"), h("th", { class: "num" }, "auf Kurve mit Suchland"),
         h("th", { class: "num" }, "Land-Drops"), h("th", { class: "num" }, "Farben direkt*"), h("th", { class: "num" }, "Farben mit Suchland*"))),
       h("tbody", {}, rows))),
-    h("p", { class: "note" }, "Commander aus der Kommandozone im Zug seines Manawerts: Bibliothek = Deck ohne Commander, erster Wurf ohne Commander-Steuer. „Auf Kurve“ = Land-Drops und Farben zusammen (Land-Drops × Farben)."),
+    h("p", { class: "note" }, "Commander aus der Kommandozone im Zug seines Manawerts: Bibliothek = Deck ohne Commander, erster Wurf ohne Commander-Steuer. „Auf Kurve“ = Land-Drops und Farben zusammen (Land-Drops × Farben). Jedes Farbsymbol braucht ein eigenes Land."),
+    h("p", { id: "commander-start-note", class: "note" }, commanders.filter((cmd) => cmd.known).map((cmd) => `Gerechnet für den Nichtstartspieler (zieht in Zug 1): in Zug ${StudioUI.num(cmd.turn, 0)} ${StudioUI.num(cmd.draws, 0)} Karten; ein Startspieler sieht in Zug ${StudioUI.num(cmd.turn, 0)} nur ${StudioUI.num(cmd.draws - 1, 0)} Karten.`).join(" ")),
   ];
 }
 
@@ -89,12 +90,13 @@ function landCountNodes(h, table) {
   return [
     h("h3", {}, "Landzahl-Tabelle (30–40 Länder, exakt)"),
     h("div", { class: "table-wrap" }, h("table", { id: "land-count-table" },
-      h("thead", {}, h("tr", {}, h("th", { class: "num" }, "Länder"),
+      h("thead", {}, h("tr", {}, h("th", {}, ""), h("th", { class: "num", colspan: table.rows[0].cells.length, id: "land-count-player" }, "Nichtstartspieler (zieht in Zug 1); Startspieler: Spalte einen Zug früher")),
+        h("tr", {}, h("th", { class: "num" }, "Länder"),
         ...table.rows[0].cells.map((cell) => h("th", { class: "num", title: `mindestens ${StudioUI.num(cell.turn, 0)} Länder unter ${StudioUI.num(cell.draws, 0)} Karten` }, `Zug ${StudioUI.num(cell.turn, 0)} · ${StudioUI.num(cell.draws, 0)} Karten`)))),
       h("tbody", {}, table.rows.map((row) => h("tr", { class: row.deck ? "facts-row land-count-deck" : "" },
         h("td", { class: "num" }, StudioUI.num(row.lands, 0), row.deck ? " (Deck)" : ""),
         ...row.cells.map((cell) => h("td", { class: "num" }, castPct(cell.p)))))))),
-    h("p", { class: "note" }, `Je Zeile: Anteil der Ziehungen mit mindestens so vielen Ländern wie der Zug. ${table.rule} Zählweise wie „Farben auf Kurve“ (7 + Zug Karten); die Land-Zieh-Tabelle weiter oben zählt für den Startspieler (ohne Ziehen in Zug 1), dort steht derselbe Wert einen Zug später.`),
+    h("p", { class: "note" }, `Je Zeile: Anteil der Ziehungen mit mindestens so vielen Ländern wie der Zug. ${table.rule} Zählweise wie „Farben auf Kurve“ (7 + Zug Karten); die Land-Zieh-Tabelle weiter oben zählt für den Startspieler (zieht in Zug 1 nicht), dort steht derselbe Wert einen Zug später.`),
   ];
 }
 

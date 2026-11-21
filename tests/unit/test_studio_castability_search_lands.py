@@ -3,9 +3,12 @@ audit WP-2 and WP-3).
 
 All decks here are synthetic: land groups and costs only, with made-up names, so that no test
 can pass by reading a card name. The Chulane-shaped deck copies the land groups and the 26
-coloured requirements of the Chulane baseline as counts; its expected values are the hand
-calculation of the builder audit (UU on turn 3 65.2 -> 76.4 %, mean +5.5 pp over 26
-requirements, Chulane 2GWU on turn 5 45.6 % x 92.8 % = 42.4 %), checked again exactly here.
+coloured requirements of the Chulane baseline as counts. Its expected values: UU on turn 3
+65.2 -> 76.4 % (as in the builder audit); with one land per coloured symbol (review round 1 of
+#1751) the mean gain over the 26 requirements is +5.6 pp (the audit's +5.5 pp counted a dual land
+for both colours at once) and Chulane 2GWU on turn 5 is 45.6 % x 92.0 % = 42.0 % (audit: 92.8 %,
+42.4 %). The multicoloured references enumerate every draw and assign lands to symbols by
+backtracking, independent of the Hall condition the code uses.
 """
 
 from __future__ import annotations
@@ -170,12 +173,19 @@ def test_search_text_that_is_no_basic_land_search_is_unknown(text: str, reason: 
     assert result["reason"] == reason
 
 
-def test_their_library_and_reminder_text_are_no_own_search() -> None:
+def test_their_library_is_unknown_and_reminder_text_is_no_search() -> None:
     their = _land(
         "Odd",
         "C",
         text="{T}: Add {C}.\n{2}, {T}, Sacrifice this land: That land's controller may "
         "search their library for a basic land card, put it onto the battlefield.",
+    )
+    each_player = _land(  # Field of Ruin: "each player" includes you, and it needs a target
+        "Odd 3",
+        "C",
+        text="{T}: Add {C}.\n{2}, {T}, Sacrifice this land: Destroy target nonbasic land an "
+        "opponent controls. Each player searches their library for a basic land card, puts it "
+        "onto the battlefield, then shuffles.",
     )
     cycling = _land(
         "Odd 2",
@@ -183,7 +193,10 @@ def test_their_library_and_reminder_text_are_no_own_search() -> None:
         text="{T}: Add {C}.\nBasic landcycling {1} ({1}, Discard this card: Search your library "
         "for a basic land card, reveal it, put it into your hand, then shuffle.)",
     )
-    assert castability.classify_land(their)["class"] == castability.LAND_NO_COLOUR
+    for row in (their, each_player):
+        result = castability.classify_land(row)
+        assert result["class"] == castability.LAND_UNKNOWN, row["oracle_name"]
+        assert result["reason"] == castability.REASON_UNREADABLE_SEARCH
     assert castability.classify_land(cycling)["class"] == castability.LAND_NO_COLOUR
 
 
@@ -327,7 +340,7 @@ def test_chulane_shaped_deck_equals_the_audit_hand_calculation() -> None:
         deltas.append(Fraction(both_b - both_a, lands_a))
     mean = sum(deltas, Fraction(0)) / len(deltas)
     assert len(deltas) == 26
-    assert round(float(mean) * 100, 1) == 5.5
+    assert round(float(mean) * 100, 3) == 5.571  # 5.476 when a dual paid two symbols
     assert round(float(min(deltas)) * 100, 1) == 1.8
     assert round(float(max(deltas)) * 100, 1) == 11.1
 
@@ -348,10 +361,10 @@ def test_commander_on_curve_from_the_command_zone() -> None:
     assert commander["known"] is True
     assert (commander["turn"], commander["draws"], commander["label"]) == (5, 12, "GUW")
     assert commander["p_land_drops"] == 0.4564
-    assert commander["p_colours_given_lands"] == 0.9283
-    assert commander["p_on_curve"] == 0.4237
-    assert commander["with_search"]["p_colours_given_lands"] == 0.9732
-    assert commander["with_search"]["p_on_curve"] == 0.4442
+    assert commander["p_colours_given_lands"] == 0.9202  # 0.9283 before review round 1
+    assert commander["p_on_curve"] == 0.4200
+    assert commander["with_search"]["p_colours_given_lands"] == 0.9711
+    assert commander["with_search"]["p_on_curve"] == 0.4432
     # the commander is no card of the library: 99 cards, 36 lands
     assert commander["sources"] == {"G": 18, "U": 17, "W": 15}
     # the same value as the shared function on the same groups (no new heuristic)
@@ -361,34 +374,147 @@ def test_commander_on_curve_from_the_command_zone() -> None:
         assert commander[key] == same[key], key
 
 
-def test_tam_shaped_commander_1gu_by_enumeration() -> None:
-    # a 12-card mini deck: 5 lands (2 U, 1 G, 1 GU fetch target, 1 search land), 7 spells
+def _assignable(lands: list[frozenset[str]], need: dict[str, int]) -> bool:
+    """One distinct land per coloured symbol, by backtracking (not by the Hall condition)."""
+    symbols = [colour for colour, n in sorted(need.items()) for _ in range(n)]
+
+    def place(index: int, used: frozenset[int]) -> bool:
+        if index == len(symbols):
+            return True
+        return any(
+            place(index + 1, used | {i})
+            for i, land in enumerate(lands)
+            if i not in used and symbols[index] in land
+        )
+
+    return place(0, frozenset())
+
+
+def _enumerate(
+    deck: list[frozenset[str] | None], need: dict[str, int], turn: int, *, per_colour: bool = False
+) -> tuple[float, float, float]:
+    """Exact (land drops, colours given land drops, on curve) over every draw of 7 + turn
+    cards; ``per_colour`` is the old rule (enough sources of each colour, a dual for both)."""
+    total = lands_ok = both = 0
+    for hand in combinations(range(len(deck)), 7 + turn):
+        lands = [land for land in (deck[i] for i in hand) if land is not None]
+        total += 1
+        if len(lands) >= turn:
+            lands_ok += 1
+            if per_colour:
+                ok = all(sum(c in land for land in lands) >= n for c, n in need.items())
+            else:
+                ok = _assignable(lands, need)
+            both += ok
+    return (
+        round(lands_ok / total, 4),
+        round(both / lands_ok, 4) if lands_ok else -1.0,
+        round(both / total, 4),
+    )
+
+
+FOREST_OR_ISLAND = (
+    "{T}, Sacrifice this land: Search your library for a Forest or Island card, put it onto the "
+    "battlefield, then shuffle."
+)
+NONE = frozenset[str]()
+
+# (name, commander cost, mana value, land rows, the drawn-land model of those rows written by
+# hand as (direct, with search), whether the old per-colour rule gives another value)
+ENUMERATION_CASES = [
+    (
+        "GW dual with colourless lands",
+        "{G}{W}",
+        2,
+        [_land("Dual GW", "GW"), _land("Waste", "C", text="{T}: Add {C}.", qty=5)],
+        ([frozenset("GW")] + [NONE] * 5, [frozenset("GW")] + [NONE] * 5),
+        True,
+    ),
+    (
+        "TAM 1GU with two duals",
+        "{1}{G}{U}",
+        3,
+        [_land("Dual GU", "GU", qty=2), _land("Waste", "C", text="{T}: Add {C}.", qty=3)],
+        ([frozenset("GU")] * 2 + [NONE] * 3, [frozenset("GU")] * 2 + [NONE] * 3),
+        True,
+    ),
+    (
+        "search land and typed dual, 1GU",
+        "{1}{G}{U}",
+        3,
+        [
+            _land("Fetch FI", "", text=FOREST_OR_ISLAND),
+            _land("Typed GU", "GU", "Land — Forest Island"),
+            _land("Woods", "G", "Basic Land — Forest"),
+            _land("Waste", "C", text="{T}: Add {C}.", qty=2),
+        ],
+        (
+            [NONE, frozenset("GU"), frozenset("G"), NONE, NONE],
+            [frozenset("GU"), frozenset("GU"), frozenset("G"), NONE, NONE],
+        ),
+        True,
+    ),
+    (
+        "three-colour commander GWU",
+        "{G}{W}{U}",
+        3,
+        [
+            _land("Tri", "WUG"),
+            _land("Dual GW", "GW"),
+            _land("Isle", "U", "Basic Land — Island"),
+            _land("Seeker", "", text=BASIC_SEARCH),
+            _land("Waste", "C", text="{T}: Add {C}."),
+        ],
+        (
+            [frozenset("WUG"), frozenset("GW"), frozenset("U"), NONE, NONE],
+            [frozenset("WUG"), frozenset("GW"), frozenset("U"), frozenset("U"), NONE],
+        ),
+        True,
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    ("name", "cost", "mv", "lands", "model", "differs"),
+    ENUMERATION_CASES,
+    ids=[case[0] for case in ENUMERATION_CASES],
+)
+def test_commander_on_curve_by_full_enumeration_with_land_to_symbol_assignment(
+    name: str,
+    cost: str,
+    mv: int,
+    lands: list[dict[str, object]],
+    model: tuple[list[frozenset[str]], list[frozenset[str]]],
+    differs: bool,
+) -> None:
+    spells = 12 - sum(int(str(row["quantity"])) for row in lands)
     rows = [
-        _row("Commander GU", zone="commander", mana_cost="{1}{G}{U}", mana_value=3),
-        _land("Isle", "U", "Basic Land — Island", qty=2),
-        _land("Woods", "G", "Basic Land — Forest"),
-        _land("Typed GU", "GU", "Land — Forest Island"),
-        _land("Fetch FI", "", text="{T}, Sacrifice this land: Search your library for a Forest "
-              "or Island card, put it onto the battlefield, then shuffle."),
-        _spell("Spell", "{2}", 2, qty=7),
-    ]  # fmt: skip
+        _row("Cmdr", zone="commander", mana_cost=cost, mana_value=mv),
+        *lands,
+        _spell("Spell", "{2}", 2, qty=spells),
+    ]
     (commander,) = castability.deck_castability(rows)["commander"]
-    assert (commander["turn"], commander["draws"], commander["label"]) == (3, 10, "GU")
-    cards: list[frozenset[str] | None] = [frozenset("U")] * 2 + [frozenset("G"), frozenset("GU")]
-    for search, key in ((False, None), (True, "with_search")):
-        deck = [*cards, frozenset("GU") if search else frozenset(), *([None] * 7)]
-        total = lands_ok = both = 0
-        for hand in combinations(range(12), 10):
-            lands = [deck[i] for i in hand if deck[i] is not None]
-            total += 1
-            if len(lands) >= 3:
-                lands_ok += 1
-                if any("G" in land for land in lands) and any("U" in land for land in lands):
-                    both += 1
+    need, _ = castability.requirement(cost)
+    old_rule = []
+    for drawn, key in zip(model, (None, "with_search"), strict=True):
+        deck: list[frozenset[str] | None] = [*drawn, *([None] * spells)]
         shown = commander if key is None else {**commander, **commander[key]}
-        assert shown["p_land_drops"] == round(lands_ok / total, 4)
-        assert shown["p_colours_given_lands"] == round(both / lands_ok, 4)
-        assert shown["p_on_curve"] == round(both / total, 4)
+        expected = _enumerate(deck, need, mv)
+        assert (
+            shown["p_land_drops"],
+            shown["p_colours_given_lands"],
+            shown["p_on_curve"],
+        ) == expected, (name, key)
+        old_rule.append(_enumerate(deck, need, mv, per_colour=True) != expected)
+    assert any(old_rule) is differs, name  # the case tells the two models apart
+
+
+def test_dual_land_pays_one_symbol_never_two() -> None:
+    # the reviewer's counter-example: one GW dual and 40 colourless lands, {G}{W} by turn 2
+    groups = [(frozenset("GW"), 1), (frozenset(), 40)]
+    result = castability.colour_probability(groups, 59, {"G": 1, "W": 1}, 2)
+    assert result["p_colours_given_lands"] == 0.0 and result["p_on_curve"] == 0.0
+    assert result["p_land_drops"] == round(1 - (comb(59, 9) + 41 * comb(59, 8)) / comb(100, 9), 4)
 
 
 def test_commander_without_mana_value_is_unknown() -> None:
@@ -490,6 +616,20 @@ def test_land_advisor_counts_search_sources_apart_within_the_identity() -> None:
     # the fetch reaches G through the Forest Plains dual, but G is outside the identity
     assert {c: colours[c]["search_sources"] for c in colours} == {"W": 1, "U": 1, "G": 0}
     assert deck["lands_search"] == 1 and deck["lands_search_unknown"] == 1
+
+
+def test_land_without_rules_text_is_no_unreadable_search() -> None:
+    # unknown for lack of text (and of colour data), but no search text: not "Suchtext unklar"
+    rows = [
+        _row("Cmdr", zone="commander", color_identity="U", mana_cost="{U}", mana_value=1),
+        _land("Blank", "", text=None),
+        _land("No Data", None, text=None),
+        _land("Isle", "U", "Basic Land — Island", qty=4),
+    ]
+    deck = land_advisor.deck_profile(rows)
+    assert deck["lands_search_unknown"] == 0 and deck["lands_search"] == 0
+    classes = castability.deck_castability(rows)["land_classes"]
+    assert classes["counts"]["unbekannt"] == 2 and classes["classified"] == 4
     assert deck["search_assumption"] == castability.LAND_SEARCH_ASSUMPTION
 
 
@@ -502,8 +642,8 @@ def test_contracts_carry_the_assumption_for_every_search_figure() -> None:
         assert item["klasse"] == "EXAKT"
         assert item["hinweise"] == [castability.LAND_SEARCH_ASSUMPTION]
     curve = {z["id"]: z["wert"] for z in zahlen if str(z["id"]).startswith("cast.commander.")}
-    assert curve["cast.commander.Commander GWU.p_on_curve"] == 0.4237
-    assert curve["cast.commander.Commander GWU.p_on_curve_with_search"] == 0.4442
+    assert curve["cast.commander.Commander GWU.p_on_curve"] == 0.42
+    assert curve["cast.commander.Commander GWU.p_on_curve_with_search"] == 0.4432
 
 
 def test_assumption_names_what_is_left_out() -> None:
@@ -534,7 +674,7 @@ const byId = (node, id) => { if (!node || typeof node !== "object") return null;
 const data = __DATA__;
 const root = h("div", {}, ...castabilityNodes(h, data, () => {}, (k) => k));
 const out = {};
-for (const id of ["castability", "commander-curve", "land-count-table", "land-classes", "search-lands", "search-assumption", "land-classes-unknown"]) {
+for (const id of ["castability", "commander-curve", "land-count-table", "land-classes", "search-lands", "search-assumption", "land-classes-unknown", "commander-start-note", "land-count-player"]) {
   const node = byId(root, id); out[id] = node ? text(node) : null;
 }
 process.stdout.write(JSON.stringify(out));
@@ -567,8 +707,13 @@ def test_castability_display_shows_direct_search_commander_table_and_assumption(
     assert "U 17" in table and "U 20 (+3)" in table
     assert "65,2 %" in table and "76,4 %" in table  # UU on turn 3, direct and with search
     curve = shown["commander-curve"] or ""
-    assert "Commander GWU" in curve and "45,6 %" in curve and "92,8 %" in curve
-    assert "42,4 %" in curve and "97,3 %" in curve and "44,4 %" in curve
+    assert "Commander GWU" in curve and "45,6 %" in curve and "92,0 %" in curve
+    assert "42,0 %" in curve and "97,1 %" in curve and "44,3 %" in curve
+    assert "Nichtstartspieler (zieht in Zug 1): in Zug 5 12 Karten" in (
+        shown["commander-start-note"] or ""
+    )
+    assert "Startspieler sieht in Zug 5 nur 11 Karten" in (shown["commander-start-note"] or "")
+    assert "Nichtstartspieler (zieht in Zug 1)" in (shown["land-count-player"] or "")
     land_table = shown["land-count-table"] or ""
     assert "Zug 3 · 10 Karten" in land_table and "36 (Deck)" in land_table
     assert "78,1 %" in land_table  # 36 lands, turn 3 = p_land_drops of the turn-3 rows
