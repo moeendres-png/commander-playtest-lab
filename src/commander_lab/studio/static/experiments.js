@@ -123,7 +123,7 @@ function experimentPlan(h, detail) {
   const seeds = detail.seeds || {};
   const seedText = seeds.first === null || seeds.first === undefined
     ? "unbekannt"
-    : `${String(seeds.first)} bis ${String(seeds.last)} (${StudioUI.num(seeds.count)} Seeds)`; // seeds are ids: no thousands dots
+    : `${String(seeds.first)} bis ${seeds.last === null || seeds.last === undefined ? "unbekannt" : String(seeds.last)} (${StudioUI.num(seeds.count)} Seeds)`; // seeds are ids: no thousands dots
   const items = [
     h("div", {}, h("span", { class: cls }, text)),
     h("div", {}, `Zweck: ${experimentPurpose(detail.purpose)}`),
