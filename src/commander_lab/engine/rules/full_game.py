@@ -17,6 +17,7 @@ import uuid
 import weakref
 from collections import Counter, deque
 from collections.abc import Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, TextIO, TypedDict, cast
 
@@ -206,6 +207,28 @@ def audit_actor_scoped_frame(decision: dict[str, Any]) -> tuple[int, int, list[s
                 f"seat {public_seat} carries the unlisted row key {shown} for another principal"
             )
     return rows, visible, violations
+
+
+def _audit_decision_frame(
+    audit: FullGameHiddenInformationAudit,
+    decision: dict[str, object],
+    number: int,
+    *,
+    count: bool = True,
+) -> None:
+    """Audit one decision frame into ``audit``; fail closed on a leak (``number`` names it).
+
+    With ``count`` false the frame is checked but not counted (a frame read again)."""
+    rows, visible, violations = audit_actor_scoped_frame(decision)
+    if violations:
+        raise FullGameConformanceError(
+            f"hidden information not actor-scoped at decision {number}: " + "; ".join(violations)
+        )
+    if not count:
+        return
+    audit.frames_audited += 1
+    audit.non_actor_rows_audited += rows
+    audit.non_actor_rows_engine_visible += visible
 
 
 class FullGameConformanceResult(_StrictModel):
@@ -980,17 +1003,24 @@ def _with_jvm_flags(command: tuple[str, ...]) -> tuple[str, ...]:
 # import before any game exists (H2 "Lock file recently modified", #731, #878). Same codes and
 # back-off as the batch runner's start-up retry in full_game_batch.
 _STARTUP_COLLISION_CODES = frozenset({"XMAGE_CARD_REPOSITORY_INIT_FAILED"})
-_STARTUP_ATTEMPTS = 4
-_STARTUP_BACKOFF_SECONDS = 3.0
+FULL_GAME_STARTUP_ATTEMPTS = 4
+FULL_GAME_STARTUP_BACKOFF_SECONDS = 3.0
+_STARTUP_ATTEMPTS = FULL_GAME_STARTUP_ATTEMPTS
+_STARTUP_BACKOFF_SECONDS = FULL_GAME_STARTUP_BACKOFF_SECONDS
 
 
-def _is_startup_collision(exc: Exception) -> bool:
+def is_startup_collision(exc: Exception) -> bool:
+    """True when ``exc`` is the card repository start-up collision: nothing of the game exists
+    yet, so it may be started again in a fresh bridge process."""
     if not isinstance(exc, FullGameProtocolError):
         return False
     return any(str(item) in _STARTUP_COLLISION_CODES for item in (exc.diagnostics or ()))
 
 
-def _public_error(exc: Exception) -> Exception:
+_is_startup_collision = is_startup_collision
+
+
+def public_error(exc: Exception) -> Exception:
     """The exception a public :class:`XmageFullGameRunner` method would raise for ``exc``."""
 
     @public_full_game_errors
@@ -1002,6 +1032,9 @@ def _public_error(exc: Exception) -> Exception:
     except Exception as public:
         return public
     raise AssertionError("unreachable")
+
+
+_public_error = public_error
 
 
 DECK_GATE_HASH_MISMATCH = "deck_hash_mismatch"
@@ -1463,6 +1496,62 @@ class XmageFullGameRunner:
             ).hexdigest(),
         )
 
+    # --- public step sequence (D-3, #1663) ---------------------------------------------------
+    # One protocol driver: every step below delegates to the same private hook that run(),
+    # run_batch() and run_smoke() use, so a subclass that overrides a hook (recording, frame
+    # digest) changes both paths alike. Callers outside this module use only these names.
+
+    def decision_policy(
+        self,
+        scenario: FutureXmageScenario,
+        decks: tuple[RulesDeckInput, ...],
+        pilots: tuple[FullGamePilotBinding, ...],
+    ) -> ExternalPilotDecisionPolicy:
+        """Validate one game's inputs and return the pilots' policy for it (no engine yet)."""
+        return self._validated_policy(scenario, decks, pilots)
+
+    def open_session(self) -> FullGameBridgeSession:
+        """A bridge process for one or more games, not started yet (``start`` or ``with``)."""
+        return FullGameBridgeSession(self)
+
+    @staticmethod
+    def validate_handshake(
+        scenario: FutureXmageScenario,
+        provider: ProviderIdentityWire,
+        capabilities_payload: CapabilitiesWire,
+    ) -> None:
+        """Fail closed unless the bridge's identity and capabilities cover ``scenario``."""
+        XmageFullGameRunner._validate_handshake(scenario, provider, capabilities_payload)
+
+    @staticmethod
+    def deck_payload(deck: RulesDeckInput) -> FullGameDeckPayload:
+        """The ``import_deck`` payload of ``deck``, after the deck construction gate."""
+        return XmageFullGameRunner._deck_payload(deck)
+
+    @classmethod
+    def conformance_result(
+        cls,
+        scenario: FutureXmageScenario,
+        provider: ProviderIdentityWire,
+        result: FullGameResultWire,
+        *,
+        shutdown_disposition: str | None = None,
+        hidden_audit: FullGameHiddenInformationAudit | None = None,
+    ) -> FullGameConformanceResult:
+        """The checked result of a finished game (same checks as :meth:`run`)."""
+        return cls._build_result(
+            scenario,
+            provider,
+            result,
+            shutdown_disposition=shutdown_disposition,
+            hidden_audit=hidden_audit,
+        )
+
+    @staticmethod
+    def result_sha256(value: SemanticTranscript | FullGameResultWire) -> str:
+        """The canonical SHA-256 of a semantic transcript or raw result (transcript hash)."""
+        return XmageFullGameRunner._sha256(value)
+
     def _validated_policy(
         self,
         scenario: FutureXmageScenario,
@@ -1601,15 +1690,7 @@ class XmageFullGameRunner:
                     observed.append(decision_class)
                 audit = self._hidden_audit
                 if audit is not None:
-                    rows, visible, violations = audit_actor_scoped_frame(decision)
-                    if violations:
-                        raise FullGameConformanceError(
-                            "hidden information not actor-scoped at decision "
-                            f"{decision_count}: " + "; ".join(violations)
-                        )
-                    audit.frames_audited += 1
-                    audit.non_actor_rows_audited += rows
-                    audit.non_actor_rows_engine_visible += visible
+                    _audit_decision_frame(audit, decision, decision_count)
                 response = policy.decide(decision)
                 status = client.request(
                     "submit_full_game_decision",
@@ -1951,6 +2032,232 @@ class XmageFullGameRunner:
         return hashlib.sha256(payload.encode()).hexdigest()
 
 
+def full_game_protocol_id(scenario: FutureXmageScenario) -> str:
+    """The ``game_id`` the bridge knows a game of ``scenario`` by (``create_full_game``)."""
+    return f"{scenario.scenario_id}:{scenario.candidate_id}:{scenario.seed}"
+
+
+@dataclass(frozen=True)
+class FullGameEventPage:
+    """Public engine events after an offset, and the offset after the last of them."""
+
+    events: tuple[object, ...]
+    latest_offset: int
+
+
+class FullGameMatch:
+    """One created game in a :class:`FullGameBridgeSession`: the public steps of its protocol.
+
+    ``drive`` lets the pilots answer every decision (the runner's own loop); ``start``,
+    ``next_decision`` and ``answer`` let a caller answer decisions itself, one at a time. A game
+    is played one way: ``drive`` after ``start`` (or ``start`` twice) is refused, because both
+    send ``start_full_game``. The engine decides every rule; these steps only carry questions
+    and answers. Every decision frame either way passes the actor-scoped hidden-information
+    audit into :attr:`hidden_audit`; a leaking frame raises ``FullGameConformanceError``.
+    """
+
+    def __init__(
+        self,
+        session: FullGameBridgeSession,
+        scenario: FutureXmageScenario,
+        policy: ExternalPilotDecisionPolicy,
+        provider: ProviderIdentityWire,
+    ) -> None:
+        self._session = session
+        self.scenario = scenario
+        self.policy = policy
+        self.provider = provider
+        self.game_id = full_game_protocol_id(scenario)
+        self.hidden_audit = FullGameHiddenInformationAudit()
+        self._started = False
+        self._frames_seen = 0
+        self._counted_decisions: set[str] = set()
+
+    def drive(
+        self,
+        *,
+        stop_after: int | None = None,
+        stop_at_turn: int | None = None,
+        progress: list[ProgressEntry] | None = None,
+        stop: dict[str, object] | None = None,
+    ) -> tuple[int, list[str], bool]:
+        """Let the pilots answer until terminal; ``(decision_count, decision_classes, terminal)``.
+
+        Every decision frame is checked for actor-scoped hidden information on the way
+        (:attr:`hidden_audit`), as in :meth:`XmageFullGameRunner.run`.
+        """
+        self._mark_started()
+        runner = self._session.runner
+        runner._hidden_audit = self.hidden_audit
+        try:
+            return runner._drive(
+                self._session.client,
+                self.policy,
+                stop_after=stop_after,
+                stop_at_turn=stop_at_turn,
+                progress=progress,
+                stop=stop,
+            )
+        finally:
+            runner._hidden_audit = None
+
+    def _mark_started(self) -> None:
+        if self._started:
+            raise FullGameConformanceError("full game already started in this match")
+        self._started = True
+
+    def _request(
+        self, message_type: str, payload: dict[str, object] | None = None
+    ) -> dict[str, object]:
+        return self._session.client.request(message_type, payload)
+
+    def _audited(self, status: dict[str, object]) -> dict[str, object]:
+        """The status after the checks of the runner's drive loop: an engine failure raises
+        (redacted, as in ``drive``); a decision frame is audited every time it is delivered and
+        counted once per ``decision_id`` (reading the same open decision again adds nothing)."""
+        failure = status.get("failure")
+        if isinstance(failure, dict):
+            raw_failure = json.dumps(failure, sort_keys=True)
+            raise FullGameConformanceError(
+                "XMage full-game engine failed: "
+                + redacted_summary("ENGINE_FAILURE", (raw_failure,))
+            )
+        decision = status.get("decision")
+        if isinstance(decision, dict):
+            decision_id = decision.get("decision_id")
+            new = not (isinstance(decision_id, str) and decision_id in self._counted_decisions)
+            if new:
+                self._frames_seen += 1
+            _audit_decision_frame(self.hidden_audit, decision, self._frames_seen, count=new)
+            if new and isinstance(decision_id, str):
+                self._counted_decisions.add(decision_id)
+        return status
+
+    def start(self) -> dict[str, object]:
+        """Start play; the status with the first open decision (or terminal), audited."""
+        self._mark_started()
+        return self._audited(self._request("start_full_game"))
+
+    def next_decision(self) -> dict[str, object]:
+        """The current status: the open decision (audited), terminal or failure."""
+        return self._audited(self._request("get_full_game_decision"))
+
+    def answer(self, response: dict[str, object]) -> dict[str, object]:
+        """Submit the answer to the open decision; the status after it, audited."""
+        return self._audited(self._request("submit_full_game_decision", {"response": response}))
+
+    def events(self, offset: int = 0) -> FullGameEventPage:
+        """The engine's public event log after its first ``offset`` events.
+
+        The engine cuts the log (``after_offset``) and refuses an offset past its end
+        (``INVALID_EVENT_OFFSET``); a missing or malformed answer is an error, never an empty
+        page. Not the qualification harness's ``client.events(offset)`` of the mid-game lane,
+        which reads another bridge.
+        """
+        if type(offset) is not int or offset < 0:
+            raise ValueError("offset must be a non-negative integer")
+        raw = self._request("export_event_log", {"after_offset": offset})
+        events = raw.get("events")
+        latest = raw.get("latest_offset")
+        if not isinstance(events, list) or type(latest) is not int:
+            raise FullGameProtocolError(
+                "export_event_log returned no event list", code="INVALID_RESPONSE"
+            )
+        if latest < offset or len(events) != latest - offset:
+            raise FullGameProtocolError(
+                "export_event_log does not match the requested offset", code="INVALID_RESPONSE"
+            )
+        return FullGameEventPage(events=tuple(events), latest_offset=latest)
+
+    def concede_offer(self, player_id: str) -> dict[str, object]:
+        """Whether the engine lets ``player_id`` concede now."""
+        return self._request("get_concede_offer", {"player_id": player_id})
+
+    def concede(self, player_id: str) -> dict[str, object]:
+        """Concede for ``player_id``; the status after it (the next open decision), audited."""
+        return self._audited(
+            self._request(
+                "submit_concede", {"proposal": {"actor_id": player_id, "player_id": player_id}}
+            )
+        )
+
+    def result(self) -> FullGameResultWire:
+        """The engine's raw result of the finished game."""
+        return cast(FullGameResultWire, self._request("get_full_game_result"))
+
+    def shutdown(self) -> object:
+        """End this game in the bridge (the process stays); the raw acknowledgement."""
+        return self._request("shutdown_game")
+
+    def conformance_result(self, result: FullGameResultWire) -> FullGameConformanceResult:
+        """The checked result of this game, resting on how its session's process ended (read
+        from the session, not from the caller) and carrying this match's audit. Before the
+        session is closed there is no disposition, so this raises."""
+        return self._session.runner.conformance_result(
+            self.scenario,
+            self.provider,
+            result,
+            shutdown_disposition=self._session.shutdown_disposition,
+            hidden_audit=self.hidden_audit,
+        )
+
+
+class FullGameBridgeSession:
+    """One bridge process of a runner: open it, create games in it, close it.
+
+    The process is configured from the runner (command, working directory, timeouts, private
+    card repository). It speaks to one caller thread at a time.
+    """
+
+    def __init__(self, runner: XmageFullGameRunner) -> None:
+        command = runner.command
+        if command is None:
+            raise FullGameConformanceError("full-game bridge is not configured")
+        self.runner = runner
+        # looked up at call time, so a test double of the module's client takes effect
+        self.client = _RawFullGameClient(
+            command,
+            cwd=runner.cwd,
+            request_timeout_seconds=runner.request_timeout_seconds,
+            private_card_repository=runner.private_card_repository,
+            shutdown_grace_seconds=runner.shutdown_grace_seconds,
+        )
+
+    @property
+    def shutdown_disposition(self) -> str | None:
+        """How the process ended (``graceful_shutdown``, ``forced_kill``, ...); ``None`` while
+        it runs."""
+        return self.client.shutdown_disposition
+
+    def start(self) -> None:
+        """Start the bridge process."""
+        self.client.start()
+
+    def create_game(
+        self,
+        scenario: FutureXmageScenario,
+        decks: tuple[RulesDeckInput, ...],
+        policy: ExternalPilotDecisionPolicy,
+    ) -> FullGameMatch:
+        """Enter the full-game lane, check the handshake, import the decks and create the game
+        of ``scenario`` (``policy`` from :meth:`XmageFullGameRunner.decision_policy`)."""
+        provider = self.runner._open_game(self.client, scenario, decks)
+        return FullGameMatch(self, scenario, policy, provider)
+
+    def close(self) -> str:
+        """End the process and return its observed disposition."""
+        disposition = self.client.close()
+        self.client.shutdown_disposition = disposition
+        return disposition
+
+    def __enter__(self) -> FullGameBridgeSession:
+        self.start()
+        return self
+
+    def __exit__(self, *_args: object) -> None:
+        self.close()
+
+
 __all__ = [
     "FULL_GAME_DECISION_PROTOCOL_VERSION",
     "FULL_GAME_EVIDENCE_CLASS",
@@ -1959,16 +2266,24 @@ __all__ = [
     "FULL_GAME_SHUTDOWN_FORCED_KILL",
     "FULL_GAME_SHUTDOWN_GRACEFUL",
     "FULL_GAME_SHUTDOWN_UNACKED_EXIT",
+    "FULL_GAME_STARTUP_ATTEMPTS",
+    "FULL_GAME_STARTUP_BACKOFF_SECONDS",
     "XMAGE_FULL_GAME_COMMAND_ENV",
     "ExternalPilotDecisionPolicy",
+    "FullGameBridgeSession",
     "FullGameConformanceError",
     "FullGameConformanceResult",
+    "FullGameEventPage",
+    "FullGameMatch",
     "FullGamePilotBinding",
     "FullGameProtocolError",
     "FullGameReplayGate",
     "FullGameSemanticTapeEvidence",
     "XmageFullGameRunner",
     "_RuntimePilot",
+    "full_game_protocol_id",
+    "is_startup_collision",
     "mana_payment_fit",
+    "public_error",
     "public_full_game_errors",
 ]
