@@ -4,6 +4,12 @@ Two bridge builds are interchangeable for Studio only if, on the same games, the
 the same things (semantic transcript hash) **and were shown the same things** (frame digest).
 The hash alone does not cover the second half. `scripts/benchmark_xmage_full_games.py` records both.
 
+The two last sections of this page, the fixed reference set of the gate and what a result must
+always say, were moved here verbatim from the Studio simulator plan (`STUDIO_PLAN_SIMULATOR.md`
+at commit `41938a58dc8489aa3121a98bab3c64990ac9a7c3`, lines 58 to 92), which is archived since
+the Owner answer 8a of 2026-11-21 (#1667, `docs/OWNER_DECISIONS_STUDIO_20261118.md` section 6).
+`AGENTS.md` §10 points here for the reference set and the commands.
+
 ## Commands
 
 ```bash
@@ -63,3 +69,39 @@ options), life totals and opponents' hand contents, is in the digest.
   be recorded as the new one.
 - `compare` prints both reports' execution settings (workers, `games_per_jvm`, JVM options);
   it does not require them to be equal, because the gate compares an unbatched arm on purpose.
+
+## Reference set for the Studio bridge gate
+
+The set of `docs/performance/XMAGE_EFFICIENCY_OFFENSIVE_2026-10-21.md`, R1: the real
+four-player pod of `scripts/run_real_4p_full_game_smoke.py`, seeds 1 to 36.
+
+```bash
+python scripts/benchmark_xmage_full_games.py run --jar BEFORE.jar --out before.json --seeds 1-36 --workers 4 --games-per-jvm 9 --fast
+python scripts/benchmark_xmage_full_games.py run --jar AFTER.jar  --out after.json  --seeds 1-36 --workers 4 --games-per-jvm 9 --fast
+python scripts/benchmark_xmage_full_games.py compare before.json after.json --expect-games 36 --require-different-jars
+```
+
+`compare` fails on a different semantic hash or status of a game that is in both files. It
+does NOT fail on games missing from both, so the PR also shows that the output says
+`identical 36/36`: all 36 seeds, pod `real`, every game finished. More conditions of the
+gate that the command alone does not enforce:
+
+- BEFORE is built from the merge base of `engine-bridge/`, AFTER from the exact PR head, on
+  the same pin; the PR pastes both jar SHA-256 values and they differ.
+- The PR changes neither `scripts/benchmark_xmage_full_games.py` nor the transcript-hash
+  code in `src/commander_lab/engine/rules/full_game.py`.
+- Tooling for the points below (normalized frame digest, `--expect-games`,
+  `--require-different-jars`): `docs/STUDIO_BRIDGE_GATE_TOOLING.md`.
+- The transcript hash covers decisions and outcomes, not what a pilot was shown. A `NEUTRAL`
+  change therefore also compares the frames the pilots received, per decision, after the
+  same identifier normalization the transcript hash uses (per-run object ids always
+  differ). No tool does that yet: the first `NEUTRAL` PR adds the normalized frame digest to
+  the benchmark rows and to `compare`. The hidden-information tests pass.
+- One AFTER run with `--games-per-jvm 1` on at least 6 seeds whose hashes equal BEFORE, so
+  that batching cannot hide state carried from one game to the next.
+
+## What a result must always say
+
+Seed set, pods, pilot version, engine pin and bridge jar digest; number of games finished,
+failed and skipped; the interval; `SIMULATED_RESULT`. A result produced on a bridge changed
+under the gate is never presented as covered by the sealed qualification epoch.
