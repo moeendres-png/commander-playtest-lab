@@ -13,7 +13,7 @@
 3. **„Besser“** heißt: (a) vorhergesagt, Spearman-Brown aus ICC(2,1); (b) **belegt nur durch G1** (vorhandener unabhängiger Lauf, 70 Karten), und nur wenn das Laufprotokoll zeigt, dass G1 aus einer anderen Familie als R2 stammt; sonst „unbelegt“. Die optionale Retest-Charge 8 wiederholt nur R2 und liefert ausschließlich die Test-Retest-Stabilität von R2 (beschreibend), nie einen Beleg für „besser“.
 4. **Bias-Korrektur nach Kartenart** wird nur **berichtet und dem Owner vorgeschlagen**, nie still angewendet. Bestätigungstest ausschließlich auf den neuen Spells aus Welle 2 (die −5,6 aus Welle 1 waren explorativ). Für Länder gilt „kein Schluss“, weil Welle 2 nur 12 Länder enthält.
 5. **|ΔH| ≥ 15:** markieren, nie löschen, nie durch eine Einzelbewertung ersetzen.
-6. Abbruch- und „Kein-Schluss“-Regeln A1 bis A10 (§8). Das **Auswerteskript** kommt in einen eigenen PR und wird committet, **bevor** eine Ausgabe geöffnet wird (§9).
+6. Abbruch- und „Kein-Schluss“-Regeln A1 bis A11 (§8). Das **Auswerteskript** kommt in einen eigenen PR und wird committet, **bevor** eine Ausgabe geöffnet wird (§9).
 
 ## 1. Ausgangslage (Welle 1, PR #1758, Bericht `docs/analysis-reports/rating_second_run_20261122.md`)
 
@@ -87,11 +87,14 @@ Berichtet je: gesamt (922), Welle 1 (300) und Welle 2 (622), Schicht, Kartenart 
 
 | Urteil (Spells) | Bedingung auf b_W2 = mittlere d der 580 |
 |---|---|
-| **bestätigt** | b_W2 ≤ −3,0 **und** obere Grenze des 95-%-Cluster-Intervalls < 0 **und** b < 0 in mindestens 6 der 7 Chargen (je Charge die mittlere d ihrer Nicht-Anker-Spells) |
-| **kleiner bestätigt** | Cluster-Intervall ganz < 0 und b < 0 in mindestens 6 von 7 Chargen, aber −3,0 < b_W2 → kein Korrekturvorschlag (unter einer halben Stufe von 5) |
-| **nicht bestätigt / kein Schluss** | jeder andere Fall (Cluster-Intervall schließt 0 ein, b_W2 > 0 oder weniger als 6 von 7 Chargen mit b < 0) |
+| **bestätigt** | b_W2 ≤ −3,0 **und** obere Grenze des 95-%-Cluster-Intervalls < 0 **und** b < 0 in mindestens m − 1 der m gültigen Chargen (je Charge die mittlere d ihrer Nicht-Anker-Spells) **und** m ≥ 6 |
+| **kleiner bestätigt** | m ≥ 6, Cluster-Intervall ganz < 0 und b < 0 in mindestens m − 1 von m gültigen Chargen, aber −3,0 < b_W2 → kein Korrekturvorschlag (unter einer halben Stufe von 5) |
+| **kein Schluss** | weniger als 6 gültige Chargen (m < 6, A11) |
+| **nicht bestätigt** | m ≥ 6 und jeder andere Fall (Cluster-Intervall schließt 0 ein, b_W2 > 0 oder weniger als m − 1 von m Chargen mit b < 0) |
 
-**Intervall für diesen Test (Cluster-Bootstrap):** Weil Fehler innerhalb einer Charge gemeinsam sein können (Welle 1 je Datei: −2,4 · −3,6 · −6,3), ist das Intervall ein zweistufiger Bootstrap: zuerst 7 Chargen mit Zurücklegen ziehen, dann innerhalb jeder gezogenen Charge ihre Nicht-Anker-Spells mit Zurücklegen; b* = Mittel über alle gezogenen Karten; 5000 Ziehungen, `random.Random(20261124)`, 95 % Perzentil. Der einfache Karten-Bootstrap wird daneben nur beschreibend berichtet.
+**Gültige Chargen m:** Chargen 1 bis 7 außer denen, die nach A2 (zweiter Verstoß) oder A4 (Skalenstauchung) nicht gepoolt werden; b_W2 ist die mittlere d der Nicht-Anker-Spells dieser m Chargen. Ohne Ausfall ist m = 7 (Bedingung: 6 von 7).
+
+**Intervall für diesen Test (Cluster-Bootstrap):** Weil Fehler innerhalb einer Charge gemeinsam sein können (Welle 1 je Datei: −2,4 · −3,6 · −6,3), ist das Intervall ein zweistufiger Bootstrap: zuerst m gültige Chargen aus den m gültigen mit Zurücklegen ziehen, dann innerhalb jeder gezogenen Charge ihre Nicht-Anker-Spells mit Zurücklegen; b* = Mittel über alle gezogenen Karten; 5000 Ziehungen, `random.Random(20261124)`, 95 % Perzentil. Der einfache Karten-Bootstrap wird daneben nur beschreibend berichtet.
 
 - **Länder:** Welle 2 enthält nur 12 Anker-Länder → **„kein Schluss“** für eine Länder-Korrektur. Die Verzerrung über alle 65 Länder (Welle 1 + 2) wird explorativ berichtet; kein Vorschlag.
 - **Welleneffekt (A9):** Vergleich der Verzerrung in vergleichbaren Zellen (Rest-Spells ohne Anker: Welle 1 n = 115, Welle 2 n = 548): Unterschied > 3 Punkte und Intervall der Differenz ohne 0 → „Welleneffekt“; dann wird jede Korrektur je Welle berichtet und kein gemeinsamer Wert vorgeschlagen.
@@ -129,6 +132,7 @@ Berichtet je: gesamt (922), Welle 1 (300) und Welle 2 (622), Schicht, Kartenart 
 | A8 | Schwellen, Klassen, Mengen oder Formeln müssten nach dem Öffnen geändert werden | nicht ändern; Lauf „nicht nach Plan“ kennzeichnen, Abweichung explorativ nennen |
 | A9 | Welleneffekt (§6) | Korrektur je Welle berichten, kein gemeinsamer Vorschlag |
 | A10 | Auswerteskript nicht vor dem Öffnen committet oder Ausgabe-Hashes nicht vor dem Öffnen gepostet | Ergebnisse nur als „explorativ, nicht nach Plan“; kein Owner-Vorschlag zu K1 |
+| A11 | weniger als 6 gültige Chargen für den Spells-Test (§6; Ausfälle nach A2 zweiter Verstoß oder A4) | **kein Schluss** zur Bias-Korrektur, kein K1-Vorschlag; alle übrigen Kennzahlen werden über die gültigen Chargen berichtet |
 
 **Markierung statt Löschen (|d| ≥ 15):** Jede Karte mit |d| ≥ 15 bekommt die Marke `abweichung_ge15` (ab 30 zusätzlich `abweichung_ge30`), bleibt mit beiden Werten und `H_pooled` im Datensatz und wird im Bericht gelistet (Karte, beide H, beide Begründungen). Sie wird nie gelöscht, nie auf eine der beiden Bewertungen zurückgesetzt und nie neu bewertet. Eine spätere Adjudikation (dritter Blick) braucht ein Owner-Go. Berichtet: Anteil gesamt, je Welle (Welle 1: 24,5 % der 265) und je Klasse.
 
@@ -142,9 +146,10 @@ Berichtet je: gesamt (922), Welle 1 (300) und Welle 2 (622), Schicht, Kartenart 
   1. Dieser PR (Plan, Skript, Tests, Eingaben) steht im Repo; erst dann bekommt der Co-Lead die Pfade.
   2. Lauf der Chargen 1 bis 7 (und optional 8) nach §2, Laufprotokoll.
   3. SHA-256 der Ausgaben in #1404 posten, bevor eine Ausgabe geöffnet wird.
-  4. Auswerteskript in einem eigenen PR: setzt §3 bis §8 mechanisch um, mit synthetischen Tests; committet **vor** dem ersten Öffnen der Ausgaben (A10). Verpflichtende Rot/Grün-Tests (heute NOT_TESTABLE, weil noch kein Auswertecode existiert): (a) eine Karte mit nur einer gültigen Bewertung bekommt `H_pooled = H_F1`, `n_bewertungen = 1` und die Marke (ein Mutant, der trotzdem mittelt, wird rot); (b) die Schwelle des Spells-Tests −3,0 (ein Mutant mit −1,0 ändert das Urteil auf synthetischen Daten mit b = −2 und wird rot); dazu Cluster-Bootstrap und die 6-von-7-Bedingung.
+  4. Auswerteskript in einem eigenen PR: setzt §3 bis §8 mechanisch um, mit synthetischen Tests; committet **vor** dem ersten Öffnen der Ausgaben (A10). Verpflichtende Rot/Grün-Tests (heute NOT_TESTABLE, weil noch kein Auswertecode existiert): (a) eine Karte mit nur einer gültigen Bewertung bekommt `H_pooled = H_F1`, `n_bewertungen = 1` und die Marke (ein Mutant, der trotzdem mittelt, wird rot); (b) die Schwelle des Spells-Tests −3,0 (ein Mutant mit −1,0 ändert das Urteil auf synthetischen Daten mit b = −2 und wird rot); dazu Cluster-Bootstrap über die m gültigen Chargen, die Bedingung „m − 1 von m“ und „kein Schluss“ bei m < 6 (synthetisch mit m = 7, 6 und 5).
   5. Wiederholungen und Nachholungen nur so: A2 ungültige Ausgabe zuerst verschieben und hashen (A2), A1/A7 Wiederaufnahme ab k+1; jede neue Ausgabe wird nach Schritt 3 eingefroren, bevor das Auswerteskript sie liest.
-  6. Auswertung, Bericht unter `docs/analysis-reports/`, Ausgaben unter `second_run_full_20261122/`, Owner-Vorschlag (Anzeige H_pooled, K0/K1). Nichts am Produkt ohne Owner-Entscheid.
+  6. **Verweis-Treffer klassifizieren (Pflicht, vor jeder Differenz):** Das committete Auswerteskript gibt in einem ersten Schritt nur die Treffer der Verweis-Liste aus (Karte, Charge, Feld, Satz), ohne Bewertungen; jeder Treffer wird nach der Zähl-Regel in §9 von Hand eingestuft (zählt / zählt nicht + Buchstabe a–c, Zweifelsfall zählt), die vollständige Liste in #1404 gepostet, und daraus folgt A2. Erst danach wird irgendeine Differenz zwischen erster und zweiter Bewertung berechnet.
+  7. Auswertung, Bericht unter `docs/analysis-reports/`, Ausgaben unter `second_run_full_20261122/`, Owner-Vorschlag (Anzeige H_pooled, K0/K1). Nichts am Produkt ohne Owner-Entscheid.
 
 ## 10. Grenzen
 
