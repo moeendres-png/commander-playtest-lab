@@ -928,8 +928,8 @@ Auslegung des Co-Leads (Einspruch des Owners jederzeit möglich).
 
 ### E20: Ein-Klick-Starter für das Studio (2026-11-22, #1519, #1167)
 
-Owner, 2026-11-22, Session-Chat; Niederschrift des Co-Leads. Owner-Wortlaut (nur der Text in
-Anführungszeichen): „Können wir das ganze eventuell so umbauen/umsetzen, dass das starten des
+Owner, 2026-11-22, Session-Chat; Niederschrift des Co-Leads, festgehalten in #1519, Kommentar
+7087031228. Owner-Wortlaut (nur der Text in Anführungszeichen): „Können wir das ganze eventuell so umbauen/umsetzen, dass das starten des
 Programms einfacher macht? Dann kann ich es auch leichter testen“. Alles Weitere ist Auslegung des
 Co-Leads bzw. der umsetzenden Sitzung (Einspruch des Owners jederzeit möglich).
 
@@ -937,9 +937,13 @@ Co-Leads bzw. der umsetzenden Sitzung (Einspruch des Owners jederzeit möglich).
    `scripts/studio_oneclick.ps1` (Linux/WSL: `scripts/studio_oneclick.sh`), die Logik liegt in
    `src/commander_lab/studio/oneclick.py` (acht Schritte, Bedienung in
    `docs/STUDIO_START_EINFACH.md`). Der bisherige Weg (`scripts/studio_start.ps1`) bleibt.
-2. **Netzwege (Auslegung des Co-Leads):** „einfacher starten“ deckt genau zwei Abrufe: `git pull
-   --ff-only` (nur auf sauberem `main` mit Gegenstelle) und den Download des Artefakts von
-   `release-artifacts.yml` auf `main` über die GitHub-CLI `gh` mit der Anmeldung des Owners. Eine
+2. **Netzwege (Auslegung des Co-Leads):** „einfacher starten“ deckt als neuen Abruf nur den
+   Download des Artefakts von `release-artifacts.yml` (Ereignis `push` auf `main` dieses
+   Repositorys, nie ein Pull-Request-Lauf) über die GitHub-CLI `gh` mit der Anmeldung des Owners.
+   Daneben laufen die schon dokumentierten Wege der Setup-Seite: `git pull --ff-only` (nur auf
+   sauberem `main` mit Gegenstelle), `pip` aus PyPI nach `requirements/lock.txt` (hash-gebunden,
+   nur beim ersten Lauf und bei geänderter Lock-Datei) und, nur nach Bestätigung, winget sowie der
+   Maven-Eigenbau (Engine-Quellen und Maven-Bibliotheken). Eine
    JAR gilt nur, wenn ihre SHA-256 zur `.sha256`-Datei und zu `PLAYTEST_LAB_SHA256SUMS.txt` passt
    und `ENGINE_PIN.txt` gleich dem Pin aus `config/rules_engines.json` ist; eine selbst gebaute
    oder vorhandene JAR ohne Prüfdateien nur, wenn die Engine selbst diesen Pin meldet. Fork und

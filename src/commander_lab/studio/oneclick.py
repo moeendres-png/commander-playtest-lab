@@ -23,8 +23,9 @@ was ``docs/STUDIO_OWNER_PC_SETUP.md`` von Hand beschreibt:
 
 Das Modul selbst importiert beim Laden nur die Standardbibliothek: es läuft mit dem System-Python,
 bevor ``.venv`` existiert. Alles, was Pakete braucht, läuft als Kindprozess mit dem Python aus
-``.venv``. Netz: nur ``git pull`` und der Artefakt-Download über ``gh``; keine Preise, keine
-Telemetrie; Tokens werden weder gelesen noch ausgegeben.
+``.venv``. Netz: ``git pull``, ``pip`` aus PyPI (hash-gebunden, nur bei geänderter Lock-Datei),
+der Artefakt-Download über ``gh`` (neu) und, nur nach Bestätigung, winget und der Maven-Eigenbau;
+keine Preise, keine Telemetrie; Tokens werden weder gelesen noch ausgegeben.
 """
 
 from __future__ import annotations
@@ -447,7 +448,7 @@ def richte_venv_ein(u: Umgebung, bericht: Bericht, *, nur_pruefen: bool, neu: bo
         return False
     marker = u.repo / ".venv" / PACKAGES_MARKER
     wanted = pakete_pruefsumme(u.repo)
-    recorded = marker.read_text(encoding="utf-8").split()[0] if marker.is_file() else ""
+    recorded = (marker.read_text(encoding="utf-8").split() or [""])[0] if marker.is_file() else ""
     if recorded == wanted and not neu:
         u.sagen("  Die Python-Pakete sind aktuell.")
         bericht.add("Python-Pakete", GRUEN, "Die Python-Pakete sind installiert und aktuell.")
@@ -594,8 +595,17 @@ def engine_meldet_pin(u: Umgebung, java: str, jar: Path) -> str | None:
     return None
 
 
-def stelle_bereit(source: Path, engine_dir: Path, sha: str, pin: str) -> None:
-    """Copy a verified JAR next to its sidecars: temp file in the same folder, re-hash, replace."""
+def stelle_bereit(source: Path, engine_dir: Path, sha: str, pin: str) -> bool:
+    """Copy a verified JAR next to its sidecars: temp file in the same folder, re-hash, replace.
+    False when copying failed (for example a JAR held open by a running game on Windows)."""
+    try:
+        _stelle_bereit(source, engine_dir, sha, pin)
+    except (OSError, RuntimeError):
+        return False
+    return True
+
+
+def _stelle_bereit(source: Path, engine_dir: Path, sha: str, pin: str) -> None:
     engine_dir.mkdir(parents=True, exist_ok=True)
     temp = engine_dir / f"{JAR_NAME}.neu"
     shutil.copyfile(source, temp)
@@ -634,7 +644,7 @@ def waehle_artefakt(u: Umgebung, gh: str, local_head: str) -> tuple[Artefakt | N
         u,
         gh,
         f"repos/{REPO_SLUG}/actions/workflows/{RELEASE_WORKFLOW}/runs"
-        "?branch=main&status=success&per_page=20",
+        "?branch=main&event=push&status=success&per_page=20",
     )
     runs = runs_doc.get("workflow_runs") if isinstance(runs_doc, dict) else None
     if not isinstance(runs, list):
@@ -645,11 +655,12 @@ def waehle_artefakt(u: Umgebung, gh: str, local_head: str) -> tuple[Artefakt | N
         if isinstance(run, dict)
         and run.get("head_branch") == "main"
         and run.get("conclusion") == "success"
+        and run.get("event") == "push"
         and run.get("path") == RELEASE_WORKFLOW_PATH
         and isinstance(run.get("id"), int)
         and isinstance(run.get("head_sha"), str)
-        and isinstance(run.get("repository"), dict)
-        and run["repository"].get("full_name") == REPO_SLUG
+        and isinstance(run.get("head_repository"), dict)
+        and run["head_repository"].get("full_name") == REPO_SLUG
     ]
     usable.sort(key=lambda run: run.get("head_sha") != local_head)  # stable: own head first
     for run in usable[:5]:
@@ -712,7 +723,9 @@ def hole_artefakt(u: Umgebung, pin: str, java: str | None) -> tuple[bool, str]:
     run_id, name, head_sha, size = picked.run_id, picked.name, picked.head_sha, picked.size
     u.sagen(f"  Ich lade das Engine-Paket vom Stand {head_sha[:10]} (etwa {size // 1_000_000} MB).")
     u.data.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="engine-download-", dir=u.data) as temp:
+    with tempfile.TemporaryDirectory(
+        prefix="engine-download-", dir=u.data, ignore_cleanup_errors=True
+    ) as temp:
         target = Path(temp) / "artefakt"
         done = u.run(
             [gh, "run", "download", str(run_id), "-R", REPO_SLUG, "-n", name, "-D", str(target)],
@@ -729,7 +742,8 @@ def hole_artefakt(u: Umgebung, pin: str, java: str | None) -> tuple[bool, str]:
             reported = engine_meldet_pin(u, java, target / JAR_NAME)
             if reported is not None and reported != pin:
                 return False, "Die Engine meldet eine andere Version als config/rules_engines.json."
-        stelle_bereit(target / JAR_NAME, u.data / "engine", sha, pin)
+        if not stelle_bereit(target / JAR_NAME, u.data / "engine", sha, pin):
+            return False, "Die Engine-Datei ließ sich nicht in den Datenordner kopieren."
     return True, f"Engine-Paket vom Stand {head_sha[:10]} geprüft und bereitgestellt."
 
 
@@ -770,7 +784,8 @@ def baue_mit_maven(u: Umgebung, pin: str, java: str | None) -> tuple[bool, str]:
             False,
             "Die selbst gebaute Engine meldet nicht die Version aus config/rules_engines.json.",
         )
-    stelle_bereit(jar, u.data / "engine", sha256_datei(jar), pin)
+    if not stelle_bereit(jar, u.data / "engine", sha256_datei(jar), pin):
+        return False, "Die Engine-Datei ließ sich nicht in den Datenordner kopieren."
     return True, "Engine selbst gebaut, Version geprüft und bereitgestellt."
 
 
@@ -802,8 +817,13 @@ def sorge_fuer_engine(
         bericht.add("Engine", GRUEN, "Die Engine ist da; Prüfsumme und Version passen.")
         return False
     jar = engine_dir / JAR_NAME
-    if jar.is_file() and java and not nur_pruefen and engine_meldet_pin(u, java, jar) == pin:
-        stelle_bereit(jar, engine_dir, sha256_datei(jar), pin)
+    if (
+        jar.is_file()
+        and java
+        and not nur_pruefen
+        and engine_meldet_pin(u, java, jar) == pin
+        and stelle_bereit(jar, engine_dir, sha256_datei(jar), pin)
+    ):
         u.sagen("  Die vorhandene Engine meldet die richtige Version; Prüfdateien ergänzt.")
         bericht.add(
             "Engine", GRUEN, "Die Engine ist da; die Engine selbst meldet die richtige Version."
@@ -935,8 +955,7 @@ def fasse_doctor_zusammen(u: Umgebung, bericht: Bericht, report: dict[str, objec
         )
         return
     checks = report.get("checks")
-    assert isinstance(checks, list)
-    for entry in checks:
+    for entry in checks if isinstance(checks, list) else []:
         if not isinstance(entry, dict):
             continue
         name = str(entry.get("name", "?"))
@@ -961,13 +980,16 @@ def datenordner_leer(data: Path) -> bool:
     if not db.is_file():
         return True
     try:
-        connection = sqlite3.connect(f"{db.as_uri()}?mode=ro", uri=True)
+        connection = sqlite3.connect(f"{db.as_uri()}?mode=ro", uri=True, timeout=1)
     except sqlite3.Error:
         return False
     try:
         row = connection.execute("SELECT COUNT(*) FROM card").fetchone()
+    except sqlite3.OperationalError as error:
+        # Only a store without the card table is empty; a locked or damaged store is not.
+        return "no such table" in str(error)
     except sqlite3.Error:
-        return True  # no card table yet: nothing imported
+        return False
     finally:
         connection.close()
     return not row or int(row[0]) == 0
@@ -1149,6 +1171,14 @@ def ablauf(u: Umgebung, args: argparse.Namespace, neu_starten: Callable[[], int]
         return 1
     java = pruefe_java(u, bericht, nur_pruefen=nur)
 
+    if not nur and u.port_offen(args.port) and u.studio_antwortet(args.port):
+        url = f"http://127.0.0.1:{args.port}/"
+        u.sagen("")
+        u.sagen(f"Das Studio läuft schon; ich öffne nur den Browser: {url}")
+        u.sagen("Zum Aktualisieren und Einrichten erst das Studio schließen (Strg+C im Fenster).")
+        u.browser(url)
+        return 0
+
     schritt(u, 2, "Programm aktualisieren")
     if args.ohne_update:
         u.sagen("  Übersprungen.")
@@ -1237,7 +1267,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         cmd = [sys.executable, "-m", "commander_lab.studio.oneclick", *raw, "--ohne-update"]
         return u.run(cmd, cwd=u.repo, env=kind_env(u), capture=False).returncode
 
-    return ablauf(u, args, neu_starten)
+    try:
+        return ablauf(u, args, neu_starten)
+    except KeyboardInterrupt:
+        u.sagen("Beendet.")
+        return 130
 
 
 if __name__ == "__main__":

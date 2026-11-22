@@ -39,7 +39,7 @@ FORBIDDEN_IN_WRAPPERS = re.compile(
 FORBIDDEN_IN_MODULE = re.compile(
     r"reset\s*\"?,?\s*\"?--hard|\"reset\"|\"stash\"|\"clean\"|\"auth\",\s*\"token\"|"
     r"GH_TOKEN|GITHUB_TOKEN|cardmarket|preisf|price|0\.0\.0\.0|rmtree|shell=True|"
-    r"\"--force\"|\"push\"",
+    r"\"--force\"|\(\s*\"push\"",
     re.IGNORECASE,
 )
 
@@ -149,7 +149,8 @@ def _doc_commands() -> list[list[str]]:
     text = DOC.read_text(encoding="utf-8")
     found: list[list[str]] = []
     for line in re.findall(
-        r"studio_oneclick\.(?:ps1|sh)((?: --?[\w-]+(?: [^\s`-][^\s`]*)?)*)", text
+        r"(?:studio_oneclick\.(?:ps1|sh)|Studio starten\.cmd\")((?: --?[\w-]+(?: [^\s`-][^\s`]*)?)*)",
+        text,
     ):
         found.append(shlex.split(line))
     for flag in re.findall(r"`(--[\w-]+(?: [^`<]+| <[^>]+>)?)`", text):

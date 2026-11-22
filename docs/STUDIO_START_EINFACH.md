@@ -17,10 +17,11 @@ geändert hast), die Python-Pakete einrichten, die Engine bereitstellen, die Sch
 der Engine bauen, die Systemprüfung, die ersten Daten importieren, das Studio starten. Beim ersten
 Mal fragt er einmal, ob er eine Verknüpfung „Commander Studio“ auf den Desktop legen soll.
 
-Nur prüfen, ohne etwas zu ändern (in einer Eingabeaufforderung im Programmordner):
+Nur prüfen, ohne etwas zu ändern (in einer Eingabeaufforderung im Programmordner; ob die
+Schalter dort ankommen, ist am PC zu prüfen):
 
-```powershell
-.\scripts\studio_oneclick.ps1 --nur-pruefen
+```bat
+"Studio starten.cmd" --nur-pruefen
 ```
 
 Weitere Schalter: `--ohne-start` (nur einrichten), `--ohne-update` (kein Aktualisieren),
@@ -42,15 +43,19 @@ Programm-Installationen fragt er trotzdem). Der alte Weg über `scripts/studio_s
 | Schnellstart-Datei (gelb) | Partien starten etwas langsamer. | Nichts nötig; der Starter baut sie beim nächsten Mal. |
 | Kartendaten fehlen (gelb) | Für den ersten Import fehlt die Scryfall-Datei „Oracle Cards“. Sie wird nie automatisch geladen. | Bei scryfall.com/docs/api/bulk-data „Oracle Cards“ laden und in `%LOCALAPPDATA%\CommanderStudio\kartendaten\` legen, neu starten. |
 | Erster Import nicht vollständig | `import-all` ist abgebrochen. | Meldungen lesen; beim nächsten Start versucht er es erneut. |
-| Port belegt | Ein anderes Programm nutzt Port 8765. | Mit `--port 8766` starten. Läuft dort schon das Studio, öffnet er nur den Browser. |
+| Port belegt | Ein anderes Programm nutzt Port 8765. | Mit `--port 8766` starten. |
+| Das Studio läuft schon | Der Starter öffnet nur den Browser und ändert nichts. | Zum Aktualisieren erst das Studio schließen (Strg+C in seinem Fenster), dann neu starten. |
 | Datenordner | Kein Schreibrecht oder Ordner im Programmordner. | `COMMANDER_LAB_STUDIO_DATA` auf einen Ordner außerhalb des Programmordners setzen. |
 
 ## Was der Starter nie tut
 
 - Er installiert nichts ohne dein getipptes „J“ und ändert nie Fork oder Pin der Engine.
 - Er setzt nichts zurück (`reset`, `stash`, `clean`) und löscht keine Dateien von dir.
-- Er lädt nur zwei Dinge aus dem Netz: den neuen Programmstand (`git pull`) und das
-  Engine-Paket aus GitHub Actions über `gh`. Keine Preise, keine Nutzungsdaten, kein Upload.
+- Aus dem Netz holt er: den neuen Programmstand (`git pull`), die Python-Pakete von PyPI (nur
+  beim ersten Mal und wenn sich `requirements/lock.txt` ändert, jede Datei mit fester Prüfsumme)
+  und das Engine-Paket aus GitHub Actions über `gh` (das ist neu). Nur nach deinem „J“ kommen
+  winget-Installationen und der Eigenbau mit Maven dazu (Engine-Quellen und Maven-Bibliotheken).
+  Keine Preise, keine Nutzungsdaten, kein Upload.
 - Er gibt keine Zugangsschlüssel aus und speichert keine.
 - Sammlung und Decks bleiben im Datenordner (`%LOCALAPPDATA%\CommanderStudio`), nie im
   Programmordner. Das Studio hört nur auf `127.0.0.1`.

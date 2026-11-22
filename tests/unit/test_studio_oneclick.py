@@ -344,7 +344,8 @@ def _run(run_id: int, sha: str, **over: object) -> dict[str, object]:
         "head_branch": "main",
         "conclusion": "success",
         "path": oc.RELEASE_WORKFLOW_PATH,
-        "repository": {"full_name": oc.REPO_SLUG},
+        "event": "push",
+        "head_repository": {"full_name": oc.REPO_SLUG},
     }
     base.update(over)
     return base
@@ -362,7 +363,8 @@ def test_artifact_choice_rejects_foreign_failed_and_expired_runs(world: World) -
         _runs(
             _run(1, "1" * 40, head_branch="feature"),
             _run(2, "2" * 40, conclusion="failure"),
-            _run(3, "3" * 40, repository={"full_name": "someone/fork"}),
+            _run(3, "3" * 40, head_repository={"full_name": "someone/fork"}),
+            _run(6, "6" * 40, event="pull_request"),
             _run(4, "4" * 40, path=".github/workflows/other.yml"),
             _run(5, "5" * 40),
         ),
@@ -370,7 +372,8 @@ def test_artifact_choice_rejects_foreign_failed_and_expired_runs(world: World) -
     run.on(lambda c: "actions/runs/5/artifacts" in " ".join(c), _arts("5" * 40, expired=True))
     picked, _reason = oc.waehle_artefakt(u, "gh", HEAD)
     assert picked is None
-    assert not any("runs/1/" in c or "runs/2/" in c or "runs/3/" in c for c in run.joined().split())
+    assert not any(f"runs/{n}/" in c for n in (1, 2, 3, 4, 6) for c in run.joined().split())
+    assert "event=push" in run.calls[0][-1]
 
 
 def test_artifact_choice_prefers_the_local_head(world: World) -> None:
@@ -694,3 +697,68 @@ def test_a_yellow_line_alone_is_not_all_ready(world: World) -> None:
     oc.zusammenfassung(u, bericht)
     assert not bericht.alles_bereit
     assert "Es fehlt:" in out and "Alles bereit." not in out
+
+
+def test_a_fork_pull_request_run_from_a_branch_named_main_is_never_used(world: World) -> None:
+    u, run, _out = world
+    fork = _run(7, HEAD, event="pull_request", head_repository={"full_name": "x/fork"})
+    run.on(has("api"), _runs(fork))
+    run.on(lambda c: "actions/runs/7/artifacts" in " ".join(c), _arts(HEAD))
+    picked, _reason = oc.waehle_artefakt(u, "gh", HEAD)
+    assert picked is None
+
+
+def test_a_locked_or_damaged_store_is_not_empty(world: World) -> None:
+    u, run, _out = world
+    u.data.mkdir(parents=True)
+    (u.data / oc.DATABASE_NAME).write_bytes(b"this is not a sqlite database at all" * 40)
+    scry = u.data / oc.SCRYFALL_FOLDER / "oracle-cards-1.jsonl.gz"
+    scry.parent.mkdir(parents=True)
+    scry.write_bytes(b"x")
+    assert oc.datenordner_leer(u.data) is False
+    oc.erstimport(u, oc.Bericht(), None, nur_pruefen=False)
+    assert not run.ran("import-all")
+
+
+def test_a_store_without_the_card_table_is_empty(world: World) -> None:
+    u, _run, _out = world
+    u.data.mkdir(parents=True)
+    with sqlite3.connect(u.data / oc.DATABASE_NAME) as db:
+        db.execute("CREATE TABLE meta (key TEXT)")
+    db.close()
+    assert oc.datenordner_leer(u.data) is True
+
+
+def test_a_running_studio_stops_the_starter_before_any_change(world: World) -> None:
+    u, run, out = world
+    _gh_world(u, run)
+    u.port_offen = lambda _port: True
+    u.studio_antwortet = lambda _port: True
+    assert oc.ablauf(u, _args(), lambda: 99) == 0
+    joined = run.joined().split()
+    for word in ("pull", "pip", "venv", "download", "serve", "import-all", "build-appcds"):
+        assert word not in joined, word
+    assert "BROWSER http://127.0.0.1:8765/" in out
+
+
+def test_a_failed_copy_is_reported_not_raised(tmp_path: Path) -> None:
+    blocked = tmp_path / "blocked"
+    blocked.write_text("a file where the engine folder should be", encoding="utf-8")
+    source = tmp_path / "x.jar"
+    source.write_bytes(b"JAR")
+    assert oc.stelle_bereit(source, blocked, _sha(b"JAR"), PIN) is False
+
+
+def test_a_store_locked_by_a_running_studio_is_not_empty(world: World) -> None:
+    u, _run, _out = world
+    u.data.mkdir(parents=True)
+    holder = sqlite3.connect(u.data / oc.DATABASE_NAME)
+    try:
+        holder.execute("CREATE TABLE card (oracle_id TEXT)")
+        holder.commit()
+        holder.execute("BEGIN EXCLUSIVE")
+        holder.execute("INSERT INTO card VALUES ('x')")
+        assert oc.datenordner_leer(u.data) is False
+    finally:
+        holder.rollback()
+        holder.close()

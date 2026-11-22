@@ -27,3 +27,5 @@ tests/unit/test_j_p5_optimizer_validation.py -text
 
 # Windows batch files need CRLF line endings on checkout (one-click starter, Refs #1519).
 *.cmd text eol=crlf
+# Shell scripts keep LF on a Windows checkout so WSL can run them from /mnt/c.
+*.sh text eol=lf

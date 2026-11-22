@@ -22,7 +22,8 @@ function Test-Python([string[]]$command) {
 }
 
 $python = $null
-$candidates = @(@('py', '-3'), @('python'), @((Join-Path $repo '.venv\Scripts\python.exe')))
+# 3.12 first: the hash-locked packages are proven on 3.12 (release-artifacts.yml).
+$candidates = @(@('py', '-3.12'), @('py', '-3'), @('python'), @((Join-Path $repo '.venv\Scripts\python.exe')))
 foreach ($candidate in $candidates) {
     if (Get-Command $candidate[0] -ErrorAction SilentlyContinue) {
         if (Test-Python $candidate) { $python = $candidate; break }
