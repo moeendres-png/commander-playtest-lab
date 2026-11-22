@@ -1,5 +1,12 @@
 # Owner decision: permanent maximum of six players per simulation (2026-11-08)
 
+> **Superseded for SIMULATE on 2026-11-22 (register `docs/OWNER_DECISIONS_STUDIO_20261118.md`,
+> E17, #1672).** The Owner instructed: „ja kümmer dich drum, dass es halt geht und führe es auch
+> ein für die Simulationen“ (Co-Lead record, #1672 comment 7071394382). Simulations (AI on every
+> seat: series, batches, `compare-decks`, experiments) run two to eight seats; PLAY and the Partie
+> page stay at six; nine or more seats stay refused everywhere. The text below is the decision of
+> 2026-11-08 and stays as history (E10); where it says six for a simulation, E17 governs.
+
 **Decision source:** direct Owner instruction on 2026-11-08 during the Playgroup Live architecture review. This is the newest explicit choice for the supported Commander game size. It supersedes prior research suggestions to explore 7–8 player tables.
 
 ## Binding product scope

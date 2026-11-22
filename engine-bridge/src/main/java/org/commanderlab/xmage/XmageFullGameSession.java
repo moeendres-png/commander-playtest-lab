@@ -46,8 +46,9 @@ final class XmageFullGameSession {
     static final int MIN_PLAYERS = 2;
     static final int MAX_PLAYERS = 8;
     /**
-     * The mid-game native starting-state lane (restoration plans, its capability handshake)
-     * keeps 2..6 principals: #1672 widens only the full-game lane.
+     * What the mid-game native starting-state lane announces in its capability handshake: it
+     * keeps 2..6 principals, #1672 widens only the full-game lane. A restoration plan on the
+     * full-game lane follows MAX_PLAYERS (the F5 scenarios at seven and eight seats use it).
      */
     static final int MIDGAME_MAX_PLAYERS = 6;
     static final String EVIDENCE_CLASS = "technical_conformance_only";

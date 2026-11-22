@@ -298,9 +298,10 @@ def _runner_with_bridge(
 # --- Constant guards: MIN/MAX revert to 4-only must fail --------------------
 
 
-def test_supported_cardinality_constants_cover_two_to_six() -> None:
+def test_supported_cardinality_constants_cover_two_to_eight() -> None:
+    # 7/8 seats since #1672 (SIMULATE); the conformance table below stays 2..6 (not widened)
     assert XmageFullGameRunner.MIN_PLAYERS == 2
-    assert XmageFullGameRunner.MAX_PLAYERS == 6
+    assert XmageFullGameRunner.MAX_PLAYERS == 8
 
 
 def test_conformance_script_covers_two_to_six_plus_fail_closed_seven() -> None:
@@ -350,15 +351,15 @@ def test_fail_closed_probe_never_launches_engine(tmp_path: Path) -> None:
 # --- Layered 6P rejection ----------------------------------------------------
 
 
-def test_scenario_model_rejects_seven_players() -> None:
+def test_scenario_model_rejects_nine_players() -> None:
     with pytest.raises(ValidationError):
         FutureXmageScenario(
             candidate_id="fixture-1",
             deck_hash="a" * 64,
-            opponent_deck_ids=tuple(f"fixture-{seat}" for seat in range(2, 8)),
-            player_count=7,
+            opponent_deck_ids=tuple(f"fixture-{seat}" for seat in range(2, 10)),
+            player_count=9,
             seat=1,
-            scenario_id="ws223-seven",
+            scenario_id="ws223-nine",
             seed=1,
             xmage_commit=XMAGE_COMMIT,
             bridge_version="xmage-engine-bridge-0.1.0-SNAPSHOT",
@@ -368,19 +369,27 @@ def test_scenario_model_rejects_seven_players() -> None:
         )
 
 
-def test_runner_validation_rejects_smuggled_seven_player_scenario() -> None:
-    scenario = _scenario(6).model_copy(update={"player_count": 7})
-    decks = tuple(_deck(seat) for seat in range(1, 7))
-    pilots = tuple(_binding(seat, f"fixture-{seat}") for seat in range(1, 7))
+def test_runner_validation_rejects_smuggled_nine_player_scenario() -> None:
+    scenario = _scenario(6).model_copy(update={"player_count": 9})
+    decks = tuple(_deck(seat) for seat in range(1, 10))
+    pilots = tuple(
+        FullGamePilotBinding.model_construct(
+            seat=seat,
+            deck_id=f"fixture-{seat}",
+            strategy="generic",
+            commander_names=("Isamaru, Hound of Konda",),
+        )
+        for seat in range(1, 10)
+    )
     with pytest.raises(FullGameConformanceError):
         XmageFullGameRunner._validate_inputs(scenario, decks, pilots)
 
 
-def test_binding_rejects_seat_zero_and_seat_seven() -> None:
+def test_binding_rejects_seat_zero_and_seat_nine() -> None:
     with pytest.raises(ValidationError):
         _binding(0, "fixture-0")
     with pytest.raises(ValidationError):
-        _binding(7, "fixture-7")
+        _binding(9, "fixture-9")
 
 
 def test_legacy_four_only_lane_still_rejected() -> None:

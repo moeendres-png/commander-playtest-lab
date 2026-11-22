@@ -61,8 +61,8 @@ def test_pod_preset_with_too_few_decks_is_an_honest_error_never_a_fill_up(
         launch.pod_opponent_ids("precon", 5)
     with pytest.raises(ValueError, match="Unbekannter Gegnertisch"):
         launch.pod_opponent_ids("no-such-pod", 2)
-    for bad in (0, 6):
-        with pytest.raises(ValueError, match="1 to 5 opponents"):
+    for bad in (0, 8):  # the engine seats 2 to 8 since #1672
+        with pytest.raises(ValueError, match="1 to 7 opponents"):
             launch.pod_opponent_ids("precon", bad)
 
 
@@ -97,7 +97,7 @@ def test_a_budget_that_is_no_whole_block_says_the_rotation_is_incomplete() -> No
     assert six["cells_min_pairs"] == 1 and six["cells_max_pairs"] == 2
     fixed = paired_series.rotation_plan(5, 5, rotate_seats=False)
     assert fixed["tested_seats"] == [0] and fixed["rotation_complete"] is True
-    for bad in (1, 7):
+    for bad in (1, 9):  # 2 to 8 seats since #1672
         with pytest.raises(ValueError, match="Tischgröße"):
             paired_series.rotation_plan(bad, 10)
 
@@ -127,15 +127,21 @@ def test_duration_is_unknown_where_no_throughput_is_measured_and_never_zero() ->
 # -- the two seat locks; the plan route plans with either state ---------------------------------
 
 
-def test_the_shipped_locks_release_simulate_and_play_to_six() -> None:
-    """The one place that names the shipped values (the release draft of #1661; ``main`` has 4/4)."""
-    assert (launch.MIN_SEATS, launch.MAX_RELEASED_SEATS, launch.MAX_SEATS) == (2, 6, 6)
+def test_the_shipped_locks_release_simulate_to_eight_and_play_to_six() -> None:
+    """The one place that names the shipped values: E16 (#1661) released five and six seats for
+    both paths, E17 (#1672) seven and eight seats for SIMULATE only."""
+    assert (launch.MIN_SEATS, launch.MAX_RELEASED_SEATS, launch.MAX_SEATS) == (2, 8, 8)
     assert launch.MAX_RELEASED_PLAY_SEATS == 6
-    for play in (False, True):  # both paths seat five and six players, not seven
+    for play in (False, True):  # both paths seat five and six players
         assert launch.validate_released_seat_count(4, play=play) == 5
         assert launch.validate_released_seat_count(5, play=play) == 6
-        with pytest.raises(ValueError, match="1 to 5 opponents"):
-            launch.validate_released_seat_count(6, play=play, allow_unreleased_seats=True)
+        with pytest.raises(ValueError, match="1 to 7 opponents"):
+            launch.validate_released_seat_count(8, play=play, allow_unreleased_seats=True)
+    assert launch.validate_released_seat_count(6) == 7  # SIMULATE seats seven and eight
+    assert launch.validate_released_seat_count(7) == 8
+    for opponents in (6, 7):  # PLAY does not
+        with pytest.raises(ValueError, match=f"tables of {opponents + 1} seats are locked"):
+            launch.validate_released_seat_count(opponents, play=True)
 
 
 def test_the_simulate_lock_and_the_switch_still_work_when_the_lock_is_set_back_to_four(
@@ -570,7 +576,7 @@ def test_the_plan_route_plans_a_table_and_says_whether_the_lock_lets_it_start(
     assert "table" not in old and old["assumptions"]["seats_per_seed"] == 4
     assert (
         client.get(
-            "/api/simulations/paired-plan?budget_pairs=10&table_size=7", headers=HEADERS
+            "/api/simulations/paired-plan?budget_pairs=10&table_size=9", headers=HEADERS
         ).status_code
         == 422
     )
@@ -724,7 +730,7 @@ def test_five_and_six_seat_games_of_one_stand_land_in_their_own_strata(tmp_path:
 
 
 # -- the series dialog (paired.js) under node with a DOM stand-in -----------------------------
-# The page's lock line is six (shipped); a test of the lock sets it back to four in memory, together
+# The page's lock line is eight (shipped since #1672); a test of the lock sets it back to four in memory, together
 # with the server's lock. No browser.
 
 STATIC = Path(__file__).resolve().parents[2] / "src/commander_lab/studio/static"
@@ -734,7 +740,7 @@ const StudioUI = { num: (v, d = 0) => Number(v).toLocaleString('de-DE', { minimu
 function loadPaired(lockAtFour) {
   let src = fs.readFileSync('paired.js', 'utf8');
   if (lockAtFour) {
-    const shipped = 'const PAIRED_RELEASED_SEATS = 6;';
+    const shipped = 'const PAIRED_RELEASED_SEATS = 8;';
     if (!src.includes(shipped)) throw new Error('lock line changed');
     src = src.replace(shipped, 'const PAIRED_RELEASED_SEATS = 4;');
   }
@@ -867,8 +873,10 @@ console.log(JSON.stringify({ first, six, sixIncomplete, posts: page.calls.filter
         "4 Sitze",
         "5 Sitze (nicht freigegeben)",
         "6 Sitze (nicht freigegeben)",
+        "7 Sitze (nicht freigegeben)",
+        "8 Sitze (nicht freigegeben)",
     ]
-    assert "5 und 6 Sitze sind nicht freigegeben" in first["note"]
+    assert "5 bis 8 Sitze sind nicht freigegeben" in first["note"]
     assert first["rotate"] == "Sitze 1\u20134 rotieren" and first["disabled"] is False
     assert first["budget"] == "40"
     assert first["url"] == (
@@ -917,7 +925,7 @@ console.log(JSON.stringify({ sizes, noteShown: note !== undefined, five, posts: 
         plans,
     )
     assert isinstance(out, dict)
-    assert out["sizes"] == ["2 Sitze", "3 Sitze", "4 Sitze", "5 Sitze", "6 Sitze"]
+    assert out["sizes"] == [f"{n} Sitze" for n in range(2, 9)]  # 2 to 8 since #1672
     assert out["noteShown"] is False  # nothing is locked, so no lock note
     assert out["five"]["disabled"] is False
     assert "nicht freigegeben" not in out["five"]["plan"]  # released: the server says no lock text
@@ -975,10 +983,10 @@ console.log(JSON.stringify({
     assert "mindestens" not in out["five"]
     assert out["mon5"] == "Tisch: 5 Sitze, getestete Sitze: 5."
     assert out["monOld"] == "Tisch: Sitzzahl unbekannt (ältere Serie)."
-    assert out["opts"] == [[2, False], [3, False], [4, False], [5, False], [6, False]]
-    assert out["optsAtFour"] == [[2, False], [3, False], [4, False], [5, True], [6, True]]
-    assert out["note"] == ""  # nothing locked: no note, never "7 und 6 Sitze"
-    assert out["noteAtFour"].startswith("5 und 6 Sitze sind nicht freigegeben")
+    assert out["opts"] == [[n, False] for n in range(2, 9)]
+    assert out["optsAtFour"] == [[n, n > 4] for n in range(2, 9)]
+    assert out["note"] == ""  # nothing locked: no note, never "9 und 8 Sitze"
+    assert out["noteAtFour"].startswith("5 bis 8 Sitze sind nicht freigegeben")
     assert out["b5"] == [20, 25, 40, 50, 60, 100, 200] and out["b4"] == [
         16,
         20,

@@ -1,6 +1,10 @@
-"""Guard the Owner's permanent maximum of six simulator players (2026-11-08).
+"""Guard the simulator's seat maximum: six (Owner, 2026-11-08), eight for SIMULATE since #1672.
 
-Schema-only tests: admission != successful XMage six-player runtime qualification.
+The Owner instructed on 2026-11-22 "ja kümmer dich drum, dass es halt geht und führe es auch ein
+für die Simulationen" (register entry E17): seven and eight seats for simulations only; PLAY stays
+at six (``launch.MAX_RELEASED_PLAY_SEATS``). Nine and more stay refused everywhere.
+
+Schema-only tests: admission != successful XMage runtime qualification at any seat count.
 """
 
 from __future__ import annotations
@@ -29,14 +33,22 @@ def _scenario(player_count: int) -> FutureXmageScenario:
     )
 
 
-def test_hard_full_game_maximum_is_six() -> None:
+def test_hard_full_game_maximum_is_eight() -> None:
     assert XmageFullGameRunner.MIN_PLAYERS == 2
-    assert XmageFullGameRunner.MAX_PLAYERS == 6
-    # This validates schema admission only, not a complete six-player game.
+    assert XmageFullGameRunner.MAX_PLAYERS == 8
+    # This validates schema admission only, not a complete seven- or eight-player game.
     assert _scenario(6).player_count == 6
+    assert _scenario(8).player_count == 8
 
 
-@pytest.mark.parametrize("player_count", [7, 8, 10])
-def test_new_operational_scenarios_refuse_seven_or_more(player_count: int) -> None:
+def test_play_stays_at_six_seats() -> None:
+    from commander_lab.studio import launch
+
+    assert launch.MAX_RELEASED_PLAY_SEATS == 6
+    assert launch.MAX_PARTIE_SEATS == 6
+
+
+@pytest.mark.parametrize("player_count", [9, 10])
+def test_new_operational_scenarios_refuse_nine_or_more(player_count: int) -> None:
     with pytest.raises(ValidationError):
         _scenario(player_count)

@@ -46,6 +46,12 @@ import static org.junit.jupiter.api.Assertions.fail;
  * class changes no bridge code and no release lock
  * ({@code launch.MAX_RELEASED_SEATS = 4} stays).</p>
  *
+ * <p>#1672 (register E17, SIMULATE at seven and eight seats): the same
+ * scenarios run at seven and eight seats too, with P7/P8 in the role of the
+ * last seat (the commander-damage matrix has 42 or 56 ordered pairs, 36 or 49
+ * read back). They fail on a bridge whose {@code MAX_PLAYERS} is 6. The
+ * known engine deviation and the twin run stay at five and six seats.</p>
+ *
  * <p>Where an existing test already covers a point at five or six seats it is
  * not repeated here; three methods call an existing scenario body with a seat
  * count or active seat that body has not run with before (points 1, 6 and
@@ -64,9 +70,10 @@ class XmageSeatsFiveSixF5ScenarioTest {
     private static final String BEARS = "Grizzly Bears";
     private static final String ROGRAKH = "Rograkh, Son of Rohgahh";
 
-    /** One distinct hand card per non-acting seat (P1 .. P5), all in the bridge test corpus. */
+    /** One distinct hand card per non-acting seat (P1 .. P7), all in the bridge test corpus. */
     private static final List<String> HIDDEN_HAND = List.of(
-            "Shock", "Giant Growth", "Counterspell", "Grizzly Bears", "Hill Giant");
+            "Shock", "Giant Growth", "Counterspell", "Grizzly Bears", "Hill Giant",
+            "Llanowar Elves", "Shivan Dragon");
 
     // ------------------------------------------------------------- point 1
 
@@ -78,7 +85,7 @@ class XmageSeatsFiveSixF5ScenarioTest {
      * but not the six-seat wrap.
      */
     @ParameterizedTest(name = "F5-1 APNAP: {0} players, restored active {1}")
-    @CsvSource({"6, P6"})
+    @CsvSource({"6, P6", "7, P7", "8, P8"})
     void point1ApnapTriggersWrapFromTheLastSeatToP1(int playerCount, String restoredActive) {
         new XmageMultiplayerApnapTriggerTest()
                 .eachUpkeepTriggersAreStackedInApnapOrder(playerCount, restoredActive);
@@ -97,7 +104,7 @@ class XmageSeatsFiveSixF5ScenarioTest {
      * {@link XmageMultiplayerLeaveDuringCombatTest}.
      */
     @ParameterizedTest(name = "F5-2 leaver with a spell on the stack: {0} players")
-    @ValueSource(ints = {5, 6})
+    @ValueSource(ints = {5, 6, 7, 8})
     void point2LastSeatLeavesWhileItsSpellIsOnTheStack(int playerCount) {
         String leaver = "P" + playerCount;
         String victim = "P" + (playerCount - 1);
@@ -198,7 +205,7 @@ class XmageSeatsFiveSixF5ScenarioTest {
      * corpus).
      */
     @ParameterizedTest(name = "F5-3 commander damage per pair: {0} players")
-    @ValueSource(ints = {5, 6})
+    @ValueSource(ints = {5, 6, 7, 8})
     void point3CommanderDamageCountsPerOrderedPairAndNeverAcrossCommanders(int playerCount) {
         String last = "P" + playerCount;
         String loser = "P" + (playerCount - 1);
@@ -382,7 +389,7 @@ class XmageSeatsFiveSixF5ScenarioTest {
      * {@link XmageMultiplayerHiddenDiscardTest}.
      */
     @ParameterizedTest(name = "F5-4 range ALL and hidden information: {0} players")
-    @ValueSource(ints = {5, 6})
+    @ValueSource(ints = {5, 6, 7, 8})
     void point4LastSeatMayTargetEveryPlayerAndNoFrameShowsAnotherSeatsHiddenCards(int playerCount) {
         String last = "P" + playerCount;
         Map<String, String> handName = new LinkedHashMap<>();
@@ -519,7 +526,7 @@ class XmageSeatsFiveSixF5ScenarioTest {
      * {@link XmageMultiplayerSplitCombatTest}.
      */
     @ParameterizedTest(name = "F5-5 two far defenders: {0} players")
-    @ValueSource(ints = {5, 6})
+    @ValueSource(ints = {5, 6, 7, 8})
     void point5EachFarDefenderMayBlockOnlyTheCreatureAttackingThem(int playerCount) {
         String last = "P" + playerCount;
         String prev = "P" + (playerCount - 1);
@@ -708,7 +715,7 @@ class XmageSeatsFiveSixF5ScenarioTest {
      * most a few frames and then requires the terminal state.
      */
     @ParameterizedTest(name = "F5-6 concede chain to the last player: {0} players")
-    @ValueSource(ints = {5, 6})
+    @ValueSource(ints = {5, 6, 7, 8})
     void point6ConcedesDownToTheLastPlayerLeaveThatPlayerTheWinner(int playerCount) {
         String tag = "f5-6-concede-chain-" + playerCount + "p";
         XmageActualCardCorpusTest.Started started = XmageActualCardCorpusTest.start(
@@ -780,7 +787,7 @@ class XmageSeatsFiveSixF5ScenarioTest {
      * each.
      */
     @ParameterizedTest(name = "F5-7 full round: {0} players")
-    @ValueSource(ints = {5, 6})
+    @ValueSource(ints = {5, 6, 7, 8})
     void point7TurnsPassThroughEverySeatAndWrapFromTheLastSeatToP1(int playerCount) {
         XmageActualCardCorpusTest.Started started = XmageActualCardCorpusTest.start(
                 "f5-7-round-" + playerCount + "p", playerCount, List.of(bf("P1", MOUNTAIN)));
@@ -802,7 +809,7 @@ class XmageSeatsFiveSixF5ScenarioTest {
      * then P1 again, so the wrap from the last seat still happens.
      */
     @ParameterizedTest(name = "F5-7 departed seat skipped: {0} players")
-    @ValueSource(ints = {5, 6})
+    @ValueSource(ints = {5, 6, 7, 8})
     void point7ADepartedSeatTakesNoTurnAndTheLastSeatStillWrapsToP1(int playerCount) {
         String departed = "P" + (playerCount - 1);
         String tag = "f5-7-skip-" + playerCount + "p";

@@ -484,7 +484,9 @@ def test_new_game_dialog_lists_follow_the_two_server_locks() -> None:
         # N seats offer N - 1 opponents: from the smallest table to the lock, never above it
         assert counts == list(range(launch.MIN_SEATS - 1, lock)), name
     assert f"const OPPONENT_COUNTS_MAX = {launch.MAX_PARTIE_SEATS - 1};" in js
-    assert launch.MAX_PARTIE_SEATS == 6 and launch.MAX_RELEASED_PLAY_SEATS <= launch.MAX_PARTIE_SEATS
+    assert (
+        launch.MAX_PARTIE_SEATS == 6 and launch.MAX_RELEASED_PLAY_SEATS <= launch.MAX_PARTIE_SEATS
+    )
     assert "OPPONENT_COUNTS_PLAY.map(" not in js and "[1, 2, 3, 4, 5].map" not in js
     assert "const OPPONENT_COUNTS = " not in js  # one list per path, no shared list
 

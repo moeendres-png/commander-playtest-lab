@@ -1156,7 +1156,7 @@ final class XmageNativeStateRestoration {
     /** Validates the whole plan before any game mutation. */
     static void validatePlan(Plan validated) {
         if (validated.playerCount() < XmageFullGameSession.MIN_PLAYERS
-                || validated.playerCount() > XmageFullGameSession.MIDGAME_MAX_PLAYERS) {
+                || validated.playerCount() > XmageFullGameSession.MAX_PLAYERS) {
             throw new RestorationException(
                     "UNSUPPORTED_PLAYER_COUNT", String.valueOf(validated.playerCount()));
         }
