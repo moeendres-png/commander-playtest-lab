@@ -227,6 +227,7 @@
   "tests/unit/test_rules_project_loader.py": 0.1,
   "tests/unit/test_runtime_hygiene.py": 0.1,
   "tests/unit/test_scryfall_research_artifacts.py": 0.1,
+  "tests/unit/test_second_run_compare.py": 0.5,
   "tests/unit/test_security_evidence_scopes.py": 0.1,
   "tests/unit/test_selection_reopened_920.py": 0.1,
   "tests/unit/test_semantic_replay_failure_boundary.py": 0.8,
