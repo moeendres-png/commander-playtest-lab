@@ -1,0 +1,2782 @@
+{
+ "meta": {
+  "seed": 20261122,
+  "source_commit": "138a50c264f24997c7df23ed513de8b3bd123dd5",
+  "n_total": 300,
+  "composition": {
+   "top20": 100,
+   "land": 50,
+   "rest": 100,
+   "flagged": 35,
+   "rest_fill": 15
+  },
+  "per_file": {
+   "1": {
+    "top20": 33,
+    "land": 16,
+    "rest": 34,
+    "flagged": 12,
+    "rest_fill": 5
+   },
+   "2": {
+    "land": 17,
+    "flagged": 12,
+    "rest": 33,
+    "top20": 33,
+    "rest_fill": 5
+   },
+   "3": {
+    "land": 17,
+    "flagged": 11,
+    "top20": 34,
+    "rest": 33,
+    "rest_fill": 5
+   }
+  },
+  "pool": {
+   "all_cards": 922,
+   "lands": 65,
+   "anchor_cards_in_tables": 46,
+   "top20_rank_cut": "top 185 by H (rank), cut at H=45; tie group of 56 cards at H=45, 17 of them drawn with the seed",
+   "top20_eligible": 132,
+   "rest_eligible": 663,
+   "lands_eligible_not_flagged_not_anchor": 50,
+   "anchor_lands_excluded": [
+    "Adarkar Wastes",
+    "Azorius Chancery",
+    "Cryptic Caves",
+    "Evolving Wilds",
+    "Maze's End",
+    "Prairie Stream",
+    "Reliquary Tower",
+    "Selesnya Guildgate",
+    "Simic Growth Chamber",
+    "Sungrass Prairie",
+    "Temple of Plenty",
+    "Tranquil Cove"
+   ],
+   "anchor_cards_excluded_from_random_strata": 42,
+   "flagged_that_are_anchors": [
+    "Command Tower",
+    "Counterspell",
+    "Primeval Bounty",
+    "Reclamation Sage"
+   ],
+   "flagged_that_are_lands": [
+    "Command Tower",
+    "Fabled Passage",
+    "Myriad Landscape"
+   ],
+   "flagged_in_top20": 23,
+   "anchors_left_out_of_guide_tables": [
+    "Command Tower",
+    "Counterspell",
+    "Primeval Bounty",
+    "Reclamation Sage"
+   ]
+  },
+  "note": "stratum rest_fill = random extra cards from the rest pool that fill the slots left over by the land stratum (only 50 eligible lands); analysis treats rest and rest_fill as 'rest'"
+ },
+ "cards": [
+  {
+   "oracle_id": "d1ec1e4e-faa6-4afc-9e00-a3327105c11b",
+   "name": "Wavesifter",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 1,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "158823ed-6015-437a-82b0-8dadb1e9aab2",
+   "name": "Hexhaven Battalion",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 2,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a8fdbcdf-479d-4582-9ad5-9fbd4c740c29",
+   "name": "Spectral Sailor",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 3,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "aa6723a2-75da-49f5-a1ba-cbfa82c55301",
+   "name": "Opal Palace",
+   "stratum": "land",
+   "input_file": 1,
+   "seq": 4,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1bd3e453-aa21-4ee6-95c2-d6d920ee8e7a",
+   "name": "Terramorphic Expanse",
+   "stratum": "land",
+   "input_file": 1,
+   "seq": 5,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a9789ce4-69cf-435c-b99a-78a21609830c",
+   "name": "Dread Statuary",
+   "stratum": "land",
+   "input_file": 1,
+   "seq": 6,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ba9ac0a9-735d-4bca-9d24-586aca963872",
+   "name": "Elder Cathar",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 7,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0b76bb3b-1ada-4c78-bd13-3464371d4fa0",
+   "name": "Sneaky Homunculus",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 8,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "aa9547b3-e4e4-4557-9dd1-3aa9a7cb9937",
+   "name": "Mindseeker Oculus",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 9,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7b0767b8-b504-456e-93bd-218502f73b3d",
+   "name": "Palladium Myr",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 10,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6e32b958-70d3-4f3d-b10e-d6c8cb27dd93",
+   "name": "Protean Hydra",
+   "stratum": "flagged",
+   "input_file": 1,
+   "seq": 11,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6c34674f-856b-4062-87d5-6ed73d9a9855",
+   "name": "Wildvine Pummeler",
+   "stratum": "flagged",
+   "input_file": 1,
+   "seq": 12,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "af06a811-7a57-4f68-9d87-7903e043f36d",
+   "name": "Celestial Crusader",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 13,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "dbc56f3b-83b3-41c8-a8ae-d3774fe6ee01",
+   "name": "Linden, the Steadfast Queen",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 14,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d2e647ac-717f-46e6-baa8-6a793e7bdc32",
+   "name": "Telepathy",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 15,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "162421d2-8761-437f-bed9-578b61c96f1f",
+   "name": "Flickering Hound",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 16,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "df5e4100-8c83-42d6-af96-1a1ec84a9210",
+   "name": "Spellbook Seeker // Careful Study",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 17,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f29dc596-2121-4421-8463-15f6c2e8b9b3",
+   "name": "Rogue's Passage",
+   "stratum": "land",
+   "input_file": 1,
+   "seq": 18,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5a73d439-bd78-42e1-90ae-eedd30536881",
+   "name": "Nadir Kraken",
+   "stratum": "flagged",
+   "input_file": 1,
+   "seq": 19,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "014d0bcd-b80f-4c43-8f00-f4c31e8f3370",
+   "name": "Yargle, Goliath of Otaria",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 20,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "44503105-3e13-408d-a44f-37d503c61d72",
+   "name": "Simic Signet",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 21,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "30afacd9-4680-4aac-8c22-584f9418822d",
+   "name": "Circuitous Route",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 22,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0c85b8f7-0bd0-4680-9ec5-d4b110460a54",
+   "name": "Fabled Passage",
+   "stratum": "flagged",
+   "input_file": 1,
+   "seq": 23,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "90d2e092-6eb8-4d13-bdad-19e7325a8b36",
+   "name": "Steel of the Godhead",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 24,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2441696b-a9ba-4813-ba2e-e71f85281d05",
+   "name": "Wilt-Leaf Liege",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 25,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7e52f151-d1f6-4fcb-9b21-1baecae27da6",
+   "name": "Loyal Tutor",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 26,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "dba3dcc1-2177-4a8c-8cf3-7d4fb83c7a16",
+   "name": "Baloth Prime",
+   "stratum": "rest_fill",
+   "input_file": 1,
+   "seq": 27,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "27b047e3-0d41-45e2-98e9-9391d7923a1e",
+   "name": "Exotic Orchard",
+   "stratum": "land",
+   "input_file": 1,
+   "seq": 28,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a7b0d897-38c0-4f90-81e8-3c5b8d31a607",
+   "name": "Glamermite",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 29,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2f8872fe-84dc-4cda-a253-e7503a5c96a3",
+   "name": "Wolfbriar Elemental",
+   "stratum": "flagged",
+   "input_file": 1,
+   "seq": 30,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "cec11318-4578-4c66-a9be-1704df0c296c",
+   "name": "Qumulox",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 31,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2ae77795-6a80-498b-bf69-6fd612f601e4",
+   "name": "Seaside Citadel",
+   "stratum": "land",
+   "input_file": 1,
+   "seq": 32,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0bb896ba-e15e-43a9-9120-e674d7ba003c",
+   "name": "Hall of Oracles",
+   "stratum": "land",
+   "input_file": 1,
+   "seq": 33,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "10e19453-84fb-4845-8db0-c9da52847e09",
+   "name": "Tower Geist",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 34,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6bd872b2-5c40-4e11-9a7f-0136a51b0642",
+   "name": "Hydroid Krasis",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 35,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "94688e25-28cb-45aa-95ea-0d6f547cae57",
+   "name": "Matterbending Mage",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 36,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "77a9fac6-3c26-4456-9e0b-f5839a3dcae2",
+   "name": "Teyo, Lightshield Expert",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 37,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a8af4d61-1aed-415d-8d8e-7384194ee3e2",
+   "name": "Brackwater Elemental",
+   "stratum": "rest_fill",
+   "input_file": 1,
+   "seq": 38,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8b52f30c-5e38-4333-88ab-901b37105b36",
+   "name": "Copper Myr",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 39,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "de6d0248-79f6-48df-bdca-8ce207b2ec08",
+   "name": "Dawntreader Elk",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 40,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "069c8fa1-fa04-4620-9356-a618158dad3e",
+   "name": "Beast Hunt",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 41,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "66ce0ae5-7000-4e4a-891f-f571f0e58cd7",
+   "name": "Slingbow Trap",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 42,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8a7183cc-161c-444d-a889-a17519c8061b",
+   "name": "Arcanis the Omnipotent",
+   "stratum": "flagged",
+   "input_file": 1,
+   "seq": 43,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e1708ad9-35d4-4243-92ca-ddf9d129aa32",
+   "name": "Personify",
+   "stratum": "flagged",
+   "input_file": 1,
+   "seq": 44,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c549b0fd-1e08-4873-952e-a14dc45a0fd2",
+   "name": "Champion of Lambholt",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 45,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6a83768e-672e-4fec-8931-853f5e96d43d",
+   "name": "Stasis Snare",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 46,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e37416cc-f343-44cd-8676-4ce4d4068e85",
+   "name": "Ice Cage",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 47,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4927150d-7ff6-4232-b20e-d2ea245ac710",
+   "name": "Tectonic Edge",
+   "stratum": "land",
+   "input_file": 1,
+   "seq": 48,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6d4e558e-9109-4918-a082-fdcbaffd516b",
+   "name": "Nature's Claim",
+   "stratum": "flagged",
+   "input_file": 1,
+   "seq": 49,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8ec56e2a-380f-4de7-9fb7-52de803008fc",
+   "name": "Transformative Commons",
+   "stratum": "land",
+   "input_file": 1,
+   "seq": 50,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "741e4f32-0587-40fa-a73d-5bcf66b52348",
+   "name": "Wall of Frost",
+   "stratum": "rest_fill",
+   "input_file": 1,
+   "seq": 51,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c9a188f9-2e65-4a66-826f-0150f25730af",
+   "name": "Esperzoa",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 52,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "169705c3-32c1-4628-b108-c37ca5f27e24",
+   "name": "Ruin Ghost",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 53,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2ac2b815-2d72-48e6-b43a-18884a74bf95",
+   "name": "Skycoach Waypoint",
+   "stratum": "land",
+   "input_file": 1,
+   "seq": 54,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "542831c6-6279-4977-9b29-0fb9c0ebf04d",
+   "name": "Mischievous Mystic",
+   "stratum": "flagged",
+   "input_file": 1,
+   "seq": 55,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5912546a-acc2-448c-b042-64bdac5ec129",
+   "name": "Mind Control",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 56,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d7572f17-f85d-45c0-ac64-43aac760eafe",
+   "name": "Circle of Protection: Blue",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 57,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "55a4b186-c6d4-4b08-bf45-481429693948",
+   "name": "Strandwalker",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 58,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "377d9245-9a70-4e35-9ed1-308565fc1acc",
+   "name": "Scepter of Empires",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 59,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b7f72e54-7e3a-4720-be69-fc8c5eb4c190",
+   "name": "Crumbling Colossus",
+   "stratum": "rest_fill",
+   "input_file": 1,
+   "seq": 60,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "07237694-b5d5-4c92-a429-55e343b8dd1c",
+   "name": "Yoked Plowbeast",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 61,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "780da643-8d14-4f1a-a298-5b7454e9c4df",
+   "name": "Phantasmal Bear",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 62,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "de8cdbd4-d8f7-4ce8-a69b-6d2020beff63",
+   "name": "Neurok Replica",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 63,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e076067c-77b7-4a37-a62d-51434392dd53",
+   "name": "Aether Adept",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 64,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "93953926-a644-49bb-9b5a-4c8f19114c7e",
+   "name": "Demolition Field",
+   "stratum": "land",
+   "input_file": 1,
+   "seq": 65,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c63402b2-1f8c-4004-82d8-48ea26bfe3fc",
+   "name": "Shimmerwilds Growth",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 66,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7500b7dc-588d-46bd-acc5-885dcd464668",
+   "name": "Tam's Resistance",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 67,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "66d4370e-19b9-4680-9b1e-a192537bc002",
+   "name": "Omni-Changeling",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 68,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "290faa28-450e-4797-9a8f-642d8af3f82a",
+   "name": "Run Away Together",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 69,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "eaf8027a-017a-4471-ae7b-a372fd8e0ff3",
+   "name": "Sophia, Dogged Detective",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 70,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "bb7c069b-8d3f-4ba2-874b-8ec575fd6dd4",
+   "name": "Jace's Erasure",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 71,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "78826359-fe63-44ad-adc4-a17ffcd710e4",
+   "name": "Nature's Lore",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 72,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d824a319-fa74-42e4-9cbe-dba1576d6bad",
+   "name": "Perfected Theory",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 73,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "50dd9e17-6dae-4ff6-8a38-50088c71283f",
+   "name": "Thoughtweft Lieutenant",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 74,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0ae0c880-a508-471f-a90b-029c417f6b3b",
+   "name": "Grappler Spider",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 75,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8dec6fcf-1254-4b1b-ba23-7a3e492a7241",
+   "name": "Secluded Steppe",
+   "stratum": "land",
+   "input_file": 1,
+   "seq": 76,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "29a90fda-541e-4923-b3ed-e2b35d02c74b",
+   "name": "Sylvan Ranger",
+   "stratum": "flagged",
+   "input_file": 1,
+   "seq": 77,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7a7425ba-4478-4bc4-855f-abf947ea4fa2",
+   "name": "Lure",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 78,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e8d20361-d9b7-4f9c-8ec5-3ac7c460dcb2",
+   "name": "Horizon Explorer",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 79,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9148f2cb-5594-463c-a21b-a67706ec46d1",
+   "name": "Flitterwing Nuisance",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 80,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "66155010-cc2c-449a-85d5-92c95aade514",
+   "name": "Pilgrim's Eye",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 81,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "28564d10-bfc5-4beb-b0e2-b9aa5c03f740",
+   "name": "Dundoolin Weaver",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 82,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c892d28c-4a78-4a7f-b8d5-c3663b819c5e",
+   "name": "Deepchannel Duelist",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 83,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "27a3aa64-1de7-4b0c-af23-52886e7d258a",
+   "name": "Prismatic Undercurrents",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 84,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0056fc91-4398-471c-b561-7ff99750ac8a",
+   "name": "Escape Tunnel",
+   "stratum": "land",
+   "input_file": 1,
+   "seq": 85,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "376c9d3f-21d3-4251-bb6a-026fa9e1b0e1",
+   "name": "Skyshroud Claim",
+   "stratum": "rest_fill",
+   "input_file": 1,
+   "seq": 86,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c744b5f4-fbcf-48b8-9d60-5e9c6ac297e0",
+   "name": "Trygon Predator",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 87,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "cc187110-1148-4090-bbb8-e205694a39f5",
+   "name": "Counterspell",
+   "stratum": "flagged",
+   "input_file": 1,
+   "seq": 88,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "ffe25048-0bd4-49b5-aecb-2b1b57fb8d8b",
+   "name": "Borderland Ranger",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 89,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "702e871d-90d8-4468-8f69-5ae42af2c9d3",
+   "name": "Tam, Observant Sequencer // Deep Sight",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 90,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f39f33ac-074d-442d-ae4c-1d694ee315f3",
+   "name": "Jund Panorama",
+   "stratum": "land",
+   "input_file": 1,
+   "seq": 91,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ff3fae6e-d8a1-46b3-a6cc-fb4e8800ee68",
+   "name": "Sanctum Plowbeast",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 92,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "765863c8-1be0-4bb1-9e9c-db7701cffde3",
+   "name": "Lonely Sandbar",
+   "stratum": "land",
+   "input_file": 1,
+   "seq": 93,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0895c9b7-ae7d-4bb3-af17-3b75deb50a25",
+   "name": "Command Tower",
+   "stratum": "flagged",
+   "input_file": 1,
+   "seq": 94,
+   "is_land": true,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "57f58d52-0014-4cac-94fc-668063cc147a",
+   "name": "Shattered Acolyte",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 95,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "81a51328-b995-4f3b-90bc-a20ae21dd254",
+   "name": "Spirit Mantle",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 96,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6c5b02eb-7829-436a-8555-fea200e4b67f",
+   "name": "Oracle of Mul Daya",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 97,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ca5d0a56-69c1-4bdb-95f0-af0dec3604a5",
+   "name": "Steward of Valeron",
+   "stratum": "top20",
+   "input_file": 1,
+   "seq": 98,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3dfbf95e-a91b-429c-96e2-95ac777e7027",
+   "name": "Sejiri Steppe",
+   "stratum": "land",
+   "input_file": 1,
+   "seq": 99,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6c0c5832-416f-405f-bb44-c24be6f9d081",
+   "name": "Spire Serpent",
+   "stratum": "rest",
+   "input_file": 1,
+   "seq": 100,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ad1712d8-809f-410c-8b91-ffe6fb8a69a1",
+   "name": "Azorius Guildgate",
+   "stratum": "land",
+   "input_file": 2,
+   "seq": 1,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "eab0d8b9-c66f-402f-b259-f46f15cefd78",
+   "name": "Elspeth, Knight-Errant",
+   "stratum": "flagged",
+   "input_file": 2,
+   "seq": 2,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "42946216-59e2-46dc-b770-5e604512f949",
+   "name": "Soul's Grace",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 3,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "55a519b4-61cb-448a-875b-4d6dbe00580f",
+   "name": "Spire of Industry",
+   "stratum": "land",
+   "input_file": 2,
+   "seq": 4,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e7f038af-977a-42ff-bebb-718b7490188a",
+   "name": "Mighty Emergence",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 5,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "593caa15-e1d1-477f-bbb4-124d7a7b81f3",
+   "name": "Mighty Leap",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 6,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "441de890-7b9f-42f7-859a-a154b8ed74ac",
+   "name": "Foresee",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 7,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9e4db334-4698-4986-820f-1daf1bffda83",
+   "name": "Angel's Herald",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 8,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9f013b5d-fff0-4c50-8621-158b6dc34834",
+   "name": "Rhys, the Evermore",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 9,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e8705df9-6439-4930-91b6-229f818559af",
+   "name": "Simic Guildgate",
+   "stratum": "land",
+   "input_file": 2,
+   "seq": 10,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a99ce9db-9b7d-45a0-bee7-0875fc62ca48",
+   "name": "Loot, the Nexus",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 11,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "17975a20-2c13-4325-be1e-0bcda5063a2d",
+   "name": "Terastodon",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 12,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d9f11aa1-9219-42a8-85a9-a8f204160706",
+   "name": "Meteor Golem",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 13,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1ae339fd-8e64-4e3a-8e27-e4993932ba62",
+   "name": "Gnarlback Rhino",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 14,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "80ea3e65-946d-42c3-a26f-3d74e81d70b4",
+   "name": "Morska, Undersea Sleuth",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 15,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "25fb2a67-fd7f-4a06-bd59-118d82c86d6e",
+   "name": "Glissa's Courier",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 16,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "de1316f2-1cca-4ac4-aead-0fd8b4036d88",
+   "name": "Shimmer Dragon",
+   "stratum": "flagged",
+   "input_file": 2,
+   "seq": 17,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "937cb494-7dcb-4a40-b1e0-6e6b31f5c8a6",
+   "name": "Captured Sunlight",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 18,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "743f4488-fef1-4f4d-b745-d2de92423e00",
+   "name": "Grixis Panorama",
+   "stratum": "land",
+   "input_file": 2,
+   "seq": 19,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6e64f1e0-ddd6-4ee7-8797-086e234b02e8",
+   "name": "Steel Hellkite",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 20,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "05878e49-93ad-4144-9c50-a0bb86126c2e",
+   "name": "Chart a Course",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 21,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "13ec2390-e08a-4645-99e9-bac7e41917bb",
+   "name": "Burrenton Bombardier",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 22,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "546f037b-aea8-4c7a-9b66-373f1be0bac6",
+   "name": "Goldmeadow Harrier",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 23,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "406eabe2-df62-49e2-bb39-c0227509d875",
+   "name": "Irrigated Farmland",
+   "stratum": "land",
+   "input_file": 2,
+   "seq": 24,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b92e97f5-a307-471f-be06-afa4fcdab757",
+   "name": "Fanatical Strength",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 25,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "82506e51-3fe1-446f-83c9-69e67583cefc",
+   "name": "Slip Out the Back",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 26,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7e26f0b7-20e6-46d5-8130-d98c14d6aa29",
+   "name": "Temple of Mystery",
+   "stratum": "land",
+   "input_file": 2,
+   "seq": 27,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e88de17c-086d-4e2a-b5b2-2f9f57ca7c0f",
+   "name": "Snapback",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 28,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9d22960b-babc-4cf3-b228-d32e13bc6014",
+   "name": "Esix, Fractal Bloom",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 29,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b81fed36-07c4-4903-b5b4-24e62d2ce239",
+   "name": "Barbed Battlegear",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 30,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "60fc89a1-cc6f-4a32-84c3-09abf7a4a1df",
+   "name": "Brigid, Clachan's Heart // Brigid, Doun's Mind",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 31,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "23d4f436-a417-4a26-b5b8-c698f11a186b",
+   "name": "Acid Web Spider",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 32,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "63eed1f5-442f-433d-989c-397b88543162",
+   "name": "Wary Farmer",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 33,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "53c730c6-2f8c-4af8-b400-b9d573a71e60",
+   "name": "Adaptive Automaton",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 34,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "67362406-b1ca-49e2-800d-9050bfe8742a",
+   "name": "Merfolk Looter",
+   "stratum": "flagged",
+   "input_file": 2,
+   "seq": 35,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4567a528-75f0-4ea6-b927-3a500caf76ac",
+   "name": "Arbor Elf",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 36,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "93409d98-93c8-4742-a635-2a4408e66c32",
+   "name": "Changeling Wayfinder",
+   "stratum": "flagged",
+   "input_file": 2,
+   "seq": 37,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e6941577-8262-42ef-bf32-f6505d90b73a",
+   "name": "Kor Hookmaster",
+   "stratum": "rest_fill",
+   "input_file": 2,
+   "seq": 38,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9df318b9-16c6-42f1-9f81-6f73ca01e5c1",
+   "name": "Stormfront Riders",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 39,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "592c91fc-6430-4c76-9460-65f047350f67",
+   "name": "Lyra Dawnbringer",
+   "stratum": "flagged",
+   "input_file": 2,
+   "seq": 40,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8e4dc1fc-e412-4aa3-8793-5c4abc598521",
+   "name": "Stampeding Rhino",
+   "stratum": "rest_fill",
+   "input_file": 2,
+   "seq": 41,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "032ec6e2-6cc3-4a97-9cc7-3233f5e11904",
+   "name": "Reclamation Sage",
+   "stratum": "flagged",
+   "input_file": 2,
+   "seq": 42,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "e2a32a0f-bf06-4cb3-a704-ff0f783f19e4",
+   "name": "Vault Skyward",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 43,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "de3ed52e-7cc2-49ea-96d9-4254aac46168",
+   "name": "Angel's Tomb",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 44,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "056770e2-8ab7-424d-a2d8-7be6d6cc73f1",
+   "name": "Stingerfling Spider",
+   "stratum": "rest_fill",
+   "input_file": 2,
+   "seq": 45,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "55c60b29-52c5-428c-9229-11ed0e26bd71",
+   "name": "Glory Seeker",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 46,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9f8fe514-77ed-41b4-a6f3-c6f095bb97be",
+   "name": "Tranquil Thicket",
+   "stratum": "land",
+   "input_file": 2,
+   "seq": 47,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5c5cfa6d-857f-44a9-80f7-46f016ef71e4",
+   "name": "Venerable Monk",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 48,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e8d6084b-9b72-438e-a30a-851b888f3e4d",
+   "name": "Whitemane Lion",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 49,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d740dbd9-8e90-4121-8d53-c6ddf5178d58",
+   "name": "Chomping Changeling",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 50,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9464ddf2-4bcb-44f6-b945-89a132544de6",
+   "name": "Maestros Theater",
+   "stratum": "land",
+   "input_file": 2,
+   "seq": 51,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f30aa897-7027-47e7-ae58-73cbc448c1f0",
+   "name": "Environmental Scientist",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 52,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7eadffcb-1e15-44c1-b1db-78c71b8ec1ce",
+   "name": "Rupture Spire",
+   "stratum": "land",
+   "input_file": 2,
+   "seq": 53,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "fb60739e-1dc3-481d-a056-ad72e665c680",
+   "name": "Rite of Replication",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 54,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0b7393aa-d563-45bc-9946-8e7d1729d498",
+   "name": "Mountain Valley",
+   "stratum": "land",
+   "input_file": 2,
+   "seq": 55,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ed428638-181b-47cb-92f4-379db020e634",
+   "name": "Kulrath Mystic",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 56,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "cfdd5dc6-593e-495a-8cfe-3a56b3c4c7df",
+   "name": "Temple of the False God",
+   "stratum": "land",
+   "input_file": 2,
+   "seq": 57,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b0d639cb-71d4-454f-9dd6-89cd7a59b702",
+   "name": "Serene Sleuth",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 58,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f633c16d-d943-421c-ad18-af35db9ec9fc",
+   "name": "Primeval Bounty",
+   "stratum": "flagged",
+   "input_file": 2,
+   "seq": 59,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "9a107e48-3d50-4941-95b1-10f2b29a4245",
+   "name": "Stroke of Midnight",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 60,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f36d1d8b-8303-44a9-ab56-531931641ea2",
+   "name": "Academy Manufactor",
+   "stratum": "rest_fill",
+   "input_file": 2,
+   "seq": 61,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "22b7975c-37a5-4895-b209-bdeeec0c6aea",
+   "name": "Judge's Familiar",
+   "stratum": "rest_fill",
+   "input_file": 2,
+   "seq": 62,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "49a8ca54-30d3-42d3-b122-334d24805e1b",
+   "name": "Ardent Plea",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 63,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "16629f59-bae8-4c19-bf50-443eb0ed6856",
+   "name": "Felidar Retreat",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 64,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b473e293-59e3-4e04-acf2-622604aeb25f",
+   "name": "Path of Ancestry",
+   "stratum": "land",
+   "input_file": 2,
+   "seq": 65,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5b5e0df8-f8f0-40a1-9814-89d73a026ad0",
+   "name": "Pride of Lions",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 66,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "02da2145-0edb-44be-8622-360182a8c25a",
+   "name": "Catapult Master",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 67,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5cb6ebf7-6a75-4464-9e39-e171fcb52de3",
+   "name": "Great Forest Druid",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 68,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b97d21b4-d730-479f-872f-3e1645b66751",
+   "name": "Release the Dogs",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 69,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "76f335d0-7f71-4b1a-b60d-73de954cbe2c",
+   "name": "Skycloud Expanse",
+   "stratum": "land",
+   "input_file": 2,
+   "seq": 70,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b079f9db-974d-4525-a894-57b754ba9dcc",
+   "name": "Kitesail",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 71,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "97bb1589-2941-4a75-a5f6-916871e51e9e",
+   "name": "Alandra, Sky Dreamer",
+   "stratum": "flagged",
+   "input_file": 2,
+   "seq": 72,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "24038629-7c12-45ef-8ec4-0d2bb3e2265c",
+   "name": "Ethereal Investigator",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 73,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "755bd5d8-67f1-4f24-a4e8-d98edf2f2e03",
+   "name": "Finale of Revelation",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 74,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "826f17d1-3806-4579-8b1b-2082b7b03d69",
+   "name": "Vigorbloom Charm",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 75,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "339a7418-9a29-4eae-a3c2-ea590d175936",
+   "name": "Imprisoned in the Moon",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 76,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6a7f3e1f-6798-4644-b64c-7765f81f0938",
+   "name": "Vibrant Cityscape",
+   "stratum": "land",
+   "input_file": 2,
+   "seq": 77,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f84d1291-1f82-4b67-a26e-b79624b4ce1d",
+   "name": "Cloudblazer",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 78,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "65d63518-3261-40b5-87b8-19c152b29ee3",
+   "name": "Roiling Regrowth",
+   "stratum": "flagged",
+   "input_file": 2,
+   "seq": 79,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e8dd4341-e7e5-49f7-b173-e4c3195e3334",
+   "name": "Shriekgeist",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 80,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f8640899-2458-40f2-98a3-35c402ee9a7a",
+   "name": "Jolrael, Mwonvuli Recluse",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 81,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5c151e3b-fcf2-4adb-a60b-9eff0c360705",
+   "name": "Arcane Amphisbaena",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 82,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1232c461-643c-40a3-901e-09b665f817da",
+   "name": "Noxious Newt",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 83,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c2898bbd-82a4-4d26-b6ee-169b0ebe71b4",
+   "name": "Into the Roil",
+   "stratum": "flagged",
+   "input_file": 2,
+   "seq": 84,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d2605782-09f1-4d52-b3e7-5ec1442bd9b5",
+   "name": "Micromancer",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 85,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "65424bea-fd53-4f85-9757-0b91a6d40ba4",
+   "name": "Cabaretti Courtyard",
+   "stratum": "land",
+   "input_file": 2,
+   "seq": 86,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "eb1dfa29-7371-4cb6-bfa2-16f7820b69be",
+   "name": "Refute",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 87,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "fe55f366-2996-4a4f-9b30-fc494cc80f87",
+   "name": "Thran Golem",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 88,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ec96cde2-f1e6-495c-94e2-3e8ae79e556c",
+   "name": "Thornwood Falls",
+   "stratum": "land",
+   "input_file": 2,
+   "seq": 89,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "dcb7e046-f01b-497c-88e5-57794eb30ce5",
+   "name": "Canopy Vista",
+   "stratum": "land",
+   "input_file": 2,
+   "seq": 90,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e6555cca-e608-4c87-b835-9cd47fd1f543",
+   "name": "Tireless Tracker",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 91,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "916db499-7f0a-45f7-8abe-94818a53e494",
+   "name": "Armored Ascension",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 92,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0ee06ed0-717a-4bfa-b634-d00e013c1f16",
+   "name": "Lonis, Cryptozoologist",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 93,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6e04a375-303e-43ba-bca1-4e959711a7f6",
+   "name": "Safewright Cavalry",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 94,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0848bb49-5758-41d6-a3e8-0c62e1768f52",
+   "name": "Treasure Mage",
+   "stratum": "flagged",
+   "input_file": 2,
+   "seq": 95,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "11ceb2db-021e-422d-976e-7bfe3b67a8aa",
+   "name": "Foraging Wickermaw",
+   "stratum": "flagged",
+   "input_file": 2,
+   "seq": 96,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "705509e9-a034-4a5a-9c65-66f58748b8a2",
+   "name": "Harrow",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 97,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d4ec0df9-a4a3-48cf-a0aa-b1aea5c49142",
+   "name": "Clever Impersonator",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 98,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "11ba27f4-decf-4447-9808-0d58844655cf",
+   "name": "Viridian Claw",
+   "stratum": "rest",
+   "input_file": 2,
+   "seq": 99,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "505231d8-714f-4c5b-a635-d1662bd18a78",
+   "name": "Spider-Man, Web-Slinger",
+   "stratum": "top20",
+   "input_file": 2,
+   "seq": 100,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "00ef1c55-dea1-4564-bd57-66de86cba4df",
+   "name": "Selesnya Sanctuary",
+   "stratum": "land",
+   "input_file": 3,
+   "seq": 1,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "10d1d6ca-95f8-48da-8798-37c8aadb1f1f",
+   "name": "Detective of the Month",
+   "stratum": "flagged",
+   "input_file": 3,
+   "seq": 2,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "cde68428-0033-4ede-92f1-ab91de0a41fb",
+   "name": "Rustic Clachan",
+   "stratum": "land",
+   "input_file": 3,
+   "seq": 3,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6b633e58-ea1b-4ed0-addb-6dfd93645ae4",
+   "name": "Banishing Betrayal",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 4,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b3e1674f-dba1-4570-9990-e5dc643e237d",
+   "name": "Twinblade Blessing",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 5,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "21d3858f-441d-4bb2-888e-8b147ecad7e9",
+   "name": "Durnan of the Yawning Portal",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 6,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8709b5b1-ef9e-45b2-bf4f-ef4c4d613dcd",
+   "name": "Rocky Tar Pit",
+   "stratum": "land",
+   "input_file": 3,
+   "seq": 7,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2549bc57-9ffb-4053-9f10-f2a5f792b845",
+   "name": "Myriad Landscape",
+   "stratum": "flagged",
+   "input_file": 3,
+   "seq": 8,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4b8bf64b-4800-45ff-81c6-2857f34999b5",
+   "name": "Multani, Yavimaya's Avatar",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 9,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2876e74f-a242-4995-9702-0b737a1ab67a",
+   "name": "Psychosis Crawler",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 10,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d9e24d7c-0907-45c1-b5d3-9fb16a929868",
+   "name": "Organic Extinction",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 11,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4f890d42-e4f1-4eed-aa6c-718865de8927",
+   "name": "Vizier of the Menagerie",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 12,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6a413d09-dd67-4c3e-b81b-7bfe8b864dc9",
+   "name": "Storm Spirit",
+   "stratum": "flagged",
+   "input_file": 3,
+   "seq": 13,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e6227840-6e3e-48c7-b4a4-42cfd8f14b68",
+   "name": "Eclipsed Kithkin",
+   "stratum": "flagged",
+   "input_file": 3,
+   "seq": 14,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "162dcfa0-36e4-41cd-8322-08e810ff04d4",
+   "name": "Reluctant Dounguard",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 15,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "247cc471-fed5-41e3-8b6a-a10bbc129b36",
+   "name": "Paradox Surveyor",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 16,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "21f45043-5419-4019-8b6c-e5294bd5f549",
+   "name": "Acidic Slime",
+   "stratum": "flagged",
+   "input_file": 3,
+   "seq": 17,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5dedd5a9-bc5d-47bb-9ae1-7d683843d041",
+   "name": "Tezzeret, Betrayer of Flesh",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 18,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "efee0ca0-0897-4972-99c4-432561b6e9f8",
+   "name": "Veteran's Reflexes",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 19,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6d7be242-a072-40ce-b540-95880506cccd",
+   "name": "Dispel",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 20,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "458d2b12-f578-4392-98d3-c3bc83f316c4",
+   "name": "Port Town",
+   "stratum": "land",
+   "input_file": 3,
+   "seq": 21,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b35c1b30-c1dc-489f-bd79-ad6566fb9389",
+   "name": "Stormfront Pegasus",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 22,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ead4c01a-e2ae-49c9-95d9-651d81005907",
+   "name": "Satyr Wayfinder",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 23,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "855a4837-7fc8-4b97-afbd-daa88e322c89",
+   "name": "Walking Atlas",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 24,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3c87ea85-ca29-45a7-b5b2-758c62898b0a",
+   "name": "Scattered Groves",
+   "stratum": "land",
+   "input_file": 3,
+   "seq": 25,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "45429b2c-be3b-4b2e-9bab-a059ccbda8cd",
+   "name": "Blossoming Sands",
+   "stratum": "land",
+   "input_file": 3,
+   "seq": 26,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0f30f32f-3c4c-4f73-8b2a-82045a40bda9",
+   "name": "Killer Service",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 27,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ba9e129d-a3cf-431c-93af-f2e4902d40a0",
+   "name": "Whirlwind Denial",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 28,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "eb735501-19e7-4910-aa6a-6667fff6f4e5",
+   "name": "Study Hall",
+   "stratum": "land",
+   "input_file": 3,
+   "seq": 29,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b628a39b-c923-473d-900a-1617f47ecb76",
+   "name": "Selvala, Explorer Returned",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 30,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e0b15374-b4f6-48e0-8477-4eb5d5c2a938",
+   "name": "Squad Rallier",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 31,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e5fcc5d7-6a60-4a5b-9d02-6c30041a95b9",
+   "name": "Talisman of Unity",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 32,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "127ce189-2758-4789-9e02-4aa71d013431",
+   "name": "Cut the Earthly Bond",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 33,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "788a4896-3414-40bf-b391-d2efea2fb5f9",
+   "name": "Springbloom Druid",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 34,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "fcc7dd32-2198-446c-9144-e50d56ef53ed",
+   "name": "Briarhorn",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 35,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7060f2c8-fca0-4b7a-bddf-37682f434596",
+   "name": "Whirler Rogue",
+   "stratum": "flagged",
+   "input_file": 3,
+   "seq": 36,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6588ea9a-658f-40d9-a64b-3a418ab81183",
+   "name": "Ulvenwald Mysteries",
+   "stratum": "rest_fill",
+   "input_file": 3,
+   "seq": 37,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "667cffdd-8951-4223-8895-fa46e9f14b96",
+   "name": "Fuel for the Cause",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 38,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "74c4c1e2-c50d-4c8f-889a-0d5674dc6d67",
+   "name": "Turn to Frog",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 39,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e018773f-95b3-49a3-9674-6f04ddef2092",
+   "name": "Azorius Signet",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 40,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "03ebc100-68ac-4d53-adc2-d537212f7d31",
+   "name": "Venom Connoisseur",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 41,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "55cec4bc-3de6-4c0d-a4cc-c5a30849fbda",
+   "name": "Wildborn Preserver",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 42,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3fa71348-fa4d-4f39-a451-cf1570591991",
+   "name": "Imperious Perfect",
+   "stratum": "flagged",
+   "input_file": 3,
+   "seq": 43,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b8ca5877-ac9e-4b15-8c23-c70f61b01895",
+   "name": "Dryad Militant",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 44,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9a440122-a015-4af2-b270-37f019884458",
+   "name": "Diamond Mare",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 45,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5d9a4905-4a26-410e-936c-56de849e9ca3",
+   "name": "Syr Alin, the Lion's Claw",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 46,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "95500513-5519-4131-bb89-42383289f2bd",
+   "name": "Cloudheath Drake",
+   "stratum": "rest_fill",
+   "input_file": 3,
+   "seq": 47,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a3538a5e-3d08-4c61-bcb4-ef1f5e5b659d",
+   "name": "Soul's Might",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 48,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8aed54cb-d1bb-45ad-adbe-38e55d84ff31",
+   "name": "Silence",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 49,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9deded8b-cec4-4ede-a50b-131404d456d4",
+   "name": "Thought Monitor",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 50,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "58b0c737-0a84-4f9a-b3b7-300c5de43874",
+   "name": "Studious First-Year // Rampant Growth",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 51,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d887919a-68d5-455d-977c-4f1f0b4b3141",
+   "name": "Argivian Restoration",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 52,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "daebf011-ec85-4cbd-9445-02ac59675c58",
+   "name": "Loyal Drake",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 53,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "35506b6b-6476-4830-9baa-4051c18322f0",
+   "name": "Mirran Mettle",
+   "stratum": "rest_fill",
+   "input_file": 3,
+   "seq": 54,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "17b60106-a4c7-410a-8ac3-ec8e74e29a7c",
+   "name": "Mystic Sanctuary",
+   "stratum": "land",
+   "input_file": 3,
+   "seq": 55,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "57de8fe7-3d1b-41cd-8354-38aff3d2d052",
+   "name": "Vine Trellis",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 56,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b9dee727-8ad8-42e0-93c6-5ef91d3f7309",
+   "name": "Aquitect's Defenses",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 57,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5548ff43-e5f6-4a63-8562-a2b1de06d6f5",
+   "name": "Riveteers Overlook",
+   "stratum": "land",
+   "input_file": 3,
+   "seq": 58,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ecf574a5-6410-466d-a726-732134f904b2",
+   "name": "Assert Perfection",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 59,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "138f9daa-19d4-4290-94a7-09e00dbcebb0",
+   "name": "Pistus Strike",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 60,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8ef3dd68-f6a1-43b9-8837-40b326019b1b",
+   "name": "Call to Heel",
+   "stratum": "flagged",
+   "input_file": 3,
+   "seq": 61,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4ed27607-21a8-4bc3-997e-6d2242313f6d",
+   "name": "Coral Merfolk",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 62,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "dfe1a112-97aa-4e81-8431-81552ba2cdcf",
+   "name": "Crawling Barrens",
+   "stratum": "land",
+   "input_file": 3,
+   "seq": 63,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6ee7b00b-b875-48e2-92f2-889c154b0f82",
+   "name": "Quicksilver Geyser",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 64,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4288ba56-ddd0-4bd9-ba61-daf03e9f2d7f",
+   "name": "Shore Lurker",
+   "stratum": "flagged",
+   "input_file": 3,
+   "seq": 65,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "027dd013-baa7-4111-b3c9-f4d1414e9c45",
+   "name": "Glacial Fortress",
+   "stratum": "land",
+   "input_file": 3,
+   "seq": 66,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8d4dcab0-86e5-4ff8-a90f-78a062664e16",
+   "name": "Sapseep Forest",
+   "stratum": "land",
+   "input_file": 3,
+   "seq": 67,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ac5a13b1-0725-4978-8c93-cebd76be58ba",
+   "name": "Cursebreak",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 68,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8973bd99-20f8-4867-90ef-50392147ee1b",
+   "name": "Wood Elves",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 69,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7fffbe7f-ad78-4bb6-a611-c37e495c6ee0",
+   "name": "Kappa Cannoneer",
+   "stratum": "flagged",
+   "input_file": 3,
+   "seq": 70,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c1624d10-8838-4af8-aea1-a96c0fe6fd6b",
+   "name": "Goldvein Pick",
+   "stratum": "rest_fill",
+   "input_file": 3,
+   "seq": 71,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "52f1b5a4-62ff-44de-80da-503d4e52d312",
+   "name": "Cat Collector",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 72,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "fe412468-b506-4ed8-8fff-3987ef3dc2ee",
+   "name": "Nettle Swine",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 73,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c0864adb-e9aa-40b6-91ff-a0646193e887",
+   "name": "Helpful Hunter",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 74,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9d8fe3f8-5027-4f9e-999e-e277caa96478",
+   "name": "Disperse",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 75,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1c9e1f75-73f0-4846-b53f-458a0984b1bb",
+   "name": "Teferi's Ageless Insight",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 76,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "48d1b217-b068-468c-bc6c-4bef9e44cc6e",
+   "name": "Lizard, Connors's Curse",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 77,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b5058b5c-0359-42ec-ba9e-ae1371bb9c22",
+   "name": "Lys Alana Informant",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 78,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7719fd5d-c9dc-49b8-87b4-24f7d42af62f",
+   "name": "Vedalken Anatomist",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 79,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2bfec482-be0d-4768-84e7-1c2c74ea1373",
+   "name": "Journey to Nowhere",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 80,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "28ebe75a-cddd-469b-be8a-286776b83388",
+   "name": "Stormcaller's Boon",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 81,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b3dbb16f-fa8f-4406-bcf3-e647e4337619",
+   "name": "Kabira Crossroads",
+   "stratum": "land",
+   "input_file": 3,
+   "seq": 82,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ef2bb4fa-f292-4d19-aaa4-cfbe445caf45",
+   "name": "Quicksand",
+   "stratum": "land",
+   "input_file": 3,
+   "seq": 83,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "18961e25-3feb-4dba-a77f-240a4d664ecb",
+   "name": "Loam Lion",
+   "stratum": "flagged",
+   "input_file": 3,
+   "seq": 84,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "cf14d4e5-5965-45ad-97f7-26facf2884b5",
+   "name": "Fertile Ground",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 85,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "60b36821-0fad-423c-98c4-f64d991719f3",
+   "name": "Graypelt Refuge",
+   "stratum": "land",
+   "input_file": 3,
+   "seq": 86,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7735eeba-693b-47e2-bd51-414379cf1016",
+   "name": "Beast Within",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 87,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "89f43e27-790b-4ca1-8ba7-0882b31e0783",
+   "name": "Temple of Enlightenment",
+   "stratum": "land",
+   "input_file": 3,
+   "seq": 88,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a16509da-ad46-4ee3-86f3-06c521c23481",
+   "name": "Phyrexian Hulk",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 89,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d9a10971-f32b-4978-952d-fed0a5bc9e36",
+   "name": "Krosan Verge",
+   "stratum": "land",
+   "input_file": 3,
+   "seq": 90,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "91fc862d-fdde-45ea-a05d-30d38e7a735c",
+   "name": "Dispeller's Capsule",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 91,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "61816f98-9d1a-4b16-9194-cb7249880710",
+   "name": "Leitmotif Composer",
+   "stratum": "rest_fill",
+   "input_file": 3,
+   "seq": 92,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3a198a16-17b9-481e-b516-5bc945c7e247",
+   "name": "Priest of Titania",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 93,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5b677e88-bcc9-4a55-9c89-8bbd0e2344dc",
+   "name": "Junk Winder",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 94,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5b6f655b-1518-4ab1-8765-3f549819ef3b",
+   "name": "Light of Hope",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 95,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "68175b49-f1e6-4b34-aad9-20d61a43d427",
+   "name": "Drogskol Reaver",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 96,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "991f4eec-cf3e-4554-ba88-c44bb0d255f0",
+   "name": "Tributary Vaulter",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 97,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "82184f0a-54a1-4ae0-9b99-2b3450c6e544",
+   "name": "Crosstown Courier",
+   "stratum": "rest",
+   "input_file": 3,
+   "seq": 98,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f088817a-570d-4480-bc59-f2ad6675a71b",
+   "name": "Tromell, Seymour's Butler",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 99,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d709f396-021f-49eb-adb5-374aa790eaae",
+   "name": "Merrow Skyswimmer",
+   "stratum": "top20",
+   "input_file": 3,
+   "seq": 100,
+   "is_land": false,
+   "is_anchor_card": false
+  }
+ ]
+}
