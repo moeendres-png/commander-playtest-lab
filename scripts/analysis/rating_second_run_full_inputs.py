@@ -365,9 +365,11 @@ def _source_commit(repo: Path) -> str:
 def build(
     repo: Path, out: Path, rater_dir: Path, path_in_instructions: str | None
 ) -> dict[str, Any]:
-    # a live rater folder (real path in the instructions) must not sit in or be the analyst folder;
-    # the repository record (placeholder path) keeps rater/ next to the manifest on purpose
-    if path_in_instructions is None and (
+    # a live rater folder (any path other than the placeholder in the instructions) must not sit in
+    # or be the analyst folder, and its parent must hold nothing but the rater folder itself; only the
+    # repository record (placeholder path) keeps rater/ next to the manifest on purpose
+    live = path_in_instructions != PLACEHOLDER
+    if live and (
         rater_dir.resolve() == out.resolve() or out.resolve() in rater_dir.resolve().parents
     ):
         raise ValueError("the rater folder must not be the analyst folder or lie inside it")
@@ -427,6 +429,14 @@ def build(
 
     rater_dir.mkdir(parents=True, exist_ok=True)
     out.mkdir(parents=True, exist_ok=True)
+    if live:
+        others = sorted(
+            p.name for p in rater_dir.resolve().parent.iterdir() if p.name != rater_dir.name
+        )
+        if others:
+            raise ValueError(
+                f"the parent of the rater folder must hold only the rater folder: {others}"
+            )
     guide_src = (rub / "GUIDE_v2.md").read_text(encoding="utf-8")
     shutil.copy(rub / "output_schema.json", rater_dir / "rr2_output_schema.json")
 

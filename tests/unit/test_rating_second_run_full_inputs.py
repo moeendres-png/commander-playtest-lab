@@ -6,9 +6,11 @@ reproduction check: regenerating the committed wave-2 inputs from the repository
 
 from __future__ import annotations
 
+import difflib
 import importlib.util
 import json
 import random
+import re
 import sys
 from pathlib import Path
 from types import ModuleType
@@ -19,6 +21,19 @@ import pytest
 REPO = Path(__file__).resolve().parents[2]
 SCRIPT = REPO / "scripts" / "analysis" / "rating_second_run_full_inputs.py"
 COMMITTED = REPO / "data" / "research" / "chulane_rubric_v2_20261118" / "second_run_full_20261122"
+# a number next to H / prior / tier / rank / score / rating in any input text field = a leaked rating
+PRIOR_LEAK = re.compile(
+    r"(?i:\b(?:prior|tier|rank|rang|score|rating|rated|earlier)\b)\W{0,3}(?:H\W{0,3})?\d"
+    r"|\bH\s*[:=]\s*\d|\bH_(?:alt|F1|pooled)\b"
+)
+
+
+def _prior_leaks(path: Path) -> list[str]:
+    hits = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        row = json.loads(line)
+        hits += [f"{row.get('card')}: {k}" for k, v in row.items() if PRIOR_LEAK.search(str(v))]
+    return hits
 
 
 def _load() -> ModuleType:
@@ -311,6 +326,7 @@ def test_inputs_carry_no_prior_score_and_runs_are_byte_identical(
     for k in (1, 2, 3, 4):
         text = (tmp_path / "ra" / "rater" / f"rr2_input_{k}.jsonl").read_text(encoding="utf-8")
         assert '"scores"' not in text and '"H"' not in text and "stratum" not in text
+        assert _prior_leaks(tmp_path / "ra" / "rater" / f"rr2_input_{k}.jsonl") == []
     instr = (tmp_path / "ra" / "rater" / "rr2_rater_instructions.md").read_text(encoding="utf-8")
     assert "`<RATER_DIR>/rr2_guide_N.md`" in instr and "| 4 | 3 |" in instr
 
@@ -322,6 +338,36 @@ def test_a_live_rater_folder_inside_the_analyst_folder_is_refused(
         g.build(mini, tmp_path / "an", tmp_path / "an" / "rater", None)
     with pytest.raises(ValueError, match="must not be the analyst folder"):
         g.build(mini, tmp_path / "same", tmp_path / "same", None)
+    # any path other than the placeholder counts as live, so the guard is not skipped
+    with pytest.raises(ValueError, match="must not be the analyst folder"):
+        g.build(mini, tmp_path / "an2", tmp_path / "an2" / "rater", "/some/real/path")
+
+
+def test_the_parent_of_a_live_rater_folder_must_hold_only_the_rater_folder(
+    mini: Path, tmp_path: Path
+) -> None:
+    # --out X --rater-dir X/../rater: the analyst folder X sits next to rater/
+    base = tmp_path / "w"
+    with pytest.raises(ValueError, match=r"must hold only the rater folder: \['an'\]"):
+        g.build(mini, base / "an", base / "an" / ".." / "rater", None)
+    (tmp_path / "v").mkdir()
+    (tmp_path / "v" / "notes.txt").write_text("analyst note", encoding="utf-8")
+    with pytest.raises(ValueError, match=r"notes\.txt"):
+        g.build(mini, tmp_path / "an3", tmp_path / "v" / "rater", None)
+    # an isolated parent passes
+    meta = g.build(mini, tmp_path / "an4", tmp_path / "iso" / "rater", None)
+    assert meta["n_pool_wave2"] == 8
+
+
+def test_the_leak_pattern_catches_a_number_next_to_a_rating_word(tmp_path: Path) -> None:
+    path = tmp_path / "in.jsonl"
+    rows = [
+        {"seq": 1, "card": "A", "card_block": "CARD: A\nPrior H: 72"},
+        {"seq": 2, "card": "B", "card_block": "CARD: B\nTier 3"},
+        {"seq": 3, "card": "C", "card_block": "Draw 3 cards. Hexproof. Mana value: 3"},
+    ]
+    _write_jsonl(path, rows)
+    assert _prior_leaks(path) == ["A: card_block", "B: card_block"]
 
 
 def test_a_changed_wave1_card_block_stops_the_build(mini: Path, tmp_path: Path) -> None:
@@ -360,3 +406,25 @@ def test_the_committed_wave2_inputs_regenerate_byte_for_byte(tmp_path: Path) -> 
     assert new == old
     assert new["meta"]["n_pool_wave2"] == 622 and new["meta"]["chunks_pool"] == 7
     assert all(new["meta"]["per_chunk"][str(k)]["n"] <= 100 for k in range(1, 9))
+    for k in range(1, 9):
+        assert _prior_leaks(COMMITTED / "rater" / f"rr2_input_{k}.jsonl") == [], k
+
+
+def test_the_committed_instruction_diff_against_wave1_is_complete() -> None:
+    w1_name = "wave1_rr_rater_instructions_redacted.md"
+    w2_name = "rater/rr2_rater_instructions.md"
+    w1 = (COMMITTED / w1_name).read_text(encoding="utf-8").splitlines(keepends=True)
+    w2 = (COMMITTED / w2_name).read_text(encoding="utf-8").splitlines(keepends=True)
+    diff = "".join(difflib.unified_diff(w1, w2, w1_name, w2_name, n=0))
+    assert diff == (COMMITTED / "instructions_wave1_vs_wave2.diff").read_text(encoding="utf-8")
+    lines = diff.splitlines()
+    removed = [x[1:] for x in lines if x.startswith("-") and not x.startswith("---")]
+    added = [x[1:] for x in lines if x.startswith("+") and not x.startswith("+++")]
+    assert len(removed) == 23 and len(added) == 35
+
+    def words(rows: list[str]) -> set[str]:
+        return set(re.findall(r"[A-Za-z]+", " ".join(rows)))
+
+    # the only wave-1 word that disappears is the old guide file name (rr_guide_v2_1_rendered.md);
+    # everything else is rewrapped text, N, counts and file names
+    assert words(removed) - words(added) == {"rendered"}
