@@ -245,6 +245,22 @@ def test_overall_verdict_branches() -> None:
     assert s.overall_verdict(green | {"V4": "gelb"}, []) == "teilweise bestaetigt"
     assert s.overall_verdict(green | {"M2": "rot"}, []) == "nicht bestaetigt"
     assert s.overall_verdict(green, ["A6"]) == "kein Schluss"
+    # rule claims without hand verdicts, or blindness not graded: never "bestaetigt"
+    assert s.overall_verdict(green | {"K": "unbekannt"}, []) == "teilweise bestaetigt"
+    assert s.overall_verdict(green | {"L": "unbekannt"}, []) == "teilweise bestaetigt"
+    assert s.overall_verdict(green | {"K": "gelb"}, []) == "bestaetigt"
+
+
+@pytest.mark.parametrize(
+    ("metric", "value", "expected"),
+    [
+        ("M1", 6.5, "gruen"), ("M1", 8.0, "gelb"), ("M1", 8.38, "rot"),
+        ("M2", 11.45, "rot"), ("M3", 0.245, "rot"), ("M4", 0.881, "gelb"),
+        ("M6", -3.3, "gelb"), ("M7", 0.679, "rot"), ("M8", 0.853, "rot"), ("M8", 0.93, "gruen"),
+    ],
+)  # fmt: skip
+def test_same_family_thresholds_of_plan_branch_2a(metric: str, value: float, expected: str) -> None:
+    assert s.grade(metric, value, s.GRADES_SAME_FAMILY) == expected
 
 
 def _write_run(root: Path) -> tuple[Path, Path, Path]:
@@ -341,6 +357,8 @@ def test_end_to_end_on_a_tiny_run(tmp_path: Path) -> None:
     # every quote "draw a card" is literal in the block
     assert r["quotes_literal"] == r["claims_total"] == 12
     # 12 valid cards < 270 -> stop rule A1 -> no pooled verdict
-    assert "A1" in r["stops"] and r["verdict_if_blindness_not_red"] == "kein Schluss"
+    assert "A1" in r["stops"] and r["verdict"] == "kein Schluss"
     # file 3 primary mean |dH| 10 against file 1 0 -> gap 10 > 4 -> A6
     assert r["file_gap_primary"] == pytest.approx(10.0) and "A6" in r["stops"]
+    # no hand verdicts -> K unknown; no keyword hits -> L green
+    assert r["grades"]["K"] == "unbekannt" and r["grades"]["L"] == "gruen"

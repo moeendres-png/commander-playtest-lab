@@ -97,11 +97,24 @@ GRADES: dict[str, tuple[Callable[[float], bool], Callable[[float], bool]]] = {
 }
 
 
-def grade(metric: str, value: float | None) -> str:
+# Plan section 2a, branch "same family as F1" (reference F2): stricter M1 to M8; M5 unchanged.
+GRADES_SAME_FAMILY: dict[str, tuple[Callable[[float], bool], Callable[[float], bool]]] = {
+    "M1": (lambda v: v <= 6.5, lambda v: v > 8.0),
+    "M2": (lambda v: v <= 8.5, lambda v: v > 11.0),
+    "M3": (lambda v: v <= 0.10, lambda v: v >= 0.20),
+    "M4": (lambda v: v >= 0.92, lambda v: v < 0.86),
+    "M5": GRADES["M5"],
+    "M6": (lambda v: abs(v) <= 3.0, lambda v: abs(v) > 5.0),
+    "M7": (lambda v: v >= 0.80, lambda v: v < 0.70),
+    "M8": (lambda v: v >= 0.93, lambda v: v < 0.88),
+}
+
+
+def grade(metric: str, value: float | None, table: Mapping[str, Any] = GRADES) -> str:
     """green / yellow / red for a plan metric; ``unbekannt`` when the value is missing."""
     if value is None or (isinstance(value, float) and math.isnan(value)):
         return "unbekannt"
-    green, red = GRADES[metric]
+    green, red = table[metric]
     if green(value):
         return "gruen"
     return "rot" if red(value) else "gelb"
@@ -515,7 +528,10 @@ def flagged_metrics(rows: Sequence[Mapping[str, Any]], top20_bias: float) -> dic
 
 
 def overall_verdict(grades: Mapping[str, str], stops: Sequence[str]) -> str:
-    """Plan section 9; 'kein Schluss' when a stop rule blocks the pooled verdict."""
+    """Plan section 9; 'kein Schluss' when a stop rule blocks the pooled verdict.
+
+    Rule claims (K) and blindness (L) must be graded (green or yellow) for 'bestaetigt'; an
+    unknown grade, for example K without hand verdicts, blocks it."""
     if stops:
         return "kein Schluss"
     core = [grades[m] for m in ("M1", "M2", "M3", "M4", "M5")]
@@ -527,8 +543,8 @@ def overall_verdict(grades: Mapping[str, str], stops: Sequence[str]) -> str:
         all(g == "gruen" for g in core)
         and not others_red
         and gate_green
-        and grades["K"] != "rot"
-        and grades["L"] != "rot"
+        and grades["K"] in ("gruen", "gelb")
+        and grades["L"] in ("gruen", "gelb")
     ):
         return "bestaetigt"
     return "teilweise bestaetigt"
@@ -742,9 +758,17 @@ def analyse(
     grades = {m: grade(m, v) for m, v in metrics.items()}
     grades.update({
         "V1": grade("V1", n_valid), "V2": grade("V2", n_valid / len(cards)), "V3": grade("V3", 1 - len(non5) / max(n_valid, 1)),
-        "V4": grade("V4", n_lit / n_claims if n_claims else None), "K": grade("K", n_false), "L": "nach Handlesung",
+        "V4": grade("V4", n_lit / n_claims if n_claims else None), "K": grade("K", n_false),
+        # keyword hits are an upper bound of genuine popularity statements (read each by hand)
+        "L": grade("L", sum(h["kind"] == "popularity" for h in blind)),
     })  # fmt: skip
+    grades_same_family = {m: grade(m, v, GRADES_SAME_FAMILY) for m, v in metrics.items()}
+    non_land = by_stratum["top20"] + by_stratum["rest"]
+    non_land_bias = {"n": len(non_land), "bias": _bias(non_land),
+                     "ci": bootstrap([by_stratum["top20"], by_stratum["rest"]], {"bias": _bias})["bias"]}  # fmt: skip
     stops: list[str] = []
+    if any(h["kind"] == "earlier" for h in blind):
+        stops.append("A2?")  # a reference to earlier numbers: read by hand before any verdict
     if n_valid < 270 or any(v[0] < 0.7 * v[1] for v in per_stratum_valid.values()):
         stops.append("A1")
     if scale["sd_new"] < 0.6 * scale["sd_old"] or mode_n > 0.4 * len(new_prim):
@@ -763,8 +787,12 @@ def analyse(
         "sub_grade": sub_grade, "lands": lands, "flagged": flag, "flagged_rows": frows, "fatigue": fatigue,
         "file_gap_primary": file_gap_primary, "file_gap_all": file_gap_all, "scale": scale, "blindness_hits": blind,
         "claim_sample": claim_sample, "claim_verdicts": dict(verdict_counts) if verdict_counts is not None else None,
-        "per_card_spread": prim["rms"] / math.sqrt(2), "stops": stops, "top_deviations": top_out,
-        "verdict_if_blindness_not_red": overall_verdict({**grades, "L": "gruen"}, stops),
+        "per_card_spread": prim["rms"] / math.sqrt(2),
+        "per_card_spread_ci": [x / math.sqrt(2) for x in prim["ci"]["rms"]],
+        "non_land_bias_explorative": non_land_bias, "stops": stops, "top_deviations": top_out,
+        "verdict": overall_verdict(grades, stops),
+        "grades_same_family": grades_same_family,
+        "verdict_same_family": overall_verdict({**grades, **grades_same_family}, stops),
     }  # fmt: skip
 
 
@@ -784,12 +812,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     m, g = result["metrics"], result["grades"]
     for k in sorted(m):
         print(f"{k} {m[k]:.3f} {g[k]}")
-    print(
-        "stops:",
-        result["stops"] or "none",
-        "| verdict (blindness not red):",
-        result["verdict_if_blindness_not_red"],
-    )
+    print("stops:", result["stops"] or "none", "| verdict:", result["verdict"],
+          "| with the same-family thresholds (plan 2a):", result["verdict_same_family"])  # fmt: skip
     return 0
 
 
