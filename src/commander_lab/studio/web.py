@@ -330,7 +330,8 @@ class MarkBody(BaseModel):
 
 class GameBody(BaseModel):
     revision_id: str = Field(min_length=1, max_length=200)
-    opponent_ids: list[str] = Field(min_length=1, max_length=5)
+    # the Partie page: at most six seats (launch.MAX_PARTIE_SEATS, #1672)
+    opponent_ids: list[str] = Field(min_length=1, max_length=launch.MAX_PARTIE_SEATS - 1)
     seed: int = Field(ge=0, le=2_000_000_000)
     style: float | None = Field(default=None, ge=0.0, le=1.0)
     seat_styles: list[float] | None = None
@@ -1580,7 +1581,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         budget_pairs: int = Query(
             ge=paired_comparison.MIN_BUDGET_PAIRS, le=paired_comparison.MAX_BUDGET_PAIRS
         ),
-        seats_per_seed: int = Query(default=4, ge=1, le=6),
+        seats_per_seed: int = Query(default=4, ge=1, le=launch.MAX_SEATS),
         table_size: int | None = Query(default=None, ge=launch.MIN_SEATS, le=launch.MAX_SEATS),
         rotate_seats: bool = True,
         pod: str | None = None,

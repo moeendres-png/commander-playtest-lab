@@ -456,8 +456,9 @@ no strength in play, no tier, no rank, no sort key, not part of the index.
   7085569723: „Mittelwert beider anzeigen (Empfehlung)“).** The figure of H is H_pooled = (H_F1 +
   H_R2) / 2, read unrounded from
   `data/research/chulane_rubric_v2_20261118/second_run_full_20261122/pooled.jsonl`
-  (`card_understanding.load_pooled`; the file is bound to its SHA-256 in `results_sha256.txt` and
-  tests recompute every value from the raw output of both runs; the Studio never writes it and
+  (`card_understanding.load_pooled`; tests bind the file to its SHA-256 in `results_sha256.txt` and
+  recompute every value from the raw output of both runs, at run time only the line rules are
+  checked, no hash; the Studio never writes it and
   never reads `H_pooled_K1_vorschlag`: no correction K1). The field carries `bewertungen`: per card
   the kind (`mittel`, `nur_erstbewertung`, `nur_lauf_1`), `n_bewertungen`, both raw values, Δ and
   the mark, plus n of N per run ("Lauf 1 (F1)", "Lauf 2 (R2)", 922/922 today) and the counts. Each
@@ -465,13 +466,13 @@ no strength in play, no tier, no rank, no sort key, not part of the index.
   at |ΔH| ≥ 15 (266 of 922 cards, from 30: 22), the mark "Bewertungen weichen stark ab (Δ 40: F1
   20, R2 60)". Without a usable pooled value (file missing or broken: whole file; card missing; its
   H_F1 not the data set's H: that card) the card shows H_F1 marked "nur Lauf 1", never 0. Values
-  in points are shown unrounded (42,5; `zahl.js`, unit `Punkte` only). The floor ±8 and the noise
+  in points are shown as the data give them (grid 2,5, e.g. 42,5; a test checks the grid; `zahl.js`, unit `Punkte` only). The floor ±8 and the noise
   gate stay; a new spread source names the second rating of all cards (922/922, single value
   SD(d)/√2 7,77, RMS/√2 8,46) and the pooled standard error 5,50 only with its condition
   (independent errors, not shown, A3). The band of a cell follows the shown value (values between
   the bands show the floor). On H_F1 stay: the other six criteria, notes, reason, claims and the
   confidence (only H is averaged), the placement of the audit doubts and their noise gate (the
-  auditor saw H_F1; the doubt text says so; for 18 of 33 H doubts the shown mean already lies inside
+  auditor saw H_F1; the visible doubt label ends "(zu H aus Lauf 1)"; for 18 of 33 H doubts the shown mean already lies inside
   the reviewer's span, the mark stays until decided) and the land counts. H still has no tier, rank, sort
   key or filter.
 - **T2 single ratings.** `GET /api/cards/{card_id}/understanding?commander=NAME` gives all seven

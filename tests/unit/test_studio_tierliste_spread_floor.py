@@ -208,7 +208,8 @@ def test_an_h_doubt_inside_the_noise_gate_is_no_warning_mark() -> None:
     )
     assert "bezweifelt" not in str(entry["kurz"])
     assert (
-        understanding_field._doubt_entry(edge)["kurz"] == "Prüfer-Modell bezweifelt H: zu niedrig"
+        understanding_field._doubt_entry(edge)["kurz"]
+        == "Prüfer-Modell bezweifelt H: zu niedrig (zu H aus Lauf 1)"
     )
     assert (
         understanding_field._doubt_entry(reason)["kurz"]

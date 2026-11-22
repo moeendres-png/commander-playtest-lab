@@ -216,8 +216,22 @@ final class XmageMidgameJsonlBridge {
         return importScaffolding(plan, deckTag, XmageLosslessHiddenPlan.EMPTY);
     }
 
+    /**
+     * The mid-game lane keeps 2..6 principals (#1672 widens only the full-game lane): every
+     * entry builds its scaffolding here, before any session exists, so a plan above
+     * {@link XmageFullGameSession#MIDGAME_MAX_PLAYERS} is refused with a coded reason first.
+     */
+    static void requireMidgamePlayerCount(int playerCount) {
+        if (playerCount < XmageFullGameSession.MIN_PLAYERS
+                || playerCount > XmageFullGameSession.MIDGAME_MAX_PLAYERS) {
+            throw new XmageNativeStateRestoration.RestorationException(
+                    "UNSUPPORTED_PLAYER_COUNT", String.valueOf(playerCount));
+        }
+    }
+
     private List<String> importScaffolding(
             XmageNativeStateRestoration.Plan plan, String deckTag, XmageLosslessHiddenPlan lossless) {
+        requireMidgamePlayerCount(plan.playerCount());
         // Commander colours come from the engine's own card registry, so the
         // repository must be in the same ready state every other resolution
         // path observes.
@@ -1498,7 +1512,7 @@ final class XmageMidgameJsonlBridge {
         capabilities.addProperty("partner_supported", true);
         capabilities.addProperty("multiplayer_supported", true);
         capabilities.addProperty("min_players", XmageFullGameSession.MIN_PLAYERS);
-        capabilities.addProperty("max_players", XmageFullGameSession.MAX_PLAYERS);
+        capabilities.addProperty("max_players", XmageFullGameSession.MIDGAME_MAX_PLAYERS);
         capabilities.addProperty("headless_supported", true);
         capabilities.addProperty("seed_supported", true);
         capabilities.addProperty("deck_import_supported", true);
@@ -1568,7 +1582,7 @@ final class XmageMidgameJsonlBridge {
         lane.addProperty("decision_protocol_version",
                 XmageFullGameDecisionController.PROTOCOL_VERSION);
         lane.addProperty("min_players", XmageFullGameSession.MIN_PLAYERS);
-        lane.addProperty("max_players", XmageFullGameSession.MAX_PLAYERS);
+        lane.addProperty("max_players", XmageFullGameSession.MIDGAME_MAX_PLAYERS);
         lane.addProperty("evidence_class", XmageFullGameSession.EVIDENCE_CLASS);
         lane.addProperty("one_game_per_process", true);
         lane.addProperty("global_starting_state_injection_claimed", false);

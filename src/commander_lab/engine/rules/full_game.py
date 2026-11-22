@@ -303,7 +303,7 @@ class FullGameSmokeResult(_StrictModel):
         "xmage-full-game-smoke-result-1.1.0"
     )
     scenario_id: str
-    player_count: int = Field(ge=2, le=6)
+    player_count: int = Field(ge=2, le=8)
     seed: int = Field(ge=0)
     engine_version: str
     xmage_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
@@ -349,7 +349,7 @@ def smoke_progress_contract(
     priority_turns = sorted({turn for _seat, turn in priority if type(turn) is int})
     priority_seats = sorted({seat for seat, _turn in priority if type(seat) is int})
     violations = []
-    if type(player_count) is not int or not 2 <= player_count <= 6:
+    if type(player_count) is not int or not 2 <= player_count <= 8:
         violations.append("invalid player count")
     if type(through_turn) is not int or through_turn < player_count:
         violations.append("progress target must cover a full seat cycle")
@@ -1223,10 +1223,15 @@ validate_deck_construction = _validate_deck_construction
 
 
 class XmageFullGameRunner:
-    """Run one isolated 2..6-player XMage Commander game with Commander Lab pilot policy."""
+    """Run one isolated 2..8-player XMage Commander game with Commander Lab pilot policy."""
 
     MIN_PLAYERS = 2
-    MAX_PLAYERS = 6
+    # Seven and eight seats since #1672 (Owner instruction 2026-11-22, SIMULATE only); the Studio
+    # seat locks (``studio.launch``) decide what is released, this is what the runner can seat.
+    MAX_PLAYERS = 8
+    # A bridge built before #1672 announces 6; it still runs tables of 2 to 6 seats, and a
+    # table above its maximum is refused by the range check of the handshake (fail-closed).
+    ACCEPTED_LANE_MAX_PLAYERS = (6, 8)
     DECK_GATE_HASH_MISMATCH = DECK_GATE_HASH_MISMATCH
     DECK_GATE_DUPLICATE_CARD = DECK_GATE_DUPLICATE_CARD
     DECK_GATE_COLOR_IDENTITY_VIOLATION = DECK_GATE_COLOR_IDENTITY_VIOLATION
@@ -1812,7 +1817,7 @@ class XmageFullGameRunner:
             player_count < XmageFullGameRunner.MIN_PLAYERS
             or player_count > XmageFullGameRunner.MAX_PLAYERS
         ):
-            raise FullGameConformanceError("operational full-game scope is two to six players")
+            raise FullGameConformanceError("operational full-game scope is two to eight players")
         if len(decks) != player_count or len(pilots) != player_count:
             raise FullGameConformanceError(
                 "deck/pilot cardinality must equal the scenario player count"
@@ -1884,7 +1889,7 @@ class XmageFullGameRunner:
             not isinstance(lane_min, int)
             or not isinstance(lane_max, int)
             or lane_min != XmageFullGameRunner.MIN_PLAYERS
-            or lane_max != XmageFullGameRunner.MAX_PLAYERS
+            or lane_max not in XmageFullGameRunner.ACCEPTED_LANE_MAX_PLAYERS
             or not lane_min <= scenario.player_count <= lane_max
         ):
             raise FullGameConformanceError(

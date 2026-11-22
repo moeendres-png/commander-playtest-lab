@@ -389,7 +389,7 @@ def test_the_card_detail_gives_all_seven_criteria_with_reason_and_claims() -> No
     assert doubt["art"] == "H zu hoch" and doubt["spanne"] == [30.0, 45.0]
     h_figure = criteria[-1]["zahl"]
     assert any(n.startswith("Prüfer-Modell bezweifelt H: zu hoch") for n in h_figure["hinweise"])
-    assert doubt["kurz"] == "Prüfer-Modell bezweifelt H: zu hoch"
+    assert doubt["kurz"] == "Prüfer-Modell bezweifelt H: zu hoch (zu H aus Lauf 1)"
     assert detail["regelclaims_titel"] == (
         "Regelclaims des Raters (Modellurteil, keine Regelaussage; Regelautorität XMage/CR)"
     )

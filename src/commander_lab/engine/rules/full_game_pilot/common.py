@@ -813,7 +813,7 @@ class _StrictModel(BaseModel):
 
 
 class FullGamePilotBinding(_StrictModel):
-    seat: int = Field(ge=1, le=6)
+    seat: int = Field(ge=1, le=8)  # 7/8 seats since #1672 (SIMULATE)
     deck_id: str = Field(min_length=1)
     strategy: str = Field(min_length=1)
     commander_names: tuple[str, ...]

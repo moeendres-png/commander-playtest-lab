@@ -232,7 +232,7 @@ def test_the_duration_at_five_and_six_seats_is_a_rough_orientation_with_n_of_n(
 
 
 def test_a_table_size_the_engine_cannot_seat_is_an_error_never_a_stand_in_four() -> None:
-    for seats in (1, 7):
+    for seats in (1, 9):  # the engine seats 2 to 8 since #1672
         with pytest.raises(ValueError, match="Tischgröße"):
             paired_series.estimate_series_duration(10, table_size=seats)
 
@@ -385,7 +385,7 @@ def test_a_stored_series_names_its_table_size_from_the_seed_plan_not_the_tested_
     for seats in (5, 6):
         entry = deck_series._entry(_raw_series(seed_plan={"player_count": seats}), "completed")
         assert entry["table_size"] == seats and entry["tested_seats"] == [0]
-    for plan in (None, {}, {"player_count": "5"}, {"player_count": 7}, {"player_count": True}):
+    for plan in (None, {}, {"player_count": "5"}, {"player_count": 9}, {"player_count": True}):
         raw = _raw_series(seed_plan=plan)
         assert deck_series._entry(raw, "completed")["table_size"] is None, plan
 
@@ -685,7 +685,7 @@ def test_the_planned_size_is_checked_against_the_played_games(seats: int) -> Non
     assert check({"pairs_completed": 0}) == (seats, "unobserved")
 
 
-@pytest.mark.parametrize("plan", [{}, None, {"player_count": 7}, {"player_count": "5"}])
+@pytest.mark.parametrize("plan", [{}, None, {"player_count": 9}, {"player_count": "5"}])
 def test_a_plan_without_a_valid_size_reads_the_games_alone(plan: object) -> None:
     def check(result: dict[str, object]) -> tuple[int | None, str]:
         raw = {**_raw_series(result=result), "seed_plan": plan}
@@ -697,7 +697,7 @@ def test_a_plan_without_a_valid_size_reads_the_games_alone(plan: object) -> None
         raw = {**_raw_series(result=uniform), "seed_plan": plan}
         assert deck_series.series_table_source(raw) == "aus den gespielten Partien"
     assert check({**_pods(5, 6), "pairs_completed": 25}) == (None, "mismatch")
-    assert check({**_pods(7), "pairs_completed": 25}) == (None, "unreadable")  # no seatable table
+    assert check({**_pods(9), "pairs_completed": 25}) == (None, "unreadable")  # no seatable table
     assert check({"pods": [{"opponents": []}], "pairs_completed": 25}) == (None, "unreadable")
     assert check({}) == (None, "unobserved")
     assert check({"pairs_completed": 0}) == (None, "unobserved")

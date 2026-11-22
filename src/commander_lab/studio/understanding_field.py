@@ -260,6 +260,10 @@ OTHER_CRITERIA_NOTE: Final = (
 )
 
 
+# The audit was made on H_F1; the visible doubt label says so beside the shown mean.
+DOUBT_RUN: Final = "(zu H aus Lauf 1)"
+
+
 def _de(value: float) -> str:
     """A score as German text without rounding: 42.5 -> "42,5", 40.0 -> "40"."""
     return f"{value:g}".replace(".", ",")
@@ -478,12 +482,13 @@ def doubt_below_gate(flag: card_understanding.AuditFlag) -> bool:
 
 
 def _doubt_short(flag: card_understanding.AuditFlag) -> str:
-    """The visible label: the reviewer is a model, and a wrong reason is no doubt about H."""
+    """The visible label: the reviewer is a model, and a wrong reason is no doubt about H. An H
+    doubt names the run it was made on: the auditor saw H_F1, the cell shows the mean (E19)."""
     if flag["kind"] == "Begründung faktisch falsch":
         return "Prüfer-Modell: Begründung faktisch falsch"
     if doubt_below_gate(flag):
-        return f"Prüfer-Spanne innerhalb der Streuung (unter {NOISE_GATE} Punkten)"
-    return f"Prüfer-Modell bezweifelt H: {flag['kind'].removeprefix('H ')}"
+        return f"Prüfer-Spanne innerhalb der Streuung (unter {NOISE_GATE} Punkten) {DOUBT_RUN}"
+    return f"Prüfer-Modell bezweifelt H: {flag['kind'].removeprefix('H ')} {DOUBT_RUN}"
 
 
 def _doubt_text(flag: card_understanding.AuditFlag) -> str:

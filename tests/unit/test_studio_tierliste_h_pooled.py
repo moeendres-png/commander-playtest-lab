@@ -83,6 +83,14 @@ def test_the_pooled_file_is_the_sealed_output_and_matches_the_raw_ratings() -> N
         wave, number = str(row["quelle_R2"]).split(":")
         assert row["H_R2"] == raw[(wave, number, oracle_id)]
         assert row["H_pooled"] == (h_f1 + float(row["H_R2"])) / 2  # type: ignore[arg-type]
+    # the retest batch 8 of wave 2 (50 wave-1 cards) never enters the mean (plan §4)
+    retest = {key[2] for key in raw if key[:2] == ("welle2", "8")}
+    assert len(retest) == 50 and all(str(r["quelle_R2"]) != "welle2:8" for r in rows)
+    assert all(str(r["quelle_R2"]).startswith("welle1:") for r in rows if r["oracle_id"] in retest)
+    # "unrounded" holds because the values lie on the grid of the data: raw scores in steps of 5,
+    # the mean in steps of 2.5 (the display keeps one decimal, so nothing is rounded away)
+    assert all(float(r["H_F1"]) % 5 == 0 and float(r["H_R2"]) % 5 == 0 for r in rows)  # type: ignore[arg-type]
+    assert all(float(r["H_pooled"]) % 2.5 == 0 for r in rows)  # type: ignore[arg-type]
     loaded = card_understanding.load_pooled()
     assert len(loaded) == 922 and all(r["n_bewertungen"] == 2 for r in loaded.values())
     gaps = [abs(r["h_r2"] - r["h_f1"]) for r in loaded.values() if r["h_r2"] is not None]
@@ -177,6 +185,11 @@ def test_the_audit_doubts_stay_on_run_1_and_their_overlap_with_the_mean_is_count
         else:
             outside += 1
     assert (inside, outside) == (18, 15)
+    store, answer = _real_store_and_answer()
+    doubts = understanding_field.with_understanding(store, answer)[FIELD]["pruefer_zweifel"]
+    labels = [entry["kurz"] for entry in doubts["karten"].values()]
+    h_labels = [label for label in labels if "Begründung" not in label]
+    assert len(h_labels) == 33 and all(label.endswith("(zu H aus Lauf 1)") for label in h_labels)
     assert "Bei 18 von 33 H-Zweifeln" in REGISTER.read_text(encoding="utf-8")
 
 
@@ -453,15 +466,26 @@ console.log(JSON.stringify(out));
 
 
 def test_the_cell_names_the_count_the_mark_and_unrounded_values() -> None:
+    flag: card_understanding.AuditFlag = {
+        "card": "A",
+        "rater_H": 40.0,
+        "proposed_H_low": 55.0,
+        "proposed_H_high": 70.0,
+        "kind": "H zu niedrig",
+        "reason": "unterschätzt",
+        "sample": "boundary70",
+    }
+    doubt = json.dumps(understanding_field._doubt_entry(flag), ensure_ascii=False)
     script = (
         _tierliste_prelude()
+        + f"const DOUBT = {doubt};\n"
         + """
 const cards = [item('A', 'S', 70), item('B', 'S', 60), item('C', 'D', 1), item('D', 'D', 1), item('E', 'D', 1)];
 const rating = (art, wert, f1, r2, far) => ({art, wert, h_f1: f1, h_r2: r2, abweichung: far, n_bewertungen: art === 'mittel' ? 2 : 1,
   kurz: art, text: `text ${art}`, marke: far ? `Bewertungen weichen stark ab (Δ ${Math.abs(r2 - f1)}: Lauf 1 (F1) ${f1}, Lauf 2 (R2) ${r2})` : null});
 const field = {verfuegbar: true, grund: null, name: 'Kartenverständnis (Modellurteil)', kriterium: 'H', n_bewertet: 4, n_gesamt: 5,
   herkunft: {}, zahlen: [figure('A', 42.5), figure('B', 47.5), figure('C', 40), figure('D', 30)],
-  streuung: SPREAD, rauschgate: GATE, abdeckung: {}, regelclaim_befunde: {karten: {}}, pruefer_zweifel: null, laender_skala: null,
+  streuung: SPREAD, rauschgate: GATE, abdeckung: {}, regelclaim_befunde: {karten: {}}, pruefer_zweifel: {verfuegbar: true, karten: {A: DOUBT}}, laender_skala: null,
   bewertungen: {verfuegbar: true, grund: null, quelle: 'pooled.jsonl', text: 'H = Mittel der zwei Bewertungen, K1 nicht angewendet',
     laeufe: [{lauf: 'Lauf 1 (F1)', n: 922, N: 922}, {lauf: 'Lauf 2 (R2)', n: 922, N: 922}], n_mittel: 2, n_nur_erstbewertung: 1, n_nur_lauf_1: 1,
     N: 4, schwelle_abweichung: 15, n_abweichung: 1, abweichung_datensatz: {n: 266, N: 922},
@@ -481,6 +505,8 @@ console.log(JSON.stringify(out));
     assert isinstance(result, dict)
     a, b, c, d, e = result["cells"]
     assert a["text"].startswith("42,5") and "2 Bewertungen" in a["text"] and not a["mark"]
+    # the doubt was made on H_F1: the visible label says so beside the mean
+    assert "Prüfer-Modell bezweifelt H: zu niedrig (zu H aus Lauf 1)" in a["text"]
     assert b["text"].startswith("47,5") and b["mark"]
     assert "Bewertungen weichen stark ab (Δ 15: F1 40, R2 55)" in b["text"]
     assert c["text"].startswith("40 ") and "1 Bewertung, nur erste" in c["text"]

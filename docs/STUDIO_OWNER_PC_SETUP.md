@@ -119,7 +119,8 @@ Beim Start einer Partie (`prepare_table_deck_paths`) kommen weitere Ablehnungen:
 „Die Regeln-Engine XMage unterstützt diese Karten noch nicht: ...“,
 „Das Kartenwissen der KI kennt diese Karten noch nicht: ...“ (`launch.py`),
 die Sitz-Sperren (`launch.py`, je eine Zeile: `MAX_RELEASED_PLAY_SEATS` für Partien mit Mensch-Sitz, PR #1515,
-und `MAX_RELEASED_SEATS` für Serien und Partien ohne Mensch-Sitz; 2 bis 6 Sitze nach der Owner-Freigabe) und
+und `MAX_RELEASED_SEATS` für Serien und Partien ohne Mensch-Sitz; PLAY 2 bis 6 Sitze nach der Owner-Freigabe E16,
+Serien 2 bis 8 Sitze nach E18; die Partie-Seite zeigt höchstens 6 Sitze, `MAX_PARTIE_SEATS`) und
 „Die Partie konnte nicht gestartet werden: <letzte 5 Zeilen von games\<id>.out>“, wenn innerhalb von
 20 Sekunden kein Spiellog entsteht. Daher ist `games\<id>.out` die erste Log-Datei, die ein
 Befund beilegen soll.

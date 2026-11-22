@@ -29,20 +29,28 @@ from .store import StudioStore
 
 ENGINE_COMMAND_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
 ENGINE_JAR = Path("engine") / "xmage-engine-bridge.jar"
-MIN_SEATS, MAX_SEATS = 2, 6  # what the engine can seat (series and the CLI comparison use this)
+MIN_SEATS, MAX_SEATS = 2, 8  # what the engine can seat (series and the CLI comparison use this)
+# Seven and eight seats since #1672: the Owner instructed on 2026-11-22 "ja kümmer dich drum, dass
+# es halt geht und führe es auch ein für die Simulationen" (register entry E18). SIMULATE only.
 # The Studio has two seat locks, one per way of starting a table (#1661):
 #   MAX_RELEASED_SEATS      SIMULATE: series, batch, ``compare-decks``, ``TableSpec``, the series
 #                           plan, and games without a human seat (``launch.start_game``, a watched
 #                           AI game: it plays like a one-game series).
 #   MAX_RELEASED_PLAY_SEATS PLAY: a game with a human seat (``POST /api/games`` with ``human_seats``).
-# Both are six: the Owner released five and six seats on 2026-11-22 as a conditional go (register
-# entry E16, Refs #1661); the engine could always seat six, so each is a rule, not a limit. They are
-# two lines because the paths are released and, if need be, taken back separately.
-# Each lock is one line: setting one back to 4 (fail-closed, at any time on a defect) restores the old
-# state of that path (``allow_unreleased_seats`` is the explicit measurement switch for the
+# SIMULATE is eight (E18, #1672: seven and eight seats for simulations only), PLAY is six: the Owner
+# released five and six seats on 2026-11-22 as a conditional go (register entry E16, Refs #1661);
+# PLAY with seven or eight seats is not instructed. Each is a rule, not a limit. They are two lines
+# because the paths are released and, if need be, taken back separately.
+# Each lock is one line: setting SIMULATE back to 6 takes back seven and eight seats (E18), setting
+# one back to 4 (fail-closed, at any time on a defect) restores the state before E16 for that path (``allow_unreleased_seats`` is the explicit measurement switch for the
 # SIMULATE lock); a renewed release or changed conditions are the Owner's (AGENTS.md section 8).
-MAX_RELEASED_SEATS = 6
+MAX_RELEASED_SEATS = 8
 MAX_RELEASED_PLAY_SEATS = 6
+# The Partie page (``POST /api/games``: a watched AI game or a game with a human seat) shows at
+# most six seats: its board, its seat colours and the human-seat fields end there (#1672). A
+# technical cap of that route, not a release lock: a watched AI game follows the SIMULATE lock
+# (E16 no. 3) only up to here; seven and eight seats run as series and batches.
+MAX_PARTIE_SEATS = 6
 START_WAIT_SECONDS = 20.0
 MIN_WORKERS, MAX_WORKERS = 1, 16
 MIN_GAMES_PER_JVM, MAX_GAMES_PER_JVM = 1, 24
@@ -71,15 +79,34 @@ POD_PRESETS: dict[str, tuple[str, str, str]] = {
         "opponent/hosts-of-mordor-precon",
     ),
 }
-# Seats five and six of the same presets (#1702): the opponents beyond the four-seat table, named
-# one by one. ``POD_PRESETS`` plus these are the opponents of a table of up to six seats in this
+# Seats five to eight of the same presets (#1702, #1672): the opponents beyond the four-seat table,
+# named one by one. ``POD_PRESETS`` plus these are the opponents of a table of up to eight seats in this
 # order; a table of ``n`` seats takes the first ``n - 1`` of them (``pod_opponent_ids``). Plain
 # repository precons, chosen for a distinct commander each; no strength claim, and the engine's
 # support for each of them at five or six seats is UNKNOWN until the real-engine part of #1661.
-POD_PRESET_EXTRA_OPPONENTS: dict[str, tuple[str, str]] = {
-    "precon": ("precon/2023/veloci_ramp_tor", "precon/2023/blood_rites"),
-    "mixed": ("precon/2022/token_triumph", "precon/2023/veloci_ramp_tor"),
-    "optimized": ("precon/2023/divine_convocation", "precon/2024/death_toll"),
+# Seats seven and eight (#1672) are the last two of each tuple: plain repository precons again, a
+# distinct commander each, no strength claim. ``precon`` with them is table A7/A8 of the 7/8-seat
+# feasibility run (docs/analysis-reports/seats_7_8_feasibility_20261122.md, research branch); the
+# engine's support for the other new pairings at seven and eight seats is UNKNOWN until a run.
+POD_PRESET_EXTRA_OPPONENTS: dict[str, tuple[str, ...]] = {
+    "precon": (
+        "precon/2023/veloci_ramp_tor",
+        "precon/2023/blood_rites",
+        "precon/2023/divine_convocation",
+        "precon/2025/temur_roar",
+    ),
+    "mixed": (
+        "precon/2022/token_triumph",
+        "precon/2023/veloci_ramp_tor",
+        "precon/2023/blood_rites",
+        "precon/2023/divine_convocation",
+    ),
+    "optimized": (
+        "precon/2023/divine_convocation",
+        "precon/2024/death_toll",
+        "precon/2023/blood_rites",
+        "precon/2025/temur_roar",
+    ),
 }
 _EXTRA_OPPONENT_PATHS = (
     Path("data/decks/opponents/kaervek/current/deck.json"),
@@ -785,14 +812,17 @@ def validate_released_seat_count(
     allow_unreleased_seats: bool = False,
     play: bool = False,
 ) -> int:
-    """Validate opponent count (1..5) and enforce the seat lock unless overridden.
+    """Validate opponent count (1..7) and enforce the seat lock unless overridden.
 
     ``play=False`` (SIMULATE: series, batch, ``compare-decks``, a game without a human seat)
     checks ``MAX_RELEASED_SEATS``; ``play=True`` (a game with a human seat) checks
     ``MAX_RELEASED_PLAY_SEATS``. Both locks are read at call time.
     """
     if not MIN_SEATS - 1 <= opponent_count <= MAX_SEATS - 1:
-        raise ValueError("a game requires 1 to 5 opponents (zwischen 1 und 5)")
+        raise ValueError(
+            f"a game requires {MIN_SEATS - 1} to {MAX_SEATS - 1} opponents "
+            f"(zwischen {MIN_SEATS - 1} und {MAX_SEATS - 1})"
+        )
     released = MAX_RELEASED_PLAY_SEATS if play else MAX_RELEASED_SEATS
     if not allow_unreleased_seats and opponent_count > released - 1:
         what = "PLAY (a game with a human seat)" if play else "SIMULATE (series, AI-only games)"
@@ -815,7 +845,10 @@ def pod_opponent_ids(pod: str, opponent_count: int) -> tuple[str, ...]:
     if pod not in POD_PRESETS:
         raise ValueError(f"Unbekannter Gegnertisch (pod): {pod!r}")
     if not MIN_SEATS - 1 <= opponent_count <= MAX_SEATS - 1:
-        raise ValueError("a game requires 1 to 5 opponents (zwischen 1 und 5)")
+        raise ValueError(
+            f"a game requires {MIN_SEATS - 1} to {MAX_SEATS - 1} opponents "
+            f"(zwischen {MIN_SEATS - 1} und {MAX_SEATS - 1})"
+        )
     declared = (*POD_PRESETS[pod], *POD_PRESET_EXTRA_OPPONENTS.get(pod, ()))
     if opponent_count > len(declared):
         raise ValueError(
@@ -865,9 +898,16 @@ def prepare_table_deck_paths(
 ) -> tuple[str, list[Path]]:
     """Validate decks and resolve ordered seat deck paths plus a fresh ``game_id``.
 
-    ``play=True`` for a game with a human seat (the PLAY lock), else the SIMULATE lock."""
+    ``play=True`` for a game with a human seat (the PLAY lock), else the SIMULATE lock. Either way
+    the Partie page shows at most ``MAX_PARTIE_SEATS`` seats (#1672): a larger watched game is
+    refused here, with the SIMULATE lock at eight."""
     others = len(opponent_ids)
     validate_released_seat_count(others, play=play)
+    if others + 1 > MAX_PARTIE_SEATS:
+        raise ValueError(
+            f"the Partie page shows {MIN_SEATS} to {MAX_PARTIE_SEATS} seats; tables of "
+            f"{others + 1} seats run as a series or batch (SIMULATE)"
+        )
     if len(set(opponent_ids)) != len(opponent_ids):
         raise ValueError("every seat needs its own deck")
     if engine_command(data_folder) is None:

@@ -744,9 +744,9 @@ def test_studio_refuses_five_and_six_seats_at_the_seat_rule_when_both_locks_are_
         json={"revision_id": "r", "opponent_ids": ["a", "b", "c", "d"], "seed": 1},
     )
     assert refused.status_code == 422 and "tables of 5 seats are locked" in refused.text
-    # the engine limit stays 6: seven seats are refused even with the switch
-    with pytest.raises(ValueError, match="1 to 5 opponents"):
-        launch.validate_released_seat_count(6, allow_unreleased_seats=True)
+    # the engine limit is 8 since #1672: nine seats are refused even with the switch
+    with pytest.raises(ValueError, match="1 to 7 opponents"):
+        launch.validate_released_seat_count(8, allow_unreleased_seats=True)
 
 
 # ---- F5: the eight rule points at the Studio/bridge interface ---------------------------------
@@ -857,7 +857,7 @@ def test_f5_4_bridge_keeps_range_all_and_attack_multiple_for_every_table_size() 
     session = (
         ROOT / "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameSession.java"
     ).read_text(encoding="utf-8")
-    assert "MAX_PLAYERS = 6" in session
+    assert "static final int MAX_PLAYERS = 8;" in session  # 7/8 seats since #1672 (SIMULATE)
     assert '"Full Game Seat " + (index + 1)' in session  # the engine's seat names count from 1
 
 

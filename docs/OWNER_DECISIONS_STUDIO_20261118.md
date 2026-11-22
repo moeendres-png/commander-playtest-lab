@@ -769,13 +769,14 @@ gekennzeichnet (Einspruch des Owners jederzeit möglich).
    oder bei einem Defekt, jederzeit): die Konstante auf 4 setzen, plus die zugehörige Liste in `partie.js`
    bzw. `paired.js`; das ist ein Einzeiler je Pfad. Eine erneute Freigabe oder geänderte
    Bedingungen sind Owner-Sache. Die Obergrenze des Codes bleibt 6 (`MIN_SEATS, MAX_SEATS = 2, 6`).
+   **[Stand vor E18: seit E18 ist die Obergrenze 8 und `MAX_RELEASED_SEATS` 8, siehe E18.]**
 
 4. **7/8 Sitze (nur als Hinweis):** Der Owner hat am selben Tag für SIMULATE angewiesen („ja kümmer
    dich drum, dass es halt geht und führe es auch ein für die Simulationen“, #1656, Kommentar
    7071394052, Punkt 6; Einordnung des Co-Leads: direkte Owner-Anweisung im Sinne von
    `docs/OWNER_DECISION_SIX_PLAYER_MAX_20261108.md`). Vorgehen laut Co-Lead: erst ein isolierter
    Machbarkeitsversuch (#1672), nie als 4P/6P-Beleg; PLAY 7/8 ist nicht beauftragt. Dieser Eintrag
-   ändert die Obergrenze 6 im Code nicht.
+   ändert die Obergrenze 6 im Code nicht. **[Stand vor E18, siehe E18.]**
 
 5. **Aufgehobene Aussagen (historischer Stand vor E16):** Die Sätze „die Sperre bleibt bei 4“,
    „aktiv sind 2 bis 4 Sitze“ und „PLAY 5/6 ist nicht Teil des SIMULATE-Freigabe-PR“ in Q5 (E15), in
@@ -844,9 +845,90 @@ des Co-Leads bzw. der umsetzenden Sitzung (Einspruch des Owners jederzeit mögli
    verbessert, nicht über stille Korrekturen; das ist ein eigener Arbeitsschritt, nicht Teil der
    Anzeige-Änderung.
 
+### E18: 7 und 8 Sitze für SIMULATE (2026-11-22, #1672, #1656)
+
+Owner, 2026-11-22, Session-Chat. Der Co-Lead hat die Antwort in #1672, Kommentar 7071394382,
+festgehalten (gleichlautend #1656, Kommentar 7071394052, Punkt 6; „wörtlich soweit in
+Anführungszeichen“). Owner-Wortlaut ist nur, was dort in Anführungszeichen steht; alles andere ist
+Auslegung des Co-Leads (Einspruch des Owners jederzeit möglich).
+
+1. **Owner-Wortlaut zu 7/8 Sitzen:** „ja kümmer dich drum, dass es halt geht und führe es auch ein
+   für die Simulationen“. Einordnung des Co-Leads im selben Kommentar: eine direkte
+   Owner-Anweisung im Sinne von `docs/OWNER_DECISION_SIX_PLAYER_MAX_20261108.md` für **SIMULATE**;
+   PLAY mit 7 oder 8 Sitzen ist nicht beauftragt. Damit ist die Höchstzahl 6 aus dem Entscheid vom
+   2026-11-08 für SIMULATE aufgehoben (Höchstzahl 8); für PLAY bleibt sie.
+2. **Machbarkeit (vor der Einführung, wie vom Co-Lead angekündigt):** isolierter Versuch auf dem
+   Branch `research/seats-7-8-1672` (nie gegen `main` gemergt), Bericht
+   `docs/analysis-reports/seats_7_8_feasibility_20261122.md` dort (nicht in `main`; eine Kopie liegt
+   auf dem Bericht-Branch `docs/fable-sonnet-haiku-reports`): n/N = 12/12 Partien natürlich
+   beendet (7 Sitze 6/6, 8 Sitze 6/6), ohne Fork-Eingriff am Pin; `SIMULATED_RESULT` aus dem
+   Cloud-Container, nie ein 4P- oder 6P-Beleg, kein Qualifikationsbeleg.
+3. **Umsetzung (Auslegung des Co-Leads, #1672):** Die Obergrenze des Codes ist 8
+   (`studio/launch.py`: `MIN_SEATS, MAX_SEATS = 2, 8`; Runner, Pilot-Policy, Batch, Szenario-Modell;
+   Bridge-Konstante `MAX_PLAYERS = 8` unter dem Studio-Bridge-Gate, Art `NEUTRAL`, ohne Fork und
+   ohne Repin; die Mid-game-Lane der Bridge bleibt bei 6). Die SIMULATE-Sperre
+   `MAX_RELEASED_SEATS` ist 8, die PLAY-Sperre `MAX_RELEASED_PLAY_SEATS` bleibt 6. Die
+   Partie-Seite zeigt höchstens 6 Sitze (`MAX_PARTIE_SEATS`, technische Grenze der Seite, keine
+   Freigabe-Sperre); das engt E16 Nr. 3 („Partien ohne Mensch-Sitz folgen der SIMULATE-Sperre“) für
+   7/8 ein: 7 und 8 Sitze laufen nur als Serie oder Batch. Unverändert bleiben: der Pool-Pfad
+   (über 4 Sitze abgewiesen, keine Wandzeit-Grenze), das Replay-Tape (höchstens 5 Sitze, bei 7/8
+   kein Replay-Anspruch), die Konformanz-Tabelle und die Qualifikations-Lane (2 bis 6). Der Planer
+   rechnet bei 7/8 mit der Basis 1/N (14,3 % bzw. 12,5 %, Wilson ±20 % relativ); die Dauer einer
+   Serie bleibt `UNKNOWN`, die Seite nennt Dauer und Speicher einer Partie aus dem
+   Machbarkeitsversuch mit n/N und Herkunft. Kohorten je Sitzzahl werden nie gemischt; Reife
+   höchstens R1 (`AGENTS.md` §1).
+4. **Gates (Auslegung des Co-Leads, „dieselben Gates wie 5/6“):** (a) Determinismus bei 7 und 8
+   Sitzen gemessen, (b) F5-Szenarien bei 7 und 8 Sitzen, (c) Echt-Engine-Smoke über den
+   Studio-Serienpfad, (d) CI des Einführungs-PR grün, dazu das Studio-Bridge-Gate (Referenzsatz).
+   Die Belege stehen im PR-Text von #1762, in #1672 und im Bericht
+   `docs/analysis-reports/seats_7_8_simulate_gates_20261122.md` (Branch
+   `docs/fable-sonnet-haiku-reports`); das Register führt nur den Befund zu (a).
+   **Bedingung (a) ist bei 8 Sitzen nicht erfüllt, sondern vom Owner akzeptiert:** 7 Sitze gleichen
+   in allen Feldern 8/8 und 8/8; bei 8 Sitzen gleichen Transkript, Sieger und Entscheidungen 8/8,
+   der normalisierte Frame-Digest weicht in 1 von 8 Partien ab (Seed 7, ab Frame 1.286; je nach
+   Vergleichspaar 2 bis 5.539 von 7.238 Frames, in jedem abweichenden Frame nur die Reihenfolge von
+   Friedhofskarten, Pfad `players[].graveyard[]`). Nachmessung nach dem Review von #1762: Seed 7
+   noch dreimal einzeln, je eigene JVM ohne vorherige Partie: 3/3 weichen von der Einzel-Basis ab,
+   die drei Wiederholungen untereinander ebenfalls 3/3 (alle 6 Paare der vier Einzelläufe
+   verschieden, dazu `up`/`down`; 9/9 verglichene Paare nur in der Friedhofsreihenfolge). Das
+   Muster tritt also auch ohne JVM-Vorgeschichte von Lauf zu Lauf auf; die Ursache (Engine oder
+   Bridge) ist nicht gezeigt (`LOCAL_OBSERVED`, N = 8 Seeds und 4 Einzelläufe eines Seeds,
+   allgemein `UNKNOWN`). „Gemessen
+   und gleich“ im Sinne von E16 Nr. 2 gilt damit für 8 Sitze nicht: Das Owner-Wort (Nr. 7) trägt
+   die Abweichung bei 8 Sitzen als akzeptiert, nicht als erfüllt; E16 Nr. 6 deckte nur 6 Sitze.
+   Ein Eingriff in die Engine (Fork) bräuchte ein eigenes Owner-Go (`AGENTS.md` §8).
+5. **Zurücksetzen** (Auslegung des Co-Leads, fail-closed, jederzeit bei einem Defekt oder auf
+   Owner-Wunsch): `MAX_RELEASED_SEATS = 6` plus `PAIRED_RELEASED_SEATS = 6` in `paired.js`; das
+   ist ein Einzeiler je Datei. Eine erneute Freigabe oder geänderte Bedingungen sind Owner-Sache.
+   Spielen (PLAY) und die Partie-Seite bleiben bei 6 Sitzen: die Owner-Anweisung deckt nur
+   Simulationen.
+6. **Aufgehobene Aussagen (historischer Stand vor E18):** „Die Obergrenze des Codes bleibt 6“ (E16
+   Nr. 3) und „Dieser Eintrag ändert die Obergrenze 6 im Code nicht“ (E16 Nr. 4) beschreiben den
+   Stand vor E18 und bleiben als Verlauf stehen (E10). `docs/OWNER_DECISION_SIX_PLAYER_MAX_20261108.md`
+   trägt einen Hinweis auf E18.
+7. **Owner-Antwort zu 7/8 Sitzen und zur Abweichung bei 8 Sitzen (2026-11-22, Session-Chat,
+   Niederschrift des Co-Leads in #1672, Kommentar 7085156671).** Die dem Owner gestellte Frage steht
+   dort sinngemäß im Wortlaut des Co-Leads (kein Owner-Wortlaut): „Bei 8 Sitzen gleichen
+   Transkript, Sieger und Entscheidungen 8/8, der normalisierte Frame-Digest aber nur 7/8 (Seed 7:
+   in 2 von 7.238 Frames steht ein Friedhof in anderer Reihenfolge, von Lauf zu Lauf verschieden,
+   Ursache UNKNOWN); bei 6 Sitzen gab es dieselbe Art Abweichung und der Owner hat zugestimmt; 7
+   Sitze: 8/8 und 8/8 in allen Feldern. Wie soll 7/8 freigegeben werden?“ Antwort des Owners
+   (Auswahl, Wortlaut): **„7 und 8 freigeben (Empfehlung)“**. Einordnung der Prämisse: „von Lauf zu
+   Lauf verschieden“ war zum Zeitpunkt der Frage nur teils belegt (die drei damaligen Läufe hatten
+   verschiedene JVM-Vorgeschichte); die Nachmessung (Nr. 4) zeigt es für Einzelläufe ohne
+   Vorgeschichte, die Ursache bleibt UNKNOWN. „Dieselbe Art Abweichung wie bei 6 Sitzen“ trifft nur
+   als verwandt zu, nicht als gleich: bei 6 Sitzen (E16 Nr. 6) ein Schadensmarker, 2 von 3
+   Wiederholungen abweichend; hier die Reihenfolge von Friedhofskarten, jede Einzelwiederholung
+   abweichend; gemeinsam ist nur, dass Entscheidungen, Sieger und Transkript gleich blieben und nur
+   die Beobachtung abweicht. Damit sind 7 und 8 Sitze für
+   Simulationen freigegeben; die Abweichung steht hier als beobachteter Lauf-zu-Lauf-Effekt,
+   Ursache UNKNOWN (Nr. 4), nicht als erfüllte Bedingung. Zurücksetzen der SIMULATE-Sperre auf 6 ist
+   jederzeit erlaubt (Nr. 5, Auslegung des Co-Leads, fail-closed); eine Neufreigabe entscheidet nur
+   der Owner. PLAY und die Partie-Seite bleiben bei 6.
+
 ### E19: Anzeige des gepoolten H, Mittelwert beider Bewertungen (2026-11-22, #1404, #1764)
 
-(E18 ist für die Sitze 7/8 reserviert, offener Entwurf PR #1762.) Owner, 2026-11-22, Session-Chat; Niederschrift des
+Owner, 2026-11-22, Session-Chat; Niederschrift des
 Co-Leads in #1404, Kommentar 7085569723. Frage des Co-Leads (sinngemäß, Wortlaut des Co-Leads, nicht
 des Owners): Soll die Tierliste künftig den Mittelwert beider Bewertungen (H_pooled) anzeigen? Dazu
 die Angaben: Rangübereinstimmung beider Bewertungen gut (Spearman 0,83), bei Spells liegt die
@@ -864,22 +946,24 @@ Plan `docs/analysis-reports/rating_full_second_run_plan_20261122.md` §4 und §9
    **keine** Zusatzkorrektur K1; Karten mit |ΔH| ≥ 15 tragen eine Marke.
 2. **Umsetzung (umsetzende Sitzung, nur Anzeige):** Das Studio liest H_pooled nur aus
    `data/research/chulane_rubric_v2_20261118/second_run_full_20261122/pooled.jsonl`
-   (`card_understanding.load_pooled`, an die SHA-256 in `results_sha256.txt` gebunden, in Tests aus
-   den Rohausgaben beider Läufe nachgerechnet); die Datei und `card_understanding_v2_1.jsonl`
+   (`card_understanding.load_pooled`; in Tests an die SHA-256 in `results_sha256.txt` gebunden und
+   aus den Rohausgaben beider Läufe nachgerechnet, zur Laufzeit prüft das Studio nur die
+   Zeilenregeln, keinen Hash); die Datei und `card_understanding_v2_1.jsonl`
    bleiben unverändert, das Feld `H_pooled_K1_vorschlag` wird nie gelesen. Jede Zelle nennt die
    Zahl der Bewertungen („2 Bewertungen“ bzw. „1 Bewertung, nur erste“), das Kartenfenster beide
    Rohwerte mit Herkunft („Lauf 1 (F1)“, „Lauf 2 (R2)“, n/N je Lauf, heute 922/922); |ΔH| ≥ 15
    (266 von 922 Karten, ab 30: 22) trägt die Marke „Bewertungen weichen stark ab (Δ …)“ mit beiden
    Werten. Ohne verwendbaren Poolwert (Datei fehlt oder ist kaputt, Karte fehlt, oder ihr H_F1 ist
    nicht das H des Datensatzes) zeigt die Karte H_F1 mit „nur Lauf 1“; „unbekannt“ bleibt nie 0.
-   Werte in Punkten werden ohne Rundung angezeigt (42,5).
+   Werte in Punkten werden aus den Daten unverändert angezeigt (Raster 2,5, etwa 42,5; ein Test
+   prüft das Raster).
 3. **Unverändert:** `SPREAD_FLOOR = NOISE_GATE = 8`; der gepoolte Standardfehler 5,50 steht nur mit
    seiner Bedingung in Tooltip und Quellenliste (gilt nur bei unabhängigen Fehlern, nicht belegt,
    A3). H hat weiter keine Stufe, keinen Rang, keine Sortierung und keinen Filter (E15 Q1); die
    Stufen der Tierliste beruhen auf dem Nutzungsindex. Auf H_F1 bleiben: die sechs anderen
    Kriterien, Notizen, Begründung, Regelclaims und Rater-Vertrauen (gemittelt wird nur H), die
    Zuordnung der Zweifel aus Rating-Audit A und das Rauschgate darauf (der Prüfer sah H_F1; der
-   Zweifeltext nennt das), die Länder-Zählung. Bei 18 von 33 H-Zweifeln liegt der angezeigte
+   sichtbare Zweifel-Kurztext endet auf „(zu H aus Lauf 1)“), die Länder-Zählung. Bei 18 von 33 H-Zweifeln liegt der angezeigte
    Mittelwert schon in der Spanne des Prüfers (bei 15 außerhalb, bei 0 auf der anderen Seite); die
    Marke bleibt unverändert, ob sie angepasst wird, ist offen (Co-Lead/Owner, PR-Liste). Das Streuungsband einer Zelle richtet sich nach dem
    angezeigten Wert; Werte zwischen den Bändern (etwa 12,5 oder 57,5) zeigen den Mindestwert. Kein
@@ -909,6 +993,7 @@ Plan `docs/analysis-reports/rating_full_second_run_plan_20261122.md` §4 und §9
 | Entscheid-Dokumente: „fortgeschrieben, nie gelöscht“ (diese Datei, `AGENTS.md` §9 „archived, never deleted“) | überholter Wortlaut darf mit Begründung, Datum und Verweis im PR ersetzt oder entfernt werden; Git-Historie bleibt Quelle (E10) | Owner 2026-11-19, #1612 |
 | F1 offen (Entscheide 2026-11-20/21, Nr. 3): Einflussbereich, Angriffsoption, 6 Sitze ohne Replay-Anspruch | angenommen wie im Entwurf des Teil-A-Berichts §4, Wortlaut mit Pfad und Commit-SHA kopiert; schließt nur Voraussetzung (c), `launch.MAX_RELEASED_SEATS = 4` bleibt, (a) und (b) und das finale Ja fehlen, PLAY 5/6 bleibt getrennt (Entscheide 2026-11-21, Nr. 5; **Stand vor E16**, das bedingte Go vom 2026-11-22 überholt die Sperre und die Trennung) | Owner 2026-11-21 (2a; #1656, #1167) |
 | 5/6-Freigabe „nur nach finalem Ja“ (Entscheide 2026-11-20/21, Nr. 1; 2026-11-21, Nr. 5 und 8) | bedingtes Go: „Ja 5/6 sitze freigegeben wenn alles dabei funktioniert“, SIMULATE und PLAY; beide Sperren auf 6, Rücknahme ein Einzeiler (E16) | Owner 2026-11-22 (#1656, Kommentar 7071394052) |
+| Höchstzahl 6 Sitze für jede Simulation (`docs/OWNER_DECISION_SIX_PLAYER_MAX_20261108.md`), Obergrenze des Codes 6 (E16 Nr. 3) | SIMULATE bis 8 Sitze: `MAX_SEATS` 8, `MAX_RELEASED_SEATS` 8; PLAY bleibt 6 (`MAX_RELEASED_PLAY_SEATS`, Partie-Seite höchstens 6); Rücknahme ein Einzeiler; bei 8 Sitzen Frame-Digest 7/8, vom Owner akzeptiert („7 und 8 freigeben (Empfehlung)“) (E18) | Owner 2026-11-22 (#1672, Kommentare 7071394382 und 7085156671) |
 | Pflichtlektüre: `AGENTS.md`, `CLAUDE.md`, `STUDIO_SCOPE.md` (verbindlicher Scope), beide Entscheid-Dateien, `STUDIO_PLAN_SIMULATOR.md`, Onboarding; seit E15 Q10 zuerst Charta v2 und Register, Scope blieb verbindlich | Charta v2 und Entscheid-Register sind die Pflichtlektüre; Scope, Plan und Roadmap sind archiviert, ihre bindenden Regeln stehen in Abschnitt 6, der Referenzsatz des Bridge-Gates in `docs/STUDIO_BRIDGE_GATE_TOOLING.md` (Entscheide 2026-11-21, Nr. 6) | Owner 2026-11-21 (8a; #1656, #1167) |
 | Kartenverständnis H: angezeigt wird H_F1 (eine Bewertung je Karte) | angezeigt wird H_pooled, das Mittel der zwei Bewertungen (ungerundet, `n_bewertungen` und beide Rohwerte sichtbar, Marke ab \|ΔH\| ≥ 15, ohne K1); Rückfall auf H_F1 mit „nur Lauf 1“; Streuung bleibt „mindestens ±8“ (E19) | Owner 2026-11-22 (#1404, Kommentar 7085569723) |
 
@@ -925,7 +1010,7 @@ Plan `docs/analysis-reports/rating_full_second_run_plan_20261122.md` §4 und §9
 - Sitze: Höchstzahl 6 (`docs/OWNER_DECISION_SIX_PLAYER_MAX_20261108.md`), Standard 4. Aktiv sind
   2 bis 4 Sitze; 5 und 6 sind nicht freigegeben (eigene Qualifikation und Owner-Freigabe, A3,
   A8). Zur technischen Sperre siehe Abschnitt 3. **[Stand vor E16: überholt durch das bedingte Go
-  vom 2026-11-22, siehe E16.]**
+  vom 2026-11-22, siehe E16.]** **[Für SIMULATE seit E18 (2026-11-22) Höchstzahl 8; PLAY bleibt bei 6.]**
 - Sammlungstrennung (Lesart des Optionspapiers, Owner-Bestätigung offen): Die Sammlung dieses Repositorys (`collection_1655`) und die von
   `deckbuild-studio` bleiben getrennte Bestände und werden nicht verrechnet.
 - Merge-Gate nach `AGENTS.md` §10.
@@ -939,6 +1024,7 @@ Nicht durch die Anweisung, nach den Empfehlungen zu arbeiten, oder das GO abgede
 - Versiegeln, Entsiegeln oder Umschreiben von Datensätzen unter `qualification/`.
 - `pyproject.toml`, `requirements/lock.txt` und dessen Digest (außer innerhalb einer
   Neuversiegelung oder der D5-Freigabe, `AGENTS.md` §4, §10).
+- Freigabe von 7 und 8 Sitzen für PLAY (nicht beauftragt; SIMULATE 7/8 seit E18, Zurücksetzen auf 6 jederzeit fail-closed erlaubt).
 - Freigabe von 5 und 6 Sitzen (erteilt als bedingtes Go am 2026-11-22, E16; Zurücksetzen der Sperren auf 4 ist nach der Auslegung des Co-Leads (E16 Nr. 3) jederzeit fail-closed erlaubt, eine erneute Freigabe oder geänderte Bedingungen sind Owner-Sache).
 - Sichtbarkeit der Repositorys und #1108.
 - Bezahldienste, Preisdaten und Kaufabwicklung (T3 aus E14); ausgenommen ist die Preisanzeige für den TAM-Zukauf (2026-11-21, „Preise für TAM“).

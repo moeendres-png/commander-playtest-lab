@@ -13,10 +13,12 @@ plays real 100-card Commander decks rules-correctly, so simulated games can stan
 
 - Rules-correct play is required, but not at any cost: where full correctness for a rare interaction
   is unreachable, record the gap visibly and move on. Simulate as many cards as possible, including
-  cards the base XMage engine lacks. Four players is the usual game and six seats the maximum; two
-  to six seats are active: the Owner released five and six seats on 2026-11-22 as a conditional go
-  (`docs/OWNER_DECISIONS_STUDIO_20261118.md`, E16); the measurements are `SIMULATED_RESULT`, not a
-  qualification.
+  cards the base XMage engine lacks. Four players is the usual game. PLAY runs two to six seats:
+  the Owner released five and six seats on 2026-11-22 as a conditional go
+  (`docs/OWNER_DECISIONS_STUDIO_20261118.md`, E16). Simulations (AI on every seat) run two to eight
+  seats by the Owner's instruction of 2026-11-22 („führe es auch ein für die Simulationen“, E18;
+  Co-Lead reading: SIMULATE only, same gates as five and six seats). The measurements are
+  `SIMULATED_RESULT`, not a qualification.
 - The simulator is one part of the local Commander Studio (BUILD, PLAY, SIMULATE):
   `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`. Required reading before any Studio
   work is the charter `docs/STUDIO_CHARTA_V2.md` (the Owner accepted only its §5, Q1 to Q11; the
@@ -230,7 +232,11 @@ Owner's go); setting or rotating secrets, paid services, account or repository v
 play or qualification (released by the Owner on 2026-11-22 as a conditional go, register E16: „Ja 5/6
 sitze freigegeben wenn alles dabei funktioniert“; Co-Lead reading, register E16 no. 3, fail-closed: setting
 the seat locks back to 4 is allowed at any time; a renewed release or changed conditions are the
-Owner's); lifting paused or externally gated items (the all-commander harvest #1210,
+Owner's); releasing seven- or eight-seat PLAY or more than six seats on the Partie page (Co-Lead
+reading, register E18: the Owner's words of 2026-11-22, „führe es auch ein für die Simulationen“
+and „7 und 8 freigeben (Empfehlung)“, release seven and eight seats for simulations only, the
+frame deviation at eight seats accepted, not met; fail-closed: setting the SIMULATE lock back to
+6 is allowed at any time; a renewed release of seven and eight seats is the Owner's); lifting paused or externally gated items (the all-commander harvest #1210,
 the Drive-dependent import #1187/#1176, scraping a site without a public API (the Cardmarket price
 guide download for the TAM purchase list is an Owner exception of 2026-11-22, §12; Co-Lead
 reading, register: the Owner's words do not name the price guide, it came afterwards as the

@@ -445,7 +445,7 @@ def _parser() -> argparse.ArgumentParser:
         "--opponent",
         action="append",
         required=True,
-        help="deck file of one opponent seat (repeat for each, 1 to 5)",
+        help="deck file of one opponent seat (repeat for each, 1 to 7)",
     )
     compare.add_argument(
         "--pairs",
@@ -480,7 +480,7 @@ def _parser() -> argparse.ArgumentParser:
         "--allow-unreleased-seats",
         action="store_true",
         help=(
-            "allow a table above the seat lock (launch.MAX_RELEASED_SEATS, up to 6 seats); "
+            "allow a table above the seat lock (launch.MAX_RELEASED_SEATS, up to 8 seats); "
             "for qualification and measurement runs only"
         ),
     )
