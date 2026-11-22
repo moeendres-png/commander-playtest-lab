@@ -1,0 +1,9 @@
+{"pair": "s8_single vs s8_rep1", "result": {"frames": 7238, "differing_frames": 1906, "paths": {".players[].graveyard[]": 3812}}}
+{"pair": "s8_single vs s8_rep2", "result": {"frames": 7238, "differing_frames": 1906, "paths": {".players[].graveyard[]": 3816}}}
+{"pair": "s8_single vs s8_rep3", "result": {"frames": 7238, "differing_frames": 5539, "paths": {".players[].graveyard[]": 16796}}}
+{"pair": "s8_rep1 vs s8_rep2", "result": {"frames": 7238, "differing_frames": 1906, "paths": {".players[].graveyard[]": 5720}}}
+{"pair": "s8_rep1 vs s8_rep3", "result": {"frames": 7238, "differing_frames": 5539, "paths": {".players[].graveyard[]": 14890}}}
+{"pair": "s8_rep2 vs s8_rep3", "result": {"frames": 7238, "differing_frames": 5539, "paths": {".players[].graveyard[]": 14892}}}
+{"pair": "s8_single vs s8_up", "result": {"frames": 7238, "differing_frames": 2, "paths": {".players[].graveyard[]": 6}}}
+{"pair": "s8_single vs s8_down", "result": {"frames": 7238, "differing_frames": 5539, "paths": {".players[].graveyard[]": 14894}}}
+{"pair": "s8_up vs s8_down", "result": {"frames": 7238, "differing_frames": 5539, "paths": {".players[].graveyard[]": 14890}}}
