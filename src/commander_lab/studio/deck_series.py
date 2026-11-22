@@ -22,7 +22,7 @@ from collections.abc import Mapping
 from pathlib import Path
 
 from .games import games_folder
-from .paired_series import SCHEMA_PAIRED_JOB, validate_series_id
+from .paired_series import SCHEMA_PAIRED_JOB, observed_table_sizes, validate_series_id
 from .store import StudioStore
 from .table_spec import sha256_of
 
@@ -146,13 +146,29 @@ def series_status(raw: Mapping[str, object]) -> str:
     return STATUS_COMPLETED
 
 
-def series_table_size(raw: Mapping[str, object]) -> int | None:
-    """The table size a stored series names (#1661): ``seed_plan.player_count`` (2 to 6), else
-    None ("Tischgröße unbekannt", an older record). Never the number of tested seats: a series
+def series_table_check(raw: Mapping[str, object]) -> tuple[int | None, str]:
+    """The table size of a stored series and how it was checked (#1661).
+
+    The plan names it (``seed_plan.player_count``, 2 to 6); the played games name it too (the
+    seat rows of their headers, ``paired_series.observed_table_sizes``). ``consistent``: both
+    agree; ``unobserved``: no played game shows a size yet (the planned size stands);
+    ``mismatch``: they differ, so the size is unknown (fail-closed, never one of the two);
+    ``unknown``: the plan names no valid size. Never the number of tested seats: a series
     without seat rotation tests one seat at any table size."""
     plan = raw.get("seed_plan")
     count = plan.get("player_count") if isinstance(plan, dict) else None
-    return count if type(count) is int and 2 <= count <= 6 else None
+    planned = count if type(count) is int and 2 <= count <= 6 else None
+    if planned is None:
+        return None, "unknown"
+    seen = observed_table_sizes(raw)
+    if seen is None:
+        return planned, "unobserved"
+    return (planned, "consistent") if seen == [planned] else (None, "mismatch")
+
+
+def series_table_size(raw: Mapping[str, object]) -> int | None:
+    """The checked table size of a stored series (``series_table_check``), None = unknown."""
+    return series_table_check(raw)[0]
 
 
 def _entry(raw: Mapping[str, object], status: str) -> dict[str, object]:
@@ -206,6 +222,7 @@ def _entry(raw: Mapping[str, object], status: str) -> dict[str, object]:
         "seats_planned": not counts,
         # 4-, 5- and 6-seat series are separate cohorts (base win rate 1/N); None = unknown
         "table_size": series_table_size(raw),
+        "table_size_check": series_table_check(raw)[1],
         "pilots": _str_list(res.get("pilots")),
         "bridge_jar_sha256s": bridge_shas,
         "bridge_qualification_states": qualification,

@@ -73,12 +73,14 @@ function pairedTableLines(table) {
   return lines;
 }
 
-// Five and six seats (#1661, part B, F6): the four-seat rate divided by the measured wall ratio of
-// one game (table A, seeds 1-10, one JVM per game, n = 10/10 games per seat count). A median
-// ratio is no floor: the text says "geschätzt (abgeleitet)", never "mindestens". The pool series of
-// part B is a reference with its own n/N, not the figure (paired_series.WALL_RATIO_VS_FOUR_SEATS,
-// POOL_REFERENCE_PART_B; a test holds them equal).
+// Five and six seats (#1661, part B, F6): the four-seat batch rate divided by the ratio of the
+// wall-time medians of table A only (seeds 1-10, one JVM per game, n = 10/10 games per seat count).
+// A ratio of one table's medians is neither floor nor forecast: the text says "grobe Orientierung aus
+// Tisch A", never "mindestens", and names the spread (seed-pair median, table B) and the measured pool
+// series of part B with its own n/N (paired_series.WALL_RATIO_VS_FOUR_SEATS,
+// WALL_RATIO_SEED_PAIR_MEDIAN, WALL_RATIO_TABLE_B_VS_A4, POOL_REFERENCE_PART_B; a test holds them equal).
 const PAIRED_WALL_RATIO_VS_FOUR_SEATS = { 5: 1.56, 6: 2.22 };
+const PAIRED_WALL_RATIO_SPREAD = { 5: [1.63, 1.43], 6: [2.63, 1.68] };
 const PAIRED_POOL_REFERENCE_PART_B = { 5: [607.3, 50, 50], 6: [379.2, 72, 72] };
 
 function estimatePairedText(budgetPairs, workers = 4, tableSeats = PAIRED_MEASURED_TABLE_SEATS) {
@@ -89,7 +91,8 @@ function estimatePairedText(budgetPairs, workers = 4, tableSeats = PAIRED_MEASUR
     const rate = PAIRED_MEASURED_BATCH_GAMES_PER_HOUR / ratio;
     const seconds = Math.round(games * (3600.0 / rate));
     const [poolRate, poolN, poolPlanned] = PAIRED_POOL_REFERENCE_PART_B[Number(tableSeats)];
-    return `Dauer: geschätzt ~${StudioUI.num(seconds / 60.0, 1)} min für bis zu ${StudioUI.num(games, 0)} Partien (abgeleitet, keine Untergrenze): die 541 Partien/h des Vierertischs (#1251) geteilt durch das gemessene Wandzeit-Verhältnis ${StudioUI.num(ratio, 2)} je Partie bei ${StudioUI.num(tableSeats, 0)} Sitzen (#1661 Teil B: Tisch A, Seeds 1–10, n = 10/10 Partien je Sitzzahl), also etwa ${StudioUI.num(rate, 0)} Partien/h. Zum Vergleich gemessen: gepaarte Serie im Pool mit 3 Workern ${StudioUI.num(poolRate, 0)} Partien/h (n = ${StudioUI.num(poolN, 0)}/${StudioUI.num(poolPlanned, 0)} Partien), ein anderer Weg. Früher Stopp je nach Look möglich.`;
+    const [seedPair, tableB] = PAIRED_WALL_RATIO_SPREAD[Number(tableSeats)];
+    return `Dauer: grobe Orientierung ~${StudioUI.num(seconds / 60.0, 1)} min für bis zu ${StudioUI.num(games, 0)} Partien, aus Tisch A (weder Untergrenze noch Prognose): die Batch-Rate des Vierertischs von 541 Partien/h (ganze Batch-Serie, 6 Worker, 8 Partien je JVM, #1251) geteilt durch das Verhältnis der Wandzeit-Mediane ${StudioUI.num(ratio, 2)} bei ${StudioUI.num(tableSeats, 0)} Sitzen (#1661 Teil B: nur Tisch A, Seeds 1–10, n = 10/10 Partien je Sitzzahl), also etwa ${StudioUI.num(rate, 0)} Partien/h. Das Verhältnis streut: Median der Seed-Paar-Verhältnisse ${StudioUI.num(seedPair, 2)}, Tisch B gegen Tisch A mit 4 Sitzen etwa ${StudioUI.num(tableB, 2)}. Gemessen ist die gepaarte Serie im Pool mit 3 Workern mit ${StudioUI.num(poolRate, 0)} Partien/h (n = ${StudioUI.num(poolN, 0)}/${StudioUI.num(poolPlanned, 0)} Partien), ${poolRate > rate ? "schneller" : "langsamer"} als dieser Wert: die Dauer kann deutlich kürzer oder länger sein. Früher Stopp je nach Look möglich.`;
   }
   if (Number(tableSeats) !== PAIRED_MEASURED_TABLE_SEATS) {
     return `Dauer: unbekannt (UNKNOWN). Für einen Tisch mit ${StudioUI.num(tableSeats, 0)} Sitzen ist kein Durchsatz gemessen (n = 0 Partien); gemessen sind nur Vierertische (541 Partien/h, ganze Batch-Serie mit 6 Workern, #1251; die Zahl der Partien dieser Messung ist im Repository nicht belegt) und das Wandzeit-Verhältnis für 5 und 6 Sitze (#1661 Teil B). Aufwand: bis zu ${StudioUI.num(pairs * 2, 0)} Partien (${StudioUI.num(pairs, 0)} je Arm).`;

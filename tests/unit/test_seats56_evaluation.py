@@ -17,6 +17,7 @@ import subprocess
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 from starlette.testclient import TestClient
 
 from commander_lab.engine.rules.full_game_comparison import difference_quantiles
@@ -30,7 +31,13 @@ from commander_lab.studio import (
     paired_series,
     table_spec,
 )
-from tests.unit.test_seats_5_6_simulate_1702 import HEADERS, _finished, lab  # noqa: F401
+from commander_lab.studio.table_spec import TableSpec
+from tests.unit.test_seats_5_6_simulate_1702 import (  # noqa: F401
+    HEADERS,
+    _finished,
+    _stored_locked_table_series,
+    lab,
+)
 from tests.unit.test_studio_maturity import _assess, _finding
 
 STATIC = Path(paired_series.__file__).resolve().parent / "static"
@@ -77,25 +84,36 @@ def _independent_wilson_half_width(p: float, n: int) -> float:
 # -- the lock stays: the shipped lock still refuses five and six seats ------------------------
 
 
-def test_the_shipped_lock_of_four_seats_still_refuses_five_and_six(
+def test_the_shipped_lock_is_read_from_the_module_and_refuses_what_it_does_not_release(
     lab: dict[str, object],  # noqa: F811
-    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    # the lock as main ships it (four); set here so the test keeps holding after a release
-    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)
-    for opponents in (4, 5):
-        with pytest.raises(ValueError, match="locked"):
-            launch.validate_released_seat_count(opponents)
+    # the value main ships (4 until the release #1743, 6 after it), never lowered below four
+    # and never above what the engine can seat; no monkeypatch here
+    released = launch.MAX_RELEASED_SEATS
+    assert 4 <= released <= launch.MAX_SEATS
     client = lab["client"]
     assert isinstance(client, TestClient)
-    for seats in (5, 6):
+    for seats in (4, 5, 6):
+        locked = seats > released
+        opponents = list(launch.pod_opponent_ids("precon", seats - 1))
+        if locked:
+            with pytest.raises(ValueError, match="locked"):
+                launch.validate_released_seat_count(seats - 1)
+            with pytest.raises(ValidationError, match="locked"):  # the experiment's table
+                TableSpec(seats=seats, opponents=opponents)
+        else:
+            assert launch.validate_released_seat_count(seats - 1) == seats
+            assert TableSpec(seats=seats, opponents=opponents).seats == seats
         plan = client.get(
             f"/api/simulations/paired-plan?budget_pairs={seats * seats}&table_size={seats}",
             headers=HEADERS,
         ).json()
-        # planning (with the base win rate 1/N) is allowed, starting is not
-        assert plan["table"]["released"] is False
+        # planning (with the base win rate 1/N) is allowed at every size; starting follows the lock
+        assert plan["table"]["released"] is (not locked)
         assert plan["baseline"]["table_size"] == seats
+    js = (STATIC / "paired.js").read_text(encoding="utf-8")
+    shipped = re.search(r"const PAIRED_RELEASED_SEATS = (\d+);", js)
+    assert shipped is not None and int(shipped.group(1)) == released  # the page follows the module
 
 
 # -- planner: base win rate 1/N and the Wilson games at five and six seats --------------------
@@ -162,24 +180,30 @@ def test_the_plan_at_five_and_six_seats_is_built_on_one_over_n(seats: int, sd: f
     assert fixed["assumptions"]["pair_sd"] == sd  # type: ignore[index]
 
 
-# -- duration: derived from the measured wall ratio, never a floor; 2/3 stay UNKNOWN ---------
+# -- duration: a rough orientation from table A, never a floor; 2/3 stay UNKNOWN -----------
 
 
 @pytest.mark.parametrize(
-    ("seats", "pairs", "ratio", "seconds", "minutes", "pool"),
-    [(5, 25, 1.56, 519, 8.7, (607.3, 50, 50)), (6, 36, 2.22, 1063, 17.7, (379.2, 72, 72))],
+    ("seats", "pairs", "ratio", "seconds", "minutes", "pool", "spread"),
+    [
+        (5, 25, 1.56, 519, 8.7, (607.3, 50, 50), ("1,63", "1,43")),
+        (6, 36, 2.22, 1063, 17.7, (379.2, 72, 72), ("2,63", "1,68")),
+    ],
 )
-def test_the_duration_at_five_and_six_seats_is_a_derived_estimate_with_n_of_n(
+def test_the_duration_at_five_and_six_seats_is_a_rough_orientation_with_n_of_n(
     seats: int,
     pairs: int,
     ratio: float,
     seconds: int,
     minutes: float,
     pool: tuple[float, int, int],
+    spread: tuple[str, str],
 ) -> None:
     est = paired_series.estimate_series_duration(pairs, seats_per_seed=seats, table_size=seats)
-    assert est["duration_known"] is True and est["duration_kind"] == "derived_estimate"
+    assert est["duration_known"] is True and est["duration_kind"] == "rough_orientation"
     assert est["wall_ratio_vs_four_seats"] == ratio and est["wall_ratio_games"] == [10, 10]
+    assert est["wall_ratio_seed_pair_median"] == float(spread[0].replace(",", "."))
+    assert est["wall_ratio_table_b_vs_a4"] == float(spread[1].replace(",", "."))
     # 2 * pairs games at 541.2 / ratio games per hour, hand-computed
     assert est["estimated_seconds"] == seconds and est["estimated_minutes"] == minutes
     assert est["games_per_hour_used"] == round(541.2 / ratio, 1)
@@ -191,12 +215,25 @@ def test_the_duration_at_five_and_six_seats_is_a_derived_estimate_with_n_of_n(
     assert (ref["games_per_hour"], ref["games"], ref["planned"]) == pool
     basis = str(est["basis"])
     minutes_de = str(minutes).replace(".", ",")
-    assert basis.startswith(f"geschätzt ~{minutes_de} min (abgeleitet, keine Untergrenze)")
-    assert "mindestens" not in basis and "n = 10/10" in basis
+    assert basis.startswith(
+        f"grobe Orientierung ~{minutes_de} min aus Tisch A (weder Untergrenze noch Prognose)"
+    )
+    assert "mindestens" not in basis and "n = 10/10" in basis and "nur Tisch A" in basis
+    assert "6 Worker, 8 Partien je JVM" in basis
+    assert f"Median der Seed-Paar-Verhältnisse {spread[0]}" in basis
+    assert f"Tisch B gegen Tisch A mit 4 Sitzen etwa {spread[1]}" in basis
     assert f"n = {pool[1]}/{pool[2]} Partien" in basis
+    # the measured pool series is faster than the figure: it is said, not hidden
+    assert pool[0] > 541.2 / ratio and "schneller als dieser Wert" in basis
     planning = est["planning"]
     assert isinstance(planning, dict)
     assert planning["baseline"]["table_size"] == seats  # type: ignore[index]
+
+
+def test_a_table_size_the_engine_cannot_seat_is_an_error_never_a_stand_in_four() -> None:
+    for seats in (1, 7):
+        with pytest.raises(ValueError, match="Tischgröße"):
+            paired_series.estimate_series_duration(10, table_size=seats)
 
 
 def test_two_and_three_seats_stay_unknown_and_four_stays_the_floor() -> None:
@@ -219,6 +256,20 @@ def test_the_page_constants_equal_the_server_figures() -> None:
     assert {5: float(ratios.group(1)), 6: float(ratios.group(2))} == (
         paired_series.WALL_RATIO_VS_FOUR_SEATS
     )
+    spread = re.search(
+        r"const PAIRED_WALL_RATIO_SPREAD = \{ 5: \[([\d.]+), ([\d.]+)\], "
+        r"6: \[([\d.]+), ([\d.]+)\] \};",
+        js,
+    )
+    assert spread is not None
+    assert [float(spread.group(i)) for i in (1, 3)] == [
+        paired_series.WALL_RATIO_SEED_PAIR_MEDIAN[5],
+        paired_series.WALL_RATIO_SEED_PAIR_MEDIAN[6],
+    ]
+    assert [float(spread.group(i)) for i in (2, 4)] == [
+        paired_series.WALL_RATIO_TABLE_B_VS_A4[5],
+        paired_series.WALL_RATIO_TABLE_B_VS_A4[6],
+    ]
     pool = re.search(
         r"const PAIRED_POOL_REFERENCE_PART_B = \{ 5: \[([\d.]+), (\d+), (\d+)\], "
         r"6: \[([\d.]+), (\d+), (\d+)\] \};",
@@ -472,7 +523,8 @@ def test_the_plan_dialog_names_one_over_n_and_the_wilson_games(
     assert f"Siegrate = Zufallsbasis 1/{seats}" in lines[2]
     assert "rund 800 Partien für ±3 pp" in four_lines[1]  # four seats: as before
     est = str(out["est"])
-    assert est.startswith("Dauer: geschätzt ~") and "keine Untergrenze" in est
+    assert est.startswith("Dauer: grobe Orientierung ~") and "weder Untergrenze" in est
+    assert "6 Worker, 8 Partien je JVM" in est and "schneller als dieser Wert" in est
     assert "mindestens" not in est and "n = 10/10" in est
 
 
@@ -505,17 +557,14 @@ def test_five_and_six_seat_experiments_reach_the_deck_builder_as_two_cohorts(
             "first_seed": first,
         }
 
-    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)  # the lock as main ships it
-    refused = client.post("/api/experiments", headers=HEADERS, json={"plan": plan(5, 400)})
-    assert refused.status_code == 422 and "locked" in refused.text  # the shipped lock holds
-    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)  # the release, in memory only
     started: dict[int, dict[str, object]] = {}
     for seats, first in ((5, 400), (6, 500)):
         res = client.post("/api/experiments", headers=HEADERS, json={"plan": plan(seats, first)})
         assert res.status_code == 200, res.text
         started[seats] = res.json()
         job = _finished(lab, str(started[seats]["series_id"]))
-        assert job["estimate"]["duration_kind"] == "derived_estimate"  # type: ignore[index]
+        assert job["estimate"]["duration_kind"] == "rough_orientation"  # type: ignore[index]
     answer = client.get("/api/decks/chulane-b2/series", headers=HEADERS).json()
     by_id = {item["series_id"]: item for item in answer["series"]}
     befunde = answer["reifegrad"]["befunde"]
@@ -534,3 +583,89 @@ def test_five_and_six_seat_experiments_reach_the_deck_builder_as_two_cohorts(
         # one Holm family per table: the 5- and 6-seat confirmations never correct each other
         notes = befunde[sid]["hinweise"]
         assert any(str(n).startswith("Holm-Familie: 1 Bestätigung(en)") for n in notes), notes
+
+
+# -- review round 1: the rendered plan, the table size checked against the played games -------
+
+
+def test_the_rendered_experiment_plan_names_five_and_six_seats() -> None:
+    out = _run_node(
+        _UI
+        + """
+const E = require('./experiments.js');
+const detail = (seats) => ({ question: 'q', purpose: 'confirmation', plan_state: 'intact', plan: null,
+  seeds: { first: 1, last: 5, count: 5 }, tested_seats: [0, 1, 2, 3, 4], table_hash: 'a'.repeat(64),
+  table: seats === null ? null : { seats }, arms: [], provenance: {}, result: null, sources: {} });
+const ctx = { labels: new Map(), zahlen: null, h };
+const plan = (seats) => text(E.experimentDetailView(h, detail(seats), ctx).kids[1]);
+process.stdout.write(JSON.stringify({ five: plan(5), six: plan(6), none: plan(null) }));
+"""
+    )
+    assert "Tisch: 5 Sitze (Zufallsbasis 1/5, eigene Kohorte)" in str(out["five"])
+    assert "Tisch: 6 Sitze (Zufallsbasis 1/6, eigene Kohorte)" in str(out["six"])
+    assert "Tisch: Tischgröße unbekannt" in str(out["none"])
+
+
+def _pods(*sizes: int) -> dict[str, object]:
+    return {"pods": [{"opponents": [f"o{i}" for i in range(n - 1)], "pairs": 5} for n in sizes]}
+
+
+@pytest.mark.parametrize("seats", [5, 6])
+def test_the_planned_size_is_checked_against_the_played_games(seats: int) -> None:
+    plan = {"player_count": seats}
+    agree = _raw_series(seed_plan=plan, result={**_pods(seats), "pairs_completed": 25})
+    assert deck_series.series_table_check(agree) == (seats, "consistent")
+    assert paired_series.observed_table_sizes(agree) == [seats]
+    other = 6 if seats == 5 else 5
+    for result in (_pods(other), _pods(seats, other)):
+        raw = _raw_series(seed_plan=plan, result={**result, "pairs_completed": 25})
+        # fail-closed: neither the planned nor the played size, but unknown
+        assert deck_series.series_table_check(raw) == (None, "mismatch")
+        assert deck_series._entry(raw, "completed")["table_size"] is None
+    unread = _raw_series(seed_plan=plan, result={"pods": [{"opponents": "x"}]})
+    assert deck_series.series_table_check(unread) == (seats, "unobserved")
+    assert deck_series.series_table_check(_raw_series(seed_plan=plan, result={})) == (
+        seats,
+        "unobserved",
+    )
+
+
+def test_the_history_names_a_mismatch_as_unknown() -> None:
+    out = _run_node(
+        _UI
+        + """
+load('deckseries.js');
+process.stdout.write(JSON.stringify({ v: [deckSeriesTableText(5, 'mismatch'), deckSeriesTableText(5, 'consistent'), deckSeriesTableText(null, 'unknown')] }));
+"""
+    )
+    assert out["v"] == [
+        "Tischgröße unbekannt (Plan und gespielte Partien weichen ab)",
+        "Tisch mit 5 Sitzen",
+        "Tischgröße unbekannt",
+    ]
+
+
+@pytest.mark.parametrize("seats", [5, 6])
+def test_a_resume_refuses_a_plan_its_played_games_contradict(
+    lab: dict[str, object],  # noqa: F811
+    monkeypatch: pytest.MonkeyPatch,
+    seats: int,
+) -> None:
+    series_id = _stored_locked_table_series(lab, monkeypatch, seats)
+    path = Path(str(lab["folder"])) / "games" / f"{series_id}.paired.json"
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    assert paired_series.observed_table_sizes(raw) == [seats]  # the played games agree
+    other = 6 if seats == 5 else 5
+    raw["result"]["pods"] = [{"opponents": [f"o{i}" for i in range(other - 1)], "pairs": 1}]
+    path.write_text(json.dumps(raw), encoding="utf-8")
+    calls = lab["calls"]
+    assert isinstance(calls, list)
+    played = len(calls)
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)  # in memory: the lock is not the reason
+    with pytest.raises(ValueError, match="weicht von den gespielten Partien"):
+        paired_series.paired_series_manager.resume_series(
+            Path(str(lab["folder"])),
+            series_id,
+            play_override=lambda *a, **k: {},  # type: ignore[arg-type,return-value]
+        )
+    assert len(calls) == played  # no game was asked for

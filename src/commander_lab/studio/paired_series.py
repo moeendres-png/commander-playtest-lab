@@ -95,15 +95,20 @@ THROUGHPUT_SOURCE = (
 #: divided by the measured wall-time ratio of one game at that table against four seats (part
 #: B, F6): table A, seeds 1-10, one JVM per game, median wall 12.91 s (4) -> 20.18 s (5) ->
 #: 28.73 s (6), n = 10/10 finished games per seat count, SIMULATED_RESULT on the Owner PC
-#: (docs/analysis-reports/seats_5_6_part_b_report.md, section 5). A median ratio is no floor:
-#: the figure is a derived estimate, never "mindestens". Two and three seats are not measured.
+#: (docs/analysis-reports/seats_5_6_part_b_report.md, section 5). A ratio of medians of one
+#: table is no floor and no forecast: the figure is a rough orientation from table A, never
+#: "mindestens". Two and three seats are not measured.
 WALL_RATIO_VS_FOUR_SEATS: dict[int, float] = {5: 1.56, 6: 2.22}
 WALL_RATIO_GAMES = (10, 10)  # n/N finished games per seat count behind each ratio
 WALL_RATIO_SOURCE = (
-    "Wandzeit-Verhältnis je Partie gegenüber 4 Sitzen aus #1661 Teil B (F6): Tisch A, Seeds "
-    "1 bis 10, eine JVM je Partie, Median 12,91 s (4) → 20,18 s (5) → 28,73 s (6), n = 10/10 "
-    "Partien je Sitzzahl, Owner-PC (WSL2), SIMULATED_RESULT"
+    "Verhältnis der Wandzeit-Mediane je Partie gegenüber 4 Sitzen aus #1661 Teil B (F6): nur "
+    "Tisch A, Seeds 1 bis 10, eine JVM je Partie, Median 12,91 s (4) → 20,18 s (5) → 28,73 s "
+    "(6), n = 10/10 Partien je Sitzzahl, Owner-PC (WSL2), SIMULATED_RESULT"
 )
+#: How much that ratio spreads (part B, section 5): the median of the per-seed ratios on table A
+#: and table B's medians against table A at four seats (table B has no four-seat run).
+WALL_RATIO_SEED_PAIR_MEDIAN: dict[int, float] = {5: 1.63, 6: 2.63}
+WALL_RATIO_TABLE_B_VS_A4: dict[int, float] = {5: 1.43, 6: 1.68}
 #: The paired series of part B in the pool (B6/F8, 3 workers, 16 games per JVM): a reference
 #: with its own n/N, never the figure used (another path and worker count than the four-seat
 #: rate; it would show five seats faster than four).
@@ -121,6 +126,31 @@ BASELINE_PLAN_SEATS = (5, 6)
 #: The precision a single win share is planned for: +-20 % of the base win rate (relative).
 WILSON_RELATIVE_PRECISION = 0.20
 _SD_AT_QUARTER = math.sqrt(2 * 0.25 * 0.75)
+
+
+def _de(value: float, digits: int) -> str:
+    """A decimal in German notation (comma), for the duration texts."""
+    return f"{value:.{digits}f}".replace(".", ",")
+
+
+def observed_table_sizes(raw: Mapping[str, object]) -> list[int] | None:
+    """The table sizes the played games of a stored series show (#1661), or None when it shows
+    none (no result yet, an older record without ``pods``, or a pod that cannot be read).
+
+    Read from the result's ``pods``: each pod is the decks of the other seats of its pairs, as the
+    seat rows of the game headers named them (``pair_exposures``), so its size is 1 + that count.
+    """
+    result = raw.get("result")
+    pods = result.get("pods") if isinstance(result, dict) else None
+    if not isinstance(pods, list) or not pods:
+        return None
+    sizes: set[int] = set()
+    for pod in pods:
+        opponents = pod.get("opponents") if isinstance(pod, dict) else None
+        if not isinstance(opponents, list) or not opponents:
+            return None
+        sizes.add(1 + len(opponents))
+    return sorted(sizes)
 
 
 def planning_pair_sd(table_size: int) -> float:
@@ -333,7 +363,7 @@ def table_plan(
 
     The usual plan (detectable difference at the seats per seed, base win rate 1/N) plus
     ``table``: the rotation (``rotation_plan``), the effort (games, duration: measured at four
-    seats, derived from the measured wall ratio at five and six, UNKNOWN at two and three) and
+    seats, a rough orientation from table A at five and six, UNKNOWN at two and three) and
     whether the Studio may start this table at all. Planning a locked table starts nothing;
     ``released`` false and ``locked_text`` say why.
     """
@@ -380,19 +410,22 @@ def estimate_series_duration(
     The measured rate belongs to a table of ``MEASURED_TABLE_SEATS`` seats: there the duration
     is the time at that rate (``MEASURED_BATCH_GAMES_PER_HOUR``, a whole 6-worker batch series),
     a lower bound, not a forecast, while no more than 6 workers run. At five and six seats it is
-    a derived estimate (``duration_kind`` ``derived_estimate``): the four-seat rate divided by
-    the measured wall ratio of one game (``WALL_RATIO_VS_FOUR_SEATS``, with its n/N), never
-    called a floor (``minimum_*`` stay None, ``estimated_*`` carry it); the part-B pool rate is
+    a rough orientation from table A (``duration_kind`` ``rough_orientation``, neither floor nor
+    forecast): the four-seat batch rate divided by the ratio of the wall-time medians of table A
+    (``WALL_RATIO_VS_FOUR_SEATS``, with its n/N and its spread), never called a floor (``minimum_*`` stay None, ``estimated_*`` carry it); the part-B pool rate is
     shown beside it as a reference with its own n/N. At two and three seats nothing is measured:
     UNKNOWN (``duration_known`` false, no seconds, no minutes). ``estimated_seconds`` /
     ``estimated_minutes`` keep their names for older readers. The #1513 per-worker figure stays
     visible as an unmeasured assumption.
     """
+    size = int(table_size)
+    if not MIN_SEATS <= size <= MAX_SEATS:
+        # never a silent stand-in table: the plan block would name another size
+        raise ValueError(f"Tischgröße muss zwischen {MIN_SEATS} und {MAX_SEATS} liegen")
     used_workers = max(1, int(workers)) if workers is not None else 1
     assumed_rate = ESTIMATED_GAMES_PER_HOUR * used_workers
     pairs = max(0, int(pairs_planned_max if pairs_planned_max is not None else budget_pairs))
     max_games = pairs * 2
-    size = int(table_size)
     ratio = WALL_RATIO_VS_FOUR_SEATS.get(size)
     floor = size == MEASURED_TABLE_SEATS
     known = floor or ratio is not None
@@ -410,16 +443,19 @@ def estimate_series_duration(
             + ". 2 Partien je Paar; früher Stopp je nach Look möglich."
         )
     elif ratio is not None and pool_ref is not None:
-        minutes_de = f"{minutes:.1f}".replace(".", ",")
-        ratio_de = f"{ratio:.2f}".replace(".", ",")
+        pool_rate = float(cast(float, pool_ref["games_per_hour"]))
         basis = (
-            f"geschätzt ~{minutes_de} min (abgeleitet, keine Untergrenze): "
-            f"{MEASURED_BATCH_GAMES_PER_HOUR:.0f} Partien/h des Vierertischs (#1251) geteilt "
-            f"durch {ratio_de} = {rate:.0f} Partien/h; {WALL_RATIO_SOURCE}. Zum Vergleich "
-            f"gemessen: gepaarte Serie im Pool mit {pool_ref['workers']} Workern "
-            f"{float(cast(float, pool_ref['games_per_hour'])):.0f} Partien/h "
+            f"grobe Orientierung ~{_de(minutes, 1)} min aus Tisch A (weder Untergrenze noch "
+            f"Prognose): die Batch-Rate des Vierertischs {MEASURED_BATCH_GAMES_PER_HOUR:.0f} "
+            "Partien/h (ganze Batch-Serie, 6 Worker, 8 Partien je JVM, #1251) geteilt durch "
+            f"{_de(ratio, 2)} = {rate:.0f} Partien/h; {WALL_RATIO_SOURCE}. Das Verhältnis streut: "
+            f"Median der Seed-Paar-Verhältnisse {_de(WALL_RATIO_SEED_PAIR_MEDIAN[size], 2)}, "
+            f"Tisch B gegen Tisch A mit 4 Sitzen etwa {_de(WALL_RATIO_TABLE_B_VS_A4[size], 2)}. "
+            f"Gemessen ist bei {size} Sitzen die gepaarte Serie im Pool mit "
+            f"{pool_ref['workers']} Workern mit {pool_rate:.0f} Partien/h "
             f"(n = {pool_ref['games']}/{pool_ref['planned']} Partien, #1661 Teil B, B6), "
-            "ein anderer Weg als der Wert oben. Bis zu "
+            f"{'schneller' if pool_rate > rate else 'langsamer'} als dieser Wert: die Dauer "
+            "kann deutlich kürzer oder länger sein. Bis zu "
             f"{max_games} Partien ({pairs} je Arm), 2 Partien je Paar; früher Stopp je nach "
             "Look möglich."
         )
@@ -438,7 +474,7 @@ def estimate_series_duration(
         "budget_pairs": int(budget_pairs),
         "table_size": size,
         "duration_known": known,
-        "duration_kind": "floor" if floor else ("derived_estimate" if known else "unknown"),
+        "duration_kind": "floor" if floor else ("rough_orientation" if known else "unknown"),
         "measured_table_seats": MEASURED_TABLE_SEATS,
         "measured_games": None,  # the number of games behind the 541.2 is not in the repository
         "max_games": max_games,
@@ -446,6 +482,8 @@ def estimate_series_duration(
         "games_per_hour_used": round(rate, 1) if known else None,
         "wall_ratio_vs_four_seats": ratio,
         "wall_ratio_games": list(WALL_RATIO_GAMES) if ratio is not None else None,
+        "wall_ratio_seed_pair_median": WALL_RATIO_SEED_PAIR_MEDIAN.get(size),
+        "wall_ratio_table_b_vs_a4": WALL_RATIO_TABLE_B_VS_A4.get(size),
         "pool_reference_part_b": dict(pool_ref) if pool_ref is not None else None,
         "minimum_seconds": seconds if floor else None,
         "minimum_minutes": minutes if floor else None,
@@ -457,9 +495,7 @@ def estimate_series_duration(
         "throughput_measured_for_paired_series": False,
         "throughput_source": THROUGHPUT_SOURCE,
         "basis": basis,
-        "planning": planned_detectable_difference_pp(
-            max(2, pairs), seats_per_seed, size if MIN_SEATS <= size <= MAX_SEATS else 4
-        ),
+        "planning": planned_detectable_difference_pp(max(2, pairs), seats_per_seed, size),
     }
     if games_per_jvm is not None:
         payload["games_per_jvm"] = int(games_per_jvm)
@@ -1422,6 +1458,13 @@ class PairedSeriesManager:
                 raise ValueError(
                     f"Sitzanzahl ({1 + len(opponents)}) weicht vom seed_plan "
                     f"({plan_players}) ab (nicht fortsetzbar)"
+                )
+            seen = observed_table_sizes(raw)
+            if seen is not None and seen != [1 + len(opponents)]:
+                # the played games' seat rows name another table: never resumed on top of them
+                raise ValueError(
+                    f"Sitzanzahl ({1 + len(opponents)}) weicht von den gespielten Partien "
+                    f"({', '.join(map(str, seen))} Sitze) ab (nicht fortsetzbar)"
                 )
             seeds = [first_seed + i for i in range(seeds_planned)]
 
