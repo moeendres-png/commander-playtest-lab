@@ -811,8 +811,9 @@ gekennzeichnet (Einspruch des Owners jederzeit möglich).
    4 Sitze ist jederzeit möglich (fail-closed, Nr. 3); eine Neufreigabe entscheidet nur der Owner.
    Der Pool-Pfad (`COMMANDER_LAB_STUDIO_SERIES_POOL`, standardmäßig aus) bleibt für 5 und 6 Sitze
    abgewiesen (Entscheidung des Co-Leads wegen #1715, Pool-Identität; keine Wandzeit-Grenze für 5/6).
-   Die Serienplanung (`paired_series.py`) plant 5/6-Tische mit der Annahme einer Siegrate von 25 %
-   (konservativ, Dauer UNKNOWN); eine Anpassung an 20 % bzw. 16,7 % steht nicht in diesem PR.
+   Die Serienplanung (`paired_series.py`) rechnet bei 5/6 Sitzen seit #1756 mit der Basis-Siegrate
+   1/N (20 % bzw. 16,7 %; planende Streuung 0,582 bzw. 0,542); die Dauer wird bei 5/6 als grobe
+   Orientierung angegeben, nie als Mindestdauer, gemessen ist nur der Vierertisch.
 
 ## 3. Was aufgehoben, geändert oder neu ist
 
