@@ -79,7 +79,7 @@ function pairedTableLines(table) {
 // Tisch A", never "mindestens", and names the spread (seed-pair median, table B) and the measured pool
 // series of part B with its own n/N (paired_series.WALL_RATIO_VS_FOUR_SEATS,
 // WALL_RATIO_SEED_PAIR_MEDIAN, WALL_RATIO_TABLE_B_VS_A4, POOL_REFERENCE_PART_B; a test holds them equal).
-const PAIRED_WALL_RATIO_VS_FOUR_SEATS = { 5: 1.56, 6: 2.22 };
+const PAIRED_WALL_RATIO_VS_FOUR_SEATS = { 5: 1.56, 6: 2.23 }; // 20,18 / 12,91 and 28,73 / 12,91 = 2,2254
 const PAIRED_WALL_RATIO_SPREAD = { 5: [1.63, 1.43], 6: [2.63, 1.68] };
 const PAIRED_POOL_REFERENCE_PART_B = { 5: [607.3, 50, 50], 6: [379.2, 72, 72] };
 

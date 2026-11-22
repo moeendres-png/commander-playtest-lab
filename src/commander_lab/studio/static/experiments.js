@@ -64,6 +64,18 @@ function experimentRows(data) {
   }));
 }
 
+// The table of a listed series (#1661): 4-, 5- and 6-seat runs of the same question are separate
+// cohorts, so each row names its size; a size the played games do not prove is named as such.
+const EXPERIMENT_TABLE_CHECK_TEXT = {
+  mismatch: "Tischgröße unbekannt (Plan und gespielte Partien weichen ab)",
+  unreadable: "Tischgröße unbekannt (Sitzzahl der gespielten Partien nicht lesbar)",
+};
+function experimentEntryTable(entry) {
+  if (EXPERIMENT_TABLE_CHECK_TEXT[entry.table_size_check]) return EXPERIMENT_TABLE_CHECK_TEXT[entry.table_size_check];
+  if (!Number.isInteger(entry.table_size) || entry.table_size < 2) return "Tischgröße unbekannt";
+  return `${StudioUI.num(entry.table_size, 0)} Sitze${entry.table_size_check === "unobserved" ? " (geplant, nicht an Partien geprüft)" : ""}`;
+}
+
 function experimentListTable(h, data, onOpen) {
   const rows = experimentRows(data).map(({ key, entry }) => {
     const exp = entry.experiment;
@@ -71,13 +83,14 @@ function experimentListTable(h, data, onOpen) {
       h("td", {}, experimentDate(entry.created_at)),
       h("td", {}, exp ? exp.question : "Alt-Serie ohne Plan"),
       h("td", {}, exp ? experimentPurpose(exp.purpose) : "Zweck unbekannt"),
+      h("td", {}, experimentEntryTable(entry)),
       h("td", { class: "num" }, experimentPairs(entry)),
       h("td", {}, entry.status_text),
       h("td", {}, exp ? exp.decision_text : "keine Entscheidung (Alt-Serie)"),
       h("td", {}, h("button", { type: "button", class: "small", onclick: () => onOpen(key) }, "Ansehen")));
   });
   return h("div", { class: "table-wrap" }, h("table", {},
-    h("thead", {}, h("tr", {}, ["Angelegt", "Frage", "Zweck", "Paare (n/N)", "Status", "Entscheidung", ""].map((label) => h("th", {}, label)))),
+    h("thead", {}, h("tr", {}, ["Angelegt", "Frage", "Zweck", "Tisch", "Paare (n/N)", "Status", "Entscheidung", ""].map((label) => h("th", {}, label)))),
     h("tbody", {}, rows)));
 }
 
@@ -328,5 +341,5 @@ async function renderExperiments(slot, historyRows, deps) {
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { renderExperiments, experimentDetailView, experimentListTable, experimentLegacyNote, experimentConsequences, experimentPairs, experimentOpen, experimentTableText };
+  module.exports = { renderExperiments, experimentDetailView, experimentListTable, experimentLegacyNote, experimentConsequences, experimentPairs, experimentOpen, experimentTableText, experimentEntryTable };
 }

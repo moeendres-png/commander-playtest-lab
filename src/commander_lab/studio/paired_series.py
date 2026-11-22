@@ -25,7 +25,7 @@ import threading
 import time
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
-from typing import cast
+from typing import NamedTuple, cast
 
 from commander_lab.agents.card_knowledge import CardCatalogError, card_facts
 from commander_lab.bridge_qualification import bridge_qualification
@@ -98,7 +98,8 @@ THROUGHPUT_SOURCE = (
 #: (docs/analysis-reports/seats_5_6_part_b_report.md, section 5). A ratio of medians of one
 #: table is no floor and no forecast: the figure is a rough orientation from table A, never
 #: "mindestens". Two and three seats are not measured.
-WALL_RATIO_VS_FOUR_SEATS: dict[int, float] = {5: 1.56, 6: 2.22}
+#: 20.18 / 12.91 = 1.563 -> 1.56; 28.73 / 12.91 = 2.2254 -> 2.23 (the report rounds it to 2.22).
+WALL_RATIO_VS_FOUR_SEATS: dict[int, float] = {5: 1.56, 6: 2.23}
 WALL_RATIO_GAMES = (10, 10)  # n/N finished games per seat count behind each ratio
 WALL_RATIO_SOURCE = (
     "Verhältnis der Wandzeit-Mediane je Partie gegenüber 4 Sitzen aus #1661 Teil B (F6): nur "
@@ -133,24 +134,39 @@ def _de(value: float, digits: int) -> str:
     return f"{value:.{digits}f}".replace(".", ",")
 
 
-def observed_table_sizes(raw: Mapping[str, object]) -> list[int] | None:
-    """The table sizes the played games of a stored series show (#1661), or None when it shows
-    none (no result yet, an older record without ``pods``, or a pod that cannot be read).
+class ObservedTables(NamedTuple):
+    """What the played games of a stored series say about its table (#1661)."""
+
+    #: the table sizes of the readable pods, sorted (never dropped because another pod is broken)
+    sizes: list[int]
+    #: a pod that cannot be read, or counted pairs without a readable pod: the size is not proven
+    unreadable: bool
+
+
+def observed_table_sizes(raw: Mapping[str, object]) -> ObservedTables:
+    """The table sizes the played games of a stored series show (#1661).
 
     Read from the result's ``pods``: each pod is the decks of the other seats of its pairs, as the
     seat rows of the game headers named them (``pair_exposures``), so its size is 1 + that count.
+    Fail-closed: a pod that cannot be read sets ``unreadable`` and keeps the sizes already seen;
+    a result that counts pairs (``pairs_completed`` > 0) without any readable pod (no ``pods``,
+    an empty list) is ``unreadable`` too, never "nothing seen".
     """
     result = raw.get("result")
-    pods = result.get("pods") if isinstance(result, dict) else None
-    if not isinstance(pods, list) or not pods:
-        return None
+    res: Mapping[str, object] = result if isinstance(result, dict) else {}
+    pods = res.get("pods")
     sizes: set[int] = set()
-    for pod in pods:
+    unreadable = pods is not None and not isinstance(pods, list)
+    for pod in pods if isinstance(pods, list) else []:
         opponents = pod.get("opponents") if isinstance(pod, dict) else None
-        if not isinstance(opponents, list) or not opponents:
-            return None
-        sizes.add(1 + len(opponents))
-    return sorted(sizes)
+        if isinstance(opponents, list) and opponents:
+            sizes.add(1 + len(opponents))
+        else:
+            unreadable = True
+    pairs = res.get("pairs_completed")
+    if not sizes and type(pairs) is int and pairs > 0:
+        unreadable = True
+    return ObservedTables(sorted(sizes), unreadable)
 
 
 def planning_pair_sd(table_size: int) -> float:
@@ -1460,11 +1476,16 @@ class PairedSeriesManager:
                     f"({plan_players}) ab (nicht fortsetzbar)"
                 )
             seen = observed_table_sizes(raw)
-            if seen is not None and seen != [1 + len(opponents)]:
+            if any(size != 1 + len(opponents) for size in seen.sizes):
                 # the played games' seat rows name another table: never resumed on top of them
                 raise ValueError(
                     f"Sitzanzahl ({1 + len(opponents)}) weicht von den gespielten Partien "
-                    f"({', '.join(map(str, seen))} Sitze) ab (nicht fortsetzbar)"
+                    f"({', '.join(map(str, seen.sizes))} Sitze) ab (nicht fortsetzbar)"
+                )
+            if seen.unreadable:
+                raise ValueError(
+                    f"Sitzanzahl der gespielten Partien in Serie {safe_id} nicht lesbar "
+                    "(nicht fortsetzbar)"
                 )
             seeds = [first_seed + i for i in range(seeds_planned)]
 

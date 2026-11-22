@@ -28,10 +28,13 @@ function deckSeriesVerdictText(befund) {
 
 // The table of a series or finding (#1661): 4-, 5- and 6-seat results are separate cohorts, so
 // every row names the seat count; an unknown size stays "Tischgröße unbekannt", never 4.
-// A plan whose seat count the played games contradict (table_size_check "mismatch") is unknown.
+// A plan whose seat count the played games contradict ("mismatch") or cannot show ("unreadable")
+// is unknown; a size no played pair has checked yet ("unobserved") is named as planned only.
 function deckSeriesTableText(size, check) {
   if (check === "mismatch") return "Tischgröße unbekannt (Plan und gespielte Partien weichen ab)";
-  return Number.isInteger(size) && size >= 2 ? `Tisch mit ${StudioUI.num(size, 0)} Sitzen` : "Tischgröße unbekannt";
+  if (check === "unreadable") return "Tischgröße unbekannt (Sitzzahl der gespielten Partien nicht lesbar)";
+  if (!Number.isInteger(size) || size < 2) return "Tischgröße unbekannt";
+  return `Tisch mit ${StudioUI.num(size, 0)} Sitzen${check === "unobserved" ? " (geplant, nicht an Partien geprüft)" : ""}`;
 }
 
 function deckSeriesEvidence(h, befund) {

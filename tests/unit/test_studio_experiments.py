@@ -217,14 +217,16 @@ def _player(base_id: str, variant_id: str) -> paired_comparison.PairPlayer:
                 "pilot": "GenericCommanderPilot 1.0.0",
                 "decision_policy": "xmage-full-game-policy-1.0.0",
                 "winner_seats": winners,
+                # every seat row, as a game header has them: the table the games show (#1661)
                 "seats": [
                     {
-                        "seat": seat,
-                        "deck_id": deck_id,
-                        "win_credit": 1.0 if seat in winners else 0.0,
+                        "seat": s,
+                        "deck_id": deck_id if s == seat else f"opp-{s}",
+                        "win_credit": 1.0 if s in winners else 0.0,
                         "first_hand": [],
                         "seen_by_turn_3": [],
                     }
+                    for s in range(4)
                 ],
             },
             "failure_class": None,

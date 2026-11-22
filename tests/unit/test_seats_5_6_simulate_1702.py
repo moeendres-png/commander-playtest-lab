@@ -107,7 +107,7 @@ def test_duration_is_unknown_where_no_throughput_is_measured_and_never_zero() ->
     four = paired_series.estimate_series_duration(40, table_size=4)
     assert four["duration_known"] is True and four["minimum_minutes"] == 8.9
     assert four["measured_table_seats"] == 4 and four["measured_games"] is None
-    # five and six seats are a derived estimate since #1661 part B (test_seats56_evaluation.py)
+    # five and six seats are a rough orientation since #1661 part B (test_seats56_evaluation.py)
     for seats in (2, 3):
         est = paired_series.estimate_series_duration(25, seats_per_seed=seats, table_size=seats)
         assert est["duration_known"] is False

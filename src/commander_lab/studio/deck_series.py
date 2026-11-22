@@ -146,24 +146,32 @@ def series_status(raw: Mapping[str, object]) -> str:
     return STATUS_COMPLETED
 
 
+#: Checks whose table size is not proven by the played games (``series_table_check``).
+TABLE_NOT_PROVEN = ("mismatch", "unreadable", "unobserved")
+
+
 def series_table_check(raw: Mapping[str, object]) -> tuple[int | None, str]:
     """The table size of a stored series and how it was checked (#1661).
 
     The plan names it (``seed_plan.player_count``, 2 to 6); the played games name it too (the
-    seat rows of their headers, ``paired_series.observed_table_sizes``). ``consistent``: both
-    agree; ``unobserved``: no played game shows a size yet (the planned size stands);
-    ``mismatch``: they differ, so the size is unknown (fail-closed, never one of the two);
-    ``unknown``: the plan names no valid size. Never the number of tested seats: a series
-    without seat rotation tests one seat at any table size."""
+    seat rows of their headers, ``paired_series.observed_table_sizes``). ``consistent``: every
+    readable pod has the planned size and none is unreadable; ``mismatch``: a played game shows
+    another size (unknown, fail-closed, never one of the two); ``unreadable``: a pod cannot be
+    read or counted pairs have no readable pod (unknown); ``unobserved``: no pair is played yet,
+    the planned size stands but is not checked against games ("geplant, nicht an Partien
+    geprüft"); ``unknown``: the plan names no valid size. Never the number of tested seats: a
+    series without seat rotation tests one seat at any table size."""
     plan = raw.get("seed_plan")
     count = plan.get("player_count") if isinstance(plan, dict) else None
     planned = count if type(count) is int and 2 <= count <= 6 else None
     if planned is None:
         return None, "unknown"
     seen = observed_table_sizes(raw)
-    if seen is None:
-        return planned, "unobserved"
-    return (planned, "consistent") if seen == [planned] else (None, "mismatch")
+    if any(size != planned for size in seen.sizes):
+        return None, "mismatch"
+    if seen.unreadable:
+        return None, "unreadable"
+    return (planned, "consistent") if seen.sizes else (planned, "unobserved")
 
 
 def series_table_size(raw: Mapping[str, object]) -> int | None:

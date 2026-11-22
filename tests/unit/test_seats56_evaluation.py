@@ -187,7 +187,7 @@ def test_the_plan_at_five_and_six_seats_is_built_on_one_over_n(seats: int, sd: f
     ("seats", "pairs", "ratio", "seconds", "minutes", "pool", "spread"),
     [
         (5, 25, 1.56, 519, 8.7, (607.3, 50, 50), ("1,63", "1,43")),
-        (6, 36, 2.22, 1063, 17.7, (379.2, 72, 72), ("2,63", "1,68")),
+        (6, 36, 2.23, 1068, 17.8, (379.2, 72, 72), ("2,63", "1,68")),
     ],
 )
 def test_the_duration_at_five_and_six_seats_is_a_rough_orientation_with_n_of_n(
@@ -285,16 +285,16 @@ def test_the_page_constants_equal_the_server_figures() -> None:
         )
 
 
-# -- pool wall limit: the 1,800 s every part-B pool game finished under ------------------------
+# -- pool path: five and six seats stay refused until the pool identity is settled (#1715) ---
 
 
-def test_every_seat_count_the_engine_seats_has_a_pool_wall_limit() -> None:
-    limits = [
-        table_spec.game_wall_limit_seconds(n) for n in range(launch.MIN_SEATS, launch.MAX_SEATS + 1)
-    ]
-    assert limits == [1800.0] * 5
-    with pytest.raises(ValueError, match="keine Wandzeit-Grenze"):
-        table_spec.game_wall_limit_seconds(launch.MAX_SEATS + 1)
+def test_the_pool_path_keeps_refusing_five_and_six_seats() -> None:
+    # Co-Lead decision (review round 2): the part-B pool identity at 5/6 seats is a FAIL (#1715),
+    # so the pool keeps no wall limit for them; the duration orientation stays
+    assert [table_spec.game_wall_limit_seconds(n) for n in (2, 3, 4)] == [1800.0] * 3
+    for seats in (5, 6):
+        with pytest.raises(ValueError, match="keine Wandzeit-Grenze"):
+            table_spec.game_wall_limit_seconds(seats)
 
 
 # -- the cohort carries the table size ---------------------------------------------------------
@@ -372,6 +372,11 @@ def _raw_series(**over: object) -> dict[str, object]:
         "result": {"pairs_completed": 25, "pairs_played": 25, "tested_seats": [0]},
     }
     raw.update(over)
+    plan = raw.get("seed_plan")
+    seats = plan.get("player_count") if isinstance(plan, dict) else None
+    result = raw.get("result")
+    if "result" not in over and isinstance(result, dict) and type(seats) is int and seats > 1:
+        result["pods"] = _pods(seats)["pods"]  # the played games show the planned table
     return raw
 
 
@@ -613,21 +618,41 @@ def _pods(*sizes: int) -> dict[str, object]:
 @pytest.mark.parametrize("seats", [5, 6])
 def test_the_planned_size_is_checked_against_the_played_games(seats: int) -> None:
     plan = {"player_count": seats}
-    agree = _raw_series(seed_plan=plan, result={**_pods(seats), "pairs_completed": 25})
-    assert deck_series.series_table_check(agree) == (seats, "consistent")
-    assert paired_series.observed_table_sizes(agree) == [seats]
     other = 6 if seats == 5 else 5
+
+    def check(result: dict[str, object]) -> tuple[int | None, str]:
+        raw = _raw_series(seed_plan=plan, result=result)
+        entry = deck_series._entry(raw, "completed")
+        assert (entry["table_size"], entry["table_size_check"]) == deck_series.series_table_check(
+            raw
+        )
+        return deck_series.series_table_check(raw)
+
+    agree = {**_pods(seats), "pairs_completed": 25}
+    assert check(agree) == (seats, "consistent")
+    assert paired_series.observed_table_sizes({"result": agree}) == ([seats], False)
     for result in (_pods(other), _pods(seats, other)):
-        raw = _raw_series(seed_plan=plan, result={**result, "pairs_completed": 25})
         # fail-closed: neither the planned nor the played size, but unknown
-        assert deck_series.series_table_check(raw) == (None, "mismatch")
-        assert deck_series._entry(raw, "completed")["table_size"] is None
-    unread = _raw_series(seed_plan=plan, result={"pods": [{"opponents": "x"}]})
-    assert deck_series.series_table_check(unread) == (seats, "unobserved")
-    assert deck_series.series_table_check(_raw_series(seed_plan=plan, result={})) == (
-        seats,
-        "unobserved",
-    )
+        assert check({**result, "pairs_completed": 25}) == (None, "mismatch")
+    # review round 2: a broken pod never hides a pod of another size already seen
+    other_then_broken = {
+        "pods": [
+            {"opponents": [f"o{i}" for i in range(other - 1)], "pairs": 20},
+            {"opponents": [], "pairs": 5},
+        ],
+        "pairs_completed": 25,
+    }
+    assert check(other_then_broken) == (None, "mismatch")
+    assert paired_series.observed_table_sizes({"result": other_then_broken}) == ([other], True)
+    same_then_broken = {**other_then_broken, "pods": [*_pods(seats)["pods"], {"opponents": "x"}]}  # type: ignore[list-item]
+    assert check(same_then_broken) == (None, "unreadable")
+    # counted pairs without any readable pod are unknown, never "nothing seen"
+    for result in ({"pairs_completed": 25}, {"pods": [], "pairs_completed": 25}):
+        assert check(result) == (None, "unreadable")
+    assert check({"pods": "x"}) == (None, "unreadable")
+    # nothing played yet: planned, not checked against games
+    assert check({}) == (seats, "unobserved")
+    assert check({"pairs_completed": 0}) == (seats, "unobserved")
 
 
 def test_the_history_names_a_mismatch_as_unknown() -> None:
@@ -635,14 +660,23 @@ def test_the_history_names_a_mismatch_as_unknown() -> None:
         _UI
         + """
 load('deckseries.js');
-process.stdout.write(JSON.stringify({ v: [deckSeriesTableText(5, 'mismatch'), deckSeriesTableText(5, 'consistent'), deckSeriesTableText(null, 'unknown')] }));
+const bare = { stufe: null, stufe_text: 'kein Reifegrad', urteil_text: 'x', n: 1, N: 1, bezug: 'Paare',
+  stand: { bezug: 'aktuell', text: 'Befund' }, empfehlungsfaehig: false, empfehlungsfaehig_gruende: [], hinweise: [] };
+process.stdout.write(JSON.stringify({ v: [deckSeriesTableText(5, 'mismatch'), deckSeriesTableText(5, 'consistent'), deckSeriesTableText(null, 'unknown'),
+  deckSeriesTableText(null, 'unreadable'), deckSeriesTableText(6, 'unobserved'), deckSeriesTableText(4, 'consistent')],
+  bare: text(deckSeriesEvidence(h, bare)) }));
 """
     )
     assert out["v"] == [
         "Tischgröße unbekannt (Plan und gespielte Partien weichen ab)",
         "Tisch mit 5 Sitzen",
         "Tischgröße unbekannt",
+        "Tischgröße unbekannt (Sitzzahl der gespielten Partien nicht lesbar)",
+        "Tisch mit 6 Sitzen (geplant, nicht an Partien geprüft)",
+        "Tisch mit 4 Sitzen",
     ]
+    # a finding without a table text is unknown, never four seats
+    assert str(out["bare"]).endswith("Paare · Tischgröße unbekanntBefundnicht empfehlungsfähig: ")
 
 
 @pytest.mark.parametrize("seats", [5, 6])
@@ -654,7 +688,7 @@ def test_a_resume_refuses_a_plan_its_played_games_contradict(
     series_id = _stored_locked_table_series(lab, monkeypatch, seats)
     path = Path(str(lab["folder"])) / "games" / f"{series_id}.paired.json"
     raw = json.loads(path.read_text(encoding="utf-8"))
-    assert paired_series.observed_table_sizes(raw) == [seats]  # the played games agree
+    assert paired_series.observed_table_sizes(raw) == ([seats], False)  # the games agree
     other = 6 if seats == 5 else 5
     raw["result"]["pods"] = [{"opponents": [f"o{i}" for i in range(other - 1)], "pairs": 1}]
     path.write_text(json.dumps(raw), encoding="utf-8")
@@ -669,3 +703,132 @@ def test_a_resume_refuses_a_plan_its_played_games_contradict(
             play_override=lambda *a, **k: {},  # type: ignore[arg-type,return-value]
         )
     assert len(calls) == played  # no game was asked for
+
+
+@pytest.mark.parametrize("seats", [5, 6])
+def test_a_resume_refuses_played_games_whose_table_cannot_be_read(
+    lab: dict[str, object],  # noqa: F811
+    monkeypatch: pytest.MonkeyPatch,
+    seats: int,
+) -> None:
+    series_id = _stored_locked_table_series(lab, monkeypatch, seats)
+    path = Path(str(lab["folder"])) / "games" / f"{series_id}.paired.json"
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    raw["result"]["pods"] = [*raw["result"]["pods"], {"opponents": [], "pairs": 1}]
+    path.write_text(json.dumps(raw), encoding="utf-8")
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)
+    with pytest.raises(ValueError, match="nicht lesbar"):
+        paired_series.paired_series_manager.resume_series(
+            Path(str(lab["folder"])),
+            series_id,
+            play_override=lambda *a, **k: {},  # type: ignore[arg-type,return-value]
+        )
+
+
+# -- review round 2: an unproven table gives no maturity and joins no Holm family -------------
+
+
+@pytest.mark.parametrize("check", ["mismatch", "unreadable", "unobserved"])
+def test_a_table_the_played_games_do_not_prove_gives_no_maturity_and_no_holm_family(
+    check: str,
+) -> None:
+    bad = _finding("bad", table_hash="t5", wins=8)
+    good = _finding("good", table_hash="t5", first_seed=600, wins=8)
+    bad.entry.update(table_size=None, table_size_check=check)
+    good.entry.update(table_size=5, table_size_check="consistent")
+    got = _assess(bad, good)
+    assert got["bad"]["stufe"] is None and got["bad"]["belegt"] is False
+    assert not str(got["bad"]["urteil_text"]).startswith("belegt")
+    reason = maturity.TABLE_CHECK_TEXT[check]
+    assert reason in got["bad"]["empfehlungsfaehig_gruende"]  # type: ignore[operator]
+    unmet = {c["name"]: c["grund"] for c in got["bad"]["bedingungen"] if not c["erfuellt"]}  # type: ignore[attr-defined,union-attr]
+    assert unmet["Tischgröße an den gespielten Partien belegt"] == reason
+    # the proven one stays in its table's family, alone: the unproven one is in no family
+    assert got["good"]["stufe"] == "R1" and got["good"]["belegt"] is True
+    assert any(
+        str(n).startswith("Holm-Familie: 1 Bestätigung(en)")
+        for n in got["good"]["hinweise"]  # type: ignore[union-attr]
+    )
+    assert not any("Holm-Familie" in str(n) for n in got["bad"]["hinweise"])  # type: ignore[union-attr]
+
+
+def test_the_experiment_list_names_the_table_of_each_row() -> None:
+    out = _run_node(
+        _UI
+        + """
+const E = require('./experiments.js');
+const row = (id, seats, check) => ({ series_id: id, created_at: '2026-11-22T10:00:00', status_text: 'abgeschlossen',
+  counts_as_result: true, pairs_completed: 25, pairs_planned: 25, table_size: seats, table_size_check: check,
+  experiment: { experiment_id: `exp-${id}`, question: 'gleiche Frage', purpose: 'confirmation', decision_text: 'offen' } });
+const list = E.experimentListTable(h, { series: [row('a', 4, 'consistent'), row('b', 5, 'consistent'), row('c', 6, 'unobserved'), row('d', null, 'mismatch')] }, () => {});
+process.stdout.write(JSON.stringify({ text: text(list),
+  v: [E.experimentEntryTable({ table_size: 5, table_size_check: 'consistent' }), E.experimentEntryTable({ table_size: null, table_size_check: 'unreadable' }), E.experimentEntryTable({})] }));
+"""
+    )
+    text = str(out["text"])
+    assert "Tisch" in text and "4 Sitze" in text and "5 Sitze" in text
+    assert "6 Sitze (geplant, nicht an Partien geprüft)" in text
+    assert "Tischgröße unbekannt (Plan und gespielte Partien weichen ab)" in text
+    assert out["v"] == [
+        "5 Sitze",
+        "Tischgröße unbekannt (Sitzzahl der gespielten Partien nicht lesbar)",
+        "Tischgröße unbekannt",
+    ]
+
+
+@pytest.mark.parametrize("seats", [5, 6])
+def test_the_play_state_of_a_recorded_game_names_its_table_size(tmp_path: Path, seats: int) -> None:
+    from commander_lab.studio.play import InteractivePlayManager
+    from tests.unit.test_studio_card_outcomes import _seats, _simple_frames, _write_log
+
+    _write_log(tmp_path / "games", "g56", _simple_frames(["Forest"]), extra_seats=_seats(seats - 2))
+    assert games.read_game(tmp_path, "g56")["table_size"] == seats
+    state = InteractivePlayManager().snapshot(tmp_path, "g56")
+    assert state["cohort"] == "SIMULATED_RESULT" and state["table_size"] == seats
+
+
+def test_the_rendered_card_evaluation_says_what_each_section_counted_for(
+    tmp_path: Path,
+) -> None:
+    from tests.unit.test_studio_card_outcomes import (
+        _REAL_UI_JS,
+        DECK,
+        _seats,
+        _simple_frames,
+        _write_log,
+    )
+
+    games_dir = tmp_path / "games"
+    for size in (5, 6):
+        for n in range(4):
+            _write_log(
+                games_dir,
+                f"t{size}-{n}",
+                _simple_frames(["Sol Ring"] if n % 2 == 0 else ["Forest"]),
+                winners=(0,) if n < 2 else (1,),
+                seed=size * 10 + n,
+                extra_seats=_seats(size - 2),
+            )
+    table = card_outcomes.outcomes_for_folder(games_dir, deck_id=DECK, min_exposed=1)
+    out = _run_node(
+        _REAL_UI_JS
+        + "global.StudioUI = RealUI;\nconst mod = require('./kartenauswertung.js');\n"
+        + "function h(tag, attrs, ...kids) { return { tag, attrs: attrs || {}, kids: kids.flat(Infinity) }; }\n"
+        + "const textOf = (n) => n === null || n === undefined || n === false ? '' : "
+        + "typeof n === 'string' || typeof n === 'number' ? String(n) : (n.kids || []).map(textOf).join(' ');\n"
+        + "const slot = { children: [], replaceChildren(...kids) { this.children = kids; } };\n"
+        + f"const payload = {json.dumps(table)};\n"
+        + """(async () => {
+  await mod.renderCardOutcomes(slot, { h, deckId: 'deck/a', baseRevision: 'deck/a@aaaa', dirty: false,
+    api: async (url) => (url === '/api/outcomes/decks' ? { decks: [] } : payload) });
+  const sections = slot.children.filter((n) => n && n.tag === 'section').map(textOf);
+  process.stdout.write(JSON.stringify({ sections }));
+})();
+"""
+    )
+    sections = out["sections"]
+    assert isinstance(sections, list) and len(sections) == 2
+    assert "Gezählt für 5 Sitze" in str(sections[0]) and "Gezählt für 6 Sitze" not in str(
+        sections[0]
+    )
+    assert "Gezählt für 6 Sitze" in str(sections[1])

@@ -64,7 +64,7 @@ from commander_lab.engine.rules.full_game_comparison import (
     sign_test_p_value,
 )
 
-from .deck_series import plan_intact, plan_record, read_series_file
+from .deck_series import TABLE_NOT_PROVEN, plan_intact, plan_record, read_series_file
 from .games import games_folder
 from .pilot_fingerprint import pilot_fingerprint
 from .play import POLICY_VERSION
@@ -423,6 +423,8 @@ def assess(
             continue
         if not exp.get("table_hash"):
             continue
+        if finding.entry.get("table_size_check") in TABLE_NOT_PROVEN:
+            continue  # the played games do not prove the planned table: in no table's family
         key = (str(finding.entry.get("base_ref")), str(exp.get("table_hash")))
         families.setdefault(key, []).append(finding)
     corrected: dict[str, tuple[PairedVariantResult, int, float]] = {}
@@ -533,8 +535,24 @@ def _one(
     check = proofs.get(sid, NO_CHECKS)
     shas = entry.get("bridge_jar_sha256s")
     jar_list = [s for s in shas if isinstance(s, str)] if isinstance(shas, list) else []
+    table_check = entry.get("table_size_check")
+    table_proven = table_check not in TABLE_NOT_PROVEN
     conditions = [
         _condition(R0, "Serie zählt als Ergebnis", counted, "Serie zählt nicht als Ergebnis"),
+        # #1661 review: a plan the played games contradict, cannot show or have not yet shown
+        # gives no maturity (its cohort is unknown); only entries of deck_series carry the check
+        *(
+            [
+                _condition(
+                    R0,
+                    "Tischgröße an den gespielten Partien belegt",
+                    table_proven,
+                    TABLE_CHECK_TEXT.get(str(table_check), "Tischgröße nicht belegt"),
+                )
+            ]
+            if "table_size_check" in entry
+            else []
+        ),
         _condition(R0, "Ergebnis auswertbar", verdict != NOT_EVALUABLE, verdict_text),
         _condition(
             R1,
@@ -582,6 +600,8 @@ def _one(
     reasons: list[str] = []
     if level not in (R2, R3):
         reasons.append("Reifegrad unter R2")
+    if not table_proven:
+        reasons.append(TABLE_CHECK_TEXT.get(str(table_check), "Tischgröße nicht belegt"))
     if stand["bezug"] == OTHER:
         reasons.append("Befund gehört nicht zum aktuellen Stand oder direkten Vorgänger")
     stored_fp = exp_view.get("pilot_fingerprint")
@@ -642,6 +662,14 @@ def _one(
         "hinweise": notes,
         "data_class": DATA_CLASS,
     }
+
+
+#: Why a table size is not proven (``deck_series.series_table_check``), in German.
+TABLE_CHECK_TEXT = {
+    "mismatch": "Tischgröße unbekannt: Plan und gespielte Partien weichen ab",
+    "unreadable": "Tischgröße unbekannt: Sitzzahl der gespielten Partien nicht lesbar",
+    "unobserved": "Tischgröße geplant, nicht an Partien geprüft",
+}
 
 
 def table_fields(value: object) -> dict[str, object]:

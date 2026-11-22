@@ -30,20 +30,9 @@ STRENGTH: Final = "near_optimal_heuristic"
 OPPONENT_MODES = ("fixed", "rotation", "draw")
 RUNNABLE_OPPONENT_MODES = ("fixed",)
 #: Wall-clock limit of one pool game per seat count (S1, #1660): a game in flight this long with
-#: no answer is given up as ``TimeLimit``. Two to four seats keep the 1,800 s of before. Five and
-#: six seats (F6, #1661 part B, SIMULATED_RESULT on the Owner PC): the pool of that base
-#: (5b406c86) gave every game the same 1,800 s, and every pool game of B3b and B6 finished under
-#: it: 90/90 at five seats (20 + 20 + 50) and 112/112 at six (20 + 20 + 72); the longest single
-#: game measured was 36.43 s (five seats, table B, n = 12) and 48.12 s (six seats, table B,
-#: n = 12). The per-game wall time inside the pool was not logged (UNKNOWN), so the limit is the
-#: one that held, not one cut to the measured maximum. Any other seat count stays an error.
-GAME_WALL_LIMIT_SECONDS: Final[dict[int, float]] = {
-    2: 1800.0,
-    3: 1800.0,
-    4: 1800.0,
-    5: 1800.0,
-    6: 1800.0,
-}
+#: no answer is given up as ``TimeLimit``. Two to four seats keep the 1,800 s of before; the
+#: values for five and six seats come from S2/F6 and are absent until then (an error, no guess).
+GAME_WALL_LIMIT_SECONDS: Final[dict[int, float]] = {2: 1800.0, 3: 1800.0, 4: 1800.0}
 
 
 def game_wall_limit_seconds(seats: int) -> float:
@@ -51,7 +40,7 @@ def game_wall_limit_seconds(seats: int) -> float:
     limit = GAME_WALL_LIMIT_SECONDS.get(int(seats))
     if limit is None:
         raise ValueError(
-            f"keine Wandzeit-Grenze für {seats} Sitze festgelegt (belegt sind 2 bis 6 Sitze)"
+            f"keine Wandzeit-Grenze für {seats} Sitze festgelegt (Werte für 5/6 liefert S2/F6)"
         )
     return limit
 
