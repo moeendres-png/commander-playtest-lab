@@ -18,6 +18,13 @@ Counting rules (every one of them is shown on the page):
 * A land the card data says produces no mana (a fetch land) is ``lands_no_mana``. A land with
   no card data at all, whose colours cannot be read from a basic land type either, is
   ``lands_unknown_colours``: unknown, never zero.
+* Search lands (WP-2, ``castability.classify_land``): a land without coloured mana of its own
+  whose rules text searches your library for a basic land or a basic land type is counted apart
+  per colour as ``search_sources`` (the colours the matching lands of the deck produce, under the
+  calculation assumption ``castability.LAND_SEARCH_ASSUMPTION``); ``land_sources`` stays the
+  direct count. ``lands_search`` and ``lands_search_unknown`` give the counts, the latter for
+  lands whose search ability cannot be read (unknown, never zero). The comparison groups count
+  direct sources only, so deck and group are compared on the same rule.
 * The commander's own cost is ``commander_pips`` and is not part of the deck's pips.
 * Groups of fewer than 30 decks are flagged.
 """
@@ -30,7 +37,7 @@ from collections import Counter
 from collections.abc import Iterable, Mapping, Sequence
 from statistics import median
 
-from . import cache
+from . import cache, castability
 from .store import StudioStore
 
 SCHEMA = "studio-land-advisor-1"
@@ -135,6 +142,21 @@ def deck_profile(rows: Iterable[_Row]) -> dict[str, object]:
     modal_sources: Counter[str] = Counter()
     lands = nonland = modal_backs = unknown_lands = colourless_pips = colourless_lands = 0
     no_mana_lands = 0
+    search_sources: Counter[str] = Counter()
+    search_lands = search_unknown = 0
+    for entry in castability.search_land_reach([dict(row) for row in row_list]):
+        quantity = int(str(entry["quantity"]))
+        reach = entry["reach"]
+        if entry["class"] == castability.LAND_SEARCH and isinstance(reach, frozenset):
+            search_lands += quantity
+            for colour in reach:
+                if not identity or colour in identity:
+                    search_sources[colour] += quantity
+        elif entry["class"] == castability.LAND_UNKNOWN and entry["reason"] in (
+            castability.REASON_UNREADABLE_SEARCH,
+            castability.REASON_TARGETED_SEARCH,
+        ):
+            search_unknown += quantity
     for row in row_list:
         quantity = int(_text(row, "quantity") or "1")
         type_line = _text(row, "type_line")
@@ -171,6 +193,8 @@ def deck_profile(rows: Iterable[_Row]) -> dict[str, object]:
                 if not identity or colour in identity:
                     other_sources[colour] += quantity
     total, colours_out = _colour_rows(identity, pips, land_sources, other_sources, modal_sources)
+    for entry in colours_out:
+        entry["search_sources"] = search_sources[str(entry["colour"])]
     return {
         "schema": SCHEMA,
         "lands": lands,
@@ -183,6 +207,9 @@ def deck_profile(rows: Iterable[_Row]) -> dict[str, object]:
         "commander_pips": {c: commander_pips[c] for c in COLOURS if commander_pips[c]},
         "modal_land_backs": modal_backs,
         "lands_unknown_colours": unknown_lands,
+        "lands_search": search_lands,
+        "lands_search_unknown": search_unknown,
+        "search_assumption": castability.LAND_SEARCH_ASSUMPTION,
         "colours": colours_out,
     }
 

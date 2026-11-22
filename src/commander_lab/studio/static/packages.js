@@ -23,7 +23,7 @@ async function renderBuildPlanTab(body, deps) {
   const nodes = [
     h("h3", {}, `Bauplan · ${cohortName(data.cohort)}`),
     h("p", { class: "note" },
-      `Vergleichsgruppe: ${StudioUI.num(data.cohort_decks, 0)} Quelldecks · Pool mit bekannter Tagger-Rolle: ${StudioUI.num(data.pool_tagged, 0)}/${StudioUI.num(data.pool_total, 0)}`,
+      `Vergleichsgruppe: ${StudioUI.num(data.cohort_decks, 0)} Quelldecks · Pool (nur Sammlung, ohne die fehlenden Karten des Schalters) mit bekannter Tagger-Rolle: ${StudioUI.num(data.pool_tagged, 0)}/${StudioUI.num(data.pool_total, 0)}`,
       data.small_sample ? h("span", { class: "pill low ml-1" }, `Kleine Stichprobe (< ${StudioUI.num(data.small_denominator, 0)} Decks)`) : null),
   ];
 
@@ -71,7 +71,7 @@ async function renderBuildPlanTab(body, deps) {
 
   if (data.role_coverage && data.role_coverage.length) {
     nodes.push(h("details", {},
-      h("summary", {}, `Rollen-Belegung im Pool (${StudioUI.num(data.pool_tagged, 0)}/${StudioUI.num(data.pool_total, 0)} Karten belegt)`),
+      h("summary", {}, `Rollen-Belegung im Pool (nur Sammlung, ohne die fehlenden Karten des Schalters: ${StudioUI.num(data.pool_tagged, 0)}/${StudioUI.num(data.pool_total, 0)} Karten belegt)`),
       h("div", { class: "table-wrap" }, h("table", {},
         h("thead", {}, h("tr", {}, h("th", {}, "Rolle"), h("th", { class: "num" }, "Im Deck"), h("th", { class: "num" }, "Im Pool (n/N)"), h("th", { class: "num" }, "Vergleich (p25–p75)"))),
         h("tbody", {}, data.role_coverage.map((row) => h("tr", {},

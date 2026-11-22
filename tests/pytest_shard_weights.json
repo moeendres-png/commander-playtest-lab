@@ -332,6 +332,7 @@
   "tests/unit/test_studio_swap.py": 0.8,
   "tests/unit/test_studio_tierliste_e0.py": 0.1,
   "tests/unit/test_studio_tierliste_role_gaps.py": 0.3,
+  "tests/unit/test_studio_tierliste_wp6.py": 1.9,
   "tests/unit/test_studio_tokens.py": 1.4,
   "tests/unit/test_studio_universe_web.py": 16.6,
   "tests/unit/test_tactical_instant_timing_capability.py": 0.1,

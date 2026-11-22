@@ -386,7 +386,7 @@ function roleBadges(card) {
   }
   return [...origins].map(([role, from]) => {
     const rInfo = ranks[role];
-    const title = `Herkunft: ${from.join(", ")}` + (rInfo ? ` · Rang ${nf(rInfo.rank)} von ${nf(rInfo.total)} in der Funktion ${roleName(role)} (nach dem Index im Gesamtpool)` : "");
+    const title = `Herkunft: ${from.join(", ")}` + (rInfo ? ` · ${roleRankText(item, role, rInfo)} in der Funktion ${roleName(role)} (nach dem Index im Gesamtpool)` : "");
     return h("span", { class: "badge", title }, roleName(role));
   });
 }
@@ -398,7 +398,7 @@ function functionRankCell(card) {
   if (!ranks.length) return unknown(cardRoles(card).length ? "kein Rang (ohne Stufe)" : "keine Rolle: kein Rang");
   const chosen = $("role-filter") ? $("role-filter").value : "";
   ranks.sort((a, b) => (a[0] === chosen ? -1 : b[0] === chosen ? 1 : a[1].rank - b[1].rank));
-  return h("div", { class: "rankcell" }, ranks.map(([role, rInfo]) => h("div", { class: "rank-line" + (role === chosen ? " sel" : ""), title: `Rang ${nf(rInfo.rank)} von ${nf(rInfo.total)} Karten mit Stufe in der Funktion ${roleName(role)}, nach dem Index im Gesamtpool` }, `${roleName(role)}: Rang ${nf(rInfo.rank)} von ${nf(rInfo.total)}`)));
+  return h("div", { class: "rankcell" }, ranks.map(([role, rInfo]) => h("div", { class: "rank-line" + (role === chosen ? " sel" : ""), title: `${roleRankText(item, role, rInfo)} Karten mit Stufe in der Funktion ${roleName(role)}, nach dem Index im Gesamtpool` }, `${roleName(role)}: ${roleRankText(item, role, rInfo)}`)));
 }
 function corpusCell(card) {
   const item = corpusAll(card);
@@ -482,7 +482,9 @@ function rowSummary(item) {
   const counts = deckCounts(item);
   if (counts) parts.push(`in ${nf(counts.n)} von ${nf(counts.N)} Quelldecks (${StudioUI.pct(counts.n / counts.N, 1)})`);
   const best = Object.entries(item.role_ranks || {}).sort((a, b) => a[1].rank - b[1].rank)[0];
-  if (best) parts.push(`Rang ${nf(best[1].rank)} von ${nf(best[1].total)} in der Funktion ${roleName(best[0])}`);
+  if (best) parts.push(`${roleRankText(item, best[0], best[1])} in der Funktion ${roleName(best[0])}`);
+  const band = rankBand(item);
+  if (band && band.k > 1) parts.push(`Gleichstand mit ${nf(band.k - 1)} weiteren Karten (Plätze ${placeText(band.from, band.to)} von ${nf(band.total)})`);
   if (item.confidence !== null && item.confidence !== undefined) parts.push(`Datenlage ${CONF_WORDS[item.confidence_level] || item.confidence_level}`);
   if (item.unscharf && item.tier_stability !== null && item.tier_stability !== undefined) parts.push(`unscharf (${StudioUI.pct(item.tier_stability, 0)})`);
   return `${parts.join("; ")}.`;
@@ -496,7 +498,10 @@ function strengthCell(card) {
   const title = `${rowSummary(item)} Schätzung aus Nutzungssignalen, keine Siegrate. Abdeckung ${StudioUI.num(100 * item.coverage, 0)} %, ${nf(item.present)} Signale vorhanden.`;
   if (item.tier === "N") return neutral(item.note, `${item.note}: Commander und Standardländer bekommen keine Stufe.`);
   if (item.tier === "U") return unknownCell(card, item);
-  return h("span", { class: "tcell" }, tierBadge(item.tier, StudioUI.num(item.index, 1), title), confidenceMark(item), borderlineMark(item), unsharpMark(item));
+  // T4: in tier D the band of places replaces the decimal, a tied S to C card gets the band added (rankBandNode)
+  const band = rankBandNode(item);
+  const shown = item.tier === "D" && band ? band : h("span", {}, StudioUI.num(item.index, 1), band ? " " : null, band);
+  return h("span", { class: "tcell" }, tierBadge(item.tier, shown, item.tier === "D" && band ? `${title} Index ${StudioUI.num(item.index, 1)}.` : title), confidenceMark(item), borderlineMark(item), unsharpMark(item));
 }
 function datenlageCell(card) {
   const item = strengthItem(card);
@@ -505,6 +510,54 @@ function datenlageCell(card) {
   const counts = deckCounts(item);
   const short = item.confidence_basis === "gezaehlte_null" ? "hoch · gezählte 0" : counts ? `${nf(counts.n)}/${nf(counts.N)} · ${CONF_WORDS[item.confidence_level] || item.confidence_level}` : confidenceText(item);
   return h("span", { class: "nowrap", title: `${confidenceText(item)}. ${CONFIDENCE_TEXT}`, "aria-label": `Datenlage: ${confidenceText(item)}` }, short);
+}
+// ---------- rank bands (WP-6, T4): a tie shares a band of places, never one place ----------
+// The index is rounded to one decimal, so many cards share a value. Sorting puts them in some order, but that order
+// is no ranking. Each card with a tier S to D gets the band of places its tie group takes among ALL cards with a tier
+// of the answer (never the filtered list): from = 1 + cards with a higher index, to = cards with an index at least as
+// high. In tier D the band replaces the decimal; a tied card of S to C keeps its index and gets the band added.
+// Display only: index, tiers, cuts and sort order stay as they are.
+const RANKED_TIERS = new Set(["S", "A", "B", "C", "D"]);
+function rankBandsOf(cards) {
+  const ranked = (Array.isArray(cards) ? cards : []).filter((c) => RANKED_TIERS.has(c.tier) && typeof c.index === "number");
+  const counts = new Map();
+  for (const c of ranked) counts.set(c.index, (counts.get(c.index) || 0) + 1);
+  const first = new Map();
+  let above = 0;
+  for (const value of [...counts.keys()].sort((a, b) => b - a)) { first.set(value, above + 1); above += counts.get(value); }
+  const bands = new Map();
+  for (const c of ranked) { const from = first.get(c.index), k = counts.get(c.index); bands.set(c.card_id, { from, to: from + k - 1, k, total: ranked.length, index: c.index }); }
+  // inside one function the same rule: role_ranks gives the first place of the tie group, k comes from here
+  const roleTies = new Map();
+  for (const c of ranked) for (const role of Object.keys(c.role_ranks || {})) { const key = `${role}|${c.index}`; roleTies.set(key, (roleTies.get(key) || 0) + 1); }
+  return { bands, roleTies };
+}
+let rankBandCache = { result: null, value: null };
+function rankBands() {
+  const result = state.strength.result;
+  if (!result) return null;
+  if (rankBandCache.result !== result) rankBandCache = { result, value: rankBandsOf(result.cards) };
+  return rankBandCache.value;
+}
+function rankBand(item) { const all = rankBands(); return all && item ? all.bands.get(item.card_id) || null : null; }
+const placeText = (from, to) => (from === to ? nf(from) : `${nf(from)}–${nf(to)}`);
+function rankBandTitle(band, tier) {
+  const tie = band.k > 1
+    ? `Gleichstand: ${nf(band.k)} Karten haben den Index ${StudioUI.num(band.index, 1)} und teilen sich die Plätze ${placeText(band.from, band.to)} von ${nf(band.total)} Karten mit Stufe; ihre Reihenfolge in der Liste ist keine Rangfolge.`
+    : `Platz ${nf(band.from)} von ${nf(band.total)} Karten mit Stufe (Index ${StudioUI.num(band.index, 1)}, kein Gleichstand).`;
+  return tier === "D" ? `${tie} In Stufe D steht der Platz-Bereich statt der Dezimalstelle: dort teilen sich viele Karten wenige Indexwerte.` : tie;
+}
+// The visible band of one tier cell: "Rang 12–30" (tier D always, S to C only in a tie); null when nothing to add.
+function rankBandNode(item) {
+  const band = rankBand(item);
+  if (!band || (item.tier !== "D" && band.k < 2)) return null;
+  return h("span", { class: band.k > 1 ? "rank-band tie" : "rank-band", title: rankBandTitle(band, item.tier) }, `Rang ${placeText(band.from, band.to)}`);
+}
+// "Rang k von n" inside a function, as a band when cards of that function share the index.
+function roleRankText(item, role, rInfo) {
+  const all = rankBands();
+  const k = all && item ? all.roleTies.get(`${role}|${item.index}`) || 1 : 1;
+  return k > 1 ? `Rang ${placeText(rInfo.rank, rInfo.rank + k - 1)} von ${nf(rInfo.total)} (${nf(k)} gleichauf)` : `Rang ${nf(rInfo.rank)} von ${nf(rInfo.total)}`;
 }
 // ---------- rubric v2 judgement: "Kartenverständnis (Modellurteil)" ----------
 // The field of the strength answer; absent for every commander but Chulane (nothing was rated there) and in the global view.
@@ -515,26 +568,91 @@ function understandingField() {
 }
 const understandingShown = () => { const field = understandingField(); return Boolean(field && field.verfuegbar === true); };
 // id -> figure of the valid figures (StudioZahl.index leaves an invalid one out), remembered per answer.
-let understandingCache = { result: null, figures: new Map() };
+let understandingCache = { result: null, figures: new Map(), lands: new Set() };
 function understandingFigure(card) {
   const field = understandingField();
   if (!field) return null;
-  if (understandingCache.result !== state.strength.result) understandingCache = { result: state.strength.result, figures: StudioZahl.index(field.zahlen) };
+  if (understandingCache.result !== state.strength.result) {
+    const lands = field.laender_skala && Array.isArray(field.laender_skala.karten) ? field.laender_skala.karten : [];
+    understandingCache = { result: state.strength.result, figures: StudioZahl.index(field.zahlen), lands: new Set(lands) };
+  }
   return understandingCache.figures.get(UNDERSTANDING_ID + card.card_id) || null;
 }
-// One table cell of class URTEIL through the number contract: a card without a figure is "unbekannt", never 0.
-const understandingCell = (card) => StudioZahl.zelle(h, understandingFigure(card), "URTEIL", { class: "understanding" });
+const CONFIDENCE_SHORT = { high: "hoch", medium: "mittel", low: "niedrig" };
+// The spread of one rating (T1): the band of the H range the value lies in (the audit's estimate per range), else the
+// typical spread; band, estimate and the measured sources in the tooltip.
+function spreadTitle(spread) {
+  const sources = (spread.quellen || []).map((q) => `${q.name}: ${q.kennzahl} (${q.gemessen === false ? "Schätzung" : "gemessen"}, n = ${nf(q.n)} von ${nf(q.N)} ${q.bezug}; ${q.datei})`);
+  return [`Streuung von H: ${spread.text} (${spread.art})`, ...sources].join(" · ");
+}
+function spreadBandOf(spread, wert) {
+  const bands = Array.isArray(spread.baender) ? spread.baender : [];
+  return typeof wert === "number" ? bands.find((b) => wert >= b.ab && wert <= b.bis) || null : null;
+}
+function spreadNode(field, wert) {
+  const spread = field && field.streuung;
+  if (!spread || !spread.kurz) return h("span", { class: "zahl-band unknown", title: "Streuung nicht geliefert" }, " ± unbekannt");
+  const band = spreadBandOf(spread, wert);
+  const title = band ? `${band.text}: ${band.quelle} · ${spreadTitle(spread)}` : `typische Streuung · ${spreadTitle(spread)}`;
+  // "≈" marks the audit's estimate per H range: no measured interval of this card (intervall stays null)
+  return h("span", { class: band ? "zahl-band" : "zahl-band typisch", title: band ? `Schätzung, kein Intervall: ${title}` : title }, ` ${band ? `\u2248${band.kurz}` : `${spread.kurz} typ.`}`);
+}
+// Visible extras of one H cell: spread band, the rater's confidence, the audit doubt (T3) and the land scale (T5).
+function understandingExtras(card, figure) {
+  const field = understandingField();
+  const notes = Array.isArray(figure.hinweise) ? figure.hinweise : [];
+  const said = notes.map((text) => /^Rater-Vertrauen (\w+)/.exec(text)).find(Boolean);
+  const doubts = field && field.pruefer_zweifel && field.pruefer_zweifel.karten ? field.pruefer_zweifel.karten : {};
+  const doubt = doubts[card.card_id];
+  const basis = field && field.pruefer_zweifel && field.pruefer_zweifel.pruefbasis ? ` ${field.pruefer_zweifel.pruefbasis.text}.` : "";
+  const claimFindings = field && field.regelclaim_befunde && field.regelclaim_befunde.karten ? field.regelclaim_befunde.karten[card.card_id] || [] : [];
+  return [
+    spreadNode(field, figure.wert),
+    said ? h("span", { class: "zahl-vertrauen", title: "Rater-Vertrauen (Selbstauskunft des Raters)" }, ` · ${CONFIDENCE_SHORT[said[1]] || said[1]}`) : null,
+    doubt ? h("span", { class: "badge warn pruefer-zweifel", title: `${doubt.text}. ${doubt.grund}${basis}` }, doubt.kurz || "Prüfer-Modell-Zweifel") : null,
+    ...claimFindings.map((f) => h("span", { class: "badge warn regelclaim-befund", title: `Claim ${nf(f.index + 1)}: ${f.korrektur} (${f.quelle})` }, f.kurz)),
+    understandingCache.lands.has(card.card_id) ? h("span", { class: "badge laender-skala", title: field.laender_skala.text }, "Länder-Skala") : null,
+  ];
+}
+// One compact table cell of class URTEIL through the number contract: a card without a figure is "unbekannt", never 0.
+// The origin shared by all figures stands once above the table (understandingHint); each cell has its own in the tooltip.
+function understandingCell(card) {
+  const figure = understandingFigure(card);
+  const valid = figure && StudioZahl.pruefe(figure).length === 0 && figure.klasse === "URTEIL";
+  return StudioZahl.zelle(h, figure, "URTEIL", { class: "understanding" }, { kompakt: true, zusatz: valid ? understandingExtras(card, figure) : [] });
+}
 function understandingColumns() {
   return understandingShown() ? [{ head: () => plainHead(UNDERSTANDING_NAME, "understanding", UNDERSTANDING_H), cell: understandingCell }] : [];
 }
-// One visible line above the table while the field exists: what the column is (origin, n of N rated), or why it is missing.
+// One visible block above the table while the field exists: what the column is, its origin (once for all rows), the
+// spread with source and n, the audit doubts and the land scale; or why it is missing.
 function understandingHint() {
   const field = understandingField();
   if (!field) return [];
   if (field.verfuegbar !== true) return [h("div", { id: "understanding-hint", class: "hint" }, `${UNDERSTANDING_NAME} nicht verfügbar: ${field.grund || "kein Grund geliefert"}.`)];
   const origin = field.herkunft || {};
-  return [h("div", { id: "understanding-hint", class: "hint", title: UNDERSTANDING_H },
-    `${UNDERSTANDING_NAME}: Kriterium H der Rubrik ${origin.version || "unbekannt"} (${origin.rubric || "unbekannt"}), ${nf(field.n_bewertet)} von ${nf(field.n_gesamt)} Karten bewertet; Modell-Rater, nicht gegen Spielergebnisse validiert. Keine Stufe, kein Rang, nicht Teil des Stärke-Index.`)];
+  const figures = [...StudioZahl.index(field.zahlen).values()];
+  const sources = [...new Set(figures.map((f) => f.quelle))];
+  const cohorts = [...new Set(figures.map((f) => f.kohorte).filter(Boolean))];
+  const spread = field.streuung;
+  const measured = spread ? (spread.quellen || []).filter((q) => q.gemessen !== false) : [];
+  const spreadText = spread
+    ? `Streuung ${spread.kurz} typisch (1\u03c3, ${nf(spread.laeufe_je_karte)} Lauf je Karte), je H-Bereich ${(spread.baender || []).map((b) => b.kurz).join(" / ")} (\u2248 = Schätzung Audit A); gemessen: ${measured.map((q) => `${q.kurzname || q.name} n = ${nf(q.n)}`).join(", ")}`
+    : "Streuung unbekannt";
+  const doubt = field.pruefer_zweifel;
+  const doubtText = !doubt ? "" : doubt.verfuegbar === true
+    ? ` · Prüfer-Modell-Zweifel: ${nf(doubt.n_zugeordnet)} von ${nf(doubt.n_markiert)} zugeordnet, ${nf(doubt.n_im_pool)} im Pool${doubt.pruefbasis ? ` (Prüfbasis ${nf(doubt.pruefbasis.n)} von ${nf(doubt.pruefbasis.N)}; ohne Kennzeichen heißt nicht geprüft oder ohne Befund)` : ""}`
+    : ` · Prüfer-Audit nicht verfügbar: ${doubt.grund || "kein Grund geliefert"}`;
+  const basisTitle = doubt && doubt.pruefbasis ? doubt.pruefbasis.text : "";
+  const lands = field.laender_skala;
+  const landText = lands ? ` · Länder-Skala: ${nf(lands.n_laender)} Länder, T = 0 bei ${nf(lands.n_t_null)}` : "";
+  const title = [UNDERSTANDING_H, spread ? spreadTitle(spread) : "", doubt ? doubt.quelle : "", basisTitle, lands ? `${lands.text}; ${lands.quelle}` : ""].filter(Boolean).join(" · ");
+  return [h("div", { id: "understanding-hint", class: "hint", title },
+    h("b", {}, `${UNDERSTANDING_NAME}: `),
+    `Kriterium H, ${nf(field.n_bewertet)} von ${nf(field.n_gesamt)} Karten bewertet · `,
+    h("span", { class: "understanding-origin" }, `Quelle: ${sources.join(" | ") || "unbekannt"} · Kohorte: ${cohorts.join(" | ") || "unbekannt"}`),
+    h("span", { class: "understanding-spread-head", title: spread ? spreadTitle(spread) : "" }, ` · ${spreadText}`),
+    `${doubtText}${landText} · nicht gegen Spielergebnisse validiert; keine Spielstärke, keine Stufe, kein Rang.`)];
 }
 // ---------- pool view "Nutzung n/N" (Q1-b5, #1680) ----------
 // The counted spread of one card in the chosen universe as one number contract of class GEZÄHLT (zahl.js):
@@ -605,7 +723,7 @@ function tableColumns() {
     { head: () => sortHead("Stufe", "strength", "stick-1", "Stufe aus dem Stärke-Index: Schätzung aus Nutzungsdaten in Commander-Decks, keine Spielstärke. Klick sortiert."), cell: cell("stick-1", strengthCell) },
     { head: () => sortHead("Karte", "name", "stick-2"), cell: (card) => {
       const mark = state.marks.get(card.card_id) || {};
-      return h("td", { class: "cardcell name stick-2", "data-card-id": card.card_id, onclick: () => openCard(card) }, thumb(card), mark.favorite ? h("span", { class: "star" }, "★ ") : null, card.name);
+      return h("td", { class: "cardcell name stick-2", "data-card-id": card.card_id, title: card.name, onclick: () => openCard(card) }, thumb(card), mark.favorite ? h("span", { class: "star" }, "★ ") : null, card.name);
     } },
     ...(commander ? understandingColumns() : []),
     { head: () => plainHead("Favorit / Deck"), cell: cell("acts", markButtons) },
@@ -904,7 +1022,7 @@ function strengthDetail(item) {
   const roleRanks = item.role_ranks ? Object.entries(item.role_ranks) : [];
   if (roleRanks.length) {
     out.push(h("p", { id: "role-ranks-line" }, "Rang in der Funktion (nach dem aktuellen Index): ",
-      ...roleRanks.map(([role, rInfo]) => h("span", { class: "badge mr-1", title: `Rang ${nf(rInfo.rank)} von ${nf(rInfo.total)} Karten mit Stufe in der Funktion ${roleName(role)}` }, `${roleName(role)}: Rang ${nf(rInfo.rank)} von ${nf(rInfo.total)}`))));
+      ...roleRanks.map(([role, rInfo]) => h("span", { class: "badge mr-1", title: `${roleRankText(item, role, rInfo)} Karten mit Stufe in der Funktion ${roleName(role)}` }, `${roleName(role)}: ${roleRankText(item, role, rInfo)}`))));
   }
   out.push(h("h4", {}, "Objektive Signale (zählen mit Gewicht)"), table(SIGNAL_HEADS, objective.map(signalRow)));
   return out;
@@ -1009,7 +1127,9 @@ function whyBox(card, heading = "Warum hier?") {
     ? `Stufe ${item.tier} (Index ${StudioUI.num(item.index, 1)}): ${nf(counts.n)} von ${nf(counts.N)} Quelldecks für ${VIEW_NAMES.commander} enthalten die Karte (${StudioUI.pct(counts.n / counts.N, 1)}).`
     : `Stufe ${item.tier} (Index ${StudioUI.num(item.index, 1)}). Für das Decklisten-Universum liegt kein Zähler vor.`);
   const ranks = Object.entries(item.role_ranks || {}).sort((a, b) => a[1].rank - b[1].rank).slice(0, 3);
-  if (ranks.length) lines.push(`In der Funktion: ${ranks.map(([role, rInfo]) => `${roleName(role)} Rang ${nf(rInfo.rank)} von ${nf(rInfo.total)}`).join("; ")} (nach dem Index im Gesamtpool).`);
+  const band = rankBand(item);
+  if (band && band.k > 1) lines.push(`Gleichstand: ${nf(band.k)} Karten haben den Index ${StudioUI.num(item.index, 1)} und teilen sich die Plätze ${placeText(band.from, band.to)} von ${nf(band.total)} Karten mit Stufe; ihre Reihenfolge ist keine Rangfolge.`);
+  if (ranks.length) lines.push(`In der Funktion: ${ranks.map(([role, rInfo]) => `${roleName(role)} ${roleRankText(item, role, rInfo)}`).join("; ")} (nach dem Index im Gesamtpool).`);
   const shares = indexShares(item);
   if (shares && shares.detail) {
     const top = shares.shown.map((row) => `${SIGNAL_SHORT[row.key] || row.label} ${StudioUI.num(row.points, 1)} Punkte (${StudioUI.num(row.percent, 0)} %)`).join(", ");
@@ -1070,6 +1190,9 @@ async function openCard(card) {
     const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}/evidence?${query}`);
     const full = detail.card;
     const strengthSection = strengthBox(card);
+    // T2: the single ratings of "Kartenverständnis (Modellurteil)", only while the column is shown (Chulane, Bracket 3)
+    const understandingSection = h("div", { id: "understanding-detail" });
+    if (understandingShown()) StudioKartenverstaendnis.fill(understandingSection, h, api, card.card_id, COMMANDER);
     let face = "front";
     const picture = full.has_image ? h("img", { class: "big", loading: "lazy", referrerpolicy: "no-referrer", alt: full.name, src: cardImageUrl(full, "front") }) : h("div", { class: "muted" }, "Kein Bild in den Kartendaten.");
     if (full.has_image) picture.addEventListener("error", () => picture.replaceWith(h("div", { class: "muted" }, "Kein Bild geladen (offline).")), { once: true });
@@ -1083,6 +1206,7 @@ async function openCard(card) {
       picBox,
       h("div", { class: "policy" }, h("b", {}, `${OUTCOME_HEADING}. `), "Es gibt kein geprüftes Modell mit Partiedaten. Fehlende Beobachtung ist nie ein niedriger Tier. Favoriten, Ausschlüsse und Notizen fließen nicht ein."),
       strengthSection,
+      understandingSection,
       ...drawer(full));
     if (!hadFocus) content.focus();
     try { content.append(await universeBox(full)); } catch (error) { content.append(h("p", {}, `Verbreitung nicht ladbar: ${StudioUI.germanError(error)}`)); }

@@ -416,6 +416,68 @@ The number of notes inside it is shown next to the title.
   favorites says so instead of showing an empty table. The count line names the active filters
   ("926 von 927 Karten · Filter: nur freie").
 
+### Tierliste honest and readable (WP-6 of the builder audit, #1404)
+
+Display and an additive field only: the strength index, the tiers, the cuts 54/35/20/5, the sort
+order and every field of the `POST /api/strength` answer stay the same bytes (test); the only
+addition is inside the field `kartenverstaendnis` (Chulane only, Bracket 3, never TAM, never a
+price). "Kartenverständnis (Modellurteil)" stays a labelled model judgement from the rules text:
+no strength in play, no tier, no rank, no sort key, not part of the index.
+
+- **T1 spread and one origin.** The field carries `streuung`: the typical spread of one rating H,
+  "± rund 5 bis 8 Punkte (1σ), ein Lauf je Karte", with its sources and n: the drift test (49 of
+  922 cards rated twice by the same rater tier, repeat spread RMS 7,1 / √2 ≈ 5), the rater of
+  another model family (70 cards, mean |ΔH| 7,9, 13 of 70 with |ΔH| ≥ 15, ≈ 7,3) and the combined
+  estimate of rating audit A (230 cards, 1σ about 7 to 8); files under
+  `data/research/chulane_rubric_v2_20261118/` (`PILOT_REPORT.md` §10/§11, `audit/AUDIT_A_ratings.md`
+  §0/§4). The spread grows with H, so each cell shows the band of its H range from the audit's
+  estimate (AUDIT_A §4: about ±5 at H up to 10, about ±10 at H 40 to 55, about −15/+5 from H 60)
+  and otherwise "±5–8 typ."; a band carries "≈" (an estimate, no interval of the card); the head names the audit's 7 to 8 as an estimate and only the drift
+  and the other rater as measured n. A test recomputes these figures from the raw files. The
+  figures keep `intervall: null`: a typical spread is no measured per-card interval. The origin shared by all figures (source,
+  cohort, "nicht gegen Spielergebnisse validiert") stands once, visible, above the table; each
+  cell shows value, "±5–8", the class badge "Modellurteil", the rater's confidence and the marks,
+  with its full origin in the tooltip (`StudioZahl.zelle(..., { kompakt: true })`; without the
+  option a cell is unchanged). One line per card: at 1600 × 1000 the synthetic browser check
+  showed 3 cards in the table area before and 16 after.
+- **T2 single ratings.** `GET /api/cards/{card_id}/understanding?commander=NAME` gives all seven
+  criteria E (Effizienz), F (Passung zu Chulane), T (Wirkung am Tisch), R (Verlässlichkeit), K
+  (Motor- und Kombo-Potenzial), D (Deck-Kosten und Risiko) and H (Gesamtwert) as URTEIL figures
+  with the rater's note, the reason, the rules claims, the confidence, the spread and the coverage
+  n of N per criterion over the data set. A card the data set does not list has all seven values
+  "unbekannt", never 0; a missing note is "unbekannt". For any other commander the answer says
+  `anzeigen: false` and the page shows nothing; an unknown card is 404 for every commander. The card window of the tier list (while the column
+  is shown) and of the deck builder render it (`static/kartenverstaendnis.js`). The rules claims
+  are headed "Regelclaims des Raters (Modellurteil, keine Regelaussage; Regelautorität XMage/CR)"
+  with the note that quotes are not checked one by one (Audit A: 11 of 1708 quotes not literal;
+  Audit D: 100 of 100 sampled claims right, one factual error in a targeted look at Evoke). The field itself
+  carries `abdeckung` (n of N pool cards per criterion).
+- **T3 audit mark.** `pruefer_zweifel` places the lines of
+  `audit/audit_A_flagged.jsonl` (blind rating audit, reviewer of another model family) on the data
+  set by exact card name: 35 of 35 placed on the current data set. A line whose seen H is not the
+  current H counts as outdated and is not shown; an unknown name counts as unmatched. A missing
+  audit file is "nicht verfügbar", never "no card doubted". The reviewer is a model, and the label
+  says so: "Prüfer-Modell bezweifelt H: zu hoch / zu niedrig", or for the two lines of the kind
+  "Begründung faktisch falsch" "Prüfer-Modell: Begründung faktisch falsch" (no doubt about H); the
+  reviewer's range for H and the reason are in the tooltip. The audit saw 230 of 922 cards (plus 6
+  finds outside its samples): the head and the tooltip say that a card without a mark was not
+  checked or checked without finding (`pruefbasis`). The findings of Audit D outside its random
+  sample (Wavesifter claim 1 wrong, Evoke sacrifice is a triggered ability, CR 702.74a; Appeal to
+  Eirdu claim 1 unsharp) and the five claims of its random sample that are right but unsharply
+  worded (Hada Freeblade, Molder Beast, Tam Observant Sequencer, Mindseeker Oculus, Strixhaven
+  Skycoach) mark the card ("Regelclaim laut Audit D falsch / unscharf / unscharf formuliert") and
+  the claim in the card window (`regelclaim_befunde`; tests compare them with the report's tables
+  and the sample file); Wavesifter's reason, which repeats the wrong claim, is marked as well.
+- **T4 rank bands.** The index has one decimal, so many cards share a value (the audit counted 777
+  of 922 in tie groups). Each card with a tier gets the band of places its tie group takes among
+  all cards with a tier of the answer; in tier D the band ("Rang 824–922") replaces the decimal (the
+  index stays in the tooltip), a tied card of S to C keeps its index and gets the band, and the
+  function rank reads "Rang k–m von n (j gleichauf)". Computed in the page from the answer; the
+  order of the list does not change.
+- **T5 land scale.** Lands were rated against land anchors (Gutachten C §4: 65 lands, T = 0 at 58
+  of 65; reproduced from the data set and the research facts by a test). `laender_skala` lists the
+  rated lands of the answer and counts T = 0; their cells carry "Länder-Skala".
+
 ### Strength index v3: purely empirical ("Tierliste v3", #1364)
 
 This section supersedes the weights, scale, cuts and missing-value defaults named above (the
@@ -1406,7 +1468,9 @@ its colours, Phyrexian and "2 or colour" symbols for the colour, `{C}` as colour
 generic mana not at all; a split card counts both halves, other two-faced cards the front; a
 land counts for every colour it produces; a land with unknown colours is "unbekannt", never 0;
 the commander's own cost and its colour identity are named apart. Source decks with cards the
-card data does not know are left out and counted.
+card data does not know are left out and counted. Search lands are a separate column "über
+Suchland" (see "Search lands, commander on curve, land count table" below); "Länder direkt" and
+the group figures stay direct.
 
 ### Card allocation ("Belegung", #1419)
 
@@ -1507,14 +1571,76 @@ The tab "Zahlen" shows, for every distinct coloured requirement of the deck's no
 probability to hit the land drops by that turn and, only among those draws, to hold the
 coloured sources the cost needs (`POST /api/castability`, `studio/castability.py`). Method:
 Frank Karsten, 2022 update. Missing the land drop is reported apart; two pips of one colour and
-several colours are one joint event computed over land groups by produced colours (a dual land
-counts for both colours of one draw), never a product of single probabilities; every value
-carries its condition ("bedingt auf mindestens T Länder unter 7 + T gezogenen Karten"). Sources
-are lands only; lands without coloured mana per card data (fetch lands) and lands without card
-data are counted as lands but not as sources and are listed; hybrid and Phyrexian symbols are
+several colours are one joint event computed over land groups by produced colours, never a
+product of single probabilities. Each coloured symbol needs its own land: a dual land can pay
+either of its colours but only one symbol (exact assignment of lands to symbols by Hall's
+condition, review round 1 of #1751; before, a dual land counted for both colours of one draw at
+once, which overstated multicoloured costs by up to 2.9 pp on the Chulane baseline); every value
+carries its condition ("bedingt auf mindestens T Länder unter 7 + T gezogenen Karten", for the
+player who is not the starting player and draws in turn 1; the starting player sees one card
+less). Sources
+are lands only; lands without coloured mana per card data and lands without card data are
+counted as lands but not as direct sources and are listed; hybrid and Phyrexian symbols are
 not part of the requirement and the cards are named. No mulligan, no extra draws. The opening
 hand figure is the exact share of 7-card hands with 2 to 4 lands and at least one nonland card
 of mana value at most 2. A description, never a land count recommendation.
+
+#### Search lands, commander on curve, land count table (#1404, builder audit WP-2 and WP-3)
+
+**Land classes.** Every land of the list gets one class from its card data and the rules text
+of its front face without reminder text, never from its name (`castability.classify_land`):
+`direkt` (produces coloured mana), `suchland` (no coloured mana of its own; an ability of its own
+text, without a target, searches *your* library for a basic land card, for cards of named basic
+land types such as "Plains or Island" or "basic Forest, Plains, or Island", or for a land card
+with a basic land type, and puts the card onto the battlefield), `ohne_farbe` (known to produce
+no coloured mana, no such search) and `unbekannt` (no card data, no rules text, or a search text
+of another form: a Gate, any land card, into the hand, bound to a target, or a search of "their
+library" such as Field of Ruin's "each player searches"). The page shows the
+counts and "Klasse bestimmt für n von N Ländern"; unknown lands are named with the reason and are
+never counted as 0 sources. Land ramp spells are not part of this count.
+
+**direkt / mit Suchland.** Every requirement (and the commander) is shown twice: `direkt` (the
+earlier figures, search lands are no source) and `mit Suchland` (`with_search`). The second one
+rests on a calculation assumption, stated in the code (`LAND_SEARCH_ASSUMPTION`) and on the
+page: a search land counts as a source of every colour that a main-deck land matching its search
+produces directly, matched by type line (supertype Basic and the basic land types; a fetch land
+for "Plains or Island" also reaches green when a Forest Plains dual is in the deck), and as one
+land of the joint event like a dual land. A matching card is assumed to be still in the library;
+entering tapped, life payment of fetch lands, activation costs (for example `{1}` of the
+Panoramas) and fetching two lands are not modelled. A search land without a matching land in the
+deck is a known source of no colour. The land advisor ("Länder im Vergleich") shows the search
+lands as a separate column "über Suchland" (`search_sources`, within the commander's colour
+identity); the comparison groups count direct sources only, so deck and group are compared on
+the same rule.
+
+Measured on the QA store copy (import of 2026-11-19, schema 21): the collection pool (card
+facts with an inventory row, commander-legal) holds 134 lands, of which 132 of 134 (98.5 %) get a
+class (106 direkt, 14 suchland, 12 ohne_farbe); unknown are Maze's End (searches for a Gate) and
+Demolition Field (search bound to a target). The public card data of the same store (Zukauf
+universe, a separate figure) gives 1,221 of 1,231 lands. For the Chulane baseline (36 lands, 3
+search lands with basic land search) the colour figures given land drops rise by 1.8 to 11.1 pp,
+on average 5.6 pp (5.571) over the 26 coloured requirements; UU on turn 3 goes from 65.2 % to
+76.4 %.
+
+**Commander on curve.** The commander's own cost is one more requirement at the turn of its
+mana value (`commander`): land drops, colours given the land drops, and both together ("auf
+Kurve"), each direct and with search lands; library = main deck without the commander, first
+cast without commander tax. Chulane `{2}{G}{W}{U}` on the baseline: turn 5 (12 cards), land drops
+45.6 % × colours 92.0 % = 42.0 % direct, colours 97.1 % and 44.3 % with search lands (for the
+player who draws in turn 1; a starting player sees 11 cards by turn 5). A
+commander without mana value is "unbekannt". The overview shows the same line.
+
+**Land count table.** `land_count_table`: for 30 to 40 lands (and the deck's own count, marked,
+also when outside that range) in the library of the list (main deck without commander), the
+exact hypergeometric share of draws with at least `T` lands among the `7 + T` cards seen by turn
+`T`, for turns 2 to 7; the column headers name the card count and the player who draws in turn
+1 ("Nichtstartspieler"; the starting player reads the column one turn earlier). The deck's own
+row equals the land drops of the requirements of the same turn. No land count recommendation.
+
+Runtime of the exact assignment, measured in this container: Chulane baseline 0.04 s for the
+whole `deck_castability`; a synthetic five-colour deck with 27 different land groups and five
+costs of up to seven symbols in all five colours 1.05 s. Without a search land in the deck the
+"mit Suchland" figures reuse the direct ones.
 
 #### Roles in the opening hand ("Rollen in der Starthand", #1404)
 
@@ -1637,6 +1763,32 @@ commander-level co-occurrence pass is remembered per store state, commander list
 (`builder._cohort_deck_sets`, sharing `corpus_deck_sets`), so the second open of a card is a
 lookup; the figures are the same as counting the cohort's decks directly (tested).
 
+What the box counts (#1404, WP-8). The date table counts the sources of the whole store, all
+commanders together (no source row names a commander), and says so in its header. The layer table
+below counts for the chosen commander: the coverage is always that commander's pool, and the column
+"Gezählt über" (`rows_scope` of `GET /api/layers`) says per layer what the row count and the
+coverage are made of: `commander` (source decks bound to it, the signals it owns), `all_commanders`
+(the corpus and the EDHREC views: rows AND coverage include the decks and observations of every
+other commander) or `card_facts` (collection, Scryfall facts, roles, rulings, Playgroup, marks,
+commander-independent signals: rows over the whole store, coverage over this pool). Next to it the
+box shows the source decks of the store (with duplicates) against those bound to the commander
+(without duplicates), so Tam never shows the 10,551 Chulane source decks as its own. The box is
+closed unless the collection or the card facts are missing (the tier list, which asks for `only` the
+layers of its index, keeps the deck lists among the reasons to open); an opened box scrolls inside
+itself (at most 40 % of the window height) and the builder keeps at least 540 px below it, so it
+never squeezes the pool and the deck panel to nothing. The import call of a missing layer is
+`import-all` except for the Tam deck and view layers (`decklists`, `corpus`, `observations` of
+"Tam, the Possibility"): those come from the Drive files and name
+`python scripts/import_tam_drive.py --tam91-dir|--edhrec78-dir`; without `COMMANDER_LAB_STUDIO_DATA`
+(or `COMMANDER_LAB_OWNER_DATA`) set, `--db "<data folder>"` names the store, as `--data` does for
+`import-all`. The Bauplan counts the pool of the collection only ("nur Sammlung, ohne die fehlenden
+Karten des Schalters"); the state page names its pool ("Sammlung", or "Sammlung + fehlende Karten,
+Schalter an" with the buy-pool switch on), so the two denominators are never read as one.
+Choosing a commander that has no deck still
+creates a saved deck of just the commander (the variants and drafts need a deck to belong to); the
+page says so in a note ("Automatisch angelegt, nicht von dir") until a card is added or the note is
+dismissed.
+
 ### Actionable Deck-Doctor ("Übersicht", #1404)
 
 In the "Übersicht" tab (`POST /api/deck-doctor`, `studio/builder.py`, schema `studio-deck-doctor-1`,
@@ -1739,7 +1891,7 @@ this; shipping the page inside a wheel is a later step.
   "Teilmenge: N von M Decks"; the chosen cards are "Filterkarte" and not ranked. Only cards of
   the commander's pool can be chosen. Same machinery as the universe `must_contain` filter.
 - Pages show a data-state box (`GET /api/layers`): which data layers exist for the commander
-  and the exact `import-all` call for each missing one. Both pages share one header (Deckbau,
+  and the exact import call for each missing one (`import-all`; `scripts/import_tam_drive.py` for the Tam deck layers). Both pages share one header (Deckbau,
   Tierliste, Partien, chosen commander, light/dark toggle remembered in the browser).
 - Drafts are kept automatically; a saved state is an immutable revision. Variants are named
   branches of a deck. Export as text list or as deck snapshot for the simulator.

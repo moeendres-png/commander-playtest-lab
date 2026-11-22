@@ -42,14 +42,14 @@ const state = {
   activePaired: null, pairedPollTimer: null, pairedHistory: [], readinessAudit: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
   subset: null, subsetNames: [], subsetWanted: null, strength: null, showTier: true, changeSeq: 0, savedSeq: 0, layers: null, diffDefault: null,
-  includeUnowned: false, superfriendsFilter: "",
+  includeUnowned: false, superfriendsFilter: "", autoDeck: null,
   cardTrend: null, cardTrendDays: 180, cardTrendBracket: "", cardTrendSource: "edhrec", cardTrendReq: null,
   colors: new Set(), columns: new Set(["img", "name", "mana_cost", "type_line", "available", "freq", "edhrec"]),
 };
 
 const $ = (id) => document.getElementById(id);
-// replaceChildren shows a null argument as the text "null": drop empty children.
-const kids = (...items) => items.filter((item) => item !== null && item !== undefined && item !== false);
+// replaceChildren shows a null argument as the text "null": StudioUI.kids drops empty children.
+const kids = StudioUI.kids;
 function h(tag, props, ...children) {
   const el = document.createElement(tag);
   for (const [key, value] of Object.entries(props || {})) {
@@ -567,6 +567,24 @@ function renderHeader() {
   pill.className = "pill " + (errors ? "bad" : warnings ? "warn" : "good");
   $("save").disabled = !state.dirty;
   renderPlayButton();
+  renderAutoDeckNote();
+}
+// Choosing a commander without a deck creates a saved deck of just the commander (the deck list,
+// the variants and the draft all need a deck to belong to). That is not an action the person
+// took, so the page says it, until a card is added, another deck is chosen or it is dismissed.
+function renderAutoDeckNote() {
+  const box = $("auto-deck-note");
+  if (!box) return;
+  const auto = state.autoDeck;
+  const deck = auto ? state.decks.find((item) => item.deck_id === auto.deckId) : null;
+  if (!deck || state.deckId !== auto.deckId || deckTotal() > state.commanderIds.length) {
+    box.hidden = true; box.replaceChildren();
+    return;
+  }
+  box.hidden = false;
+  box.replaceChildren(
+    h("span", {}, `Automatisch angelegt, nicht von dir: Für ${StudioCommander.shortName(COMMANDER)} gab es noch kein Deck, darum ist „${deck.name}“ jetzt gespeichert (nur der Commander, ${StudioUI.num(deckTotal(), 0)} / 100).`),
+    h("button", { type: "button", class: "ghost", onclick: () => { state.autoDeck = null; renderAutoDeckNote(); } }, "Verstanden"));
 }
 // The Partien page takes the saved revision, never the draft: an unsaved draft says so on the
 // button instead of silently playing an older state.
@@ -608,6 +626,25 @@ function copyWishlist(ownership) {
     openFallbackModal();
   }
 }
+// TAM only (#1637): the purchase list with guide values; every wording and rule of it lives in
+// wishlist.js. Other commanders and the Zukauf mode off never ask the server; the server checks
+// the stored commander of the deck itself.
+async function openTamPurchase(ownership) {
+  if (typeof StudioWishlist === "undefined" || !StudioWishlist.tamPricesAllowed(COMMANDER, state.includeUnowned)) return;
+  if (!state.deckId) return;
+  let answer;
+  try {
+    // the server reads the deck's own commander and list: the working list is stored first
+    if (state.dirty && state.needsDraftPut) await syncDraft();
+    answer = await api("/api/tam/zukauf-richtwerte", "POST", { deck_id: state.deckId, branch: state.branch, commander: COMMANDER, card_ids: ownership.missingCards.map((card) => card.card_id) });
+  } catch (error) { fail(error); return; }
+  const box = $("modal-box"); box.className = "plain";
+  box.replaceChildren(
+    StudioWishlist.tamPurchaseView(h, answer, ownership.missingCards, { sort: "name", budget: "" }),
+    h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen"))
+  );
+  $("modal").hidden = false;
+}
 function renderList(body) {
   const problems = new Set(state.issues.map((issue) => issue.card_id).filter(Boolean));
   for (const id of state.commanderIds) {
@@ -622,7 +659,10 @@ function renderList(body) {
     if (ownership.missing > 0) {
       body.append(h("div", { class: "actions", id: "wishlist-summary" },
         h("span", { class: "pill warn", title: "Kopien dieser Deckliste samt Commander (ein Commander-Deck hat 100): im Besitz laut Sammlung (Untergrenze), Zukauf = fehlende Kopien" }, `Im Besitz: ${StudioUI.num(ownership.owned, 0)}/100 · Zukauf: ${StudioUI.num(ownership.missing, 0)}/100`),
-        h("button", { type: "button", class: "small", id: "copy-wishlist", onclick: () => copyWishlist(ownership) }, "Zukauf-Liste kopieren")));
+        h("button", { type: "button", class: "small", id: "copy-wishlist", onclick: () => copyWishlist(ownership) }, "Zukauf-Liste kopieren"),
+        StudioWishlist.tamPricesAllowed(COMMANDER, state.includeUnowned)
+          ? h("button", { type: "button", class: "small", id: "tam-zukauf-open", onclick: () => openTamPurchase(ownership) }, "Zukauf-Liste mit Richtwerten (TAM)")
+          : null));
     }
   }
   const cards = deckCards();
@@ -994,9 +1034,9 @@ function renderLandAdvisor(body) {
   const groupName = cohortName(state.cohort);
   const swatch = (entry) => h("td", {}, h("span", { class: "ms ms-" + entry.colour }, entry.colour), entry.in_identity ? "" : h("span", { class: "muted", title: "Diese Farbe liegt außerhalb der Farbidentität des Commanders" }, " außerhalb"));
   const own = h("div", { class: "table-wrap" }, h("table", { id: "land-advisor" }, h("thead", {}, h("tr", {}, h("th", {}, "Farbe"), h("th", { class: "num", title: "Farbsymbole in den Kosten der Nicht-Land-Karten" }, "Symbole"), h("th", { class: "num", title: "Anteil an allen Farbsymbolen" }, "Anteil"),
-    h("th", { class: "num", title: "Länder, die diese Farbe erzeugen können" }, "Länder"), h("th", { class: "num", title: "Quellen, die keine Länder sind" }, "andere"))),
+    h("th", { class: "num", title: "Länder, die diese Farbe selbst erzeugen können" }, "Länder direkt"), h("th", { class: "num", title: "Suchländer, die ein Land dieser Farbe im Deck finden können (Rechenannahme, siehe unten)" }, "über Suchland"), h("th", { class: "num", title: "Quellen, die keine Länder sind" }, "andere"))),
     h("tbody", {}, deck.colours.map((entry) => h("tr", {}, swatch(entry), h("td", { class: "num" }, StudioUI.num(entry.pips, 0)), h("td", { class: "num" }, percent(entry.pip_share)),
-      h("td", { class: "num" }, StudioUI.num(entry.land_sources, 0)), h("td", { class: "num" }, StudioUI.num(entry.other_sources, 0) + (entry.modal_sources ? ` (+${StudioUI.num(entry.modal_sources, 0)} mit Landseite)` : "")))))));
+      h("td", { class: "num" }, StudioUI.num(entry.land_sources, 0)), h("td", { class: "num" }, entry.search_sources === undefined ? "unbekannt" : `+${StudioUI.num(entry.search_sources, 0)}`), h("td", { class: "num" }, StudioUI.num(entry.other_sources, 0) + (entry.modal_sources ? ` (+${StudioUI.num(entry.modal_sources, 0)} mit Landseite)` : "")))))));
   const compare = group ? h("div", { class: "table-wrap" }, h("table", { id: "land-advisor-group" }, h("thead", {}, h("tr", {}, h("th", {}, "Farbe"), h("th", { class: "num" }, "Symbole"), h("th", { class: "num" }, "Anteil"), h("th", { class: "num" }, "Länder"))),
     h("tbody", {}, deck.colours.map((entry) => {
       const figures = group.colours[entry.colour];
@@ -1011,7 +1051,9 @@ function renderLandAdvisor(body) {
   if (compare) body.append(h("p", { class: "note", id: "land-advisor-group-title" }, `Vergleichsgruppe: ${groupName} (Median, mittlere Hälfte in Klammern)`), compare);
   const commanderPips = Object.entries(deck.commander_pips || {});
   body.append(h("p", { id: "land-advisor-commander" }, commanderPips.length ? `Farbsymbole der Kosten des Commanders: ${commanderPips.map(([colour, count]) => `${colour} ${StudioUI.num(count, 0)}`).join(", ")} (nicht in den Zahlen des Decks).` : "Der Commander hat keine Farbsymbole in seinen Kosten (nicht in den Zahlen des Decks)."));
-  if (deck.lands_no_mana) body.append(h("p", { class: "note", id: "land-advisor-nomana" }, `Länder, die selbst kein Mana erzeugen: ${StudioUI.num(deck.lands_no_mana, 0)} (laut Kartendaten, zum Beispiel Fetchländer). Sie stehen bei keiner Farbe.`));
+  if (deck.lands_no_mana) body.append(h("p", { class: "note", id: "land-advisor-nomana" }, `Länder, die selbst kein Mana erzeugen: ${StudioUI.num(deck.lands_no_mana, 0)} (laut Kartendaten, zum Beispiel Fetchländer). Sie stehen bei keiner Farbe unter „Länder direkt“.`));
+  if (deck.lands_search) body.append(h("p", { class: "note", id: "land-advisor-search" }, `Suchländer: ${StudioUI.num(deck.lands_search, 0)} (aus dem Regeltext erkannt), in „über Suchland“ je erreichbarer Farbe gezählt. Annahme: ${deck.search_assumption} Der Gruppenvergleich zählt nur direkte Quellen.`));
+  if (deck.lands_search_unknown) body.append(h("p", { class: "note warn", id: "land-advisor-search-unknown" }, `Länder mit Suchtext, dessen Suchbarkeit nicht ableitbar ist: ${StudioUI.num(deck.lands_search_unknown, 0)} – unbekannt, nicht als 0 und nicht als Quelle gezählt.`));
   if (deck.lands_unknown_colours) body.append(h("p", { class: "note", id: "land-advisor-unknown" }, `Länder ohne Angabe: ${StudioUI.num(deck.lands_unknown_colours, 0)} (keine Kartendaten zum erzeugten Mana). Unbekannt, nicht als null gezählt.`));
   const landCands = found.data.land_candidates || [];
   body.append(h("h4", {}, `Freie Nicht-Standardländer in deiner Sammlung (≥ 20 % in „${groupName}“, nicht im Deck)`));
@@ -2231,6 +2273,7 @@ function renderOverview(body) {
     reference,
     deckRoles: state.deckRoles,
     pool: state.pool,
+    includeUnowned: Boolean(state.includeUnowned),
     small: state.small,
     cohort: state.cohort,
     combos: state.combos,
@@ -2414,6 +2457,8 @@ async function openCard(card) {
   const duelBox = h("div", { id: "card-duel-box" });
   const trendBox = h("div", { id: "card-trend-box" });
   const strengthBox = h("div", { id: "card-strength-box" });
+  // WP-6 (T2): "Kartenverständnis (Modellurteil)" with the single ratings; the server shows it only for Chulane
+  const understandingBox = h("div", { id: "card-understanding-box" });
   const extra = h("div", {}, h("p", { class: "muted" }, "Lädt EDHREC-Zeilen."));
   const right = h("div", {},
     h("h2", {}, card.name, " ", tierMark(card)), h("div", {}, mana(card.mana_cost), " ", h("span", { class: "muted" }, card.type_line), card.power !== null ? ` · ${card.power}/${card.toughness}` : ""),
@@ -2437,7 +2482,7 @@ async function openCard(card) {
     h("p", {}, h("a", { href: `decks.html?commander=${encodeURIComponent(COMMANDER)}&must=${encodeURIComponent(card.name)}`, class: "chip" }, "Quelldecks mit dieser Karte im Deck-Browser öffnen →")),
     trendBox,
     card.universe && activeScope() ? h("p", { class: "note" }, `Im ${activeScope().label}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung)" : card.universe.matched ? `${StudioUI.num(card.universe.hits, 0)}/${StudioUI.num(card.universe.denominator, 0)} Decks (Verbreitung gezählt, keine Stärke)` : card.in_collection === false ? `unbekannt (${card.universe.reason})` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
-    card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, strengthBox, extra);
+    card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, strengthBox, understandingBox, extra);
   box.append(left, right); $("modal").hidden = false;
   if (!state.commanderIds.includes(card.card_id) && !card.basic) renderSwapBox(swapBox, card, initialSwapMode);
   if (!state.commanderIds.includes(card.card_id) && !card.basic) renderDuelBox(duelBox, card, {
@@ -2461,6 +2506,7 @@ async function openCard(card) {
     },
   });
   showStrengthBreakdown(strengthBox, card);
+  StudioKartenverstaendnis.fill(understandingBox, h, api, card.card_id, COMMANDER);
   try {
     const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}?${StudioCommander.query}&cohort=${encodeURIComponent(state.cohort)}`);
     const parts = [];
@@ -2949,6 +2995,7 @@ async function loadDecks() {
   if (!state.decks.length) {
     const created = await api("/api/decks", "POST", { name: StudioCommander.shortName(COMMANDER), commander_card_ids: state.commanderIds });
     state.deckId = created.deck_id; state.decks = mine(await api("/api/decks"));
+    state.autoDeck = { deckId: created.deck_id }; // not asked for by the person: renderAutoDeckNote says so
   }
   if (!state.deckId) { // first load after opening the page: reopen the variant that was open
     const wantedDeck = StudioUI.recall(variantKey("deck"), "");

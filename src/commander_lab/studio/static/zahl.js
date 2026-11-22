@@ -14,6 +14,10 @@
 // lies in 0..1; a figure that breaks a rule is never shown as a number. Origin (Quelle, Kohorte,
 // SIMULATED_RESULT, Stand, Pilot) and the source's notes are visible text, not only a tooltip. DOM only through h(),
 // numbers only through StudioUI (read at call time, so the node tests use the real ui.js helpers).
+// Compact cells (WP-6, opt-in through zelle(..., { kompakt: true })): for a long table column whose figures share
+// one origin, the caller shows that origin ONCE as visible text above the column; each cell keeps the value, the
+// class badge and the caller's visible extras, and carries its own full origin and notes in the tooltip. Without
+// the option every cell is unchanged.
 const StudioZahl = (() => {
   const KLASSEN = ["EXAKT", "GEZÄHLT", "SIMULIERT", "URTEIL"];
   const EINHEITEN = ["Anteil", "pp", "Anzahl", "Punkte"]; // Punkte: the score of a judgement (Q1-b5), no count
@@ -165,12 +169,29 @@ const StudioZahl = (() => {
       m.hinweise ? h("span", { class: "zahl-hinweise" }, m.hinweise) : null);
   }
 
+  // Compact form of knoten (see the head comment): value, interval, class badge and the caller's extra nodes
+  // visible; origin, deck state and notes of this figure in the tooltip. An invalid figure still shows no number.
+  function kompakt(h, zahl, zusatz) {
+    const m = modell(zahl);
+    if (!m.ok) return h("span", { class: "zahl zahl-ungueltig", title: m.herkunft }, m.wert);
+    const title = [m.herkunft, m.nN ? `n/N ${m.nN}` : null, m.stand, m.hinweise].filter(Boolean).join(" · ");
+    return h("span", { class: "zahl zahl-kompakt", title },
+      h("span", { class: "zahl-wert" }, m.wert),
+      m.intervall ? h("span", { class: "zahl-ci" }, ` ${m.intervall}`) : null,
+      ...(Array.isArray(zusatz) ? zusatz : []),
+      " ", h("span", { class: `zahl-klasse ${CSS[m.klasse]}` }, m.klasseText));
+  }
+
   // One table cell of a column of class `klasse`: a figure of another class shows no number.
-  function zelle(h, zahl, klasse, props) {
+  // optionen.kompakt: compact cell (the caller shows the shared origin above the column); optionen.zusatz: extra
+  // visible nodes after the value (only in the compact cell).
+  function zelle(h, zahl, klasse, props, optionen) {
     const check = spalte(klasse, [zahl]);
     const attrs = props || {};
     if (!check.ok) return h("td", attrs, h("span", { class: "zahl zahl-ungueltig", title: check.fehler.join("; ") }, "Klasse passt nicht zur Spalte"));
-    return h("td", attrs, zahl === null || zahl === undefined ? UNKNOWN : knoten(h, zahl));
+    if (zahl === null || zahl === undefined) return h("td", attrs, UNKNOWN);
+    const compact = Boolean(optionen && optionen.kompakt);
+    return h("td", attrs, compact ? kompakt(h, zahl, optionen.zusatz) : knoten(h, zahl));
   }
 
   // id -> figure for the valid figures of an answer; invalid ones are left out (never shown).
@@ -180,6 +201,6 @@ const StudioZahl = (() => {
     return found;
   }
 
-  return { KLASSEN, LABEL, pruefe, modell, spalte, knoten, zelle, index };
+  return { KLASSEN, LABEL, pruefe, modell, spalte, knoten, kompakt, zelle, index };
 })();
 if (typeof module !== "undefined") module.exports = StudioZahl;

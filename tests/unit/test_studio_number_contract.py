@@ -581,7 +581,17 @@ def test_castability_route_sends_exact_contracts_for_every_probability(tmp_path:
     zahlen = _assert_all_valid(body["zahlen"])
     assert all(item["klasse"] == "EXAKT" for item in zahlen)
     role_hands = sum(len(role["hands"]) for role in body["hand_roles"]["roles"])
-    assert len(zahlen) == 2 * len(body["requirements"]) + 1 + 2 * role_hands
+    # per requirement: land drops, colours direkt, colours mit Suchland (WP-2); per known
+    # commander: land drops, colours and on curve, each direkt, plus two mit Suchland (WP-3)
+    commanders = [item for item in body["commander"] if item["known"]]
+    assert len(commanders) == 1
+    assert len(zahlen) == 3 * len(body["requirements"]) + 1 + 5 * len(commanders) + 2 * role_hands
+    search = [item for item in zahlen if item["id"].endswith("_with_search")]
+    assert len(search) == len(body["requirements"]) + 2
+    for item in search:
+        assert item["hinweise"] == [body["land_classes"]["assumption"]]
+    on_curve = next(item for item in zahlen if item["id"].endswith(".p_on_curve"))
+    assert on_curve["wert"] == commanders[0]["p_on_curve"]
     keep = next(item for item in zahlen if item["id"] == "cast.opening_hand.p_keepable")
     assert keep["wert"] == body["opening_hand"]["p_keepable"]
     store = StudioStore.open(tmp_path / "studio")

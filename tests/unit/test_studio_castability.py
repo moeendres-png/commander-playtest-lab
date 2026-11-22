@@ -9,6 +9,23 @@ from math import comb
 from commander_lab.studio import castability
 
 
+def _assignable(lands: list[frozenset[str]], need: dict) -> bool:
+    """Whether distinct lands can pay every coloured symbol (one land, one symbol): plain
+    backtracking over the symbols, independent of the Hall condition the code uses."""
+    symbols = [colour for colour, n in sorted(need.items()) for _ in range(n)]
+
+    def place(index: int, used: frozenset[int]) -> bool:
+        if index == len(symbols):
+            return True
+        return any(
+            place(index + 1, used | {i})
+            for i, land in enumerate(lands)
+            if i not in used and symbols[index] in land
+        )
+
+    return place(0, frozenset())
+
+
 def _brute(
     groups: list[tuple[frozenset[str], int]], nonland: int, draws: int, turn: int, need: dict
 ) -> tuple[Fraction, Fraction]:
@@ -24,7 +41,7 @@ def _brute(
         total += 1
         if len(lands) >= turn:
             with_lands += 1
-            if all(sum(colour in land for land in lands) >= n for colour, n in need.items()):
+            if _assignable(lands, need):
                 with_both += 1
     return Fraction(with_lands, total), Fraction(with_both, with_lands)
 
@@ -127,6 +144,19 @@ def test_deck_castability_groups_requirements_and_counts_land_data() -> None:
     assert result["land_sources"]["U"] == 7
     assert result["lands_unknown_colours"] == 1
     assert result["lands_without_coloured_mana"] == 1
+    # WP-2: a land without coloured mana and without rules text ("Evolving Wilds" here has no
+    # oracle_text) is of unknown searchability, never a known non-source; the class reads the
+    # text, never the name.
+    assert result["land_classes"]["counts"] == {
+        "direkt": 15,
+        "suchland": 0,
+        "ohne_farbe": 0,
+        "unbekannt": 2,
+    }
+    assert [land["name"] for land in result["land_classes"]["unknown"]] == [
+        "Evolving Wilds",
+        "Mystery Land",
+    ]
     assert result["cards_unknown_mana_value"] == 1
     assert result["hybrid_or_phyrexian_cards"] == ["Kitchen Finks"]
     labels = [(item["label"], item["turn"]) for item in result["requirements"]]
@@ -146,6 +176,8 @@ def test_joint_matches_enumeration_on_random_small_decks() -> None:
 
     rng = random.Random(20261116)
     kinds = [frozenset("G"), frozenset("U"), frozenset("GU"), frozenset("GUW"), frozenset()]
+    # the reference assigns one land per symbol (review round 1 of #1751): a dual land pays
+    # one symbol, so "any G and any U land" is not enough for {G}{U}
     for _ in range(60):
         groups = [(kind, rng.randint(0, 2)) for kind in kinds]
         groups = [(kind, size) for kind, size in groups if size]
@@ -169,7 +201,7 @@ def test_joint_matches_enumeration_on_random_small_decks() -> None:
             ref_total += 1
             if len(lands) >= turn:
                 ref_lands += 1
-                if all(sum(c in land for land in lands) >= n for c, n in need.items()):
+                if _assignable(lands, need):  # type: ignore[arg-type]
                     ref_both += 1
         assert (total, with_lands, with_both) == (ref_total, ref_lands, ref_both)
 
@@ -283,6 +315,13 @@ def test_castability_route_on_a_store(tmp_path) -> None:  # type: ignore[no-unty
     )
     for item in body["requirements"]:
         assert "condition" in item and item["condition"].startswith("bedingt auf")
+        assert set(item["with_search"]) == {"sources", "p_colours_given_lands", "p_on_curve"}
+    assert body["land_count_table"]["library"] == 99
+    assert [row["lands"] for row in body["land_count_table"]["rows"] if row["in_range"]] == list(
+        range(30, 41)
+    )
+    assert len(body["commander"]) == 1
+    assert body["land_classes"]["of"] == body["lands"]
 
 
 def test_draw_sample_hand_deterministic_mulligan_and_route(tmp_path) -> None:  # type: ignore[no-untyped-def]

@@ -177,3 +177,25 @@ td.understanding{min-width:180px}
 @media (max-width:480px){#areas a{padding-left:var(--s2);padding-right:var(--s2)}} /* five area links (with "Daten") must fit 390 px without a horizontal page scroll */
 /* Pool view "Nutzung n/N" (Q1-b5 #1680): the counted spread as a GEZÄHLT number contract (zahl.js) stays readable. */
 td.spread{min-width:160px}
+/* WP-6 (#1404, T1): one line per card, so a screen shows at least 15 cards at 1600x1000. The origin of the
+   "Kartenverständnis" column stands once above the table (#understanding-hint); each cell keeps value, spread band,
+   class badge, the rater's confidence and the marks, its full origin is in the tooltip. Big image: card window. */
+#tier-table td{padding-top:2px;padding-bottom:2px;white-space:nowrap;vertical-align:middle}
+#pool-body #tier-table td.cardcell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tier-table td.cardcell .thumb{width:20px}
+#tier-table td.acts button{min-height:0;height:26px;padding:0 var(--s2);line-height:1}
+#tier-table .badge{margin-top:0;margin-bottom:0}
+#tier-table .tcell{white-space:nowrap;flex-wrap:nowrap;gap:var(--s1)}
+#tier-table .ucell{flex-direction:row;gap:var(--s1);align-items:center}
+#understanding-hint{line-height:1.35}
+.zahl-kompakt{white-space:nowrap}
+.zahl-kompakt .zahl-band,.zahl-kompakt .zahl-vertrauen{color:var(--muted);font-size:12px}
+.zahl-kompakt .badge{margin-left:4px}
+.rank-band{font-size:12px;color:var(--muted)}
+.rank-band.tie{color:var(--text)}
+.understanding-detail .understanding-origin,.understanding-detail .understanding-note{font-size:13px;color:var(--muted)}
+.understanding-criteria td,.understanding-criteria th{vertical-align:top}
+.understanding-sources,.understanding-claims{margin:var(--s1) 0;padding-left:var(--s4);font-size:13px}
+.understanding-claims li{margin:var(--s2) 0}
+.understanding-criteria td:nth-child(3){min-width:200px}
+.understanding-criteria th{white-space:normal}
