@@ -2250,6 +2250,16 @@ def test_another_agent_property_or_unknown_option_changes_the_digest_and_the_gam
     assert game_pool.task_key_of(second.to_wire()) == second.game_key
 
 
+def test_the_order_of_the_command_options_changes_the_digest() -> None:
+    """The JVM takes the last of two equal -D options and runs agents in order."""
+    digest = game_pool.jvm_command_options_digest
+    first = digest(("java", "-Dfoo=1", "-Dfoo=2", "-jar", "b"))
+    second = digest(("java", "-Dfoo=2", "-Dfoo=1", "-jar", "b"))
+    assert first is not None and second is not None and first != second
+    agents = digest(("java", "-javaagent:/a.jar", "-javaagent:/b.jar", "-jar", "b"))
+    assert agents != digest(("java", "-javaagent:/b.jar", "-javaagent:/a.jar", "-jar", "b"))
+
+
 def test_a_command_with_no_option_of_its_own_and_one_with_a_set_option_are_not_equal_in_the_key() -> (
     None
 ):
