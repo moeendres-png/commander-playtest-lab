@@ -424,21 +424,32 @@ addition is inside the field `kartenverstaendnis` (Chulane only, Bracket 3, neve
 price). "Kartenverständnis (Modellurteil)" stays a labelled model judgement from the rules text:
 no strength in play, no tier, no rank, no sort key, not part of the index.
 
-- **T1 spread and one origin.** The field carries `streuung`: the typical spread of one rating H,
-  "± rund 5 bis 8 Punkte (1σ), ein Lauf je Karte", with its sources and n: the drift test (49 of
-  922 cards rated twice by the same rater tier, repeat spread RMS 7,1 / √2 ≈ 5), the rater of
-  another model family (70 cards, mean |ΔH| 7,9, 13 of 70 with |ΔH| ≥ 15, ≈ 7,3) and the combined
-  estimate of rating audit A (230 cards, 1σ about 7 to 8); files under
+- **T1 spread and one origin.** The field carries `streuung`: the spread of one rating H as a
+  floor, "mindestens ±8 Punkte (1σ, ein Lauf je Karte; zweiter Rater-Lauf (Familie ungeprüft,
+  A3): 8,1; n/N = 265/300, Herkunft Bericht rating_second_run_20261122)" (Owner decision option B,
+  2026-11-22, register E17; until then "± rund 5 bis 8"), with its sources and n/N: the drift test
+  (49 of 922 cards rated twice by the same rater tier, repeat spread RMS 7,1 / √2 ≈ 5), the rater of
+  another model family (70 of 922 cards, mean |ΔH| 7,9, 13 of 70 with |ΔH| ≥ 15, ≈ 7,3), the
+  combined estimate of rating audit A (230 of 922 cards, 1σ about 7 to 8) and the second rater run
+  (265 of 300 cards without the 35 reviewer-flagged ones, mean |ΔH| 8,38, single spread 8,1
+  [7,3; 8,9]; its model family is unchecked, so it is not called independent); files under
   `data/research/chulane_rubric_v2_20261118/` (`PILOT_REPORT.md` §10/§11, `audit/AUDIT_A_ratings.md`
-  §0/§4). The spread grows with H, so each cell shows the band of its H range from the audit's
-  estimate (AUDIT_A §4: about ±5 at H up to 10, about ±10 at H 40 to 55, about −15/+5 from H 60)
-  and otherwise "±5–8 typ."; a band carries "≈" (an estimate, no interval of the card); the head names the audit's 7 to 8 as an estimate and only the drift
-  and the other rater as measured n. A test recomputes these figures from the raw files. The
-  figures keep `intervall: null`: a typical spread is no measured per-card interval. The origin shared by all figures (source,
+  §0/§4, `second_run_20261122/`) and `docs/analysis-reports/rating_second_run_20261122.md`. The
+  spread grows with H, so each cell shows the band of its H range, never below the floor: "±8" at
+  H up to 10 (the audit's estimate 5 is below the floor and named in words), "≈±10" at H 40 to 55
+  and "≈−15/+8" from H 60 (the audit's −15/+5 with the upper side raised to the floor); otherwise
+  "mind. ±8". "≈" marks the audit's estimate (no interval of the card). The field also carries
+  `rauschgate` (`NOISE_GATE` = `SPREAD_FLOOR` = 8, one constant): differences of H below 8 points
+  are no difference in rank, and an H doubt of audit A whose span lies closer to the score than the
+  gate is shown without the warning mark ("Prüfer-Spanne innerhalb der Streuung"; 0 of 33 H doubts
+  of the real data set today; a wrong reason is no H doubt and is not gated). Tests recompute the
+  figures from the raw files, bind the floor and the gate to the measured 8,1 and fail when any
+  shown spread is below ±8. The figures keep `intervall: null`: a spread is no measured per-card
+  interval, and the raw scores stay as rated. The origin shared by all figures (source,
   cohort, "nicht gegen Spielergebnisse validiert") stands once, visible, above the table; each
-  cell shows value, "±5–8", the class badge "Modellurteil", the rater's confidence and the marks,
-  with its full origin in the tooltip (`StudioZahl.zelle(..., { kompakt: true })`; without the
-  option a cell is unchanged). One line per card: at 1600 × 1000 the synthetic browser check
+  cell shows value, the spread band, the class badge "Modellurteil", the rater's confidence and the
+  marks, with its full origin in the tooltip (`StudioZahl.zelle(..., { kompakt: true })`; without
+  the option a cell is unchanged). One line per card: at 1600 × 1000 the synthetic browser check
   showed 3 cards in the table area before and 16 after.
 - **T2 single ratings.** `GET /api/cards/{card_id}/understanding?commander=NAME` gives all seven
   criteria E (Effizienz), F (Passung zu Chulane), T (Wirkung am Tisch), R (Verlässlichkeit), K

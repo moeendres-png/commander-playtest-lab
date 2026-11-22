@@ -815,6 +815,35 @@ gekennzeichnet (Einspruch des Owners jederzeit möglich).
    1/N (20 % bzw. 16,7 %; planende Streuung 0,582 bzw. 0,542); die Dauer wird bei 5/6 als grobe
    Orientierung angegeben, nie als Mindestdauer, gemessen ist nur der Vierertisch.
 
+### E17: Streuung der Kartenbewertung H, Option B (2026-11-22, #1404, #1758)
+
+Owner, 2026-11-22, Session-Chat; Niederschrift des Co-Leads in #1404, Kommentar 7081544721. Owner-
+Wortlaut (nur der Text in Anführungszeichen): „2a) ja zu 3: B also deine Empfehlung und stell
+einfach sicher dass das rating der karten möglichst gut ist 4: ja“. Alles Weitere ist Auslegung
+des Co-Leads bzw. der umsetzenden Sitzung (Einspruch des Owners jederzeit möglich).
+
+1. **Option B (Auslegung des Co-Leads im selben Kommentar):** Die Streuung der Kartenbewertung H
+   wird in der Tierliste als Mindestwert „±8“ angezeigt, die Marken werden etwas gröber gefasst;
+   keine Paarvergleiche. Grundlage ist der zweite Rater-Lauf
+   (`docs/analysis-reports/rating_second_run_20261122.md`, #1758): Einzelstreuung 8,1 [7,3; 8,9],
+   n/N = 265/300 (ohne die 35 Prüfer-markierten Karten), über der bisherigen Anzeige „±5–8“; Urteil
+   nach Plan „teilweise bestätigt“ (G1-Schwellen), Modellfamilie ungeprüft (A3), daher wird der
+   Lauf in der Anzeige nicht „unabhängig“ genannt.
+2. **Umsetzung (umsetzende Sitzung, nur Anzeige und Schwellen):** Mindeststreuung `SPREAD_FLOOR = 8`
+   und Rauschgate `NOISE_GATE = SPREAD_FLOOR` in `src/commander_lab/studio/understanding_field.py`
+   (eine Konstante; Tests binden sie an die aus den Rohdaten nachgerechnete 8,1). Keine angezeigte
+   Streuung, kein Band und keine Marke liegt unter ±8 (Bänder: H bis 10 „±8“, H 40 bis 55 „≈±10“,
+   ab H 60 „≈−15/+8“); Unterschiede von H unter 8 Punkten sind kein Rangunterschied; ein H-Zweifel
+   des Rating-Audits A, dessen Spanne näher als 8 Punkte am Wert liegt, erscheint ohne Warnmarke
+   (heute 0 von 33 H-Zweifeln). H hatte schon vorher keine Stufe, keinen Rang und keine Sortierung
+   (E15 Q1); die Stufen S bis D der Tierliste beruhen auf dem Nutzungsindex und sind unberührt. Die
+   Rohwerte bleiben unverändert, `intervall` bleibt `null`; kein Preis- oder Simulationseinfluss,
+   Chulane-Fokus unverändert.
+3. **„möglichst gut“ (Auslegung des Co-Leads):** Die Güte der Kartenbewertung wird über eine zweite
+   unabhängige Bewertung weiterer Karten und Mittelung nach einer vorab festgelegten Regel
+   verbessert, nicht über stille Korrekturen; das ist ein eigener Arbeitsschritt, nicht Teil der
+   Anzeige-Änderung.
+
 ## 3. Was aufgehoben, geändert oder neu ist
 
 | Bisher | Jetzt | Quelle |

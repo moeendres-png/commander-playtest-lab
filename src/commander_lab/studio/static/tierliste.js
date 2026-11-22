@@ -579,23 +579,30 @@ function understandingFigure(card) {
   return understandingCache.figures.get(UNDERSTANDING_ID + card.card_id) || null;
 }
 const CONFIDENCE_SHORT = { high: "hoch", medium: "mittel", low: "niedrig" };
-// The spread of one rating (T1): the band of the H range the value lies in (the audit's estimate per range), else the
-// typical spread; band, estimate and the measured sources in the tooltip.
+// The spread of one rating (T1): the band of the H range the value lies in, else the floor (Owner decision option B,
+// E17: never below ±8). A band marked geschaetzt is the audit's estimate per range ("≈"); a band at the floor is not.
+// Band, estimate and the measured sources with n/N in the tooltip.
 function spreadTitle(spread) {
-  const sources = (spread.quellen || []).map((q) => `${q.name}: ${q.kennzahl} (${q.gemessen === false ? "Schätzung" : "gemessen"}, n = ${nf(q.n)} von ${nf(q.N)} ${q.bezug}; ${q.datei})`);
+  const sources = (spread.quellen || []).map((q) => `${q.name}: ${q.kennzahl} (${q.gemessen === false ? "Schätzung" : "gemessen"}, n/N = ${nf(q.n)}/${nf(q.N)} ${q.bezug}; ${q.datei})`);
   return [`Streuung von H: ${spread.text} (${spread.art})`, ...sources].join(" · ");
 }
 function spreadBandOf(spread, wert) {
   const bands = Array.isArray(spread.baender) ? spread.baender : [];
   return typeof wert === "number" ? bands.find((b) => wert >= b.ab && wert <= b.bis) || null : null;
 }
+const bandShort = (band) => `${band.geschaetzt === false ? "" : "\u2248"}${band.kurz}`;
+// The noise gate of the answer (rauschgate.punkte); null when the answer carries none (then no gate text is shown).
+function noiseGate(field) {
+  const gate = field && field.rauschgate;
+  return gate && typeof gate.punkte === "number" ? gate : null;
+}
 function spreadNode(field, wert) {
   const spread = field && field.streuung;
   if (!spread || !spread.kurz) return h("span", { class: "zahl-band unknown", title: "Streuung nicht geliefert" }, " ± unbekannt");
   const band = spreadBandOf(spread, wert);
-  const title = band ? `${band.text}: ${band.quelle} · ${spreadTitle(spread)}` : `typische Streuung · ${spreadTitle(spread)}`;
+  const title = band ? `${band.text}: ${band.quelle} · ${spreadTitle(spread)}` : `Mindeststreuung · ${spreadTitle(spread)}`;
   // "≈" marks the audit's estimate per H range: no measured interval of this card (intervall stays null)
-  return h("span", { class: band ? "zahl-band" : "zahl-band typisch", title: band ? `Schätzung, kein Intervall: ${title}` : title }, ` ${band ? `\u2248${band.kurz}` : `${spread.kurz} typ.`}`);
+  return h("span", { class: band ? "zahl-band" : "zahl-band typisch", title: band ? `Kein Intervall: ${title}` : title }, ` ${band ? bandShort(band) : `mind. ${spread.kurz}`}`);
 }
 // Visible extras of one H cell: spread band, the rater's confidence, the audit doubt (T3) and the land scale (T5).
 function understandingExtras(card, figure) {
@@ -609,7 +616,7 @@ function understandingExtras(card, figure) {
   return [
     spreadNode(field, figure.wert),
     said ? h("span", { class: "zahl-vertrauen", title: "Rater-Vertrauen (Selbstauskunft des Raters)" }, ` · ${CONFIDENCE_SHORT[said[1]] || said[1]}`) : null,
-    doubt ? h("span", { class: "badge warn pruefer-zweifel", title: `${doubt.text}. ${doubt.grund}${basis}` }, doubt.kurz || "Prüfer-Modell-Zweifel") : null,
+    doubt ? h("span", { class: doubt.unter_rauschgate === true ? "badge pruefer-zweifel unter-rauschgate" : "badge warn pruefer-zweifel", title: `${doubt.text}. ${doubt.grund}${basis}` }, doubt.kurz || "Prüfer-Modell-Zweifel") : null,
     ...claimFindings.map((f) => h("span", { class: "badge warn regelclaim-befund", title: `Claim ${nf(f.index + 1)}: ${f.korrektur} (${f.quelle})` }, f.kurz)),
     understandingCache.lands.has(card.card_id) ? h("span", { class: "badge laender-skala", title: field.laender_skala.text }, "Länder-Skala") : null,
   ];
@@ -636,12 +643,13 @@ function understandingHint() {
   const cohorts = [...new Set(figures.map((f) => f.kohorte).filter(Boolean))];
   const spread = field.streuung;
   const measured = spread ? (spread.quellen || []).filter((q) => q.gemessen !== false) : [];
+  const gate = noiseGate(field);
   const spreadText = spread
-    ? `Streuung ${spread.kurz} typisch (1\u03c3, ${nf(spread.laeufe_je_karte)} Lauf je Karte), je H-Bereich ${(spread.baender || []).map((b) => b.kurz).join(" / ")} (\u2248 = Schätzung Audit A); gemessen: ${measured.map((q) => `${q.kurzname || q.name} n = ${nf(q.n)}`).join(", ")}`
+    ? `Streuung ${spread.text}; Bänder je H-Bereich ${(spread.baender || []).map(bandShort).join(" / ")} (\u2248 = Schätzung Audit A, nie unter dem Mindestwert); gemessen: ${measured.map((q) => `${q.kurzname || q.name} n/N = ${nf(q.n)}/${nf(q.N)}`).join(", ")}${gate ? ` · ${gate.text}` : ""}`
     : "Streuung unbekannt";
   const doubt = field.pruefer_zweifel;
   const doubtText = !doubt ? "" : doubt.verfuegbar === true
-    ? ` · Prüfer-Modell-Zweifel: ${nf(doubt.n_zugeordnet)} von ${nf(doubt.n_markiert)} zugeordnet, ${nf(doubt.n_im_pool)} im Pool${doubt.pruefbasis ? ` (Prüfbasis ${nf(doubt.pruefbasis.n)} von ${nf(doubt.pruefbasis.N)}; ohne Kennzeichen heißt nicht geprüft oder ohne Befund)` : ""}`
+    ? ` · Prüfer-Modell-Zweifel: ${nf(doubt.n_zugeordnet)} von ${nf(doubt.n_markiert)} zugeordnet, ${nf(doubt.n_im_pool)} im Pool${typeof doubt.n_unter_rauschgate === "number" ? `, davon ${nf(doubt.n_unter_rauschgate)} innerhalb der Streuung ohne Warnmarke` : ""}${doubt.pruefbasis ? ` (Prüfbasis ${nf(doubt.pruefbasis.n)} von ${nf(doubt.pruefbasis.N)}; ohne Kennzeichen heißt nicht geprüft oder ohne Befund)` : ""}`
     : ` · Prüfer-Audit nicht verfügbar: ${doubt.grund || "kein Grund geliefert"}`;
   const basisTitle = doubt && doubt.pruefbasis ? doubt.pruefbasis.text : "";
   const lands = field.laender_skala;
