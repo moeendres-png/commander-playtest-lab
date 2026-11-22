@@ -4,6 +4,10 @@
 // No score and no verdict on a swap. Rendered from renderDiff in app.js.
 // The source-deck share is a GEZÄHLT column of the number contract (zahl.js, #1659): the figure
 // comes from diff.zahlen ("freq.<group>.<card_id>"); without a contract the old text stays.
+// WP-5 (#1404): the mana base before/after (diff.manabase): per requirement the exact colour
+// access of both lists and the delta in pp, the opening hand, the colour access per colour,
+// the lands per tapped class and the commander on curve; "unbekannt" where a side is not
+// computable, never 0.
 
 function diffSigned(value) { return (Number(value) > 0 ? "+" : "") + StudioUI.num(value, 0); }
 
@@ -31,6 +35,83 @@ function diffFreqCell(h, item, group, deps, freq) {
   const zahl = deps.zahlen ? deps.zahlen.get(`freq.${group}.${item.card_id}`) : undefined;
   if (!zahl) return h("td", { class: "num" }, freq(item));
   return StudioZahl.zelle(h, zahl, "GEZÄHLT", { class: "num" });
+}
+
+function diffPct(value) { return value === null || value === undefined ? "unbekannt" : StudioUI.pct(value, 1); }
+function diffPp(value) {
+  if (value === null || value === undefined) return "unbekannt";
+  return `${value > 0 ? "+" : ""}${StudioUI.num(value, 1)} pp`;
+}
+function diffPpCell(h, value) {
+  return h("td", { class: "num" + (value ? " changed" : "") }, diffPp(value));
+}
+
+// WP-5: mana base before/after, every figure exact on both lists, deltas in pp.
+function diffManabaseNodes(h, mb) {
+  if (!mb) return [];
+  const lists = mb.lists || {};
+  const head = (labels) => h("thead", {}, h("tr", {}, ...labels.map((label, index) => h("th", index ? { class: "num" } : {}, label))));
+  const reqRows = (mb.requirements || []).map((item) => {
+    const only = item.in_base && item.in_target ? "" : (item.in_base ? " · nur in Basis" : " · nur aktuell");
+    return h("tr", {},
+      h("td", { class: "nowrap" }, item.label, ` Zug ${StudioUI.num(item.turn, 0)}`, only ? h("span", { class: "note" }, only) : ""),
+      h("td", { class: "num" }, diffPct(item.base.p_colours_given_lands)),
+      h("td", { class: "num" }, diffPct(item.target.p_colours_given_lands)),
+      diffPpCell(h, item.delta_pp.p_colours_given_lands),
+      diffPpCell(h, item.delta_pp.p_colours_given_lands_with_search),
+      diffPpCell(h, item.delta_pp.p_on_curve));
+  });
+  const nodes = [h("h3", {}, "Manabasis vorher/nachher (exakt)"),
+    h("p", { class: "note" }, `Basis: ${StudioUI.num(lists.base ? lists.base.lands : 0, 0)} Länder in ${StudioUI.num(lists.base ? lists.base.main_cards : 0, 0)} Karten; aktuell: ${StudioUI.num(lists.target ? lists.target.lands : 0, 0)} Länder in ${StudioUI.num(lists.target ? lists.target.main_cards : 0, 0)} Karten (ohne Commander). ${mb.assumptions.delta}`)];
+  if (reqRows.length) {
+    nodes.push(h("div", { class: "table-wrap" }, h("table", { id: "diff-manabase" },
+      head(["Anforderung", "Farben Basis*", "Farben aktuell*", "Delta Farben direkt", "Delta Farben mit Suchland", "Delta auf Kurve"]),
+      h("tbody", {}, reqRows))),
+    h("p", { class: "note" }, "* Farben: Anteil mit den nötigen farbigen Quellen unter den Ziehungen mit genug Land-Drops bis zum Zug des Manawerts (direkt, Karsten 2022; jedes Farbsymbol braucht ein eigenes Land). „mit Suchland“ unter der Rechenannahme der Länderklassen. „Auf Kurve“ = Land-Drops und Farben zusammen."));
+  }
+  const hand = mb.opening_hand;
+  if (hand) nodes.push(h("p", { id: "diff-opening-hand" }, `Spielbare Starthand (${hand.rule}): ${diffPct(hand.base)} → ${diffPct(hand.target)} (${diffPp(hand.delta_pp)}).`));
+  const access = mb.colour_access || [];
+  if (access.length) {
+    const range = (low, high) => (low === null || low === undefined || high === null || high === undefined) ? "unbekannt" : (low === high ? diffPct(low) : `${diffPct(low)} – ${diffPct(high)}`);
+    const rangePp = (low, high) => (low === null || low === undefined || high === null || high === undefined) ? "unbekannt" : (low === high ? diffPp(low) : `${diffPp(low)} / ${diffPp(high)}`);
+    nodes.push(h("div", { class: "table-wrap" }, h("table", { id: "diff-colour-access" },
+      head(["Farbe", "Starthand Basis → aktuell", "Delta Starthand", "ungetappt Zug 1 Basis → aktuell", "Delta Zug 1", "ungetappt Zug 2 Basis → aktuell", "Delta Zug 2"]),
+      h("tbody", {}, access.map((item) => h("tr", {},
+        h("td", {}, h("span", { class: "ms ms-" + item.colour }, item.colour), item.in_base && item.in_target ? "" : h("span", { class: "note" }, item.in_base ? " nur in Basis gebraucht" : " nur aktuell gebraucht")),
+        h("td", { class: "num" }, `${range(item.base.hand, item.base.hand_high)} → ${range(item.target.hand, item.target.hand_high)}`),
+        h("td", { class: "num" }, rangePp(item.delta_pp.hand, item.delta_pp.hand_high)),
+        h("td", { class: "num" }, `${range(item.base.turn1_low, item.base.turn1_high)} → ${range(item.target.turn1_low, item.target.turn1_high)}`),
+        h("td", { class: "num" }, rangePp(item.delta_pp.turn1_low, item.delta_pp.turn1_high)),
+        h("td", { class: "num" }, `${range(item.base.turn2_low, item.base.turn2_high)} → ${range(item.target.turn2_low, item.target.turn2_high)}`),
+        h("td", { class: "num" }, rangePp(item.delta_pp.turn2_low, item.delta_pp.turn2_high))))))),
+    h("p", { class: "note" }, h("strong", {}, mb.assumptions.access), " ", mb.assumptions.access_rule, " Zwei Werte: untere / obere Grenze."));
+  }
+  const tapped = mb.tapped;
+  if (tapped) {
+    const keys = ["immer_getappt", "bedingt_getappt", "ungetappt", "unbekannt"];
+    const labels = { immer_getappt: "immer getappt", bedingt_getappt: "bedingt getappt", ungetappt: "ungetappt", unbekannt: "unbekannt" };
+    nodes.push(h("div", { class: "table-wrap" }, h("table", { id: "diff-tapped" },
+      head(["Getappt-Klasse (Regeltext)", "Basis", "aktuell", "Delta"]),
+      h("tbody", {}, keys.map((key) => h("tr", {},
+        h("td", {}, labels[key]),
+        h("td", { class: "num" }, `${StudioUI.num(tapped.base[key], 0)} von ${StudioUI.num(tapped.base_of, 0)}`),
+        h("td", { class: "num" }, `${StudioUI.num(tapped.target[key], 0)} von ${StudioUI.num(tapped.target_of, 0)}`),
+        h("td", { class: "num" + (tapped.delta[key] ? " changed" : "") }, tapped.delta[key] ? diffSigned(tapped.delta[key]) : "0")))))));
+  }
+  const cmd = mb.commander;
+  if (cmd && cmd.rows && cmd.rows.length) {
+    nodes.push(h("div", { class: "table-wrap" }, h("table", { id: "diff-commander" },
+      head(["Commander auf Kurve", "Basis", "aktuell", "Delta auf Kurve", "Delta Land-Drops", "Delta Farben"]),
+      h("tbody", {}, cmd.rows.map((row) => h("tr", {},
+        h("td", {}, row.name),
+        h("td", { class: "num" }, row.base ? diffPct(row.base.p_on_curve) : "unbekannt"),
+        h("td", { class: "num" }, row.target ? diffPct(row.target.p_on_curve) : "unbekannt"),
+        ...(row.delta_pp
+          ? [diffPpCell(h, row.delta_pp.p_on_curve), diffPpCell(h, row.delta_pp.p_land_drops), diffPpCell(h, row.delta_pp.p_colours_given_lands)]
+          : [h("td", { colspan: 3, class: "note" }, cmd.same ? "unbekannt" : "kein Delta: anderer Commander")])))))));
+  }
+  return nodes;
 }
 
 function diffImpactNodes(h, diff, deps) {
@@ -75,6 +156,7 @@ function diffImpactNodes(h, diff, deps) {
     if (combo.now_complete.length) nodes.push(h("p", {}, "Neu vollständig: " + combo.now_complete.map((cards) => cards.join(" + ")).join(" · ")));
     if (combo.no_longer_complete.length) nodes.push(h("p", {}, "Nicht mehr vollständig: " + combo.no_longer_complete.map((cards) => cards.join(" + ")).join(" · ")));
   }
+  nodes.push(...diffManabaseNodes(h, diff.manabase));
   if (diff.added.length) nodes.push(...diffCardTable(h, `Hinzugefügt (+${StudioUI.num(diff.added.length, 0)})`, diff.added, (item) => "+" + StudioUI.num(item.quantity, 0), deps, "added"));
   if (diff.removed.length) nodes.push(...diffCardTable(h, `Entfernt (−${StudioUI.num(diff.removed.length, 0)})`, diff.removed, (item) => "−" + StudioUI.num(item.quantity, 0), deps, "removed"));
   if (diff.changed.length) nodes.push(...diffCardTable(h, "Mengenänderung", diff.changed, (item) => `${StudioUI.num(item.base_quantity, 0)}→${StudioUI.num(item.target_quantity, 0)}`, deps, "changed"));

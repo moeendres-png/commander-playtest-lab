@@ -1528,6 +1528,19 @@ state, any saved state of the deck, another variant or the current state of anot
 score, bracket or power delta: the stored revisions are the version snapshots, so no second
 deck store is needed.
 
+**Mana base before/after (#1404, builder audit WP-5).** The comparison also shows the mana base
+of both lists (`manabase`, `deck_diff.manabase_delta`), every figure computed exactly on both
+lists with the castability rules: per coloured requirement the colour access given the land
+drops (direct and with search lands), the land drops and "auf Kurve", each base, current and the
+delta in percentage points; a requirement only one list has is computed on the land base of the
+other list as well and marked "nur in Basis" or "nur aktuell". Further the opening hand figure,
+the early colour access per colour (opening hand, untapped source on turns 1 and 2, lower and
+upper bound), the lands per tapped class (n of N, delta as a count) and the commander on curve
+(a delta only for the same commander(s); otherwise "kein Delta: anderer Commander"). Deltas are
+taken from the shares rounded to four decimals; a side that cannot be computed (for example no
+draw holds enough lands) is "unbekannt", and so is the delta. Number contracts: `manabase.*`
+(EXAKT, shares and pp). Before, the comparison only counted coloured land sources per colour.
+
 ### Bracket facts and data gaps ("Bracket & Lücken", #1404 options 1 and 10)
 
 The deck tab "Bracket & Lücken" (`POST /api/deck-facts`, `studio/deck_facts.py`) counts, with
@@ -1641,6 +1654,43 @@ Runtime of the exact assignment, measured in this container: Chulane baseline 0.
 whole `deck_castability`; a synthetic five-colour deck with 27 different land groups and five
 costs of up to seven symbols in all five colours 1.05 s. Without a search land in the deck the
 "mit Suchland" figures reuse the direct ones.
+
+#### Tapped lands and early colour access (#1404, builder audit WP-4)
+
+**Tapped classes (stage 1).** Every land of the main deck gets one class from the rules text of
+its front face without reminder text, sentence by sentence, never from its name
+(`castability.tapped_class`, `deck_tapped`): `immer_getappt` (a sentence says without condition
+that the land itself enters tapped, also "with two charge counters on it"), `bedingt_getappt`
+(entering tapped with a condition or a choice: "unless …", "If you don't, it enters tapped",
+"if …", "You may have this land enter tapped"), `ungetappt` (no sentence about entering tapped)
+and `unbekannt` (no rules text, or a sentence about entering tapped in another form, for example
+one about other permanents). The subject must be the land itself ("this land", "it", or its own
+name in the rules text, also the short name before the comma). Every getappt class carries the
+quoted sentence; a search land is classed by its own entry, and the sentence that brings the
+fetched land tapped is quoted next to it. The page shows the four counts as n of N lands and
+"Klasse bestimmt für n von N Ländern"; unknown is its own class and is never counted as
+untapped. Measured on the QA store copy: the card facts (134 lands) 134 of 134 get a class (47
+ungetappt, 70 immer getappt, 17 bedingt getappt); the public card data (commander-legal cards
+whose front face is a land, a separate figure) 1,153 of 1,153 (539, 449, 165). Chulane baseline: 8 of 36 lands always tapped (three bounce lands, three
+temples, a tri-land, Path of Ancestry), 2 of 36 tapped unless the player controls two or more
+basic lands, 26 of 36 untapped (three of them search lands that fetch tapped).
+
+**Early colour access (stage 2).** Per colour with a coloured symbol in the list
+(`castability.colour_access`): the exact chance of at least one direct source of the colour in
+the 7-card opening hand (any class), and of at least one direct source that enters untapped among
+the 7 + T cards seen by turn T for T = 1 and 2 (non-starting player; the starting player reads
+the value one turn earlier). Assumption, stated in the code (`TAPPED_ACCESS_ASSUMPTION`) and on
+the page, in one sentence: an untapped land of the colour drawn by turn T is played as the land
+drop of turn T at the latest. No further play assumption: lands tapped on an earlier turn and
+search lands are not counted (direct sources only), and the conditional class is not decided by
+a game state. Instead each figure is an interval: the lower bound counts conditional lands and
+lands of unknown class as tapped, the upper bound counts them as untapped and lands without
+colour data as a source of every colour; one value is shown where both agree. Chulane baseline:
+white on turn 1 45.6 % to 54.7 %, blue in the opening hand 74.5 %. The audit's abort criterion
+(no stage 2 that needs a play assumption not explainable in one sentence) holds. The figures are
+appended to the castability answer (`tapped`, `colour_access`) and to its number contracts
+(`cast.tapped.*`, `cast.access.*`); every earlier figure stays byte-equal (test against hashes
+taken on main before the change). The overview shows the class counts in one line.
 
 #### Roles in the opening hand ("Rollen in der Starthand", #1404)
 

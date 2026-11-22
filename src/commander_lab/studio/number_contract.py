@@ -368,6 +368,81 @@ def diff_zahlen(diff: Mapping[str, object]) -> list[dict[str, object]]:
                 bezug="Quelldecks (mit der Karte / Kohorte)",
                 kohorte=f"{cohort_key} · {names}",
             )
+    out.extend(_manabase_zahlen(_mapping(diff.get("manabase"))))
+    return out
+
+
+def _manabase_zahlen(manabase: Mapping[str, object]) -> list[dict[str, object]]:
+    """WP-5 (#1404): the mana base before/after of the variant comparison. Both sides are
+    exact (EXAKT, shares), the deltas are percentage points; appended after the older diff
+    contracts. An unknown side or delta stays ``None`` (unknown), never 0."""
+    out: list[dict[str, object]] = []
+    if not manabase:
+        return out
+    source = "Exakte Hypergeometrie aus beiden Decklisten (Karsten 2022)"
+    for item in _list(manabase.get("requirements")):
+        req = _mapping(item)
+        key = f"{req.get('label')}.{req.get('turn')}"
+        text = f"{req.get('label')}, Zug {req.get('turn')}"
+        for side, label in (("base", "Basis"), ("target", "aktuell")):
+            _try(
+                out,
+                f"manabase.{key}.{side}",
+                f"Farben bei genug Land-Drops ({text}, {label})",
+                _float_or_none(_mapping(req.get(side)).get("p_colours_given_lands")),
+                klasse=EXAKT,
+                einheit="Anteil",
+                quelle=source,
+            )
+        _try(
+            out,
+            f"manabase.{key}.delta_pp",
+            f"Delta Farben bei genug Land-Drops ({text})",
+            _float_or_none(_mapping(req.get("delta_pp")).get("p_colours_given_lands")),
+            klasse=EXAKT,
+            einheit="pp",
+            quelle=source,
+        )
+    hand = _mapping(manabase.get("opening_hand"))
+    if hand:
+        _try(
+            out,
+            "manabase.opening_hand.delta_pp",
+            "Delta spielbare Starthand",
+            _float_or_none(hand.get("delta_pp")),
+            klasse=EXAKT,
+            einheit="pp",
+            quelle=source,
+        )
+    tapped = _mapping(manabase.get("tapped"))
+    for side, label in (("base", "Basis"), ("target", "aktuell")):
+        total = _int_or_none(tapped.get(f"{side}_of"))
+        for klass, count in _mapping(tapped.get(side)).items():
+            value = _int_or_none(count)
+            _try(
+                out,
+                f"manabase.tapped.{klass}.{side}",
+                f"Länder {_TAP_LABELS.get(str(klass), str(klass))} ({label})",
+                value,
+                klasse=EXAKT,
+                einheit="Anzahl",
+                quelle="Regeltext der Länder der Deckliste (Vorderseite ohne Erinnerungstext)",
+                n=value,
+                N=total,
+                bezug="Länder (der Klasse / alle Länder der Liste ohne Commander)",
+            )
+    commander = _mapping(manabase.get("commander"))
+    for item in _list(commander.get("rows")):
+        row = _mapping(item)
+        _try(
+            out,
+            f"manabase.commander.{row.get('name')}.delta_pp",
+            f"Delta Commander {row.get('name')} auf Kurve",
+            _float_or_none(_mapping(row.get("delta_pp")).get("p_on_curve")),
+            klasse=EXAKT,
+            einheit="pp",
+            quelle=source + "; Commander aus der Kommandozone, ohne Commander-Steuer",
+        )
     return out
 
 
@@ -724,5 +799,67 @@ def castability_zahlen(payload: Mapping[str, object]) -> list[dict[str, object]]
                     klasse=EXAKT,
                     einheit="Anteil",
                     quelle="Exakte Hypergeometrie aus der Deckliste und den Rollen-Marken",
+                )
+    out.extend(_tapped_zahlen(payload, source))
+    return out
+
+
+_TAP_LABELS = {
+    "immer_getappt": "immer getappt",
+    "bedingt_getappt": "bedingt getappt",
+    "ungetappt": "ungetappt",
+    "unbekannt": "Getappt-Klasse unbekannt",
+}
+
+
+def _tapped_zahlen(payload: Mapping[str, object], source: str) -> list[dict[str, object]]:
+    """WP-4 (#1404): lands per tapped class (n of N lands of the list) and the colour access
+    of stage 2 (exact, lower and upper bound, with the one assumption as a note). Appended
+    after the older castability contracts, which stay unchanged and in their order."""
+    out: list[dict[str, object]] = []
+    tapped = _mapping(payload.get("tapped"))
+    total = _int_or_none(tapped.get("of"))
+    for klass, count in _mapping(tapped.get("counts")).items():
+        value = _int_or_none(count)
+        _try(
+            out,
+            f"cast.tapped.{klass}",
+            f"Länder {_TAP_LABELS.get(str(klass), str(klass))}",
+            value,
+            klasse=EXAKT,
+            einheit="Anzahl",
+            quelle="Regeltext der Länder der Deckliste (Vorderseite ohne Erinnerungstext)",
+            n=value,
+            N=total,
+            bezug="Länder (der Klasse / alle Länder der Liste ohne Commander)",
+        )
+    access = _mapping(payload.get("colour_access"))
+    assumption = str(access.get("assumption") or "Annahme siehe Getappt-Klassen")
+    for item in _list(access.get("colours")):
+        entry = _mapping(item)
+        colour = entry.get("colour")
+        hand = _mapping(entry.get("opening_hand"))
+        for field, label in (("p", "untere Grenze"), ("p_high", "obere Grenze")):
+            _try(
+                out,
+                f"cast.access.{colour}.hand.{field}",
+                f"Starthand mit Quelle der Farbe {colour} ({label})",
+                _float_or_none(hand.get(field)),
+                klasse=EXAKT,
+                einheit="Anteil",
+                quelle=source,
+            )
+        for turn_item in _list(entry.get("turns")):
+            turn = _mapping(turn_item)
+            for field, label in (("p_low", "untere Grenze"), ("p_high", "obere Grenze")):
+                _try(
+                    out,
+                    f"cast.access.{colour}.{turn.get('turn')}.{field}",
+                    f"Ungetappte Quelle der Farbe {colour} in Zug {turn.get('turn')} ({label})",
+                    _float_or_none(turn.get(field)),
+                    klasse=EXAKT,
+                    einheit="Anteil",
+                    quelle=source,
+                    hinweise=[assumption],
                 )
     return out

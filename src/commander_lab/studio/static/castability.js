@@ -4,6 +4,9 @@
 // WP-2/WP-3 (#1404): sources "direkt" and "über Suchland" (calculation assumption shown on the
 // page), the commander on curve and the exact land count table 30-40.
 // The opening-hand figure is shown through the number contract (zahl.js, #1659) as EXAKT.
+// WP-4 (#1404): tapped classes per land from the rules text with the quoted sentence (n of N,
+// "unbekannt" is its own class) and the colour access of stage 2 (exact, lower/upper bound,
+// one assumption shown on the page).
 
 function castPct(value) { return value === null || value === undefined ? "unbekannt" : StudioUI.pct(value, 1); }
 
@@ -55,6 +58,48 @@ function landClassNodes(h, classes) {
     out.push(h("p", { id: "land-classes-unknown", class: "warn" }, `Unbekannt (weder direkt noch über Suchland gezählt, nicht 0): ${unknown.map((land) => `${land.name} – ${land.reason}`).join("; ")}.`));
   }
   out.push(h("p", { id: "search-assumption", class: "note" }, h("strong", {}, "Annahme: "), classes.assumption));
+  return out;
+}
+
+const TAP_LABELS = { immer_getappt: "immer getappt", bedingt_getappt: "bedingt getappt", ungetappt: "ungetappt", unbekannt: "unbekannt" };
+
+// A lower and an upper bound as one value when they agree, else "a – b".
+function castRange(low, high) {
+  if (low === null || low === undefined || high === null || high === undefined) return "unbekannt";
+  return low === high ? castPct(low) : `${castPct(low)} – ${castPct(high)}`;
+}
+
+// WP-4 stage 1 and 2: tapped classes (n of N, quoted rules text) and the colour access.
+function tappedNodes(h, tapped, access) {
+  if (!tapped) return [];
+  const c = tapped.counts || {};
+  const out = [h("h3", {}, "Getappte Länder (Tempo)"),
+    h("p", { id: "tapped-classes" }, `Von ${StudioUI.num(tapped.of, 0)} Ländern: immer getappt ${StudioUI.num(c.immer_getappt || 0, 0)} von ${StudioUI.num(tapped.of, 0)}, bedingt getappt ${StudioUI.num(c.bedingt_getappt || 0, 0)} von ${StudioUI.num(tapped.of, 0)}, ungetappt ${StudioUI.num(c.ungetappt || 0, 0)} von ${StudioUI.num(tapped.of, 0)}, unbekannt ${StudioUI.num(c.unbekannt || 0, 0)} von ${StudioUI.num(tapped.of, 0)} – Klasse bestimmt für ${StudioUI.num(tapped.classified, 0)} von ${StudioUI.num(tapped.of, 0)} Ländern.`),
+    h("p", { class: "note" }, `Herkunft: ${tapped.origin}. Regel: ${tapped.rule}`)];
+  const quoted = (tapped.lands || []).filter((land) => land.class !== "ungetappt" || land.fetch_quote);
+  if (quoted.length) {
+    out.push(h("div", { class: "table-wrap" }, h("table", { id: "tapped-lands" },
+      h("thead", {}, h("tr", {}, h("th", {}, "Land"), h("th", {}, "Klasse"), h("th", {}, "Regeltext (Zitat)"))),
+      h("tbody", {}, quoted.map((land) => h("tr", { class: land.class === "unbekannt" ? "warn" : "" },
+        h("td", {}, land.name, land.quantity > 1 ? ` (${StudioUI.num(land.quantity, 0)}×)` : ""),
+        h("td", {}, TAP_LABELS[land.class] || land.class),
+        h("td", { class: "note" }, land.quote ? `„${land.quote}“` : (land.class === "unbekannt" ? land.reason : "kein Satz zum getappten Eintritt"),
+          land.fetch_quote ? h("div", {}, `Geholtes Land: „${land.fetch_quote}“`) : "")))))));
+  }
+  if (!access || !access.colours || !access.colours.length) return out;
+  out.push(h("h3", {}, "Farbzugriff früh (exakt)"),
+    h("div", { class: "table-wrap" }, h("table", { id: "colour-access" },
+      h("thead", {}, h("tr", {}, h("th", {}, "Farbe"),
+        h("th", { class: "num", title: "mindestens eine direkte Quelle der Farbe, gleich welcher Klasse, unter 7 Karten" }, "Starthand (7 Karten)"),
+        ...[1, 2].map((turn) => h("th", { class: "num", title: `mindestens ein ungetapptes Land der Farbe unter ${StudioUI.num(7 + turn, 0)} Karten` }, `ungetappt Zug ${StudioUI.num(turn, 0)} (${StudioUI.num(7 + turn, 0)} Karten)`)),
+        h("th", { class: "num" }, "Quellen (ungetappt)"))),
+      h("tbody", {}, access.colours.map((item) => h("tr", {},
+        h("td", {}, h("span", { class: "ms ms-" + item.colour }, item.colour)),
+        h("td", { class: "num" }, castRange(item.opening_hand.p, item.opening_hand.p_high)),
+        ...item.turns.map((turn) => h("td", { class: "num" }, castRange(turn.p_low, turn.p_high))),
+        h("td", { class: "num" }, `${StudioUI.num(item.sources, 0)} (${item.untapped_low === item.untapped_high ? StudioUI.num(item.untapped_low, 0) : `${StudioUI.num(item.untapped_low, 0)} – ${StudioUI.num(item.untapped_high, 0)}`})`)))))),
+    h("p", { id: "access-assumption", class: "note" }, h("strong", {}, access.assumption), " ", access.rule,
+      access.lands_unknown_colours ? ` ${StudioUI.num(access.lands_unknown_colours, 0)} Länder ohne Farbdaten: nur in der oberen Grenze.` : ""));
   return out;
 }
 
@@ -137,6 +182,7 @@ function castabilityNodes(h, data, open, roleName) {
       h("tbody", {}, rows))),
     h("p", { class: "note" }, "* Farben: Anteil mit den nötigen farbigen Quellen unter den Ziehungen, die bis zum Zug genug Länder haben. Quellen: nur Länder. „direkt“: Länder mit eigener Farbe; „mit Suchland“: zusätzlich Suchländer unter der Annahme unten."),
     ...landClassNodes(h, data.land_classes),
+    ...tappedNodes(h, data.tapped, data.colour_access),
     h("p", { id: "opening-hand" }, `Spielbare Starthand (${hand.rule}): `, keepable ? StudioZahl.knoten(h, keepable) : castPct(hand.p_keepable), ` – aus ${StudioUI.num(hand.lands, 0)} Ländern, ${StudioUI.num(hand.early_actions, 0)} frühen Aktionen und ${StudioUI.num(hand.other_cards, 0)} weiteren Karten, 7 Karten, ohne Mulligan.`),
     notes.length ? h("ul", { class: "note" }, notes.map((text) => h("li", {}, text))) : "",
     ...landCountNodes(h, data.land_count_table),
