@@ -846,7 +846,7 @@ des Co-Leads bzw. der umsetzenden Sitzung (Einspruch des Owners jederzeit mögli
 
 ### E19: Anzeige des gepoolten H, Mittelwert beider Bewertungen (2026-11-22, #1404, #1764)
 
-(E18 ist für die Sitze 7/8 vergeben, PR #1762.) Owner, 2026-11-22, Session-Chat; Niederschrift des
+(E18 ist für die Sitze 7/8 reserviert, offener Entwurf PR #1762.) Owner, 2026-11-22, Session-Chat; Niederschrift des
 Co-Leads in #1404, Kommentar 7085569723. Frage des Co-Leads (sinngemäß, Wortlaut des Co-Leads, nicht
 des Owners): Soll die Tierliste künftig den Mittelwert beider Bewertungen (H_pooled) anzeigen? Dazu
 die Angaben: Rangübereinstimmung beider Bewertungen gut (Spearman 0,83), bei Spells liegt die
@@ -879,7 +879,9 @@ Plan `docs/analysis-reports/rating_full_second_run_plan_20261122.md` §4 und §9
    Stufen der Tierliste beruhen auf dem Nutzungsindex. Auf H_F1 bleiben: die sechs anderen
    Kriterien, Notizen, Begründung, Regelclaims und Rater-Vertrauen (gemittelt wird nur H), die
    Zuordnung der Zweifel aus Rating-Audit A und das Rauschgate darauf (der Prüfer sah H_F1; der
-   Zweifeltext nennt das), die Länder-Zählung. Das Streuungsband einer Zelle richtet sich nach dem
+   Zweifeltext nennt das), die Länder-Zählung. Bei 18 von 33 H-Zweifeln liegt der angezeigte
+   Mittelwert schon in der Spanne des Prüfers (bei 15 außerhalb, bei 0 auf der anderen Seite); die
+   Marke bleibt unverändert, ob sie angepasst wird, ist offen (Co-Lead/Owner, PR-Liste). Das Streuungsband einer Zelle richtet sich nach dem
    angezeigten Wert; Werte zwischen den Bändern (etwa 12,5 oder 57,5) zeigen den Mindestwert. Kein
    Preis- oder Simulationseinfluss, Chulane-Fokus unverändert.
 

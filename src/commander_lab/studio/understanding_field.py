@@ -19,7 +19,7 @@ other field of the answer is returned unchanged and the given answer is not modi
 
 WP-6 (#1404, builder audit T1 to T5) adds, all additively and without touching the index:
 
-* ``streuung``: the spread of one rating (one run per card) as a floor of ±8 (Owner decision
+* ``streuung``: the spread of one single rating as a floor of ±8, also beside the mean (Owner decision
   option B, E17), with its sources and n of N; the figures keep ``intervall: null`` (a spread is no
   measured per-card interval). ``rauschgate``: differences of H below that floor are no difference
   in rank; an H doubt of the audit closer to the score than the gate gets no warning mark.
@@ -111,14 +111,16 @@ NOISE_GATE_FIELD: Final[dict[str, object]] = {
     ),
     "quelle": f"{SECOND_RUN_REPORT} §0, §2 (Owner-Entscheid Option B, Register E17)",
 }
-# The spread of ONE rating of H (one run per card), from the reports of the research folder and the
+# The spread of ONE single rating of H, from the reports of the research folder and the
 # second rater run. The measured figures are checked against the raw files by tests (drift: RMS of
 # the 49 differences / sqrt 2; other model family: RMS of the 70 differences / sqrt 2; second run:
 # RMS of the 265 differences / sqrt 2; the audit's combined estimate is text).
 SPREAD: Final[dict[str, object]] = {
     "kriterium": "H",
     "text": (
-        f"mindestens ±{SPREAD_FLOOR} Punkte (1\u03c3, ein Lauf je Karte; {SECOND_RUN_LABEL}); "
+        f"mindestens ±{SPREAD_FLOOR} Punkte (1\u03c3 eines Einzelwerts; für das Mittel zweier "
+        "Bewertungen kleiner nur bei unabhängigen Fehlern, nicht belegt, A3; "
+        f"{SECOND_RUN_LABEL}); "
         "je nach H-Bereich auch mehr"
     ),
     "kurz": f"±{SPREAD_FLOOR}",

@@ -160,6 +160,26 @@ def test_the_real_field_shows_the_pooled_h_with_both_runs_and_the_marks() -> Non
     assert (field["laender_skala"]["n_laender"], field["laender_skala"]["n_t_null"]) == (65, 58)
 
 
+def test_the_audit_doubts_stay_on_run_1_and_their_overlap_with_the_mean_is_counted() -> None:
+    """The auditor judged H_F1, so the doubts stay placed on H_F1 (not silently re-gated on the
+    mean). For 18 of the 33 H doubts the shown mean already lies inside the reviewer's span; the
+    register (E19) and the pull request list that open point."""
+    rows, pooled = card_understanding.load(), card_understanding.load_pooled()
+    match = card_understanding.match_audit(rows, card_understanding.load_audit())
+    inside = outside = 0
+    for oracle_id, flag in match["flags"].items():
+        low, high = flag["proposed_H_low"], flag["proposed_H_high"]
+        if not flag["kind"].startswith("H ") or low is None or high is None:
+            continue
+        assert flag["rater_H"] == pooled[oracle_id]["h_f1"]
+        if low <= pooled[oracle_id]["h_pooled"] <= high:
+            inside += 1
+        else:
+            outside += 1
+    assert (inside, outside) == (18, 15)
+    assert "Bei 18 von 33 H-Zweifeln" in REGISTER.read_text(encoding="utf-8")
+
+
 def test_k1_is_never_read() -> None:
     raw = {str(r["oracle_id"]): r for r in _jsonl(POOLED)}
     store, answer = _real_store_and_answer()

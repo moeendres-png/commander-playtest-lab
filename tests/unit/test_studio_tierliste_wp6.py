@@ -636,7 +636,8 @@ console.log(JSON.stringify(out));
     hint = result["full"]["hint"]
     assert "Quelle: Rubrik v2.1 (chulane-rubric-v2.1)" in hint and "Kohorte: Chulane" in hint
     assert (
-        "Streuung mindestens ±8 Punkte (1\u03c3, ein Lauf je Karte; zweiter Rater-Lauf (Familie "
+        "Streuung mindestens ±8 Punkte (1\u03c3 eines Einzelwerts; für das Mittel zweier "
+        "Bewertungen kleiner nur bei unabhängigen Fehlern, nicht belegt, A3; zweiter Rater-Lauf (Familie "
         "ungeprüft, A3): 8,1; n/N = 265/300, Herkunft Bericht rating_second_run_20261122)" in hint
     )
     assert (

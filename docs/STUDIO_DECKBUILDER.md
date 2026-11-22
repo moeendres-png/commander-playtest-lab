@@ -425,7 +425,8 @@ price). "Kartenverständnis (Modellurteil)" stays a labelled model judgement fro
 no strength in play, no tier, no rank, no sort key, not part of the index.
 
 - **T1 spread and one origin.** The field carries `streuung`: the spread of one rating H as a
-  floor, "mindestens ±8 Punkte (1σ, ein Lauf je Karte; zweiter Rater-Lauf (Familie ungeprüft,
+  floor, "mindestens ±8 Punkte (1σ eines Einzelwerts; für das Mittel zweier Bewertungen kleiner
+  nur bei unabhängigen Fehlern, nicht belegt, A3; zweiter Rater-Lauf (Familie ungeprüft,
   A3): 8,1; n/N = 265/300, Herkunft Bericht rating_second_run_20261122)" (Owner decision option B,
   2026-11-22, register E17; until then "± rund 5 bis 8"), with its sources and n/N: the drift test
   (49 of 922 cards rated twice by the same rater tier, repeat spread RMS 7,1 / √2 ≈ 5), the rater of
@@ -470,7 +471,8 @@ no strength in play, no tier, no rank, no sort key, not part of the index.
   (independent errors, not shown, A3). The band of a cell follows the shown value (values between
   the bands show the floor). On H_F1 stay: the other six criteria, notes, reason, claims and the
   confidence (only H is averaged), the placement of the audit doubts and their noise gate (the
-  auditor saw H_F1; the doubt text says so) and the land counts. H still has no tier, rank, sort
+  auditor saw H_F1; the doubt text says so; for 18 of 33 H doubts the shown mean already lies inside
+  the reviewer's span, the mark stays until decided) and the land counts. H still has no tier, rank, sort
   key or filter.
 - **T2 single ratings.** `GET /api/cards/{card_id}/understanding?commander=NAME` gives all seven
   criteria E (Effizienz), F (Passung zu Chulane), T (Wirkung am Tisch), R (Verlässlichkeit), K
