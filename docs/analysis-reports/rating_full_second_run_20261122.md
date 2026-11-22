@@ -20,18 +20,31 @@
 
 ## 1. Reihenfolge der Schritte (Plan §9) mit Belegen
 
-Belegt durch Zeitstempel der GitHub-Kommentare und Merge-Zeiten (UTC). Dateizeiten im Scratchpad haben nur Minutenauflösung und belegen keine feinere Ordnung.
+Belegt durch Zeitstempel der GitHub-Kommentare, Merge-Zeiten und die Dateizeiten der Ausgaben im Scratchpad (`stat`, Anlage- und Letztschreibzeit, UTC).
 
 | Schritt | Zeitpunkt | Beleg |
 |---|---|---|
 | Plan, Eingaben, Guides im Repo | Draft-Commit 2026-11-22T16:19:39Z; Squash 16:41:48Z | #1761, Draft-Commit `a3cd2b4af` (Lauf-Eingaben byte-gleich), Squash `73c22de3` |
-| Lauf Chargen 1 bis 8 | Start und Ende je Charge nicht protokolliert; Entscheid Retest-Charge 8 „vor dem Start“ 16:45Z; alle Ausgaben fertig vor dem Freeze | `run_log_redacted.md` |
+| Lauf Chargen 1 bis 8 | nach dem Merge 16:41:48Z; erster Schreibvorgang 16:43:17Z, letzter 16:52:20Z (je Charge in der Tabelle unten) | Dateizeiten der `rr2_output_*.jsonl`; `run_log_redacted.md` |
 | **Freeze:** SHA-256 der 8 Ausgaben gepostet, vor jedem Öffnen | 16:52:39Z | [Kommentar 7082408782](https://github.com/moeendres-png/commander-playtest-lab/issues/1404#issuecomment-7082408782) |
 | Auswerteskript committet (vor dem ersten Lesen) | 20:44:27Z | #1763, Squash `2987afc6` |
 | **Verweis-Treffer** (`hits`, nur Treffersätze, keine Werte) | 20:45:27Z | [Kommentar 7085521227](https://github.com/moeendres-png/commander-playtest-lab/issues/1404#issuecomment-7085521227) |
 | **Klassifikation** der Treffer, SHA-256 gepostet | 20:45:35Z | [Kommentar 7085522996](https://github.com/moeendres-png/commander-playtest-lab/issues/1404#issuecomment-7085522996) |
 | **Regelclaims** (blinde Liste, zwei Prüfer) und Laufprotokoll-Eingabe | 20:46:55Z | [Kommentar 7085540409](https://github.com/moeendres-png/commander-playtest-lab/issues/1404#issuecomment-7085540409) |
 | **eval** (erstes Lesen von Werten und Differenzen) und Lesart | 20:48:08Z | [Kommentar 7085556215](https://github.com/moeendres-png/commander-playtest-lab/issues/1404#issuecomment-7085556215) |
+
+| Charge | Ausgabe angelegt (erster Schreibvorgang) | letzter Schreibvorgang |
+|---|---|---|
+| 1 | 16:43:33Z | 16:51:47Z |
+| 2 | 16:43:43Z | 16:52:20Z |
+| 3 | 16:43:17Z | 16:49:25Z |
+| 4 | 16:43:30Z | 16:51:25Z |
+| 5 | 16:43:30Z | 16:50:48Z |
+| 6 | 16:43:37Z | 16:51:08Z |
+| 7 | 16:43:26Z | 16:51:01Z |
+| 8 (Retest) | 16:43:40Z | 16:47:46Z |
+
+Das Laufprotokoll nennt für den Entscheid zur Retest-Charge 8 „vor dem Start, 16:45Z“. Die Dateizeiten zeigen, dass alle 8 Chargen schon ab 16:43:17Z schrieben (Charge 8 ab 16:43:40Z). Der Entscheid fiel also mit dem Start, und der Zeitstempel im Protokoll ist ungenau. Alle Rater starteten nach dem Merge von #1761 (16:41:48Z); der letzte Schreibvorgang (16:52:20Z) liegt vor dem Freeze-Kommentar (16:52:39Z). Die Dateizeiten geben Anlage und letzten Schreibvorgang der Ausgabe, nicht den Start der Instanz (der liegt davor: Anweisung, Guide und erste 10 Karten wurden vor dem ersten Anhängen gelesen).
 
 Genau genommen: Vor `eval` wurden aus den Ausgaben nur die Treffersätze der Verweis-Liste (`hits`) und die Claim-Texte der Stichprobe (`claims`, ohne Werte und Herkunft) gelesen. Werte und Differenzen las erst `eval`, nach Freeze, Skript-Commit und Klassifikation. A10 greift nicht.
 
@@ -57,16 +70,16 @@ Genau genommen: Vor `eval` wurden aus den Ausgaben nur die Treffersätze der Ver
 
 | Charge | Skript: Bedingung erfüllt („unter“) | Rater-Selbstmeldung: ohne ausdrückliche Begründung | Nachlesen (explorativ, nach `eval`) |
 |---|---|---|---|
-| 1 | 4 | 1 (+3 mit generischem Satz) | passt: 3 Zeilen mit angehängtem Pflichtsatz, 1 ohne |
-| 2 | 5 | 1 | passt (Stichwort-Suche: 4 nennen den Abstand) |
-| 3 | 11 | 0 | **passt nicht wörtlich:** gelesen, alle 11 begründen das niedrige H inhaltlich, aber nur 1 (seq 56) nennt den Abstand zum Mittel ausdrücklich |
-| 4 | 13 | 13 | passt (keine nennt den Abstand) |
-| 5 | 6 | 0 | passt (alle 6 nennen den Abstand) |
-| 6 | 9 | 9 | passt: gelesen, alle 9 begründen inhaltlich, keine nennt den Abstand ausdrücklich |
-| 7 | 15 | 2 | passt (13 nennen den Abstand) |
-| zusammen | **63** von 622 (H mehr als 25 über dem Mittel: 0) | **26** (+3 generisch) | – |
+| 1 | 4 | 1 (+3 mit generischem Satz) | 1 ohne ausdrücklichen Satz; die 3 generischen Sätze nennen den Abstand |
+| 2 | 5 | 1 | 1 ohne; 4 nennen den Abstand |
+| 3 | 11 | 0 | **10 ohne:** alle 11 begründen das niedrige H inhaltlich, aber nur 1 (seq 56, Rule of Law) nennt den Abstand zum Mittel ausdrücklich |
+| 4 | 13 | 13 | 13 ohne (keine nennt den Abstand) |
+| 5 | 6 | 0 | 0 ohne (alle 6 nennen den Abstand) |
+| 6 | 9 | 9 | 9 ohne: alle 9 begründen inhaltlich, keine nennt den Abstand ausdrücklich |
+| 7 | 15 | 2 | 2 ohne; 13 nennen den Abstand |
+| zusammen | **63** von 622 (H mehr als 25 über dem Mittel: 0) | **26** (+3 generisch) | **36** ohne ausdrücklichen Satz (1 + 1 + 10 + 13 + 0 + 9 + 2) |
 
-**Erklärung der Differenz 63 gegen 26:** Das Skript zählt nur die Zahlenbedingung (`formatluecken_H_gt25_vom_mittel`, Hinweis im Ergebnis: „nur gezählt; ob die Begründung fehlt, wird von Hand gelesen“). Die Rater zählten nur Zeilen ohne Begründung. Die übrigen 34 Zeilen (63 − 26 − 3) haben nach Auskunft der Rater eine Begründung. Beim Nachlesen gilt das für die Chargen 1, 2, 4, 5 und 7 auch wörtlich. Bei den Chargen 3 und 6 haben die Rater denselben Zeilentyp verschieden eingestuft: Begründungen ohne ausdrücklichen Satz zum Abstand vom Mittel gelten in Charge 3 als „begründet“ (0 gemeldet), in Charge 6 als „ohne ausdrückliche Begründung“ (9 gemeldet). Streng gelesen (ausdrücklicher Satz nötig) fehlen also etwa 36 statt 26 Begründungen; inhaltlich begründet ist das niedrige H in allen gelesenen Zeilen der Chargen 3 und 6. Gelesen wurden die 20 Zeilen der Chargen 3 und 6; für die übrigen 43 Zeilen ist die Prüfung nur eine Stichwortsuche (`mean|average|sub-scores|more than 25`). Formcheck nach dem Lauf, kein Plan-Kriterium.
+**Erklärung der Differenz 63 gegen 26:** Das Skript zählt nur die Zahlenbedingung (`formatluecken_H_gt25_vom_mittel`, Hinweis im Ergebnis: „nur gezählt; ob die Begründung fehlt, wird von Hand gelesen“). Die Rater zählten nur Zeilen ohne Begründung. Die übrigen 34 Zeilen (63 − 26 − 3) haben nach Auskunft der Rater eine Begründung. Nachgelesen wurden alle 63 Zeilen (die 20 der Chargen 3 und 6 bei der Erstellung dieses Berichts, die 43 übrigen im Review von #1764; eine reine Stichwortsuche nach `mean` reicht nicht, sie trifft auch „means“): In den Chargen 1, 2, 5 und 7 enthält jede Zeile, die die Rater als begründet zählten, einen ausdrücklichen Satz zum Abstand vom Mittel; in Charge 4 keine der 13. Bei den Chargen 3 und 6 haben die Rater denselben Zeilentyp verschieden eingestuft: Begründungen ohne ausdrücklichen Satz zum Abstand vom Mittel gelten in Charge 3 als „begründet“ (0 gemeldet), in Charge 6 als „ohne ausdrückliche Begründung“ (9 gemeldet). Streng gelesen (ausdrücklicher Satz nötig) fehlen also **36** statt 26 Begründungen (Aufschlüsselung in der letzten Spalte); inhaltlich begründet ist das niedrige H in allen gelesenen Zeilen der Chargen 3 und 6. Formcheck nach dem Lauf, kein Plan-Kriterium.
 
 ## 3. Streuung aus den Paardifferenzen (Plan §5, d = H_R2 − H_F1)
 
@@ -133,7 +146,7 @@ Welle-1-Dateien wie #1758 (ohne markierte): mittlere |d| 6,59 · 8,41 · 10,11 (
 
 **Zu B2, ausdrücklich:** Das Intervall von Δ_G1 (K0) liegt ganz über 0. Nach Plan §7 hieße das „besser belegt“, **aber nur, wenn** das Laufprotokoll zeigt, dass G1 aus einer anderen Modellfamilie als R2 stammt. Das ist unbekannt; dann ist G1 nicht unabhängig von R2, und das Urteil lautet nach Plan **„unbelegt“**. Die Zahl ist eine Übereinstimmung des gepoolten Werts mit G1, kein Beleg.
 
-**Zu B3:** Die Wiederholung derselben Rater-Art streut deutlich weniger (3,93) als der Abstand zu F1 auf denselben Karten (7,25). Nach der Lesehilfe des Plans ist ein Teil des Abstands R2–F1 also systematisch und nicht nur Rauschen.
+**Zu B3:** Die Wiederholung (Retest-Charge 8) streut deutlich weniger (3,93) als der Abstand zu F1 auf denselben Karten (7,25). Nach der Lesehilfe des Plans ist ein Teil des Abstands R2–F1 also systematisch und nicht nur Rauschen. Fußnote: Das ist eine Test-Retest-Stabilität nur, wenn R2 in beiden Wellen derselbe Rater ist. Das ist nicht belegt: Gleiche Modell-ID wie Welle 1 ist UNKNOWN (A3w), und die Rater sind frische Instanzen ohne Vorkontext.
 
 ## 6. Lesart des Co-Leads (wörtlich aus #1404 Kommentar 7085556215)
 
@@ -158,6 +171,8 @@ Welle-1-Dateien wie #1758 (ohne markierte): mittlere |d| 6,59 · 8,41 · 10,11 (
 Fußnoten (nicht Teil des Zitats):
 - Zu Punkt 1 und zum Ergebnis-Kommentar („ohne die 35 markierten Karten wie #1758: 8,1“): Die 8,1 aus #1758 ist **RMS/√2**, also mit Verzerrung. Die Werte ±7,3 bis ±8,7 sind **SD/√2** (ohne Verzerrung). Vergleichbare RMS/√2-Werte dieses Laufs: gesamt 8,46, Welle 1 9,42, Welle 2 7,96 (§3).
 - Zu Punkt 2: Nach Plan §6 wäre der K1-Vorschlag erlaubt (§4). Ihn nicht zu machen ist eine Entscheidung des Co-Leads.
+- Zu Punkt 4: „verbessert die Reproduzierbarkeit (ICC 0,82 → vorhergesagt 0,90)“ ist eine **Vorhersage** (Spearman-Brown, B1) und gilt nur unter den Annahmen von Plan §5 (unabhängige, gleich große Fehler), die nach A3 nicht belegt sind.
+- Zu B3 im Ergebnis-Kommentar („Wiederholung derselben Rater-Instanz“): Es waren frische Instanzen; dass es derselbe Rater wie in Welle 1 ist, ist nicht belegt (A3w, siehe §5).
 - Zu Punkt 3: Der Plan nennt als abgeleiteten Datensatz `data/card_understanding/card_understanding_h_pooled.jsonl`. Dieser PR legt ihn **nicht** an; die gepoolten Werte stehen nur als Analyse-Ergebnis in `second_run_full_20261122/pooled.jsonl`. Der Owner entscheidet über Anzeige und Produktdatensatz.
 
 ## 7. Grenzen
@@ -177,6 +192,8 @@ Fußnoten (nicht Teil des Zitats):
 2. **Stufe/Aufwand UNKNOWN** (Voreinstellung des Aufrufs, nicht gesetzt).
 3. **Schlussantworten im Repo redigiert:** Nur der absolute Rater-Pfad (8 Stellen) ist durch `<RATER_DIR>` ersetzt. Original SHA-256 `f276a7d3…` (gepostet in 7085521227), Repo-Fassung `e831bbca…`. `hits` ergibt aus der Repo-Fassung dieselbe Treffer-Datei `edd99934…`, und `eval` dieselben drei Ergebnis-Dateien (§9).
 4. **Formatlücken:** 63 Zeilen erfüllen die Zahlenbedingung; die Rater stuften gleiche Zeilen verschieden ein (§2).
+5. **Liste |d| ≥ 15 nicht vollständig im Bericht:** Plan §8 verlangt, alle Karten mit |d| ≥ 15 im Bericht mit beiden H und beiden Begründungen zu listen. Dieser Bericht listet nur die 22 Karten mit |d| ≥ 30 (ohne Begründungen); die vollständige Liste der 266 Karten mit beiden H und beiden Begründungen steht in `result.json` (`abweichungen_ge15`), wie in Welle 1 (§9).
+6. **Zeitstempel im Laufprotokoll ungenau:** „Entscheid Retest-Charge 8 vor dem Start, 16:45Z“; die Ausgaben wurden schon ab 16:43:17Z geschrieben (§1).
 
 **Gegenüber Welle 1 (#1758):**
 - Laufprotokoll vorhanden (Welle 1: keines). Modell, Stufe und Familie bleiben trotzdem ungeprüft.
@@ -253,5 +270,7 @@ python3 scripts/analysis/rating_second_run_full_eval.py eval --manifest $D/rr2_m
   --g1 $R/audit/independent_rater_ratings.jsonl --f2 $R/fulldrift_ratings.jsonl \
   --claim-verdicts $D/claim_verdicts.json --out <result.json> --report <report.md> --pooled-out <pooled.jsonl>
 ```
+
+Test `tests/unit/test_rating_full_second_run_results.py`: prüft alle Dateien gegen `results_sha256.txt` und `rater/output_sha256.txt` und die Kernzahlen dieses Berichts (Spells-Verzerrung mit Intervall, 7 von 7 Chargen, 922 von 922, 266 und 22 Abweichungen) gegen `result.json`.
 
 Die Rohdaten enthalten nur Kartentext-Blöcke, Kartennamen, `oracle_id`, Bewertungen, Begründungen und Regelclaims; keine Preise, Nutzung, Modellnamen oder privaten Daten.
