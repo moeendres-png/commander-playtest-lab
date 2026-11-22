@@ -76,7 +76,8 @@ def _side_deltas(base: Mapping[str, object], target: Mapping[str, object]) -> di
 def _access_values(entry: Mapping[str, object]) -> dict[str, object]:
     hand = entry["opening_hand"]
     turns = entry["turns"]
-    assert isinstance(hand, Mapping) and isinstance(turns, list)
+    if not isinstance(hand, Mapping) or not isinstance(turns, list):
+        raise TypeError("colour_access must return the opening hand as a dict and turns as a list")
     values: dict[str, object] = {"hand": hand["p"], "hand_high": hand["p_high"]}
     for turn in turns:
         values[f"turn{turn['turn']}_low"] = turn["p_low"]
@@ -86,7 +87,8 @@ def _access_values(entry: Mapping[str, object]) -> dict[str, object]:
 
 def _colours(cast: Mapping[str, object]) -> set[str]:
     block = cast["colour_access"]
-    assert isinstance(block, Mapping)
+    if not isinstance(block, Mapping):
+        raise TypeError("deck_castability must return colour_access as a dict")
     return {str(entry["colour"]) for entry in block["colours"]}
 
 
