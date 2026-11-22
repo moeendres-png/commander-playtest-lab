@@ -1469,7 +1469,8 @@ def _final_replies(path: Path | None) -> dict[str, str]:
     return {str(k): str(v) for k, v in data.items()}
 
 
-def main(argv: Sequence[str] | None = None) -> int:
+def build_parser() -> argparse.ArgumentParser:
+    """Paths only: no threshold, seed or draw count is an option (A8)."""
     ap = argparse.ArgumentParser(description=(__doc__ or "").splitlines()[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
     for name in ("hits", "eval"):
@@ -1490,6 +1491,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     pe.add_argument("--tier-rule", type=Path)
     pe.add_argument("--report", type=Path, required=True)
     pe.add_argument("--pooled-out", type=Path, required=True)
+    return ap
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    ap = build_parser()
     a = ap.parse_args(argv)
     try:
         replies = _final_replies(a.final_replies)

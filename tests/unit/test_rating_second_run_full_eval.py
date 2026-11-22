@@ -631,8 +631,12 @@ def test_a8_thresholds_are_fixed_constants_and_not_options() -> None:
         6,
     )
     assert (ev.FLAG_GE15, ev.FLAG_GE30, ev.SEED, ev.DRAWS) == (15, 30, 20261124, 5000)
-    with pytest.raises(SystemExit):
-        ev.main(["eval", "--draws", "10"])
+    sub = next(a for a in ev.build_parser()._actions if a.dest == "cmd")
+    for name in ("hits", "eval"):
+        opts = {o for act in sub.choices[name]._actions for o in act.option_strings}
+        assert not {
+            o for o in opts if any(w in o for w in ("draw", "seed", "thresh", "schwelle", "min"))
+        }, opts
 
 
 def test_a8_listed_deviation_labels_and_blocks_k1(lab: Lab) -> None:
