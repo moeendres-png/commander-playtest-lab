@@ -605,7 +605,7 @@ Umfang und Grenzen (Co-Lead, umgesetzt in PR zu #1637, WP-10b):
 - **Genauer Preis von Hand:** je Karte ein Link auf die Cardmarket-Kartenseite mit den Filtern des
   Owners (Standard Land Deutschland, Sprache Englisch und Deutsch, Mindestzustand Excellent;
   änderbar), den nur der Browser des Owners öffnet; der Owner trägt den abgelesenen Preis ein (oder
-  eine CSV `Name;Preis;Datum`). Anzeige „Cardmarket DE/EX: x,xx € (eingetragen am …)“; älter als
+  eine CSV `Name;Preis;Datum`). Anzeige „Cardmarket DE/EX/EN+DE: x,xx € (eingetragen am …)“; älter als
   14 Tage gilt als veraltet und zählt nicht.
 - **Vorrang:** eingetragener Preis > Preisführer (`low`, sonst `trend`) > Scryfall-Näherung
   (`prices.eur`/`prices.eur_foil`, Cardmarket-Trend); immer mit Quelle und Datum, fehlend

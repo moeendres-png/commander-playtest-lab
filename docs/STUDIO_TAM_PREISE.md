@@ -9,9 +9,9 @@ nur im lokalen Studio-Datenordner auf deinem PC und kommen nie ins Repository.
 
 | Anzeige | Quelle | Was sie misst |
 | --- | --- | --- |
-| „Cardmarket DE/EX: 12,50 € (eingetragen am 22.11.2026)“ | von dir auf Cardmarket abgelesen und eingetragen | genau das, was du mit deinen Filtern gesehen hast; älter als 14 Tage: „veraltet“, zählt nicht |
+| „Cardmarket DE/EX/EN+DE: 12,50 € (eingetragen am 22.11.2026)“ | von dir auf Cardmarket abgelesen und eingetragen | genau das, was du mit deinen Filtern gesehen hast; älter als 14 Tage: „veraltet“, zählt nicht |
 | „Cardmarket ab 0,45 € (Trend 0,94 €) · ohne Filter Land/Sprache/Zustand · Stand …“ | Cardmarket-Preisführer (offizieller Download) | niedrigstes Angebot („low“, Foil oder Nicht-Foil) und Trend über alle spielbaren Drucke, **ohne** Filter Land, Sprache und Zustand; Druck und Finish des niedrigsten Werts stehen dabei; älter als 14 Tage: „veraltet“, zählt nicht |
-| „Näherung aus Scryfall (…), Stand …“ | Scryfall-Bulk-Datei | Cardmarket-Trend (Foil oder Nicht-Foil); nur wenn der Preisführer die Karte nicht hat |
+| „Näherung aus Scryfall (…), Stand …“ | Scryfall-Bulk-Datei | Cardmarket-Trend (Foil oder Nicht-Foil); nur wenn der Preisführer die Karte nicht hat oder veraltet ist |
 
 Summe, Sortierung und Budgetfilter der Zukauf-Liste nehmen je Karte den obersten vorhandenen Wert;
 die Zeile über der Tabelle sagt, wie viele Karten welchen Wert nutzen („n von N Karten mit
@@ -33,7 +33,8 @@ Eintragen von Hand.
    mit etwas anderem als HTTP 200 (etwa 403 oder 429), bricht er sofort ab, meldet das und fragt
    24 Stunden lang nicht neu an; dann die Dateien im Browser laden und
    `python -m commander_lab.studio import-cardmarket-priceguide --file <price_guide_1.json> --products <products_singles_1.json>`
-   nutzen (ohne `--products` steht in der Liste „Namen nicht geprüft“). Download-Ordner und
+   nutzen (ohne `--products` steht in der Liste „Namen nicht geprüft“; `--products` allein,
+   ohne `--file`, bricht mit einem Hinweis ab). Download-Ordner und
    Dateien dürfen nicht im Repository liegen.
 3. Im Studio: TAM-Deck öffnen, Zukauf-Modus an, „Zukauf-Liste mit Richtwerten (TAM)“.
 
@@ -47,7 +48,10 @@ Eintragen von Hand.
   sicher ist (etwa „A // B“, Umlaute, Bindestriche), öffnet „Cardmarket-Suche ↗“ die Suche; die
   Filter wählst du dort.
 - Den abgelesenen Preis in das Feld der Zeile tippen (12,50 oder 12.50), das Datum ist heute
-  (änderbar), „Speichern“. Leer oder 0 löscht den Eintrag (dann „unbekannt“).
+  (änderbar), „Speichern“. Leer oder 0 löscht den Eintrag (dann „unbekannt“). Unlesbarer Text
+  (etwa „12,5o“ oder „-5“) wird abgelehnt („nicht gespeichert“), ein vorhandener Eintrag bleibt.
+- Das Etikett nennt alle Filter, unter denen der Preis abgelesen wurde: Land, Zustand und Sprache
+  („DE/EX/EN+DE“, „DE/EX/alle Sprachen“); andere Zustände als Excellent tragen „Nummer unbelegt“.
 - Viele Preise auf einmal: eine Datei `Name;Preis;Datum` außerhalb des Repositorys anlegen und
   `python -m commander_lab.studio import-tam-cardmarket-csv <deck_id> <Datei>` ausführen.
 

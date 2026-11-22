@@ -113,7 +113,9 @@ def _parser() -> argparse.ArgumentParser:
         "other than 200 stops",
     )
     guide_cmd.add_argument("--file", help="a price_guide_1.json downloaded before")
-    guide_cmd.add_argument("--products", help="the matching products_singles_1.json")
+    guide_cmd.add_argument(
+        "--products", help="the matching products_singles_1.json (only with --file)"
+    )
     guide_cmd.add_argument("--date", help="date of the price guide (YYYY-MM-DD) without createdAt")
     csv_cmd = commands.add_parser(
         "import-tam-cardmarket-csv",
@@ -1006,6 +1008,11 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
     elif args.command == "import-tam-prices":
         result = tam_prices.import_scryfall_prices(store, args.path, bulk_date=args.bulk_date)
     elif args.command == "import-cardmarket-priceguide":
+        if args.products and not args.file:
+            raise SystemExit(
+                "import-cardmarket-priceguide: --products gilt nur zusammen mit --file "
+                "(ohne --file lädt der Befehl Preisführer und Produktliste selbst)"
+            )
         try:
             if args.file:
                 guide, products = args.file, args.products

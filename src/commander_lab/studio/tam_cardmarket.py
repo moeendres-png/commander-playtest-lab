@@ -11,13 +11,16 @@ exception of 2026-11-22. Two things only:
   with an honest User-Agent, no cookies, no account, no key, no proxy and no redirect; a copy
   younger than 24 hours in the local data folder is used instead of a new request; any status
   other than 200 stops at once and is noted, so no new request follows for 24 hours (at most one
-  request per file and day). No page of www.cardmarket.com is read (no scraping).
+  request per file and day). A broken answer (no valid status line, a body shorter than its
+  ``Content-Length`` or an unreadable ``Content-Length``) counts as a failure too. No page of www.cardmarket.com is read
+  (no scraping).
 
 This module is the only place of ``src`` that talks HTTP to a Cardmarket host.
 """
 
 from __future__ import annotations
 
+import http.client
 import json
 import re
 import time
@@ -154,22 +157,30 @@ _OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}), _NoRedire
 
 def http_get(url: str) -> bytes:
     """One GET with the honest User-Agent; the body of an HTTP 200 answer, else
-    :class:`DownloadFailed` (403, 429, a redirect and every other status stop)."""
+    :class:`DownloadFailed` (403, 429, a redirect and every other status stop; so do a broken
+    status line and a body shorter than its ``Content-Length``)."""
     request = urllib.request.Request(
         url, headers={"User-Agent": USER_AGENT, "Accept": "application/json"}
     )
     try:
         with _OPENER.open(request, timeout=TIMEOUT_SECONDS) as response:
             status = int(response.status)
+            declared = response.headers.get("Content-Length")
             body: bytes = response.read(MAX_BYTES + 1)
     except urllib.error.HTTPError as error:
         raise DownloadFailed(f"HTTP {error.code} für {url}: Abruf gestoppt") from None
-    except (urllib.error.URLError, TimeoutError, OSError) as error:
+    except (urllib.error.URLError, http.client.HTTPException, TimeoutError, OSError) as error:
         raise DownloadFailed(f"keine Verbindung zu {url}: {type(error).__name__}") from None
     if status != 200:
         raise DownloadFailed(f"HTTP {status} für {url}: Abruf gestoppt")
     if len(body) > MAX_BYTES:
         raise DownloadFailed(f"Datei zu groß: {url}")
+    # a cut-off transfer is no copy to keep for 24 hours (no header: not checkable)
+    if declared is not None and (not declared.strip().isdigit() or int(declared) != len(body)):
+        raise DownloadFailed(
+            f"unvollständige Übertragung von {url}: {len(body)} Bytes statt "
+            f"Content-Length {declared.strip()!r}; Abruf gestoppt"
+        )
     return body
 
 
@@ -202,17 +213,25 @@ def download(
     folder.mkdir(parents=True, exist_ok=True)
     failure = folder / FAILURE_FILE
     if failure.is_file():
+        # fail closed without a lasting lock: a note that cannot be read (or names a time in
+        # the future) counts from the time the file was written, so it lapses after 24 hours
+        written = failure.stat().st_mtime
         try:
             noted = json.loads(failure.read_text(encoding="utf-8"))
             since = float(noted["at"])
-            reason = str(noted["reason"])
-        except (ValueError, KeyError, TypeError):
-            since, reason = clock, "unlesbarer Vermerk"
+            reason = f"letzter Abruf gescheitert ({noted['reason']})"
+            if not since <= clock:  # also NaN
+                raise ValueError("note in the future")
+        except (ValueError, KeyError, TypeError, UnicodeDecodeError):
+            since = written
+            reason = (
+                "Vermerk über einen gescheiterten Abruf unlesbar, gerechnet ab seiner Dateizeit"
+            )
         if clock - since < CACHE_SECONDS:
             hours = max(1, int((CACHE_SECONDS - (clock - since)) / 3600 + 0.999))
             raise DownloadFailed(
-                f"letzter Abruf gescheitert ({reason}); kein neuer Abruf vor Ablauf von 24 "
-                f"Stunden (noch etwa {hours} h). Ersatz: Dateien im Browser laden und --file nutzen"
+                f"{reason}; kein neuer Abruf vor Ablauf von 24 Stunden (noch etwa {hours} h). "
+                "Ersatz: Dateien im Browser laden und --file nutzen"
             )
     report: dict[str, dict[str, object]] = {}
     for name, url in (urls or DOWNLOADS).items():

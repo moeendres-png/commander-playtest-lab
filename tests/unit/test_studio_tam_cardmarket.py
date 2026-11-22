@@ -252,13 +252,13 @@ def test_the_view_uses_entered_then_guide_then_approximation_and_never_a_stale_e
         "1 im Besitz (kein Preis)"
     )
     view = str(result["view"])
-    assert "Cardmarket DE/EX: 12,50 € (eingetragen am 22.11.2026)" in view
+    assert "Cardmarket DE/EX/EN+DE: 12,50 € (eingetragen am 22.11.2026)" in view
     assert (
         "Cardmarket ab 0,45 € (Trend 0,94 €) · ohne Filter Land/Sprache/Zustand · Stand 20.11.2026 · "
         "CMM 464, Nicht-Foil" in view
     )
     assert (
-        "veraltet: Cardmarket DE/EX: 0,05 € (eingetragen am 01.10.2026), älter als 14 Tage, "
+        "veraltet: Cardmarket DE/EX/EN+DE: 0,05 € (eingetragen am 01.10.2026), älter als 14 Tage, "
         "zählt nicht" in view
     )
     assert "Cardmarket ab unbekannt (Trend 7,00 €)" in view
@@ -302,20 +302,81 @@ def test_the_view_uses_entered_then_guide_then_approximation_and_never_a_stale_e
     assert result["saved"][0][0] == "n" and result["saved"][0][3] == "DE/EX/EN+DE"
 
 
+_ENTRY_SCRIPT = r"""
+const W = require('./wishlist.js');
+function h(tag, props, ...children) {
+  const el = { tag, props: props || {}, children: [] };
+  el.replaceChildren = (...kids) => { el.children = kids.flat(); };
+  el.children = children.flat();
+  return el;
+}
+const text = (el) => (el === null || el === undefined || el === false) ? '' : typeof el !== 'object' ? String(el) : el.children.map(text).join(' ');
+const entry = (code, extra) => ({ eur_cents: 500, price_date: '2026-11-22', filter_code: code, age_days: 0, stale: false, ...extra });
+const missing = ['a', 'b', 'c', 'd'].map((id) => ({ card_id: id, name: 'Card ' + id, missing: 1 }));
+const answer = { cards: [
+  { card_id: 'a', name: 'Card a', status: 'unknown', entered: entry('DE/EX/alle') },
+  { card_id: 'b', name: 'Card b', status: 'unknown', entered: entry('alle/NM/DE', { eur_cents: 700 }) },
+  { card_id: 'c', name: 'Card c', status: 'unknown', entered: entry('DE/PL/EN+DE', { eur_cents: 800 }) },
+  // a server answer without the stale flag
+  { card_id: 'd', name: 'Card d', status: 'unknown', entered: { eur_cents: 900, price_date: '2026-11-22', filter_code: 'DE/EX/EN+DE', age_days: 0 } },
+] };
+const rows = W.tamPurchaseRows(missing, answer);
+console.log(JSON.stringify({
+  codes: ['DE/EX/EN+DE', 'DE/EX/alle', 'alle/NM/DE', 'DE/GD/EN', ''].map(W.cmShortCode),
+  rows: rows.map((r) => [r.card_id, r.basis, r.cents, Boolean(r.stale)]),
+  sum: W.summarizeTamRows(rows),
+  view: text(W.tamPurchaseView(h, answer, missing, { sort: 'name', budget: '' })),
+}));
+"""
+
+
+def test_an_entry_names_all_its_filters_and_counts_only_with_a_fresh_flag() -> None:
+    """Review P3-4 and P3-5(a): the label of an entry names country, condition and language
+    (``DE/EX/alle`` never looks like ``DE/EX/EN+DE``), every condition but EX carries "Nummer
+    unbelegt"; an entry without the stale flag is not counted (fail closed)."""
+    result = _node(_ENTRY_SCRIPT)
+    assert isinstance(result, dict)
+    assert result["codes"] == [
+        "DE/EX/EN+DE",
+        "DE/EX/alle Sprachen",
+        "alle Länder/NM/DE (Nummer unbelegt)",
+        "DE/GD/EN (Nummer unbelegt)",
+        "?/?/Sprache ? (Nummer unbelegt)",
+    ]
+    view = str(result["view"])
+    assert "Cardmarket DE/EX/alle Sprachen: 5,00 € (eingetragen am 22.11.2026)" in view
+    assert "Cardmarket alle Länder/NM/DE (Nummer unbelegt): 7,00 € (eingetragen am" in view
+    assert "Cardmarket DE/PL/EN+DE (Nummer unbelegt): 8,00 € (eingetragen am" in view
+    assert "Cardmarket DE/EX: " not in view
+    assert result["rows"] == [
+        ["a", "eingetragen", 500, False],
+        ["b", "eingetragen", 700, False],
+        ["c", "eingetragen", 800, False],
+        ["d", None, None, True],  # no flag: shown as stale, never counted
+    ]
+    assert result["sum"]["stale"] == 1 and result["sum"]["sumCents"] == 2000
+    assert "veraltet: Cardmarket DE/EX/EN+DE: 9,00 €" in view
+
+
 # --- download --------------------------------------------------------------------------------
 
 
 class _Handler(BaseHTTPRequestHandler):
     answers: ClassVar[dict[str, tuple[int, bytes]]] = {}
     seen: ClassVar[list[tuple[str, str]]] = []
+    raw: ClassVar[dict[str, bytes]] = {}  # bytes sent instead of an HTTP answer
+    lengths: ClassVar[dict[str, str]] = {}  # a Content-Length that differs from the body
 
     def do_GET(self) -> None:
         _Handler.seen.append((self.path, str(self.headers.get("User-Agent"))))
+        if self.path in _Handler.raw:
+            self.wfile.write(_Handler.raw[self.path])
+            return
         status, body = _Handler.answers.get(self.path, (404, b""))
         self.send_response(status)
         if status in (301, 302):
             self.send_header("Location", "/elsewhere")
-        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Content-Length", _Handler.lengths.get(self.path, str(len(body))))
         self.end_headers()
         self.wfile.write(body)
 
@@ -327,6 +388,8 @@ class _Handler(BaseHTTPRequestHandler):
 def server() -> Iterator[str]:
     _Handler.answers = {}
     _Handler.seen = []
+    _Handler.raw = {}
+    _Handler.lengths = {}
     httpd = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
     thread = threading.Thread(target=httpd.serve_forever, daemon=True)
     thread.start()
@@ -425,6 +488,70 @@ def test_a_refusal_is_noted_and_no_request_follows_for_a_day(server: str, tmp_pa
 
 def test_the_download_folder_never_lies_in_the_repository() -> None:
     inside = Path(__file__).resolve().parents[2] / "data" / "cardmarket-guard"
-    with pytest.raises(tam_cardmarket.DownloadFailed, match="nicht im Repository"):
-        tam_cardmarket.download(inside, get=lambda url: b"{}")
-    assert not inside.exists()
+    assert not inside.exists()  # never delete a folder this test did not create
+    try:
+        with pytest.raises(tam_cardmarket.DownloadFailed, match="nicht im Repository"):
+            tam_cardmarket.download(inside, get=lambda url: b"{}")
+        assert not inside.exists()
+    finally:
+        # review P3-6: a broken guard must not leave the folder in the repository tree
+        shutil.rmtree(inside, ignore_errors=True)
+
+
+_BOTH_OK = {
+    "/priceGuide/price_guide_1.json": (200, b'{"priceGuides": []}'),
+    "/productList/products_singles_1.json": (200, b'{"products": []}'),
+}
+
+
+def test_a_broken_status_line_is_a_noted_failure(server: str, tmp_path: Path) -> None:
+    """Review P2-1: an answer without a valid status line stops like a refusal: noted, and the
+    next run asks nothing for 24 hours."""
+    _Handler.answers = dict(_BOTH_OK)
+    _Handler.raw = {"/priceGuide/price_guide_1.json": b"XYZ 200 OK\r\n\r\n{}"}
+    with pytest.raises(tam_cardmarket.DownloadFailed, match="BadStatusLine"):
+        tam_cardmarket.download(tmp_path, get=_local(server))  # type: ignore[arg-type]
+    assert (tmp_path / tam_cardmarket.FAILURE_FILE).is_file()
+    with pytest.raises(tam_cardmarket.DownloadFailed, match="kein neuer Abruf"):
+        tam_cardmarket.download(tmp_path, get=_local(server))  # type: ignore[arg-type]
+    assert [path for path, _agent in _Handler.seen] == ["/priceGuide/price_guide_1.json"]
+    assert not (tmp_path / "price_guide_1.json").exists()
+
+
+@pytest.mark.parametrize("declared", ["1000", "abc"])
+def test_a_cut_off_transfer_is_a_noted_failure_not_a_copy(
+    server: str, tmp_path: Path, declared: str
+) -> None:
+    """Review P3-2: a body shorter than its Content-Length (or an unreadable Content-Length)
+    is no copy to keep for 24 hours."""
+    _Handler.answers = dict(_BOTH_OK)
+    _Handler.answers["/priceGuide/price_guide_1.json"] = (200, b"0123456789")
+    _Handler.lengths = {"/priceGuide/price_guide_1.json": declared}
+    with pytest.raises(tam_cardmarket.DownloadFailed, match="unvollständige Übertragung"):
+        tam_cardmarket.download(tmp_path, get=_local(server))  # type: ignore[arg-type]
+    assert not (tmp_path / "price_guide_1.json").exists()
+    with pytest.raises(tam_cardmarket.DownloadFailed, match="kein neuer Abruf"):
+        tam_cardmarket.download(tmp_path, get=_local(server))  # type: ignore[arg-type]
+    assert len(_Handler.seen) == 1
+
+
+@pytest.mark.parametrize("note", ["{kaputt", '{"at": "%s", "reason": "x"}', "[1, 2]"])
+def test_an_unreadable_note_blocks_only_for_a_day_from_its_file_time(
+    server: str, tmp_path: Path, note: str
+) -> None:
+    """Review P3-7: an unreadable note (or one dated in the future) still blocks (fail closed),
+    says so honestly and lapses 24 hours after the file was written, never for good."""
+    _Handler.answers = dict(_BOTH_OK)
+    start = time.time()
+    failure = tmp_path / tam_cardmarket.FAILURE_FILE
+    failure.write_text(note.replace("%s", str(start + 1e9)), encoding="utf-8")
+    with pytest.raises(tam_cardmarket.DownloadFailed, match="unlesbar") as refused:
+        tam_cardmarket.download(tmp_path, get=_local(server), now=start)  # type: ignore[arg-type]
+    hours = re.search(r"noch etwa (\d+) h", str(refused.value))
+    assert hours is not None and 1 <= int(hours.group(1)) <= 24
+    assert _Handler.seen == []
+    old = start - tam_cardmarket.CACHE_SECONDS - 60
+    os.utime(failure, (old, old))
+    report = tam_cardmarket.download(tmp_path, get=_local(server), now=start)  # type: ignore[arg-type]
+    assert [r["from"] for r in report.values()] == ["download", "download"]
+    assert not failure.exists()

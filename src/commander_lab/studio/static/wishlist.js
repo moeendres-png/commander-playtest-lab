@@ -225,9 +225,14 @@ const StudioWishlist = (() => {
     return finish === "foil" ? "Foil" : finish === "nonfoil" ? "Nicht-Foil" : "Finish unbekannt";
   }
 
+  // The filters an entry was read under, in full: a price read under DE/EX/alle never looks
+  // like one read under DE/EX/EN+DE; every condition but EX carries "Nummer unbelegt".
   function cmShortCode(code) {
-    const [country, condition] = String(code || "").split("/");
-    return `${country === "alle" ? "alle Länder" : country || "?"}/${condition || "?"}`;
+    const [country, condition, languages] = String(code || "").split("/");
+    const where = country === "alle" ? "alle Länder" : country || "?";
+    const tongue = languages === "alle" ? "alle Sprachen" : languages || "Sprache ?";
+    const unconfirmed = condition === "EX" ? "" : " (Nummer unbelegt)";
+    return `${where}/${condition || "?"}/${tongue}${unconfirmed}`;
   }
 
   // One row per missing card. The value used for sum, sorting and filter (cents/basis): the
@@ -518,6 +523,7 @@ const StudioWishlist = (() => {
     cmFilters,
     cmFilterCode,
     cmFilterText,
+    cmShortCode,
     cmSlug,
     cmLink,
   };

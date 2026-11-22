@@ -1,4 +1,4 @@
-"""TAM purchase prices (#1637): Scryfall approximation, Cardmarket entries and page reads.
+"""TAM purchase prices (#1637): Scryfall approximation, Cardmarket price guide and entries.
 
 Owner decision 2026-11-21 (register ``docs/OWNER_DECISIONS_STUDIO_20261118.md``, entry
 "Preise für TAM"; scope and limits by the Co-Lead): a price is shown only for cards that are not
@@ -18,7 +18,7 @@ Three kinds of value, shown in this order of precedence and always labelled:
    be known without offer data).
 3. The approximation (Näherung) from the Scryfall bulk file: the lowest of ``prices.eur`` and
    ``prices.eur_foil`` (Cardmarket's trend) over the playable paper printings, with its finish
-   and printing; used only where no price guide value is there.
+   and printing; used only where no price guide value is there or the price guide is stale.
 
 Entered prices older than 14 days are shown as stale and never used for the sum, sorting or
 filter.
@@ -294,7 +294,7 @@ def import_cardmarket_priceguide(
     matched = mismatches = 0
     for item in guides:
         product = item.get("idProduct")
-        if not isinstance(product, int) or product not in prints:
+        if type(product) is not int or product not in prints:  # bool is no product id
             continue
         oracle_id, set_code, number = prints[product]
         if names is not None:
@@ -488,6 +488,12 @@ def parse_eur_input(text: str) -> int | None:
     return cents if 0 < cents <= MAX_ENTRY_CENTS else None
 
 
+def _empty_or_zero(text: str) -> bool:
+    """True for the inputs that remove an entry: empty, ``0``, ``0,00``, ``0.0``, ``0 €``."""
+    clean = re.sub(r"\s", "", str(text or "").strip().removesuffix("€"), flags=re.ASCII)
+    return re.fullmatch(r"(?:0+(?:[.,]0{0,2})?)?", clean, re.ASCII) is not None
+
+
 def _entry_date(text: str | None, today: calendar_date) -> str:
     """The date of an entry: ``YYYY-MM-DD`` or ``TT.MM.JJJJ``, a real date, not in the future
     (one day of grace for time zones), not before 2000; empty means today."""
@@ -539,13 +545,18 @@ def save_cardmarket_price(
     commander: str | None = None,
     today: calendar_date | None = None,
 ) -> dict[str, object]:
-    """Store (or, for an empty, zero or unreadable price, remove) the Cardmarket price the Owner
-    entered for one card of the TAM purchase list. Only a card of the stored TAM deck that is
-    not owned; the filters name what the price was read under."""
+    """Store (or, for an empty or zero price, remove) the Cardmarket price the Owner entered for
+    one card of the TAM purchase list. Only a card of the stored TAM deck that is not owned; the
+    filters name what the price was read under. Any other text that is not a price (``12,5o``,
+    ``-5``, too high) is a :class:`ValueError` and leaves a stored entry untouched."""
     chosen = _filters(filters)
     oracle_id, name = _purchase_card(store, deck_id, branch, card_id, commander)
     day = _entry_date(price_date, _today(today))
     cents = parse_eur_input(price_text)
+    if cents is None and not _empty_or_zero(price_text):
+        raise ValueError(
+            f"Preis nicht lesbar: {price_text!r} (etwa 12,50; leer oder 0 löscht den Eintrag)"
+        )
     url, kind = tam_cardmarket.card_link(name, chosen)
     _store_entry(store, oracle_id, cents, day, chosen, url)
     return {

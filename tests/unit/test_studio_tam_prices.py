@@ -940,10 +940,26 @@ def test_an_entered_price_is_stored_dated_and_shown_first(tmp_path: Path) -> Non
     )
 
 
-@pytest.mark.parametrize("text", ["", "0", "0,00", "-5", "abc", "12,345", "1.2.3", "1e3"])
-def test_empty_zero_or_unreadable_input_removes_the_entry_never_zero(
-    tmp_path: Path, text: str
-) -> None:
+@pytest.mark.parametrize(
+    "text", ["-5", "abc", "12,345", "1.2.3", "1e3", "12,5o", "0,5,0", "1000000000"]
+)
+def test_unreadable_input_is_refused_and_keeps_the_entry(tmp_path: Path, text: str) -> None:
+    """Review P3-3: text that is not a price is a 422 and never deletes a stored entry; only
+    empty or 0 removes it (docs/STUDIO_TAM_PREISE.md)."""
+    client, ids = _tam_store(tmp_path)
+    assert _enter(client, ids["tam_deck"], ids["priced"], eur_text="5").status_code == 200
+    refused = _enter(client, ids["tam_deck"], ids["priced"], eur_text=text)
+    assert refused.status_code == 422, refused.text
+    assert "Preis nicht lesbar" in refused.text
+    card = _ask(client, ids["tam_deck"], [ids["priced"]]).json()["cards"][0]
+    assert card["entered"]["eur_cents"] == 500
+    store = StudioStore.open(tmp_path / "studio")
+    assert _rows(store, "tam_cardmarket_price") == 1
+    store.close()
+
+
+@pytest.mark.parametrize("text", ["", "  ", "0", "0,00", "0.0", "0 €", "000"])
+def test_empty_or_zero_input_removes_the_entry_never_zero(tmp_path: Path, text: str) -> None:
     client, ids = _tam_store(tmp_path)
     assert _enter(client, ids["tam_deck"], ids["priced"], eur_text="5").status_code == 200
     removed = _enter(client, ids["tam_deck"], ids["priced"], eur_text=text)
@@ -1230,6 +1246,22 @@ def test_the_owner_exception_is_recorded_where_the_rules_are() -> None:
     agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
     assert agents.count("Owner exception of 2026-11-22") == 2
     assert "never circumventing access protection" in agents
+    # review P3-8: both places mark the price guide as a Co-Lead reading to be confirmed
+    assert (
+        agents.count(
+            "Owner's words do not name the price guide, it came afterwards as the\nreplacement, "
+            "#1637 comment 7077232382; to be confirmed at acceptance"
+        )
+        == 1
+    )
+    assert (
+        agents.count(
+            "(Co-Lead reading, register: the\nOwner's words lift the scraping rule for these prices "
+            "but do not name the price guide, which came\nafterwards as the replacement, #1637 "
+            "comment 7077232382; to be confirmed at acceptance)"
+        )
+        == 1
+    )
     from commander_lab.studio.sources import get_source
 
     guide = get_source("cardmarket:price-guide")
@@ -1237,6 +1269,98 @@ def test_the_owner_exception_is_recorded_where_the_rules_are() -> None:
     assert "UNBELEGT" in guide.license_terms
     guide_doc = (ROOT / "docs/STUDIO_TAM_PREISE.md").read_text(encoding="utf-8")
     assert "import-cardmarket-priceguide" in guide_doc and "Stichprobe" in guide_doc
+    # review P3-8: the approximation steps in for a missing and for a stale price guide; no
+    # page is read by the price module
+    assert "nur wenn der Preisführer die Karte nicht hat oder veraltet ist |" in guide_doc
+    assert "Leer oder 0 löscht den Eintrag (dann „unbekannt“). Unlesbarer Text" in guide_doc
+    doc = tam_prices.__doc__ or ""
+    assert "page reads" not in doc and "Cardmarket price guide and entries" in doc
+    assert "no price guide value is there or the price guide is stale" in doc
+
+
+# Owner wording of 2026-11-22, character for character as recorded by the Co-Lead in #1637,
+# comment 7077232382 (sentence 5: only the quoted Owner part; the parenthesis is Co-Lead text).
+OWNER_SENTENCES = (
+    "„ich will eigentlich für die Zukäufe speziell die cardmarket Preise deutscher Anbieter und "
+    "da das günstigste jeder Variante der Karte (egal ob foil, etc (manchmal sind auch foil "
+    "günstiger)) und mind excellent Zustand“",
+    "„Kannst die cardmarket Preise nicht einfach über den richtigen link (wo die Filter schon "
+    "passend eingestellt sind) nicht scrapen? Das wäre z.b. der richtige link für Rograkh dafür: "
+    "https://www.cardmarket.com/de/Magic/Cards/Rograkh-Son-of-Rohgahh"
+    "?sellerCountry=7&language=1,3&minCondition=3“",
+    "„Bitte die Regel für hier aufheben und kümmer dich vollständig darum dir die Preise so zu "
+    "besorgen wie ich meinte“",
+    "„Wieso kannst du dich nicht darum kümmern die Preise selber zu scrapen? Will kein Skript bei "
+    "meinem Browser laufen lassen, entweder du kümmerst dich selber vollständig drum oder wir "
+    "weichen auf etwas anderes aus was die Preise der karten auch möglichst gut repräsentiert und "
+    "du aber automatisch suchen kannst“",
+    "„Ja passt, das mit dem direkt abfragen auch gut, mach weiter“",
+)
+
+
+def test_the_register_quotes_the_five_owner_sentences_whole_and_in_order() -> None:
+    """Review P3-5(b): each Owner sentence is pinned whole (a cut or changed word is red), with
+    its number, in the order of comment 7077232382."""
+    register = (ROOT / "docs/OWNER_DECISIONS_STUDIO_20261118.md").read_text(encoding="utf-8")
+    entry = register[register.index("#### Owner-Ausnahme Cardmarket für den TAM-Zukauf") :]
+    entry = " ".join(entry[: entry.index("Preis-Wächter beim Bau")].split())
+    positions = []
+    for number, sentence in enumerate(OWNER_SENTENCES, start=1):
+        numbered = f"{number}. {sentence}"
+        assert entry.count(numbered) == 1, numbered
+        positions.append(entry.index(numbered))
+    assert positions == sorted(positions)
+
+
+def test_agents_section_12_keeps_the_risk_and_the_daily_limit() -> None:
+    """Review P3-5(c): §12 names the unverified terms, the Owner's risk and the limit of one
+    request per file and day; deleting any of them is red."""
+    agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    section = agents[agents.index("## 12. Privacy") : agents.index("## 13. ")]
+    section = " ".join(section.split())
+    for needed in (
+        "on the Owner's command only, once per file and day, with an honest User-Agent, "
+        "stopping at any status other than 200 and never circumventing access protection",
+        "the terms on automated retrieval are unverified and the risk lies with the Owner",
+        "no Cardmarket page is read",
+    ):
+        assert needed in section, needed
+
+
+def test_a_bool_is_no_product_id_of_the_price_guide(tmp_path: Path) -> None:
+    """Review P3-9: JSON ``true`` never matches the printing with Cardmarket id 1."""
+    store = _guide_store(tmp_path)
+    store.connection.execute("INSERT INTO tam_price_print VALUES (1, 'o-g2', 'one', '1')")
+    store.connection.commit()
+    guide = _guide_file(
+        tmp_path / "price_guide_1.json",
+        [{"idProduct": True, "low": 0.11, "trend": 0.22}],
+        createdAt="2026-11-20T02:43:21+0100",
+    )
+    report = tam_prices.import_cardmarket_priceguide(store, guide)
+    assert report["printings_matched"] == 0
+    assert _rows(store, "tam_cardmarket_guide") == 0
+    store.close()
+
+
+def test_products_without_file_is_an_error_and_asks_nothing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Review P3-9: ``--products`` without ``--file`` stops with a hint before any download."""
+    from commander_lab.studio import tam_cardmarket
+    from commander_lab.studio.__main__ import main as studio_main
+
+    def refuse(*_args: object, **_kwargs: object) -> bytes:
+        raise AssertionError("no download may start")
+
+    monkeypatch.setattr(tam_cardmarket, "download", refuse)
+    monkeypatch.setattr(tam_cardmarket, "http_get", refuse)
+    products = tmp_path / "products_singles_1.json"
+    products.write_text('{"products": []}', encoding="utf-8")
+    argv = ["--data", str(tmp_path / "studio"), "import-cardmarket-priceguide",
+            "--products", str(products)]  # fmt: skip
+    with pytest.raises(SystemExit, match="--products gilt nur zusammen mit --file"):
+        studio_main(argv)
 
 
 # The "Bleibt" guards of the register entry "Preise für TAM" (repository data, Chulane, rating)
