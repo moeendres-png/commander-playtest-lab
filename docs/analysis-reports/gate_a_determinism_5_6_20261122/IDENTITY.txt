@@ -1,0 +1,2 @@
+36007eadb4782247ea6d340fedeadc292494f747
+49d18f2f8ad7e7fdf8a0df07c8fdc3f209cebaec0f75b37ef0fe85990e2d51e4  /tmp/claude-0/-home-user/ef006e8b-893c-5ebd-80a1-8743a09c7458/scratchpad/jarbuild/out/xmage-engine-bridge.jar

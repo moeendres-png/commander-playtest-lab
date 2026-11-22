@@ -1,0 +1,2 @@
+# Gate (a), Determinismus bei 5 Sitzen (und 6 Sitzen, sobald fertig), Messung 2026-11-22 (SIMULATED_RESULT, kein Qualifikationsbeleg)
+JAR `49d18f2f8ad7e7fdf8a0df07c8fdc3f209cebaec0f75b37ef0fe85990e2d51e4`, Lab-Stand siehe IDENTITY.txt. Studio `play-batch`, Einzel-JVM gegen 8 Partien je JVM aufwärts (`up`) und abwärts (`down`), Seeds 1–8, normalisierte Frames (`frame_digest.normalize_frame`). 5-Sitz-Tisch: Eldrazi Unbound, Lorehold Spirit, Animated Army, Token Triumph, Veloci-Ramp Tor (Precons, Tisch A5). Rohlogs im Container.
