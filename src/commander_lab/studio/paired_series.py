@@ -148,6 +148,7 @@ SINGLE_GAME_REFERENCE_7_8: dict[int, dict[str, object]] = {
         "second_wall_seconds_median": 114.4,
         "second_wall_seconds_max": 140.9,
         "second_games": 8,
+        "second_planned": 8,
         "batched_rss_mib": (1231, 883),
     },
     8: {
@@ -161,6 +162,7 @@ SINGLE_GAME_REFERENCE_7_8: dict[int, dict[str, object]] = {
         "second_wall_seconds_median": 143.8,
         "second_wall_seconds_max": 189.0,
         "second_games": 8,
+        "second_planned": 8,
         "batched_rss_mib": (1255, 1255),
     },
 }
@@ -482,7 +484,7 @@ def single_game_reference_text(size: int) -> str:
         f"{ref['rss_mib_max']} MiB (n = {ref['games']}/{ref['planned']} Partien; "
         f"{SINGLE_GAME_REFERENCE_7_8_SOURCE}). Zweite Messung (Gates #1672, zwei Tische parallel, "
         f"Fremdlast): Median {_de(second_median, 1)} s, bis {_de(second_max, 1)} s "
-        f"(n = {ref['second_games']}/{ref['second_games']} Partien); Spitzen-Speicher einer JVM mit "
+        f"(n = {ref['second_games']}/{ref['second_planned']} Partien); Spitzen-Speicher einer JVM mit "
         f"8 Partien {batch_a} und {batch_b} MiB (2 Läufe). Bei 16 Partien je JVM (Studio-Standard) "
         "ist der Speicher unbekannt (n = 0): wenige Worker wählen und den freien Arbeitsspeicher "
         "prüfen (je Worker eine JVM mit bis zu 3 GB Heap)."

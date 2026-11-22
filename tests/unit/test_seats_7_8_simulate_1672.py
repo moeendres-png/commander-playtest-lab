@@ -315,7 +315,10 @@ def test_the_duration_at_seven_and_eight_is_unknown_and_names_the_measured_singl
     second = f"{ref['second_wall_seconds_median']:.1f}".replace(".", ",")
     batch_a, batch_b = ref["batched_rss_mib"]  # type: ignore[misc]
     assert "Zweite Messung" in basis and f"Median {second} s" in basis
-    assert f"n = {ref['second_games']}/{ref['second_games']} Partien" in basis
+    assert f"n = {ref['second_games']}/{ref['second_planned']} Partien" in basis
+    # the origin of the second measurement is named and never passed off as an Owner-PC value
+    assert "Zweite Messung (Gates #1672, zwei Tische parallel, Fremdlast)" in basis
+    assert "kein Owner-PC-Wert" in basis
     assert f"8 Partien {batch_a} und {batch_b} MiB (2 Läufe)" in basis
     single = est["single_game_reference"]
     assert isinstance(single, dict)
@@ -346,6 +349,7 @@ def test_the_page_mirrors_the_single_game_reference_and_shows_the_warning() -> N
             ref["second_wall_seconds_median"],
             ref["second_wall_seconds_max"],
             ref["second_games"],
+            ref["second_planned"],
             *ref["batched_rss_mib"],  # type: ignore[misc]
         ]
     node = shutil.which("node")
@@ -370,6 +374,9 @@ def test_the_page_mirrors_the_single_game_reference_and_shows_the_warning() -> N
     assert "945 MiB" in out["eight"] and "n = 6/6 Partien" in out["eight"]
     assert "Hinweis 7 Sitze" in out["seven"] and "1.343 MiB" in out["seven"]
     assert "Hinweis" not in out["six"] and "mindestens" not in out["eight"]
+    for key in ("seven", "eight"):
+        assert "Zweite Messung (Gates #1672, zwei Tische parallel, Fremdlast)" in out[key]
+        assert "kein Owner-PC-Wert" in out[key] and "n = 8/8 Partien" in out[key]
 
 
 # -- the series: a 7/8-seat series plays whole blocks under the shipped lock -------------------
@@ -584,8 +591,9 @@ def test_play_sessions_refuse_seven_or_eight_seats_with_a_human_seat_in_their_ow
     manager = studio_play.InteractivePlayManager()
     for seats in SEVEN_EIGHT:
         missing = [tmp_path / f"missing-{n}.json" for n in range(seats)]
-        with pytest.raises(ValueError, match=f"tables of {seats} seats are locked for PLAY"):
-            manager.start_game(tmp_path, missing, seed=1, human_seats=[0])
+        for human in (0, seats - 1):  # the human at the first and at the last seat
+            with pytest.raises(ValueError, match=f"tables of {seats} seats are locked for PLAY"):
+                manager.start_game(tmp_path, missing, seed=1, human_seats=[human])
     # six seats pass this check and fail only later, at the missing deck files
     with pytest.raises(Exception) as six:
         manager.start_game(
@@ -607,3 +615,11 @@ def test_the_scenario_model_seats_eight_and_refuses_seat_nine() -> None:
     assert (props["seat"]["maximum"], props["player_count"]["maximum"]) == (8, 8)
     with pytest.raises(ValidationError):
         _future(8).model_validate({**_future(8).model_dump(), "seat": 9})
+
+
+def test_the_reference_text_names_n_and_n_planned_separately(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ref = {**paired_series.SINGLE_GAME_REFERENCE_7_8[8], "second_planned": 9}
+    monkeypatch.setitem(paired_series.SINGLE_GAME_REFERENCE_7_8, 8, ref)
+    assert "(n = 8/9 Partien)" in paired_series.single_game_reference_text(8)
