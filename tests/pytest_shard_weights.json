@@ -213,6 +213,7 @@
   "tests/unit/test_pytest_shards.py": 21.2,
   "tests/unit/test_qualify_game_batching.py": 0.3,
   "tests/unit/test_rank_sensitivity.py": 0.5,
+  "tests/unit/test_rating_second_run_full_inputs.py": 0.7,
   "tests/unit/test_real_4p_full_game_smoke.py": 0.1,
   "tests/unit/test_real_4p_progress_contract.py": 0.1,
   "tests/unit/test_real_4p_progress_execution.py": 0.1,
