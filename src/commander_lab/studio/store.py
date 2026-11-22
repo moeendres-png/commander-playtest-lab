@@ -580,8 +580,56 @@ CREATE TABLE IF NOT EXISTS tam_price_snapshot (
 CREATE TABLE IF NOT EXISTS tam_price_eur (
     oracle_id TEXT PRIMARY KEY,
     eur_cents INTEGER NOT NULL CHECK (eur_cents > 0),
-    scryfall_id TEXT
+    scryfall_id TEXT,
+    finish TEXT,
+    set_code TEXT,
+    collector_number TEXT
 ) WITHOUT ROWID;
+-- TAM Cardmarket prices (#1637, WP-10b, register entry "Preise für TAM" and its Owner
+-- exception of 2026-11-22), all only in this local store (never committed) and read only by the
+-- TAM guide-value module; no row means "unbekannt", never 0.
+-- tam_cardmarket_price: a price the Owner read on Cardmarket and entered (or a CSV of such
+-- prices); filter_code names the Cardmarket filters it was read under.
+CREATE TABLE IF NOT EXISTS tam_cardmarket_price (
+    oracle_id TEXT PRIMARY KEY,
+    eur_cents INTEGER NOT NULL CHECK (eur_cents > 0),
+    price_date TEXT NOT NULL,
+    recorded_at TEXT NOT NULL,
+    filter_code TEXT NOT NULL,
+    source_url TEXT
+) WITHOUT ROWID;
+-- tam_price_print: the Cardmarket product id (cardmarket_id) of each playable paper printing of
+-- the local Scryfall bulk file, the key to the price guide.
+CREATE TABLE IF NOT EXISTS tam_price_print (
+    cardmarket_id INTEGER PRIMARY KEY,
+    oracle_id TEXT NOT NULL,
+    set_code TEXT,
+    collector_number TEXT
+);
+-- tam_cardmarket_guide: per card the lowest 'low' / 'low-foil' and the lowest 'trend' /
+-- 'trend-foil' of Cardmarket's published price guide over its playable printings (no filter on
+-- seller country or condition), with finish and printing of the lowest 'low'.
+CREATE TABLE IF NOT EXISTS tam_cardmarket_guide (
+    oracle_id TEXT PRIMARY KEY,
+    low_cents INTEGER CHECK (low_cents > 0),
+    low_finish TEXT CHECK (low_finish IN ('nonfoil', 'foil')),
+    low_set_code TEXT,
+    low_collector_number TEXT,
+    trend_cents INTEGER CHECK (trend_cents > 0),
+    CHECK (low_cents IS NOT NULL OR trend_cents IS NOT NULL)
+) WITHOUT ROWID;
+CREATE TABLE IF NOT EXISTS tam_cardmarket_guide_snapshot (
+    snapshot_id INTEGER PRIMARY KEY CHECK (snapshot_id = 1),
+    guide_date TEXT NOT NULL,
+    date_basis TEXT NOT NULL,
+    file_sha256 TEXT NOT NULL,
+    imported_at TEXT NOT NULL,
+    products_in_guide INTEGER NOT NULL,
+    printings_known INTEGER NOT NULL,
+    printings_matched INTEGER NOT NULL,
+    name_mismatches INTEGER NOT NULL,
+    cards_with_value INTEGER NOT NULL
+);
 CREATE VIEW IF NOT EXISTS card_fact AS
 SELECT c.card_id,
        c.oracle_name,
@@ -859,6 +907,22 @@ SIMULATION_RUN_TABLE_COLUMNS = (
 )
 
 
+# Columns of tam_price_eur added after the table first shipped (#1637, WP-10b: the finish and
+# the printing of the lowest value); a store created before gets them on open, no schema bump.
+TAM_PRICE_EUR_COLUMNS = ("finish", "set_code", "collector_number")
+
+
+def _ensure_tam_price_columns(connection: sqlite3.Connection) -> None:
+    columns = {str(row["name"]) for row in connection.execute("PRAGMA table_info(tam_price_eur)")}
+    for column in TAM_PRICE_EUR_COLUMNS:
+        if column not in columns:
+            try:
+                connection.execute(f"ALTER TABLE tam_price_eur ADD COLUMN {column} TEXT")
+            except sqlite3.OperationalError as error:
+                if "duplicate column" not in str(error).lower():
+                    raise
+
+
 def _ensure_simulation_run_state_columns(connection: sqlite3.Connection) -> None:
     columns = {str(row["name"]) for row in connection.execute("PRAGMA table_info(simulation_run)")}
     wanted = [(column, "TEXT") for column in SIMULATION_RUN_STATE_COLUMNS]
@@ -947,6 +1011,7 @@ class StudioStore:
                 "UPDATE meta SET value = ? WHERE key = 'schema_version'", (str(SCHEMA_VERSION),)
             )
         _ensure_simulation_run_state_columns(connection)
+        _ensure_tam_price_columns(connection)
         connection.commit()
         return connection
 

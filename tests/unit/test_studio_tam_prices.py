@@ -1,9 +1,10 @@
-"""TAM purchase guide values, stage 1 (#1637, register entry "Preise für TAM").
+"""TAM purchase prices (#1637, register entry "Preise für TAM"): Scryfall approximation,
+Cardmarket price guide and entered Cardmarket prices.
 
-Only synthetic price values (no real Scryfall prices). The guards prove: the field prices.eur
-goes only into the local store tables, only the commander TAM gets values and only for cards not
-owned, a missing value is unknown (never 0), and no strength, swap, cut, pool or card answer
-carries or is ordered by a guide value.
+Only synthetic price values (no real Scryfall or Cardmarket prices). The guards prove: the
+values go only into the local store tables, only the commander TAM gets values and only for
+cards not owned, a missing value is unknown (never 0), and no strength, swap, cut, pool or card
+answer carries or is ordered by a price.
 """
 
 from __future__ import annotations
@@ -25,8 +26,22 @@ from commander_lab.studio.web import create_app
 ROOT = Path(__file__).resolve().parents[2]
 HEADER = {"X-Studio": "1"}
 SENTINEL_CENTS = 987_654  # synthetic, appears nowhere else
-PRICE_TABLES = frozenset({"tam_price_eur", "tam_price_snapshot"})
-LEAK_MARKERS = ("eur_cents", "tam_price", "richtwert", "prices.eur", "987654")
+GUIDE_SENTINEL_CENTS = 876_543  # synthetic price guide low
+ENTRY_SENTINEL_CENTS = 765_432  # synthetic entered Cardmarket price
+PRICE_TABLES = frozenset(
+    {
+        "tam_price_eur",
+        "tam_price_snapshot",
+        "tam_price_print",
+        "tam_cardmarket_guide",
+        "tam_cardmarket_guide_snapshot",
+        "tam_cardmarket_price",
+    }
+)
+LEAK_MARKERS = (
+    "eur_cents", "tam_price", "tam_cardmarket", "richtwert", "prices.eur", "987654", "876543",
+    "765432", "low_cents", "trend_cents", "preisführer", "eingetragen am",
+)  # fmt: skip
 
 
 def _rows(store: StudioStore, table: str) -> int:
@@ -74,12 +89,16 @@ def test_import_keeps_only_prices_eur_lowest_over_printings_and_unknown_never_ze
     )
     assert report["bulk_date"] == "2026-11-20"
     assert report["date_basis"] == "Dateiname"
-    assert report["cards_with_value"] == 1
-    assert report["cards_without_value"] == 4  # o-b (foil only), o-c (0.00), o-d, o-e
+    assert report["cards_with_value"] == 2
+    assert report["cards_without_value"] == 3  # o-c (0.00), o-d (abc), o-e (no prices)
     rows = store.connection.execute(
-        "SELECT oracle_id, eur_cents, scryfall_id FROM tam_price_eur"
+        "SELECT oracle_id, eur_cents, scryfall_id, finish FROM tam_price_eur ORDER BY oracle_id"
     ).fetchall()
-    assert [tuple(row) for row in rows] == [("o-a", 175, "s-a2")]  # eur_foil 0.10 not read
+    # the foil printing can be lower (o-a: eur_foil 0.10 under eur 1.75); o-b has foil only
+    assert [tuple(row) for row in rows] == [
+        ("o-a", 10, "s-a1", "foil"),
+        ("o-b", 300, "s-b", "foil"),
+    ]
     snap = store.connection.execute("SELECT * FROM tam_price_snapshot").fetchone()
     assert snap["file_name"] == "default-cards-20261120093012.json"
     assert len(snap["file_sha256"]) == 64
@@ -108,15 +127,19 @@ def test_only_playable_paper_printings_give_the_value(tmp_path: Path) -> None:
     report = tam_prices.import_scryfall_prices(
         store, _bulk(tmp_path / "x.jsonl", cards), bulk_date="2026-11-20"
     )
-    rows = store.connection.execute("SELECT oracle_id, eur_cents, scryfall_id FROM tam_price_eur")
-    assert [tuple(r) for r in rows] == [("o-p", 85000, "s-normal")]
+    rows = store.connection.execute(
+        "SELECT oracle_id, eur_cents, scryfall_id, finish FROM tam_price_eur"
+    )
+    assert [tuple(r) for r in rows] == [("o-p", 85000, "s-normal", "nonfoil")]
     assert report["cards_without_value"] == 1  # only an oversized printing: unknown
     assert "ohne Übergröße" in tam_prices.VALUE_RULE
     arabic_indic = "\u0661\u0662.\u0665\u0660"  # 12.50 in Arabic-Indic digits: no price
     assert tam_prices._cents(arabic_indic) is None
     assert tam_prices._cents("12.50") == 1250
     with pytest.raises(sqlite3.IntegrityError):  # the table itself refuses a 0 value
-        store.connection.execute("INSERT INTO tam_price_eur VALUES ('o-zero', 0, NULL)")
+        store.connection.execute(
+            "INSERT INTO tam_price_eur(oracle_id, eur_cents) VALUES ('o-zero', 0)"
+        )
     store.close()
 
 
@@ -302,21 +325,30 @@ def test_only_a_stored_tam_deck_gets_values_and_only_for_its_cards_not_owned(
     response = _ask(client, ids["tam_deck"], wanted)
     assert response.status_code == 200, response.text
     answer = response.json()
-    assert answer["kind"] == "Richtwert"
-    assert answer["source"] == "Scryfall prices.eur (lokale Bulk-Datei)"
+    assert answer["kind"] == "Näherung"
+    assert answer["source"] == (
+        "Scryfall (Cardmarket-Preisführer, kein Filter Deutschland/Excellent)"
+    )
     assert answer["snapshot"]["bulk_date"] == "2026-11-20"
     assert "nicht Deutschland" in answer["notice"] and "kein Angebot" in answer["notice"]
-    assert "günstigste Angebot" in answer["notice"]  # only as a negation
+    assert answer["guide_snapshot"] is None  # no price guide imported
     assert answer["not_in_deck"] == 0
     assert answer["cards"] == [
-        {"card_id": ids["priced"], "status": "value", "eur_cents": 1234},
-        {"card_id": ids["unknown"], "status": "unknown"},
+        {
+            "card_id": ids["priced"],
+            "name": "Walker priced",
+            "status": "value",
+            "eur_cents": 1234,
+            "finish": "",
+            "printing": "",
+        },
+        {"card_id": ids["unknown"], "name": "Walker unknown", "status": "unknown"},
         # owned in the collection: no value although the snapshot has one for its oracle_id
         {"card_id": ids["owned"], "status": "owned"},
     ]
     # a card of no deck (with a value row) is left out and counted, never answered
     mixed = _ask(client, ids["tam_deck"], [ids["foreign"], ids["priced"]]).json()
-    assert mixed["cards"] == [{"card_id": ids["priced"], "status": "value", "eur_cents": 1234}]
+    assert [(c["card_id"], c.get("eur_cents")) for c in mixed["cards"]] == [(ids["priced"], 1234)]
     assert mixed["not_in_deck"] == 1 and "777" not in json.dumps(mixed)
     # the commander of the deck is part of the list and answered (here: owned)
     commander = _ask(client, ids["tam_deck"], ["card:t:tam"]).json()
@@ -328,9 +360,9 @@ def test_a_card_owned_in_another_printing_gets_no_value(tmp_path: Path) -> None:
     cards = [_entry("card:t:tam", "commander"), _entry(ids["owned_alt"]), _entry(ids["priced"])]
     assert _draft(client, ids["tam_deck"], cards).status_code == 200
     answer = _ask(client, ids["tam_deck"], [ids["owned_alt"], ids["priced"]]).json()
-    assert answer["cards"] == [
-        {"card_id": ids["owned_alt"], "status": "owned"},  # the snapshot has 555 for its oracle
-        {"card_id": ids["priced"], "status": "value", "eur_cents": 1234},
+    assert [(c["card_id"], c["status"], c.get("eur_cents")) for c in answer["cards"]] == [
+        (ids["owned_alt"], "owned", None),  # the snapshot has 555 for its oracle
+        (ids["priced"], "value", 1234),
     ]
 
 
@@ -356,7 +388,7 @@ def test_the_working_draft_is_the_list_answered(tmp_path: Path) -> None:
     put = client.put(f"/api/decks/{ids['tam_deck']}/branches/main/draft", json={"cards": cards})
     assert put.status_code == 200, put.text
     answer = _ask(client, ids["tam_deck"], [ids["later"], ids["priced"]]).json()
-    assert answer["cards"] == [{"card_id": ids["later"], "status": "value", "eur_cents": 888}]
+    assert [(c["card_id"], c.get("eur_cents")) for c in answer["cards"]] == [(ids["later"], 888)]
 
 
 def test_a_draft_never_makes_a_tam_deck(tmp_path: Path) -> None:
@@ -678,48 +710,101 @@ def test_no_committed_price_values_in_data_src_or_scripts() -> None:
     assert _COMMITTED_PRICE.search('{"eur": "1.75"}')  # the pattern still finds a value
 
 
-# Structural guard: the guide values have one reader. The table names and the value field occur
-# only where the tables are declared (schema, cache group, source register text) and in the one
-# module that writes and reads them; that module is imported only by the TAM route and the CLI,
-# and in web.py only the TAM route and its body model use it. A new route that reads the values
-# (e.g. a MAX(eur_cents) into a ranking) fails here even when no answer test calls it.
-_VALUE_NAMES = re.compile(r"tam_price_eur|tam_price_snapshot|eur_cents")
-# the display of the TAM purchase list (static/wishlist.js) reads eur_cents of the route answer
+# Structural guard: the prices have one reader. The table names and the value fields occur only
+# where the tables are declared (schema, cache group, source register text) and in the one
+# module that writes and reads them; that module is imported only by the TAM routes and the CLI,
+# and in web.py only the TAM routes and their body models use it. A new route that reads the
+# values (e.g. a MAX(eur_cents) into a ranking) fails here even when no answer test calls it.
+_VALUE_NAMES = re.compile(
+    r"tam_price_eur|tam_price_snapshot|tam_price_print|tam_cardmarket_guide|"
+    r"tam_cardmarket_price|eur_cents|low_cents|trend_cents"
+)
+# the display of the TAM purchase list (static/wishlist.js) reads the values of the route answer
 _VALUE_FILES = frozenset(
     {"tam_prices.py", "store.py", "cache.py", "sources.py", "static/wishlist.js"}
 )
+# the new tables only where they are declared and read (sources.py names only tam_price_eur)
+_NEW_TABLES = re.compile(r"tam_price_print|tam_cardmarket_guide|tam_cardmarket_price")
+_NEW_TABLE_FILES = frozenset({"tam_prices.py", "store.py", "cache.py"})
 _MODULE_USERS = frozenset({"web.py", "__main__.py"})
+_CARDMARKET_MODULE_USERS = frozenset({"tam_prices.py", "__main__.py"})
+_TAM_WEB_PARTS = (
+    ("class TamPurchaseBody(BaseModel):", "\nclass "),
+    ("class TamCardmarketEntryBody(BaseModel):", "\nclass "),
+    ('    @app.post("/api/tam/zukauf-richtwerte")', "\n    @app."),
+    ('    @app.post("/api/tam/cardmarket-eintrag")', "\n    @app."),
+)
+
+
+def _src_files() -> list[Path]:
+    files = sorted(
+        path
+        for path in (ROOT / "src").rglob("*")
+        if path.is_file() and path.suffix in {".py", ".js", ".html", ".sql"}
+    )
+    assert len(files) > 100
+    return files
 
 
 def test_guide_values_have_one_reader_in_src() -> None:
     src = ROOT / "src"
-    files = sorted(
-        path
-        for path in src.rglob("*")
-        if path.is_file() and path.suffix in {".py", ".js", ".html", ".sql"}
-    )
-    assert len(files) > 100
-    by_value = {
-        p.relative_to(src).as_posix()
-        for p in files
-        if _VALUE_NAMES.search(p.read_text(encoding="utf-8"))
-    }
+    files = _src_files()
+    texts = {p.relative_to(src).as_posix(): p.read_text(encoding="utf-8") for p in files}
+    by_value = {name for name, text in texts.items() if _VALUE_NAMES.search(text)}
     assert by_value == {f"commander_lab/studio/{name}" for name in _VALUE_FILES}
+    by_table = {name for name, text in texts.items() if _NEW_TABLES.search(text)}
+    assert by_table == {f"commander_lab/studio/{name}" for name in _NEW_TABLE_FILES}
     module_users = {
-        p.relative_to(src).as_posix()
-        for p in files
-        if p.name != "tam_prices.py" and re.search(r"\btam_prices\b", p.read_text(encoding="utf-8"))
+        name
+        for name, text in texts.items()
+        if not name.endswith("/tam_prices.py") and re.search(r"\btam_prices\b", text)
     }
     assert module_users == {f"commander_lab/studio/{name}" for name in _MODULE_USERS}
-    web = (src / "commander_lab/studio/web.py").read_text(encoding="utf-8")
-    body = web[web.index("class TamPurchaseBody(BaseModel):") :]
-    body = body[: body.index("\nclass ")]
-    route = web[web.index('    @app.post("/api/tam/zukauf-richtwerte")') :]
-    route = route[: route.index("\n    @app.")]
+    cardmarket_users = {
+        name
+        for name, text in texts.items()
+        if not name.endswith("/tam_cardmarket.py") and re.search(r"\btam_cardmarket\b", text)
+    }
+    assert cardmarket_users == {f"commander_lab/studio/{name}" for name in _CARDMARKET_MODULE_USERS}
+    web = texts["commander_lab/studio/web.py"]
+    inside = 0
+    for start, end in _TAM_WEB_PARTS:
+        part = web[web.index(start) :]
+        part = part[: part.index(end, len(start))]
+        inside += len(re.findall(r"\btam_prices\.", part))
     uses = len(re.findall(r"\btam_prices\.", web))
-    assert uses == len(re.findall(r"\btam_prices\.", body)) + len(
-        re.findall(r"\btam_prices\.", route)
-    )
-    assert uses >= 3 and web.count("tam_prices,") == 1  # the import line
-    main = (src / "commander_lab/studio/__main__.py").read_text(encoding="utf-8")
-    assert len(re.findall(r"\btam_prices\.", main)) == 1  # import-tam-prices only
+    assert uses == inside and uses >= 5 and web.count("tam_prices,") == 1  # the import line
+    main = texts["commander_lab/studio/__main__.py"]
+    # import-tam-prices, import-cardmarket-priceguide, import-tam-cardmarket-csv
+    assert len(re.findall(r"\btam_prices\.", main)) == 3
+
+
+# Only the price guide download talks HTTP to Cardmarket: no other file of src pairs an HTTP
+# call with a Cardmarket host, and the one module asks only downloads.s3.cardmarket.com (the
+# card page address is built for the Owner's browser, never requested).
+_HTTP_CALL = re.compile(
+    r"\b(?:requests|httpx|aiohttp|urllib\.request|urlopen|http\.client|socket\.create_connection)\b"
+    r"|\bfetch\(|XMLHttpRequest|sendBeacon"
+)
+
+
+def test_no_http_request_to_cardmarket_outside_the_price_guide_download() -> None:
+    src = ROOT / "src"
+    offenders = []
+    for path in _src_files():
+        text = path.read_text(encoding="utf-8")
+        name = path.relative_to(src).as_posix()
+        if "cardmarket.com" in text.casefold() and _HTTP_CALL.search(text):
+            offenders.append(name)
+    assert offenders == ["commander_lab/studio/tam_cardmarket.py"]
+    module = (src / "commander_lab/studio/tam_cardmarket.py").read_text(encoding="utf-8")
+    hosts = set(re.findall(r"https://([a-z0-9.]+)", module))
+    assert hosts == {"downloads.s3.cardmarket.com"}
+    assert 'HOST = "www.cardmarket.com"' in module  # only for the link of the Owner's browser
+    download = module[module.index("def http_get(") :]
+    # the one request goes to the download base only (checked again at run time in download())
+    assert "urllib.request.Request(" in download
+    assert "HTTPCookieProcessor" not in module and '"Cookie"' not in module
+    assert "ProxyHandler({})" in module and "_NoRedirect" in module
+    assert 'USER_AGENT = "CommanderStudio/' in module
+    assert module.count("_OPENER.open(") == 1
