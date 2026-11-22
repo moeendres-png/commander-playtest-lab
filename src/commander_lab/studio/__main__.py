@@ -480,8 +480,8 @@ def _parser() -> argparse.ArgumentParser:
         "--allow-unreleased-seats",
         action="store_true",
         help=(
-            "allow 5 or 6 seats: they are locked for the Studio until the Owner releases them "
-            "(E15 Q5); this switch is for qualification and planning runs only"
+            "allow a table above the seat lock (launch.MAX_RELEASED_SEATS, up to 6 seats); "
+            "for qualification and measurement runs only"
         ),
     )
     compare.add_argument(

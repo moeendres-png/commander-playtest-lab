@@ -1,13 +1,16 @@
 """Five and six seats, part A (#1661): what can be shown without the real engine.
 
-The release itself is not here: ``launch.MAX_RELEASED_SEATS`` stays 4 and the page offers two to
-four players. These tests show that (a) a running game never hands a hidden card of another seat
+Refs #1661 (register E16, conditional Owner go of 2026-11-22): PLAY (a game with a human seat,
+``launch.MAX_RELEASED_PLAY_SEATS``) and SIMULATE (``MAX_RELEASED_SEATS``) are both six. Both lock
+states are tested, each lock set back to four in memory.
+
+These tests show that (a) a running game never hands a hidden card of another seat
 to the human at five or six seats, wherever the human sits (F4), (b) the Studio side of the eight
 rule points of ``docs/research/SEATS_5_6_QUALIFICATION_PLAN.md`` section 2 carries five and six
 seats (F5: interface only; the rules themselves are XMage's and need real games, part B), (c) the
 paired series plans a full seat rotation at five and six seats and censors failed games loudly
-(F8 planning), and (d) the play page draws five and six seats once the lock is lifted, and the
-lock is the only hurdle on the play route.
+(F8 planning), and (d) the play page draws five and six seats, and the lock is the only hurdle on
+the play route.
 
 All data is synthetic; the bridge is a scripted test bridge. Report:
 ``docs/analysis-reports/seats_5_6_part_a_report.md``.
@@ -587,14 +590,17 @@ def _precon_ids(count: int) -> list[str]:
     return ids[:count]
 
 
-@pytest.mark.parametrize(("count", "human"), [(5, 0), (6, 0), (6, 5)])
-def test_release_constant_is_the_only_seat_hurdle_on_the_play_route(
+@pytest.mark.parametrize(
+    ("count", "human"), [(count, seat) for count in (5, 6) for seat in range(count)]
+)  # the human sits at every seat of a five- and a six-seat table
+def test_play_lock_constant_is_the_only_seat_hurdle_on_the_play_route(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, count: int, human: int
 ) -> None:
-    """With the lock as it is (4), five and six seats are refused; with only the constant raised
-    (simulated in memory, the file stays at 4), the same request plays a whole game on the test
-    bridge through the real route: seat validation, deck paths, game setup, live play, end."""
-    assert launch.MAX_RELEASED_SEATS == 4
+    """With the PLAY lock set back to 4 (in memory), five and six seats are refused, also while the
+    SIMULATE lock is six; with the PLAY lock as shipped (six in the release draft), the same request
+    plays a whole game on the test bridge through the real route: seat validation, deck paths,
+    game setup, live play, end, with the human at the given seat."""
+    monkeypatch.setattr(launch, "MAX_RELEASED_PLAY_SEATS", 4)  # the old PLAY lock, set back
     made = _patch_play_route(monkeypatch, lambda _n: SeatBridge(count, human, rounds=1))
     client = TestClient(create_app(tmp_path), headers={"X-Studio": "1"})
     body = {
@@ -608,7 +614,9 @@ def test_release_constant_is_the_only_seat_hurdle_on_the_play_route(
     refused = client.post("/api/games", json=body)
     assert refused.status_code == 422 and "locked" in refused.text and not made
 
-    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)
+    monkeypatch.setattr(
+        launch, "MAX_RELEASED_PLAY_SEATS", 6
+    )  # explicit, whatever the shipped value
     started = client.post("/api/games", json=body)
     assert started.status_code == 200, started.text
     game_id = started.json()["game_id"]
@@ -644,22 +652,96 @@ def test_release_constant_is_the_only_seat_hurdle_on_the_play_route(
     assert [row["seat"] for row in snap["header"]["seats"]] == list(range(count))
 
 
-def test_studio_refuses_five_and_six_seats_at_the_seat_rule_and_the_play_route(
+@pytest.mark.parametrize(
+    ("play_lock", "sim_lock"), [(4, 4), (4, 6), (6, 4), (6, 6)], ids=lambda v: f"lock{v}"
+)
+@pytest.mark.parametrize("opponents", [4, 5])
+def test_each_start_path_follows_its_own_seat_lock(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    play_lock: int,
+    sim_lock: int,
+    opponents: int,
 ) -> None:
-    """Issue #1661 acceptance: without the Owner's release five (and six) seats stay refused, at
-    the seat rule itself and on the play route; the CLI switch exists only for measurement."""
-    assert launch.MAX_RELEASED_SEATS == 4
+    """A game with a human seat follows ``MAX_RELEASED_PLAY_SEATS``; a game of AI seats only (a
+    watched game, ``launch.start_game``) follows the SIMULATE lock ``MAX_RELEASED_SEATS``. Checked at
+    the seat rule, at ``prepare_table_deck_paths`` and on the route ``POST /api/games``, with every
+    combination of the two locks. A refused table says why and starts nothing."""
+    monkeypatch.setattr(launch, "MAX_RELEASED_PLAY_SEATS", play_lock)
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", sim_lock)
+    monkeypatch.setattr(launch, "engine_command", lambda _folder: None)  # no engine here
+    ids = _precon_ids(opponents)
+    seats = opponents + 1
+    client = TestClient(create_app(tmp_path), headers={"X-Studio": "1"})
+    store = launch.StudioStore.open(tmp_path)
+    try:
+        for human, lock in ((True, play_lock), (False, sim_lock)):
+            body: dict[str, object] = {"revision_id": "r", "opponent_ids": ids, "seed": 1}
+            if human:
+                body["human_seats"] = [0]
+            response = client.post("/api/games", json=body)
+            if seats > lock:  # locked: a clear 422, from the rule, before any engine is asked
+                assert response.status_code == 422, (human, response.text)
+                assert f"tables of {seats} seats are locked" in response.text
+                assert "Owner decision" in response.text
+                assert ("PLAY" in response.text) is human
+                with pytest.raises(ValueError, match=f"tables of {seats} seats are locked"):
+                    launch.prepare_table_deck_paths(
+                        store, tmp_path, revision_id="r", opponent_ids=ids, seed=1, play=human
+                    )
+            else:  # the seat rule passes; the folder has no engine, so it stops there
+                assert "locked" not in response.text, (human, response.text)
+                with pytest.raises(RuntimeError):
+                    launch.prepare_table_deck_paths(
+                        store, tmp_path, revision_id="r", opponent_ids=ids, seed=1, play=human
+                    )
+    finally:
+        store.close()
+
+
+@pytest.mark.parametrize("count", [4, 5, 6])
+def test_a_human_seat_outside_the_table_is_refused_on_the_route(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, count: int
+) -> None:
+    """The human seat must be 0 to N - 1: seat N (one past the last) and a negative seat are a 422 with
+    the range, before any deck or engine is asked; seat N - 1 passes the check (review of #1743)."""
+    monkeypatch.setattr(launch, "engine_command", lambda _folder: None)  # no engine here
+    client = TestClient(create_app(tmp_path), headers={"X-Studio": "1"})
+    body: dict[str, object] = {
+        "revision_id": "r",
+        "opponent_ids": _precon_ids(count - 1),
+        "seed": 1,
+    }
+    for bad in (count, count + 1, -1):
+        refused = client.post("/api/games", json={**body, "human_seats": [bad]})
+        assert refused.status_code == 422, (bad, refused.text)
+        assert f"human seat {bad} out of range 0..{count - 1}" in refused.text
+    last = client.post("/api/games", json={**body, "human_seats": [count - 1]})
+    assert "out of range" not in last.text  # it passes the range check and then needs the engine
+
+
+def test_studio_refuses_five_and_six_seats_at_the_seat_rule_when_both_locks_are_four(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Issue #1661 acceptance for the old state (set back in memory): without the Owner's release
+    five (and six) seats stay refused, at the seat rule (both paths) and on the play route; the
+    switch exists only for measurement."""
+    monkeypatch.setattr(launch, "MAX_RELEASED_PLAY_SEATS", 4)
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)
     for opponents in (4, 5):
-        with pytest.raises(ValueError, match=f"tables of {opponents + 1} seats are locked"):
-            launch.validate_released_seat_count(opponents)
-        assert (
-            launch.validate_released_seat_count(opponents, allow_unreleased_seats=True)
-            == opponents + 1
-        )
+        for as_play in (False, True):
+            with pytest.raises(ValueError, match=f"tables of {opponents + 1} seats are locked"):
+                launch.validate_released_seat_count(opponents, play=as_play)
+            assert (
+                launch.validate_released_seat_count(
+                    opponents, play=as_play, allow_unreleased_seats=True
+                )
+                == opponents + 1
+            )
     client = TestClient(create_app(tmp_path), headers={"X-Studio": "1"})
     refused = client.post(
-        "/api/games", json={"revision_id": "r", "opponent_ids": ["a", "b", "c", "d"], "seed": 1}
+        "/api/games",
+        json={"revision_id": "r", "opponent_ids": ["a", "b", "c", "d"], "seed": 1},
     )
     assert refused.status_code == 422 and "tables of 5 seats are locked" in refused.text
     # the engine limit stays 6: seven seats are refused even with the switch
@@ -1088,15 +1170,18 @@ const document = {
 };
 const storage = { getItem: () => null, setItem() {} };
 const window = { localStorage: storage, addEventListener() {}, matchMedia: () => ({ matches: false, addEventListener() {} }) };
-function loadPage(release) {
+// lock: null = the lists as shipped; {play: n, ai: m} = the lists set back in memory to n and m opponents
+function loadPage(lock) {
   const files = ['ui.js', 'commander.js', 'vorspulen.js', 'boardclick.js', 'replay.js', 'play_p1a.js', 'follow.js', 'partie.js'];
   let src = files.map((f) => fs.readFileSync(f, 'utf8')).join('\n;\n');
   if (!/\nstart\(\);\s*$/.test(src)) throw new Error('partie.js no longer ends with start();');
   src = src.replace(/\nstart\(\);\s*$/, '\n');
-  if (release) {
-    const locked = 'const OPPONENT_COUNTS = [1, 2, 3];';
-    if (!src.includes(locked)) throw new Error('lock line changed');
-    src = src.replace(locked, 'const OPPONENT_COUNTS = [1, 2, 3, 4, 5];');
+  if (lock) {
+    for (const [name, max] of [['OPPONENT_COUNTS_PLAY', lock.play], ['OPPONENT_COUNTS_AI', lock.ai]]) {
+      const line = 'const ' + name + ' = [1, 2, 3, 4, 5];';
+      if (!src.includes(line)) throw new Error('lock line changed: ' + name);
+      src = src.replace(line, 'const ' + name + ' = [' + Array.from({ length: max }, (_, k) => k + 1).join(', ') + '];');
+    }
   }
   const posted = [];
   const fetchStub = async (path, options) => {
@@ -1106,7 +1191,7 @@ function loadPage(release) {
     return { ok: true, json: async () => ({}) };
   };
   const make = new Function('document', 'window', 'location', 'history', 'fetch', 'localStorage', 'setTimeout', 'clearTimeout', 'requestAnimationFrame',
-    src + '\n;return {state, renderView, newGame, commanderRows, OPPONENT_COUNTS};');
+    src + '\n;return {state, renderView, newGame, commanderRows, OPPONENT_COUNTS_PLAY, OPPONENT_COUNTS_AI};');
   const page = make(document, window, { search: '' }, { replaceState() {} }, fetchStub, storage, () => 0, () => {}, () => 0);
   return { page, posted };
 }
@@ -1129,14 +1214,15 @@ def _node(script: str) -> object:
     if node is None:
         pytest.skip("node is not installed")  # NOT_RUN, never PASS
     done = subprocess.run(
-        [node, "-e", _DOM + script], capture_output=True, text=True, check=True, cwd=STATIC
+        [node, "-e", _DOM + script], capture_output=True, text=True, check=False, cwd=STATIC
     )
+    assert done.returncode == 0, done.stderr[-1500:]  # the script's own error, not the command line
     return json.loads(done.stdout)
 
 
 def _page_function(name: str, argument: object) -> object:
     return _node(
-        f"const {{page}} = loadPage(false);"
+        f"const {{page}} = loadPage(null);"
         f"console.log(JSON.stringify(page.{name}({json.dumps(argument)})));"
     )
 
@@ -1187,7 +1273,7 @@ def _render_board(count: int, frame: dict[str, object]) -> dict[str, object]:
         ]
     }
     out = _node(
-        "const {page} = loadPage(true);"
+        "const {page} = loadPage(null);"
         f"Object.assign(page.state, {{gameId: 'g', header: {json.dumps(header)}, "
         f"frames: [{json.dumps(frame)}], index: 0, running: true}});"
         "page.renderView(); console.log(JSON.stringify(board()));"
@@ -1214,45 +1300,109 @@ def test_play_board_draws_five_and_six_seats_with_their_names_and_colors(count: 
     assert "#table{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))" in css
 
 
-def test_new_game_dialog_offers_five_and_six_players_only_once_the_lock_line_changes() -> None:
-    """Today the dialog offers 2 to 4 players. With only the lock line changed (in memory), it
-    offers 2 to 6, fills five AI seats Sitz 2 to Sitz 6 with five different decks and sends five
-    opponents and six seat styles to the server."""
+@pytest.mark.parametrize(
+    ("lock", "human", "offered_players", "note_part"),
+    [
+        (None, False, 6, None),  # as shipped: both lists reach six players
+        (None, True, 6, None),
+        ({"play": 3, "ai": 5}, False, 6, None),  # PLAY lock set back: AI-only games unaffected
+        ({"play": 3, "ai": 5}, True, 4, "5 bis 6 Spieler sind noch nicht freigegeben"),
+        ({"play": 5, "ai": 3}, False, 4, "5 bis 6 Spieler sind noch nicht freigegeben"),
+        ({"play": 5, "ai": 3}, True, 6, None),
+        ({"play": 4, "ai": 4}, True, 5, "6 Spieler sind noch nicht freigegeben"),
+    ],
+)
+def test_new_game_dialog_offers_the_table_sizes_of_the_lock_of_its_path(
+    lock: dict[str, int] | None, human: bool, offered_players: int, note_part: str | None
+) -> None:
+    """The dialog follows two lists as the server follows two locks: a game with a human seat the PLAY
+    lock, a game of AI seats the SIMULATE lock. A size above the lock is not offered and a note says
+    so; with six players the dialog says that the semantic replay proof stops at five seats."""
     out = _node(
-        """
-(async () => {
-  const result = {};
-  for (const release of [false, true]) {
-    const { page, posted } = loadPage(release);
-    await page.newGame('rev@own');
-    const box = registry['modal-box'];
-    const selects = box.all().filter((n) => n.tagName === 'SELECT');
-    const count = selects.find((s) => s.children.some((o) => /Spieler$/.test(o.textContent)));
-    const offered = count.children.map((o) => o.textContent);
-    let seats = null, body = null;
-    if (release) {
-      count.value = '5'; count.fire('change');
-      const picks = box.querySelectorAll('.opp-deck');
-      seats = box.all().filter((n) => n.tagName === 'LABEL' && /\\(KI\\)/.test(n.textContent)).map((n) => n.textContent.split(' (KI)')[0]);
-      for (const [i, p] of picks.entries()) p.value = 'precon/d' + i;
-      const go = box.all().find((n) => n.tagName === 'BUTTON' && n.textContent === 'Partie starten');
-      for (const f of go.listeners.click) await f({});
-      body = posted[0] || null;
-    }
-    result[release ? 'released' : 'locked'] = { offered, seats, body };
-  }
-  console.log(JSON.stringify(result));
-})();
+        f"""
+(async () => {{
+  const {{ page, posted }} = loadPage({json.dumps(lock)});
+  await page.newGame('rev@own');
+  const box = registry['modal-box'];
+  const checkbox = box.all().find((n) => n.tagName === 'INPUT' && n.attrs.type === 'checkbox');
+  if ({json.dumps(human)}) {{ checkbox.checked = true; checkbox.fire('change'); }}
+  const countOf = () => box.all().filter((n) => n.tagName === 'SELECT').find((s) => s.children.some((o) => /Spieler$/.test(o.textContent)));
+  const notes = () => box.all().filter((n) => n.tagName === 'P' && !n.hidden && /Spieler/.test(n.textContent) && /freigegeben|Semantik-Replay/.test(n.textContent)).map((n) => n.textContent);
+  const offered = countOf().children.map((o) => o.textContent);
+  const afterOpen = {{ value: countOf().value, notes: notes() }};
+  // the biggest offered table: seats, posted body, and the note at that size
+  const top = countOf().children[countOf().children.length - 1];
+  countOf().value = top.value; countOf().fire('change');
+  const seats = box.all().filter((n) => n.tagName === 'LABEL' && /\\(KI\\)/.test(n.textContent)).map((n) => n.textContent.split(' (KI)')[0]);
+  const picks = box.querySelectorAll('.opp-deck');
+  for (const [i, p] of picks.entries()) p.value = 'precon/d' + i;
+  const atTop = {{ notes: notes() }};
+  const go = box.all().find((n) => n.tagName === 'BUTTON' && n.textContent === 'Partie starten');
+  for (const f of go.listeners.click) await f({{}});
+  console.log(JSON.stringify({{ offered, afterOpen, seats, atTop, body: posted[0] || null }}));
+}})();
 """
     )
     assert isinstance(out, dict)
-    assert out["locked"]["offered"] == ["2 Spieler", "3 Spieler", "4 Spieler"]
-    released = out["released"]
-    assert released["offered"] == [f"{n} Spieler" for n in range(2, 7)]
-    assert released["seats"] == [f"Sitz {n}" for n in range(2, 7)]
-    body = released["body"]
-    assert body["opponent_ids"] == [f"precon/d{i}" for i in range(5)]
-    assert len(body["seat_styles"]) == 6 and "human_seats" not in body
+    assert out["offered"] == [f"{n} Spieler" for n in range(2, offered_players + 1)]
+    assert out["afterOpen"]["value"] == "3"  # the usual four-seat table stays the default
+    opponents = offered_players - 1
+    assert out["seats"] == [f"Sitz {n}" for n in range(2, offered_players + 1)]
+    body = out["body"]
+    assert body["opponent_ids"] == [f"precon/d{i}" for i in range(opponents)]
+    assert len(body["seat_styles"]) == offered_players
+    if human:
+        assert body["human_seats"] == [0] and body["decision_timeout_seconds"] == 0
+    else:
+        assert "human_seats" not in body
+    notes = out["afterOpen"]["notes"]
+    if note_part is None:
+        assert notes == []  # nothing locked: no lock note
+    else:
+        assert len(notes) == 1 and note_part in notes[0]
+    # six players: the replay note appears at that size only
+    replay = [n for n in out["atTop"]["notes"] if "Semantik-Replay" in n]
+    assert bool(replay) is (offered_players == 6)
+
+
+@pytest.mark.parametrize(
+    ("lock", "human", "seats_after"),
+    [
+        (None, False, 6),
+        (None, True, 6),
+        ({"play": 3, "ai": 5}, True, 4),
+        ({"play": 3, "ai": 3}, False, 4),
+    ],
+)
+def test_a_pod_preset_never_seats_more_than_the_dialog_offers(
+    lock: dict[str, int] | None, human: bool, seats_after: int
+) -> None:
+    """A preset that names five opponents fills five AI seats where six players are offered; where the
+    list ends at four players (a lock set back) it fills three, and the posted table matches the count
+    shown (review of #1743, P3)."""
+    out = _node(
+        f"""
+(async () => {{
+  TABLE.pods = {{ big: ['precon/d0', 'precon/d1', 'precon/d2', 'precon/d3', 'precon/d4'] }};
+  const {{ page, posted }} = loadPage({json.dumps(lock)});
+  await page.newGame('rev@own');
+  const box = registry['modal-box'];
+  const checkbox = box.all().find((n) => n.tagName === 'INPUT' && n.attrs.type === 'checkbox');
+  if ({json.dumps(human)}) {{ checkbox.checked = true; checkbox.fire('change'); }}
+  const countOf = () => box.all().filter((n) => n.tagName === 'SELECT').find((s) => s.children.some((o) => /Spieler$/.test(o.textContent)));
+  const button = box.all().find((n) => n.tagName === 'BUTTON' && /^Pod: big/.test(n.textContent));
+  for (const f of button.listeners.click) f({{}});
+  const seats = box.all().filter((n) => n.tagName === 'LABEL' && /\\(KI\\)/.test(n.textContent)).length;
+  const go = box.all().find((n) => n.tagName === 'BUTTON' && n.textContent === 'Partie starten');
+  for (const f of go.listeners.click) await f({{}});
+  console.log(JSON.stringify({{ shown: countOf().value, seats, body: posted[0] || null }}));
+}})();
+"""
+    )
+    assert isinstance(out, dict)
+    assert out["seats"] == min(5, seats_after - 1)
+    assert out["shown"] == str(out["seats"])  # the count shown is the table that is built
+    assert len(out["body"]["opponent_ids"]) == out["seats"]
 
 
 # ---- part B helper: the identity digest of one game log (F3), checked here on synthetic logs ---

@@ -14,8 +14,9 @@ plays real 100-card Commander decks rules-correctly, so simulated games can stan
 - Rules-correct play is required, but not at any cost: where full correctness for a rare interaction
   is unreachable, record the gap visibly and move on. Simulate as many cards as possible, including
   cards the base XMage engine lacks. Four players is the usual game and six seats the maximum; two
-  to four seats are active, five and six are not released (own qualification and the Owner's
-  release).
+  to six seats are active: the Owner released five and six seats on 2026-11-22 as a conditional go
+  (`docs/OWNER_DECISIONS_STUDIO_20261118.md`, E16); the measurements are `SIMULATED_RESULT`, not a
+  qualification.
 - The simulator is one part of the local Commander Studio (BUILD, PLAY, SIMULATE):
   `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`. Required reading before any Studio
   work is the charter `docs/STUDIO_CHARTA_V2.md` (the Owner accepted only its §5, Q1 to Q11; the
@@ -226,7 +227,10 @@ Repository creation; pushes to the `moeendres-png/mage` fork, engine repins, rew
 `.github/workflows/production-qualification.yml`; any other change to `WS17_SHA256SUMS` needs the
 Owner's go); setting or rotating secrets, paid services, account or repository visibility changes
 (privatizing repositories, external Drive sharing) and publication; releasing five- and six-seat
-play or qualification; lifting paused or externally gated items (the all-commander harvest #1210,
+play or qualification (released by the Owner on 2026-11-22 as a conditional go, register E16: „Ja 5/6
+sitze freigegeben wenn alles dabei funktioniert“; Co-Lead reading, register E16 no. 3, fail-closed: setting
+the seat locks back to 4 is allowed at any time; a renewed release or changed conditions are the
+Owner's); lifting paused or externally gated items (the all-commander harvest #1210,
 the Drive-dependent import #1187/#1176, scraping a site without a public API (the Cardmarket price
 guide download for the TAM purchase list is an Owner exception of 2026-11-22, §12; Co-Lead
 reading, register: the Owner's words do not name the price guide, it came afterwards as the

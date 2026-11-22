@@ -5,11 +5,15 @@
 const PHASES = { beginning: "Beginn", precombat_main: "Hauptphase 1", combat: "Kampf", postcombat_main: "Hauptphase 2", end: "Ende" };
 const STEPS = { untap: "Enttappen", upkeep: "Versorgung", draw: "Ziehen", precombat_main: "Hauptphase 1", begin_combat: "Kampfbeginn", declare_attackers: "Angreifer", declare_blockers: "Blocker", first_combat_damage: "Erstschlagschaden", combat_damage: "Kampfschaden", end_combat: "Kampfende", postcombat_main: "Hauptphase 2", end_turn: "Endsegment", cleanup: "Aufräumen" };
 const CLASSES = { priority: "Aktion", mana_payment: "Mana zahlen", choose_object: "Auswahl", choose_use: "Ja oder Nein", target: "Ziel", declare_attacker: "Angriff", declare_blocker: "Block", mulligan: "Mulligan", choice: "Wahl", trigger_order: "Reihenfolge", announce_x: "Wert für X", amount: "Anzahl", multi_amount: "Verteilung", mode: "Modus", pile: "Stapelwahl", target_amount: "Zielmenge", replacement_effect: "Ersatzeffekt", order: "Reihenfolge" };
-// Table sizes the Studio offers to play: two to four players. Five and six are not released: they stay
-// locked until the qualification is shown and the Owner decides (E15 Q5, AGENTS.md); the server refuses
-// them too (launch.MAX_RELEASED_SEATS). The series dialog (paired.js) plans them but starts nothing.
-// Freigabe nur per Owner-Entscheid.
-const OPPONENT_COUNTS = [1, 2, 3];
+// Table sizes the new-game dialog offers, as numbers of opponents. Two locks, as on the server:
+// a game with a human seat follows launch.MAX_RELEASED_PLAY_SEATS, a game of AI seats only follows
+// launch.MAX_RELEASED_SEATS (the SIMULATE lock, like the series dialog in paired.js). A size above its lock
+// is not offered and the dialog says so; the server refuses it too. Five and six seats are released
+// (conditional Owner go of 2026-11-22, register E16); a guard test keeps both lists equal to the server locks.
+const OPPONENT_COUNTS_PLAY = [1, 2, 3, 4, 5];
+const OPPONENT_COUNTS_AI = [1, 2, 3, 4, 5];
+const OPPONENT_COUNTS_MAX = 5; // six seats: the engine maximum
+
 const DEFAULT_AI_DELAY_MS = 250;
 const SPEEDS = [[2000, "langsam"], [1000, "1 pro Sekunde"], [500, "2 pro Sekunde"], [250, "250 ms (sichtbare KI-Schritte)"], [120, "8 pro Sekunde"], [50, "sehr schnell"], [0, "ohne Pause"]];
 
@@ -1639,12 +1643,24 @@ async function newGame(wantedRevision) {
   const humanPlay = h("input", { type: "checkbox" });
   // Owner decision 2026-11-17: in PLAY nobody has a time limit and no timeout ends the game.
   const timeoutNote = h("p", { class: "muted", hidden: true }, "Kein Zeitlimit: Die Partie wartet unbegrenzt auf deine Entscheidung.");
-  humanPlay.addEventListener("change", () => {
-    ownStyle.disabled = humanPlay.checked;
-    timeoutNote.hidden = !humanPlay.checked;
-  });
-  const count = h("select", null, OPPONENT_COUNTS.map((n) => h("option", { value: String(n) }, `${n + 1} Spieler`)));
-  count.value = "3";
+  const count = h("select", null);
+  const sizeNote = h("p", { class: "muted", hidden: true });
+  const offeredCounts = () => (humanPlay.checked ? OPPONENT_COUNTS_PLAY : OPPONENT_COUNTS_AI);
+  // The sizes of the current lock; a table above it is not offered and the note says why. Six seats
+  // are recorded and can be replayed from the frames, but the semantic replay proof (tape) stops at five.
+  const fillCounts = () => {
+    const counts = offeredCounts();
+    const wanted = Number(count.value) || 3;
+    count.textContent = "";
+    for (const n of counts) count.append(h("option", { value: String(n) }, `${n + 1} Spieler`));
+    count.value = String(counts.includes(wanted) ? wanted : counts[counts.length - 1]);
+    const lines = [];
+    const topOffered = counts[counts.length - 1] + 1; // players at the biggest offered table
+    if (topOffered < OPPONENT_COUNTS_MAX + 1) lines.push(`${topOffered + 1 === OPPONENT_COUNTS_MAX + 1 ? "6" : `${topOffered + 1} bis 6`} Spieler sind noch nicht freigegeben (Owner-Entscheid); der Server lehnt sie ab.`);
+    if (Number(count.value) === OPPONENT_COUNTS_MAX) lines.push("6 Spieler: Die Partie wird aufgezeichnet und lässt sich nachspielen. Einen Replay-Nachweis (Semantik-Replay) gibt es bisher nur bis 5 Sitze.");
+    sizeNote.textContent = lines.join(" ");
+    sizeNote.hidden = lines.length === 0;
+  };
   const seats = h("div", { class: "seat-picks" });
   const pick = () => Math.floor(Math.random() * table.opponents.length);
   const fill = () => {
@@ -1663,9 +1679,19 @@ async function newGame(wantedRevision) {
       seats.append(h("label", null, `Sitz ${index + 2} (KI) `, select, " Stil ", sSelect));
     }
   };
-  count.addEventListener("change", fill); fill();
-  const applyPod = (ids) => {
+  count.addEventListener("change", () => { fillCounts(); fill(); }); fillCounts(); fill();
+  humanPlay.addEventListener("change", () => {
+    ownStyle.disabled = humanPlay.checked;
+    timeoutNote.hidden = !humanPlay.checked;
+    fillCounts(); fill();
+  });
+  const applyPod = (preset) => {
+    // never more seats than the current list offers (after a rollback of a lock a preset may name more)
+    const offered = offeredCounts();
+    const ids = preset.slice(0, offered[offered.length - 1]);
+    if (!ids.length) return;
     count.value = String(ids.length);
+    fillCounts();
     seats.textContent = "";
     ids.forEach((id, index) => {
       const select = h("select", { class: "opp-deck" }, table.opponents.map((deck) => h("option", { value: deck.deck_id }, `${deck.commanders.join(" + ")} · ${deck.name} ${deck.year}`)));
@@ -1717,6 +1743,7 @@ async function newGame(wantedRevision) {
       h("label", null, "Dein Deck auf Sitz 1 ", own, " Stil ", ownStyle),
       timeoutNote,
       h("label", null, "Tisch ", count),
+      sizeNote,
       seats,
       h("div", { class: "actions" },
         h("button", { type: "button", onclick: () => { seats.textContent = ""; fill(); } }, "Andere Gegner würfeln"),

@@ -2912,6 +2912,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                     revision_id=body.revision_id,
                     opponent_ids=body.opponent_ids,
                     seed=body.seed,
+                    play=True,  # a human seat: the PLAY lock (an AI-only game takes the SIMULATE lock)
                 )
                 seat_styles_map = (
                     {idx: float(val) for idx, val in enumerate(body.seat_styles, start=1)}

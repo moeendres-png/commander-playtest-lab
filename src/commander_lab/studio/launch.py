@@ -30,13 +30,19 @@ from .store import StudioStore
 ENGINE_COMMAND_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
 ENGINE_JAR = Path("engine") / "xmage-engine-bridge.jar"
 MIN_SEATS, MAX_SEATS = 2, 6  # what the engine can seat (series and the CLI comparison use this)
-# What the Studio lets someone start (PLAY, watched games, series): two to four seats. Five and six
-# seats are not released: they stay locked until the qualification is shown and the Owner decides
-# (E15 Q5, AGENTS.md section 1); the engine could seat them, so this is a rule, not a limit. The
-# planning of five- and six-seat series (``pod_opponent_ids``, ``paired_series.rotation_plan``)
-# exists behind this lock and starts nothing. Freigabe nur per Owner-Entscheid: raise this
-# constant (and the table-size lists in partie.js and paired.js) only when the Owner has released it.
-MAX_RELEASED_SEATS = 4
+# The Studio has two seat locks, one per way of starting a table (#1661):
+#   MAX_RELEASED_SEATS      SIMULATE: series, batch, ``compare-decks``, ``TableSpec``, the series
+#                           plan, and games without a human seat (``launch.start_game``, a watched
+#                           AI game: it plays like a one-game series).
+#   MAX_RELEASED_PLAY_SEATS PLAY: a game with a human seat (``POST /api/games`` with ``human_seats``).
+# Both are six: the Owner released five and six seats on 2026-11-22 as a conditional go (register
+# entry E16, Refs #1661); the engine could always seat six, so each is a rule, not a limit. They are
+# two lines because the paths are released and, if need be, taken back separately.
+# Each lock is one line: setting one back to 4 (fail-closed, at any time on a defect) restores the old
+# state of that path (``allow_unreleased_seats`` is the explicit measurement switch for the
+# SIMULATE lock); a renewed release or changed conditions are the Owner's (AGENTS.md section 8).
+MAX_RELEASED_SEATS = 6
+MAX_RELEASED_PLAY_SEATS = 6
 START_WAIT_SECONDS = 20.0
 MIN_WORKERS, MAX_WORKERS = 1, 16
 MIN_GAMES_PER_JVM, MAX_GAMES_PER_JVM = 1, 24
@@ -777,15 +783,22 @@ def validate_released_seat_count(
     opponent_count: int,
     *,
     allow_unreleased_seats: bool = False,
+    play: bool = False,
 ) -> int:
-    """Validate opponent count (1..5) and enforce ``MAX_RELEASED_SEATS`` unless overridden."""
+    """Validate opponent count (1..5) and enforce the seat lock unless overridden.
+
+    ``play=False`` (SIMULATE: series, batch, ``compare-decks``, a game without a human seat)
+    checks ``MAX_RELEASED_SEATS``; ``play=True`` (a game with a human seat) checks
+    ``MAX_RELEASED_PLAY_SEATS``. Both locks are read at call time.
+    """
     if not MIN_SEATS - 1 <= opponent_count <= MAX_SEATS - 1:
         raise ValueError("a game requires 1 to 5 opponents (zwischen 1 und 5)")
-    if not allow_unreleased_seats and opponent_count > MAX_RELEASED_SEATS - 1:
+    released = MAX_RELEASED_PLAY_SEATS if play else MAX_RELEASED_SEATS
+    if not allow_unreleased_seats and opponent_count > released - 1:
+        what = "PLAY (a game with a human seat)" if play else "SIMULATE (series, AI-only games)"
         raise ValueError(
-            f"tables of {opponent_count + 1} seats are locked: the Studio starts {MIN_SEATS} to "
-            f"{MAX_RELEASED_SEATS} seats; five and six seats need a qualification and an explicit "
-            "Owner decision"
+            f"tables of {opponent_count + 1} seats are locked: {what} starts {MIN_SEATS} to "
+            f"{released} seats; more seats need a qualification and an explicit Owner decision"
         )
     return 1 + opponent_count
 
@@ -848,10 +861,13 @@ def prepare_table_deck_paths(
     revision_id: str,
     opponent_ids: list[str],
     seed: int,
+    play: bool = False,
 ) -> tuple[str, list[Path]]:
-    """Validate decks and resolve ordered seat deck paths plus a fresh ``game_id``."""
+    """Validate decks and resolve ordered seat deck paths plus a fresh ``game_id``.
+
+    ``play=True`` for a game with a human seat (the PLAY lock), else the SIMULATE lock."""
     others = len(opponent_ids)
-    validate_released_seat_count(others)
+    validate_released_seat_count(others, play=play)
     if len(set(opponent_ids)) != len(opponent_ids):
         raise ValueError("every seat needs its own deck")
     if engine_command(data_folder) is None:

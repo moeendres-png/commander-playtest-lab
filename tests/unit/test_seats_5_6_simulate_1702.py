@@ -1,8 +1,10 @@
 """SIMULATE at five and six seats behind the seat lock (#1702, Refs #1661, #1656, #1681).
 
-The lock is not released here: ``launch.MAX_RELEASED_SEATS`` stays 4 and every test that plays a
-five- or six-seat series lifts it in memory only (``monkeypatch``). The bridge is a test bridge
-(``play_override``: synthetic exposures with N seat rows), no real engine ran: NOT_RUN.
+Release draft (Refs #1661, not merged before the Owner's release): ``launch.MAX_RELEASED_SEATS``
+(the SIMULATE lock) and ``MAX_RELEASED_PLAY_SEATS`` (the PLAY lock) are both 6 in this draft.
+Both states stay tested: the shipped value, and the lock set back to 4 in memory (``monkeypatch``),
+so the lock logic does not rot. The bridge is a test bridge (``play_override``: synthetic
+exposures with N seat rows), no real engine ran: NOT_RUN.
 """
 
 from __future__ import annotations
@@ -122,15 +124,29 @@ def test_duration_is_unknown_where_no_throughput_is_measured_and_never_zero() ->
     assert paired_series.estimate_series_duration(20)["duration_known"] is True
 
 
-# -- the lock stays; the plan route plans behind it -------------------------------------------
+# -- the two seat locks; the plan route plans with either state ---------------------------------
 
 
-def test_the_lock_constant_and_the_switch_are_unchanged() -> None:
-    assert launch.MAX_RELEASED_SEATS == 4
+def test_the_shipped_locks_release_simulate_and_play_to_six() -> None:
+    """The one place that names the shipped values (the release draft of #1661; ``main`` has 4/4)."""
+    assert (launch.MIN_SEATS, launch.MAX_RELEASED_SEATS, launch.MAX_SEATS) == (2, 6, 6)
+    assert launch.MAX_RELEASED_PLAY_SEATS == 6
+    for play in (False, True):  # both paths seat five and six players, not seven
+        assert launch.validate_released_seat_count(4, play=play) == 5
+        assert launch.validate_released_seat_count(5, play=play) == 6
+        with pytest.raises(ValueError, match="1 to 5 opponents"):
+            launch.validate_released_seat_count(6, play=play, allow_unreleased_seats=True)
+
+
+def test_the_simulate_lock_and_the_switch_still_work_when_the_lock_is_set_back_to_four(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)
     with pytest.raises(ValueError, match="tables of 5 seats are locked"):
         launch.validate_released_seat_count(4)
     with pytest.raises(ValueError, match="tables of 6 seats are locked"):
         launch.validate_released_seat_count(5)
+    assert launch.validate_released_seat_count(3) == 4
     assert launch.validate_released_seat_count(5, allow_unreleased_seats=True) == 6
 
 
@@ -239,9 +255,10 @@ def _finished(lab: dict[str, object], series_id: str) -> dict[str, object]:
 
 
 @pytest.mark.parametrize("seats", [5, 6])
-def test_studio_still_refuses_a_five_or_six_seat_series_and_writes_nothing(
-    lab: dict[str, object], seats: int
+def test_studio_refuses_a_five_or_six_seat_series_and_writes_nothing_while_the_lock_is_four(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch, seats: int
 ) -> None:
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)  # the lock, set back in memory
     for over in (
         {"table_size": seats, "budget_pairs": seats * seats},  # a pod preset sized to the table
         {"opponent_ids": list(launch.pod_opponent_ids("precon", seats - 1))},
@@ -257,7 +274,6 @@ def test_studio_still_refuses_a_five_or_six_seat_series_and_writes_nothing(
 def test_series_start_checks_the_table_size_against_the_opponents(
     lab: dict[str, object], monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)
     res = _post(lab, table_size=5, opponent_ids=list(launch.pod_opponent_ids("precon", 3)))
     assert res.status_code == 422  # type: ignore[attr-defined]
     assert "braucht 4 Gegner, angegeben sind 3" in res.json()["detail"]  # type: ignore[attr-defined]
@@ -270,10 +286,103 @@ def test_series_start_checks_the_table_size_against_the_opponents(
 
 
 @pytest.mark.parametrize("seats", [5, 6])
-def test_with_the_lock_lifted_locally_the_series_route_plans_and_plays_whole_blocks(
-    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch, seats: int
+def test_the_pool_path_refuses_a_table_without_a_wall_limit_before_it_writes_anything(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch, tmp_path: Path, seats: int
 ) -> None:
-    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)  # in memory, this test only
+    """F6 has not measured the wall-clock limit of a five- or six-seat game, so the series pool (off by
+    default) refuses such a table. It does so on the route, before any series file or pool manifest is
+    written (review of #1743, P3); the default path without the pool is not affected."""
+    import types
+
+    from commander_lab.studio.game_pool import SERIES_POOL_ENV
+
+    manager = paired_series.paired_series_manager
+    # the lab's wrapper hands every series a test player (no pool); the real start is what is checked
+    monkeypatch.setattr(
+        manager,
+        "start_series",
+        types.MethodType(paired_series.PairedSeriesManager.start_series, manager),
+    )
+    folder = Path(str(lab["folder"]))
+    before = {p for p in folder.rglob("*") if p.is_file()}
+    monkeypatch.setenv(SERIES_POOL_ENV, "1")
+    res = _post(lab, table_size=seats, budget_pairs=seats * seats)
+    assert res.status_code == 422, res.text  # type: ignore[attr-defined]
+    assert f"keine Wandzeit-Grenze für {seats} Sitze" in res.json()["detail"]  # type: ignore[attr-defined]
+    after = {p for p in folder.rglob("*") if p.is_file()}
+    # nothing new that belongs to a series: no record, no manifest, no deck snapshots
+    assert not [
+        p
+        for p in after - before
+        if "paired" in p.name or "manifest" in p.name or "paired_decks" in str(p)
+    ]
+    assert lab["calls"] == []
+    # the pre-flight is exact: four seats have a limit, and with the pool off nothing is asked
+    paired_series._preflight_pool_wall_limit(3)
+    monkeypatch.delenv(SERIES_POOL_ENV)
+    paired_series._preflight_pool_wall_limit(seats - 1)
+
+
+def test_the_pool_preflight_does_not_judge_an_unknown_pod_as_a_table_of_one_seat(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Pool on, no table size, an unknown pod: the pre-flight stays out of it (it has no table to
+    count), so the answer is whatever the start says next, never "keine Wandzeit-Grenze für 1 Sitze"
+    (review of #1743). In this folder that is the missing engine; with an engine it is the pod's own
+    refusal."""
+    import types
+
+    from commander_lab.studio.game_pool import SERIES_POOL_ENV
+
+    manager = paired_series.paired_series_manager
+    monkeypatch.setattr(
+        manager,
+        "start_series",
+        types.MethodType(paired_series.PairedSeriesManager.start_series, manager),
+    )
+    monkeypatch.setenv(SERIES_POOL_ENV, "1")
+    res = _post(lab, pod="no-such-pod")
+    assert "Wandzeit" not in res.text and "1 Sitze" not in res.text  # type: ignore[attr-defined]
+    assert res.status_code in (409, 422), res.text  # type: ignore[attr-defined]
+
+
+@pytest.mark.parametrize("seats", [5, 6])
+def test_the_pool_player_refuses_a_table_without_a_wall_limit_before_its_manifest(
+    tmp_path: Path, seats: int
+) -> None:
+    """The same refusal one level down: ``parallel_window_player`` with the pool on stops before the
+    first game is planned, so no ``SeriesRecord`` manifest exists (an injected pool is not asked)."""
+    from types import SimpleNamespace
+
+    jar = tmp_path / "bridge.jar"
+    jar.write_bytes(b"jar")
+    ids = [f"opp-{n}" for n in range(seats - 1)]
+    kwargs: dict[str, object] = {
+        "series_id": "pf",
+        "base_deck": SimpleNamespace(deck_id="base"),
+        "variant_deck": SimpleNamespace(deck_id="variant"),
+        "opponents": [SimpleNamespace(deck_id=i) for i in ids],
+        "paths_by_deck_id": {d: tmp_path / "x.json" for d in ("base", "variant", *ids)},
+        "seeds": [1],
+        "tested_seats": [0],
+        "budget_pairs": 1,
+        "look_every_pairs": 1,
+        "workers": 1,
+        "games_per_jvm": 6,
+        "command": ("java", "-jar", str(jar), "full-game"),
+    }
+    before = {p for p in tmp_path.rglob("*")}
+    with pytest.raises(ValueError, match=f"keine Wandzeit-Grenze für {seats} Sitze"):
+        paired_comparison.parallel_window_player(tmp_path, series_pool=True, **kwargs)  # type: ignore[arg-type]
+    assert {p for p in tmp_path.rglob("*")} == before  # no manifest, no journal
+    # the pool off: the default path builds its player as before
+    assert callable(paired_comparison.parallel_window_player(tmp_path, series_pool=False, **kwargs))  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize("seats", [5, 6])
+def test_under_the_shipped_lock_the_series_route_plans_and_plays_whole_blocks(
+    lab: dict[str, object], seats: int
+) -> None:
     block = seats * seats
     res = _post(lab, table_size=seats, budget_pairs=block)
     assert res.status_code == 200, res.text  # type: ignore[attr-defined]
@@ -349,11 +458,11 @@ def _stored_locked_table_series(
     lab: dict[str, object], monkeypatch: pytest.MonkeyPatch, seats: int
 ) -> str:
     """A series of ``seats`` seats with two Studio deck states among its opponents, started with
-    the lock lifted locally, then marked interrupted so that it can be resumed."""
+    the lock at six, then marked interrupted so that it can be resumed."""
     revs = lab["revs"]
     assert isinstance(revs, dict)
     precons = list(launch.pod_opponent_ids("precon", seats - 1))[: seats - 3]
-    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)  # explicit, whatever the shipped value
     res = _post(
         lab,
         table_size=seats,
@@ -368,12 +477,12 @@ def _stored_locked_table_series(
     assert raw["seed_plan"]["player_count"] == seats and len(raw["opponent_ids"]) == seats - 1
     raw["status"] = "interrupted"
     path.write_text(json.dumps(raw), encoding="utf-8")
-    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)  # the lock as shipped
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)  # the lock, set back in memory
     return series_id
 
 
 @pytest.mark.parametrize("seats", [5, 6])
-def test_resume_refuses_a_stored_five_or_six_seat_table_and_plays_nothing(
+def test_resume_refuses_a_stored_five_or_six_seat_table_and_plays_nothing_while_the_lock_is_four(
     lab: dict[str, object], monkeypatch: pytest.MonkeyPatch, seats: int
 ) -> None:
     """The review of #1708: a resume read the table size from the stored opponents and never
@@ -399,7 +508,7 @@ def test_resume_refuses_a_stored_five_or_six_seat_table_and_plays_nothing(
 
 
 @pytest.mark.parametrize("seats", [5, 6])
-def test_resume_of_a_stored_five_or_six_seat_table_runs_with_the_lock_lifted_locally(
+def test_resume_of_a_stored_five_or_six_seat_table_runs_with_the_lock_at_six(
     lab: dict[str, object], monkeypatch: pytest.MonkeyPatch, seats: int
 ) -> None:
     series_id = _stored_locked_table_series(lab, monkeypatch, seats)
@@ -407,7 +516,7 @@ def test_resume_of_a_stored_five_or_six_seat_table_runs_with_the_lock_lifted_loc
     player = lab["player"]
     assert isinstance(revs, dict) and callable(player)
     base = str(revs["base"]).split("@", 1)[0]
-    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)  # in memory, this test only
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)  # explicit, whatever the shipped value
     job = paired_series.paired_series_manager.resume_series(
         Path(str(lab["folder"])),
         series_id,
@@ -418,10 +527,14 @@ def test_resume_of_a_stored_five_or_six_seat_table_runs_with_the_lock_lifted_loc
     assert done["seed_plan"]["player_count"] == seats  # type: ignore[index]
 
 
-@pytest.mark.parametrize(("seats", "released"), [(4, True), (5, False), (6, False)])
-def test_the_plan_route_plans_a_locked_table_and_says_it_starts_nothing(
-    lab: dict[str, object], seats: int, released: bool
+@pytest.mark.parametrize(
+    ("seats", "lock"), [(4, 4), (5, 4), (6, 4), (4, 6), (5, 6), (6, 6)]
+)  # lock 4 = the old state set back in memory, lock 6 = the shipped state
+def test_the_plan_route_plans_a_table_and_says_whether_the_lock_lets_it_start(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch, seats: int, lock: int
 ) -> None:
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", lock)
+    released = seats <= lock
     client = lab["client"]
     assert isinstance(client, TestClient)
     block = seats * seats
@@ -435,7 +548,7 @@ def test_the_plan_route_plans_a_locked_table_and_says_it_starts_nothing(
     table = plan["table"]
     assert table["table_size"] == seats and table["tested_seats"] == list(range(seats))
     assert table["rotation_complete"] is True and table["pairs_per_block"] == block
-    assert table["released"] is released and table["max_released_seats"] == 4
+    assert table["released"] is released and table["max_released_seats"] == lock
     if released:
         assert table["locked_text"] is None
     else:
@@ -514,24 +627,26 @@ def test_the_plan_route_reads_the_lock_at_call_time(
 ) -> None:
     client = lab["client"]
     assert isinstance(client, TestClient)
-    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)
-    table = client.get(
-        "/api/simulations/paired-plan?budget_pairs=25&table_size=5", headers=HEADERS
-    ).json()["table"]
-    assert table["released"] is True and table["max_released_seats"] == 6
+    for lock in (4, 5, 6):
+        monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", lock)
+        table = client.get(
+            "/api/simulations/paired-plan?budget_pairs=25&table_size=5", headers=HEADERS
+        ).json()["table"]
+        assert table["released"] is (lock >= 5) and table["max_released_seats"] == lock
 
 
 # -- TableSpec carries the seat count; an experiment plans the whole rotation -----------------
 
 
-def test_table_spec_carries_five_and_six_seats_only_behind_the_lock(
+def test_table_spec_carries_five_and_six_seats_unless_the_lock_is_set_back_to_four(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     opponents = list(launch.pod_opponent_ids("precon", 5))
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)  # the old state, set back in memory
     for seats in (5, 6):
         with pytest.raises(ValidationError, match="locked"):
             TableSpec(seats=seats, opponents=opponents[: seats - 1])
-    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)  # the lock as shipped
     for seats in (5, 6):
         spec = TableSpec(seats=seats, opponents=opponents[: seats - 1])
         assert spec.tested_seats() == list(range(seats))
@@ -562,9 +677,10 @@ def test_an_experiment_plan_at_five_and_six_seats_plans_the_rotation_and_starts_
         "look_every_pairs": 100,
         "first_seed": 300,
     }
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)  # the old state, set back in memory
     locked = client.post("/api/experiments", headers=HEADERS, json={"plan": plan})
     assert locked.status_code == 422 and "locked" in locked.text  # the lock holds
-    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)  # the lock as shipped
     res = client.post("/api/experiments", headers=HEADERS, json={"plan": plan})
     assert res.status_code == 200, res.text
     started = res.json()
@@ -608,20 +724,21 @@ def test_five_and_six_seat_games_of_one_stand_land_in_their_own_strata(tmp_path:
 
 
 # -- the series dialog (paired.js) under node with a DOM stand-in -----------------------------
-# Release only in memory (the constant line of the page and the lock of the server); no browser.
+# The page's lock line is six (shipped); a test of the lock sets it back to four in memory, together
+# with the server's lock. No browser.
 
 STATIC = Path(__file__).resolve().parents[2] / "src/commander_lab/studio/static"
 
 _PAIRED_HARNESS = r"""
 const StudioUI = { num: (v, d = 0) => Number(v).toLocaleString('de-DE', { minimumFractionDigits: d, maximumFractionDigits: d }) };
-function loadPaired(release) {
+function loadPaired(lockAtFour) {
   let src = fs.readFileSync('paired.js', 'utf8');
-  if (release) {
-    const locked = 'const PAIRED_RELEASED_SEATS = 4;';
-    if (!src.includes(locked)) throw new Error('lock line changed');
-    src = src.replace(locked, 'const PAIRED_RELEASED_SEATS = 6;');
+  if (lockAtFour) {
+    const shipped = 'const PAIRED_RELEASED_SEATS = 6;';
+    if (!src.includes(shipped)) throw new Error('lock line changed');
+    src = src.replace(shipped, 'const PAIRED_RELEASED_SEATS = 4;');
   }
-  return new Function('document', 'StudioUI', src + '\n;return {renderPairedComparisonSection, estimatePairedText, pairedMonitorTableText, pairedTableOptions, pairedBudgetOptions, pairedGuardParts};')(document, StudioUI);
+  return new Function('document', 'StudioUI', src + '\n;return {renderPairedComparisonSection, estimatePairedText, pairedMonitorTableText, pairedTableOptions, pairedBudgetOptions, pairedGuardParts, pairedLockNote};')(document, StudioUI);
 }
 function h(tag, props, ...children) {
   const el = document.createElement(tag);
@@ -645,8 +762,8 @@ function h(tag, props, ...children) {
   return el;
 }
 const flush = () => new Promise((r) => setImmediate(r));
-function mount(release, plans, failing, history) {
-  const paired = loadPaired(release);
+function mount(lockAtFour, plans, failing, history) {
+  const paired = loadPaired(lockAtFour);
   const body = new El('div');
   const calls = [], toasts = [];
   const deps = {
@@ -677,14 +794,14 @@ async function pick(page, id, value) { const el = page.byId(id); el.value = Stri
 """
 
 
-def _paired_node(script: str, plans: dict[str, object], *, release: bool = False) -> object:
+def _paired_node(script: str, plans: dict[str, object], *, lock_at_four: bool = False) -> object:
     from tests.unit.test_seats_5_6_part_a_1661 import _DOM
 
     node = shutil.which("node")
     if node is None:
         pytest.skip("node is not installed")  # NOT_RUN, never PASS
     prelude = (
-        f"const PLANS = {json.dumps(plans)}; const RELEASE = {json.dumps(release)};\n"
+        f"const PLANS = {json.dumps(plans)}; const LOCK_AT_FOUR = {json.dumps(lock_at_four)};\n"
         + _PAIRED_HARNESS
     )
     done = subprocess.run(
@@ -711,9 +828,10 @@ def _plans(client: TestClient, combos: list[tuple[int, int, bool, str]]) -> dict
     return plans
 
 
-def test_series_dialog_offers_two_to_six_seats_locks_five_and_six_and_says_why(
-    lab: dict[str, object],
+def test_series_dialog_with_the_lock_at_four_locks_five_and_six_and_says_why(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)  # the server's lock, set back in memory
     client = lab["client"]
     assert isinstance(client, TestClient)
     plans = _plans(
@@ -721,7 +839,7 @@ def test_series_dialog_offers_two_to_six_seats_locks_five_and_six_and_says_why(
     )
     out = _paired_node(
         """
-const page = mount(RELEASE, PLANS);
+const page = mount(LOCK_AT_FOUR, PLANS);
 await flush();
 const first = { sizes: opts(page.byId('paired-table-size-select')), note: page.byId('paired-table-note').textContent,
   rotate: page.byId('paired-rotate-text').textContent, disabled: page.byId('paired-start-btn').disabled,
@@ -739,6 +857,7 @@ const sixIncomplete = page.byId('paired-plan').textContent;
 console.log(JSON.stringify({ first, six, sixIncomplete, posts: page.calls.filter((c) => c.method === 'POST').length, toasts: page.toasts }));
 """,
         plans,
+        lock_at_four=True,
     )
     assert isinstance(out, dict)
     first, six = out["first"], out["six"]
@@ -774,17 +893,18 @@ console.log(JSON.stringify({ first, six, sixIncomplete, posts: page.calls.filter
     assert "Rotation unvollständig: 1 volle Blöcke plus 4 Paare" in out["sixIncomplete"]
 
 
-def test_series_dialog_posts_the_table_size_only_when_released_and_not_the_usual_four(
-    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch
+def test_series_dialog_under_the_shipped_lock_offers_all_sizes_and_posts_the_table_size(
+    lab: dict[str, object],
 ) -> None:
-    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)  # the server lock, in memory
     client = lab["client"]
     assert isinstance(client, TestClient)
     plans = _plans(client, [(4, 40, True, "precon"), (5, 25, True, "precon")])
     out = _paired_node(
         """
-const page = mount(RELEASE, PLANS);
+const page = mount(LOCK_AT_FOUR, PLANS);
 await flush();
+const sizes = opts(page.byId('paired-table-size-select')).map((o) => o.text);
+const note = page.byId('paired-table-note');
 page.byId('paired-base-select').value = 'rev@base';
 page.byId('paired-variant-select').value = 'rev@one';
 const form = page.byId('paired-start-btn').parent;
@@ -792,12 +912,13 @@ form.fire('submit'); await flush();
 await pick(page, 'paired-table-size-select', 5);
 const five = { disabled: page.byId('paired-start-btn').disabled, plan: page.byId('paired-plan').textContent };
 form.fire('submit'); await flush();
-console.log(JSON.stringify({ five, posts: page.calls.filter((c) => c.method === 'POST').map((c) => c.payload) }));
+console.log(JSON.stringify({ sizes, noteShown: note !== undefined, five, posts: page.calls.filter((c) => c.method === 'POST').map((c) => c.payload) }));
 """,
         plans,
-        release=True,
     )
     assert isinstance(out, dict)
+    assert out["sizes"] == ["2 Sitze", "3 Sitze", "4 Sitze", "5 Sitze", "6 Sitze"]
+    assert out["noteShown"] is False  # nothing is locked, so no lock note
     assert out["five"]["disabled"] is False
     assert "nicht freigegeben" not in out["five"]["plan"]  # released: the server says no lock text
     four, five = out["posts"]
@@ -811,7 +932,7 @@ def test_series_dialog_shows_the_servers_refusal_instead_of_a_plan(lab: dict[str
     plans = _plans(client, [(4, 40, True, "precon")])
     out = _paired_node(
         """
-const page = mount(RELEASE, PLANS, { match: 'table_size=5', text: 'Der Gegnertisch mixed nennt nur 3 Decks' });
+const page = mount(LOCK_AT_FOUR, PLANS, { match: 'table_size=5', text: 'Der Gegnertisch mixed nennt nur 3 Decks' });
 await flush();
 await pick(page, 'paired-table-size-select', 5);
 console.log(JSON.stringify({ plan: page.byId('paired-plan').textContent }));
@@ -837,6 +958,8 @@ console.log(JSON.stringify({
   mon5: p.pairedMonitorTableText({ seed_plan: { player_count: 5 }, tested_seats: [0, 1, 2, 3, 4] }),
   monOld: p.pairedMonitorTableText({}),
   opts: p.pairedTableOptions().map((o) => [o.seats, o.locked]),
+  optsAtFour: loadPaired(true).pairedTableOptions().map((o) => [o.seats, o.locked]),
+  noteAtFour: loadPaired(true).pairedLockNote(), note: p.pairedLockNote(),
   b5: p.pairedBudgetOptions(5, true).map((o) => o.value), b4: p.pairedBudgetOptions(4, true).map((o) => o.value),
 }));
 """,
@@ -852,7 +975,10 @@ console.log(JSON.stringify({
     assert "mindestens" not in out["five"]
     assert out["mon5"] == "Tisch: 5 Sitze, getestete Sitze: 5."
     assert out["monOld"] == "Tisch: Sitzzahl unbekannt (ältere Serie)."
-    assert out["opts"] == [[2, False], [3, False], [4, False], [5, True], [6, True]]
+    assert out["opts"] == [[2, False], [3, False], [4, False], [5, False], [6, False]]
+    assert out["optsAtFour"] == [[2, False], [3, False], [4, False], [5, True], [6, True]]
+    assert out["note"] == ""  # nothing locked: no note, never "7 und 6 Sitze"
+    assert out["noteAtFour"].startswith("5 und 6 Sitze sind nicht freigegeben")
     assert out["b5"] == [20, 25, 40, 50, 60, 100, 200] and out["b4"] == [
         16,
         20,
@@ -918,7 +1044,7 @@ def test_a_five_seat_series_started_with_the_switch_does_not_resume_under_the_lo
     raw = json.loads(path.read_text(encoding="utf-8"))
     raw["status"] = "cancelled"
     path.write_text(json.dumps(raw), encoding="utf-8")
-    assert launch.MAX_RELEASED_SEATS == 4
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)  # the lock, set back in memory
     with pytest.raises(ValueError, match="tables of 5 seats are locked"):
         paired_series.paired_series_manager.resume_series(
             folder,

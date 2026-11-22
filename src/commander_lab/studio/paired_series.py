@@ -624,6 +624,19 @@ def _snapshot_for_ref(store: StudioStore, ref_id: str) -> dict[str, object]:
     return lab_snapshot(store, ref_id)
 
 
+def _preflight_pool_wall_limit(opponent_count: int) -> None:
+    """Refuse, before anything is written, a table the series pool has no wall-clock limit for.
+
+    Only where the pool would run (the switch ``COMMANDER_LAB_STUDIO_SERIES_POOL`` is on); the
+    default path does not use the limit. Five and six seats have none until F6 measures it (#1661);
+    ``table_spec.game_wall_limit_seconds`` names the seat count and guesses nothing."""
+    from .game_pool import series_pool_enabled
+    from .table_spec import game_wall_limit_seconds
+
+    if series_pool_enabled():
+        game_wall_limit_seconds(opponent_count + 1)
+
+
 def _preflight_snapshot_cards(label: str, snapshot: dict[str, object]) -> None:
     if not builder.sim_readiness_available():
         return
@@ -1124,6 +1137,11 @@ class PairedSeriesManager:
         if opponent_ids is not None:
             validate_released_seat_count(
                 len(opponent_ids), allow_unreleased_seats=allow_unreleased_seats
+            )
+        if play_override is None and (opponent_ids is not None or pod in POD_PRESETS):
+            # (an unknown pod is refused later with its own message, not as "1 seat")
+            _preflight_pool_wall_limit(
+                len(opponent_ids) if opponent_ids is not None else len(POD_PRESETS[pod])
             )
         used_workers, used_batch = checked_series_settings(workers, games_per_jvm)
 

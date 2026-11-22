@@ -54,7 +54,7 @@ summary follows it.
 
 Do not treat a commit SHA copied into this README as canonical software truth. At execution time, resolve the repository default branch and pin the exact commit/tree in the run manifest; the engine pin is `config/rules_engines.json`.
 
-The Studio scope is the charter `docs/STUDIO_CHARTA_V2.md` with the decision register `docs/OWNER_DECISIONS_STUDIO_20261118.md` and its older part `docs/OWNER_DECISIONS_STUDIO_20261112.md`: games of up to 6 players, default 4 (one own deck, three opponents); two to four seats are active, five and six are not released. No simulation result automatically mutates a deck, inventory quantity, physical allocation or purchase state.
+The Studio scope is the charter `docs/STUDIO_CHARTA_V2.md` with the decision register `docs/OWNER_DECISIONS_STUDIO_20261118.md` and its older part `docs/OWNER_DECISIONS_STUDIO_20261112.md`: games of up to 6 players, default 4 (one own deck, three opponents); two to six seats are active (five and six seats were released by the Owner on 2026-11-22 as a conditional go, register E16). No simulation result automatically mutates a deck, inventory quantity, physical allocation or purchase state.
 
 ## Evidence boundary
 

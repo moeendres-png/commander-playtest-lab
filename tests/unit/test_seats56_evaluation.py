@@ -1,9 +1,10 @@
 """Five- and six-seat results evaluated for the deck builder like two to four seats (#1661).
 
 Owner 2026-11-22 (#1656): simulations at five and six seats are evaluated as sensibly as two to
-four seats and used for the deck builder. The seat lock stays on ``main``
-(``launch.MAX_RELEASED_SEATS`` = 4); every test that plays five or six seats lifts it in memory
-only (``monkeypatch``), and one test per path holds that the shipped lock still refuses them.
+four seats and used for the deck builder. The seat lock was 4 on ``main`` before the release of
+five and six seats (#1743, register E16) and is 6 with it; every test that plays five or six seats
+sets the lock explicitly in memory (``monkeypatch``), and one test reads the shipped value and
+holds that whatever it does not release is still refused.
 The bridge is a test bridge (synthetic N-seat exposures), no real engine ran: NOT_RUN.
 """
 
