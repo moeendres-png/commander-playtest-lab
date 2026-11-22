@@ -111,7 +111,7 @@ function estimatePairedText(budgetPairs, workers = 4, tableSeats = PAIRED_MEASUR
 function planPairedReference(plan) {
   const b = plan.baseline;
   if (!b || !b.applies_to_plan) return "Referenz: ein einzelner Siegrate-Anteil braucht bei 25 % rund 800 Partien für ±3 pp.";
-  const pct = (v) => StudioUI.num(v, Number.isInteger(v) ? 0 : 1);
+  const pct = (v) => StudioUI.num(v, Number.isInteger(v) ? 0 : Math.abs(v * 10 - Math.round(v * 10)) < 1e-9 ? 1 : 2);
   return `Referenz: Zufallsbasis 1/${StudioUI.num(b.table_size, 0)} = ${pct(b.win_rate_pct)} % bei ${StudioUI.num(b.table_size, 0)} gleich starken Plätzen; ein einzelner Siegrate-Anteil braucht ${StudioUI.num(b.games_needed_wilson, 0)} Partien für ±${pct(b.half_width_pp)} pp (±20 % relativ, 95-%-Wilson-Intervall).`;
 }
 

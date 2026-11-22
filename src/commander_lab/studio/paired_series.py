@@ -409,11 +409,12 @@ def estimate_series_duration(
             + ". 2 Partien je Paar; früher Stopp je nach Look möglich."
         )
     elif ratio is not None and pool_ref is not None:
+        minutes_de = f"{minutes:.1f}".replace(".", ",")
+        ratio_de = f"{ratio:.2f}".replace(".", ",")
         basis = (
-            f"geschätzt ~{minutes} min (abgeleitet, keine Untergrenze): "
+            f"geschätzt ~{minutes_de} min (abgeleitet, keine Untergrenze): "
             f"{MEASURED_BATCH_GAMES_PER_HOUR:.0f} Partien/h des Vierertischs (#1251) geteilt "
-            f"durch {ratio:.2f}".replace(".", ",")
-            + f" = {rate:.0f} Partien/h; {WALL_RATIO_SOURCE}. Zum Vergleich "
+            f"durch {ratio_de} = {rate:.0f} Partien/h; {WALL_RATIO_SOURCE}. Zum Vergleich "
             f"gemessen: gepaarte Serie im Pool mit {pool_ref['workers']} Workern "
             f"{float(cast(float, pool_ref['games_per_hour'])):.0f} Partien/h "
             f"(n = {pool_ref['games']}/{pool_ref['planned']} Partien, #1661 Teil B, B6), "
