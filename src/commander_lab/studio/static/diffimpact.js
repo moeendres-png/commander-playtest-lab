@@ -77,8 +77,10 @@ function diffManabaseNodes(h, mb) {
     const rangePp = (low, high) => (low === null || low === undefined || high === null || high === undefined) ? "unbekannt" : (low === high ? diffPp(low) : `${diffPp(low)} / ${diffPp(high)}`);
     const cell = (base, target, deltaLow, deltaHigh, lowKey, highKey) => h("td", { class: "num" },
       `${range(base[lowKey], base[highKey])} → ${range(target[lowKey], target[highKey])} (${rangePp(deltaLow, deltaHigh)})`);
+    nodes.push(h("h3", {}, "Ungetappte Quelle früh (Basis → aktuell)"),
+      h("p", { id: "diff-access-note", class: "note warn" }, "Keine Grenze des Farbzugriffs: getappte Länder aus Zug 1, die in Zug 2 schon Mana geben, sind nicht gezählt. „Exakt“ gilt nur für das genannte Ereignis (ungetappte direkte Quelle); die zwei Werte sind Grenzen nur wegen bedingt getappter und unbekannter Länder."));
     nodes.push(h("div", { class: "table-wrap" }, h("table", { id: "diff-colour-access" },
-      head(["Farbe", "Starthand (Basis → aktuell)", "ungetappt direkt Zug 1", "ungetappt direkt Zug 2"]),
+      head(["Farbe", "Starthand (Basis → aktuell)", "ungetappte Quelle direkt Zug 1", "ungetappte Quelle direkt Zug 2"]),
       h("tbody", {}, access.map((item) => h("tr", {},
         h("td", {}, h("span", { class: "ms ms-" + item.colour }, item.colour), item.in_base && item.in_target ? "" : h("span", { class: "note" }, item.in_base ? " nur in Basis gebraucht" : " nur aktuell gebraucht")),
         cell(item.base, item.target, item.delta_pp.hand, item.delta_pp.hand_high, "hand", "hand_high"),

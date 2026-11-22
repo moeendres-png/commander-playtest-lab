@@ -1691,7 +1691,11 @@ drop of turn T at the latest. No further play assumption: lands tapped on an ear
 search lands are not counted (direct sources only), and the conditional class is not decided by
 a game state. Instead each figure is an interval: the lower bound counts conditional lands and
 lands of unknown class as tapped, the upper bound counts them as untapped and lands without
-colour data as a source of every colour; one value is shown where both agree. Chulane baseline:
+colour data as a source of every colour; one value is shown where both agree. These are bounds of
+the defined event only, not of the colour access: a land of the colour played tapped on turn 1
+already gives the colour on turn 2 and is not counted (for white on the Chulane baseline the
+chance of any white source among 8 cards is 74.5 %, above the upper bound for turn 2), so the
+page names the section "Ungetappte Quelle früh" and says so directly at the table. Chulane baseline:
 white on turn 1 45.6 % to 54.7 %, blue in the opening hand 74.5 %. The audit's abort criterion
 (no stage 2 that needs a play assumption not explainable in one sentence) holds. The figures are
 appended to the castability answer (`tapped`, `colour_access`) and to its number contracts

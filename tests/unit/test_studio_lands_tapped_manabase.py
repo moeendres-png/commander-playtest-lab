@@ -217,6 +217,24 @@ def test_unknown_is_its_own_class_and_never_untapped() -> None:
     assert (green["untapped_low"], green["untapped_high"]) == (11, 13)
 
 
+def test_land_without_colour_data_counts_in_the_upper_bounds_only() -> None:
+    """Review round 1 of #1755: a land without colour data (``produced_mana`` None, no basic
+    land type) is a source of every colour in the upper bounds and in none of the lower ones."""
+    rows = [*_chulane_shaped(), _land("Blank Land", None, text="{T}: Add {C}.")]
+    access = castability.deck_castability(rows)["colour_access"]
+    assert access["library"] == 100 and access["lands_unknown_colours"] == 1
+    white = next(c for c in access["colours"] if c["colour"] == "W")
+    assert (white["sources"], white["untapped_low"], white["untapped_high"]) == (15, 7, 10)
+    hand = white["opening_hand"]
+    assert hand["p"] == round(float(_at_least_one(100, 15, 7)), 4)
+    assert hand["p_high"] == round(float(_at_least_one(100, 16, 7)), 4)
+    assert hand["p_high"] > hand["p"]
+    for turn in white["turns"]:
+        draws = 7 + turn["turn"]
+        assert turn["p_low"] == round(float(_at_least_one(100, 7, draws)), 4)
+        assert turn["p_high"] == round(float(_at_least_one(100, 10, draws)), 4)
+
+
 # --- WP-4 stage 2: exact colour access, lower and upper bound -----------------------------
 
 
@@ -516,7 +534,7 @@ def test_castability_page_shows_classes_quotes_access_and_the_assumption() -> No
         "castability.js",
         "castabilityNodes(h, data, () => {}, (k) => k)",
         result,
-        ["tapped-classes", "tapped-lands", "colour-access", "access-assumption"],
+        ["tapped-classes", "tapped-lands", "colour-access", "access-assumption", "access-note"],
     )
     classes = shown["tapped-classes"] or ""
     assert "immer getappt 8 von 36" in classes and "bedingt getappt 2 von 36" in classes
@@ -529,6 +547,11 @@ def test_castability_page_shows_classes_quotes_access_and_the_assumption() -> No
     assert "74,5 %" in access  # U opening hand, one value
     assert "15 (7 \u2013 9)" in access
     assert (shown["access-assumption"] or "").startswith("Annahme (ein Satz):")
+    note = shown["access-note"] or ""
+    assert note.startswith("Keine Grenze des Farbzugriffs:")
+    assert "getappte Länder aus Zug 1, die in Zug 2 schon Mana geben, sind nicht gezählt" in note
+    source = (STATIC / "castability.js").read_text(encoding="utf-8")
+    assert '"Ungetappte Quelle früh"' in source and "Farbzugriff früh (exakt)" not in source
 
 
 def test_diff_page_shows_pp_deltas_only_in_and_unknown() -> None:
@@ -543,6 +566,7 @@ def test_diff_page_shows_pp_deltas_only_in_and_unknown() -> None:
         "diff-manabase",
         "diff-opening-hand",
         "diff-colour-access",
+        "diff-access-note",
         "diff-tapped",
         "diff-commander",
     ]
@@ -555,6 +579,8 @@ def test_diff_page_shows_pp_deltas_only_in_and_unknown() -> None:
     tapped = a["diff-tapped"] or ""
     assert "2 von 8" in tapped and "0 von 8" in tapped and "\u22122" in tapped
     assert "nur aktuell gebraucht" in (a["diff-colour-access"] or "")
+    assert "ungetappte Quelle direkt Zug 1" in (a["diff-colour-access"] or "")
+    assert (a["diff-access-note"] or "").startswith("Keine Grenze des Farbzugriffs:")
     assert "Cmd" in (a["diff-commander"] or "") and "pp" in (a["diff-commander"] or "")
     assert "unbekannt" in (b["diff-manabase"] or "")
     assert "kein Delta: anderer Commander" in (b["diff-commander"] or "")

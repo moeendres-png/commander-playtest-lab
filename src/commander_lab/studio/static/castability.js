@@ -61,6 +61,8 @@ function landClassNodes(h, classes) {
   return out;
 }
 
+// The stage-2 event is "an untapped direct source", not the colour access: said at the table (#1755 review).
+const ACCESS_NOTE = "Keine Grenze des Farbzugriffs: getappte Länder aus Zug 1, die in Zug 2 schon Mana geben, sind nicht gezählt. „Exakt“ gilt nur für das genannte Ereignis (ungetappte direkte Quelle); die zwei Werte sind Grenzen nur wegen bedingt getappter und unbekannter Länder.";
 const TAP_LABELS = { immer_getappt: "immer getappt", bedingt_getappt: "bedingt getappt", ungetappt: "ungetappt", unbekannt: "unbekannt" };
 
 // A lower and an upper bound as one value when they agree, else "a – b".
@@ -87,11 +89,12 @@ function tappedNodes(h, tapped, access) {
           land.fetch_quote ? h("div", {}, `Geholtes Land: „${land.fetch_quote}“`) : "")))))));
   }
   if (!access || !access.colours || !access.colours.length) return out;
-  out.push(h("h3", {}, "Farbzugriff früh (exakt)"),
+  out.push(h("h3", {}, "Ungetappte Quelle früh"),
+    h("p", { id: "access-note", class: "note warn" }, ACCESS_NOTE),
     h("div", { class: "table-wrap" }, h("table", { id: "colour-access" },
       h("thead", {}, h("tr", {}, h("th", {}, "Farbe"),
         h("th", { class: "num", title: "mindestens eine direkte Quelle der Farbe, gleich welcher Klasse, unter 7 Karten" }, "Starthand (7 Karten)"),
-        ...[1, 2].map((turn) => h("th", { class: "num", title: `mindestens ein ungetapptes Land mit eigener Farbe unter ${StudioUI.num(7 + turn, 0)} Karten (nur direkte Quellen)` }, `ungetappt direkt Zug ${StudioUI.num(turn, 0)} (${StudioUI.num(7 + turn, 0)} Karten)`)),
+        ...[1, 2].map((turn) => h("th", { class: "num", title: `mindestens ein ungetapptes Land mit eigener Farbe unter ${StudioUI.num(7 + turn, 0)} Karten (nur direkte Quellen)` }, `ungetappte Quelle direkt Zug ${StudioUI.num(turn, 0)} (${StudioUI.num(7 + turn, 0)} Karten)`)),
         h("th", { class: "num" }, "Quellen direkt (davon ungetappt)"))),
       h("tbody", {}, access.colours.map((item) => h("tr", {},
         h("td", {}, h("span", { class: "ms ms-" + item.colour }, item.colour)),
