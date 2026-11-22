@@ -256,6 +256,35 @@ function seriesPlayedText(played, planned, closed, atMost, running) {
   return `Gespielt: ${StudioUI.num(played, 0)} ${of} Partien${tail}.${note}`;
 }
 
+// The determinism guard of a series that was played on the worker pool (S1 Rest, #1660), in words.
+// "unbewacht n/N": n of the N finished games have no transcript hash or no game key, so the guard
+// could not compare them. "vergleichbar": the number of game keys with two or more games, the only
+// ones it can compare at all; a normal A/B series plays every key once, so that is 0 and nothing was
+// compared. No journal, no finished game or an answer without the figures is "unbekannt", never 0.
+function pairedGuardParts(guard) {
+  const known = (v) => v !== null && v !== undefined && v !== "" && Number.isFinite(Number(v));
+  if (guard === null || guard === undefined || typeof guard !== "object") {
+    return { short: "unbekannt", text: "Determinismus-Wächter: unbekannt (kein Journal: nicht auf dem Pool-Weg gespielt oder noch nichts gespielt)." };
+  }
+  if (guard.error) {
+    return { short: "nicht prüfbar", text: `Determinismus-Wächter: nicht prüfbar (${guard.error}).` };
+  }
+  if (guard.violation) {
+    return { short: "DETERMINISM_VIOLATION", text: "Determinismus-Wächter: DETERMINISM_VIOLATION, ein Spielschlüssel hat zwei verschiedene Transkripte; die Serie hat kein Ergebnis." };
+  }
+  if (!known(guard.unguarded) || !known(guard.finished)) {
+    return { short: "unbekannt", text: "Determinismus-Wächter: unbekannt (noch keine abgeschlossene Partie im Journal)." };
+  }
+  const short = `unbewacht ${StudioUI.num(guard.unguarded, 0)}/${StudioUI.num(guard.finished, 0)}`;
+  const comparable = known(guard.comparable_keys)
+    ? `${StudioUI.num(guard.comparable_keys, 0)} Schlüssel mit mindestens 2 Partien`
+    : "unbekannt viele Schlüssel";
+  return {
+    short,
+    text: `Determinismus-Wächter: ${short} abgeschlossene Partien ohne Transkript-Hash oder Schlüssel; vergleichbar: ${comparable} (verglichen wird nur, was zweimal gespielt wurde).`,
+  };
+}
+
 // The table of a recorded series: its seat count from the seed plan, "unbekannt" for an older record.
 function pairedMonitorTableText(job) {
   const seats = job.seed_plan ? job.seed_plan.player_count : null;
@@ -289,7 +318,8 @@ function renderPairedMonitor(h, job, deps) {
     h("progress", { value: donePairs, max: maxPairs }),
     h("p", { class: "note note-compact" }, seriesPlayedText(job.games_played, job.games_planned_max, null, true, isRunning)),
     h("p", { class: "note note-compact" }, `Basis (A): ${job.base_ref} · Variante (B): ${job.variant_ref}`),
-    h("p", { class: "note note-compact", id: "paired-monitor-table" }, pairedMonitorTableText(job)));
+    h("p", { class: "note note-compact", id: "paired-monitor-table" }, pairedMonitorTableText(job)),
+    h("p", { class: "note note-compact", id: "paired-monitor-guard" }, pairedGuardParts(job.determinism_guard).text));
 
   const qualStates = job.bridge_qualification_states || (job.bridge_qualification && job.bridge_qualification.status ? [job.bridge_qualification.status] : []);
   if (qualStates.includes("BRIDGE_AHEAD_OF_QUALIFICATION")) {
@@ -471,7 +501,7 @@ function refreshPairedSlots(deps) {
       histSlot.replaceChildren(
         h("h4", { class: "mt-2" }, "Gespeicherte Nachtlauf-Serien"),
         h("div", { class: "table-wrap" }, h("table", {},
-          h("thead", {}, h("tr", {}, h("th", {}, "Serie"), h("th", {}, "Status"), h("th", {}, "Ergebnis"), h("th", { class: "num" }, "Differenz"), h("th", {}, "Plätze"), h("th", {}, ""))),
+          h("thead", {}, h("tr", {}, h("th", {}, "Serie"), h("th", {}, "Status"), h("th", {}, "Ergebnis"), h("th", { class: "num" }, "Differenz"), h("th", {}, "Plätze"), h("th", {}, "Wächter"), h("th", {}, ""))),
           h("tbody", {}, historyList.slice(0, 10).map((item) => {
             const r = item.result || null;
             const v = pairedVerdictInfo(r);
@@ -502,6 +532,7 @@ function refreshPairedSlots(deps) {
               h("td", {}, v ? v[1] : `${StudioUI.num(item.pairs_attempted ?? 0, 0)}/${item.budget_pairs !== null && item.budget_pairs !== undefined ? StudioUI.num(item.budget_pairs, 0) : "?"} Paare`),
               h("td", { class: "num" }, r ? fmtPp(r.difference_pp) : "–"),
               h("td", { title: pairedAlignmentText(item.slot_alignment) }, pairedAlignmentShort(item.slot_alignment)),
+              h("td", { class: "paired-guard", title: pairedGuardParts(item.determinism_guard).text }, pairedGuardParts(item.determinism_guard).short),
               h("td", {}, h("div", { class: "actions" },
                 h("button", {
                   type: "button",

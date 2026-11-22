@@ -704,7 +704,15 @@ def game_exposures(log_path: str | Path) -> GameExposure | None:
 
 
 def load_exposures(games_dir: str | Path) -> LoadReport:
-    """Every usable game in a games folder, plus which logs were skipped and for which decks."""
+    """Every usable game in a games folder, plus which logs were skipped and for which decks.
+
+    Reads the folder as it is: every log in it, whoever wrote it. The series journal and the pool
+    (``series_record``) count only games their manifest names, and ignore a foreign log; that rule
+    does not apply here, on purpose (decision of #1660, S1 Rest). This is the evaluation of a
+    folder of games (``compare_logs``, the card tables), not the record of one series: the games
+    of a series are in this folder too and a log of another origin in it is a game that was
+    played, with the deck ids and seeds its header names.
+    """
     folder = Path(games_dir)
     paths: dict[str, Path] = {}
     if folder.is_dir():

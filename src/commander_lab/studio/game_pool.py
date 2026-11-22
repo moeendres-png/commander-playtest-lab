@@ -27,9 +27,11 @@ in flight end; the logs of finished games stay.
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import json
 import os
 import queue
+import re
 import signal
 import subprocess
 import sys
@@ -39,7 +41,7 @@ from collections import deque
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import IO, Protocol
+from typing import IO, Final, Protocol
 
 from .games import games_folder
 from .series_record import DeterminismViolation, SeriesRecord, file_sha256
@@ -110,6 +112,8 @@ class GameTask:
     engine_pin: str | None = None
     skip_forced_decisions: bool | None = None
     round_limit: int | None = None
+    #: what ``jvm_options_of`` read from the command and the environment when it was planned
+    jvm_options: Mapping[str, object] | None = None
 
     def to_wire(self) -> dict[str, object]:
         return {
@@ -129,21 +133,139 @@ class GameTask:
             "engine_pin": self.engine_pin,
             "skip_forced_decisions": self.skip_forced_decisions,
             "round_limit": self.round_limit,
+            "jvm_options": dict(self.jvm_options) if self.jvm_options is not None else None,
         }
 
 
 GameSummary = dict[str, object]
 
 
+#: The engine's mana-copy switch (``XmageFullGamePlayer``: on unless it is ``false``). It is a
+#: performance change that mirrors the engine's own computation, checked by a differential test
+#: of the bridge, not proven; a series that mixes both values could combine incomparable games,
+#: so it is part of the game key (#1660, S1 Rest).
+NESTED_COPY_SKIP_PROPERTY = "commanderlab.nestedCopySkip"
+#: Environment variables the JVM reads as options before the command line (``JAVA_TOOL_OPTIONS``,
+#: ``_JAVA_OPTIONS``) or the ``java`` launcher reads (``JDK_JAVA_OPTIONS``). Their text can set
+#: any ``-D`` property, a Java agent or a collector, so it is not parsed: a variable that is set
+#: enters the game key as the SHA-256 of its whitespace-normalised text. The text itself can name
+#: machine paths and agent flags and is never written anywhere (AGENTS.md section 12): not into
+#: the task on the wire, the key, the manifest or the journal. A worker inherits the environment
+#: of the supervisor, which is the JVM's environment.
+JVM_ENV_OPTION_NAMES = ("JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS")
+
+#: The options before ``-jar`` that this package may leave out of the game key, and why. Every
+#: other option of the command (``-javaagent``, any other ``-D``, ``-cp``, ``--add-opens``, a
+#: collector flag this list does not name, ...) is part of the key through
+#: ``jvm_command_options_digest``: the list is closed and fail-closed, so a new or unknown option
+#: counts until someone has shown that it only changes speed or memory and adds it here with its
+#: reason. A pattern must match a whole option (``re.fullmatch``).
+PERFORMANCE_ONLY_JVM_OPTIONS: Final[tuple[tuple[str, str], ...]] = (
+    (r"-Xmx\d+[kKmMgG]?", "maximum heap: too little ends a game with an error, never changes one"),
+    (r"-Xms\d+[kKmMgG]?", "initial heap: how much memory is reserved at start"),
+    (r"-Xss\d+[kKmMgG]?", "thread stack size: the limit of recursion depth, not a rule"),
+    (r"-XX:[+-]Use\w*GC", "garbage collector selection: pauses and CPU, not the game"),
+    (r"-XX:[+-]UseStringDeduplication", "heap compaction of equal strings: memory only"),
+    (r"-Xshare:(?:auto|on|off|dump)", "class data sharing mode: start-up time"),
+    (r"-XX:SharedArchiveFile=\S+", "AppCDS archive (a path, never hashed): start-up time"),
+    (r"-Xlog(?::\S*)?", "JVM logging: where the JVM writes its own messages"),
+    (r"-Dh2\.bindAddress=\S+", "network interface of the card database (loopback): no game rule"),
+    # not a performance setting, but already part of the key through a field of its own
+    (
+        r"-Dcommanderlab\.fullGame\.skipForcedDecisions=.*",
+        "forced-pass switch: key field of its own",
+    ),
+    (r"-Dcommanderlab\.nestedCopySkip=.*", "mana-copy switch: key field of its own"),
+    # deliberately out of the key (see ``series_record``): the guard must be able to catch a game
+    # that depends on its position in its JVM
+    (r"-Dcommanderlab\.fullGame\.gamesPerJvm=.*", "games per JVM: stays out on purpose"),
+)
+_PERFORMANCE_ONLY: Final = tuple(
+    re.compile(pattern, re.DOTALL) for pattern, _reason in PERFORMANCE_ONLY_JVM_OPTIONS
+)
+
+
+def _jvm_property_of(command: Sequence[str] | None, name: str) -> str | None:
+    """The value of ``-D<name>=`` among the JVM options of ``command``; the last one wins.
+
+    Only the options before ``-jar`` are JVM options (what follows is an argument of the
+    program), and the JVM takes the last of two equal ``-D`` options. ``None``: not set.
+    """
+    parts = list(command or ())
+    if "-jar" in parts:
+        parts = parts[: parts.index("-jar")]
+    prefix = f"-D{name}="
+    found: str | None = None
+    for part in parts:
+        if part.startswith(prefix):
+            found = part[len(prefix) :]
+    return found
+
+
 def skip_forced_decisions_of(command: Sequence[str] | None) -> bool | None:
     """The forced-pass switch a bridge command sets; ``None`` when it does not set it."""
     from .launch import SKIP_FORCED_DECISIONS_PROPERTY
 
-    prefix = f"-D{SKIP_FORCED_DECISIONS_PROPERTY}="
-    for part in command or ():
-        if part.startswith(prefix):
-            return part[len(prefix) :].strip().lower() == "true"
-    return None
+    value = _jvm_property_of(command, SKIP_FORCED_DECISIONS_PROPERTY)
+    # the bridge reads it with ``Boolean.getBoolean``: "true" in any case, nothing trimmed
+    return None if value is None else value.lower() == "true"
+
+
+def jvm_env_digest(text: str) -> str:
+    """SHA-256 of a JVM option variable's text with its white space normalised."""
+    return hashlib.sha256(" ".join(text.split()).encode("utf-8")).hexdigest()
+
+
+def jvm_command_options_digest(command: Sequence[str] | None) -> str | None:
+    """SHA-256 of the JVM options of ``command`` that are not performance-only; ``None``: none.
+
+    The options are those before ``-jar`` (the launcher itself, the first word, is not one),
+    minus ``PERFORMANCE_ONLY_JVM_OPTIONS``: what is left can change a game (an agent, a
+    ``-D`` property, a class path) and is kept in its order, because the JVM takes the last of
+    two equal properties and agents run in order. The digest is that list's canonical JSON;
+    the options themselves can name machine paths and are never kept (AGENTS.md section 12).
+    """
+    parts = list(command or ())
+    if "-jar" in parts:
+        parts = parts[: parts.index("-jar")]
+    kept = [
+        part
+        for part in parts[1:]
+        if not any(pattern.fullmatch(part) for pattern in _PERFORMANCE_ONLY)
+    ]
+    if not kept:
+        return None
+    text = json.dumps(kept, ensure_ascii=True, separators=(",", ":"))
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def jvm_options_of(
+    command: Sequence[str] | None, env: Mapping[str, str] | None = None
+) -> dict[str, object]:
+    """What besides the forced-pass switch can change a game on this JVM (``game_key``).
+
+    ``nested_copy_skip``: the mana-copy switch of the command, ``None`` when it does not set it
+    (exactly ``false`` is the only value that turns it off, as in the bridge). ``env_options``: each JVM
+    option variable of ``env`` (default: the process environment) that is set and not blank,
+    name -> ``jvm_env_digest`` of its text (the text itself is never kept). ``command_options``:
+    ``jvm_command_options_digest`` of the command (the options before ``-jar`` that are not on
+    the performance-only list; ``None`` when there are none). Not read, on purpose (see
+    ``series_record``): ``gamesPerJvm`` and the performance-only options.
+    """
+    environment = os.environ if env is None else env
+    raw = _jvm_property_of(command, NESTED_COPY_SKIP_PROPERTY)
+    # the bridge: on unless the text is exactly "false" (no trimming, case matters)
+    nested = None if raw is None else raw != "false"
+    options = {
+        name: jvm_env_digest(environment[name])
+        for name in JVM_ENV_OPTION_NAMES
+        if environment.get(name, "").strip()
+    }
+    return {
+        "nested_copy_skip": nested,
+        "env_options": options,
+        "command_options": jvm_command_options_digest(command),
+    }
 
 
 def plan_task(
@@ -156,6 +278,7 @@ def plan_task(
     jar_sha256: str | None,
     engine_pin: str | None,
     skip_forced_decisions: bool | None,
+    jvm_options: Mapping[str, object],
     strategy: str = "generic",
     round_limit: int | None = None,
     table: Mapping[str, object] | None = None,
@@ -194,6 +317,7 @@ def plan_task(
         table_options=table,
         skip_forced_decisions=skip_forced_decisions,
         round_limit=round_limit,
+        jvm_options=jvm_options,
     )
     return GameTask(
         task_id=task_id,
@@ -211,6 +335,7 @@ def plan_task(
         engine_pin=engine_pin,
         skip_forced_decisions=skip_forced_decisions,
         round_limit=round_limit,
+        jvm_options=dict(jvm_options),
     )
 
 
@@ -253,6 +378,9 @@ class SessionWorkerEngine:
         self._data_folder = data_folder
         self._command = command if command is not None else engine_command(data_folder)
         self._jar_sha = bridge_jar_sha256(data_folder, self._command)
+        # the configuration this worker plays with, read once: its pin, command and environment
+        self._engine_pin = own_engine_pin(data_folder)
+        self._environment = dict(os.environ)
         self._headers: dict[str, tuple[str, dict[str, object]]] = {}
         self._runner = BatchRecordingRunner(
             data_folder,
@@ -274,6 +402,11 @@ class SessionWorkerEngine:
                 "BridgeJarMismatch",
                 "der Auftrag nennt einen anderen Bridge-JAR als den, den dieser Worker startet",
             )
+        refused = config_refusal(
+            message, engine_pin=self._engine_pin, command=self._command, env=self._environment
+        )
+        if refused is not None:
+            return refused
         decks = load_decks([Path(str(path)) for path in _as_list(message.get("deck_paths"))])
         styles = [float(str(style)) for style in _as_list(message.get("seat_styles"))]
         prepared = prepare_game(
@@ -441,14 +574,71 @@ def task_refusal(message: Mapping[str, object]) -> GameSummary | None:
     return None
 
 
+def own_engine_pin(data_folder: str | Path) -> str:
+    """The engine pin this worker's code runs under (``config/rules_engines.json``).
+
+    Read through ``launch.engine_state``, the one place of the Studio that names it, so the
+    package keeps its recorded imports of the qualification layer.
+    """
+    from .launch import engine_state
+
+    pin = engine_state(data_folder).get("pin")
+    if not isinstance(pin, str) or not pin:
+        raise GamePoolError("kein Engine-Pin bekannt: ein Worker spielt keine Partie ohne ihn")
+    return pin
+
+
+def config_refusal(
+    message: Mapping[str, object],
+    *,
+    engine_pin: str,
+    command: Sequence[str] | None,
+    env: Mapping[str, str] | None = None,
+) -> GameSummary | None:
+    """Refuse a task whose pin or switches are not those this worker plays with (S1 Rest).
+
+    ``task_refusal`` checks the task against itself (its key from its own fields). This checks the
+    fields the worker cannot verify from the files alone against the worker's own configuration:
+    the engine pin of its code, and from its own bridge command and environment the forced-pass
+    switch, the mana-copy switch and the JVM option variables. The JAR is checked by the engine
+    (``BridgeJarMismatch``). A game the supervisor planned for another configuration would carry
+    a key that names a game this JVM does not play; it is never started (``GameKeyMismatch``, an
+    infrastructure failure, not a result).
+    """
+    game_id = str(message.get("game_id"))
+    own_jvm = jvm_options_of(command, env)
+    mismatches = [
+        text
+        for text, differs in (
+            ("Engine-Pin", message.get("engine_pin") != engine_pin),
+            (
+                "Schalter für erzwungene Pässe",
+                message.get("skip_forced_decisions") != skip_forced_decisions_of(command),
+            ),
+            ("JVM-Optionen (Mana-Kopie, Umgebung, Befehl)", message.get("jvm_options") != own_jvm),
+        )
+        if differs
+    ]
+    if not mismatches:
+        return None
+    return refused_game_summary(
+        game_id,
+        "GameKeyMismatch",
+        "der Auftrag weicht von der Konfiguration dieses Workers ab: " + ", ".join(mismatches),
+    )
+
+
 def task_key_of(message: Mapping[str, object]) -> str | None:
     """The game key the fields of a task give; ``None`` when they give none (incomplete)."""
     from .series_record import game_key
 
     strategy, table = message.get("strategy"), message.get("table")
     skip, rounds = message.get("skip_forced_decisions"), message.get("round_limit")
+    jvm = message.get("jvm_options")
     if not isinstance(strategy, str) or not (table is None or isinstance(table, dict)):
         return None
+    if not isinstance(jvm, dict):
+        return None  # a task without them is not a task this worker's key can name
     if not (skip is None or isinstance(skip, bool)) or not (rounds is None or type(rounds) is int):
         return None
     try:
@@ -463,6 +653,7 @@ def task_key_of(message: Mapping[str, object]) -> str | None:
             table_options=table,
             skip_forced_decisions=skip,
             round_limit=rounds,
+            jvm_options=jvm,
         )
     except ValueError:
         return None
@@ -1058,6 +1249,7 @@ def _ends_with_newline(path: Path) -> bool:
 __all__ = [
     "ENDED_EOF_GRACE_SECONDS",
     "GAME_WALL_LIMIT_SECONDS",
+    "PERFORMANCE_ONLY_JVM_OPTIONS",
     "SERIES_POOL_ENV",
     "DeterminismViolation",
     "GamePool",
@@ -1066,6 +1258,11 @@ __all__ = [
     "GameTask",
     "SessionWorkerEngine",
     "WorkerEngine",
+    "config_refusal",
+    "jvm_command_options_digest",
+    "jvm_env_digest",
+    "jvm_options_of",
+    "own_engine_pin",
     "plan_task",
     "refused_game_summary",
     "run_worker_process",

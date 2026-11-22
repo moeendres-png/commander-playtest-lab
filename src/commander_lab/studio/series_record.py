@@ -1,13 +1,41 @@
 """Game key, manifest and journal of a series played on the worker pool (S1, #1660).
 
-``game_key`` names everything that decides a game: bridge JAR, engine pin, the pilot fingerprint
-and style of every seat, the pilot strategy, the deck files in seat order, seed, seat count,
-table options, the forced-pass switch and the round limit. The event log is not part of it (its order is not stable,
-#1589). Two games with the same key must have the same transcript; the determinism guard ends a
-series whose journal shows one key with two transcript hashes (``DETERMINISM_VIOLATION``).
+``game_key`` covers every input that this package can name and that can decide a game: bridge
+JAR, engine pin, the pilot fingerprint and style of every seat, the pilot strategy, the deck
+files in seat order, seed, seat count, table options, the forced-pass switch, the round limit,
+the engine's mana-copy switch (``-Dcommanderlab.nestedCopySkip``), the JVM option variables of the
+environment (``JAVA_TOOL_OPTIONS``, ``JDK_JAVA_OPTIONS``, ``_JAVA_OPTIONS``) and all other JVM
+options of the worker command before ``-jar`` (``-javaagent``, any other ``-D``, ...). The option
+texts can carry any ``-D`` property or agent and can name machine paths, so each enters the key
+only as a SHA-256 (environment variables: of the whitespace-normalised text, one digest per
+variable; the command: of the remaining options in their order, one digest) and the text itself is
+never stored: not in the key, the task, the manifest or the journal (AGENTS.md section 12). The
+command's options are closed against a list of performance-only options
+(``game_pool.PERFORMANCE_ONLY_JVM_OPTIONS``: heap, stack, collector, AppCDS, logging); an option not
+on it counts (fail-closed). It does not cover what lies outside the process's own configuration
+(the content of a ``JDK_JAVA_OPTIONS`` ``@argfile``, files an agent reads) and it deliberately
+excludes the performance-only options and ``-Dcommanderlab.fullGame.gamesPerJvm`` (below). The
+event log is not part of it (its order is not stable, #1589). Two games with the same key must
+have the same transcript; the determinism guard ends a series whose journal shows one key with
+two transcript hashes (``DETERMINISM_VIOLATION``).
+
+Deliberately NOT in the key (#1660, S1 Rest): ``-Dcommanderlab.fullGame.gamesPerJvm`` and the
+performance-only JVM options (``-Xmx``, serial GC, AppCDS archive, loopback bind, ...). They
+decide how many games one JVM plays and how fast, not a game. ``gamesPerJvm`` in particular must
+stay out: a game must not depend on its position in its JVM, and that is exactly what the guard
+shall be able to catch (the same key played at JVM position 1 and at position 16); a key that
+contained it would give those two games two keys and blind the guard to it. The evidence is the
+measured identity of ``scripts/check_studio_series_identity.py`` (168 of 168 repeated seeds
+semantically identical, #1588), not a proof; the guard stays the safety net.
 
 Per series there is ``games/series/<id>/manifest.json`` (``studio-series-manifest-1``), written
-once when the series starts and never changed afterwards, and ``journal.jsonl`` with one line per
+once when the series starts and never changed afterwards; it names the key version it was
+recorded with (``game_key_schema``; a manifest without the field was recorded with
+``studio-game-key-1``). A series recorded with another key version is not resumed and its games
+are never mixed with new ones: its keys name other inputs, so the new plan gives other keys for
+the same games. That is not a determinism violation (the guard reads the stored keys as they
+are and never recomputes one); the start is refused with ``KeyVersionMismatch`` ("neue Serie
+starten"), also on the chunked path (``series_key_problem``), and ``journal.jsonl`` with one line per
 final game result. Whether a game belongs to the series is decided by the manifest only: a log
 or journal line of a game the manifest does not name is never counted, whatever folder it is in.
 A cancelled series is resumed from its journal; a journal line cut off by the cancel is ignored
@@ -22,7 +50,11 @@ does not replay it, as the progress log of ``paired_series`` does not, so a resu
 what an uninterrupted one would have counted. Journal and manifest are synced to disk after each
 write; two processes running one series at once are not locked against each other (the manifest
 is created once, by hard link or, where the file system has none, by exclusive create; journal
-appends of two processes may interleave).
+appends of two processes may interleave). Where the exclusive create is used, the file exists
+(empty) for a moment before its content is there: a second start that finds it empty or cut off
+waits and reads again (``_read_stored_manifest``, ``MANIFEST_READ_ATTEMPTS`` reads) before it
+calls it incomplete, and it never rewrites it. Only a manifest still unreadable after that, which
+an aborted first start leaves, ends as ``ManifestMismatch``.
 
 Nothing here reuses a game (that is #1589, Owner); S1 builds the key and the guard it needs.
 A green series is no evidence of determinism: in a normal A/B series every key is unique (each
@@ -35,6 +67,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
+import time
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -44,7 +78,11 @@ from .games import games_folder
 from .store import now_utc
 from .table_spec import canonical_json, sha256_of
 
-GAME_KEY_SCHEMA: Final = "studio-game-key-1"
+#: How often a start reads a manifest that is empty or cut off, and how long it waits between
+#: two reads: the writer of the exclusive-create fallback is then still between create and write.
+MANIFEST_READ_ATTEMPTS: Final = 20
+MANIFEST_READ_WAIT_SECONDS: Final = 0.1
+GAME_KEY_SCHEMA: Final = "studio-game-key-2"
 MANIFEST_SCHEMA: Final = "studio-series-manifest-1"
 JOURNAL_SCHEMA: Final = "studio-series-journal-1"
 DETERMINISM_VIOLATION: Final = "DETERMINISM_VIOLATION"
@@ -84,6 +122,10 @@ class ManifestMismatch(RuntimeError):
     """The manifest of a series already exists with other content; it is never rewritten."""
 
 
+class KeyVersionMismatch(ManifestMismatch):
+    """The series was recorded with another game key version: not comparable, never resumed."""
+
+
 def file_sha256(path: str | Path) -> str:
     digest = hashlib.sha256()
     with Path(path).open("rb") as handle:
@@ -104,6 +146,7 @@ def game_key(
     table_options: Mapping[str, object] | None,
     skip_forced_decisions: bool | None,
     round_limit: int | None,
+    jvm_options: Mapping[str, object],
 ) -> str:
     """SHA-256 over everything that decides a game (``charter_simulate.md`` §7.1).
 
@@ -112,6 +155,15 @@ def game_key(
     would match games played on another bridge. ``skip_forced_decisions`` and ``round_limit``
     are ``None`` when the command does not set them (the bridge default holds); ``None`` is a
     value of its own in the key, never equal to ``True``/``False`` or a number.
+
+    ``jvm_options`` is what ``game_pool.jvm_options_of`` reads from the bridge command and the
+    environment: ``nested_copy_skip`` (``None`` when the command does not set it) and
+    ``env_options`` (the JVM option variables that are set, name -> SHA-256 of the
+    normalised text; never the text) and ``command_options`` (SHA-256 of the options before
+    ``-jar`` that are not performance-only, ``None`` when there are none; never the options).
+    All three fields are required, so a caller cannot leave them out by accident;
+    ``{"nested_copy_skip": None, "env_options": {}, "command_options": None}`` is "nothing set",
+    a value of its own.
     """
     if not jar_sha256 or not jar_sha256.strip() or not engine_pin or not engine_pin.strip():
         raise ValueError("ein Spielschlüssel braucht Bridge-JAR-SHA und Engine-Pin")
@@ -124,6 +176,7 @@ def game_key(
         )
     if any(not value or not value.strip() for value in (*pilot_fingerprints, *deck_sha256)):
         raise ValueError("leerer Pilot-Fingerabdruck oder Deck-Hash im Spielschlüssel")
+    jvm = _checked_jvm_options(jvm_options)
     payload: dict[str, object] = {
         "schema": GAME_KEY_SCHEMA,
         "jar_sha256": jar_sha256,
@@ -138,8 +191,39 @@ def game_key(
         "table_options": dict(table_options) if table_options is not None else None,
         "skip_forced_decisions": skip_forced_decisions,
         "round_limit": round_limit,
+        "jvm_options": jvm,
     }
     return sha256_of(payload)
+
+
+_SHA256: Final = re.compile(r"[0-9a-f]{64}")
+#: The fields of ``jvm_options`` in the key; nothing else may enter it unnoticed.
+JVM_OPTION_FIELDS: Final = ("nested_copy_skip", "env_options", "command_options")
+
+
+def _checked_jvm_options(options: Mapping[str, object]) -> dict[str, object]:
+    """``options`` with exactly the known fields and shapes, env options in name order."""
+    if set(options) != set(JVM_OPTION_FIELDS):
+        raise ValueError(f"JVM-Optionen des Spielschlüssels: genau die Felder {JVM_OPTION_FIELDS}")
+    nested = options["nested_copy_skip"]
+    if not (nested is None or isinstance(nested, bool)):
+        raise ValueError("nested_copy_skip ist true, false oder None (nicht gesetzt)")
+    env = options["env_options"]
+    if not isinstance(env, Mapping) or any(
+        not isinstance(name, str) or not isinstance(digest, str) or not _SHA256.fullmatch(digest)
+        for name, digest in env.items()
+    ):
+        # a digest, never the option text itself: it can name machine paths and agents (§12)
+        raise ValueError("env_options ist eine Zuordnung Name -> SHA-256 des normalisierten Texts")
+    command = options["command_options"]
+    if not (command is None or (isinstance(command, str) and _SHA256.fullmatch(command))):
+        # a digest or None (no such option), never the options themselves: they can name paths
+        raise ValueError("command_options ist None oder der SHA-256 der Befehlsoptionen")
+    return {
+        "nested_copy_skip": nested,
+        "env_options": {name: env[name] for name in sorted(env)},
+        "command_options": command,
+    }
 
 
 def series_folder(data_folder: str | Path, series_id: str) -> Path:
@@ -198,19 +282,13 @@ class SeriesRecord:
             "series_id": series_id,
             "table_hash": table_hash,
             "table": dict(table) if table is not None else None,
+            "game_key_schema": GAME_KEY_SCHEMA,
             "games": [dict(game) for game in games],
         }
         path = folder / "manifest.json"
         if path.is_file():
-            try:
-                stored = json.loads(path.read_text(encoding="utf-8"))
-            except ValueError as error:
-                # empty or half written (a start that ended inside the exclusive-create fallback)
-                raise ManifestMismatch(
-                    f"Manifest der Serie {series_id} ist leer oder unvollständig, nicht fortsetzbar"
-                ) from error
-            if not isinstance(stored, dict):
-                raise ManifestMismatch(f"Manifest der Serie {series_id} ist kein Objekt")
+            stored = _read_stored_manifest(path, series_id)
+            _require_current_key_version(stored, series_id)
             body = {k: v for k, v in stored.items() if k != "created_at"}
             if canonical_json(body) != canonical_json(manifest):
                 raise ManifestMismatch(
@@ -306,6 +384,17 @@ class SeriesRecord:
         ]
         return len(unguarded), len(finished)
 
+    def comparable_keys(self) -> int:
+        """How many game keys have two or more different games with a transcript hash.
+
+        Only those keys can show a violation; a key played once is not compared with anything.
+        """
+        return sum(
+            1
+            for by_hash in self._hashes.values()
+            if len({game_id for ids in by_hash.values() for game_id in ids}) >= 2
+        )
+
     def results(self) -> dict[str, dict[str, object]]:
         """The final result of every manifest member that has one (game id -> summary)."""
         found: dict[str, dict[str, object]] = {}
@@ -359,19 +448,33 @@ def series_violation(data_folder: str | Path, series_id: str) -> DeterminismViol
 
 
 def series_guard(data_folder: str | Path, series_id: str) -> dict[str, object] | None:
-    """What the guard of a stored series saw, for its status: ``unguarded`` n of ``finished`` N.
+    """What the guard of a stored series saw, for its status.
+
+    ``unguarded`` n of ``finished`` N (the finished games the guard cannot compare) and
+    ``comparable_keys``: how many game keys have two or more guarded games, the only keys the
+    guard can compare at all. The word is "vergleichbar", not "verglichen": in a normal A/B series
+    every key is played once, so the guard compares nothing and says so (``comparable_keys`` 0).
 
     ``None``: no journal (a chunked series, or nothing played yet), so unknown, never "0 of 0".
-    After a violation the journal is not read to its end: both counts are ``None``.
+    A journal without a finished game gives ``None`` for all three counts for the same reason:
+    ``unguarded`` 0 of 0 would read as "all guarded". After a violation the journal is not read to
+    its end: all three are ``None``.
     """
     try:
         record = _stored_record(data_folder, series_id)
     except DeterminismViolation:
-        return {"violation": True, "unguarded": None, "finished": None}
+        return {"violation": True, "unguarded": None, "finished": None, "comparable_keys": None}
     if record is None:
         return None
     unguarded, finished = record.unguarded()
-    return {"violation": False, "unguarded": unguarded, "finished": finished}
+    if finished == 0:
+        return {"violation": False, "unguarded": None, "finished": None, "comparable_keys": None}
+    return {
+        "violation": False,
+        "unguarded": unguarded,
+        "finished": finished,
+        "comparable_keys": record.comparable_keys(),
+    }
 
 
 def _stored_record(data_folder: str | Path, series_id: str) -> SeriesRecord | None:
@@ -391,6 +494,69 @@ def _stored_record(data_folder: str | Path, series_id: str) -> SeriesRecord | No
     record.manifest = stored
     record._read_journal()
     return record
+
+
+#: The key version of a manifest that does not name one: every series recorded before the field.
+LEGACY_GAME_KEY_SCHEMA: Final = "studio-game-key-1"
+
+
+def _require_current_key_version(stored: Mapping[str, object], series_id: str) -> None:
+    """``KeyVersionMismatch`` when ``stored`` was recorded with another game key version."""
+    recorded = stored.get("game_key_schema", LEGACY_GAME_KEY_SCHEMA)
+    if recorded != GAME_KEY_SCHEMA:
+        raise KeyVersionMismatch(
+            f"Serie {series_id} wurde mit der Spielschlüssel-Version {recorded} aufgezeichnet, "
+            f"diese Version ist {GAME_KEY_SCHEMA}: ihre Partien sind mit neuen nicht vergleichbar "
+            "und werden nicht fortgesetzt, bitte eine neue Serie starten"
+        )
+
+
+def series_key_problem(data_folder: str | Path, series_id: str) -> str | None:
+    """Why a stored series cannot be resumed for its key version, or ``None``.
+
+    Only a readable manifest of another key version is a problem here; no manifest (a chunked
+    series) or an unreadable one is not decided by this check.
+    """
+    path = series_folder(data_folder, series_id) / "manifest.json"
+    try:
+        stored = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(stored, dict):
+        return None
+    try:
+        _require_current_key_version(stored, series_id)
+    except KeyVersionMismatch as error:
+        return str(error)
+    return None
+
+
+def _read_stored_manifest(path: Path, series_id: str) -> dict[str, object]:
+    """The stored manifest; an empty or cut-off file is read again before it counts as broken.
+
+    A start without hard links creates the file and writes it in two steps, so a second start can
+    see it empty. That is a race, not a broken series: wait and read again, at most
+    ``MANIFEST_READ_ATTEMPTS`` reads. The file is never touched here. A file still unreadable
+    after that was left by a first start that aborted; the text says so and does not claim more.
+    """
+    last_error: ValueError | None = None
+    for attempt in range(MANIFEST_READ_ATTEMPTS):
+        if attempt:
+            time.sleep(MANIFEST_READ_WAIT_SECONDS)
+        try:
+            stored = json.loads(path.read_text(encoding="utf-8"))
+        except ValueError as error:  # empty, cut off or not text (JSONDecodeError, UnicodeError)
+            last_error = error
+            continue
+        if not isinstance(stored, dict):
+            raise ManifestMismatch(f"Manifest der Serie {series_id} ist kein Objekt")
+        return stored
+    raise ManifestMismatch(
+        f"Manifest der Serie {series_id} ist nach {MANIFEST_READ_ATTEMPTS} Leseversuchen "
+        f"({MANIFEST_READ_ATTEMPTS * MANIFEST_READ_WAIT_SECONDS:.0f} s) noch leer oder "
+        "unvollständig: ein früherer Start brach beim Anlegen ab. Die Datei wird nie "
+        "überschrieben; die Serie ist so nicht fortsetzbar, der Ordner ist zu prüfen"
+    ) from last_error
 
 
 def _create_exclusive(path: Path, data: bytes) -> None:
@@ -428,11 +594,13 @@ __all__ = [
     "INFRASTRUCTURE_FAILURES",
     "MANIFEST_SCHEMA",
     "DeterminismViolation",
+    "KeyVersionMismatch",
     "ManifestMismatch",
     "SeriesRecord",
     "file_sha256",
     "game_key",
     "series_folder",
     "series_guard",
+    "series_key_problem",
     "series_violation",
 ]

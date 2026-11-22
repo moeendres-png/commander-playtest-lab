@@ -520,6 +520,11 @@ def compare_logs(
     seeds are a series concept), and ``engine_pin`` is the current canonical
     pin — the recorded provenance of the paired games themselves is in
     ``engine_commits``.
+
+    The folder is read as it is (``load_exposures``): every log in it counts, also one a series
+    manifest does not name. The foreign-log rule of the series pool and journal (only games the
+    manifest names) does not apply to this folder comparison; that is a decision of #1660 (S1
+    Rest), not an omission. A comparison of a folder is not the record of one series.
     """
     if base_deck_id == variant_deck_id:
         raise ValueError("base and variant must be two different decks")
@@ -892,6 +897,7 @@ def parallel_window_player(
     from .game_pool import (
         GamePoolError,
         GameTask,
+        jvm_options_of,
         plan_task,
         series_pool_enabled,
         skip_forced_decisions_of,
@@ -968,6 +974,7 @@ def parallel_window_player(
             )
         pin = canonical_xmage_engine_pin()
         skip_forced = skip_forced_decisions_of(used_command)
+        jvm_options = jvm_options_of(used_command)
         deck_hashes: dict[str, str] = {}
         for seed, seat in planned_units:
             for arm in ARMS:
@@ -981,6 +988,7 @@ def parallel_window_player(
                     jar_sha256=jar,
                     engine_pin=pin,
                     skip_forced_decisions=skip_forced,
+                    jvm_options=jvm_options,
                     deck_hashes=deck_hashes,
                 )
         record_holder.append(
