@@ -844,6 +844,45 @@ des Co-Leads bzw. der umsetzenden Sitzung (Einspruch des Owners jederzeit mögli
    verbessert, nicht über stille Korrekturen; das ist ein eigener Arbeitsschritt, nicht Teil der
    Anzeige-Änderung.
 
+### E19: Anzeige des gepoolten H, Mittelwert beider Bewertungen (2026-11-22, #1404, #1764)
+
+(E18 ist für die Sitze 7/8 vergeben, PR #1762.) Owner, 2026-11-22, Session-Chat; Niederschrift des
+Co-Leads in #1404, Kommentar 7085569723. Frage des Co-Leads (sinngemäß, Wortlaut des Co-Leads, nicht
+des Owners): Soll die Tierliste künftig den Mittelwert beider Bewertungen (H_pooled) anzeigen? Dazu
+die Angaben: Rangübereinstimmung beider Bewertungen gut (Spearman 0,83), bei Spells liegt die
+zweite Bewertung im Mittel 4,9 Punkte unter der ersten (7 von 7 Chargen, bestätigt), welche näher
+an der Wahrheit liegt, ist nicht belegbar; Optionen „Mittelwert beider anzeigen (Empfehlung)“ /
+„beim alten Wert bleiben“ / „Mittelwert plus Spells-Korrektur (nicht empfohlen)“. Owner-Wortlaut
+(Auswahl, nur der Text in Anführungszeichen): **„Mittelwert beider anzeigen (Empfehlung)“**. Alles
+Weitere ist Auslegung des Co-Leads bzw. der umsetzenden Sitzung (Einspruch des Owners jederzeit
+möglich). Grundlage: Bericht `docs/analysis-reports/rating_full_second_run_20261122.md` (#1764),
+Plan `docs/analysis-reports/rating_full_second_run_plan_20261122.md` §4 und §9 Schritt 7.
+
+1. **Gelesen als (Co-Lead, im selben Kommentar):** Tierliste und Kartenfenster zeigen H_pooled
+   (Mittel der beiden Bewertungen, ungerundet gespeichert, `n_bewertungen` immer dabei); die
+   Streuung bleibt „mindestens ±8“ (E17, #1760); beide Rohwerte bleiben unverändert gespeichert;
+   **keine** Zusatzkorrektur K1; Karten mit |ΔH| ≥ 15 tragen eine Marke.
+2. **Umsetzung (umsetzende Sitzung, nur Anzeige):** Das Studio liest H_pooled nur aus
+   `data/research/chulane_rubric_v2_20261118/second_run_full_20261122/pooled.jsonl`
+   (`card_understanding.load_pooled`, an die SHA-256 in `results_sha256.txt` gebunden, in Tests aus
+   den Rohausgaben beider Läufe nachgerechnet); die Datei und `card_understanding_v2_1.jsonl`
+   bleiben unverändert, das Feld `H_pooled_K1_vorschlag` wird nie gelesen. Jede Zelle nennt die
+   Zahl der Bewertungen („2 Bewertungen“ bzw. „1 Bewertung, nur erste“), das Kartenfenster beide
+   Rohwerte mit Herkunft („Lauf 1 (F1)“, „Lauf 2 (R2)“, n/N je Lauf, heute 922/922); |ΔH| ≥ 15
+   (266 von 922 Karten, ab 30: 22) trägt die Marke „Bewertungen weichen stark ab (Δ …)“ mit beiden
+   Werten. Ohne verwendbaren Poolwert (Datei fehlt oder ist kaputt, Karte fehlt, oder ihr H_F1 ist
+   nicht das H des Datensatzes) zeigt die Karte H_F1 mit „nur Lauf 1“; „unbekannt“ bleibt nie 0.
+   Werte in Punkten werden ohne Rundung angezeigt (42,5).
+3. **Unverändert:** `SPREAD_FLOOR = NOISE_GATE = 8`; der gepoolte Standardfehler 5,50 steht nur mit
+   seiner Bedingung in Tooltip und Quellenliste (gilt nur bei unabhängigen Fehlern, nicht belegt,
+   A3). H hat weiter keine Stufe, keinen Rang, keine Sortierung und keinen Filter (E15 Q1); die
+   Stufen der Tierliste beruhen auf dem Nutzungsindex. Auf H_F1 bleiben: die sechs anderen
+   Kriterien, Notizen, Begründung, Regelclaims und Rater-Vertrauen (gemittelt wird nur H), die
+   Zuordnung der Zweifel aus Rating-Audit A und das Rauschgate darauf (der Prüfer sah H_F1; der
+   Zweifeltext nennt das), die Länder-Zählung. Das Streuungsband einer Zelle richtet sich nach dem
+   angezeigten Wert; Werte zwischen den Bändern (etwa 12,5 oder 57,5) zeigen den Mindestwert. Kein
+   Preis- oder Simulationseinfluss, Chulane-Fokus unverändert.
+
 ## 3. Was aufgehoben, geändert oder neu ist
 
 | Bisher | Jetzt | Quelle |
@@ -869,6 +908,7 @@ des Co-Leads bzw. der umsetzenden Sitzung (Einspruch des Owners jederzeit mögli
 | F1 offen (Entscheide 2026-11-20/21, Nr. 3): Einflussbereich, Angriffsoption, 6 Sitze ohne Replay-Anspruch | angenommen wie im Entwurf des Teil-A-Berichts §4, Wortlaut mit Pfad und Commit-SHA kopiert; schließt nur Voraussetzung (c), `launch.MAX_RELEASED_SEATS = 4` bleibt, (a) und (b) und das finale Ja fehlen, PLAY 5/6 bleibt getrennt (Entscheide 2026-11-21, Nr. 5; **Stand vor E16**, das bedingte Go vom 2026-11-22 überholt die Sperre und die Trennung) | Owner 2026-11-21 (2a; #1656, #1167) |
 | 5/6-Freigabe „nur nach finalem Ja“ (Entscheide 2026-11-20/21, Nr. 1; 2026-11-21, Nr. 5 und 8) | bedingtes Go: „Ja 5/6 sitze freigegeben wenn alles dabei funktioniert“, SIMULATE und PLAY; beide Sperren auf 6, Rücknahme ein Einzeiler (E16) | Owner 2026-11-22 (#1656, Kommentar 7071394052) |
 | Pflichtlektüre: `AGENTS.md`, `CLAUDE.md`, `STUDIO_SCOPE.md` (verbindlicher Scope), beide Entscheid-Dateien, `STUDIO_PLAN_SIMULATOR.md`, Onboarding; seit E15 Q10 zuerst Charta v2 und Register, Scope blieb verbindlich | Charta v2 und Entscheid-Register sind die Pflichtlektüre; Scope, Plan und Roadmap sind archiviert, ihre bindenden Regeln stehen in Abschnitt 6, der Referenzsatz des Bridge-Gates in `docs/STUDIO_BRIDGE_GATE_TOOLING.md` (Entscheide 2026-11-21, Nr. 6) | Owner 2026-11-21 (8a; #1656, #1167) |
+| Kartenverständnis H: angezeigt wird H_F1 (eine Bewertung je Karte) | angezeigt wird H_pooled, das Mittel der zwei Bewertungen (ungerundet, `n_bewertungen` und beide Rohwerte sichtbar, Marke ab \|ΔH\| ≥ 15, ohne K1); Rückfall auf H_F1 mit „nur Lauf 1“; Streuung bleibt „mindestens ±8“ (E19) | Owner 2026-11-22 (#1404, Kommentar 7085569723) |
 
 ## 4. Gilt unverändert
 

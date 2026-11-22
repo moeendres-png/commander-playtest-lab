@@ -85,8 +85,8 @@ def test_the_spread_constants_are_recomputed_from_the_raw_research_files() -> No
         "rating_second_run_20261122" in str(spread["text"])
     )
     sources = spread["quellen"]
-    assert isinstance(sources, list) and [q["n"] for q in sources] == [49, 70, 230, 265]
-    assert [q["N"] for q in sources] == [922, 922, 922, 300]
+    assert isinstance(sources, list) and [q["n"] for q in sources] == [49, 70, 230, 265, 922]
+    assert [q["N"] for q in sources] == [922, 922, 922, 300, 922]
     assert "5,10" in sources[0]["kennzahl"] and "13 von 70" in sources[1]["kennzahl"]
     assert "7,9" in sources[1]["kennzahl"] and "7 bis 8" in sources[2]["kennzahl"]
     report = (RESEARCH / "PILOT_REPORT.md").read_text(encoding="utf-8")
@@ -97,6 +97,7 @@ def test_the_spread_constants_are_recomputed_from_the_raw_research_files() -> No
         "Unabhängiger Rater aus einer anderen Modellfamilie",
         "Rating-Audit A",
         "Zweiter Rater-Lauf",
+        "Zweite Bewertung aller Karten",
     ]
     # the second run is not called independent: its model family is unchecked (report A3)
     assert "Familie ungeprüft, A3" in sources[3]["name"]
@@ -115,7 +116,7 @@ def test_the_spread_constants_are_recomputed_from_the_raw_research_files() -> No
     assert all("Schätzung Rating-Audit A §4" in b["quelle"] for b in bands)
     assert "Audit-A-Schätzung 5 Punkte, unter dem Mindestwert" in bands[0]["text"]
     # the 230 of audit A is an estimate from its text, not a sigma of paired ratings
-    assert [q["gemessen"] for q in sources] == [True, True, False, True]
+    assert [q["gemessen"] for q in sources] == [True, True, False, True, True]
     assert "Schätzung" in sources[2]["name"] and "Schätzung" in sources[2]["kennzahl"]
     assert "11 von 1708 Zitaten (0,6 %) nicht wörtlich" in audit
     claims = (RESEARCH / "audit" / "AUDIT_D_rule_claims.md").read_text(encoding="utf-8")

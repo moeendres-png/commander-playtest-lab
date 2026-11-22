@@ -621,7 +621,8 @@ def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]
     answer = cache.cached(store, ("strength", *key), compute)
     # Additive: the rubric v2 field "Kartenverständnis (Modellurteil)" (Q1-b3, #1678, E5), only
     # for Chulane. Added after the snapshot and the remembered answer, so neither of them
-    # changes (``with_understanding`` copies the answer); the data file's stamp is part of the key.
+    # changes (``with_understanding`` copies the answer); the stamps of the data, audit and pooled
+    # files are part of the key.
     return cache.cached(
         store,
         (
@@ -629,6 +630,7 @@ def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]
             *key,
             card_understanding.stamp(),
             card_understanding.audit_stamp(),
+            card_understanding.pooled_stamp(),
         ),
         lambda: understanding_field.with_understanding(store, answer),
     )

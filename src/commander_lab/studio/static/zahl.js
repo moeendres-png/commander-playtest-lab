@@ -89,6 +89,8 @@ const StudioZahl = (() => {
     if (!helpers || wert === null || wert === undefined) return UNKNOWN;
     if (zahl.einheit === "Anteil") return helpers.pct(wert, 1);
     if (zahl.einheit === "pp") return `${wert > 0 ? "+" : ""}${helpers.num(wert, 1)} pp`;
+    // Punkte (a judgement score) unrounded: the mean of two ratings is a multiple of 2,5 (Owner decision E19)
+    if (zahl.einheit === "Punkte") return helpers.numFlex(wert, 1);
     return helpers.num(wert, 0);
   }
 
