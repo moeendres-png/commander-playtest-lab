@@ -390,6 +390,7 @@ def test_a_seven_or_eight_seat_series_plays_whole_blocks_under_the_shipped_lock(
     assert estimate["duration_kind"] == "unknown" and estimate["minimum_minutes"] is None
     # the stored series proves its table from the plan and the games
     assert deck_series.series_table_check(job) == (seats, "consistent")
+    assert deck_series.series_table_source(job) == "aus Plan und gespielten Partien"
 
 
 @pytest.mark.parametrize("seats", SEVEN_EIGHT)
@@ -451,6 +452,10 @@ def test_seven_and_eight_seat_series_are_their_own_cohorts_and_name_their_table(
     for seats in SEVEN_EIGHT:
         raw = {**_raw_series(result={**_pods(seats), "pairs_completed": 25}), "seed_plan": None}
         assert deck_series.series_table_check(raw) == (seats, "consistent")
+    # a planned table of seven or eight seats before any game is named as planned, never unknown
+    for seats in SEVEN_EIGHT:
+        planned = {**_raw_series(result={}), "seed_plan": {"player_count": seats}}
+        assert deck_series.series_table_check(planned) == (seats, "unobserved")
     raw9 = {**_raw_series(result={**_pods(9), "pairs_completed": 25}), "seed_plan": None}
     assert deck_series.series_table_check(raw9) == (None, "unreadable")
 
