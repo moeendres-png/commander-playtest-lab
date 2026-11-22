@@ -131,7 +131,11 @@ BASELINE_PLAN_SEATS = (5, 6, 7, 8)
 #: docs/analysis-reports/seats_7_8_feasibility_20261122.md, table A7/A8, seeds 1-6, foreign load,
 #: no AppCDS, -Xmx3g, SIMULATED_RESULT, never 4P/6P evidence): per game median wall time
 #: (min-max), JVM peak RSS median and maximum, n/N finished games. Shown as a reference beside the
-#: plan, never used as a rate; memory with several games per JVM is UNKNOWN (n = 0).
+#: plan, never used as a rate. The gate runs of #1672 (report
+#: docs/analysis-reports/seats_7_8_simulate_gates_20261122.md on docs/fable-sonnet-haiku-reports,
+#: two tables in parallel, foreign load) add a second single-game measurement (median, max, n) and
+#: the peak RSS of a JVM with 8 games (two runs, ``batched_rss_mib``); 16 games per JVM, the Studio
+#: default, is UNKNOWN (n = 0).
 SINGLE_GAME_REFERENCE_7_8: dict[int, dict[str, object]] = {
     7: {
         "wall_seconds_median": 87.0,
@@ -141,6 +145,10 @@ SINGLE_GAME_REFERENCE_7_8: dict[int, dict[str, object]] = {
         "decisions_median": 9760,
         "games": 6,
         "planned": 6,
+        "second_wall_seconds_median": 114.4,
+        "second_wall_seconds_max": 140.9,
+        "second_games": 8,
+        "batched_rss_mib": (1231, 883),
     },
     8: {
         "wall_seconds_median": 98.8,
@@ -150,6 +158,10 @@ SINGLE_GAME_REFERENCE_7_8: dict[int, dict[str, object]] = {
         "decisions_median": 10314,
         "games": 6,
         "planned": 6,
+        "second_wall_seconds_median": 143.8,
+        "second_wall_seconds_max": 189.0,
+        "second_games": 8,
+        "batched_rss_mib": (1255, 1255),
     },
 }
 SINGLE_GAME_REFERENCE_7_8_SOURCE = (
@@ -460,14 +472,20 @@ def single_game_reference_text(size: int) -> str:
     the container of the feasibility run, with n/N and origin; no Owner-PC value, no rate."""
     ref = SINGLE_GAME_REFERENCE_7_8[int(size)]
     low, high = cast(tuple[float, float], ref["wall_seconds_range"])
+    second_median = float(cast(float, ref["second_wall_seconds_median"]))
+    second_max = float(cast(float, ref["second_wall_seconds_max"]))
+    batch_a, batch_b = cast(tuple[int, int], ref["batched_rss_mib"])
     return (
         f"Hinweis {size} Sitze: eine Partie dauerte im Median {_de(float(cast(float, ref['wall_seconds_median'])), 1)} s "
         f"({_de(low, 1)} bis {_de(high, 1)} s) bei etwa {ref['decisions_median']} Entscheidungen, "
         f"Spitzen-Speicher der Engine (RSS) im Median {ref['rss_mib_median']} MiB, höchstens "
         f"{ref['rss_mib_max']} MiB (n = {ref['games']}/{ref['planned']} Partien; "
-        f"{SINGLE_GAME_REFERENCE_7_8_SOURCE}). Speicher bei mehreren Partien je JVM ist "
-        "unbekannt (n = 0): wenige Worker wählen und den freien Arbeitsspeicher prüfen (je Worker "
-        "eine JVM mit bis zu 3 GB Heap)."
+        f"{SINGLE_GAME_REFERENCE_7_8_SOURCE}). Zweite Messung (Gates #1672, zwei Tische parallel, "
+        f"Fremdlast): Median {_de(second_median, 1)} s, bis {_de(second_max, 1)} s "
+        f"(n = {ref['second_games']}/{ref['second_games']} Partien); Spitzen-Speicher einer JVM mit "
+        f"8 Partien {batch_a} und {batch_b} MiB (2 Läufe). Bei 16 Partien je JVM (Studio-Standard) "
+        "ist der Speicher unbekannt (n = 0): wenige Worker wählen und den freien Arbeitsspeicher "
+        "prüfen (je Worker eine JVM mit bis zu 3 GB Heap)."
     )
 
 
@@ -567,7 +585,7 @@ def estimate_series_duration(
             {
                 **{k: list(v) if isinstance(v, tuple) else v for k, v in reference.items()},
                 "source": SINGLE_GAME_REFERENCE_7_8_SOURCE,
-                "multi_game_jvm_memory_known": False,
+                "multi_game_jvm_memory_known": False,  # at 16 games per JVM (n = 0)
             }
             if reference is not None
             else None

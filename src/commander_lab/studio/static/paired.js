@@ -88,14 +88,15 @@ const PAIRED_POOL_REFERENCE_PART_B = { 5: [607.3, 50, 50], 6: [379.2, 72, 72] };
 // Seven and eight seats (#1672): no Owner-PC throughput, the duration stays UNKNOWN. The warning names
 // one game per JVM in the container of the feasibility run (paired_series.SINGLE_GAME_REFERENCE_7_8; a
 // test holds them equal): [median wall s, min s, max s, RSS median MiB, RSS max MiB, decisions median,
-// games, planned]. Memory with several games per JVM is unknown (n = 0).
-const PAIRED_SINGLE_GAME_REFERENCE_7_8 = { 7: [87.0, 46.1, 102.3, 955, 1343, 9760, 6, 6], 8: [98.8, 65.7, 121.9, 945, 1006, 10314, 6, 6] };
+// games, planned, second median s, second max s, second games, RSS of a JVM with 8 games (two runs)].
+// Memory at 16 games per JVM is unknown (n = 0).
+const PAIRED_SINGLE_GAME_REFERENCE_7_8 = { 7: [87.0, 46.1, 102.3, 955, 1343, 9760, 6, 6, 114.4, 140.9, 8, 1231, 883], 8: [98.8, 65.7, 121.9, 945, 1006, 10314, 6, 6, 143.8, 189.0, 8, 1255, 1255] };
 
 function pairedSingleGameReferenceText(tableSeats) {
   const ref = PAIRED_SINGLE_GAME_REFERENCE_7_8[Number(tableSeats)];
   if (ref === undefined) return "";
-  const [wall, low, high, rss, rssMax, decisions, games, planned] = ref;
-  return ` Hinweis ${StudioUI.num(tableSeats, 0)} Sitze: eine Partie dauerte im Median ${StudioUI.num(wall, 1)} s (${StudioUI.num(low, 1)} bis ${StudioUI.num(high, 1)} s) bei etwa ${StudioUI.num(decisions, 0)} Entscheidungen, Spitzen-Speicher der Engine (RSS) im Median ${StudioUI.num(rss, 0)} MiB, höchstens ${StudioUI.num(rssMax, 0)} MiB (n = ${StudioUI.num(games, 0)}/${StudioUI.num(planned, 0)} Partien; Machbarkeitsversuch #1672 im Cloud-Container, eine JVM je Partie, SIMULATED_RESULT, kein Owner-PC-Wert). Speicher bei mehreren Partien je JVM ist unbekannt (n = 0): wenige Worker wählen und den freien Arbeitsspeicher prüfen (je Worker eine JVM mit bis zu 3 GB Heap).`;
+  const [wall, low, high, rss, rssMax, decisions, games, planned, secondWall, secondMax, secondGames, batchA, batchB] = ref;
+  return ` Hinweis ${StudioUI.num(tableSeats, 0)} Sitze: eine Partie dauerte im Median ${StudioUI.num(wall, 1)} s (${StudioUI.num(low, 1)} bis ${StudioUI.num(high, 1)} s) bei etwa ${StudioUI.num(decisions, 0)} Entscheidungen, Spitzen-Speicher der Engine (RSS) im Median ${StudioUI.num(rss, 0)} MiB, höchstens ${StudioUI.num(rssMax, 0)} MiB (n = ${StudioUI.num(games, 0)}/${StudioUI.num(planned, 0)} Partien; Machbarkeitsversuch #1672 im Cloud-Container, eine JVM je Partie, SIMULATED_RESULT, kein Owner-PC-Wert). Zweite Messung (Gates #1672, zwei Tische parallel, Fremdlast): Median ${StudioUI.num(secondWall, 1)} s, bis ${StudioUI.num(secondMax, 1)} s (n = ${StudioUI.num(secondGames, 0)}/${StudioUI.num(secondGames, 0)} Partien); Spitzen-Speicher einer JVM mit 8 Partien ${StudioUI.num(batchA, 0)} und ${StudioUI.num(batchB, 0)} MiB (2 Läufe). Bei 16 Partien je JVM (Studio-Standard) ist der Speicher unbekannt (n = 0): wenige Worker wählen und den freien Arbeitsspeicher prüfen (je Worker eine JVM mit bis zu 3 GB Heap).`;
 }
 
 function estimatePairedText(budgetPairs, workers = 4, tableSeats = PAIRED_MEASURED_TABLE_SEATS) {

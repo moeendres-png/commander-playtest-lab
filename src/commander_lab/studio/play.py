@@ -1257,6 +1257,17 @@ class InteractivePlayManager:
     ) -> dict[str, object]:
         if int(decision_timeout_seconds) != HUMAN_SEAT_TIMEOUT_SECONDS:
             raise ValueError(_HUMAN_TIMEOUT_MESSAGE)
+        if human_seats:
+            # PLAY stays at six seats in this layer too (#1672: seven and eight seats are released
+            # for simulations only); the locks are read at call time, like ``launch``'s own check
+            from . import launch as _launch
+
+            limit = min(_launch.MAX_RELEASED_PLAY_SEATS, _launch.MAX_PARTIE_SEATS)
+            if len(deck_paths) > limit:
+                raise ValueError(
+                    f"tables of {len(deck_paths)} seats are locked for PLAY (a game with a human "
+                    f"seat starts {_launch.MIN_SEATS} to {limit} seats)"
+                )
         decks = load_decks(deck_paths)
         resolved_id = game_id or free_game_id(
             data_folder, f"{decks[0].deck_id}-{len(decks)}p-seed{seed}"

@@ -859,7 +859,8 @@ Auslegung des Co-Leads (Einspruch des Owners jederzeit möglich).
    2026-11-08 für SIMULATE aufgehoben (Höchstzahl 8); für PLAY bleibt sie.
 2. **Machbarkeit (vor der Einführung, wie vom Co-Lead angekündigt):** isolierter Versuch auf dem
    Branch `research/seats-7-8-1672` (nie gegen `main` gemergt), Bericht
-   `docs/analysis-reports/seats_7_8_feasibility_20261122.md` dort: n/N = 12/12 Partien natürlich
+   `docs/analysis-reports/seats_7_8_feasibility_20261122.md` dort (nicht in `main`; eine Kopie liegt
+   auf dem Bericht-Branch `docs/fable-sonnet-haiku-reports`): n/N = 12/12 Partien natürlich
    beendet (7 Sitze 6/6, 8 Sitze 6/6), ohne Fork-Eingriff am Pin; `SIMULATED_RESULT` aus dem
    Cloud-Container, nie ein 4P- oder 6P-Beleg, kein Qualifikationsbeleg.
 3. **Umsetzung (Auslegung des Co-Leads, #1672):** Die Obergrenze des Codes ist 8
@@ -879,14 +880,37 @@ Auslegung des Co-Leads (Einspruch des Owners jederzeit möglich).
 4. **Gates (Auslegung des Co-Leads, „dieselben Gates wie 5/6“):** (a) Determinismus bei 7 und 8
    Sitzen gemessen, (b) F5-Szenarien bei 7 und 8 Sitzen, (c) Echt-Engine-Smoke über den
    Studio-Serienpfad, (d) CI des Einführungs-PR grün, dazu das Studio-Bridge-Gate (Referenzsatz).
-   Die Belege stehen im PR-Text und in #1672; das Register führt sie nicht.
+   Die Belege stehen im PR-Text von #1762, in #1672 und im Bericht
+   `docs/analysis-reports/seats_7_8_simulate_gates_20261122.md` (Branch
+   `docs/fable-sonnet-haiku-reports`); das Register führt nur den Befund zu (a).
+   **Bedingung (a) ist bei 8 Sitzen nicht erfüllt, sondern vom Owner akzeptiert:** 7 Sitze gleichen
+   in allen Feldern 8/8 und 8/8; bei 8 Sitzen gleichen Transkript, Sieger und Entscheidungen 8/8,
+   der normalisierte Frame-Digest nur 7/8 (Seed 7: in 2 von 7.238 Frames steht ein Friedhof in
+   anderer Reihenfolge, von Lauf zu Lauf verschieden; `LOCAL_OBSERVED`, N = 8 Seeds, allgemein
+   `UNKNOWN`, Ursache nicht gezeigt). „Gemessen und gleich“ im Sinne von E16 Nr. 2 gilt damit für
+   8 Sitze nicht; die Freigabe beruht für 8 Sitze allein auf dem Owner-Wort (Nr. 7). Ein Eingriff
+   in die Engine (Fork) bräuchte ein eigenes Owner-Go (`AGENTS.md` §8).
 5. **Zurücksetzen** (Auslegung des Co-Leads, fail-closed, jederzeit bei einem Defekt oder auf
    Owner-Wunsch): `MAX_RELEASED_SEATS = 6` plus `PAIRED_RELEASED_SEATS = 6` in `paired.js`; das
    ist ein Einzeiler je Datei. Eine erneute Freigabe oder geänderte Bedingungen sind Owner-Sache.
+   Spielen (PLAY) und die Partie-Seite bleiben bei 6 Sitzen: die Owner-Anweisung deckt nur
+   Simulationen.
 6. **Aufgehobene Aussagen (historischer Stand vor E18):** „Die Obergrenze des Codes bleibt 6“ (E16
    Nr. 3) und „Dieser Eintrag ändert die Obergrenze 6 im Code nicht“ (E16 Nr. 4) beschreiben den
    Stand vor E18 und bleiben als Verlauf stehen (E10). `docs/OWNER_DECISION_SIX_PLAYER_MAX_20261108.md`
    trägt einen Hinweis auf E18.
+7. **Owner-Antwort zu 7/8 Sitzen und zur Abweichung bei 8 Sitzen (2026-11-22, Session-Chat,
+   Niederschrift des Co-Leads in #1672, Kommentar 7085156671).** Die dem Owner gestellte Frage steht
+   dort sinngemäß im Wortlaut des Co-Leads (kein Owner-Wortlaut): „Bei 8 Sitzen gleichen
+   Transkript, Sieger und Entscheidungen 8/8, der normalisierte Frame-Digest aber nur 7/8 (Seed 7:
+   in 2 von 7.238 Frames steht ein Friedhof in anderer Reihenfolge, von Lauf zu Lauf verschieden,
+   Ursache UNKNOWN); bei 6 Sitzen gab es dieselbe Art Abweichung und der Owner hat zugestimmt; 7
+   Sitze: 8/8 und 8/8 in allen Feldern. Wie soll 7/8 freigegeben werden?“ Antwort des Owners
+   (Auswahl, Wortlaut): **„7 und 8 freigeben (Empfehlung)“**. Damit sind 7 und 8 Sitze für
+   Simulationen freigegeben; die Abweichung steht hier als beobachteter Lauf-zu-Lauf-Effekt,
+   Ursache UNKNOWN (Nr. 4), nicht als erfüllte Bedingung. Zurücksetzen der SIMULATE-Sperre auf 6 ist
+   jederzeit erlaubt (Nr. 5, Auslegung des Co-Leads, fail-closed); eine Neufreigabe entscheidet nur
+   der Owner. PLAY und die Partie-Seite bleiben bei 6.
 
 ## 3. Was aufgehoben, geändert oder neu ist
 
@@ -912,7 +936,7 @@ Auslegung des Co-Leads (Einspruch des Owners jederzeit möglich).
 | Entscheid-Dokumente: „fortgeschrieben, nie gelöscht“ (diese Datei, `AGENTS.md` §9 „archived, never deleted“) | überholter Wortlaut darf mit Begründung, Datum und Verweis im PR ersetzt oder entfernt werden; Git-Historie bleibt Quelle (E10) | Owner 2026-11-19, #1612 |
 | F1 offen (Entscheide 2026-11-20/21, Nr. 3): Einflussbereich, Angriffsoption, 6 Sitze ohne Replay-Anspruch | angenommen wie im Entwurf des Teil-A-Berichts §4, Wortlaut mit Pfad und Commit-SHA kopiert; schließt nur Voraussetzung (c), `launch.MAX_RELEASED_SEATS = 4` bleibt, (a) und (b) und das finale Ja fehlen, PLAY 5/6 bleibt getrennt (Entscheide 2026-11-21, Nr. 5; **Stand vor E16**, das bedingte Go vom 2026-11-22 überholt die Sperre und die Trennung) | Owner 2026-11-21 (2a; #1656, #1167) |
 | 5/6-Freigabe „nur nach finalem Ja“ (Entscheide 2026-11-20/21, Nr. 1; 2026-11-21, Nr. 5 und 8) | bedingtes Go: „Ja 5/6 sitze freigegeben wenn alles dabei funktioniert“, SIMULATE und PLAY; beide Sperren auf 6, Rücknahme ein Einzeiler (E16) | Owner 2026-11-22 (#1656, Kommentar 7071394052) |
-| Höchstzahl 6 Sitze für jede Simulation (`docs/OWNER_DECISION_SIX_PLAYER_MAX_20261108.md`), Obergrenze des Codes 6 (E16 Nr. 3) | SIMULATE bis 8 Sitze: `MAX_SEATS` 8, `MAX_RELEASED_SEATS` 8; PLAY bleibt 6 (`MAX_RELEASED_PLAY_SEATS`, Partie-Seite höchstens 6); Rücknahme ein Einzeiler (E18) | Owner 2026-11-22 (#1672, Kommentar 7071394382) |
+| Höchstzahl 6 Sitze für jede Simulation (`docs/OWNER_DECISION_SIX_PLAYER_MAX_20261108.md`), Obergrenze des Codes 6 (E16 Nr. 3) | SIMULATE bis 8 Sitze: `MAX_SEATS` 8, `MAX_RELEASED_SEATS` 8; PLAY bleibt 6 (`MAX_RELEASED_PLAY_SEATS`, Partie-Seite höchstens 6); Rücknahme ein Einzeiler; bei 8 Sitzen Frame-Digest 7/8, vom Owner akzeptiert („7 und 8 freigeben (Empfehlung)“) (E18) | Owner 2026-11-22 (#1672, Kommentare 7071394382 und 7085156671) |
 | Pflichtlektüre: `AGENTS.md`, `CLAUDE.md`, `STUDIO_SCOPE.md` (verbindlicher Scope), beide Entscheid-Dateien, `STUDIO_PLAN_SIMULATOR.md`, Onboarding; seit E15 Q10 zuerst Charta v2 und Register, Scope blieb verbindlich | Charta v2 und Entscheid-Register sind die Pflichtlektüre; Scope, Plan und Roadmap sind archiviert, ihre bindenden Regeln stehen in Abschnitt 6, der Referenzsatz des Bridge-Gates in `docs/STUDIO_BRIDGE_GATE_TOOLING.md` (Entscheide 2026-11-21, Nr. 6) | Owner 2026-11-21 (8a; #1656, #1167) |
 
 ## 4. Gilt unverändert

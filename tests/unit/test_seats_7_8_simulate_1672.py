@@ -310,7 +310,13 @@ def test_the_duration_at_seven_and_eight_is_unknown_and_names_the_measured_singl
         f"{ref['rss_mib_median']} MiB" in basis and f"höchstens {ref['rss_mib_max']} MiB" in basis
     )
     assert "n = 6/6 Partien" in basis and "SIMULATED_RESULT" in basis
-    assert "mehreren Partien je JVM ist unbekannt (n = 0)" in basis and "wenige Worker" in basis
+    assert "16 Partien je JVM (Studio-Standard) ist der Speicher unbekannt (n = 0)" in basis
+    assert "wenige Worker" in basis
+    second = f"{ref['second_wall_seconds_median']:.1f}".replace(".", ",")
+    batch_a, batch_b = ref["batched_rss_mib"]  # type: ignore[misc]
+    assert "Zweite Messung" in basis and f"Median {second} s" in basis
+    assert f"n = {ref['second_games']}/{ref['second_games']} Partien" in basis
+    assert f"8 Partien {batch_a} und {batch_b} MiB (2 Läufe)" in basis
     single = est["single_game_reference"]
     assert isinstance(single, dict)
     assert single["games"] == single["planned"] == 6
@@ -337,6 +343,10 @@ def test_the_page_mirrors_the_single_game_reference_and_shows_the_warning() -> N
             ref["decisions_median"],
             ref["games"],
             ref["planned"],
+            ref["second_wall_seconds_median"],
+            ref["second_wall_seconds_max"],
+            ref["second_games"],
+            *ref["batched_rss_mib"],  # type: ignore[misc]
         ]
     node = shutil.which("node")
     if node is None:
@@ -533,3 +543,64 @@ def test_the_batch_route_follows_the_simulate_lock_at_seven_and_eight(
         res = post(seats)
         assert "seats are locked" not in res.text
         assert res.status_code in (409, 422), res.text  # unknown decks / no engine, never a game
+
+
+def test_defense_in_depth_partie_body_and_batch_case_bounds() -> None:
+    """Each layer holds its own bound, not only the one in front of it (review of #1762, P3)."""
+    from commander_lab.engine.rules.full_game_batch import FullGameBatchCase
+    from commander_lab.studio.web import GameBody
+    from tests.unit.test_ws223_cardinality_regression import _deck
+
+    # the Partie body itself refuses a seventh seat (six opponents), whatever MAX_SEATS says
+    GameBody(revision_id="r", opponent_ids=[f"o{n}" for n in range(5)], seed=1)
+    with pytest.raises(ValidationError):
+        GameBody(revision_id="r", opponent_ids=[f"o{n}" for n in range(6)], seed=1)
+
+    def case(seats: int) -> FullGameBatchCase:
+        binding = _binding(1, "fixture-1")
+        return FullGameBatchCase(
+            case_id=f"c{seats}",
+            scenario=_scenario(seats),
+            decks=tuple(_deck(s) for s in range(1, seats + 1)),
+            pilots=tuple(
+                binding.model_copy(update={"seat": s, "deck_id": f"fixture-{s}"})
+                for s in range(1, seats + 1)
+            ),
+        )
+
+    # seven and eight seats pass the batch case's own bound (a lower bound there fails this)
+    assert case(7).scenario.player_count == 7
+    assert case(8).scenario.player_count == 8
+    # nine seats never reach it: the scenario model refuses them first (layer in front)
+    with pytest.raises(ValidationError):
+        case(9)
+
+
+def test_play_sessions_refuse_seven_or_eight_seats_with_a_human_seat_in_their_own_layer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """``load_decks`` seats 2 to 8 for series; the PLAY session layer keeps six on its own (review
+    of #1762): a human game of seven or eight seats is refused before any deck file is read."""
+    manager = studio_play.InteractivePlayManager()
+    for seats in SEVEN_EIGHT:
+        missing = [tmp_path / f"missing-{n}.json" for n in range(seats)]
+        with pytest.raises(ValueError, match=f"tables of {seats} seats are locked for PLAY"):
+            manager.start_game(tmp_path, missing, seed=1, human_seats=[0])
+    # six seats pass this check and fail only later, at the missing deck files
+    with pytest.raises(Exception) as six:
+        manager.start_game(
+            tmp_path, [tmp_path / f"m{n}.json" for n in range(6)], seed=1, human_seats=[0]
+        )
+    assert "locked for PLAY" not in str(six.value)
+    # the lock is read at call time: set back to 4, five seats are refused here too
+    monkeypatch.setattr(launch, "MAX_RELEASED_PLAY_SEATS", 4)
+    with pytest.raises(ValueError, match="tables of 5 seats are locked for PLAY"):
+        manager.start_game(
+            tmp_path, [tmp_path / f"m{n}.json" for n in range(5)], seed=1, human_seats=[0]
+        )
+
+
+def test_the_scenario_model_seats_eight_and_refuses_seat_nine() -> None:
+    assert _future(8).seat == 8
+    with pytest.raises(ValidationError):
+        _future(8).model_validate({**_future(8).model_dump(), "seat": 9})
