@@ -361,7 +361,12 @@ def analyse_parts(parts: Sequence[Part], *, replicates: int, seed: int) -> dict[
         "cards": [len(p.cards) for p in parts],
         "point": point,
         "part_min_max": spread,
+        "part_values": {key: [s[key] for s in point_by_part] for key in STAT_KEYS},
         "interval95": intervals,
+        "bootstrap_mean": {
+            key: (sum(samples[key]) / len(samples[key]) if samples[key] else None)
+            for key in STAT_KEYS
+        },
         "undefined_replicates": undefined,
         "replicates": replicates,
     }

@@ -168,6 +168,9 @@ def test_part_point_values_hand_calculation() -> None:
     for low, high in [result["interval95"]["G1_H"]]:
         assert -1.0 <= low <= high <= 1.0
     assert result["G1"]["spearman_brown_bound"] == pytest.approx(1.0)
+    # one part: the per-part list holds the point value; the bootstrap mean is a number
+    assert result["part_values"]["G1_H"] == [pytest.approx(1.0)]
+    assert -1.0 <= result["bootstrap_mean"]["G1_H"] <= 1.0
 
 
 def test_bootstrap_is_deterministic_for_a_fixed_seed() -> None:
