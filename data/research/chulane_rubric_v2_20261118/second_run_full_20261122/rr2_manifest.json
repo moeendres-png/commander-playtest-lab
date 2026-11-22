@@ -1,0 +1,6998 @@
+{
+ "meta": {
+  "wave": 2,
+  "seed": 20261124,
+  "seed_wave1_tie_rebuild": 20261122,
+  "source_commit_last_touching_sources": "16f9cd1420f9fc80891bcd006c61fbc0198dcf71",
+  "source_sha256": {
+   "data/research/chulane_rubric_v2_20261118/data/facts.jsonl": "47557ee77d3cbadbf84745dde3b70d00434db09a37410202a7817d8a72d05a16",
+   "data/research/chulane_rubric_v2_20261118/data/patterns.jsonl": "c8d7eb41f6817a4a8635ea10d0d44ed414d050069ba0e6bfd7aab69f7b138538",
+   "data/research/chulane_rubric_v2_20261118/anchors.json": "6a666d3b2c4f1ddd598d6675ed59616ddf7c39ce5ab1df28ce2842cda96df4a6",
+   "data/research/chulane_rubric_v2_20261118/GUIDE_v2.md": "1905fb4e670181d5a1011a51b54ce299b1e050ed9da0ffe57b33509670290ab5",
+   "data/research/chulane_rubric_v2_20261118/output_schema.json": "b5f5c163ac1ef797539941d3a293001271eb23c4e0149116747472138245f4de",
+   "data/research/chulane_rubric_v2_20261118/scripts/render_prompt.py": "ff8e30310428b1c10aed235b49700b6d3b7e2ddd2b5f4d5575dba96f0a09c4e1",
+   "data/research/chulane_rubric_v2_20261118/scripts/build_anchors.py": "d15a681ff0429a36ef9c8efad9a1c06f8d56a4024f00a0ff47ceda1cc14d270e",
+   "data/research/chulane_rubric_v2_20261118/audit/audit_A_flagged.jsonl": "8c285e2a4dcc792bb62861cf3ef7d2f171b89c4c7f28a706deb022eb7c2f7eb3",
+   "data/card_understanding/card_understanding_v2_1.jsonl": "399a7678eeec0a749b166fbb8a04a97fb24a36387f1eec94afb6018ed907b512",
+   "data/research/chulane_rubric_v2_20261118/second_run_20261122/rr_sample_manifest.json": "c6b22bdc8336b9ce761d52a24ea5c1c00db72a0aa17ddf075307554c571a0302"
+  },
+  "n_pool_wave2": 622,
+  "n_wave1": 300,
+  "N_pool": 922,
+  "n_retest_optional": 50,
+  "max_chunk": 100,
+  "chunks_pool": 7,
+  "retest_chunk": 8,
+  "composition_wave2": {
+   "anchor_land": 12,
+   "anchor_spell": 30,
+   "rest": 548,
+   "top20": 32
+  },
+  "anchor_names_in_tables": 46,
+  "anchor_rows_in_tables": 122,
+  "per_chunk": {
+   "1": {
+    "n": 89,
+    "role": "pool",
+    "strata": {
+     "anchor_land": 2,
+     "anchor_spell": 4,
+     "rest": 78,
+     "top20": 5
+    },
+    "anchors_left_out": [
+     "Cryptic Caves",
+     "Giant Growth",
+     "Path to Exile",
+     "Storm Crow",
+     "Tatyova, Benthic Druid",
+     "Temple of Plenty"
+    ],
+    "anchor_rows_removed": {
+     "E": 1,
+     "F": 1,
+     "T": 1,
+     "R": 2,
+     "K": 2,
+     "D": 0,
+     "H": 5
+    },
+    "card_names_in_guide_prose": [],
+    "guide_sha256": "00cc38a449f7dc053636dc67b98f0891b4875d25e1235741918eb86c48a20f4b",
+    "input_sha256": "779b20d635e7cc6632266eb420ad8332aa7b56a54c254eb14ad9a663de614b41"
+   },
+   "2": {
+    "n": 89,
+    "role": "pool",
+    "strata": {
+     "anchor_land": 2,
+     "anchor_spell": 4,
+     "rest": 78,
+     "top20": 5
+    },
+    "anchors_left_out": [
+     "Evolving Wilds",
+     "Llanowar Elves",
+     "Mechanized Production",
+     "Mistmeadow Council",
+     "Negate",
+     "Reliquary Tower"
+    ],
+    "anchor_rows_removed": {
+     "E": 3,
+     "F": 2,
+     "T": 1,
+     "R": 4,
+     "K": 1,
+     "D": 1,
+     "H": 3
+    },
+    "card_names_in_guide_prose": [],
+    "guide_sha256": "3dae51054d6893bcb10b45e0e9f1c9a02f59116e8fa7ca1362b740bffd7d1814",
+    "input_sha256": "f018cded112d20629305659bf432cb58eecc7deb201f9d617ad8b83356c7d7fb"
+   },
+   "3": {
+    "n": 89,
+    "role": "pool",
+    "strata": {
+     "anchor_land": 2,
+     "anchor_spell": 4,
+     "rest": 78,
+     "top20": 5
+    },
+    "anchors_left_out": [
+     "Avacyn's Pilgrim",
+     "Farseek",
+     "Hornet Queen",
+     "Pacifism",
+     "Selesnya Guildgate",
+     "Simic Growth Chamber"
+    ],
+    "anchor_rows_removed": {
+     "E": 3,
+     "F": 4,
+     "T": 3,
+     "R": 3,
+     "K": 0,
+     "D": 0,
+     "H": 4
+    },
+    "card_names_in_guide_prose": [],
+    "guide_sha256": "e1dec967ca2e4c2efef148d1bb7d1027a3dc23e47382b925f2e6dce4dd327b1e",
+    "input_sha256": "1e773cd1aa31d12f89b2ece3db3b4606f32ccebab15638afe2627635f555c926"
+   },
+   "4": {
+    "n": 89,
+    "role": "pool",
+    "strata": {
+     "anchor_land": 2,
+     "anchor_spell": 4,
+     "rest": 78,
+     "top20": 5
+    },
+    "anchors_left_out": [
+     "Adarkar Wastes",
+     "Arcane Signet",
+     "Cultivate",
+     "Grizzly Bears",
+     "Rampaging Baloths",
+     "Sungrass Prairie"
+    ],
+    "anchor_rows_removed": {
+     "E": 5,
+     "F": 3,
+     "T": 2,
+     "R": 4,
+     "K": 0,
+     "D": 3,
+     "H": 1
+    },
+    "card_names_in_guide_prose": [],
+    "guide_sha256": "2a64360f8d1fb01a006117df03cab0b808722cac03af1d7464ce6d8ef437af66",
+    "input_sha256": "9ce54a9e314325bb034241b05c493c87ed009a03eb88e7fc18ffa52c2a62c6b5"
+   },
+   "5": {
+    "n": 89,
+    "role": "pool",
+    "strata": {
+     "anchor_land": 2,
+     "anchor_spell": 4,
+     "rest": 79,
+     "top20": 4
+    },
+    "anchors_left_out": [
+     "Azorius Chancery",
+     "Gilded Lotus",
+     "Kor Skyfisher",
+     "Reality Shift",
+     "Rites of Flourishing",
+     "Tranquil Cove"
+    ],
+    "anchor_rows_removed": {
+     "E": 3,
+     "F": 2,
+     "T": 0,
+     "R": 3,
+     "K": 0,
+     "D": 3,
+     "H": 5
+    },
+    "card_names_in_guide_prose": [],
+    "guide_sha256": "1a49a1c832342a79844afa5516a25524ce019a14e9afdb6a59967e8ad602a7c3",
+    "input_sha256": "a0cf9fe2f50832b49529b75b6642f59b57cc4c8e2e002092de59bce38842c473"
+   },
+   "6": {
+    "n": 89,
+    "role": "pool",
+    "strata": {
+     "anchor_land": 1,
+     "anchor_spell": 5,
+     "rest": 79,
+     "top20": 4
+    },
+    "anchors_left_out": [
+     "Fellwar Stone",
+     "Koma, Cosmos Serpent",
+     "Maze's End",
+     "Mind Stone",
+     "Sol Ring",
+     "Swords to Plowshares"
+    ],
+    "anchor_rows_removed": {
+     "E": 5,
+     "F": 3,
+     "T": 3,
+     "R": 3,
+     "K": 0,
+     "D": 1,
+     "H": 3
+    },
+    "card_names_in_guide_prose": [],
+    "guide_sha256": "c34477aa7561e3882804870c4cb41fbce41af8f2854f6cc5427e764386564691",
+    "input_sha256": "f51f30d210d4391c530c128b0e2a3c25ec5c782110f0785519a0fb7b71b91047"
+   },
+   "7": {
+    "n": 88,
+    "role": "pool",
+    "strata": {
+     "anchor_land": 1,
+     "anchor_spell": 5,
+     "rest": 78,
+     "top20": 4
+    },
+    "anchors_left_out": [
+     "Divine Favor",
+     "Elvish Mystic",
+     "Prairie Stream",
+     "Shrieking Drake",
+     "Tireless Provisioner",
+     "Winds of Rath"
+    ],
+    "anchor_rows_removed": {
+     "E": 2,
+     "F": 5,
+     "T": 1,
+     "R": 1,
+     "K": 2,
+     "D": 3,
+     "H": 1
+    },
+    "card_names_in_guide_prose": [],
+    "guide_sha256": "866c0ccaca6bf61cdad39003a8c9f43cf569d22fd63dc239e07772fd6866883d",
+    "input_sha256": "56c1f286c8d7a1e9a08caafa64ce29004132e80ba4beba1fd0ae8327ce98a89f"
+   },
+   "8": {
+    "n": 50,
+    "role": "retest (optional, never pooled)",
+    "strata": {
+     "land": 10,
+     "rest": 20,
+     "top20": 20
+    },
+    "anchors_left_out": [
+     "Command Tower",
+     "Counterspell",
+     "Primeval Bounty",
+     "Reclamation Sage"
+    ],
+    "anchor_rows_removed": {
+     "E": 3,
+     "F": 2,
+     "T": 1,
+     "R": 2,
+     "K": 1,
+     "D": 0,
+     "H": 2
+    },
+    "card_names_in_guide_prose": [],
+    "guide_sha256": "2b93fc68bc8f1740450c58fc0860a8e9570983a9c75149d5754ad3281bf3d8da",
+    "input_sha256": "3d8d2771294e21940253e39e16721ab42a938693caed4416e6970935e824b565"
+   }
+  },
+  "schema_sha256": "b5f5c163ac1ef797539941d3a293001271eb23c4e0149116747472138245f4de",
+  "note": "strata: anchor_land/anchor_spell = cards in the guide anchor tables (left out of their own chunk's guide); top20 = top 20 % of prior H rebuilt with the wave-1 rule; rest = everything else. Chunk 8 is the optional retest of wave-1 primary cards, never pooled."
+ },
+ "cards": [
+  {
+   "oracle_id": "5104053a-d394-4b00-82a4-60fd9f051a6e",
+   "name": "Fierce Empath",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 1,
+   "seq": 1,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b4f89885-eeb9-46c7-9820-9758b624ca24",
+   "name": "Tethermage's Advantage",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 2,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "837182db-1bf3-4a2c-bd01-1af9d9873561",
+   "name": "Unsummon",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 3,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "95e94dea-5ac0-4d6f-adec-ca147aee861f",
+   "name": "Ajani's Pridemate",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 4,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5fff2bf4-9e26-4815-9bf6-672ed7e55b96",
+   "name": "Ordeal of Nylea",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 5,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c96803dc-b69b-4fc3-a39b-1aad6d800e86",
+   "name": "Narrow Escape",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 6,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9d2e7099-dcd5-428f-a732-2a82b8d1dd1a",
+   "name": "Frantic Salvage",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 7,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1c4f6893-4e83-4756-b324-1de0d06ea2c4",
+   "name": "Brindle Boar",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 8,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "12d617b1-c95b-4b1c-a586-ccfdf5898b03",
+   "name": "Hexhaven Invigorator",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 9,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c8f8fbf0-4f51-4a5c-82f9-99917513df6d",
+   "name": "Lush Growth",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 10,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "98950aaf-d0b8-420b-9e6a-c7d07d0f8588",
+   "name": "Soul Seizer // Ghastly Haunting",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 11,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ccfe72b2-8a9a-4ad6-ab1d-676bb376b0ac",
+   "name": "Outrider of Jhess",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 12,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ca204b66-8d0c-431a-8d34-282f7c2d17da",
+   "name": "Lightning Greaves",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 1,
+   "seq": 13,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d4246e4d-390d-4925-a5a8-89cd096a237c",
+   "name": "Sphinx of the Final Word",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 14,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "62d8c8c8-bc24-42f2-9e2e-9efd08e47bb1",
+   "name": "Claustrophobia",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 15,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a51ec70d-1356-4403-a858-b99445bac54a",
+   "name": "Predator Ooze",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 16,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b16cef02-dcf8-4866-ac42-6ee929ddbea2",
+   "name": "Steppe Lynx",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 17,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4f6e2e47-34df-4bf3-a546-e06b42840167",
+   "name": "Divine Resilience",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 18,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b2eb7a64-a307-4a78-a25d-63fb3ae1e237",
+   "name": "Cryptic Caves",
+   "role": "pool",
+   "stratum": "anchor_land",
+   "chunk": 1,
+   "seq": 19,
+   "is_land": true,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "98914c0e-967f-4c8b-bd74-e2ce15c7fe95",
+   "name": "Talus Paladin",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 20,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "efbb5b87-d175-477e-a490-85dd98b62de6",
+   "name": "Feral Contest",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 21,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ef67c170-68aa-4ada-8cee-261a4dbb1b5d",
+   "name": "Surly Farrier",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 22,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "270d14b2-07bc-46bc-918f-658102265ccf",
+   "name": "Empyrean Eagle",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 23,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7340dbcb-4b26-4038-be8c-a89e76294221",
+   "name": "Gideon Jura",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 24,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "25794033-bd17-4056-b116-68d3acf52569",
+   "name": "Myr Sire",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 25,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1eb9e401-8975-447b-839d-f7cd23897465",
+   "name": "Gleaming Barrier",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 26,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "abcfcc71-77c0-46e7-93c3-726967946b12",
+   "name": "Grizzled Outcasts // Krallenhorde Wantons",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 27,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "098cc111-493b-470b-929c-67deb981240c",
+   "name": "Rusted Slasher",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 28,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f8b17b89-26ce-4208-874a-9e1d66514640",
+   "name": "Dig Through Time",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 29,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d06a5642-861b-4b0d-9ea5-07046b7e1d37",
+   "name": "Predictive Preparations",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 30,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1a9048d6-f3fa-4f3b-9baa-35318177bc6e",
+   "name": "Loran's Escape",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 31,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ba7f1b09-5727-484d-a502-3dcf4d618c56",
+   "name": "Slash the Ranks",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 32,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c4f58768-35b2-4e17-9129-c9e39b8ed339",
+   "name": "Sorcerer's Strongbox",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 33,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d569d969-ce39-4314-b5f0-76b45f5c4c7f",
+   "name": "Dream Twist",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 34,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "445bb343-9758-459b-970f-47f1705f1e55",
+   "name": "Armored Cancrix",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 35,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "517c7295-8ba2-47a6-a1c6-aee722f8ca88",
+   "name": "Leonin Skyhunter",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 36,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5fbd39e9-8736-4722-bb9b-6a7da8e47c84",
+   "name": "Clarion Ultimatum",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 37,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "612c7807-be70-4e2f-afd2-3d3c03eddbbe",
+   "name": "Icy Reception",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 38,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0e969a27-1609-4ab4-b0db-46b1af8066a9",
+   "name": "Unflinching Courage",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 39,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6e42e7dc-acd9-4125-a90d-75fd8da204b3",
+   "name": "Greater Basilisk",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 40,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "311e9368-696a-47e7-aa2f-3ef1b1a92e2b",
+   "name": "Prime Speaker Zegana",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 1,
+   "seq": 41,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8bef3511-ceeb-4d57-972a-ab363ecacd5b",
+   "name": "Timid Shieldbearer",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 42,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6f856f99-4cb4-479d-958d-964220965ed6",
+   "name": "Wilderness Reclamation",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 43,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f2649e48-4252-43f3-bd1e-c4c6fcb0aa3a",
+   "name": "Razor Boomerang",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 44,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "13fe5e46-77a6-45d8-ac0b-c3d740eccf86",
+   "name": "Splendid Reclamation",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 45,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "12a6cad9-eb42-43bd-9e68-aaf862cd83db",
+   "name": "Adrix and Nev, Twincasters",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 46,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "cf8a0782-f545-445e-abac-d9063dad696b",
+   "name": "Hunter's Insight",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 47,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d683d985-9888-4d21-8b5f-69e69ce4a03b",
+   "name": "Path to Exile",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 1,
+   "seq": 48,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "c77c23bc-efde-43ce-bf6f-7a8531d81d89",
+   "name": "Stave Off",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 49,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6119fe8e-e7e2-4cc1-a44d-fe95a230db80",
+   "name": "Orochi Ranger",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 50,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e48ea9ea-64bc-4f1c-a424-592d48569244",
+   "name": "Blighted Agent",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 51,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "44154004-e50e-45d1-bde0-ba6e3354067c",
+   "name": "Guardian Zendikon",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 52,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "63ec8167-2dc3-49a6-a7ed-6b1474bbda2c",
+   "name": "Noble Vestige",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 53,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9cb7f23f-322d-4a87-b6c6-15b9d446aef3",
+   "name": "Champions of the Perfect",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 1,
+   "seq": 54,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "27b945ad-92a9-4615-87ec-790682e8c3e7",
+   "name": "Angel of Salvation",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 55,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "000d5588-5a4c-434e-988d-396632ade42c",
+   "name": "Storm Crow",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 1,
+   "seq": 56,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "ea91be73-40f5-461a-bb39-d60216829a53",
+   "name": "Lead the Stampede",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 57,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1e6a24be-8281-41c1-a5ba-b68f0ef1d7b8",
+   "name": "Snakeskin Veil",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 58,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7ef8df9f-3fab-44fd-b5a9-f57e54dbc38e",
+   "name": "Guardians of Akrasa",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 59,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "903d114b-1899-4e67-bee3-af0673850388",
+   "name": "Faebloom Trick",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 60,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "fbfd7f38-be9a-49bf-8769-79e1e7e8dfdc",
+   "name": "Combat Research",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 61,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2f074636-6a36-46a3-b872-add79e19aa8b",
+   "name": "Thieving Magpie",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 62,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "77248a76-373c-48fc-939f-aa378ab57f7c",
+   "name": "Mortarpod",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 63,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6b232bb7-d372-4174-a049-5f8d620810e6",
+   "name": "Angel's Mercy",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 64,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5faa9e54-1cc4-48c0-bbfa-a495087c36d6",
+   "name": "Zimone's Experiment",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 65,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "fcf0bb85-bca9-4f4c-b954-ca3bc5f91dd8",
+   "name": "Aven Flock",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 66,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0766cf02-ea55-4271-8c73-213c93b0baac",
+   "name": "Blinding Beam",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 67,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0ad27d0e-b6c3-4c3f-a389-285d889b6a65",
+   "name": "Ballyrush Banneret",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 68,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c065a7c0-272b-4b7e-a41c-7164352cd189",
+   "name": "Jedit Ojanen of Efrava",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 69,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6f8fa68e-e961-4ae1-b27d-22d87e90f26b",
+   "name": "Procrastinate",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 70,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "599fb8b1-8750-4832-869a-cddc3784087a",
+   "name": "Harbor Serpent",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 71,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b401a490-d25f-4029-bb91-8999e140c6a1",
+   "name": "Armed with Proof",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 72,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3eff8f21-9a1b-4afc-8a7b-75a740d0a4ea",
+   "name": "Clockwork Condor",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 73,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a5f5e71e-83a7-468d-829a-6392b764c76e",
+   "name": "Witness Protection",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 74,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9fb4aa2d-6414-4176-9070-e5230e100c6a",
+   "name": "Wildwood Geist",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 75,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8e5d72a1-6ae0-445d-bac7-62da3bd3a8d6",
+   "name": "Mirran Spy",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 76,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5748ebf1-24e3-499d-ab7c-c2cebd462a24",
+   "name": "Giant Growth",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 1,
+   "seq": 77,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "9c055ef0-1164-4a9f-80de-23405423aed5",
+   "name": "Chase Inspiration",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 78,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "096a878e-cff0-430a-90b5-031ecb9bfe1b",
+   "name": "Tam, Mindful First-Year",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 1,
+   "seq": 79,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2dc94a25-4e35-4277-8eba-b8d0b293ff7b",
+   "name": "Bountiful Harvest",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 80,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6beaeec2-b4e9-4904-b817-c0118549d4a9",
+   "name": "Mosquito Guard",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 81,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6eb74f6e-1c9d-4caf-a0d8-fa472d435346",
+   "name": "Abbey Griffin",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 82,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0715e860-3b3b-4331-9718-207973e94fee",
+   "name": "Tatyova, Benthic Druid",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 1,
+   "seq": 83,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "e521322b-0e83-458c-8936-7021a80ee279",
+   "name": "Temple of Plenty",
+   "role": "pool",
+   "stratum": "anchor_land",
+   "chunk": 1,
+   "seq": 84,
+   "is_land": true,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "9d2bfbb2-84df-4d7c-9989-7f5577f90d97",
+   "name": "Loxodon Partisan",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 85,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "81ba3a33-0e04-4f68-9a42-1dd717733b57",
+   "name": "Lavinia, Azorius Renegade",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 86,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b6eb56a7-4dfe-4d51-a1df-55f892c1b014",
+   "name": "Orchard Spirit",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 87,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0481adcd-b66d-432e-80ba-3a4718bb3a7d",
+   "name": "Tumble Magnet",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 88,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8957f7c2-040c-4048-9f21-efa7c97682b7",
+   "name": "Ambush Viper",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 1,
+   "seq": 89,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4b033a0a-c1ae-44d7-9662-72cbbfda024b",
+   "name": "Aether Spellbomb",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 1,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "510bccb1-61cd-49f1-a54a-80352653d1e3",
+   "name": "Titanbones, Towering Heart",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 2,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ab342d57-240a-4c56-aed6-ac3cdc51af8d",
+   "name": "Pathbreaker Wurm",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 3,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d0ade00d-a496-441d-9b7e-7dc033d3292c",
+   "name": "Titania, Protector of Argoth",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 4,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c2157f2c-a3a4-47aa-b33e-b2c65e11c2e5",
+   "name": "Kitesail Apprentice",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 5,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9acfec0d-05a0-4b28-a883-e6863f1cb773",
+   "name": "Mistmeadow Council",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 2,
+   "seq": 6,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "855353e2-b686-482a-b987-c6ae456f088c",
+   "name": "Whoosh!",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 7,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ee38377f-8d3a-402e-a5d7-a01cfe3a5322",
+   "name": "Demon's Horn",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 8,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b49efbe8-e15b-4dc7-82de-970cbce92b79",
+   "name": "Noggle the Mind",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 2,
+   "seq": 9,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "705531b3-77cc-4d1f-851b-45e03c029991",
+   "name": "Hysterical Blindness",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 10,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "35d3d96a-d303-4bf5-b972-f311331ec07a",
+   "name": "Wild Nacatl",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 11,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8ab99b5e-c9e0-45c2-8df2-864ab0ad1caf",
+   "name": "Runic Repetition",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 12,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "893fed41-c144-433f-af88-bc7d419b7fb3",
+   "name": "Burnished Hart",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 2,
+   "seq": 13,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9620c8a2-63a8-4151-b4fd-a15db191a7b0",
+   "name": "Glimmerpoint Stag",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 14,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e894ccf5-fc71-48bd-bca5-cfeb05315f42",
+   "name": "Skywinder Drake",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 15,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c23e5b80-08d2-4e24-9908-fe2aa4f30f6f",
+   "name": "Reliquary Tower",
+   "role": "pool",
+   "stratum": "anchor_land",
+   "chunk": 2,
+   "seq": 16,
+   "is_land": true,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "e0f44bb8-f07b-416c-b767-87b9fe6461aa",
+   "name": "Chasm Drake",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 17,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e740ce2f-2134-473c-afa1-1b6d2d1e38ef",
+   "name": "Giant Spider",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 18,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e20ad2f7-cb41-4e6e-8f3b-bd260f4a2ecf",
+   "name": "Tine Shrike",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 19,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "acc07d0d-141b-4169-9643-6f20739e91be",
+   "name": "Jhessian Lookout",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 20,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "fcbe14c4-1b0d-486f-bb9c-0fed452668cb",
+   "name": "Faerie Mechanist",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 21,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f2cf087a-d89a-4145-9394-945ce41c8cca",
+   "name": "Archway Angel",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 22,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d6786f80-818c-433d-8978-81814171dd39",
+   "name": "Wind Zendikon",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 23,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3a2bb47d-228d-499e-a34b-9e10d99e9b2c",
+   "name": "Fog Bank",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 24,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "dd99d791-3305-4195-ad12-96d958a28764",
+   "name": "Crossbow Infantry",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 25,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "95630a83-3699-4340-b3e5-17e81db1b82f",
+   "name": "Hydro-Channeler",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 26,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "91363d71-eef0-48e8-9a68-8f363ff2790e",
+   "name": "Tend the Sprigs",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 27,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "cea09261-41a2-43e5-bf43-c4097e6615c6",
+   "name": "Appeal to Eirdu",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 28,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5fffd840-1e6e-4f5d-b847-802f9a25eb5c",
+   "name": "Vinebred Brawler",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 29,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "32263baa-d3f0-463f-92b3-4e9938476add",
+   "name": "Hedron Archive",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 30,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f2ce9e55-07c0-4f36-a59e-127693fc0f62",
+   "name": "Magnifying Glass",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 31,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b36271cb-cda2-434a-a580-6050dc460409",
+   "name": "Fleeting Distraction",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 32,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "15cc068c-f424-433e-b165-8457c62a4b35",
+   "name": "Azure Drake",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 33,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d36075c2-de66-4202-9217-b1102a2bc14b",
+   "name": "Pelakka Wurm",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 34,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "bd5eb181-6a69-4dc2-93a0-fa000291bc3d",
+   "name": "Auramancer",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 35,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3aef097b-711a-4463-a59c-831e4dd5e69a",
+   "name": "Full Moon's Rise",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 36,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "163baf58-b35d-4f2b-aa53-8384b8b5800a",
+   "name": "Replication Technique",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 37,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "00e35322-1a9a-41e3-9ce1-359c8eaa3bc7",
+   "name": "Talisman of Progress",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 2,
+   "seq": 38,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7b094a2b-2b69-4a9b-9829-c1aabc53f75e",
+   "name": "Solidarity",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 39,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "49c0aac5-d650-4ada-a194-3bf77f104bc1",
+   "name": "Ransom Note",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 40,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "449142ff-7190-471b-99a5-f77095a827dd",
+   "name": "Surveilling Sprite",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 41,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "eaf98e03-729b-4145-b2af-c910c415c15d",
+   "name": "Flashfreeze",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 42,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a984db23-40ea-428d-829f-e944267280f8",
+   "name": "Faerie Mastermind",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 2,
+   "seq": 43,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "73c7d938-5cec-4f96-b649-3f67bef29407",
+   "name": "Tel-Jilad Defiance",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 44,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1a60dc0f-e387-4d28-8ff0-c3f1883d0c5d",
+   "name": "Hamlet Captain",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 45,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2987c385-011a-4032-a516-a46d1e9dc9e8",
+   "name": "Crib Swap",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 2,
+   "seq": 46,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6dd5782d-2d1a-4d6b-8381-e15d0d5be24f",
+   "name": "Stoic Rebuttal",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 47,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "223fa044-d387-4884-bf4e-75f1b61c6a46",
+   "name": "Curiosity",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 48,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8806ee05-10d5-4492-b672-2f6bcab94be0",
+   "name": "Knowledge Is Power",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 49,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4eb24ae3-da1a-4565-934f-e25f56036d71",
+   "name": "Silverskin Armor",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 50,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "bb4e1340-da63-46b8-a5e3-79dfedec3e78",
+   "name": "Snapping Creeper",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 51,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1ecd7248-ff28-4e12-b72a-0cb279ec7561",
+   "name": "Bar the Door",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 52,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e02740e6-3eba-4f82-831b-35a9f122f07f",
+   "name": "Tel-Jilad Fallen",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 53,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5e316864-d55c-496f-8f46-773567896864",
+   "name": "Broken Wings",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 54,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "dd1a4219-437b-494f-ae0e-1d3181ffcd63",
+   "name": "Wild Unraveling",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 55,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "aa571676-b390-4b8a-baea-4c4cd60c01f6",
+   "name": "Regal Caracal",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 56,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3407fe41-fdd3-4119-8f70-4bc4590a379f",
+   "name": "Negate",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 2,
+   "seq": 57,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "bd9e416a-89b3-4912-be9b-49fce6a93dc9",
+   "name": "Manalith",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 58,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f8848065-7075-41d8-82f6-67ace390625a",
+   "name": "Peregrine Griffin",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 59,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b9d0f2e1-62c2-44fd-ad38-471daf17bb0a",
+   "name": "Tolarian Terror",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 60,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "800fb917-8898-4eba-9f94-aec6e9d75236",
+   "name": "Mazemind Tome",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 61,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f4bdc551-c2eb-4a34-a3e3-b4a017c925af",
+   "name": "Liquimetal Coating",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 62,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "002965be-a36f-4a09-9ce0-c6535bca1703",
+   "name": "Veil of Summer",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 63,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c1a9d60f-a469-48f9-8f1c-3ca5ae86bd64",
+   "name": "Campus Crier",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 64,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3e0e3676-e634-4e64-bdfd-4aaa5885461f",
+   "name": "Abstract Performance",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 65,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "17bd7ef7-8b4b-4a2d-a667-c751e10e2a47",
+   "name": "Bennie Bracks, Zoologist",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 66,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "68954295-54e3-4303-a6bc-fc4547a4e3a3",
+   "name": "Llanowar Elves",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 2,
+   "seq": 67,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "6cb9d153-4eaa-4f32-8930-bd68cd99c128",
+   "name": "Three Tree Mascot",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 68,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "bb1963f9-261c-4d3f-a401-90aaced77e7f",
+   "name": "Rushwood Dryad",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 69,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9636073e-e361-4d2a-92f6-5fe049e5eb23",
+   "name": "Thraben Sentry // Thraben Militia",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 70,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3a0dd318-9523-4740-b0aa-a911032e3851",
+   "name": "Aether Tradewinds",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 71,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "064c3269-c012-4fc7-84c3-5f147a82a03c",
+   "name": "Stalactite Dagger",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 72,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "cd8ae9f2-edac-473a-8846-c08219e617c3",
+   "name": "Steal Artifact",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 73,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5a7ecb5c-9b22-4d2c-b851-db92c1d3c745",
+   "name": "Silverclaw Griffin",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 74,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0232418d-1c52-4573-b488-c62345ca1c8d",
+   "name": "Search the Premises",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 75,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5089cd0f-1338-4ecd-bb1b-664d7e72f8fc",
+   "name": "Relentless Skaabs",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 76,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "81728b98-8cf9-4734-a318-69184bb4d15c",
+   "name": "Arrest",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 77,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "88d0a394-79e2-42ac-9a37-1a7b78231941",
+   "name": "Thunderclap Drake",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 78,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "204f9afe-c20b-4933-b5cd-aa572784762a",
+   "name": "Overrun",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 79,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a75445d3-1303-4bb5-89ad-26ea93fecd48",
+   "name": "Evolving Wilds",
+   "role": "pool",
+   "stratum": "anchor_land",
+   "chunk": 2,
+   "seq": 80,
+   "is_land": true,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "289e1a7c-b301-4395-baf8-e9a1c6d38aab",
+   "name": "Revoke Existence",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 81,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1adb733c-d18a-4019-9229-0ad701a15b1a",
+   "name": "Kor Aeronaut",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 82,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "48f7217e-ae11-44bd-ac42-7c8d9dd5dc36",
+   "name": "Bristlebane Outrider",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 83,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "592689f2-f17c-40d6-b880-431f4b6a6b0c",
+   "name": "Bristlebane Battler",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 84,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1b09d0cf-403c-4a15-aeee-602a1bdaf0c1",
+   "name": "Darksteel Colossus",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 85,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "db3ba239-2239-4e9d-ad70-cff32ed24578",
+   "name": "Bark of Doran",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 86,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f43e36ea-6bf5-45bd-a4ad-cc507ae45641",
+   "name": "Quandrix Charm",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 87,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "39d8406a-90c3-460c-b4e8-0f590573db51",
+   "name": "Mechanized Production",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 2,
+   "seq": 88,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "65368569-68bf-4498-9979-d2935942ca49",
+   "name": "Stonehorn Dignitary",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 2,
+   "seq": 89,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ffc95093-24a2-4616-a44a-24788e8df9c8",
+   "name": "Trinket Mage",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 1,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8305d576-21d8-4ce7-8eda-a7cd9793aca5",
+   "name": "Archmage Emeritus",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 2,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e154e612-4041-4fb7-903f-917588dbe58e",
+   "name": "Fangren Marauder",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 3,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8fcf50cd-e6d0-4516-850f-d42ee75dcc3a",
+   "name": "Expedition Map",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 4,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3d0d4ba4-d5aa-4d9f-89ab-46687637fecf",
+   "name": "Angel's Feather",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 5,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7dde4eb6-e9d7-4259-abc2-3af738e0f00f",
+   "name": "Foil",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 6,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "04c7f4fe-2098-4311-866d-6733c08d5178",
+   "name": "Nettlecyst",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 7,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "069f6530-e65c-4d52-85f3-e0a2acd148c5",
+   "name": "Avacyn's Pilgrim",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 3,
+   "seq": 8,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "382097b3-f753-493c-bde4-101c0538feb4",
+   "name": "Frost Breath",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 9,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c90ea9d5-82f7-4b92-8cb1-10d0a7378e8c",
+   "name": "Sky-Eel School",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 10,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5396045d-744b-435e-8324-a1bfbb03449d",
+   "name": "Clachan Festival",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 11,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "42b03dd7-e796-47c3-b596-87960d72818b",
+   "name": "Culling Dais",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 12,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3f2a27a1-f9cf-4dac-a248-5c6af4de3722",
+   "name": "Azorius Arrester",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 13,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8a5e17a0-6f3c-49ed-b328-ed90a46ed6c5",
+   "name": "Burdened Stoneback",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 14,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "10172c40-7169-4098-9452-b35797d27065",
+   "name": "Vastwood Zendikon",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 15,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "fdf0fba8-f335-419c-b96b-e99037727c43",
+   "name": "Kinscaer Sentry",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 16,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "05079479-86a6-4041-a395-83d325b6ddb7",
+   "name": "Treasure Hunt",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 17,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "873694c0-c100-4d24-a74f-1ab26442dd18",
+   "name": "Brush Off",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 18,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7e00b0cd-d212-4604-ba07-da21f4fe00b0",
+   "name": "Sram, Senior Edificer",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 19,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "fb1bd39c-c870-4f63-9e4f-32c94ac46555",
+   "name": "Conundrum Sphinx",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 20,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "cae60cf8-cd64-4595-a4dd-946694cf2bb1",
+   "name": "Felidar Cub",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 21,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "be6155de-c5b2-415c-ad83-142f9926462a",
+   "name": "Khalni Heart Expedition",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 22,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "69a72414-d02f-4a5c-b5c9-8941bb181f61",
+   "name": "Aven Fisher",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 23,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "bf8de96b-0a75-4459-a123-dcf95e1b89f2",
+   "name": "Tanufel Rimespeaker",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 24,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5e35a7c9-1e6e-41a7-9f59-5ea1bc53bc65",
+   "name": "Greenweaver Druid",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 3,
+   "seq": 25,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "04046ae4-5c51-434b-930c-f3b1d348bf4b",
+   "name": "Rootborn Defenses",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 26,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "230be0f8-03a4-4452-84c1-ea14cfe49737",
+   "name": "Nantuko Disciple",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 27,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ec1f6188-2516-46ac-8a03-7b7285b23a62",
+   "name": "Celestial Purge",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 28,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "27c84b2e-fc66-45a6-a5ad-d3ef204d5077",
+   "name": "Enclave Elite",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 29,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7fd4c452-07f2-492c-9c78-d1c6362d9eec",
+   "name": "Yavimaya Elder",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 3,
+   "seq": 30,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4aae7102-301a-429d-b169-4f462384d55d",
+   "name": "Ishai, Ojutai Dragonspeaker",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 31,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3b1f8108-6911-49e9-8f78-f950bb58cb6c",
+   "name": "Hornet Queen",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 3,
+   "seq": 32,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "8475f55e-473c-4df0-bae2-3cbbbde4ff12",
+   "name": "Chrome Steed",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 33,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "42d8ab49-703a-4fd3-84d0-0a3ac1eafca8",
+   "name": "Louisoix's Sacrifice",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 34,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3c8cc7e2-7bff-46e0-bb5b-1e721a56a3ef",
+   "name": "Sunlance",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 35,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c1eb530c-dd36-40ae-8617-6bb6969565e1",
+   "name": "Cultivator's Caravan",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 36,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0ce31ff1-6cfe-4b34-bd02-7d727934e754",
+   "name": "Welkin Guide",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 37,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ce7582a2-e014-41fb-8753-00d29cffc81a",
+   "name": "Lys Alana Dignitary",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 38,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7f32c581-4d4a-4873-8e4b-b95e13790481",
+   "name": "Phantasmal Dragon",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 39,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5d96840e-f9b3-4c86-8f59-f12e5736318f",
+   "name": "Voracious Greatshark",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 40,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a7e97fa9-4b72-4548-b854-5be5f18a6f1a",
+   "name": "Disenchant",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 41,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "495e52e6-4c2b-4574-9474-eadbdcc8b4ac",
+   "name": "Farseek",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 3,
+   "seq": 42,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "9b93ff69-f195-4d72-8e1d-574c3e53bca8",
+   "name": "Sleep",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 43,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4e694613-e2e1-4ae3-baa8-f372259e91cf",
+   "name": "Courier's Capsule",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 44,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0e71fc56-0332-4e5e-8658-9257cc0d8a1d",
+   "name": "Steel Sabotage",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 45,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3d4a7dd3-9258-4bd1-adc4-08f0205e196a",
+   "name": "Dwynen's Elite",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 46,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4c9f5359-249e-488b-9a7e-db1a43c2b1f4",
+   "name": "Trained Armodon",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 47,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b9110be0-3f0c-449b-8baf-689e92fdb8f0",
+   "name": "Embrace the Paradox",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 48,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a5f537f6-3254-45a3-a4e7-d4d4fd7a972d",
+   "name": "Kor Cartographer",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 49,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3edac7df-2a88-4718-865e-703dff9c972e",
+   "name": "Covenant of Minds",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 50,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "713332c1-5bd8-400f-bfff-c1ca0697a043",
+   "name": "Opt",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 51,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "cf35ec1e-11e2-4028-89df-9755fd6772bf",
+   "name": "Rebuke",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 52,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "66e8f7f8-3a6d-46ba-837c-b9713ddf7f40",
+   "name": "Silver Myr",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 3,
+   "seq": 53,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "666b34b5-a0c2-43e3-befd-7c3979313682",
+   "name": "Infinite Coursework",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 54,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "75b235d3-595a-4859-be45-9559d8445db5",
+   "name": "Selesnya Guildgate",
+   "role": "pool",
+   "stratum": "anchor_land",
+   "chunk": 3,
+   "seq": 55,
+   "is_land": true,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "53e88e64-6f82-4154-a66e-6aeb0154b368",
+   "name": "Rule of Law",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 56,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1b5e6560-ff2e-4475-96cb-63f64c8a86db",
+   "name": "Soul-Guide Lantern",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 57,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7e7d7f4d-2c22-4803-ba5e-5eb653c25b5e",
+   "name": "Aerial Extortionist",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 3,
+   "seq": 58,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "930035c6-cde7-40ac-98ef-0840812037db",
+   "name": "Chitinous Graspling",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 59,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5b6bdf5a-2742-4851-92cd-a857a3852836",
+   "name": "Treasure Cruise",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 60,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "386c5895-9713-4c28-9ba8-8ca0caa06c13",
+   "name": "Gate Colossus",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 61,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b94c233e-11d3-4556-a1da-bd193e58b663",
+   "name": "Tempest Djinn",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 62,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "17e4085e-af44-4ba8-af05-ccfe4b35f96a",
+   "name": "Temple Acolyte",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 63,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ab1cc360-b9de-48d9-9983-4dfe4a7d2a37",
+   "name": "Arcane Denial",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 64,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5f5e0b10-c8cf-450c-bfd3-bcb0528ec330",
+   "name": "Pacifism",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 3,
+   "seq": 65,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "c93bce5a-48cc-4dc5-930b-1e084c2bae7d",
+   "name": "Viridian Emissary",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 66,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4c8167af-2eb0-4f0a-a1b9-b61b65bac261",
+   "name": "Kemba's Skyguard",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 67,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "046f5783-cc7b-416a-8cf6-2bcef9c2cc1a",
+   "name": "Simic Growth Chamber",
+   "role": "pool",
+   "stratum": "anchor_land",
+   "chunk": 3,
+   "seq": 68,
+   "is_land": true,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "2d6a0d89-7ebd-420e-9892-be1506ab3714",
+   "name": "Follow the Bodies",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 69,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "10706fd1-7847-4316-be8d-59b56143ce45",
+   "name": "Coral Eel",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 70,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4c9bcba6-87b5-4fb3-97ee-6fe5b739337d",
+   "name": "Consider",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 71,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "deeb7e22-b207-42de-b9d4-f790403d52a9",
+   "name": "World Breaker",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 72,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c8552706-83f2-41d7-8068-75891abb8bde",
+   "name": "Serrated Biskelion",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 73,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ab26fbe2-e808-48b9-8d0d-3fbb6c3d554f",
+   "name": "Narset, Parter of Veils",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 74,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "24ddcf3c-a4f3-4373-9483-5ce6e50d6150",
+   "name": "Spitting Spider",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 75,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "be7e220e-272e-45ca-8265-8d78da2cd2a7",
+   "name": "Unforgiving Aim",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 76,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5a5f39ab-21b4-415f-aa1f-d8fad420d372",
+   "name": "Throne of Geth",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 77,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c025d558-aae8-4146-923b-a98035025a42",
+   "name": "Apex Hawks",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 78,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4b6dd710-f7f2-4fc8-9b66-b48c7737b135",
+   "name": "Untamed Might",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 79,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "abbfbe50-4caf-48d0-b8f1-f2c9212bcd2f",
+   "name": "Iona's Judgment",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 80,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d43f813b-3607-4bc3-b996-3dbad6977bd8",
+   "name": "Shinen of Stars' Light",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 81,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7409906d-7111-48fa-bfea-8b95e0fdb7dc",
+   "name": "Rot Wolf",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 82,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "eaaed253-9b11-47e2-8624-0340ab2207f6",
+   "name": "Resolute Reinforcements",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 3,
+   "seq": 83,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "33e87ab4-f680-4463-a48d-289fed7e196e",
+   "name": "Rubbleback Rhino",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 84,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7737ccdc-49f2-463e-8ffd-43ab98d11f45",
+   "name": "Emergency Phytomedic // Seed Suture",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 85,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "fb37ff1c-7461-4a16-b27f-6eef0db937fe",
+   "name": "Kor Firewalker",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 86,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c4b5567a-f195-4638-94b5-0b933dba1850",
+   "name": "Gigantomancer",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 87,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "100c877d-4cce-4b96-8f21-a4f8a43e7d84",
+   "name": "Skinwing",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 88,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0bb1c704-47f1-4d0c-8158-cfcd0b5e4d06",
+   "name": "Maritime Guard",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 3,
+   "seq": 89,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "99419378-8a23-44f3-aebe-e62d6e20e877",
+   "name": "Mysterio's Phantasm",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 1,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a533df83-782f-4f77-a0be-312ae56f6447",
+   "name": "Tanglesap",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 2,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d52397bf-e3fb-4894-996d-7c1cc8d92603",
+   "name": "Tangle Mantis",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 3,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9f5277e8-1cbe-478c-a8bc-ac028f13305e",
+   "name": "Harbinger of the Tides",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 4,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "84275aab-f718-4896-b61c-63bf49fb483b",
+   "name": "Merchant of Truth",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 4,
+   "seq": 5,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e69b8388-1311-427f-9300-42badd5338ff",
+   "name": "Sylvok Lifestaff",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 6,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e56629ba-82d4-470f-9a6b-40c29d835af2",
+   "name": "Quakestrider Ceratops",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 7,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "231f8edb-4ea1-44be-8794-b76a31462dfc",
+   "name": "Divine Offering",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 8,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8ba36878-0816-44c7-b543-8ebfc28c2ecd",
+   "name": "Angelic Destiny",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 9,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "97818ed4-3590-4a3b-92ce-716f9cfdc78e",
+   "name": "Sylvok Replica",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 10,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1f2d1de6-42e0-4f45-b43d-ce4980146469",
+   "name": "Dawn's Light Archer",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 11,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "013ca531-1ff7-4efc-a280-4bc3ab574072",
+   "name": "Mocking Sprite",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 12,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8b755881-a72d-4e21-a369-d2924eb4585a",
+   "name": "Cultivate",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 4,
+   "seq": 13,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "ee45b588-b424-49d3-9e37-270f2ae9490d",
+   "name": "Razormane Masticore",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 14,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1c36ed3a-c806-47e5-83f9-e44999c67fe5",
+   "name": "Primordial Hydra",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 15,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "25edeff3-7727-4b80-9459-2bb6b8587fb9",
+   "name": "Hornet Sting",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 16,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8c34b089-aad1-476e-958a-3077bf1bbb51",
+   "name": "Talisman of Curiosity",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 4,
+   "seq": 17,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a90d1d35-6d67-43b3-8256-b0318b3a4b07",
+   "name": "Prideful Parent",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 4,
+   "seq": 18,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c2f86723-4765-4dac-a9f6-9cfa543613b2",
+   "name": "Cudgel Troll",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 19,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e7b88da3-7dd1-45f8-b555-98ad838b2917",
+   "name": "Summit Sentinel",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 20,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "fa56a5fa-ef96-404c-8fb6-d1f5fcebb52e",
+   "name": "Surrak, the Hunt Caller",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 21,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "09071f5f-c9cb-43a9-b41d-faf6caf3beff",
+   "name": "Staggering Insight",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 22,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e5481431-c952-4ad9-94fe-355076ef632b",
+   "name": "Gnarlid Colony",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 23,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b4c404d8-9f2d-4429-ac36-449ae319abb7",
+   "name": "Siege Mastodon",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 24,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c52cfb41-18f3-4e73-b5e7-d75baf74e578",
+   "name": "River's Rebuke",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 25,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ab5f8b8c-e3f7-4265-bbc6-814bbfd4693a",
+   "name": "Crossroads Watcher",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 26,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "00f579f4-2d18-4c7c-91b2-34726b384535",
+   "name": "Bladed Sentinel",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 27,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d6d7faa8-ecc9-408b-9c46-a0f62c74f567",
+   "name": "Abolish",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 28,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "bad84deb-3f2c-46fd-9dcb-4e3ba9732769",
+   "name": "Rime Chill",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 29,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4e5e81e1-ab47-4f08-9c42-dba0adc5cf9a",
+   "name": "Runed Servitor",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 30,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4e0ba9d5-4bd6-49a0-ae00-70818738d0ba",
+   "name": "Gallant Fowlknight",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 31,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9357de36-f8be-4f49-b2c8-9fe9eaf82b07",
+   "name": "Holy Strength",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 32,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "00c0543c-2a1f-4425-8283-4062d74a1637",
+   "name": "Solemn Simulacrum",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 4,
+   "seq": 33,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e286a191-39d4-4073-b844-11d2aba911b4",
+   "name": "Strixhaven Skycoach",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 34,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "797155cd-faf4-4321-8629-c8c352392748",
+   "name": "Reclaim",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 35,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d604c75e-9d81-49de-80bc-08f4ef3ee975",
+   "name": "Potioner's Trove",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 36,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ce588fd3-642e-4df9-8061-6fcfc6e81270",
+   "name": "Jace's Ingenuity",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 37,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d47fc902-51f7-4ad1-8ee4-c973e32192b8",
+   "name": "Sage Owl",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 38,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ddf38a32-302a-4658-9eaf-b813ebe275c9",
+   "name": "Esior, Wardwing Familiar",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 4,
+   "seq": 39,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0a28dff0-2bd6-4105-b73a-b6c4735833fd",
+   "name": "Sungrass Prairie",
+   "role": "pool",
+   "stratum": "anchor_land",
+   "chunk": 4,
+   "seq": 40,
+   "is_land": true,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "2155864e-5788-4e72-a800-e2cf25cf59a7",
+   "name": "Tundra Wolves",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 41,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2a93236d-f182-4826-8112-4048bb3cbaf9",
+   "name": "Ageless Entity",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 42,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "697b14c6-fe6a-4880-9cf2-b6602a52ca0b",
+   "name": "Summoned Dromedary",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 43,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "cef11518-ecb2-4250-996c-a03fa9dfb09e",
+   "name": "Darkslick Drake",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 44,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "637c5583-4683-4ae4-8b4e-f5da42a772c7",
+   "name": "Scroll Thief",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 45,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1d7d9404-cad6-4c1a-bd47-7a31ebb2791c",
+   "name": "Tangletrove Kelp",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 46,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b5bc4adf-9105-4901-989c-63612314af5c",
+   "name": "Evershrike's Gift",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 47,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "dbaa70e6-26de-4ce9-9543-e652cbe387c1",
+   "name": "Doc Ock, Sinister Scientist",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 48,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2f47661e-a107-4d98-8773-0a068a63df49",
+   "name": "Ajani's Mantra",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 49,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2d3e6549-6cc6-434f-a189-ba3b55e64c34",
+   "name": "Rampaging Baloths",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 4,
+   "seq": 50,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "64f4f0ed-e924-459e-86a4-8202fae6ef3e",
+   "name": "Timely Reinforcements",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 51,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0bc7f093-bef0-4f1a-852c-4b75ebf54838",
+   "name": "Arcane Signet",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 4,
+   "seq": 52,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "66c227f2-0e74-43e2-ab24-3866d15c5eef",
+   "name": "Gateway Sneak",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 53,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "499b4cf9-2aaa-45a0-8362-77b727b7f7cc",
+   "name": "Puca's Eye",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 54,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6c2cf22e-5dbb-4fa9-8ece-17069e6f1d7f",
+   "name": "Excommunicate",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 55,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8b36335b-119b-4f90-a5d7-b77d8f47f55f",
+   "name": "Soul Parry",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 56,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4d9554de-c005-41ab-a941-39328ebff9de",
+   "name": "Relic of Legends",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 57,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c8b143ad-43ec-4e0d-a440-e348daa31391",
+   "name": "Swiftfoot Boots",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 58,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a4109138-5d69-4510-a228-7c1f88c0c8c0",
+   "name": "Giant Badger",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 59,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "939e6f71-185e-41f2-9d54-72cce06f1dce",
+   "name": "Thirst for Knowledge",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 60,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b9dec104-c636-4770-a7fc-7a3331face15",
+   "name": "Wildwood Scourge",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 61,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "635fe908-6f58-4c9e-ac55-0775a7c6f278",
+   "name": "Angel of Vitality",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 62,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c645fab4-51ac-440c-b112-57777c8f4676",
+   "name": "Corrupted Conscience",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 63,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6a4068b0-fb4f-429c-a94e-47849f3eb7ef",
+   "name": "Flight",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 64,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "131a7475-0b9e-46eb-9ade-fef1b9820184",
+   "name": "Stormtide Leviathan",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 65,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2358ffc2-6663-4ef3-b3a4-b036a4733ac6",
+   "name": "Faithful Squire // Kaiso, Memory of Loyalty",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 66,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "cd3d1e5d-db12-4878-92a2-23eb8d23eaf3",
+   "name": "Blazing Torch",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 67,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "18d1765b-3b60-4dda-93a6-d02a4e53f185",
+   "name": "Mind Meanderer",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 68,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "bd85fe4d-1d62-416f-ac2d-e287911c84e3",
+   "name": "Crystal Ball",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 69,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d5ad26cc-2bdb-46b7-b8bf-dd099d5fa09b",
+   "name": "Adarkar Wastes",
+   "role": "pool",
+   "stratum": "anchor_land",
+   "chunk": 4,
+   "seq": 70,
+   "is_land": true,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "610adb2b-9d52-4b70-92d1-0c7adeb93552",
+   "name": "Bant Sureblade",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 71,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7e8f5b34-fd16-4307-9104-17b584b25b14",
+   "name": "Awakener Druid",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 72,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7c709413-dacf-48af-8ac9-8f61b2699bf1",
+   "name": "Sphere of the Suns",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 73,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "751321ac-af07-4b7e-976f-5bf4e4281470",
+   "name": "Assembly-Worker",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 74,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2d961997-4f5f-4ce2-b062-11411147e2f7",
+   "name": "Sun-Spider, Nimble Webber",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 75,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5c68853e-4fb8-465e-b262-e6dbaf972533",
+   "name": "Self-Reflection",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 76,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "79bc2c6d-b03d-4ceb-b468-293378ec73ae",
+   "name": "Midnight Tilling",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 77,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "54b1a496-1f8e-4581-8260-bad57b25c6e3",
+   "name": "Loyal Sentry",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 78,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "406e853b-713f-4c89-9efb-aca74a11183f",
+   "name": "Academic Ascent",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 79,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "14c8f55d-d177-4c25-a931-ebeb9e6062a0",
+   "name": "Grizzly Bears",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 4,
+   "seq": 80,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "f8c32c80-9693-4ae4-a387-21ec8a3cdd40",
+   "name": "Water Servant",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 81,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "78b2b68d-6e27-49f3-8373-6e19faf6f679",
+   "name": "Inspiring Statuary",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 82,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8a179d68-c9e6-4f46-99bf-11b2a2708990",
+   "name": "Trigon of Thought",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 83,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0b751cc7-3a19-4207-9e64-83e18d279588",
+   "name": "Cloud Elemental",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 84,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a4630da0-fe9b-4ead-9621-eac4b7825c35",
+   "name": "Wash Away",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 85,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "571c1923-790f-48b7-86d2-70c3e79fdba3",
+   "name": "Shriekhorn",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 86,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "126c75c0-414b-4e55-8747-2b5566ce716f",
+   "name": "Firdoch Core",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 87,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "77f257b9-2047-40a3-85c2-00ad17deeb08",
+   "name": "Foratog",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 88,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "590d524f-278d-4cf4-ae3f-efcced4517b1",
+   "name": "Merfolk Mesmerist",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 4,
+   "seq": 89,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "aa1b7cdd-0296-418c-ac3b-7ad3c51f1760",
+   "name": "Hamlet Glutton",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 1,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9e7b03ae-dcf5-4892-9000-aee7e2cd2fed",
+   "name": "Phyrexian Digester",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 2,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3708eaae-9306-46b2-ae41-7ce6c50be3c7",
+   "name": "Mysteries of the Deep",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 3,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a45d7135-c042-40d9-818c-74fa1c7af8ad",
+   "name": "Axebane Stag",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 4,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7d00fb28-ea6c-49a9-b4af-ffb38860a9a7",
+   "name": "Cancel",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 5,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5c5b308c-07d5-422a-8b45-b8b19cb967ca",
+   "name": "Blacksmith's Skill",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 6,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "765a12fc-9b66-4bb7-88f6-6e7bd2d2f8c7",
+   "name": "Gobbling Ooze",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 7,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "916cb70f-3b06-48ed-972d-75f805aa0892",
+   "name": "Brineborn Cutthroat",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 8,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "94b703c4-5584-4913-8365-7e9f2f535c2d",
+   "name": "Levitation",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 9,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "84681f12-2978-4f62-ab89-b579033c5192",
+   "name": "Divergent Equation",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 10,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "08688903-d9cc-4d57-ba91-14a8523551b9",
+   "name": "Silvergill Peddler",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 11,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4bda947d-493f-47a0-b0d2-516a6ef6b2c0",
+   "name": "Gilanra, Caller of Wirewood",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 12,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "92f8c8b1-1fd5-4e80-b8a9-51671937aaf2",
+   "name": "Devout Decree",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 13,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4eb813fd-2d5a-4b02-8193-662681ef4e7d",
+   "name": "Farewell",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 14,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c7b044c3-3cfa-407e-bf20-2875e8e04b7b",
+   "name": "Brazen Borrower // Petty Theft",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 5,
+   "seq": 15,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9ad4f876-e923-4a09-8e70-eb826aacf89d",
+   "name": "Minamo Scrollkeeper",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 16,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5a851367-1c4a-4cc9-a9c3-3d2775986b4c",
+   "name": "Blossoming Defense",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 17,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5e7586dd-d42e-4ac6-adb8-d46b6cdef923",
+   "name": "Disorder in the Court",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 18,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "22252186-15d0-468f-8cab-c74db9b71439",
+   "name": "Plaguemaw Beast",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 19,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "321fd970-a259-448d-bd98-e85e386174f9",
+   "name": "Twitch",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 20,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "579cbd92-797f-4cdf-91ed-fca7a523eae5",
+   "name": "Deep Analysis",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 5,
+   "seq": 21,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e666bae7-dd51-4921-8b89-7e8d423caba0",
+   "name": "Gigantosaurus",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 22,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d2145ad3-fe7e-459b-b155-1b3ed089e936",
+   "name": "Steady Progress",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 23,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "fe6337dc-df02-4baa-9fe0-b14e8d34186a",
+   "name": "Synod Centurion",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 24,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "63f67baa-3f37-41b8-9ee6-3c37f828917d",
+   "name": "Prudent Fateseer // Peer Review",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 5,
+   "seq": 25,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6d4472ad-3fbf-4a5d-94de-dfee04fda9c3",
+   "name": "Subway Train",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 26,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3608f1f7-8dc5-4dd1-ae91-c830e1de9529",
+   "name": "Icy Manipulator",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 27,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "46762944-8364-45c4-8008-e693e97ddc46",
+   "name": "Battle Hurda",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 28,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6ec8dc98-adc7-4fc3-94e5-31037235ceab",
+   "name": "Jhessian Infiltrator",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 29,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c8bf2dce-7bcd-45cb-bf15-f53e24333a01",
+   "name": "Luminollusk",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 30,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3127ae9b-a7a7-43ec-89d7-688f8445b33d",
+   "name": "Garruk's Uprising",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 31,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "aaea9b83-3db5-4cdb-8e45-5c00a102c3ba",
+   "name": "Recumbent Bliss",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 32,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "189fc8f4-17ac-4f1d-82c8-8401445bdaf4",
+   "name": "Azorius Chancery",
+   "role": "pool",
+   "stratum": "anchor_land",
+   "chunk": 5,
+   "seq": 33,
+   "is_land": true,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "27c87371-697e-4ca6-a7f4-d99215d908bc",
+   "name": "Sun-Dappled Celebrant",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 34,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "054a0193-861e-4644-ab0a-8aa33407abc8",
+   "name": "Kor Skyfisher",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 5,
+   "seq": 35,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "7f31aa43-cf75-4488-b47f-e16e923a2d01",
+   "name": "Lightkeeper of Emeria",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 36,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "616312a9-83c8-4fb7-87ce-079ccd3231fa",
+   "name": "Lurking Lizards",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 37,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6daf3c59-7636-4d44-872b-67722b4868cb",
+   "name": "Jade Mage",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 38,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8f59e4d9-67ba-4dc6-ae3e-183e63673318",
+   "name": "Corpse Cur",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 39,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8ffbff60-a59d-4f71-864e-3c16cb61e43b",
+   "name": "Copper Carapace",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 40,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "416c70ab-f136-43e0-b5d5-9af8d4211c01",
+   "name": "Deluge Virtuoso",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 41,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a30d076b-c942-45e4-b943-3749ce955291",
+   "name": "Confirm Suspicions",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 42,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c452e748-8a2a-4f68-8869-e294925a8b0b",
+   "name": "Unexpected Assistance",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 43,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "845d80ee-1cd5-437a-90a5-40dcc657d3aa",
+   "name": "Kinsbaile Aspirant",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 44,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ef764497-800e-4cbd-805e-7635919a983c",
+   "name": "Innocuous Researcher",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 45,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "48d14b5c-711a-4f8a-9de5-55415cb7a79a",
+   "name": "Angel of Finality",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 46,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "46665089-aa3d-44c3-964d-6638dfbb5782",
+   "name": "Essence Scatter",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 47,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "766787ef-654a-4544-b5d7-d2f96949edf1",
+   "name": "Prized Unicorn",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 48,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6fd37ff3-e75d-459a-8717-8f6a9865fb32",
+   "name": "Clockwork Hydra",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 49,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5c5766f9-befd-4426-9527-d50af0699ca1",
+   "name": "Kithkeeper",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 50,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5d641bf6-0f93-4189-8dc1-ec7ea446dade",
+   "name": "Tranquil Cove",
+   "role": "pool",
+   "stratum": "anchor_land",
+   "chunk": 5,
+   "seq": 51,
+   "is_land": true,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "52f03e73-3dba-44c2-b256-10e7e208b961",
+   "name": "Grow Extra Arms",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 52,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "60ba93eb-39e6-4af2-9c66-cd38f72daff2",
+   "name": "Savannah Lions",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 53,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d799a2c4-628a-45da-b9ca-0337c46e3e14",
+   "name": "Lofty Denial",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 54,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "be6e835c-822e-45ff-a992-249d4d9781dc",
+   "name": "Gnarlid Pack",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 55,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "dc3073fc-dc23-426e-b867-fee5dd99fe25",
+   "name": "Shipwreck Dowser",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 56,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5cfdfcac-57fb-4507-a97a-cccbac2d1327",
+   "name": "Flayer Husk",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 57,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "37ad9318-6690-4a8d-bcea-9fcbca58769d",
+   "name": "Aven Fleetwing",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 58,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "337533fb-2783-493c-856f-c41a83cca443",
+   "name": "Vedalken Certarch",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 59,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "314748a6-4e7f-4afb-b77e-5ef366e02b90",
+   "name": "Fledgling Griffin",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 60,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "dfa95c0e-393d-4b22-9de3-45a7efc0ba14",
+   "name": "Saheeli, Consul of Oversight",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 61,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9a02a9a7-39d9-4763-85d3-747a0540b60b",
+   "name": "Gilded Lotus",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 5,
+   "seq": 62,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "724f3d2f-0513-4efd-961f-56a7ea7b5731",
+   "name": "Signal Pest",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 63,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b8f566ea-8283-4afa-9ac8-737e26419283",
+   "name": "Explore",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 64,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5bbc9d7d-91bd-4a58-8d19-f7be650720b7",
+   "name": "Sureshot Sower",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 65,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "70dc830e-d05b-4fc7-88dd-879e140b3fbf",
+   "name": "Reality Shift",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 5,
+   "seq": 66,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "0ee14128-3bec-4b65-8ee4-619337d4ed45",
+   "name": "Leatherback Baloth",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 67,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d599a38c-7719-443e-bb59-55bd43a8fee6",
+   "name": "Confiscate",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 68,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f0c533a2-751a-4c5a-8cec-b83da3c8c62f",
+   "name": "Afterthought Sentry",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 69,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "858f53ef-3fec-4aa0-867d-b7f040614b3c",
+   "name": "Bastion Protector",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 70,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7fd2cac5-cd29-4a47-9e89-9c6be39a0b67",
+   "name": "Plan for All Outcomes",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 71,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5b2c6b44-99b3-496d-93ca-d5211222038f",
+   "name": "Graf Mole",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 72,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7bff8d4a-1c7d-48b8-b3e3-737dd6f01823",
+   "name": "Quick Study",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 73,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "be74a4c1-d569-4203-b28a-3e2ac6a82990",
+   "name": "Dictate of Kruphix",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 74,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3f49dfa6-d0d4-4b58-8417-ed11c062e220",
+   "name": "Gust-Skimmer",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 75,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f6f4c684-2915-4a58-9c4b-487387f7cf73",
+   "name": "Rhox",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 76,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "53a1faa1-ca67-4027-bee8-0f7c4584d62b",
+   "name": "Blinding Mage",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 5,
+   "seq": 77,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9eb2912d-2130-49f2-9529-b58fa5a97a15",
+   "name": "Stream of Life",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 78,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "61e09dd9-7870-48c2-9177-d6abc3162692",
+   "name": "Titanic Growth",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 79,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "36ab41b7-bcfb-4618-bbfb-70d608dba15a",
+   "name": "Stratosoarer",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 80,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "17b1c870-ef94-49af-8f9b-a8765f1b54db",
+   "name": "Trigon of Mending",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 81,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "da35de40-6fde-4018-bda8-b0ae91ed872a",
+   "name": "Kinbinding",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 82,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a02e1ca7-23c5-41e3-a744-72fc9e9dd8ba",
+   "name": "Fireshrieker",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 83,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "12c78cc4-7fbe-4639-bef7-bf959a0d6d68",
+   "name": "Distant Memories",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 84,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "98b43c61-4563-4a29-8cf0-fb8b34f337ce",
+   "name": "Diary of Dreams",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 85,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7392c58b-1ba9-4cf3-8449-aa5de3c42130",
+   "name": "Fiddlehead Kami",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 86,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3525e263-e29a-49bf-a29f-fb3ce43bbd33",
+   "name": "Heraldic Banner",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 87,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7080fb43-5d93-41f5-87d3-bc1801805ea0",
+   "name": "Rites of Flourishing",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 5,
+   "seq": 88,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "33c21ef1-33eb-447a-a318-a352f163a8a0",
+   "name": "Joust Through",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 5,
+   "seq": 89,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "282003f4-862a-4f80-8f45-e470fc0fe2fe",
+   "name": "Blightwidow",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 1,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "49479778-c4c0-43ba-a7b7-45f00d067462",
+   "name": "Maze's End",
+   "role": "pool",
+   "stratum": "anchor_land",
+   "chunk": 6,
+   "seq": 2,
+   "is_land": true,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "b978bdfe-a73e-4e99-90d7-4f99182c45ee",
+   "name": "Formless Genesis",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 3,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "669701a5-fd7a-43f8-93f4-da7a8c4dd3dc",
+   "name": "Razor Barrier",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 4,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5b84101e-7e23-437d-835c-409bc061ecbb",
+   "name": "Canopy Cover",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 5,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9e774188-caa1-4b62-b9cc-547f8e444b7f",
+   "name": "Augur of Autumn",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 6,
+   "seq": 6,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e2bbf963-794d-4600-bb92-cb9d1d00205a",
+   "name": "Pierce Strider",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 7,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2b732c6a-f09c-4ac0-ae3a-1d8820b69aba",
+   "name": "Molder Beast",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 8,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "aff51c27-fb61-41b3-a7ea-7092cd280c63",
+   "name": "Solemn Offering",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 9,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "28b46183-c62f-47b1-9fee-3ba148202cab",
+   "name": "Crop Rotation",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 10,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3c75234b-e367-46da-8454-be4315f9b9de",
+   "name": "Precinct Captain",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 11,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0c7239bf-dc8a-4d79-867e-7a4225568c49",
+   "name": "Seasoned Marshal",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 12,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "08a0e845-9ef9-4de1-b9fe-4530357346ca",
+   "name": "Biblioplex Tomekeeper",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 13,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c97361b5-af16-4a7b-af85-a429dbaf4ad2",
+   "name": "Mind Stone",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 6,
+   "seq": 14,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "2546db90-1f6e-43f7-a116-2fefe67d489d",
+   "name": "Turn the Tide",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 15,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ba5d8c0d-3e4e-4652-86d2-80ce2f48dc0f",
+   "name": "Piston Sledge",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 16,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "234a734b-ba28-4f1b-9d01-3c3e7d516590",
+   "name": "An Offer You Can't Refuse",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 17,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5a1bebe9-c940-4fac-8572-0833808eaa55",
+   "name": "Conclave Phalanx",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 18,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "95560508-7ac9-4be9-8a3f-3c7d5b52807b",
+   "name": "Fellwar Stone",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 6,
+   "seq": 19,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "bdeb440d-a714-40e8-9038-f651e6ae45fb",
+   "name": "Springleaf Drum",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 20,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ac4277d7-d78a-4d6e-8d6d-11f9e56f8ae7",
+   "name": "Glorious Decay",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 21,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d8599f06-f030-4575-8497-307a4d7ec182",
+   "name": "Spiral into Solitude",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 22,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6ad8011d-3471-4369-9d68-b264cc027487",
+   "name": "Sol Ring",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 6,
+   "seq": 23,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "59edd0e7-37c2-45f9-9f9d-8002be459662",
+   "name": "Grizzled Leotau",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 24,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "58d7b8b3-ac47-4805-8259-4ba8e70d7dc3",
+   "name": "Primal Might",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 25,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4a09536e-dfc1-4b15-adc1-07ef866ebda0",
+   "name": "Wall Crawl",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 26,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c57ee68e-6832-4d4c-b710-fc03a2c10a9c",
+   "name": "Balance of Power",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 27,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "03f5946b-e000-4b39-a49f-1c31668b51bd",
+   "name": "Autumn's Veil",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 28,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ac0f161a-e5ec-4a95-9f37-305bdf1ac900",
+   "name": "Hapatra, the Desert Frost",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 6,
+   "seq": 29,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "531f78d5-5004-4b02-99c7-b390cb342fd9",
+   "name": "Make a Stand",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 30,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4247b667-a0a8-4995-97c7-622d20132f7d",
+   "name": "Tyvar's Stand",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 31,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "397df813-c759-4246-8def-122c7ff82d88",
+   "name": "Trollhide",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 32,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9275108c-7eaf-4edd-aa6d-e5263d5ac7fd",
+   "name": "Ardent Recruit",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 33,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1b2826ea-a3d5-4b8a-b362-0b0880d1cc48",
+   "name": "Hedron Rover",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 34,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a8d31e2f-7b2e-4135-8074-9e6ef778bd80",
+   "name": "Suntail Hawk",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 35,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "bdb3ca68-ec1f-4e16-81cc-d23f8f52c728",
+   "name": "Naturalize",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 36,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6b4f1569-2025-46a8-89ba-79859208b04e",
+   "name": "Flourishing Grapple",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 37,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4fe8316a-9cff-43e9-a1d5-993a0c9daf3a",
+   "name": "Lifelink",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 38,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4ac9116f-36bc-4d71-b696-d6ee064e1d58",
+   "name": "Juggernaut",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 39,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "08cb8a30-9cb4-4517-bee5-8848aa60d1a2",
+   "name": "Zuran Orb",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 40,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0be907b2-54f9-4c8c-b6af-7c0093892e42",
+   "name": "Curiosity Crafter",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 41,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "19055292-1a79-413e-8056-7d4aec9839ed",
+   "name": "Dawnray Archer",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 42,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6b2d396f-802d-4b49-8418-5a96b8a12226",
+   "name": "Pride Guardian",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 43,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "46f78c42-85d1-4cd4-9fc3-d5fdec04a4c8",
+   "name": "Vivisection",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 44,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "42798e2b-9a5c-4f93-8f77-b7bb7a916d07",
+   "name": "Infantry Veteran",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 45,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4b4dcdb1-0017-494f-8d83-6706b188e575",
+   "name": "Wanderbrine Preacher",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 46,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "db27c686-e202-4b60-9a10-0a0fef25576c",
+   "name": "Dehydration",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 47,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8da8644c-75a1-4fe9-8e94-900d948d631c",
+   "name": "Healing Salve",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 48,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "60033841-71c7-4370-a2bc-e570a5c100ea",
+   "name": "Swell of Courage",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 49,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6ba0656f-e0d2-4735-9c66-3a00afa9fc23",
+   "name": "Koma, Cosmos Serpent",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 6,
+   "seq": 50,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "b21d6482-1b3a-47e6-98a5-3067f5f3818b",
+   "name": "Aether Gale",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 6,
+   "seq": 51,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5ccb57e1-ca94-4b5a-8e5f-b8b5e692cfb9",
+   "name": "Steel Wall",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 52,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8e720216-a980-4a34-8aef-62ac3ef15a6e",
+   "name": "Leonin Relic-Warder",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 53,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "79dfe2eb-82b9-4dae-95c8-58fdf9006bc7",
+   "name": "Goldmeadow Nomad",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 54,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d9a3207a-a330-4517-967e-f37c9a9f1355",
+   "name": "Clinquant Skymage",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 55,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "163f1fce-70c8-44e3-a679-f97d52cd1e9a",
+   "name": "Spider-Man No More",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 56,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f5f4dd28-f4ae-4d39-b9b8-6ebfd63c93fe",
+   "name": "Basilisk Collar",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 57,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "dfa459a1-b065-4488-88d3-4da388261b52",
+   "name": "Safe Passage",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 58,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5c92f375-ae6a-4be5-a499-ab87d6bdc49b",
+   "name": "Palace Guard",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 59,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "567b676b-54f3-44c7-8654-4d2b0262ea12",
+   "name": "Banishment Decree",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 60,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "793fe31a-2b11-49f8-9851-719469ad1726",
+   "name": "Priests of Norn",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 61,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "655ee0db-1913-464f-bd06-072c6bf446bd",
+   "name": "Dirgur Focusmage // Braingeyser",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 62,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "44c5f8e1-d9b8-4067-a60a-1ecc8bd11145",
+   "name": "Augury Owl",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 63,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "90629e9c-83c0-4eca-b4ed-d0494ded6704",
+   "name": "Centaur Vinecrasher",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 64,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ee988017-fc7e-4d8a-8f5c-0a7e57a8d050",
+   "name": "Ethersworn Shieldmage",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 65,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "bccd722a-b610-4017-93bd-313f08448f5e",
+   "name": "Heroes' Bane",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 66,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8a83ecee-092b-456c-803f-a9aaa17c4da9",
+   "name": "Exploration Broodship",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 6,
+   "seq": 67,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "377d31b5-0a48-4d5b-91bd-b5a62d4f7899",
+   "name": "Condemn",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 68,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "72df0b70-5c9f-44f3-96d5-81c95abc0065",
+   "name": "Griffin Sentinel",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 69,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c5323a43-82de-4340-8578-b3ffcc66f8fa",
+   "name": "Griffin Guide",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 70,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "07617648-6490-4719-acec-7705671f7e01",
+   "name": "Protege's Awakening",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 71,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f19f28e5-9cad-4398-b2d4-9e7fefb23cb4",
+   "name": "Grazing Gladehart",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 72,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "03af9d24-2df6-4318-82f2-8abdd22206f1",
+   "name": "Mindful Biomancer",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 73,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4f819ba4-52ef-4fdd-8e4c-5ae3b2f44db5",
+   "name": "Ramunap Excavator",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 74,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b1544f21-7e98-461b-aed5-e748b0168c52",
+   "name": "Swords to Plowshares",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 6,
+   "seq": 75,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "ac641490-ca14-48d7-8cc4-b69ce984befa",
+   "name": "Preordain",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 76,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "120446cc-f55b-40db-915d-2669c1083e56",
+   "name": "Unnatural Predation",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 77,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c0b1fba1-4338-4671-934b-098689ad2085",
+   "name": "Fynn, the Fangbearer",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 78,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "841b1010-a7d3-415e-b76d-7b50fea909cb",
+   "name": "Stonework Puma",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 79,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "eac94269-4baa-4b8e-a0fd-d6b227d1cde3",
+   "name": "Thrummingbird",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 80,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "edf459c0-53e4-47e8-8098-105656f9b49c",
+   "name": "Kederekt Leviathan",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 81,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "976db753-9887-448a-8e67-ec7937b6505c",
+   "name": "Kraven's Cats",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 82,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8fda6c20-04dc-4b60-9313-896a032ee5cb",
+   "name": "Havengul Skaab",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 83,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "dccd0533-fda0-41ff-b540-c4f1bb32fc95",
+   "name": "Blunt the Assault",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 84,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6d44c87b-8945-4c39-b034-7690cf483992",
+   "name": "Mary Jane Watson",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 85,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "05d0b904-a680-4f2f-aaa1-e227a7fe7e79",
+   "name": "Unruly Mob",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 86,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "36593200-e53c-46e4-a04e-8deec8273c65",
+   "name": "Calcite Snapper",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 87,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "12080ea9-0800-4601-b553-6711dd9f9806",
+   "name": "Horizon Spellbomb",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 88,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5b5ef43b-13fd-4461-8d2d-18be65e9a790",
+   "name": "Ichor Wellspring",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 6,
+   "seq": 89,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e9ad9df4-2fd6-4a22-b861-0a8d28f2fe10",
+   "name": "Hada Freeblade",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 1,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a167d593-cded-43e1-b9bb-2287dbd0cbec",
+   "name": "Moment of Heroism",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 2,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ac2711b7-318d-478a-b69c-d44baff46f2d",
+   "name": "Moonglove Extract",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 3,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b2187f45-80ae-4ac4-9f83-5eb7a00978e2",
+   "name": "Sorcerous Spyglass",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 4,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5b2364d7-a811-4595-a1b4-224c70555ffa",
+   "name": "Raise the Alarm",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 5,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b17ea905-0696-4e58-b564-557e87236e27",
+   "name": "Fumigate",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 6,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a6a9776b-87f4-4a08-8074-d49fbbe417ae",
+   "name": "Saltblast",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 7,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "49638d96-e83e-4aab-bafb-d6183a6e3ff6",
+   "name": "Air Servant",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 8,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a6fd90dc-0ec3-4dce-a77a-4d04f5e254bf",
+   "name": "Winds of Rath",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 7,
+   "seq": 9,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "2f990b54-fbf3-4949-85bb-9ba39710e72a",
+   "name": "Dive Down",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 10,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "36cb3d18-019c-464d-b591-8c87e1b81f31",
+   "name": "Archive Arbiter",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 11,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "661a99ef-8d5b-4aac-98f6-52b17a8ecf52",
+   "name": "Turntimber Basilisk",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 12,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4a9e0294-c967-4e90-b776-6d3195034a23",
+   "name": "Wrecking Gecko",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 13,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8462a2fa-944b-4fff-a161-10345690b56f",
+   "name": "Ichorclaw Myr",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 14,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d6ffdaf0-ac08-4de9-bbce-2eab2f86bcca",
+   "name": "Wind Drake",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 15,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2ecf7771-8061-4710-ad2e-80b092ae0b4b",
+   "name": "Open the Armory",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 16,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1389c9fa-fec2-4212-a7aa-6dfb318dc202",
+   "name": "Bagel and Schmear",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 17,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6c0f6673-bc24-4c84-b4e7-736283ffd60e",
+   "name": "Wanderwine Distracter",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 18,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1b704798-0c69-4c18-ac7e-42933ce90028",
+   "name": "Pest Infestation",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 19,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e7194bca-0cf4-4a86-8b84-d2f9219a08b3",
+   "name": "Flow State",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 20,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "dca51281-fb21-45b6-beb4-1f13397caee2",
+   "name": "Blackblade Reforged",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 21,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5a6d01c8-47b6-43e5-a6e9-c48088286007",
+   "name": "Strix Lookout",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 22,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d99e8f94-4a8a-42a1-b5d0-2b08cacb8676",
+   "name": "Fleetfoot Panther",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 7,
+   "seq": 23,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "338ad8c4-c89f-4e78-be28-7224fac0fd0f",
+   "name": "Kemba's Legion",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 24,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "29ae5540-5fdf-48be-86ba-b4db0fe19f6c",
+   "name": "Vapor Snare",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 25,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5a060788-a601-4c01-8341-73398b497a85",
+   "name": "On the Trail",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 26,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1dafc03b-6c45-4f28-8a1f-b4f1044adc97",
+   "name": "Purify the Grave",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 27,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "60efa8a2-6903-4756-92fd-29f6ba6ef67a",
+   "name": "Moss Monster",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 28,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "af8aa11b-34be-42a3-a8a2-3cad38f29f66",
+   "name": "Griffin Rider",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 29,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "69476326-fda5-48c8-a506-e71eb7c81c2f",
+   "name": "Wurm's Tooth",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 30,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9f6d6e90-7462-46e5-bf2f-725b4badc394",
+   "name": "Gathering Stone",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 31,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "16dfd80a-9847-45b8-954f-2af9b7cfa21d",
+   "name": "Roc Egg",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 32,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5ff4ef34-acb9-46c3-8530-f4b093807066",
+   "name": "Erdwal Illuminator",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 33,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2fbfdbcc-5f89-47b2-bd8d-49c797e0624f",
+   "name": "Loamcrafter Faun",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 7,
+   "seq": 34,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2a8e14be-6f93-428d-a204-e2399dc93797",
+   "name": "Shrieking Drake",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 7,
+   "seq": 35,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "a9b3ee21-1af1-4e7e-8e48-d7c90d056f5c",
+   "name": "Cryotheory Adept",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 36,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6d7f7e6e-5076-4af7-afe3-3e500835c4aa",
+   "name": "Gravelgill Scoundrel",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 37,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c232d974-9c65-4bce-b045-e5a7cc0c62e0",
+   "name": "Idol of Oblivion",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 38,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ec49dfcf-d16d-4621-af4b-4a6f09043221",
+   "name": "Runeclaw Bear",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 39,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "2091eb7e-2357-4ef8-b15e-1e6f82176340",
+   "name": "Mold Adder",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 40,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d004b481-a1d5-459d-8282-76baa9d13652",
+   "name": "Merfolk Spy",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 41,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d6eabbff-cc0c-4000-8feb-4826e1b6bc66",
+   "name": "Kapow!",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 42,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7b2eb6f2-bd13-4eb6-b91a-c0fa8f3d96af",
+   "name": "Marsh Threader",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 43,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "374e54d8-8e73-4268-9dde-c28c77bbbf32",
+   "name": "Aftermath Analyst",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 44,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c7f08962-6c54-4fd5-a55e-7513e758af32",
+   "name": "Rest for the Weary",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 45,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9b884dfd-59f4-45c0-bf1e-6ad9f5b58895",
+   "name": "Feldon's Cane",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 46,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "05608055-d97a-4c8f-833d-47b3dd1ea255",
+   "name": "Perimeter Captain",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 47,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "456f2991-ab64-41bc-9bd1-a1b1e7993ed6",
+   "name": "Trip Noose",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 48,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e74a2a4c-ca3c-49e8-9b0f-b4d1bb91fb54",
+   "name": "Gardenize",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 49,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1b388371-f9ef-45b4-82a3-ca20a8cd7807",
+   "name": "Dovin's Veto",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 50,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5330e24a-8568-446e-840a-594cd08bd1bc",
+   "name": "Prairie Stream",
+   "role": "pool",
+   "stratum": "anchor_land",
+   "chunk": 7,
+   "seq": 51,
+   "is_land": true,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "ab8d5f5c-1976-4f77-8ed2-8d28ee666741",
+   "name": "Tireless Provisioner",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 7,
+   "seq": 52,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "3b23e4f8-882d-4cce-9b61-171ae2cc3a18",
+   "name": "Web-Warriors",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 53,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e3afc704-220f-498f-9eaa-0821b17dc24c",
+   "name": "Sakura-Tribe Elder",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 7,
+   "seq": 54,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c61fe162-2202-4e56-9ba0-393547f9875f",
+   "name": "Mana Leak",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 55,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "68227832-2916-49b9-92bb-c09b8a0c13f5",
+   "name": "Ongoing Investigation",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 56,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1d79b7a8-2b4c-4893-afdb-879c74957288",
+   "name": "Arbalest Elite",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 57,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "32fc8fa7-7e0a-4d4e-85cf-2f98b3fc6ecf",
+   "name": "Garruk's Companion",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 58,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "80c2784b-f27d-4a51-9380-171eb32b961d",
+   "name": "Inspired Tethermage",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 59,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "1b94ee87-a2f4-47f1-9fc7-4a167cad1b3b",
+   "name": "Shinestriker",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 60,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0d46a97a-b1d6-4bf3-b3ba-a5cdfd4c8bf5",
+   "name": "Pitiless Fists",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 61,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7da0e5de-3e4c-420a-8685-991206100b9d",
+   "name": "Zetalpa, Primal Dawn",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 62,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b608288e-1755-4738-b828-9df6998bae8d",
+   "name": "Illusion Spinners",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 63,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f1feac23-8ba3-440c-828c-590f88008c31",
+   "name": "Necrogen Censer",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 64,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c20635d2-20e9-48f7-88f0-6de0f953bb08",
+   "name": "Sylvan Bounty",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 65,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b3d81980-76f2-44e2-b1c9-01e30c726312",
+   "name": "Loran of the Third Path",
+   "role": "pool",
+   "stratum": "top20",
+   "chunk": 7,
+   "seq": 66,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "bffa18c3-642c-4239-b425-238599007976",
+   "name": "Divine Favor",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 7,
+   "seq": 67,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "d21994f2-75e1-456c-a25a-729c3269df1a",
+   "name": "Bold Defense",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 68,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c24b0c7d-1a4b-4eca-8d83-9e81ed3b3b27",
+   "name": "Viridian Revel",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 69,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "834efbf7-7b93-42ac-ab20-0b7b8ca58a16",
+   "name": "Razorfield Rhino",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 70,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "3f3b2c10-21f8-4e13-be83-4ef3fa36e123",
+   "name": "Elvish Mystic",
+   "role": "pool",
+   "stratum": "anchor_spell",
+   "chunk": 7,
+   "seq": 71,
+   "is_land": false,
+   "is_anchor_card": true
+  },
+  {
+   "oracle_id": "613a41b8-0b4f-4995-bf1e-ca41f96e6438",
+   "name": "Blue Sun's Zenith",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 72,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ffa23c3a-76a8-414f-aa3b-fc09aabd78c5",
+   "name": "Pummeler for Hire",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 73,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6487fc1b-5c83-4d09-94d3-175725bcb922",
+   "name": "Brigid's Command",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 74,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9b9a10ff-5a5d-4df8-88aa-18d84ff9117c",
+   "name": "Inspiring Call",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 75,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c690f92f-f34f-4df0-9e01-d2ecf3b8f857",
+   "name": "Kindercatch",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 76,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ddbacb74-1f98-4607-a92e-d14973b9d0ef",
+   "name": "Groundswell",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 77,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8fea91ee-5849-4c46-8198-fd383d9a55e8",
+   "name": "Arachnus Spinner",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 78,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "814e321d-16fd-4f7b-a8d8-2b089be76f2c",
+   "name": "Resculpt",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 79,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8b25f353-0798-4a03-a928-6a701a919468",
+   "name": "Arachnus Web",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 80,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "37f3733e-cc4e-4d84-b29b-d474f6e254a2",
+   "name": "Canopy Spider",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 81,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9c724912-5afd-4813-affb-4dbda64fd4ee",
+   "name": "Horizon Drake",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 82,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "f2c19fba-9b06-461f-bb5e-e827ba41204d",
+   "name": "Groundskeeper",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 83,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d6c9c1f0-050f-40e2-ab6c-6566d0af418c",
+   "name": "Master's Call",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 84,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8a04fd45-6526-4c73-8b38-5e40a2380451",
+   "name": "Needleshot Gourna",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 85,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "fa85c5a2-8e83-4624-a35a-a0bbf17ecbb4",
+   "name": "Think Twice",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 86,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5cdc4654-b8c5-4599-a1d2-9e9d5f6509cb",
+   "name": "Duelist's Heritage",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 87,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "204b71fc-4d5f-40dd-903d-56c733171d84",
+   "name": "Elixir of Immortality",
+   "role": "pool",
+   "stratum": "rest",
+   "chunk": 7,
+   "seq": 88,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "21d3858f-441d-4bb2-888e-8b147ecad7e9",
+   "name": "Durnan of the Yawning Portal",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 1,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e8d20361-d9b7-4f9c-8ec5-3ac7c460dcb2",
+   "name": "Horizon Explorer",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 2,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "916db499-7f0a-45f7-8abe-94818a53e494",
+   "name": "Armored Ascension",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 3,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9f8fe514-77ed-41b4-a6f3-c6f095bb97be",
+   "name": "Tranquil Thicket",
+   "role": "retest",
+   "stratum": "land",
+   "chunk": 8,
+   "seq": 4,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "af06a811-7a57-4f68-9d87-7903e043f36d",
+   "name": "Celestial Crusader",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 5,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0b76bb3b-1ada-4c78-bd13-3464371d4fa0",
+   "name": "Sneaky Homunculus",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 6,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7b0767b8-b504-456e-93bd-218502f73b3d",
+   "name": "Palladium Myr",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 7,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0b7393aa-d563-45bc-9946-8e7d1729d498",
+   "name": "Mountain Valley",
+   "role": "retest",
+   "stratum": "land",
+   "chunk": 8,
+   "seq": 8,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b7f72e54-7e3a-4720-be69-fc8c5eb4c190",
+   "name": "Crumbling Colossus",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 9,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "66d4370e-19b9-4680-9b1e-a192537bc002",
+   "name": "Omni-Changeling",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 10,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "441de890-7b9f-42f7-859a-a154b8ed74ac",
+   "name": "Foresee",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 11,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9a107e48-3d50-4941-95b1-10f2b29a4245",
+   "name": "Stroke of Midnight",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 12,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "52f1b5a4-62ff-44de-80da-503d4e52d312",
+   "name": "Cat Collector",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 13,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d9f11aa1-9219-42a8-85a9-a8f204160706",
+   "name": "Meteor Golem",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 14,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "61816f98-9d1a-4b16-9194-cb7249880710",
+   "name": "Leitmotif Composer",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 15,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9deded8b-cec4-4ede-a50b-131404d456d4",
+   "name": "Thought Monitor",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 16,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "0bb896ba-e15e-43a9-9120-e674d7ba003c",
+   "name": "Hall of Oracles",
+   "role": "retest",
+   "stratum": "land",
+   "chunk": 8,
+   "seq": 17,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "daebf011-ec85-4cbd-9445-02ac59675c58",
+   "name": "Loyal Drake",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 18,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "b0d639cb-71d4-454f-9dd6-89cd7a59b702",
+   "name": "Serene Sleuth",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 19,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "138f9daa-19d4-4290-94a7-09e00dbcebb0",
+   "name": "Pistus Strike",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 20,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e88de17c-086d-4e2a-b5b2-2f9f57ca7c0f",
+   "name": "Snapback",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 21,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6588ea9a-658f-40d9-a64b-3a418ab81183",
+   "name": "Ulvenwald Mysteries",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 22,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e6555cca-e608-4c87-b835-9cd47fd1f543",
+   "name": "Tireless Tracker",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 23,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "aa9547b3-e4e4-4557-9dd1-3aa9a7cb9937",
+   "name": "Mindseeker Oculus",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 24,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "e8705df9-6439-4930-91b6-229f818559af",
+   "name": "Simic Guildgate",
+   "role": "retest",
+   "stratum": "land",
+   "chunk": 8,
+   "seq": 25,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "11ba27f4-decf-4447-9808-0d58844655cf",
+   "name": "Viridian Claw",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 26,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "7735eeba-693b-47e2-bd51-414379cf1016",
+   "name": "Beast Within",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 27,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "eb1dfa29-7371-4cb6-bfa2-16f7820b69be",
+   "name": "Refute",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 28,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "a8fdbcdf-479d-4582-9ad5-9fbd4c740c29",
+   "name": "Spectral Sailor",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 29,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "c549b0fd-1e08-4873-952e-a14dc45a0fd2",
+   "name": "Champion of Lambholt",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 30,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "45429b2c-be3b-4b2e-9bab-a059ccbda8cd",
+   "name": "Blossoming Sands",
+   "role": "retest",
+   "stratum": "land",
+   "chunk": 8,
+   "seq": 31,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "63eed1f5-442f-433d-989c-397b88543162",
+   "name": "Wary Farmer",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 32,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "cf14d4e5-5965-45ad-97f7-26facf2884b5",
+   "name": "Fertile Ground",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 33,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "dbc56f3b-83b3-41c8-a8ae-d3774fe6ee01",
+   "name": "Linden, the Steadfast Queen",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 34,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "5b6f655b-1518-4ab1-8765-3f549819ef3b",
+   "name": "Light of Hope",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 35,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6a83768e-672e-4fec-8931-853f5e96d43d",
+   "name": "Stasis Snare",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 36,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "406eabe2-df62-49e2-bb39-c0227509d875",
+   "name": "Irrigated Farmland",
+   "role": "retest",
+   "stratum": "land",
+   "chunk": 8,
+   "seq": 37,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "cde68428-0033-4ede-92f1-ab91de0a41fb",
+   "name": "Rustic Clachan",
+   "role": "retest",
+   "stratum": "land",
+   "chunk": 8,
+   "seq": 38,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "ba9ac0a9-735d-4bca-9d24-586aca963872",
+   "name": "Elder Cathar",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 39,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "27a3aa64-1de7-4b0c-af23-52886e7d258a",
+   "name": "Prismatic Undercurrents",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 40,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "4ed27607-21a8-4bc3-997e-6d2242313f6d",
+   "name": "Coral Merfolk",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 41,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "8d4dcab0-86e5-4ff8-a90f-78a062664e16",
+   "name": "Sapseep Forest",
+   "role": "retest",
+   "stratum": "land",
+   "chunk": 8,
+   "seq": 42,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9d22960b-babc-4cf3-b228-d32e13bc6014",
+   "name": "Esix, Fractal Bloom",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 43,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "d9a10971-f32b-4978-952d-fed0a5bc9e36",
+   "name": "Krosan Verge",
+   "role": "retest",
+   "stratum": "land",
+   "chunk": 8,
+   "seq": 44,
+   "is_land": true,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "505231d8-714f-4c5b-a635-d1662bd18a78",
+   "name": "Spider-Man, Web-Slinger",
+   "role": "retest",
+   "stratum": "top20",
+   "chunk": 8,
+   "seq": 45,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "9e4db334-4698-4986-820f-1daf1bffda83",
+   "name": "Angel's Herald",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 46,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "6c0c5832-416f-405f-bb44-c24be6f9d081",
+   "name": "Spire Serpent",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 47,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "991f4eec-cf3e-4554-ba88-c44bb0d255f0",
+   "name": "Tributary Vaulter",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 48,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "03ebc100-68ac-4d53-adc2-d537212f7d31",
+   "name": "Venom Connoisseur",
+   "role": "retest",
+   "stratum": "rest",
+   "chunk": 8,
+   "seq": 49,
+   "is_land": false,
+   "is_anchor_card": false
+  },
+  {
+   "oracle_id": "55a519b4-61cb-448a-875b-4d6dbe00580f",
+   "name": "Spire of Industry",
+   "role": "retest",
+   "stratum": "land",
+   "chunk": 8,
+   "seq": 50,
+   "is_land": true,
+   "is_anchor_card": false
+  }
+ ]
+}

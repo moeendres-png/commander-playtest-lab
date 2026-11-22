@@ -1,0 +1,69 @@
+--- wave1_rr_rater_instructions_redacted.md
++++ rater/rr2_rater_instructions.md
+@@ -3,3 +3,15 @@
+-You are an independent rater. Your job: rate 100 Magic: The Gathering cards, one at a time, for how much
+-each card improves a tuned Commander deck led by Chulane, Teller of Tales (4 players, Bracket 3), exactly
+-as the rating guide below defines it. Your number **N** (1, 2 or 3) is in the message that sent you here.
++You are an independent rater. Your job: rate the Magic: The Gathering cards in your input file, one at a time,
++for how much each card improves a tuned Commander deck led by Chulane, Teller of Tales (4 players, Bracket 3),
++exactly as the rating guide below defines it. Your number **N** (1 to 8) is in the message that sent you here.
++Your input file has **C** cards; C for your N is in this table:
++
++| N | C (cards in your input file) |
++|---|---|
++| 1 | 89 |
++| 2 | 89 |
++| 3 | 89 |
++| 4 | 89 |
++| 5 | 89 |
++| 6 | 89 |
++| 7 | 88 |
++| 8 | 50 |
+@@ -11,4 +23,4 @@
+-| The rating guide (read it completely first; see below) | `<RATER_DIR>/rr_guide_v2_1_rendered.md` |
+-| Your cards, 100 lines | `<RATER_DIR>/rr_input_N.jsonl` |
+-| Your output file (you create it) | `<RATER_DIR>/rr_output_N.jsonl` |
+-| Output schema (optional, you may read it) | `<RATER_DIR>/rr_output_schema.json` |
++| The rating guide for your N (read it completely first; see below) | `<RATER_DIR>/rr2_guide_N.md` |
++| Your cards, C lines | `<RATER_DIR>/rr2_input_N.jsonl` |
++| Your output file (you create it) | `<RATER_DIR>/rr2_output_N.jsonl` |
++| Output schema (optional, you may read it) | `<RATER_DIR>/rr2_output_schema.json` |
+@@ -18,4 +30,4 @@
+-1. You may read **only** these files: this file, the guide, `rr_input_N.jsonl` (your own N), and the schema.
+-   You may write **only** `rr_output_N.jsonl`. Do not list directories, do not open any other file, do not read
+-   the repository, do not search the disk, the web or any tool for card ratings, tier lists, popularity,
+-   prices or "earlier numbers". Do not look at other `rr_input_*` or `rr_output_*` files.
++1. You may read **only** these files: this file, `rr2_guide_N.md` (your own N), `rr2_input_N.jsonl` (your own N),
++   and the schema. You may write **only** `rr2_output_N.jsonl`. Do not list directories, do not open any other file,
++   do not read the repository, do not search the disk, the web or any tool for card ratings, tier lists, popularity,
++   prices or "earlier numbers". Do not look at other `rr2_guide_*`, `rr2_input_*` or `rr2_output_*` files.
+@@ -33,2 +45,2 @@
+-`rr_input_N.jsonl` has 100 lines. Each line is one JSON object:
+-`{"seq": 1..100, "oracle_id": "...", "card": "<name>", "card_block": "<text>"}`.
++`rr2_input_N.jsonl` has C lines. Each line is one JSON object:
++`{"seq": 1..C, "oracle_id": "...", "card": "<name>", "card_block": "<text>"}`.
+@@ -46 +58 @@
+-Read `<RATER_DIR>/rr_guide_v2_1_rendered.md` completely before the first card. It is the rating guide version 2.1
++Read `<RATER_DIR>/rr2_guide_N.md` (your own N) completely before the first card. It is the rating guide version 2.1
+@@ -56,5 +68,5 @@
+-2. After **every 10th card** (seq 10, 20, ..., 100) **append** the 10 finished JSON lines to
+-   `<RATER_DIR>/rr_output_N.jsonl` (for example `cat >> <RATER_DIR>/rr_output_N.jsonl <<'EOF' ... EOF` with 10 lines, one JSON object
+-   per line; N is your number). Append only; never rewrite or delete lines already written. Do not write a JSON
+-   array, no markdown fence, no comments.
+-3. If `rr_output_N.jsonl` already exists when you start, count its lines k (`wc -l`), check that those lines
++2. After **every 10th card** (seq 10, 20, ...) and after your **last card** (seq C) **append** the finished JSON
++   lines to `<RATER_DIR>/rr2_output_N.jsonl` (for example `cat >> <RATER_DIR>/rr2_output_N.jsonl <<'EOF' ... EOF` with one JSON
++   object per line; N is your number). Append only; never rewrite or delete lines already written. Do not write
++   a JSON array, no markdown fence, no comments.
++3. If `rr2_output_N.jsonl` already exists when you start, count its lines k (`wc -l`), check that those lines
+@@ -62 +74 @@
+-4. Output order = input order, one output line per input line, exactly 100 lines at the end.
++4. Output order = input order, one output line per input line, exactly C lines at the end.
+@@ -66,2 +78,2 @@
+-   `python3 -I -c "import json,sys; L=[json.loads(x) for x in open(sys.argv[1])]; print(len(L), all(set(r['scores'])=={'E','F','T','R','K','D','H'} and all(isinstance(v,int) and 0<=v<=100 and v%5==0 for v in r['scores'].values()) for r in L))" <RATER_DIR>/rr_output_N.jsonl`
+-   It must print `100 True`.
++   `python3 -I -c "import json,sys; L=[json.loads(x) for x in open(sys.argv[1])]; print(len(L), all(set(r['scores'])=={'E','F','T','R','K','D','H'} and all(isinstance(v,int) and 0<=v<=100 and v%5==0 for v in r['scores'].values()) for r in L))" <RATER_DIR>/rr2_output_N.jsonl`
++   It must print `C True` (C from the table above).
+@@ -114 +126 @@
+-State: how many lines are in `rr_output_N.jsonl`; the result of the check in step 4.5; the `seq` numbers of cards
++State: how many lines are in `rr2_output_N.jsonl`; the result of the check in step 4.5; the `seq` numbers of cards
