@@ -158,7 +158,23 @@ der Nutzung, aber nicht messbar über die gezählte Nutzung hinaus (Echo möglic
 berichtet und nie als „vor der Menge“ gedeutet (Abschnitt 5). Jede Aussage nennt Zahl, Intervall,
 n/N und die Rauschobergrenze; „H ist gut/schlecht“ wird nicht geschrieben.
 
-## 9. Was im Repo landet und was nicht
+## 9. Änderung vor der Auswertung (2026-11-22, vor jeder Zahl H gegen Ziel)
+
+Prüfung 2 (Abschnitt 7) ist beim ersten `prepare`-Lauf gescheitert, bevor eine Zahl H gegen ein Ziel
+gerechnet war. Befund: Der Index auf der Kopie, die nur die 10.128 Universums-Decks behält, weicht für
+**37 von 922** Karten vom unveränderten Store ab (größte Abweichung 0,5 Indexpunkte, 0 von 922
+Stufenwechseln). Ursache im Produkt (`universe._resolve`): Die Deduplizierung nach Inhalt läuft
+**innerhalb** der gewählten Teilmenge. Die Kohorten-Universen der Korpus-Komponenten (Brackets 4+5,
+Bracket 2, Bracket 5) filtern zuerst nach Kohorte und deduplizieren danach; so zählen sie Duplikate,
+die das Gesamt-Universum schon entfernt hat (Nenner 1.066 statt 1.064, 608 statt 606, 256 statt 252).
+Das ist ein Produktbefund für den Bericht, kein Teil dieses Pakets (keine Produktänderung).
+
+Änderung: Prüfung 2 bricht nicht mehr ab, sondern wird mit diesen Zahlen berichtet. **Basis aller
+Rechnungen ist die Kopie nur mit Universums-Decks**: Jede Faltung und jeder Stichtag behält nur
+Universums-Decks, so kommt kein Duplikat eines zurückgehaltenen oder späteren Decks ins Training.
+Alles andere (Metrik, Gruppen, Seeds, Schwellen, Entscheidungsregeln) bleibt unverändert.
+
+## 10. Was im Repo landet und was nicht
 
 - Im Repo: dieser Plan, das Skript, die Tests, der Bericht
   `docs/analysis-reports/validation_h_t6_t7_20261122.md` mit Aggregaten (n/N, ρ mit Intervall,
