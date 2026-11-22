@@ -425,7 +425,8 @@ price). "Kartenverständnis (Modellurteil)" stays a labelled model judgement fro
 no strength in play, no tier, no rank, no sort key, not part of the index.
 
 - **T1 spread and one origin.** The field carries `streuung`: the spread of one rating H as a
-  floor, "mindestens ±8 Punkte (1σ, ein Lauf je Karte; zweiter Rater-Lauf (Familie ungeprüft,
+  floor, "mindestens ±8 Punkte (1σ eines Einzelwerts; für das Mittel zweier Bewertungen kleiner
+  nur bei unabhängigen Fehlern, nicht belegt, A3; zweiter Rater-Lauf (Familie ungeprüft,
   A3): 8,1; n/N = 265/300, Herkunft Bericht rating_second_run_20261122)" (Owner decision option B,
   2026-11-22, register E17; until then "± rund 5 bis 8"), with its sources and n/N: the drift test
   (49 of 922 cards rated twice by the same rater tier, repeat spread RMS 7,1 / √2 ≈ 5), the rater of
@@ -451,6 +452,29 @@ no strength in play, no tier, no rank, no sort key, not part of the index.
   marks, with its full origin in the tooltip (`StudioZahl.zelle(..., { kompakt: true })`; without
   the option a cell is unchanged). One line per card: at 1600 × 1000 the synthetic browser check
   showed 3 cards in the table area before and 16 after.
+  **Shown H = mean of two ratings (Owner decision of 2026-11-22, register E19, #1404 comment
+  7085569723: „Mittelwert beider anzeigen (Empfehlung)“).** The figure of H is H_pooled = (H_F1 +
+  H_R2) / 2, read unrounded from
+  `data/research/chulane_rubric_v2_20261118/second_run_full_20261122/pooled.jsonl`
+  (`card_understanding.load_pooled`; tests bind the file to its SHA-256 in `results_sha256.txt` and
+  recompute every value from the raw output of both runs, at run time only the line rules are
+  checked, no hash; the Studio never writes it and
+  never reads `H_pooled_K1_vorschlag`: no correction K1). The field carries `bewertungen`: per card
+  the kind (`mittel`, `nur_erstbewertung`, `nur_lauf_1`), `n_bewertungen`, both raw values, Δ and
+  the mark, plus n of N per run ("Lauf 1 (F1)", "Lauf 2 (R2)", 922/922 today) and the counts. Each
+  cell names the number of ratings ("2 Bewertungen", "1 Bewertung, nur erste" or "nur Lauf 1") and,
+  at |ΔH| ≥ 15 (266 of 922 cards, from 30: 22), the mark "Bewertungen weichen stark ab (Δ 40: F1
+  20, R2 60)". Without a usable pooled value (file missing or broken: whole file; card missing; its
+  H_F1 not the data set's H: that card) the card shows H_F1 marked "nur Lauf 1", never 0. Values
+  in points are shown as the data give them (grid 2,5, e.g. 42,5; a test checks the grid; `zahl.js`, unit `Punkte` only). The floor ±8 and the noise
+  gate stay; a new spread source names the second rating of all cards (922/922, single value
+  SD(d)/√2 7,77, RMS/√2 8,46) and the pooled standard error 5,50 only with its condition
+  (independent errors, not shown, A3). The band of a cell follows the shown value (values between
+  the bands show the floor). On H_F1 stay: the other six criteria, notes, reason, claims and the
+  confidence (only H is averaged), the placement of the audit doubts and their noise gate (the
+  auditor saw H_F1; the visible doubt label ends "(zu H aus Lauf 1)"; for 18 of 33 H doubts the shown mean already lies inside
+  the reviewer's span, the mark stays until decided) and the land counts. H still has no tier, rank, sort
+  key or filter.
 - **T2 single ratings.** `GET /api/cards/{card_id}/understanding?commander=NAME` gives all seven
   criteria E (Effizienz), F (Passung zu Chulane), T (Wirkung am Tisch), R (Verlässlichkeit), K
   (Motor- und Kombo-Potenzial), D (Deck-Kosten und Risiko) and H (Gesamtwert) as URTEIL figures
@@ -462,7 +486,10 @@ no strength in play, no tier, no rank, no sort key, not part of the index.
   are headed "Regelclaims des Raters (Modellurteil, keine Regelaussage; Regelautorität XMage/CR)"
   with the note that quotes are not checked one by one (Audit A: 11 of 1708 quotes not literal;
   Audit D: 100 of 100 sampled claims right, one factual error in a targeted look at Evoke). The field itself
-  carries `abdeckung` (n of N pool cards per criterion).
+  carries `abdeckung` (n of N pool cards per criterion). Since E19 the answer carries
+  `bewertungen` for the card: the window shows "H angezeigt" with the number of ratings, both raw
+  values with their run and n/N per run, the deviation mark, and that the other criteria, notes,
+  reason and claims are from "Lauf 1 (F1)".
 - **T3 audit mark.** `pruefer_zweifel` places the lines of
   `audit/audit_A_flagged.jsonl` (blind rating audit, reviewer of another model family) on the data
   set by exact card name: 35 of 35 placed on the current data set. A line whose seen H is not the

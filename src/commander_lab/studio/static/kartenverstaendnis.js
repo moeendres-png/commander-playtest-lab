@@ -2,7 +2,8 @@
 // "Kartenverständnis (Modellurteil)" in the card window (WP-6, T2; tier list and deck builder): the single ratings of
 // one card from GET /api/cards/{id}/understanding. All seven criteria E, F, T, R, K, D, H as number contracts of class
 // URTEIL (zahl.js), the rater's note per criterion, reason, rules claims, the audit doubt, the land scale, the spread
-// of one rating and the coverage n of N per criterion. A card the data set does not list shows "unbekannt" for every
+// of one rating and the coverage n of N per criterion. H is the mean of the two ratings (Owner decision E19) with both
+// raw values and their run; the other six criteria, notes, reason and claims are from the first run. A card the data set does not list shows "unbekannt" for every
 // criterion, never 0. For every commander but the data set's the server says anzeigen: false and nothing is shown
 // (no TAM, no other commander). A model judgement from the rules text: no strength in play, no tier, no rank.
 const StudioKartenverstaendnis = (() => {
@@ -13,6 +14,33 @@ const StudioKartenverstaendnis = (() => {
   const CLAIMS_HEADING = "Regelclaims des Raters (Modellurteil, keine Regelaussage; Regelautorität XMage/CR)";
   const CLAIMS_NOTE = "Zitate nicht einzeln geprüft";
   const num = (value) => (typeof StudioUI !== "undefined" ? StudioUI.num(value, 0) : String(value));
+  // a score unrounded (the mean of two ratings is a multiple of 2,5): 42,5 and 40
+  const score = (value) => (typeof StudioUI !== "undefined" ? StudioUI.numFlex(value, 1) : String(value));
+  const RUN_SHORT = { mittel: "Mittel aus 2 Bewertungen", nur_erstbewertung: "1 Bewertung, nur erste", nur_lauf_1: "nur Lauf 1" };
+  const DEVIATION_LABEL = "Bewertungen weichen stark ab";
+
+  // The shown H and how it comes about (Owner decision E19): the number of ratings, both raw values with their run and
+  // n/N per run, the deviation mark at |ΔH| >= 15, and that only H is averaged. "unbekannt" never reads as 0.
+  function ratingNodes(h, ratings) {
+    if (!ratings) return [h("p", { class: "understanding-ratings unknown" }, "Zahl der Bewertungen von H: unbekannt.")];
+    const card = ratings.karte;
+    const runs = Array.isArray(ratings.laeufe) ? ratings.laeufe : [];
+    const nN = (run) => `n/N ${run && Number.isInteger(run.n) ? num(run.n) : UNKNOWN} / ${run && Number.isInteger(run.N) ? num(run.N) : UNKNOWN}`;
+    const out = [];
+    if (card) {
+      out.push(h("p", { class: "understanding-ratings" }, h("b", {}, `H angezeigt: ${score(card.wert)}`), ` · ${RUN_SHORT[card.art] || card.kurz}`, card.grund ? ` (${card.grund})` : ""));
+      const second = card.h_r2 === null || card.h_r2 === undefined ? (card.art === "nur_lauf_1" ? `${UNKNOWN} (nicht gelesen)` : `fehlt (${card.grund || "keine gültige zweite Bewertung"})`) : score(card.h_r2);
+      out.push(h("ul", { class: "understanding-runs" },
+        h("li", { "data-lauf": "F1" }, `${(runs[0] && runs[0].lauf) || "Lauf 1 (F1)"}: H ${score(card.h_f1)} · ${nN(runs[0])}`),
+        h("li", { "data-lauf": "R2" }, `${(runs[1] && runs[1].lauf) || "Lauf 2 (R2)"}: H ${second} · ${nN(runs[1])}${card.quelle_r2 ? ` · Quelle ${card.quelle_r2}` : ""}`)));
+      if (card.abweichung === true && typeof card.h_r2 === "number") {
+        out.push(h("p", { class: "bewertungen-abweichung-detail" }, h("span", { class: "badge warn bewertungen-abweichung" }, `${DEVIATION_LABEL} (Δ ${score(Math.abs(card.h_r2 - card.h_f1))})`), ` ${card.marke || ""}`));
+      }
+    }
+    if (ratings.verfuegbar !== true) out.push(h("p", { class: "muted" }, `Mittel der zwei Bewertungen nicht verfügbar: ${ratings.grund || "kein Grund geliefert"}; gezeigt wird H aus Lauf 1 (F1).`));
+    out.push(h("p", { class: "understanding-note ratings-note" }, [ratings.text, ratings.andere_kriterien, ratings.standardfehler_hinweis].filter(Boolean).join(". ") + (ratings.quelle ? `. Quelle: ${ratings.quelle}.` : ".")));
+    return out;
+  }
 
   function coverageText(entry) {
     return entry && Number.isInteger(entry.n) && Number.isInteger(entry.N) ? `${num(entry.n)} / ${num(entry.N)}` : UNKNOWN;
@@ -46,9 +74,10 @@ const StudioKartenverstaendnis = (() => {
     out.append(h("p", { class: "understanding-note" }, `${detail.hinweis || "Modellurteil, keine Spielstärke"}.`));
     if (detail.verfuegbar !== true) { out.append(h("p", {}, `${NAME} nicht verfügbar: ${detail.grund || "kein Grund geliefert"}.`)); return out; }
     const origin = detail.herkunft || {};
-    const tier = origin.rater_tier ? `, Modell-Rater Stufe ${origin.rater_tier}, ${origin.raters === 1 ? "1 Bewerter" : `${num(origin.raters)} Bewerter`}` : "";
+    const tier = origin.rater_tier ? `, Modell-Rater Stufe ${origin.rater_tier}, ${origin.raters === 1 ? "1 Bewerter" : `${num(origin.raters)} Bewerter`}${detail.bewertungen ? ", Lauf 1 (F1)" : ""}` : "";
     out.append(h("p", { class: "understanding-origin" }, `Quelle: Rubrik ${origin.version || UNKNOWN} (${origin.rubric || UNKNOWN})${tier} · Kohorte: ${detail.kohorte || UNKNOWN}`));
     if (detail.bewertet !== true) out.append(h("p", { class: "understanding-unrated" }, "Diese Karte ist im Datensatz nicht bewertet: alle sieben Kriterien sind unbekannt, nicht 0."));
+    else out.append(...ratingNodes(h, detail.bewertungen));
     if (detail.pruefer_zweifel) {
       const d = detail.pruefer_zweifel;
       out.append(h("p", { class: "pruefer-zweifel-detail" }, h("span", { class: d.unter_rauschgate === true ? "badge pruefer-zweifel unter-rauschgate" : "badge warn pruefer-zweifel" }, d.kurz || "Prüfer-Modell-Zweifel"), ` ${d.text}. ${d.grund}`));

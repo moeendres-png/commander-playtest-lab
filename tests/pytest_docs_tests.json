@@ -37,6 +37,7 @@
   "tests/unit/test_studio_oneclick_static.py",
   "tests/unit/test_studio_search_syntax.py",
   "tests/unit/test_studio_tam_prices.py",
+  "tests/unit/test_studio_tierliste_h_pooled.py",
   "tests/unit/test_studio_tierliste_spread_floor.py",
   "tests/unit/test_studio_tierliste_wp6.py",
   "tests/unit/test_technical_truth.py",

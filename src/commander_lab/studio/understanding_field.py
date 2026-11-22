@@ -19,7 +19,7 @@ other field of the answer is returned unchanged and the given answer is not modi
 
 WP-6 (#1404, builder audit T1 to T5) adds, all additively and without touching the index:
 
-* ``streuung``: the spread of one rating (one run per card) as a floor of ±8 (Owner decision
+* ``streuung``: the spread of one single rating as a floor of ±8, also beside the mean (Owner decision
   option B, E17), with its sources and n of N; the figures keep ``intervall: null`` (a spread is no
   measured per-card interval). ``rauschgate``: differences of H below that floor are no difference
   in rank; an H doubt of the audit closer to the score than the gate gets no warning mark.
@@ -32,9 +32,19 @@ WP-6 (#1404, builder audit T1 to T5) adds, all additively and without touching t
 ``card_detail`` gives one card's single ratings (all seven criteria, reason, notes, rules claims)
 for the card window; for any commander but the data set's it gives nothing to show.
 
-No weights, no mean, no rank: the scores are a model rater's reading of the rules text, not a
+Owner decision of 2026-11-22 (#1404, comment 7085569723, register E19): the shown H is the mean of
+the two ratings of the card, H_pooled = (H_F1 + H_R2) / 2, read unrounded from ``pooled.jsonl`` of
+the research folder (``card_understanding.load_pooled``), never with the correction K1. The field
+``bewertungen`` names per card the number of ratings, both raw values with their run ("Lauf 1
+(F1)", "Lauf 2 (R2)") and the mark "Bewertungen weichen stark ab" at |H_R2 - H_F1| >= 15. Without
+a usable pooled value (file missing or broken, card missing, or its H_F1 not the data set's H) the
+card shows H_F1 marked "nur Lauf 1". Everything else stays on the first run: the six other
+criteria, reason, notes, claims, the confidence, the placement of the audit doubts (the auditor
+saw H_F1) and the land counts. The spread floor ±8 and the noise gate are unchanged.
+
+No weights, no rank: the scores are a model rater's reading of the rules text, not a
 measurement, never carry price, popularity or a played-game result, and are not validated
-against game results.
+against game results. The only mean is the Owner-chosen mean of the two ratings of H of one card.
 """
 
 from __future__ import annotations
@@ -43,7 +53,7 @@ from collections.abc import Mapping, Sequence
 from typing import Final
 
 from . import card_understanding, number_contract
-from .card_understanding import UnderstandingRow
+from .card_understanding import PooledRow, UnderstandingRow
 from .store import StudioStore
 
 FIELD: Final = "kartenverstaendnis"
@@ -76,6 +86,8 @@ CRITERIA_NAMES: Final[dict[str, str]] = {
 }
 RESEARCH: Final = "data/research/chulane_rubric_v2_20261118"
 SECOND_RUN_REPORT: Final = "docs/analysis-reports/rating_second_run_20261122.md"
+FULL_RUN_REPORT: Final = "docs/analysis-reports/rating_full_second_run_20261122.md"
+POOLED_FILE: Final = f"{RESEARCH}/second_run_full_20261122/pooled.jsonl"
 # Owner decision of 2026-11-22, option B (#1404, comment 7081544721; register E17): the spread of
 # ONE rating of H is shown as a floor of 8 points. The second rater run (265 of 300 cards, the 35
 # reviewer-flagged cards left out) measured 8.1 [7.3; 8.9] (RMS of the differences / sqrt 2), above
@@ -99,14 +111,16 @@ NOISE_GATE_FIELD: Final[dict[str, object]] = {
     ),
     "quelle": f"{SECOND_RUN_REPORT} §0, §2 (Owner-Entscheid Option B, Register E17)",
 }
-# The spread of ONE rating of H (one run per card), from the reports of the research folder and the
+# The spread of ONE single rating of H, from the reports of the research folder and the
 # second rater run. The measured figures are checked against the raw files by tests (drift: RMS of
 # the 49 differences / sqrt 2; other model family: RMS of the 70 differences / sqrt 2; second run:
 # RMS of the 265 differences / sqrt 2; the audit's combined estimate is text).
 SPREAD: Final[dict[str, object]] = {
     "kriterium": "H",
     "text": (
-        f"mindestens ±{SPREAD_FLOOR} Punkte (1\u03c3, ein Lauf je Karte; {SECOND_RUN_LABEL}); "
+        f"mindestens ±{SPREAD_FLOOR} Punkte (1\u03c3 eines Einzelwerts; für das Mittel zweier "
+        "Bewertungen kleiner nur bei unabhängigen Fehlern, nicht belegt, A3; "
+        f"{SECOND_RUN_LABEL}); "
         "je nach H-Bereich auch mehr"
     ),
     "kurz": f"±{SPREAD_FLOOR}",
@@ -198,6 +212,20 @@ SPREAD: Final[dict[str, object]] = {
             ),
             "datei": f"{SECOND_RUN_REPORT} §0, §2; {RESEARCH}/second_run_20261122/",
         },
+        {
+            "name": "Zweite Bewertung aller Karten (Welle 1 und 2, Familie ungeprüft, A3)",
+            "kurzname": "zweite Bewertung",
+            "gemessen": True,
+            "n": 922,
+            "N": 922,
+            "bezug": "Karten (zwei Bewertungen / Datensatz)",
+            "kennzahl": (
+                "Einzelwert SD(d)/√2 7,77 [7,38; 8,16], RMS/√2 8,46; mittleres Gefälle R2 \u2212 F1 "
+                "\u22124,73; gepoolter Standardfehler SD(d)/2 5,50 nur bei unabhängigen Fehlern "
+                "(nicht belegt, A3), daher Anzeige weiter mindestens ±8"
+            ),
+            "datei": f"{FULL_RUN_REPORT} §0, §3; {POOLED_FILE}",
+        },
     ],
 }
 LAND_SCALE_SOURCE: Final = f"Gutachten C §4 ({RESEARCH}/audit/GUTACHTEN_C_gesamtrating.md)"
@@ -205,6 +233,164 @@ LAND_SCALE_TEXT: Final = (
     "Länder-Skala: Länder sind gegen eigene Länder-Anker bewertet, auf einer eigenen Skala; ihr H "
     "ist nicht mit dem H von Zaubern vergleichbar"
 )
+
+
+# --- the shown H: mean of the two ratings (Owner decision 2026-11-22, register E19) --------------
+
+RUN_1: Final = "Lauf 1 (F1)"
+RUN_2: Final = "Lauf 2 (R2)"
+POOLED_SHORT: Final = "Mittel aus 2 Bewertungen"
+SINGLE_SHORT: Final = "1 Bewertung, nur erste"
+FALLBACK_SHORT: Final = "nur Lauf 1"
+DEVIATION_LABEL: Final = "Bewertungen weichen stark ab"
+RATINGS_TEXT: Final = (
+    f"H = Mittel der zwei Bewertungen ({RUN_1}, {RUN_2}; zwei Bewertungen, Unabhängigkeit "
+    "ungeprüft, A3), ungerundet; keine Zusatzkorrektur (K1 nicht angewendet); Owner-Entscheid "
+    "2026-11-22, Register E19"
+)
+# The pooled standard error is shown only together with its condition (report §0, §7).
+STANDARD_ERROR_NOTE: Final = (
+    "Gepoolter Standardfehler SD(d)/2 = 5,50 Punkte (n/N = 922/922) gilt nur, wenn die Fehler "
+    "beider Bewertungen unabhängig sind; das ist nicht belegt (A3). Deshalb bleibt die angezeigte "
+    f"Streuung mindestens ±{SPREAD_FLOOR} (E17)"
+)
+OTHER_CRITERIA_NOTE: Final = (
+    f"E, F, T, R, K, D, Notizen, Begründung, Regelclaims und Rater-Vertrauen stammen aus {RUN_1}; "
+    "gemittelt wird nur H (Owner-Entscheid E19)"
+)
+
+
+# The audit was made on H_F1; the visible doubt label says so beside the shown mean.
+DOUBT_RUN: Final = "(zu H aus Lauf 1)"
+
+
+def _de(value: float) -> str:
+    """A score as German text without rounding: 42.5 -> "42,5", 40.0 -> "40"."""
+    return f"{value:g}".replace(".", ",")
+
+
+def _pooled(
+    pooled: Mapping[str, PooledRow] | None, *, cached: bool
+) -> tuple[Mapping[str, PooledRow] | None, str | None]:
+    """The pooled values, or (None, reason) when the file is missing or broken: then every card
+    shows H_F1 marked "nur Lauf 1" (never 0, never a partial mean)."""
+    if pooled is not None:
+        return pooled, None
+    try:
+        return (
+            card_understanding.load_pooled_cached() if cached else card_understanding.load_pooled()
+        ), None
+    except card_understanding.DatasetNotFoundError as error:
+        return None, str(error)
+    except card_understanding.UnderstandingDataError as error:
+        return None, f"Gepoolte Werte nicht lesbar: {error}"
+
+
+def card_rating(
+    row: UnderstandingRow, pooled_row: PooledRow | None, unavailable: str | None = None
+) -> dict[str, object]:
+    """How the shown H of one rated card comes about: the mean of two ratings, the first rating
+    only (the file says so), or H_F1 because no pooled value fits ("nur Lauf 1")."""
+    h_f1 = float(row["scores"]["H"])
+    if pooled_row is None or pooled_row["h_f1"] != h_f1:
+        reason = unavailable or (
+            "kein gepoolter Wert für diese Karte"
+            if pooled_row is None
+            else f"gepoolter Wert passt nicht zum Datensatz (H_F1 {_de(pooled_row['h_f1'])} statt "
+            f"{_de(h_f1)})"
+        )
+        return {
+            "art": "nur_lauf_1",
+            "n_bewertungen": 1,
+            "wert": h_f1,
+            "h_f1": h_f1,
+            "h_r2": None,
+            "delta": None,
+            "abweichung": False,
+            "kurz": FALLBACK_SHORT,
+            "text": f"{FALLBACK_SHORT}: H {_de(h_f1)} aus {RUN_1}; Mittel nicht verfügbar ({reason})",
+            "grund": reason,
+            "marke": None,
+            "quelle_r2": None,
+        }
+    h_r2 = pooled_row["h_r2"]
+    if pooled_row["n_bewertungen"] != 2 or h_r2 is None:
+        reason = pooled_row["grund"] or "keine gültige zweite Bewertung"
+        return {
+            "art": "nur_erstbewertung",
+            "n_bewertungen": 1,
+            "wert": pooled_row["h_pooled"],
+            "h_f1": h_f1,
+            "h_r2": None,
+            "delta": None,
+            "abweichung": False,
+            "kurz": SINGLE_SHORT,
+            "text": f"{SINGLE_SHORT}: H {_de(h_f1)} aus {RUN_1}; {RUN_2} fehlt ({reason})",
+            "grund": reason,
+            "marke": None,
+            "quelle_r2": None,
+        }
+    delta = h_r2 - h_f1
+    far = abs(delta) >= card_understanding.DEVIATION_MARK
+    mark = (
+        f"{DEVIATION_LABEL} (Δ {_de(abs(delta))}: {RUN_1} {_de(h_f1)}, {RUN_2} {_de(h_r2)})"
+        if far
+        else None
+    )
+    return {
+        "art": "mittel",
+        "n_bewertungen": 2,
+        "wert": pooled_row["h_pooled"],
+        "h_f1": h_f1,
+        "h_r2": h_r2,
+        "delta": delta,
+        "abweichung": far,
+        "kurz": POOLED_SHORT,
+        "text": (
+            f"{POOLED_SHORT}: H {_de(pooled_row['h_pooled'])} = Mittel aus {RUN_1} {_de(h_f1)} "
+            f"und {RUN_2} {_de(h_r2)}"
+        ),
+        "grund": None,
+        "marke": mark,
+        "quelle_r2": pooled_row["quelle_r2"],
+    }
+
+
+def _runs(
+    rows: Mapping[str, UnderstandingRow], pooled: Mapping[str, PooledRow] | None
+) -> list[dict[str, object]]:
+    """n of N per run over the data set: how many cards have a valid H of that run. Without the
+    pooled file the second run is "unbekannt" (n None), never 0."""
+    second = (
+        sum(
+            1
+            for oracle_id, row in rows.items()
+            if (found := pooled.get(oracle_id)) is not None
+            and found["h_r2"] is not None
+            and found["h_f1"] == float(row["scores"]["H"])
+        )
+        if pooled is not None
+        else None
+    )
+    bezug = "Karten des Datensatzes mit gültigem H dieses Laufs / gesamt"
+    return [
+        {"lauf": RUN_1, "n": len(rows), "N": len(rows), "bezug": bezug},
+        {"lauf": RUN_2, "n": second, "N": len(rows), "bezug": bezug},
+    ]
+
+
+def _h_source(row: UnderstandingRow, rating: Mapping[str, object]) -> str:
+    """The origin of the shown H, the same text for all cards of one kind (the head line of the
+    tier list lists the distinct origins once)."""
+    base = f"Rubrik {row['version']} ({row['rubric']})"
+    if rating["art"] == "mittel":
+        return (
+            f"{base}, {POOLED_SHORT}: {RUN_1} Modell-Rater Stufe {row['rater_tier']}, {RUN_2} "
+            "Modell-Rater Stufe unbekannt (Unabhängigkeit ungeprüft, A3)"
+        )
+    raters = int(row.get("raters", 1))
+    rater_text = "1 Bewerter" if raters == 1 else f"{raters} Bewerter"
+    return f"{base}, Modell-Rater Stufe {row['rater_tier']}, {rater_text}, {RUN_1}"
 
 
 def cohort() -> str:
@@ -296,12 +482,13 @@ def doubt_below_gate(flag: card_understanding.AuditFlag) -> bool:
 
 
 def _doubt_short(flag: card_understanding.AuditFlag) -> str:
-    """The visible label: the reviewer is a model, and a wrong reason is no doubt about H."""
+    """The visible label: the reviewer is a model, and a wrong reason is no doubt about H. An H
+    doubt names the run it was made on: the auditor saw H_F1, the cell shows the mean (E19)."""
     if flag["kind"] == "Begründung faktisch falsch":
         return "Prüfer-Modell: Begründung faktisch falsch"
     if doubt_below_gate(flag):
-        return f"Prüfer-Spanne innerhalb der Streuung (unter {NOISE_GATE} Punkten)"
-    return f"Prüfer-Modell bezweifelt H: {flag['kind'].removeprefix('H ')}"
+        return f"Prüfer-Spanne innerhalb der Streuung (unter {NOISE_GATE} Punkten) {DOUBT_RUN}"
+    return f"Prüfer-Modell bezweifelt H: {flag['kind'].removeprefix('H ')} {DOUBT_RUN}"
 
 
 def _doubt_text(flag: card_understanding.AuditFlag) -> str:
@@ -312,8 +499,8 @@ def _doubt_text(flag: card_understanding.AuditFlag) -> str:
         else ""
     )
     return (
-        f"{_doubt_short(flag)}{span} (Rating-Audit A; der Prüfer ist ein Modell einer anderen "
-        "Modellfamilie, kein Mensch)"
+        f"{_doubt_short(flag)}{span}; bezieht sich auf H {_de(flag['rater_H'])} aus {RUN_1} "
+        "(Rating-Audit A; der Prüfer ist ein Modell einer anderen Modellfamilie, kein Mensch)"
     )
 
 
@@ -323,27 +510,38 @@ def card_figure(
     criterion: str = CRITERION,
     *,
     extra_notes: Sequence[str] = (),
+    rating: Mapping[str, object] | None = None,
 ) -> dict[str, object]:
-    """The contract object (class URTEIL) of one rated card for one criterion (default H)."""
+    """The contract object (class URTEIL) of one rated card for one criterion (default H). With
+    ``rating`` (``card_rating``) the figure of H shows the rating's value (the mean of the two
+    ratings, or H_F1 for a single rating) with its origin; the other criteria never take it."""
     raters = int(row.get("raters", 1))
     rater_text = "1 Bewerter" if raters == 1 else f"{raters} Bewerter"
     figure_id = (
         f"{ID_PREFIX}{card_id}" if criterion == CRITERION else f"{ID_PREFIX}{card_id}:{criterion}"
     )
+    value = float(row["scores"][criterion])
+    source = (
+        f"Rubrik {row['version']} ({row['rubric']}), Modell-Rater Stufe "
+        f"{row['rater_tier']}, {rater_text}"
+    )
+    rating_notes: list[str] = []
+    if rating is not None and criterion == CRITERION:
+        value = float(str(rating["wert"]))
+        source = _h_source(row, rating)
+        rating_notes = [str(rating["text"]), *([str(rating["marke"])] if rating["marke"] else [])]
     return number_contract.zahl(
         figure_id,
         f"{criterion} {CRITERIA_NAMES[criterion]} (0 bis 100)",
-        float(row["scores"][criterion]),
+        value,
         klasse=number_contract.URTEIL,
         einheit="Punkte",
-        quelle=(
-            f"Rubrik {row['version']} ({row['rubric']}), Modell-Rater Stufe "
-            f"{row['rater_tier']}, {rater_text}"
-        ),
+        quelle=source,
         kohorte=cohort(),
         hinweise=[
             f"Rater-Vertrauen {row['confidence']} (Selbstauskunft)",
             NOT_VALIDATED,
+            *rating_notes,
             *extra_notes,
         ],
     )
@@ -429,6 +627,7 @@ def with_understanding(
     *,
     dataset: Mapping[str, UnderstandingRow] | None = None,
     audit: Sequence[card_understanding.AuditFlag] | None = None,
+    pooled: Mapping[str, PooledRow] | None = None,
 ) -> dict[str, object]:
     """``answer`` plus the field ``kartenverstaendnis`` (only for the data set's commander)."""
     out: dict[str, object] = dict(answer)
@@ -463,6 +662,8 @@ def with_understanding(
         return out
     match, audit_reason = _audit(rows, audit)
     doubts = match["flags"] if match is not None else {}
+    pooled_rows, pooled_reason = _pooled(pooled, cached=False)
+    ratings: dict[str, dict[str, object]] = {}
     findings = _claim_findings(rows)
     pool_findings: dict[str, list[dict[str, object]]] = {}
     ids = [str(card["card_id"]) for card in cards]
@@ -492,7 +693,13 @@ def with_understanding(
             rated_lands.append(card_id)
             lands_t_zero += 1 if float(row["scores"]["T"]) == 0.0 else 0
             notes.append(LAND_SCALE_TEXT)
-        figures.append(card_figure(card_id, row, extra_notes=notes))
+        rating = card_rating(
+            row,
+            pooled_rows.get(oracle_id) if pooled_rows is not None and oracle_id else None,
+            pooled_reason,
+        )
+        ratings[card_id] = rating
+        figures.append(card_figure(card_id, row, extra_notes=notes, rating=rating))
     matched = len({oid for oid in oracle.values() if oid in rows})
     out[FIELD] = {
         "verfuegbar": True,
@@ -505,6 +712,7 @@ def with_understanding(
         "zahlen": figures,
         "streuung": SPREAD,
         "rauschgate": NOISE_GATE_FIELD,
+        "bewertungen": _ratings_field(rows, pooled_rows, pooled_reason, ratings),
         "abdeckung": {
             name: {
                 "n": len(figures),
@@ -531,6 +739,51 @@ def with_understanding(
     return out
 
 
+def _ratings_field(
+    rows: Mapping[str, UnderstandingRow],
+    pooled: Mapping[str, PooledRow] | None,
+    reason: str | None,
+    ratings: Mapping[str, dict[str, object]],
+) -> dict[str, object]:
+    """Per pool card how its shown H comes about, and the counts beside it (n of N)."""
+    kinds = [str(rating["art"]) for rating in ratings.values()]
+    far_in_set = (
+        sum(
+            1
+            for oracle_id, row in rows.items()
+            if (found := pooled.get(oracle_id)) is not None
+            and found["h_r2"] is not None
+            and found["h_f1"] == float(row["scores"]["H"])
+            and abs(found["h_r2"] - found["h_f1"]) >= card_understanding.DEVIATION_MARK
+        )
+        if pooled is not None
+        else None
+    )
+    return {
+        "verfuegbar": pooled is not None,
+        "grund": reason,
+        "quelle": card_understanding.POOLED_SOURCE,
+        "text": RATINGS_TEXT
+        if pooled is not None
+        else f"{FALLBACK_SHORT}: H aus {RUN_1} ({reason})",
+        "laeufe": _runs(rows, pooled),
+        "n_mittel": kinds.count("mittel"),
+        "n_nur_erstbewertung": kinds.count("nur_erstbewertung"),
+        "n_nur_lauf_1": kinds.count("nur_lauf_1"),
+        "N": len(ratings),
+        "bezug": "bewertete Karten dieser Antwort",
+        "schwelle_abweichung": card_understanding.DEVIATION_MARK,
+        "n_abweichung": sum(1 for rating in ratings.values() if rating["abweichung"] is True),
+        "abweichung_datensatz": {
+            "n": far_in_set,
+            "N": len(rows),
+            "bezug": "Karten des Datensatzes",
+        },
+        "standardfehler_hinweis": STANDARD_ERROR_NOTE,
+        "karten": dict(ratings),
+    }
+
+
 # --- one card's single ratings for the card window (WP-6, T2) -----------------------------------
 
 
@@ -553,6 +806,7 @@ def card_detail(
     *,
     dataset: Mapping[str, UnderstandingRow] | None = None,
     audit: Sequence[card_understanding.AuditFlag] | None = None,
+    pooled: Mapping[str, PooledRow] | None = None,
 ) -> dict[str, object]:
     """One card's single ratings: the seven criteria as URTEIL figures with the rater's note, the
     reason, the rules claims, the audit doubt, the land scale, the spread and the coverage n of N
@@ -602,12 +856,26 @@ def card_detail(
         *([_doubt_text(flag)] if flag is not None else []),
         *([LAND_SCALE_TEXT] if is_land and row is not None else []),
     ]
+    pooled_rows, pooled_reason = _pooled(pooled, cached=True)
+    rating = (
+        card_rating(
+            row,
+            pooled_rows.get(oracle_id) if pooled_rows is not None and oracle_id else None,
+            pooled_reason,
+        )
+        if row is not None
+        else None
+    )
     criteria = [
         {
             "kriterium": name_,
             "name": CRITERIA_NAMES[name_],
             "zahl": card_figure(
-                card_id, row, name_, extra_notes=extra if name_ == CRITERION else ()
+                card_id,
+                row,
+                name_,
+                extra_notes=extra if name_ == CRITERION else (),
+                rating=rating,
             )
             if row is not None
             else None,
@@ -624,6 +892,21 @@ def card_detail(
             "raters": int(row.get("raters", 1)) if row is not None else None,
         },
         "kriterien": criteria,
+        "bewertungen": {
+            "verfuegbar": pooled_rows is not None,
+            "grund": pooled_reason,
+            "quelle": card_understanding.POOLED_SOURCE,
+            "text": (
+                RATINGS_TEXT
+                if pooled_rows is not None
+                else f"{FALLBACK_SHORT}: H aus {RUN_1} ({pooled_reason})"
+            ),
+            "laeufe": _runs(rows, pooled_rows),
+            "karte": rating,
+            "schwelle_abweichung": card_understanding.DEVIATION_MARK,
+            "standardfehler_hinweis": STANDARD_ERROR_NOTE,
+            "andere_kriterien": OTHER_CRITERIA_NOTE,
+        },
         "begruendung": row["reason"] if row is not None else None,
         "vertrauen": row["confidence"] if row is not None else None,
         "regelclaims": list(row["rule_claims"]) if row is not None else [],

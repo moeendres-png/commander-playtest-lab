@@ -354,8 +354,9 @@ def test_every_figure_is_a_valid_judgement_and_an_unrated_card_has_none(
     high = by_id[f"kartenverstaendnis:{ids['Card 00']}"]
     assert high["wert"] == 90.0 and high["bezeichnung"] == "H Gesamtwert (0 bis 100)"
     assert (
-        high["quelle"] == "Rubrik v2.1 (chulane-rubric-v2.1), Modell-Rater Stufe large, 3 Bewerter"
-    )
+        high["quelle"]
+        == "Rubrik v2.1 (chulane-rubric-v2.1), Modell-Rater Stufe large, 3 Bewerter, Lauf 1 (F1)"
+    )  # the synthetic card has no pooled value: H_F1, marked as the first run only (E19)
     assert high["hinweise"][0] == "Rater-Vertrauen low (Selbstauskunft)"
     zero = by_id[f"kartenverstaendnis:{ids['Card 03']}"]
     assert zero["wert"] == 0.0 and "1 Bewerter" in zero["quelle"]  # a real 0 stays a real 0

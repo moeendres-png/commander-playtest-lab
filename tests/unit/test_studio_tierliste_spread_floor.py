@@ -66,7 +66,11 @@ def test_floor_and_noise_gate_are_bound_to_the_measured_spread() -> None:
     assert understanding_field.NOISE_GATE == understanding_field.SPREAD_FLOOR == round(spread)
     assert understanding_field.SPREAD["mindestens"] == understanding_field.SPREAD_FLOOR
     assert understanding_field.NOISE_GATE_FIELD["punkte"] == understanding_field.NOISE_GATE
-    source = understanding_field.SPREAD["quellen"][-1]  # type: ignore[index]
+    source = next(
+        q
+        for q in understanding_field.SPREAD["quellen"]  # type: ignore[attr-defined]
+        if str(q["name"]).startswith("Zweiter Rater-Lauf")
+    )
     assert (source["n"], source["N"]) == (n, total) and "Familie ungeprüft, A3" in source["name"]
     report = REPORT.read_text(encoding="utf-8")
     assert "Einzelwert-Streuung RMS/√2 = **8,1**" in report and "n = 265" in report
@@ -204,7 +208,8 @@ def test_an_h_doubt_inside_the_noise_gate_is_no_warning_mark() -> None:
     )
     assert "bezweifelt" not in str(entry["kurz"])
     assert (
-        understanding_field._doubt_entry(edge)["kurz"] == "Prüfer-Modell bezweifelt H: zu niedrig"
+        understanding_field._doubt_entry(edge)["kurz"]
+        == "Prüfer-Modell bezweifelt H: zu niedrig (zu H aus Lauf 1)"
     )
     assert (
         understanding_field._doubt_entry(reason)["kurz"]

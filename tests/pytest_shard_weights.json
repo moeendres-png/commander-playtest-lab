@@ -345,6 +345,7 @@
   "tests/unit/test_studio_tam_cardmarket.py": 3.1,
   "tests/unit/test_studio_tam_prices.py": 60.0,
   "tests/unit/test_studio_tierliste_e0.py": 0.1,
+  "tests/unit/test_studio_tierliste_h_pooled.py": 2.3,
   "tests/unit/test_studio_tierliste_role_gaps.py": 0.3,
   "tests/unit/test_studio_tierliste_spread_floor.py": 0.8,
   "tests/unit/test_studio_tierliste_wp6.py": 1.9,
