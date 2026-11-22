@@ -19,8 +19,10 @@ other field of the answer is returned unchanged and the given answer is not modi
 
 WP-6 (#1404, builder audit T1 to T5) adds, all additively and without touching the index:
 
-* ``streuung``: the measured spread of one rating (one run per card), with its sources and n;
-  the figures keep ``intervall: null`` (a typical spread is no measured per-card interval).
+* ``streuung``: the spread of one rating (one run per card) as a floor of ±8 (Owner decision
+  option B, E17), with its sources and n of N; the figures keep ``intervall: null`` (a spread is no
+  measured per-card interval). ``rauschgate``: differences of H below that floor are no difference
+  in rank; an H doubt of the audit closer to the score than the gate gets no warning mark.
 * ``abdeckung``: n of N pool cards with a value, per criterion E, F, T, R, K, D, H.
 * ``pruefer_zweifel``: the cards the blind rating audit doubts (Audit A), with n placed of n
   flagged; a missing audit file is "nicht verfügbar", never "no card doubted".
@@ -73,40 +75,79 @@ CRITERIA_NAMES: Final[dict[str, str]] = {
     "H": "Gesamtwert",
 }
 RESEARCH: Final = "data/research/chulane_rubric_v2_20261118"
-# The spread of ONE rating of H (one run per card), from the reports of the research folder. The
-# figures are checked against the raw files by tests (drift: RMS of the 49 differences / sqrt 2;
-# other model family: RMS of the 70 differences / sqrt 2; the audit's combined estimate is text).
+SECOND_RUN_REPORT: Final = "docs/analysis-reports/rating_second_run_20261122.md"
+# Owner decision of 2026-11-22, option B (#1404, comment 7081544721; register E17): the spread of
+# ONE rating of H is shown as a floor of 8 points. The second rater run (265 of 300 cards, the 35
+# reviewer-flagged cards left out) measured 8.1 [7.3; 8.9] (RMS of the differences / sqrt 2), above
+# the old display "5 to 8". No shown spread, band or mark goes below this floor; a test recomputes
+# 8.1 from the raw files and binds the floor and the noise gate to it.
+SPREAD_FLOOR: Final = 8
+# The noise gate of H: a difference below it is no difference in rank. It is the spread floor (one
+# constant, so the gate can never be finer than the shown spread). Display and thresholds only: the
+# raw scores stay as rated.
+NOISE_GATE: Final = SPREAD_FLOOR
+SECOND_RUN_LABEL: Final = (
+    "zweiter Rater-Lauf (Familie ungeprüft, A3): 8,1; n/N = 265/300, Herkunft Bericht "
+    "rating_second_run_20261122"
+)
+NOISE_GATE_FIELD: Final[dict[str, object]] = {
+    "punkte": NOISE_GATE,
+    "einheit": "Punkte",
+    "text": (
+        f"Unterschiede von H unter {NOISE_GATE} Punkten sind kein Rangunterschied (Rauschgate = "
+        f"Mindeststreuung ±{SPREAD_FLOOR})"
+    ),
+    "quelle": f"{SECOND_RUN_REPORT} §0, §2 (Owner-Entscheid Option B, Register E17)",
+}
+# The spread of ONE rating of H (one run per card), from the reports of the research folder and the
+# second rater run. The measured figures are checked against the raw files by tests (drift: RMS of
+# the 49 differences / sqrt 2; other model family: RMS of the 70 differences / sqrt 2; second run:
+# RMS of the 265 differences / sqrt 2; the audit's combined estimate is text).
 SPREAD: Final[dict[str, object]] = {
     "kriterium": "H",
-    "text": "typisch ± rund 5 bis 8 Punkte (1\u03c3), ein Lauf je Karte; je nach H-Bereich anders",
-    "kurz": "±5\u20138",
-    "unten": 5,
-    "oben": 8,
+    "text": (
+        f"mindestens ±{SPREAD_FLOOR} Punkte (1\u03c3, ein Lauf je Karte; {SECOND_RUN_LABEL}); "
+        "je nach H-Bereich auch mehr"
+    ),
+    "kurz": f"±{SPREAD_FLOOR}",
+    "mindestens": SPREAD_FLOOR,
     "einheit": "Punkte",
     "laeufe_je_karte": 1,
-    "art": "typische Streuung eines Einzelwerts, kein gemessenes Intervall je Karte",
+    "art": "Mindestwert der Streuung eines Einzelwerts, kein gemessenes Intervall je Karte",
     # The spread grows with H. The bands are the audit's estimate (text of AUDIT_A §4, not
-    # computable from paired ratings); a value outside every band shows the typical spread.
+    # computable from paired ratings), never shown below the floor: where the audit's estimate is
+    # smaller (H up to 10, upwards from H 60), the floor is shown and the estimate is named in words.
+    # A value outside every band shows the floor.
     "baender": [
         {
             "ab": 0,
             "bis": 10,
-            "kurz": "±5",
-            "text": "etwa ±5 bei H bis 10",
+            "kurz": f"±{SPREAD_FLOOR}",
+            "geschaetzt": False,
+            "text": (
+                f"mindestens ±{SPREAD_FLOOR} bei H bis 10 (Audit-A-Schätzung 5 Punkte, unter dem "
+                "Mindestwert)"
+            ),
             "quelle": f"Schätzung Rating-Audit A §4 ({RESEARCH}/audit/AUDIT_A_ratings.md)",
         },
         {
             "ab": 40,
             "bis": 55,
             "kurz": "±10",
-            "text": "etwa ±10 bei H 40 bis 55",
+            "geschaetzt": True,
+            "text": "etwa ±10 bei H 40 bis 55 (Schätzung Audit A)",
             "quelle": f"Schätzung Rating-Audit A §4 ({RESEARCH}/audit/AUDIT_A_ratings.md)",
         },
         {
             "ab": 60,
             "bis": 100,
-            "kurz": "\u221215/+5",
-            "text": "asymmetrisch etwa \u221215 bis +5 ab H 60 (hohe Werte eher zu hoch)",
+            "kurz": f"\u221215/+{SPREAD_FLOOR}",
+            "geschaetzt": True,
+            "text": (
+                f"asymmetrisch ab H 60: nach unten etwa 15 (Schätzung Audit A, hohe Werte eher zu "
+                f"hoch), nach oben mindestens {SPREAD_FLOOR} (Audit-A-Schätzung 5 Punkte, unter dem "
+                "Mindestwert)"
+            ),
             "quelle": f"Schätzung Rating-Audit A §4 ({RESEARCH}/audit/AUDIT_A_ratings.md)",
         },
     ],
@@ -143,6 +184,19 @@ SPREAD: Final[dict[str, object]] = {
                 "Punkten nicht belastbar"
             ),
             "datei": f"{RESEARCH}/audit/AUDIT_A_ratings.md §0, §4",
+        },
+        {
+            "name": "Zweiter Rater-Lauf (Familie ungeprüft, A3)",
+            "kurzname": "zweiter Lauf",
+            "gemessen": True,
+            "n": 265,
+            "N": 300,
+            "bezug": "Karten (nicht markierte Karten / Stichprobe)",
+            "kennzahl": (
+                "mittlere |ΔH| 8,38; Einzelstreuung 8,1 [7,3; 8,9] (RMS 11,45 / √2); Spearman "
+                "0,881; Spells im Mittel rund \u22125,6, Länder +2,3; „teilweise bestätigt“ (G1)"
+            ),
+            "datei": f"{SECOND_RUN_REPORT} §0, §2; {RESEARCH}/second_run_20261122/",
         },
     ],
 }
@@ -224,10 +278,29 @@ def _claim_findings(
     return found
 
 
+def doubt_distance(flag: card_understanding.AuditFlag) -> float | None:
+    """How far the score lies outside the reviewer's span for H (0 inside it); None when the
+    flag is no doubt about H (a wrong reason) or names no span."""
+    low, high = flag["proposed_H_low"], flag["proposed_H_high"]
+    if not flag["kind"].startswith("H ") or low is None or high is None:
+        return None
+    score = flag["rater_H"]
+    return max(low - score, score - high, 0.0)
+
+
+def doubt_below_gate(flag: card_understanding.AuditFlag) -> bool:
+    """An H doubt whose span lies closer to the score than the noise gate: a difference under the
+    spread, so it is shown without a warning mark (no difference in rank)."""
+    distance = doubt_distance(flag)
+    return distance is not None and distance < NOISE_GATE
+
+
 def _doubt_short(flag: card_understanding.AuditFlag) -> str:
     """The visible label: the reviewer is a model, and a wrong reason is no doubt about H."""
     if flag["kind"] == "Begründung faktisch falsch":
         return "Prüfer-Modell: Begründung faktisch falsch"
+    if doubt_below_gate(flag):
+        return f"Prüfer-Spanne innerhalb der Streuung (unter {NOISE_GATE} Punkten)"
     return f"Prüfer-Modell bezweifelt H: {flag['kind'].removeprefix('H ')}"
 
 
@@ -309,6 +382,8 @@ def _doubt_entry(flag: card_understanding.AuditFlag) -> dict[str, object]:
         "grund": flag["reason"],
         "kurz": _doubt_short(flag),
         "text": _doubt_text(flag),
+        "abstand": doubt_distance(flag),
+        "unter_rauschgate": doubt_below_gate(flag),
     }
 
 
@@ -328,6 +403,8 @@ def _doubt_field(
             "nicht_zugeordnet": [],
             "veraltet": [],
             "pruefbasis": AUDIT_BASIS,
+            "rauschgate": NOISE_GATE,
+            "n_unter_rauschgate": None,
             "karten": {},
         }
     return {
@@ -340,6 +417,8 @@ def _doubt_field(
         "nicht_zugeordnet": list(match["unmatched"]),
         "veraltet": list(match["outdated"]),
         "pruefbasis": AUDIT_BASIS,
+        "rauschgate": NOISE_GATE,
+        "n_unter_rauschgate": sum(1 for flag in in_pool.values() if doubt_below_gate(flag)),
         "karten": {card_id: _doubt_entry(flag) for card_id, flag in in_pool.items()},
     }
 
@@ -425,6 +504,7 @@ def with_understanding(
         "herkunft": _origin(rows, matched),
         "zahlen": figures,
         "streuung": SPREAD,
+        "rauschgate": NOISE_GATE_FIELD,
         "abdeckung": {
             name: {
                 "n": len(figures),
@@ -497,6 +577,7 @@ def card_detail(
         "kohorte": cohort(),
         "hinweis": f"{NOT_STRENGTH}; {NOT_VALIDATED}",
         "streuung": SPREAD,
+        "rauschgate": NOISE_GATE_FIELD,
     }
     try:
         rows = card_understanding.load_cached() if dataset is None else dataset

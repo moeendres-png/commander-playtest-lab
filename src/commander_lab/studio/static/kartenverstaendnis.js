@@ -18,10 +18,11 @@ const StudioKartenverstaendnis = (() => {
     return entry && Number.isInteger(entry.n) && Number.isInteger(entry.N) ? `${num(entry.n)} / ${num(entry.N)}` : UNKNOWN;
   }
 
-  function spreadNodes(h, spread) {
+  function spreadNodes(h, spread, gate) {
     if (!spread) return [h("p", { class: "understanding-spread" }, "Streuung: unbekannt.")];
     return [
       h("p", { class: "understanding-spread" }, `Streuung von ${spread.kriterium || "H"}: ${spread.text} (${spread.art}).`),
+      gate && typeof gate.punkte === "number" ? h("p", { class: "understanding-gate" }, `${gate.text} (${gate.quelle}).`) : null,
       h("ul", { class: "understanding-bands" }, (spread.baender || []).map((b) => h("li", {}, `H ${num(b.ab)} bis ${num(b.bis)}: ${b.text} (${b.quelle})`))),
       h("ul", { class: "understanding-sources" }, (spread.quellen || []).map((q) => h("li", {}, `${q.name}: ${q.kennzahl} · ${q.gemessen === false ? "Schätzung" : "gemessen"} · n/N ${num(q.n)} / ${num(q.N)} ${q.bezug} · ${q.datei}`))),
     ];
@@ -50,7 +51,7 @@ const StudioKartenverstaendnis = (() => {
     if (detail.bewertet !== true) out.append(h("p", { class: "understanding-unrated" }, "Diese Karte ist im Datensatz nicht bewertet: alle sieben Kriterien sind unbekannt, nicht 0."));
     if (detail.pruefer_zweifel) {
       const d = detail.pruefer_zweifel;
-      out.append(h("p", { class: "pruefer-zweifel-detail" }, h("span", { class: "badge warn pruefer-zweifel" }, d.kurz || "Prüfer-Modell-Zweifel"), ` ${d.text}. ${d.grund}`));
+      out.append(h("p", { class: "pruefer-zweifel-detail" }, h("span", { class: d.unter_rauschgate === true ? "badge pruefer-zweifel unter-rauschgate" : "badge warn pruefer-zweifel" }, d.kurz || "Prüfer-Modell-Zweifel"), ` ${d.text}. ${d.grund}`));
     }
     if (detail.pruefer_audit && detail.pruefer_audit.pruefbasis) out.append(h("p", { class: "understanding-note pruefbasis" }, `${detail.pruefer_audit.pruefbasis.text}.`));
     if (Array.isArray(detail.regelclaim_befunde) && detail.regelclaim_befunde.length) out.append(h("p", { class: "regelclaim-befund-head" }, ...detail.regelclaim_befunde.map((f) => h("span", { class: "badge warn regelclaim-befund" }, `${f.kurz} (Claim ${num(f.index + 1)})`))));
@@ -70,7 +71,7 @@ const StudioKartenverstaendnis = (() => {
       h("thead", {}, h("tr", {}, h("th", {}, "Kriterium (0 bis 100)"), h("th", {}, "Wert"), h("th", {}, "Notiz des Raters"), h("th", { title: coverageBezug }, "Abdeckung n/N"))),
       h("tbody", {}, rows))));
     if (coverageBezug) out.append(h("p", { class: "understanding-note" }, `Abdeckung n/N: ${coverageBezug}.`));
-    out.append(...spreadNodes(h, detail.streuung));
+    out.append(...spreadNodes(h, detail.streuung, detail.rauschgate).filter(Boolean));
     if (detail.vertrauen) out.append(h("p", {}, `Rater-Vertrauen (Selbstauskunft): ${CONFIDENCE[detail.vertrauen] || detail.vertrauen}.`));
     const reasonNotes = (Array.isArray(detail.regelclaim_befunde) ? detail.regelclaim_befunde : []).map((f) => f.begruendung_hinweis).filter(Boolean);
     out.append(h("h4", {}, "Begründung des Raters"),
