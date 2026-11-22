@@ -738,7 +738,7 @@ def test_verdict_reads_belegt_the_diff_shows_only_the_exact_pair_and_cards_say_n
     # the diff: the exact pair in either order (A/B named), another pair's series never
     found, found_pills = r["diffFound"]
     assert (
-        "Serie vom 2026-11-20 10:00 · Tisch unbekannt: A = Vergleichsbasis, B = geöffneter Stand"
+        "Serie vom 2026-11-20 10:00 · Tisch unbekannt · Tischgröße unbekannt: A = Vergleichsbasis, B = geöffneter Stand"
         in found
     )
     assert "A = geöffneter Stand, B = Vergleichsbasis" in found
@@ -838,9 +838,9 @@ def test_the_diff_names_the_opened_state_the_table_and_the_main_reference() -> N
     headers = [item["texts"][0] for item in series]
     # the table and the date tell two series of the same pair apart; no table is "unbekannt"
     assert headers == [
-        "Serie vom 2026-11-20 10:00 · Tisch pod-1: A = Vergleichsbasis, B = geöffneter Stand",
-        "Serie vom 2026-11-20 10:00 · Tisch pod-2: A = Vergleichsbasis, B = geöffneter Stand",
-        "Serie vom 2026-11-20 10:00 · Tisch unbekannt: A = geöffneter Stand, B = Vergleichsbasis",
+        "Serie vom 2026-11-20 10:00 · Tisch pod-1 · Tischgröße unbekannt: A = Vergleichsbasis, B = geöffneter Stand",
+        "Serie vom 2026-11-20 10:00 · Tisch pod-2 · Tischgröße unbekannt: A = Vergleichsbasis, B = geöffneter Stand",
+        "Serie vom 2026-11-20 10:00 · Tisch unbekannt · Tischgröße unbekannt: A = geöffneter Stand, B = Vergleichsbasis",
     ]
     for item in series:
         assert item["texts"][1] == REFERENCE_LINE
@@ -858,7 +858,7 @@ def test_the_reference_line_is_neutral_when_the_opened_state_is_main() -> None:
     assert main["kids"] == ["h3.", "p.note note-compact", "div.diff-evidence-series"]
     (texts,) = main["series"]
     assert texts[0] == (
-        "Serie vom 2026-11-20 10:00 · Tisch pod-1: A = Vergleichsbasis, B = geöffneter Stand"
+        "Serie vom 2026-11-20 10:00 · Tisch pod-1 · Tischgröße unbekannt: A = Vergleichsbasis, B = geöffneter Stand"
     )
     assert texts[1] == REFERENCE_LINE
     assert "Befund zum aktuellen Stand" in texts[2]

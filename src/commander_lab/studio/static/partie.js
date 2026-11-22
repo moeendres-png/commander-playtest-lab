@@ -60,7 +60,7 @@ function toast(text, milliseconds = 3500) {
 
 const seatName = (seat) => (seat === null || seat === undefined ? "?" : `Sitz ${seat + 1}`);
 // The pill in the header says what the open game is, from the server's reading of the game log
-// (`cohort`, `played_seats`; StudioCohort). Nothing is guessed here: with no record yet it claims
+// (`cohort`, `played_seats`, `table_size`; StudioCohort). Nothing is guessed here: with no record yet it claims
 // nothing, and an unreadable origin is never worded as a simulation (#1662).
 function renderCohortPill() {
   const pill = $("sim-pill");
@@ -1483,7 +1483,7 @@ async function loadMoreOnce(hold, prefetched) {
     }
     if (page.frames.length && page.start !== requestedStart) continue; // stale page: ask again
     state.header = page.header;
-    state.cohortRecord = { cohort: page.cohort, played_seats: page.played_seats };
+    state.cohortRecord = { cohort: page.cohort, played_seats: page.played_seats, table_size: page.table_size };
     renderCohortPill();
     state.result = page.result;
     state.running = page.running;
