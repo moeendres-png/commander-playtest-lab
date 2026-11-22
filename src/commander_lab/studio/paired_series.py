@@ -937,9 +937,10 @@ class PairedSeriesManager:
             validate_released_seat_count(
                 len(opponent_ids), allow_unreleased_seats=allow_unreleased_seats
             )
-        if play_override is None:
+        if play_override is None and (opponent_ids is not None or pod in POD_PRESETS):
+            # (an unknown pod is refused later with its own message, not as "1 seat")
             _preflight_pool_wall_limit(
-                len(opponent_ids) if opponent_ids is not None else len(POD_PRESETS.get(pod, ()))
+                len(opponent_ids) if opponent_ids is not None else len(POD_PRESETS[pod])
             )
         used_workers, used_batch = checked_series_settings(workers, games_per_jvm)
 

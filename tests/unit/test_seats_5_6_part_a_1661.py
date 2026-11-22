@@ -1,8 +1,8 @@
 """Five and six seats, part A (#1661): what can be shown without the real engine.
 
-Release draft (Refs #1661, not merged before the Owner's release): PLAY (a game with a human seat,
-``launch.MAX_RELEASED_PLAY_SEATS``) and SIMULATE (``MAX_RELEASED_SEATS``) are both six here; ``main``
-keeps four. Both lock states are tested, each lock set back in memory.
+Refs #1661 (register E16, conditional Owner go of 2026-11-22): PLAY (a game with a human seat,
+``launch.MAX_RELEASED_PLAY_SEATS``) and SIMULATE (``MAX_RELEASED_SEATS``) are both six. Both lock
+states are tested, each lock set back to four in memory.
 
 These tests show that (a) a running game never hands a hidden card of another seat
 to the human at five or six seats, wherever the human sits (F4), (b) the Studio side of the eight
@@ -697,6 +697,27 @@ def test_each_start_path_follows_its_own_seat_lock(
                     )
     finally:
         store.close()
+
+
+@pytest.mark.parametrize("count", [4, 5, 6])
+def test_a_human_seat_outside_the_table_is_refused_on_the_route(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, count: int
+) -> None:
+    """The human seat must be 0 to N - 1: seat N (one past the last) and a negative seat are a 422 with
+    the range, before any deck or engine is asked; seat N - 1 passes the check (review of #1743)."""
+    monkeypatch.setattr(launch, "engine_command", lambda _folder: None)  # no engine here
+    client = TestClient(create_app(tmp_path), headers={"X-Studio": "1"})
+    body: dict[str, object] = {
+        "revision_id": "r",
+        "opponent_ids": _precon_ids(count - 1),
+        "seed": 1,
+    }
+    for bad in (count, count + 1, -1):
+        refused = client.post("/api/games", json={**body, "human_seats": [bad]})
+        assert refused.status_code == 422, (bad, refused.text)
+        assert f"human seat {bad} out of range 0..{count - 1}" in refused.text
+    last = client.post("/api/games", json={**body, "human_seats": [count - 1]})
+    assert "out of range" not in last.text  # it passes the range check and then needs the engine
 
 
 def test_studio_refuses_five_and_six_seats_at_the_seat_rule_when_both_locks_are_four(

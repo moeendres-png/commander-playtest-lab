@@ -1019,9 +1019,9 @@ def test_web_refuses_a_time_limit_for_a_human_seat(
 def test_server_refuses_five_and_six_seat_tables_with_a_clear_reason(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """AGENTS.md: two to four seats are active for PLAY until the Owner releases five and six. With
-    the PLAY lock set back to four (in memory; the release draft ships six), the Studio start
-    (``/api/games``) refuses them with a human seat, also while the SIMULATE lock is six."""
+    """With the PLAY lock set back to four (in memory; five and six seats are released, register E16,
+    so the shipped lock is six), the Studio start (``/api/games``) refuses five and six seats with a
+    human seat, also while the SIMULATE lock is six."""
     from commander_lab.studio import launch
 
     monkeypatch.setattr(launch, "MAX_RELEASED_PLAY_SEATS", 4)

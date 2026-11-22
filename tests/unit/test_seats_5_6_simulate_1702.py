@@ -322,6 +322,29 @@ def test_the_pool_path_refuses_a_table_without_a_wall_limit_before_it_writes_any
     paired_series._preflight_pool_wall_limit(seats - 1)
 
 
+def test_the_pool_preflight_does_not_judge_an_unknown_pod_as_a_table_of_one_seat(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Pool on, no table size, an unknown pod: the pre-flight stays out of it (it has no table to
+    count), so the answer is whatever the start says next, never "keine Wandzeit-Grenze für 1 Sitze"
+    (review of #1743). In this folder that is the missing engine; with an engine it is the pod's own
+    refusal."""
+    import types
+
+    from commander_lab.studio.game_pool import SERIES_POOL_ENV
+
+    manager = paired_series.paired_series_manager
+    monkeypatch.setattr(
+        manager,
+        "start_series",
+        types.MethodType(paired_series.PairedSeriesManager.start_series, manager),
+    )
+    monkeypatch.setenv(SERIES_POOL_ENV, "1")
+    res = _post(lab, pod="no-such-pod")
+    assert "Wandzeit" not in res.text and "1 Sitze" not in res.text  # type: ignore[attr-defined]
+    assert res.status_code in (409, 422), res.text  # type: ignore[attr-defined]
+
+
 @pytest.mark.parametrize("seats", [5, 6])
 def test_the_pool_player_refuses_a_table_without_a_wall_limit_before_its_manifest(
     tmp_path: Path, seats: int

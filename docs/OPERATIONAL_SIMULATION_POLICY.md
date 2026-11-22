@@ -3,10 +3,11 @@
 > **State 2026-11-18 (seat counts).** The player bounds below are out of date. In current source
 > `XmageFullGameRunner` (`src/commander_lab/engine/rules/full_game.py`) and the bridge
 > (`XmageFullGameSession.java`) both have `MIN_PLAYERS = 2` and `MAX_PLAYERS = 6`. The 2–5P lane
-> qualification named below (WS215) does not cover six seats; six-seat behaviour is `UNKNOWN`
+> qualification named below (WS215) does not cover six seats; six-seat behaviour is not qualified: it
+> is observed only as local `SIMULATED_RESULT` (state 2026-11-22, register E16) and otherwise `UNKNOWN`
 > (`docs/OWNER_DECISION_SIX_PLAYER_MAX_20261108.md`). Studio rule: two locks, one per way of starting a
 > table (`studio/launch.py`), each one line, both six after the Owner's release of five and six seats
-> (`docs/STUDIO_SCOPE.md`, `docs/OWNER_DECISIONS_STUDIO_20261118.md`). SIMULATE (series routes, batch,
+> (`docs/archive/superseded/STUDIO_SCOPE.md`, `docs/OWNER_DECISIONS_STUDIO_20261118.md`, E16). SIMULATE (series routes, batch,
 > `compare-decks`, games without a human seat; PR #1536): `MAX_RELEASED_SEATS`. PLAY (a game with a human
 > seat, the Studio start path; PR #1515): `MAX_RELEASED_PLAY_SEATS`. `compare-decks` has the switch
 > `--allow-unreleased-seats`, off by default; it lifts a SIMULATE lock that is set below the engine maximum of six.

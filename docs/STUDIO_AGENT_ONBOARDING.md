@@ -61,7 +61,7 @@ der eigenen Fläche sind nur lesbar. Pfade unter `studio/` meinen `src/commander
 ## 4. Nie ohne ausdrückliches Owner-Go
 
 Engine-Fork und Pin · `qualification/` · `pyproject.toml`, `requirements/lock.txt` · neue
-Abhängigkeit · 5 und 6 Sitze (freigegeben am 2026-11-22, Register E16; Änderung der Bedingungen oder Rücknahme nur mit Owner) · Sichtbarkeit, #1108 · Bezahldienste · Preise (außer
+Abhängigkeit · 5 und 6 Sitze (freigegeben am 2026-11-22, Register E16; Zurücksetzen der Sperren auf 4 jederzeit fail-closed bei Defekt; erneute Freigabe oder geänderte Bedingungen nur Owner) · Sichtbarkeit, #1108 · Bezahldienste · Preise (außer
 Preisanzeige für den TAM-Zukauf, Register „Preise für TAM“) · Gewicht `simulation` anheben.
 Vollständige Liste: `AGENTS.md` §8.
 

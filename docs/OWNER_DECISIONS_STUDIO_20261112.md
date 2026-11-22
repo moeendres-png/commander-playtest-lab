@@ -92,5 +92,6 @@ The plan that followed from these decisions, with recommendations, was
   A4 has one exception, the labelled, generated overall rating of the tier list (*superseded 2026-11-20, E15 Q1: the overall rating was removed; only the model judgement "Kartenverständnis (Modellurteil)" for Chulane remains*). It also records
   the PLAY decisions of 2026-11-17 and the tier-list decisions of 2026-11-18 verbatim. On A3: two
   to four seats are active; five and six stay locked until their own qualification and the Owner's
-  release (A8). The binding scope was `STUDIO_SCOPE.md`; since 2026-11-21 (Owner answer 8a) it is
+  release (A8) (*state before E16: superseded by the conditional Owner go of 2026-11-22, see
+  `docs/OWNER_DECISIONS_STUDIO_20261118.md`, E16*). The binding scope was `STUDIO_SCOPE.md`; since 2026-11-21 (Owner answer 8a) it is
   archived and its still binding rules are in `docs/OWNER_DECISIONS_STUDIO_20261118.md`, section 6.

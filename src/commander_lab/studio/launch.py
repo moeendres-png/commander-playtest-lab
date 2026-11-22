@@ -35,11 +35,12 @@ MIN_SEATS, MAX_SEATS = 2, 6  # what the engine can seat (series and the CLI comp
 #                           plan, and games without a human seat (``launch.start_game``, a watched
 #                           AI game: it plays like a one-game series).
 #   MAX_RELEASED_PLAY_SEATS PLAY: a game with a human seat (``POST /api/games`` with ``human_seats``).
-# Both are six in the release draft (Refs #1661; ``main`` keeps four until the Owner's release); the
-# engine could always seat six, so each is a rule, not a limit. PLAY at five and six seats is a
-# separate Owner decision (register entry 2026-11-20/21, no. 1), hence its own line.
-# Each lock is one line: setting one back to 4 restores the old state of that path
-# (``allow_unreleased_seats`` is the explicit measurement switch for the SIMULATE lock).
+# Both are six: the Owner released five and six seats on 2026-11-22 as a conditional go (register
+# entry E16, Refs #1661); the engine could always seat six, so each is a rule, not a limit. They are
+# two lines because the paths are released and, if need be, taken back separately.
+# Each lock is one line: setting one back to 4 (fail-closed, at any time on a defect) restores the old
+# state of that path (``allow_unreleased_seats`` is the explicit measurement switch for the
+# SIMULATE lock); a renewed release or changed conditions are the Owner's (AGENTS.md section 8).
 MAX_RELEASED_SEATS = 6
 MAX_RELEASED_PLAY_SEATS = 6
 START_WAIT_SECONDS = 20.0
