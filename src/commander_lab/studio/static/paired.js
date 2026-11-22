@@ -9,7 +9,7 @@
 const PAIRED_MEASURED_BATCH_GAMES_PER_HOUR = 541.2;
 const PAIRED_MEASURED_BATCH_WORKERS = 6;
 // Table sizes of a series (#1702, #1672): two to eight seats. PAIRED_RELEASED_SEATS mirrors the SIMULATE
-// seat lock (launch.MAX_RELEASED_SEATS, now eight: E17, seven and eight seats for simulations only); a size
+// seat lock (launch.MAX_RELEASED_SEATS, now eight: E18, seven and eight seats for simulations only); a size
 // above it can be planned here but not started, and the server refuses it too. PLAY has its own lock
 // (launch.MAX_RELEASED_PLAY_SEATS, six, partie.js), not this one.
 const PAIRED_MIN_SEATS = 2;

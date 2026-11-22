@@ -129,7 +129,7 @@ def test_duration_is_unknown_where_no_throughput_is_measured_and_never_zero() ->
 
 def test_the_shipped_locks_release_simulate_to_eight_and_play_to_six() -> None:
     """The one place that names the shipped values: E16 (#1661) released five and six seats for
-    both paths, E17 (#1672) seven and eight seats for SIMULATE only."""
+    both paths, E18 (#1672) seven and eight seats for SIMULATE only."""
     assert (launch.MIN_SEATS, launch.MAX_RELEASED_SEATS, launch.MAX_SEATS) == (2, 8, 8)
     assert launch.MAX_RELEASED_PLAY_SEATS == 6
     for play in (False, True):  # both paths seat five and six players
@@ -652,7 +652,7 @@ def test_table_spec_carries_five_and_six_seats_unless_the_lock_is_set_back_to_fo
     for seats in (5, 6):
         with pytest.raises(ValidationError, match="locked"):
             TableSpec(seats=seats, opponents=opponents[: seats - 1])
-    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)  # the E16 state (eight since E17)
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)  # the E16 state (eight since E18)
     for seats in (5, 6):
         spec = TableSpec(seats=seats, opponents=opponents[: seats - 1])
         assert spec.tested_seats() == list(range(seats))
@@ -686,7 +686,7 @@ def test_an_experiment_plan_at_five_and_six_seats_plans_the_rotation_and_starts_
     monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)  # the old state, set back in memory
     locked = client.post("/api/experiments", headers=HEADERS, json={"plan": plan})
     assert locked.status_code == 422 and "locked" in locked.text  # the lock holds
-    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)  # the E16 state (eight since E17)
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)  # the E16 state (eight since E18)
     res = client.post("/api/experiments", headers=HEADERS, json={"plan": plan})
     assert res.status_code == 200, res.text
     started = res.json()

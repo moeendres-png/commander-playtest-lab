@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * class changes no bridge code and no release lock
  * ({@code launch.MAX_RELEASED_SEATS = 4} stays).</p>
  *
- * <p>#1672 (register E17, SIMULATE at seven and eight seats): the same
+ * <p>#1672 (register E18, SIMULATE at seven and eight seats): the same
  * scenarios run at seven and eight seats too, with P7/P8 in the role of the
  * last seat (the commander-damage matrix has 42 or 56 ordered pairs, 36 or 49
  * read back). They fail on a bridge whose {@code MAX_PLAYERS} is 6. The

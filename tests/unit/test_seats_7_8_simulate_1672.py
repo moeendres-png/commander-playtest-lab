@@ -1,4 +1,4 @@
-"""SIMULATE at seven and eight seats (#1672, register entry E17).
+"""SIMULATE at seven and eight seats (#1672, register entry E18).
 
 The Owner instructed on 2026-11-22: "ja kümmer dich drum, dass es halt geht und führe es auch ein
 für die Simulationen" (#1672, comment 7071394382). Seven and eight seats are released for
@@ -485,7 +485,7 @@ def test_an_experiment_plan_at_seven_and_eight_seats_follows_the_simulate_lock(
     monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)  # the rollback, in memory
     locked = client.post("/api/experiments", headers=HEADERS, json={"plan": plan})
     assert locked.status_code == 422 and "locked" in locked.text
-    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 8)  # E17
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 8)  # E18
     res = client.post("/api/experiments", headers=HEADERS, json={"plan": plan})
     assert res.status_code == 200, res.text
     started = res.json()

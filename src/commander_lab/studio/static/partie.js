@@ -8,7 +8,7 @@ const CLASSES = { priority: "Aktion", mana_payment: "Mana zahlen", choose_object
 // Table sizes the new-game dialog offers, as numbers of opponents. Two locks, as on the server:
 // a game with a human seat follows launch.MAX_RELEASED_PLAY_SEATS, a game of AI seats only follows
 // launch.MAX_RELEASED_SEATS (the SIMULATE lock, like the series dialog in paired.js), but on this page only
-// up to launch.MAX_PARTIE_SEATS (six: the board ends there; seven and eight seats, E17 #1672, run as series
+// up to launch.MAX_PARTIE_SEATS (six: the board ends there; seven and eight seats, E18 #1672, run as series
 // only). A size above its lock is not offered and the dialog says so; the server refuses it too. Five and
 // six seats are released (conditional Owner go of 2026-11-22, register E16); a guard test keeps both lists
 // equal to the server locks.

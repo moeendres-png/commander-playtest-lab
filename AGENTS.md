@@ -16,7 +16,7 @@ plays real 100-card Commander decks rules-correctly, so simulated games can stan
   cards the base XMage engine lacks. Four players is the usual game. PLAY runs two to six seats:
   the Owner released five and six seats on 2026-11-22 as a conditional go
   (`docs/OWNER_DECISIONS_STUDIO_20261118.md`, E16). Simulations (AI on every seat) run two to eight
-  seats by the Owner's instruction of 2026-11-22 („führe es auch ein für die Simulationen“, E17;
+  seats by the Owner's instruction of 2026-11-22 („führe es auch ein für die Simulationen“, E18;
   Co-Lead reading: SIMULATE only, same gates as five and six seats). The measurements are
   `SIMULATED_RESULT`, not a qualification.
 - The simulator is one part of the local Commander Studio (BUILD, PLAY, SIMULATE):
@@ -233,7 +233,7 @@ play or qualification (released by the Owner on 2026-11-22 as a conditional go, 
 sitze freigegeben wenn alles dabei funktioniert“; Co-Lead reading, register E16 no. 3, fail-closed: setting
 the seat locks back to 4 is allowed at any time; a renewed release or changed conditions are the
 Owner's; seven and eight seats for PLAY, which the Owner's instruction for simulations of 2026-11-22
-does not cover, register E17; Co-Lead reading: setting the SIMULATE lock back to 6 is allowed at
+does not cover, register E18; Co-Lead reading: setting the SIMULATE lock back to 6 is allowed at
 any time); lifting paused or externally gated items (the all-commander harvest #1210,
 the Drive-dependent import #1187/#1176, scraping a site without a public API (the Cardmarket price
 guide download for the TAM purchase list is an Owner exception of 2026-11-22, §12; Co-Lead

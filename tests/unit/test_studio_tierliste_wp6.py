@@ -76,11 +76,17 @@ def test_the_spread_constants_are_recomputed_from_the_raw_research_files() -> No
     audit = (RESEARCH / "audit" / "AUDIT_A_ratings.md").read_text(encoding="utf-8")
     assert "±7 bis 8 Punkte (1\u03c3)" in audit and "1\u03c3 etwa 7\u20138 Punkte" in audit
     spread = understanding_field.SPREAD
-    assert (spread["unten"], spread["oben"], spread["laeufe_je_karte"]) == (5, 8, 1)
-    assert spread["kurz"] == "±5\u20138" and "1\u03c3" in str(spread["text"])
+    assert (spread["mindestens"], spread["laeufe_je_karte"]) == (8, 1)
+    assert "unten" not in spread and "oben" not in spread  # no upper bound "8" any more (E17)
+    assert spread["kurz"] == "±8" and "1\u03c3" in str(spread["text"])
+    assert str(spread["text"]).startswith("mindestens ±8 Punkte")
+    assert (
+        "zweiter Rater-Lauf (Familie ungeprüft, A3): 8,1; n/N = 265/300, Herkunft Bericht "
+        "rating_second_run_20261122" in str(spread["text"])
+    )
     sources = spread["quellen"]
-    assert isinstance(sources, list) and [q["n"] for q in sources] == [49, 70, 230]
-    assert all(q["N"] == 922 for q in sources)
+    assert isinstance(sources, list) and [q["n"] for q in sources] == [49, 70, 230, 265]
+    assert [q["N"] for q in sources] == [922, 922, 922, 300]
     assert "5,10" in sources[0]["kennzahl"] and "13 von 70" in sources[1]["kennzahl"]
     assert "7,9" in sources[1]["kennzahl"] and "7 bis 8" in sources[2]["kennzahl"]
     report = (RESEARCH / "PILOT_REPORT.md").read_text(encoding="utf-8")
@@ -90,20 +96,26 @@ def test_the_spread_constants_are_recomputed_from_the_raw_research_files() -> No
         "Drift-Test",
         "Unabhängiger Rater aus einer anderen Modellfamilie",
         "Rating-Audit A",
+        "Zweiter Rater-Lauf",
     ]
+    # the second run is not called independent: its model family is unchecked (report A3)
+    assert "Familie ungeprüft, A3" in sources[3]["name"]
+    assert "8,1 [7,3; 8,9]" in sources[3]["kennzahl"] and "8,38" in sources[3]["kennzahl"]
     # the bands per H range are the audit's estimate (text), each band names that source
     assert "H \u2264 10: etwa \u00b15. H 40\u201355: etwa \u00b110" in audit
     assert "H \u2265 60: asymmetrisch, etwa \u221215 bis +5" in audit
     bands = spread["baender"]
     assert isinstance(bands, list)
-    assert [(b["ab"], b["bis"], b["kurz"]) for b in bands] == [
-        (0, 10, "\u00b15"),
-        (40, 55, "\u00b110"),
-        (60, 100, "\u221215/+5"),
+    # where the audit's estimate is below the floor (5), the floor is shown (Owner option B, E17)
+    assert [(b["ab"], b["bis"], b["kurz"], b["geschaetzt"]) for b in bands] == [
+        (0, 10, "\u00b18", False),
+        (40, 55, "\u00b110", True),
+        (60, 100, "\u221215/+8", True),
     ]
     assert all("Schätzung Rating-Audit A §4" in b["quelle"] for b in bands)
+    assert "Audit-A-Schätzung 5 Punkte, unter dem Mindestwert" in bands[0]["text"]
     # the 230 of audit A is an estimate from its text, not a sigma of paired ratings
-    assert [q["gemessen"] for q in sources] == [True, True, False]
+    assert [q["gemessen"] for q in sources] == [True, True, False, True]
     assert "Schätzung" in sources[2]["name"] and "Schätzung" in sources[2]["kennzahl"]
     assert "11 von 1708 Zitaten (0,6 %) nicht wörtlich" in audit
     claims = (RESEARCH / "audit" / "AUDIT_D_rule_claims.md").read_text(encoding="utf-8")
@@ -437,6 +449,13 @@ def test_the_route_serves_the_detail_and_refuses_unknown_cards(
 # ---------- T1, T3, T4, T5 in the page (node, real zahl.js and the real blocks) ----------
 
 
+def _spread_js() -> str:
+    """The spread and the noise gate of the field as the scripts receive them (one source)."""
+    spread = json.dumps(understanding_field.SPREAD, ensure_ascii=False)
+    gate = json.dumps(understanding_field.NOISE_GATE_FIELD, ensure_ascii=False)
+    return f"const SPREAD = {spread};\nconst GATE = {gate};\n"
+
+
 def _tierliste_prelude() -> str:
     js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
     zahl = (STATIC / "zahl.js").read_text(encoding="utf-8")
@@ -447,7 +466,8 @@ def _tierliste_prelude() -> str:
     cells = js[js.index("function strengthItem(card)") : js.index("function datenlageCell(card)")]
     block = js[js.index("// ---------- rank bands (WP-6") : js.index("// ---------- pool view")]
     sort = js[js.index("function sortValue(card, key)") : js.index("function sortBy(key)")]
-    stub = """
+    stub = (
+        """
 const h = (tag, props, ...kids) => { const node = {tag, props: props || {}, kids: [],
   append(...more) { this.kids.push(...more.flat(Infinity).filter((k) => k !== null && k !== undefined && k !== false)); }};
   node.append(...kids); return node; };
@@ -458,11 +478,9 @@ const REASON_SHORT = {}, CONF_WORDS = {}, CONFIDENCE_NAMES = {}, CONFIDENCE_TEXT
 const roleName = (r) => r, codeLabel = (c) => c, $ = () => null;
 const unknown = (t = 'unbekannt') => h('span', {class: 'unknown'}, t);
 const spreadKnown = () => false, presentCount = () => 0, corpusAll = () => null, widest = () => null, textfitOf = () => null;
-const SPREAD = {kriterium: 'H', text: 'typisch ± rund 5 bis 8 Punkte (1\u03c3), ein Lauf je Karte', kurz: '±5\u20138', unten: 5, oben: 8, laeufe_je_karte: 1,
-  baender: [{ab: 0, bis: 10, kurz: '±5', text: 'etwa ±5 bei H bis 10', quelle: 'Schätzung Rating-Audit A §4'},
-    {ab: 40, bis: 55, kurz: '±10', text: 'etwa ±10 bei H 40 bis 55', quelle: 'Schätzung Rating-Audit A §4'},
-    {ab: 60, bis: 100, kurz: '\u221215/+5', text: 'asymmetrisch', quelle: 'Schätzung Rating-Audit A §4'}],
-  art: 'typische Streuung', quellen: [{name: 'Audit', kurzname: 'Audit A', gemessen: false, n: 230, N: 922, bezug: 'Karten', kennzahl: 'Schätzung 7 bis 8', datei: 'AUDIT_A'}, {name: 'Drift', kurzname: 'Drift', gemessen: true, n: 49, N: 922, bezug: 'Karten', kennzahl: 'mittlere |ΔH| 5,10', datei: 'PILOT_REPORT.md'}]};
+"""
+        + _spread_js()
+        + """
 const item = (id, tier, index, roles = {}) => ({card_id: id, tier, index, components: [], role_ranks: roles, confidence: null, reason: 'X', note: 'n'});
 const figure = (id, wert, notes = []) => ({id: 'kartenverstaendnis:' + id, bezeichnung: 'H Gesamtwert (0 bis 100)', wert, einheit: 'Punkte',
   n: null, N: null, bezug: null, intervall: null, klasse: 'URTEIL', kohorte: 'Chulane, Teller of Tales · Bracket 3 (Annahme der Rater)',
@@ -473,6 +491,7 @@ const setup = (cards, field) => {
   globalThis.state = {view: 'commander', strength: {status: 'ready', result, map: new Map(cards.map((c) => [c.card_id, c]))}};
 };
 """
+    )
     return (
         _ui_helpers_prelude()
         + zahl
@@ -561,9 +580,9 @@ const cards = [item('A', 'S', 70), item('B', 'S', 60), item('L', 'D', 1), item('
 const field = (extra) => ({verfuegbar: true, grund: null, name: 'Kartenverständnis (Modellurteil)', kriterium: 'H', n_bewertet: 3, n_gesamt: 4,
   herkunft: {version: 'v2.1', rubric: 'chulane-rubric-v2.1'},
   zahlen: [figure('A', 90, ['Prüfer-Modell bezweifelt H: zu hoch; Spanne des Prüfers für H 30 bis 45']), figure('B', 0), figure('L', 30, ['Länder-Skala: x'])],
-  streuung: SPREAD, abdeckung: {},
+  streuung: SPREAD, rauschgate: GATE, abdeckung: {},
   regelclaim_befunde: {quelle: 'Audit D', karten: {B: [{index: 0, urteil: 'falsch', kurz: 'Regelclaim laut Audit D falsch', korrektur: 'Evoke-Opfern ist ausgelöst', quelle: 'Audit D'}]}},
-  pruefer_zweifel: {verfuegbar: true, quelle: 'Rating-Audit A', n_markiert: 35, n_zugeordnet: 35, n_im_pool: 1,
+  pruefer_zweifel: {verfuegbar: true, quelle: 'Rating-Audit A', n_markiert: 35, n_zugeordnet: 35, n_im_pool: 1, rauschgate: 8, n_unter_rauschgate: 0,
     pruefbasis: {n: 230, N: 922, ausserhalb: 6, text: 'Prüfbasis: 230 von 922 Karten geprüft; ohne Kennzeichen heißt nicht geprüft (692 von 922) oder geprüft ohne Befund'},
     karten: {A: {art: 'H zu hoch', spanne: [30, 45], kurz: 'Prüfer-Modell bezweifelt H: zu hoch', text: 'Prüfer-Modell bezweifelt H: zu hoch; Spanne des Prüfers für H 30 bis 45', grund: 'Einmal-Effekt'}}},
   laender_skala: {text: 'Länder-Skala: eigene Skala', quelle: 'Gutachten C §4', n_laender: 1, n_t_null: 1, karten: ['L']}, ...extra});
@@ -581,21 +600,21 @@ console.log(JSON.stringify(out));
     result = _node_json(script)
     assert isinstance(result, dict)
     a, b, land, unrated = result["full"]["cells"]
-    # the band of the H range: 90 -> -15/+5, 0 -> +-5, 30 (no band) -> the typical spread
-    assert a["text"].startswith("90") and "\u2248\u221215/+5" in a["text"] and "mittel" in a["text"]
-    assert "Schätzung, kein Intervall" in a["band_title"]
+    # the band of the H range: 90 -> -15/+8, 0 -> +-8 (floor), 30 (no band) -> the floor
+    assert a["text"].startswith("90") and "\u2248\u221215/+8" in a["text"] and "mittel" in a["text"]
+    assert "Kein Intervall" in a["band_title"] and "nach oben mindestens 8" in a["band_title"]
     # inclusive band limits (H = 10 and H = 55 are frequent values of the data set)
     assert result["bands"] == [
-        "±5",
-        "±5",
+        "±8",
+        "±8",
         None,
         None,
         "±10",
         "±10",
         None,
         None,
-        "\u221215/+5",
-        "\u221215/+5",
+        "\u221215/+8",
+        "\u221215/+8",
     ]
     assert (
         "Prüfbasis: 230 von 922" in result["doubtTitle"] and "nicht geprüft" in result["doubtTitle"]
@@ -608,19 +627,29 @@ console.log(JSON.stringify(out));
     assert "Quelle: Rubrik v2.1" in a["title"] and "Kohorte: Chulane" in a["title"]
     assert b["text"].startswith("0") and b["band"] and not b["doubt"]  # a real 0 stays 0
     assert land["land"] and "Länder-Skala" in land["text"] and not land["doubt"]
-    assert "±5\u20138 typ." in land["text"] and "typische Streuung" in land["band_title"]
-    assert " \u2248±5 " in b["text"].replace("·", " ") and "\u221215" not in b["text"]
+    assert "mind. ±8" in land["text"] and "Mindeststreuung" in land["band_title"]
+    # the band at the floor carries no "≈": it is the floor, not the audit's estimate
+    assert " ±8 " in b["text"].replace("·", " ") and "\u2248±8" not in b["text"]
+    assert "\u221215" not in b["text"]
     assert unrated["text"] == "unbekannt" and not unrated["band"]
     hint = result["full"]["hint"]
     assert "Quelle: Rubrik v2.1 (chulane-rubric-v2.1)" in hint and "Kohorte: Chulane" in hint
-    assert "Streuung ±5\u20138 typisch (1\u03c3, 1 Lauf je Karte)" in hint
     assert (
-        "je H-Bereich ±5 / ±10 / \u221215/+5 (\u2248 = Schätzung Audit A); gemessen: Drift n = 49"
-        in hint
+        "Streuung mindestens ±8 Punkte (1\u03c3, ein Lauf je Karte; zweiter Rater-Lauf (Familie "
+        "ungeprüft, A3): 8,1; n/N = 265/300, Herkunft Bericht rating_second_run_20261122)" in hint
     )
+    assert (
+        "Bänder je H-Bereich ±8 / \u2248±10 / \u2248\u221215/+8 (\u2248 = Schätzung Audit A, nie "
+        "unter dem Mindestwert); gemessen: Drift n/N = 49/922, anderer Rater n/N = 70/922, "
+        "zweiter Lauf n/N = 265/300" in hint
+    )
+    assert "Unterschiede von H unter 8 Punkten sind kein Rangunterschied" in hint
     spread_part = hint.split("Streuung", 1)[1].split("Prüfer-Modell-Zweifel", 1)[0]
     assert "230" not in spread_part  # the audit's estimate is no measured n beside the sigma
-    assert "Prüfer-Modell-Zweifel: 35 von 35 zugeordnet, 1 im Pool" in hint
+    assert (
+        "Prüfer-Modell-Zweifel: 35 von 35 zugeordnet, 1 im Pool, davon 0 innerhalb der Streuung "
+        "ohne Warnmarke" in hint
+    )
     assert "(Prüfbasis 230 von 922; ohne Kennzeichen heißt nicht geprüft oder ohne Befund)" in hint
     assert "\u2248 = Schätzung Audit A" in hint
     assert "Länder-Skala: 1 Länder, T = 0 bei 1" in hint and "3 von 4 Karten bewertet" in hint
@@ -720,8 +749,9 @@ console.log(JSON.stringify(out));
         "Zitate nicht einzeln geprüft (Audit A: 11 von 1708 Zitaten, 0,6 %, nicht wörtlich" in text
     )
     assert "Zitat laut Rater:" in text and "Aussage des Raters:" in text
-    assert "H 0 bis 10: etwa ±5 bei H bis 10" in text
-    assert "keine Spielstärke" in text and "Streuung von H: typisch ± rund 5 bis 8 Punkte" in text
+    assert "H 0 bis 10: mindestens ±8 bei H bis 10" in text
+    assert "keine Spielstärke" in text and "Streuung von H: mindestens ±8 Punkte" in text
+    assert "Unterschiede von H unter 8 Punkten sind kein Rangunterschied" in text
     assert "Kohorte: Chulane, Teller of Tales · Bracket 3" in text
     unrated_rows = dict(result["unrated"]["rows"])
     assert len(unrated_rows) == 7
@@ -755,7 +785,7 @@ const h = (tag, props, ...kids) => ({tag, props: props || {}, kids: kids.flat(In
 const text = (n) => (n === null || n === undefined ? '' : typeof n === 'object' ? n.kids.map(text).join('') : String(n));
 const fig = {id: 'x', bezeichnung: 'H', wert: 70, einheit: 'Punkte', n: null, N: null, bezug: null, intervall: null, klasse: 'URTEIL',
   kohorte: 'K', quelle: 'Q', stand_datum: null, hinweise: ['note']};
-const compact = StudioZahl.zelle(h, fig, 'URTEIL', {}, {kompakt: true, zusatz: [h('span', {class: 'extra'}, ' ±5\u20138')]});
+const compact = StudioZahl.zelle(h, fig, 'URTEIL', {}, {kompakt: true, zusatz: [h('span', {class: 'extra'}, ' mind. ±8')]});
 const plain = StudioZahl.zelle(h, fig, 'URTEIL', {});
 const bad = StudioZahl.zelle(h, {...fig, quelle: ''}, 'URTEIL', {}, {kompakt: true});
 const wrong = StudioZahl.zelle(h, {...fig, klasse: 'GEZÄHLT', n: 1, N: 2, bezug: 'b'}, 'URTEIL', {}, {kompakt: true});
@@ -766,7 +796,7 @@ console.log(JSON.stringify({compact: text(compact), title: compact.kids[0].props
     result = _node_json(script)
     assert isinstance(result, dict)
     assert (
-        result["compact"] == "70 ±5\u20138 Modellurteil"
+        result["compact"] == "70 mind. ±8 Modellurteil"
         and result["title"] == "Quelle: Q · Kohorte: K · Hinweise: note"
     )
     assert (

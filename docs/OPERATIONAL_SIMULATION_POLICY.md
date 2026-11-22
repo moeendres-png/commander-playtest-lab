@@ -1,6 +1,6 @@
 # Operational Simulation Policy
 
-> **State 2026-11-22 (seven and eight seats, #1672, register E17).** The runner and the bridge's
+> **State 2026-11-22 (seven and eight seats, #1672, register E18).** The runner and the bridge's
 > full-game lane seat 2 to 8 players (`MAX_PLAYERS = 8`; the bridge's mid-game lane keeps 6). The
 > SIMULATE lock `MAX_RELEASED_SEATS` is 8, the PLAY lock `MAX_RELEASED_PLAY_SEATS` stays 6 and the
 > Partie page shows at most 6 seats. Seven- and eight-seat behaviour is observed only as

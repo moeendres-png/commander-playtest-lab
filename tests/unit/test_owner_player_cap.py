@@ -1,7 +1,7 @@
 """Guard the simulator's seat maximum: six (Owner, 2026-11-08), eight for SIMULATE since #1672.
 
 The Owner instructed on 2026-11-22 "ja kümmer dich drum, dass es halt geht und führe es auch ein
-für die Simulationen" (register entry E17): seven and eight seats for simulations only; PLAY stays
+für die Simulationen" (register entry E18): seven and eight seats for simulations only; PLAY stays
 at six (``launch.MAX_RELEASED_PLAY_SEATS``). Nine and more stay refused everywhere.
 
 Schema-only tests: admission != successful XMage runtime qualification at any seat count.

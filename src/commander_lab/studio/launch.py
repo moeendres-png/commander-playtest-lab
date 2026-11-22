@@ -31,17 +31,17 @@ ENGINE_COMMAND_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
 ENGINE_JAR = Path("engine") / "xmage-engine-bridge.jar"
 MIN_SEATS, MAX_SEATS = 2, 8  # what the engine can seat (series and the CLI comparison use this)
 # Seven and eight seats since #1672: the Owner instructed on 2026-11-22 "ja kümmer dich drum, dass
-# es halt geht und führe es auch ein für die Simulationen" (register entry E17). SIMULATE only.
+# es halt geht und führe es auch ein für die Simulationen" (register entry E18). SIMULATE only.
 # The Studio has two seat locks, one per way of starting a table (#1661):
 #   MAX_RELEASED_SEATS      SIMULATE: series, batch, ``compare-decks``, ``TableSpec``, the series
 #                           plan, and games without a human seat (``launch.start_game``, a watched
 #                           AI game: it plays like a one-game series).
 #   MAX_RELEASED_PLAY_SEATS PLAY: a game with a human seat (``POST /api/games`` with ``human_seats``).
-# SIMULATE is eight (E17, #1672: seven and eight seats for simulations only), PLAY is six: the Owner
+# SIMULATE is eight (E18, #1672: seven and eight seats for simulations only), PLAY is six: the Owner
 # released five and six seats on 2026-11-22 as a conditional go (register entry E16, Refs #1661);
 # PLAY with seven or eight seats is not instructed. Each is a rule, not a limit. They are two lines
 # because the paths are released and, if need be, taken back separately.
-# Each lock is one line: setting SIMULATE back to 6 takes back seven and eight seats (E17), setting
+# Each lock is one line: setting SIMULATE back to 6 takes back seven and eight seats (E18), setting
 # one back to 4 (fail-closed, at any time on a defect) restores the state before E16 for that path (``allow_unreleased_seats`` is the explicit measurement switch for the
 # SIMULATE lock); a renewed release or changed conditions are the Owner's (AGENTS.md section 8).
 MAX_RELEASED_SEATS = 8
