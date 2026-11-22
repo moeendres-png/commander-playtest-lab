@@ -1,0 +1,606 @@
+{
+ "schema": "rr2-regelclaims-schluessel-1",
+ "schluessel": [
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 1,
+   "oracle_id": "5c92f375-ae6a-4be5-a499-ab87d6bdc49b"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "welle2",
+   "nr": 2,
+   "oracle_id": "7c709413-dacf-48af-8ac9-8f61b2699bf1"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 3,
+   "oracle_id": "4f819ba4-52ef-4fdd-8e4c-5ae3b2f44db5"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 4,
+   "oracle_id": "6ad8011d-3471-4369-9d68-b264cc027487"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "welle2",
+   "nr": 5,
+   "oracle_id": "f2649e48-4252-43f3-bd1e-c4c6fcb0aa3a"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 6,
+   "oracle_id": "ddbacb74-1f98-4607-a92e-d14973b9d0ef"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 7,
+   "oracle_id": "6e42e7dc-acd9-4125-a90d-75fd8da204b3"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 8,
+   "oracle_id": "3c8cc7e2-7bff-46e0-bb5b-1e721a56a3ef"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "F1",
+   "nr": 9,
+   "oracle_id": "a8d31e2f-7b2e-4135-8074-9e6ef778bd80"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "F1",
+   "nr": 10,
+   "oracle_id": "8ffbff60-a59d-4f71-864e-3c16cb61e43b"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 11,
+   "oracle_id": "054a0193-861e-4644-ab0a-8aa33407abc8"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "F1",
+   "nr": 12,
+   "oracle_id": "234a734b-ba28-4f1b-9d01-3c3e7d516590"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 13,
+   "oracle_id": "3a0dd318-9523-4740-b0aa-a911032e3851"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "welle2",
+   "nr": 14,
+   "oracle_id": "88d0a394-79e2-42ac-9a37-1a7b78231941"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 15,
+   "oracle_id": "7dde4eb6-e9d7-4259-abc2-3af738e0f00f"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 16,
+   "oracle_id": "ec1f6188-2516-46ac-8a03-7b7285b23a62"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 17,
+   "oracle_id": "495e52e6-4c2b-4574-9474-eadbdcc8b4ac"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 18,
+   "oracle_id": "976db753-9887-448a-8e67-ec7937b6505c"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 19,
+   "oracle_id": "52f03e73-3dba-44c2-b256-10e7e208b961"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "F1",
+   "nr": 20,
+   "oracle_id": "33e87ab4-f680-4463-a48d-289fed7e196e"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 21,
+   "oracle_id": "000d5588-5a4c-434e-988d-396632ade42c"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 22,
+   "oracle_id": "e56629ba-82d4-470f-9a6b-40c29d835af2"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 23,
+   "oracle_id": "b16cef02-dcf8-4866-ac42-6ee929ddbea2"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "F1",
+   "nr": 24,
+   "oracle_id": "b49efbe8-e15b-4dc7-82de-970cbce92b79"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "F1",
+   "nr": 25,
+   "oracle_id": "dd1a4219-437b-494f-ae0e-1d3181ffcd63"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 26,
+   "oracle_id": "6c2cf22e-5dbb-4fa9-8ece-17069e6f1d7f"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "welle2",
+   "nr": 27,
+   "oracle_id": "9f6d6e90-7462-46e5-bf2f-725b4badc394"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 28,
+   "oracle_id": "5c68853e-4fb8-465e-b262-e6dbaf972533"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 29,
+   "oracle_id": "2d961997-4f5f-4ce2-b062-11411147e2f7"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 30,
+   "oracle_id": "05079479-86a6-4041-a395-83d325b6ddb7"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 31,
+   "oracle_id": "c8bf2dce-7bcd-45cb-bf15-f53e24333a01"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "F1",
+   "nr": 32,
+   "oracle_id": "1b94ee87-a2f4-47f1-9fc7-4a167cad1b3b"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "F1",
+   "nr": 33,
+   "oracle_id": "04c7f4fe-2098-4311-866d-6733c08d5178"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 34,
+   "oracle_id": "f0c533a2-751a-4c5a-8cec-b83da3c8c62f"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 35,
+   "oracle_id": "7e7d7f4d-2c22-4803-ba5e-5eb653c25b5e"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 36,
+   "oracle_id": "f2ce9e55-07c0-4f36-a59e-127693fc0f62"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 37,
+   "oracle_id": "9357de36-f8be-4f49-b2c8-9fe9eaf82b07"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "welle2",
+   "nr": 38,
+   "oracle_id": "c2f86723-4765-4dac-a9f6-9cfa543613b2"
+  },
+  {
+   "claim_index": 2,
+   "herkunft": "F1",
+   "nr": 39,
+   "oracle_id": "e74a2a4c-ca3c-49e8-9b0f-b4d1bb91fb54"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 40,
+   "oracle_id": "72df0b70-5c9f-44f3-96d5-81c95abc0065"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 41,
+   "oracle_id": "3f3b2c10-21f8-4e13-be83-4ef3fa36e123"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 42,
+   "oracle_id": "270d14b2-07bc-46bc-918f-658102265ccf"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 43,
+   "oracle_id": "c52cfb41-18f3-4e73-b5e7-d75baf74e578"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "F1",
+   "nr": 44,
+   "oracle_id": "af8aa11b-34be-42a3-a8a2-3cad38f29f66"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 45,
+   "oracle_id": "12080ea9-0800-4601-b553-6711dd9f9806"
+  },
+  {
+   "claim_index": 2,
+   "herkunft": "F1",
+   "nr": 46,
+   "oracle_id": "ddf38a32-302a-4658-9eaf-b813ebe275c9"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 47,
+   "oracle_id": "8a83ecee-092b-456c-803f-a9aaa17c4da9"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 48,
+   "oracle_id": "42798e2b-9a5c-4f93-8f77-b7bb7a916d07"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 49,
+   "oracle_id": "58d7b8b3-ac47-4805-8259-4ba8e70d7dc3"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 50,
+   "oracle_id": "bffa18c3-642c-4239-b425-238599007976"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 51,
+   "oracle_id": "697b14c6-fe6a-4880-9cf2-b6602a52ca0b"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 52,
+   "oracle_id": "2ecf7771-8061-4710-ad2e-80b092ae0b4b"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 53,
+   "oracle_id": "223fa044-d387-4884-bf4e-75f1b61c6a46"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "F1",
+   "nr": 54,
+   "oracle_id": "0481adcd-b66d-432e-80ba-3a4718bb3a7d"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 55,
+   "oracle_id": "e3afc704-220f-498f-9eaa-0821b17dc24c"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 56,
+   "oracle_id": "48d14b5c-711a-4f8a-9de5-55415cb7a79a"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 57,
+   "oracle_id": "382097b3-f753-493c-bde4-101c0538feb4"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 58,
+   "oracle_id": "a45d7135-c042-40d9-818c-74fa1c7af8ad"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "welle2",
+   "nr": 59,
+   "oracle_id": "6daf3c59-7636-4d44-872b-67722b4868cb"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "welle2",
+   "nr": 60,
+   "oracle_id": "e69b8388-1311-427f-9300-42badd5338ff"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 61,
+   "oracle_id": "a167d593-cded-43e1-b9bb-2287dbd0cbec"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 62,
+   "oracle_id": "8475f55e-473c-4df0-bae2-3cbbbde4ff12"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 63,
+   "oracle_id": "12c78cc4-7fbe-4639-bef7-bf959a0d6d68"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 64,
+   "oracle_id": "b9dec104-c636-4770-a7fc-7a3331face15"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 65,
+   "oracle_id": "3608f1f7-8dc5-4dd1-ae91-c830e1de9529"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "F1",
+   "nr": 66,
+   "oracle_id": "69a72414-d02f-4a5c-b5c9-8941bb181f61"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 67,
+   "oracle_id": "499b4cf9-2aaa-45a0-8362-77b727b7f7cc"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "welle2",
+   "nr": 68,
+   "oracle_id": "2987c385-011a-4032-a516-a46d1e9dc9e8"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 69,
+   "oracle_id": "7f31aa43-cf75-4488-b47f-e16e923a2d01"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "welle2",
+   "nr": 70,
+   "oracle_id": "c7b044c3-3cfa-407e-bf20-2875e8e04b7b"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "F1",
+   "nr": 71,
+   "oracle_id": "5396045d-744b-435e-8324-a1bfbb03449d"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 72,
+   "oracle_id": "5a5f39ab-21b4-415f-aa1f-d8fad420d372"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 73,
+   "oracle_id": "5c5b308c-07d5-422a-8b45-b8b19cb967ca"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 74,
+   "oracle_id": "5d96840e-f9b3-4c86-8f59-f12e5736318f"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "F1",
+   "nr": 75,
+   "oracle_id": "1b704798-0c69-4c18-ac7e-42933ce90028"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "F1",
+   "nr": 76,
+   "oracle_id": "cef11518-ecb2-4250-996c-a03fa9dfb09e"
+  },
+  {
+   "claim_index": 2,
+   "herkunft": "welle2",
+   "nr": 77,
+   "oracle_id": "9cb7f23f-322d-4a87-b6c6-15b9d446aef3"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 78,
+   "oracle_id": "c7f08962-6c54-4fd5-a55e-7513e758af32"
+  },
+  {
+   "claim_index": 2,
+   "herkunft": "welle2",
+   "nr": 79,
+   "oracle_id": "d6786f80-818c-433d-8978-81814171dd39"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 80,
+   "oracle_id": "00c0543c-2a1f-4425-8283-4062d74a1637"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "welle2",
+   "nr": 81,
+   "oracle_id": "48f7217e-ae11-44bd-ac42-7c8d9dd5dc36"
+  },
+  {
+   "claim_index": 2,
+   "herkunft": "F1",
+   "nr": 82,
+   "oracle_id": "36593200-e53c-46e4-a04e-8deec8273c65"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "welle2",
+   "nr": 83,
+   "oracle_id": "a984db23-40ea-428d-829f-e944267280f8"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "F1",
+   "nr": 84,
+   "oracle_id": "e894ccf5-fc71-48bd-bca5-cfeb05315f42"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 85,
+   "oracle_id": "e20ad2f7-cb41-4e6e-8f3b-bd260f4a2ecf"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 86,
+   "oracle_id": "3d0d4ba4-d5aa-4d9f-89ab-46687637fecf"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 87,
+   "oracle_id": "9fb4aa2d-6414-4176-9070-e5230e100c6a"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "welle2",
+   "nr": 88,
+   "oracle_id": "0d46a97a-b1d6-4bf3-b3ba-a5cdfd4c8bf5"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 89,
+   "oracle_id": "59edd0e7-37c2-45f9-9f9d-8002be459662"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "welle2",
+   "nr": 90,
+   "oracle_id": "b9110be0-3f0c-449b-8baf-689e92fdb8f0"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 91,
+   "oracle_id": "1a9048d6-f3fa-4f3b-9baa-35318177bc6e"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "F1",
+   "nr": 92,
+   "oracle_id": "a4630da0-fe9b-4ead-9621-eac4b7825c35"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "F1",
+   "nr": 93,
+   "oracle_id": "1e6a24be-8281-41c1-a5ba-b68f0ef1d7b8"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "welle2",
+   "nr": 94,
+   "oracle_id": "78b2b68d-6e27-49f3-8373-6e19faf6f679"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "welle2",
+   "nr": 95,
+   "oracle_id": "29ae5540-5fdf-48be-86ba-b4db0fe19f6c"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "welle2",
+   "nr": 96,
+   "oracle_id": "d06a5642-861b-4b0d-9ea5-07046b7e1d37"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 97,
+   "oracle_id": "5faa9e54-1cc4-48c0-bbfa-a495087c36d6"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "welle2",
+   "nr": 98,
+   "oracle_id": "449142ff-7190-471b-99a5-f77095a827dd"
+  },
+  {
+   "claim_index": 0,
+   "herkunft": "welle2",
+   "nr": 99,
+   "oracle_id": "b2eb7a64-a307-4a78-a25d-63fb3ae1e237"
+  },
+  {
+   "claim_index": 1,
+   "herkunft": "F1",
+   "nr": 100,
+   "oracle_id": "fa85c5a2-8e83-4624-a35a-a0bbf17ecbb4"
+  }
+ ],
+ "seed": 20261125
+}
