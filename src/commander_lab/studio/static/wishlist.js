@@ -129,6 +129,8 @@ const StudioWishlist = (() => {
   const CM_CARD_BASE = "https://www.cardmarket.com/de/Magic/Cards/";
   const CM_SEARCH_BASE = "https://www.cardmarket.com/de/Magic/Products/Search?searchString=";
   // Filter values of the Owner's example link (sellerCountry=7, language=1,3, minCondition=3).
+  // The other condition numbers follow Cardmarket's order and are not confirmed: marked
+  // "Nummer unbelegt" wherever they are offered.
   const CM_COUNTRIES = { DE: ["7", "Deutschland"], alle: [null, "alle Länder"] };
   const CM_LANGUAGES = { EN: ["1", "Englisch"], DE: ["3", "Deutsch"] };
   const CM_CONDITIONS = { MT: ["1", "Mint"], NM: ["2", "Near Mint"], EX: ["3", "Excellent"], GD: ["4", "Good"], LP: ["5", "Light Played"], PL: ["6", "Played"] };
@@ -182,7 +184,8 @@ const StudioWishlist = (() => {
   function cmFilterText(filters) {
     const f = cmFilters(filters);
     const languages = f.languages.map((code) => CM_LANGUAGES[code][1]).join(", ") || "alle";
-    return `Land: ${CM_COUNTRIES[f.country][1]} · Sprache: ${languages} · Mindestzustand: ${CM_CONDITIONS[f.condition][1]}`;
+    const unconfirmed = f.condition === "EX" ? "" : " (Nummer unbelegt)";
+    return `Land: ${CM_COUNTRIES[f.country][1]} · Sprache: ${languages} · Mindestzustand: ${CM_CONDITIONS[f.condition][1]}${unconfirmed}`;
   }
 
   function cmQuery(filters) {
@@ -233,6 +236,8 @@ const StudioWishlist = (() => {
   function tamPurchaseRows(missingCards, answer) {
     const byId = new Map(((answer && answer.cards) || []).map((item) => [item.card_id, item]));
     const guideLoaded = Boolean(answer && answer.guide_snapshot);
+    // a price guide older than 14 days is shown, marked, and never used for sum/sort/filter
+    const guideStale = guideLoaded && answer.guide_snapshot.stale !== false;
     return (missingCards || []).map((card) => {
       const item = byId.get(card.card_id);
       // a card the server did not answer (not in the stored deck list) is "absent", not unknown
@@ -244,6 +249,7 @@ const StudioWishlist = (() => {
         status,
         approx: status === "value" ? { cents: item.eur_cents, finish: item.finish || "", printing: item.printing || "" } : null,
         guide: null,
+        guideStale,
         entered: null,
         stale: null,
         cents: null,
@@ -261,8 +267,8 @@ const StudioWishlist = (() => {
         else row.stale = value;
       }
       if (row.entered) { row.cents = row.entered.cents; row.basis = "eingetragen"; }
-      else if (row.guide && row.guide.low !== null) { row.cents = row.guide.low; row.basis = "preisfuehrer"; }
-      else if (row.guide) { row.cents = row.guide.trend; row.basis = "preisfuehrer-trend"; }
+      else if (row.guide && !guideStale && row.guide.low !== null) { row.cents = row.guide.low; row.basis = "preisfuehrer"; }
+      else if (row.guide && !guideStale) { row.cents = row.guide.trend; row.basis = "preisfuehrer-trend"; }
       else if (row.approx) { row.cents = row.approx.cents; row.basis = "naeherung"; }
       return row;
     });
@@ -337,7 +343,7 @@ const StudioWishlist = (() => {
     const lines = [];
     const guide = answer && answer.guide_snapshot;
     lines.push(guide
-      ? `Cardmarket-Preisführer: Stand ${deDate(guide.guide_date)} (${guide.date_basis}), importiert ${guide.imported_at}; ${guide.printings_matched} von ${guide.printings_known} Drucken zugeordnet${guide.name_mismatches ? `, ${guide.name_mismatches} wegen abweichendem Namen ausgelassen` : ""}. ${answer.guide_notice}`
+      ? `Cardmarket-Preisführer: Stand ${deDate(guide.guide_date)} (${guide.date_basis}), importiert ${guide.imported_at}${guide.stale !== false ? " – veraltet (älter als 14 Tage), zählt nicht" : ""}; ${guide.printings_matched} von ${guide.printings_known} Drucken zugeordnet, ${guide.name_check === true ? "Namen mit der Produktliste geprüft" : "Namen nicht geprüft (ohne Produktliste)"}${guide.name_mismatches ? `, ${guide.name_mismatches} wegen abweichendem Namen ausgelassen` : ""}. ${answer.guide_notice}`
       : "Kein Cardmarket-Preisführer importiert. Import im Terminal: python -m commander_lab.studio import-cardmarket-priceguide.");
     const snap = answer && answer.snapshot;
     lines.push(snap
@@ -357,7 +363,7 @@ const StudioWishlist = (() => {
     const print = guide.low !== null ? ` · ${guide.printing || "Druck ?"}, ${finishText(guide.finish)}` : "";
     const low = guide.low !== null ? `Cardmarket ab ${formatEur(guide.low)}` : "Cardmarket ab unbekannt";
     const trend = guide.trend !== null ? ` (Trend ${formatEur(guide.trend)})` : "";
-    return `${low}${trend} · ohne Filter Land/Zustand · Stand ${date}${print}`;
+    return `${low}${trend} · ohne Filter Land/Sprache/Zustand · Stand ${date}${print}`;
   }
 
   function approxText(approx, answer) {
@@ -375,7 +381,8 @@ const StudioWishlist = (() => {
     else if (row.basis === "preisfuehrer" || row.basis === "preisfuehrer-trend") main = guideText(row.guide, answer);
     else if (row.basis === "naeherung") main = approxText(row.approx, answer);
     if (row.stale) more.push(enteredText(row.stale, true));
-    if (row.guide && row.basis === "eingetragen") more.push(guideText(row.guide, answer));
+    if (row.guide && row.guideStale) more.push(`veraltet: ${guideText(row.guide, answer)}, älter als 14 Tage, zählt nicht`);
+    else if (row.guide && row.basis === "eingetragen") more.push(guideText(row.guide, answer));
     if (row.approx && row.basis !== "naeherung") more.push(approxText(row.approx, answer));
     return { main, more };
   }
@@ -464,7 +471,7 @@ const StudioWishlist = (() => {
     const countrySelect = h("select", { id: "tam-cm-country", "aria-label": "Cardmarket-Filter Land", onchange: (event) => { state.filters = cmFilters({ ...state.filters, country: event.target.value }); keep(); } },
       ...Object.entries(CM_COUNTRIES).map(([code, [, label]]) => h("option", { value: code, selected: state.filters.country === code }, label)));
     const conditionSelect = h("select", { id: "tam-cm-condition", "aria-label": "Cardmarket-Filter Mindestzustand", onchange: (event) => { state.filters = cmFilters({ ...state.filters, condition: event.target.value }); keep(); } },
-      ...Object.entries(CM_CONDITIONS).map(([code, [, label]]) => h("option", { value: code, selected: state.filters.condition === code }, label)));
+      ...Object.entries(CM_CONDITIONS).map(([code, [, label]]) => h("option", { value: code, selected: state.filters.condition === code }, code === "EX" ? label : `${label} (Nummer unbelegt)`)));
     const languageBoxes = Object.entries(CM_LANGUAGES).map(([code, [, label]]) => h("label", {},
       h("input", { type: "checkbox", class: "tam-cm-language", value: code, checked: state.filters.languages.includes(code), onchange: (event) => {
         const chosen = new Set(state.filters.languages);

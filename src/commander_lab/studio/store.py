@@ -628,6 +628,7 @@ CREATE TABLE IF NOT EXISTS tam_cardmarket_guide_snapshot (
     printings_known INTEGER NOT NULL,
     printings_matched INTEGER NOT NULL,
     name_mismatches INTEGER NOT NULL,
+    name_check INTEGER NOT NULL CHECK (name_check IN (0, 1)),
     cards_with_value INTEGER NOT NULL
 );
 CREATE VIEW IF NOT EXISTS card_fact AS

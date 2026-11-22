@@ -558,19 +558,34 @@ von „Preise für TAM“ nicht gedeckt).
 
 #### Owner-Ausnahme Cardmarket für den TAM-Zukauf (2026-11-22, #1637)
 
-Owner, 2026-11-22, Wortlaut in #1637, Kommentar 7071394531, Punkt 9: „ich will eigentlich für die
-Zukäufe speziell die Cardmarket-Preise deutscher Anbieter, und da das Günstigste jeder Variante der
-Karte (egal ob foil, etc., manchmal sind auch foil günstiger) und mind. Excellent-Zustand“.
-Owner, 2026-11-22, im Session-Chat, vom Co-Lead an den Builder übermittelt (Niederschrift des
-Co-Leads; die wörtliche Ablage als Kommentar in #1637 ist erbeten, Claim-Kommentar 7071587275):
-„Bitte die Regel für hier aufheben und kümmer dich vollständig darum, dir die Preise so zu besorgen,
-wie ich meinte“ und danach „Will kein Skript bei meinem Browser laufen lassen, entweder du kümmerst
-dich selber vollständig drum oder wir weichen auf etwas anderes aus, was die Preise der Karten auch
-möglichst gut repräsentiert und du aber automatisch suchen kannst.“
+Owner, 2026-11-22, Session-Chat, wörtlich in zeitlicher Reihenfolge nach der Niederschrift des
+Co-Leads in #1637, Kommentar 7077232382:
 
-Reichweite (Owner): Für die Preise des TAM-Zukaufs hebt der Owner die Regel „kein Scraping, Quelle nur
-mit Zugangsstatus `ok`/`ok_with_conditions`, Cardmarket erst nach geklärtem Zugang“ (`AGENTS.md` §8,
-§12) für diesen Fall auf. Ein Skript im Browser des Owners ist nicht gewollt.
+1. „ich will eigentlich für die Zukäufe speziell die cardmarket Preise deutscher Anbieter und da das
+   günstigste jeder Variante der Karte (egal ob foil, etc (manchmal sind auch foil günstiger)) und
+   mind excellent Zustand“
+2. „Kannst die cardmarket Preise nicht einfach über den richtigen link (wo die Filter schon passend
+   eingestellt sind) nicht scrapen? Das wäre z.b. der richtige link für Rograkh dafür:
+   https://www.cardmarket.com/de/Magic/Cards/Rograkh-Son-of-Rohgahh?sellerCountry=7&language=1,3&minCondition=3“
+3. „Bitte die Regel für hier aufheben und kümmer dich vollständig darum dir die Preise so zu
+   besorgen wie ich meinte“
+4. „Wieso kannst du dich nicht darum kümmern die Preise selber zu scrapen? Will kein Skript bei
+   meinem Browser laufen lassen, entweder du kümmerst dich selber vollständig drum oder wir weichen
+   auf etwas anderes aus was die Preise der karten auch möglichst gut repräsentiert und du aber
+   automatisch suchen kannst“
+5. „Ja passt, das mit dem direkt abfragen auch gut, mach weiter“ (auf den Vorschlag des Co-Leads:
+   Näherungspreis aus lokalen Scryfall-Daten, ein höflicher „Direkt abrufen“-Knopf mit Abbruch bei
+   Sperre, Link und Preisfeld als Rückfall; danach ersetzt durch den offiziellen
+   Preisführer-Download als Hauptquelle).
+
+Der Beispiel-Link in Satz 2 ist die einzige Grundlage für die Filternummern im Code
+(`sellerCountry=7` Deutschland, `language=1,3` Englisch und Deutsch, `minCondition=3` Excellent).
+
+Reichweite (Co-Lead-Auslegung, kein Owner-Wortlaut): Mit Satz 3 hebt der Owner die Regel
+„kein Scraping einer Seite ohne öffentliche API“ (`AGENTS.md` §8, §12) für die Cardmarket-Preise der
+TAM-Zukauf-Liste auf; der Co-Lead liest das auch als Freigabe einer Cardmarket-Quelle, deren
+Zugangsstatus `unclear` ist („Cardmarket erst nach geklärtem Zugang“). Nach Satz 4 ist ein Skript im
+Browser des Owners nicht gewollt.
 
 Umfang und Grenzen (Co-Lead, umgesetzt in PR zu #1637, WP-10b):
 
@@ -579,11 +594,14 @@ Umfang und Grenzen (Co-Lead, umgesetzt in PR zu #1637, WP-10b):
   Befehl des Owners (`python -m commander_lab.studio import-cardmarket-priceguide`), je Datei
   höchstens ein Abruf, eine lokale Kopie jünger als 24 Stunden wird wiederverwendet, ehrlicher
   User-Agent, keine Cookies, kein Konto, kein Schlüssel, kein Proxy, keine Umleitung; jede Antwort
-  außer HTTP 200 stoppt sofort. Zuordnung Karte zu Produkt über `cardmarket_id` der spielbaren
+  außer HTTP 200 stoppt sofort und wird vermerkt, danach 24 Stunden kein neuer Abruf (höchstens
+  ein Abruf je Datei und Tag). Download-Ordner und eingelesene Dateien liegen nie im Repository. Zuordnung Karte zu Produkt über `cardmarket_id` der spielbaren
   Papierdrucke der lokalen Scryfall-Datei; je Karte der niedrigste `low`/`low-foil` (mit Druck und
   Finish) und der niedrigste `trend`/`trend-foil`. Anzeige „Cardmarket ab x,xx € (Trend y,yy €) ·
-  ohne Filter Land/Zustand · Stand …“: der Preisführer kennt weder Verkäuferland noch Zustand, der
-  Aufschlag für Deutschland/Excellent ist ohne Angebotsdaten nicht belegbar.
+  ohne Filter Land/Sprache/Zustand · Stand …“: der Preisführer kennt weder Verkäuferland noch
+  Sprache noch Zustand, der Aufschlag für Deutschland, Englisch/Deutsch und Excellent ist ohne
+  Angebotsdaten nicht belegbar. Ein Preisführer älter als 14 Tage wird als veraltet markiert und
+  zählt nicht; ohne Produktliste (`--file` ohne `--products`) steht „Namen nicht geprüft“.
 - **Genauer Preis von Hand:** je Karte ein Link auf die Cardmarket-Kartenseite mit den Filtern des
   Owners (Standard Land Deutschland, Sprache Englisch und Deutsch, Mindestzustand Excellent;
   änderbar), den nur der Browser des Owners öffnet; der Owner trägt den abgelesenen Preis ein (oder

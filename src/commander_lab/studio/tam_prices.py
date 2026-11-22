@@ -61,8 +61,9 @@ CARDMARKET_NOTICE = (
 GUIDE_LABEL = "Cardmarket-Preisführer"
 GUIDE_NOTICE = (
     "Cardmarket ab (niedrigster Low-Wert, Foil oder Nicht-Foil) und Trend über alle spielbaren "
-    "Drucke; ohne Filter Land/Zustand: der Aufschlag für Deutschland/Excellent ist ohne "
-    "Angebotsdaten nicht belegbar."
+    "Drucke; ohne Filter Land/Sprache/Zustand: der Aufschlag für Deutschland, Englisch/Deutsch "
+    "und Excellent ist ohne Angebotsdaten nicht belegbar. Ein Preisführer älter als 14 Tage gilt "
+    "als veraltet und zählt nicht."
 )
 STALE_DAYS = 14
 MAX_ENTRY_CENTS = 99_999_999
@@ -255,6 +256,9 @@ def import_cardmarket_priceguide(
     The date is the file's ``createdAt`` or ``guide_date``; without either the import is
     refused."""
     path = Path(guide_path)
+    for given in (path, None if products_path is None else Path(products_path)):
+        if given is not None and given.resolve().is_relative_to(_repository_root()):
+            raise ValueError(f"the price guide files must lie outside the repository: {given}")
     data, guides = _json_list(path, "priceGuides")
     created = data.get("createdAt")
     stamp = _GUIDE_DATE.match(created) if isinstance(created, str) else None
@@ -331,9 +335,9 @@ def import_cardmarket_priceguide(
         db.execute(
             "INSERT INTO tam_cardmarket_guide_snapshot(snapshot_id, guide_date, date_basis, "
             "file_sha256, imported_at, products_in_guide, printings_known, printings_matched, "
-            "name_mismatches, cards_with_value) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "name_mismatches, name_check, cards_with_value) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (date, basis, digest, now_utc(), len(guides), len(prints), matched, mismatches,
-             len(cards)),
+             int(names is not None), len(cards)),
         )  # fmt: skip
     return {
         "source": GUIDE_LABEL,
@@ -685,7 +689,7 @@ def purchase_guide_values(
     ).fetchone()
     guide_snap = store.connection.execute(
         "SELECT guide_date, date_basis, imported_at, printings_known, printings_matched, "
-        "name_mismatches FROM tam_cardmarket_guide_snapshot WHERE snapshot_id = 1"
+        "name_mismatches, name_check FROM tam_cardmarket_guide_snapshot WHERE snapshot_id = 1"
     ).fetchone()
     cards: list[dict[str, object]] = []
     for card_id in ids:
@@ -755,6 +759,10 @@ def purchase_guide_values(
                 "printings_known": int(guide_snap["printings_known"]),
                 "printings_matched": int(guide_snap["printings_matched"]),
                 "name_mismatches": int(guide_snap["name_mismatches"]),
+                "name_check": bool(guide_snap["name_check"]),
+                "age_days": (day - calendar_date.fromisoformat(str(guide_snap["guide_date"]))).days,
+                "stale": (day - calendar_date.fromisoformat(str(guide_snap["guide_date"]))).days
+                > STALE_DAYS,
             }
             if guide_snap is not None
             else None

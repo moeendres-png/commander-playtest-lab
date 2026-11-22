@@ -232,7 +232,7 @@ def _seed_cardmarket(
         db.execute("DELETE FROM tam_cardmarket_guide_snapshot")
         db.execute(
             "INSERT INTO tam_cardmarket_guide_snapshot VALUES (1, ?, 'angegeben', ?, "
-            "'2026-11-21T00:00:00Z', 1, 1, 1, 0, ?)",
+            "'2026-11-21T00:00:00Z', 1, 1, 1, 0, 1, ?)",
             (day, "0" * 64, len(guide)),
         )
         db.execute("DELETE FROM tam_cardmarket_price")
@@ -974,10 +974,26 @@ def test_entries_follow_the_same_gate_as_the_guide_values(tmp_path: Path) -> Non
         (ids["tam_deck"], ids["priced"], {"entered_on": "gestern"}, 422),
         (ids["tam_deck"], ids["priced"], {"filter_code": "DE/PO/EN"}, 422),
         (ids["tam_deck"], ids["priced"], {"extra": 1}, 422),
+        (ids["tam_deck"], ids["priced"], {"branch": "ghost"}, 404),  # never saved
     ]
     for deck_id, card_id, extra, status in cases:
         response = _enter(client, deck_id, card_id, eur_text="3,00", **extra)
         assert response.status_code == status, (extra, response.text)
+    main = [_entry(ids["priced"]), _entry(ids["owned"])]
+    forged = [
+        # a Chulane deck whose draft names TAM as commander: the saved revision decides
+        (ids["chulane_deck"], [_entry("card:t:tam", "commander"), *main]),
+        # TAM plus a second commander in the draft
+        (ids["tam_deck"], [_entry("card:t:tam", "commander"), _entry("card:t:chulane", "commander"), *main]),
+        # a commander id that is only the name of TAM (no such card)
+        (ids["tam_deck"], [_entry(TAM_COMMANDER_NAME, "commander"), *main]),
+        # no commander at all
+        (ids["tam_deck"], main),
+    ]  # fmt: skip
+    for deck_id, cards in forged:
+        assert _draft(client, deck_id, cards).status_code == 200
+        response = _enter(client, deck_id, ids["priced"], eur_text="3,00")
+        assert response.status_code == 403, (deck_id, cards, response.text)
     store = StudioStore.open(tmp_path / "studio")
     assert _rows(store, "tam_cardmarket_price") == 0
     store.close()
@@ -1010,6 +1026,13 @@ def _guide_store(tmp_path: Path) -> StudioStore:
     )
     assert report["printings_with_cardmarket_id"] == 4  # oversized and the bool id left out
     return store
+
+
+def _snapshot_name_check(store: StudioStore) -> int:
+    row = store.connection.execute(
+        "SELECT name_check FROM tam_cardmarket_guide_snapshot WHERE snapshot_id = 1"
+    ).fetchone()
+    return int(row[0])
 
 
 def _guide_file(path: Path, guides: list[dict[str, object]], **meta: object) -> Path:
@@ -1053,9 +1076,16 @@ def test_the_price_guide_keeps_the_lowest_low_and_trend_over_playable_printings(
         # low 0, a negative trend and a text low-foil are no values: only trend-foil
         ("o-g2", None, None, None, None, 625),
     ]  # o-g3: its product name differs, left out
-    # without the product list no name check, o-g3 joins
+    assert _snapshot_name_check(store) == 1
+    # without the product list no name check, o-g3 joins, and the snapshot says so
     report = tam_prices.import_cardmarket_priceguide(store, guide)
     assert report["name_check"] is False and report["printings_matched"] == 4
+    assert _snapshot_name_check(store) == 0
+    # files inside the repository are refused (they hold real prices)
+    for kwargs in ({"guide_path": ROOT / "data" / "price_guide_1.json"},
+                   {"guide_path": guide, "products_path": ROOT / "data" / "products.json"}):  # fmt: skip
+        with pytest.raises(ValueError, match="outside the repository"):
+            tam_prices.import_cardmarket_priceguide(store, **kwargs)  # type: ignore[arg-type]
     assert _rows(store, "tam_cardmarket_guide") == 3
     store.close()
 
@@ -1111,7 +1141,8 @@ def test_the_cli_imports_a_downloaded_guide_and_the_reader_answers_it(
     answer = _ask(client, ids["tam_deck"], [ids["priced"], ids["unknown"], ids["owned"]]).json()
     assert answer["guide_snapshot"]["guide_date"] == "2026-11-20"
     assert answer["guide_label"] == "Cardmarket-Preisführer"
-    assert "ohne Filter Land/Zustand" in answer["guide_notice"]
+    assert "ohne Filter Land/Sprache/Zustand" in answer["guide_notice"]
+    assert answer["guide_snapshot"]["name_check"] is False  # --file without --products
     cards = {c["card_id"]: c for c in answer["cards"]}
     assert cards[ids["priced"]]["guide"] == {
         "low_cents": 45, "low_finish": "nonfoil", "low_printing": "SYN 5", "trend_cents": 94,
@@ -1184,12 +1215,16 @@ def test_the_owner_exception_is_recorded_where_the_rules_are() -> None:
     entry = entry[: entry.index("Preis-Wächter beim Bau")]
     for needed in (
         "„Bitte die Regel für hier aufheben",
-        "„Will kein Skript bei meinem Browser laufen lassen",
+        "„Wieso kannst du dich nicht darum kümmern die Preise selber zu scrapen? Will kein Skript bei",
         "UNBELEGT",
         "liegt beim Owner",
         "Umgehung von Zugangsschutz",
-        "ohne Filter Land/Zustand",
+        "ohne Filter Land/Sprache/Zustand",
         "`unclear`",
+        "Kommentar 7077232382",
+        "„Ja passt, das mit dem direkt abfragen auch gut, mach weiter“",
+        "https://www.cardmarket.com/de/Magic/Cards/Rograkh-Son-of-Rohgahh?sellerCountry=7&language=1,3&minCondition=3",
+        "Co-Lead-Auslegung, kein Owner-Wortlaut",
     ):
         assert needed in entry, needed
     agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
@@ -1202,3 +1237,53 @@ def test_the_owner_exception_is_recorded_where_the_rules_are() -> None:
     assert "UNBELEGT" in guide.license_terms
     guide_doc = (ROOT / "docs/STUDIO_TAM_PREISE.md").read_text(encoding="utf-8")
     assert "import-cardmarket-priceguide" in guide_doc and "Stichprobe" in guide_doc
+
+
+# The "Bleibt" guards of the register entry "Preise für TAM" (repository data, Chulane, rating)
+# stay as they are: each listed file still holds its price check.
+_KEPT_GUARDS = {
+    "scripts/data_wave1/_common.py": ('PRICE_KEYS = frozenset({"prices", "purchase_uris"})',),
+    "tests/unit/test_audit_committed_research_data.py": (
+        'assert all("price" not in col.lower() for col in fieldnames)',
+    ),
+    "tests/unit/test_studio_strength.py": (
+        'assert not any("price" in str(row[0]) for row in db.execute("SELECT signal FROM card_signal"))',
+    ),
+    "tests/unit/test_studio_swap.py": (
+        'for forbidden in ("kaufen", "zukauf", "preis", "eur", "usd", "$", "€"):',
+    ),
+    "tests/unit/test_studio_card_duel.py": (
+        '"price",',
+        'assert "besser" not in text and "preis" not in text and "price" not in text',
+    ),
+    "tests/unit/test_studio_db_a_1404.py": (
+        "FORBIDDEN_PURCHASE_TERMS = (",
+        '"purchase",',
+        "for term in FORBIDDEN_PURCHASE_TERMS:",
+    ),
+    "tests/unit/test_studio_data_page.py": (
+        'for forbidden in ("preis", "euro", "dollar", "kaufen", "empfehl"):',
+    ),
+}
+
+
+def test_the_kept_price_guards_are_unchanged() -> None:
+    assert len(_KEPT_GUARDS) == 7
+    for relative, needles in _KEPT_GUARDS.items():
+        assert needles
+        text = (ROOT / relative).read_text(encoding="utf-8")
+        for needle in needles:
+            assert needle in text, (relative, needle)
+
+
+def test_a_price_guide_older_than_14_days_is_marked_stale(tmp_path: Path) -> None:
+    client, ids = _tam_store(tmp_path)
+    today = datetime.now(UTC).date()
+    for age, stale in ((14, False), (15, True), (0, False)):
+        store = StudioStore.open(tmp_path / "studio")
+        _seed_cardmarket(
+            store, {"o-tam-priced": 45}, {}, day=(today - timedelta(days=age)).isoformat()
+        )
+        store.close()
+        snap = _ask(client, ids["tam_deck"], [ids["priced"]]).json()["guide_snapshot"]
+        assert (snap["age_days"], snap["stale"], snap["name_check"]) == (age, stale, True)

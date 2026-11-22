@@ -10,13 +10,15 @@ exception of 2026-11-22. Two things only:
   singles product list, ``downloads.s3.cardmarket.com``) on the Owner's command, once per file,
   with an honest User-Agent, no cookies, no account, no key, no proxy and no redirect; a copy
   younger than 24 hours in the local data folder is used instead of a new request; any status
-  other than 200 stops at once. No page of www.cardmarket.com is read (no scraping).
+  other than 200 stops at once and is noted, so no new request follows for 24 hours (at most one
+  request per file and day). No page of www.cardmarket.com is read (no scraping).
 
 This module is the only place of ``src`` that talks HTTP to a Cardmarket host.
 """
 
 from __future__ import annotations
 
+import json
 import re
 import time
 import urllib.error
@@ -171,6 +173,16 @@ def http_get(url: str) -> bytes:
     return body
 
 
+FAILURE_FILE = "download_failed.json"
+
+
+def inside_repository(path: Path) -> bool:
+    """True when ``path`` lies in the repository (prices never go there)."""
+    from .store import _repository_root
+
+    return path.resolve().is_relative_to(_repository_root())
+
+
 def download(
     folder: Path,
     *,
@@ -178,12 +190,30 @@ def download(
     now: float | None = None,
     urls: dict[str, str] | None = None,
 ) -> dict[str, dict[str, object]]:
-    """The two official files in ``folder``: a copy younger than 24 hours is kept, otherwise
-    each file is requested once (one after the other; the first failure stops). Returns per
-    file whether it came from the cache or was downloaded."""
+    """The two official files in ``folder`` (never inside the repository): a copy younger than
+    24 hours is kept, otherwise each file is requested once (one after the other; the first
+    failure stops). A failed request is noted in the folder and no request is made for 24
+    hours after it, so a refusal (403, 429) is never answered with a new request the same day.
+    Returns per file whether it came from the cache or was downloaded."""
+    if inside_repository(folder):
+        raise DownloadFailed(f"der Download-Ordner darf nicht im Repository liegen: {folder}")
     fetch = get or http_get
     clock = time.time() if now is None else now
     folder.mkdir(parents=True, exist_ok=True)
+    failure = folder / FAILURE_FILE
+    if failure.is_file():
+        try:
+            noted = json.loads(failure.read_text(encoding="utf-8"))
+            since = float(noted["at"])
+            reason = str(noted["reason"])
+        except (ValueError, KeyError, TypeError):
+            since, reason = clock, "unlesbarer Vermerk"
+        if clock - since < CACHE_SECONDS:
+            hours = max(1, int((CACHE_SECONDS - (clock - since)) / 3600 + 0.999))
+            raise DownloadFailed(
+                f"letzter Abruf gescheitert ({reason}); kein neuer Abruf vor Ablauf von 24 "
+                f"Stunden (noch etwa {hours} h). Ersatz: Dateien im Browser laden und --file nutzen"
+            )
     report: dict[str, dict[str, object]] = {}
     for name, url in (urls or DOWNLOADS).items():
         if fetch is http_get and not url.startswith(DOWNLOAD_BASE):
@@ -192,9 +222,14 @@ def download(
         if target.is_file() and clock - target.stat().st_mtime < CACHE_SECONDS:
             report[name] = {"from": "cache", "path": str(target)}
             continue
-        body = fetch(url)
+        try:
+            body = fetch(url)
+        except DownloadFailed as error:
+            failure.write_text(json.dumps({"at": clock, "reason": str(error)}), encoding="utf-8")
+            raise
         partial = target.with_suffix(".part")
         partial.write_bytes(body)
         partial.replace(target)
         report[name] = {"from": "download", "path": str(target), "bytes": len(body)}
+    failure.unlink(missing_ok=True)
     return report

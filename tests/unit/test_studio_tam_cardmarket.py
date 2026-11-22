@@ -152,7 +152,9 @@ console.log(JSON.stringify({{
         result["text"]
         == "Land: Deutschland · Sprache: Englisch, Deutsch · Mindestzustand: Excellent"
     )
-    assert result["textOther"] == "Land: alle Länder · Sprache: Deutsch · Mindestzustand: Near Mint"
+    assert result["textOther"] == (
+        "Land: alle Länder · Sprache: Deutsch · Mindestzustand: Near Mint (Nummer unbelegt)"
+    )
     # unknown values fall back to the Owner's default, languages keep only known codes once
     assert result["garbage"] == {"country": "DE", "languages": ["EN", "DE"], "condition": "EX"}
     assert result["notArray"] == {"country": "DE", "languages": ["EN", "DE"], "condition": "EX"}
@@ -180,7 +182,7 @@ const missing = [
 const answer = { kind: 'Näherung', notice: 'Richtwert, kein Angebot.', rule: 'r', cardmarket_notice: 'Eingetragen: abgelesen.',
   guide_notice: 'ohne Filter.',
   snapshot: { bulk_date: '2026-11-20', date_basis: 'Dateiname', imported_at: 't' },
-  guide_snapshot: { guide_date: '2026-11-20', date_basis: 'createdAt', imported_at: 't', printings_known: 10, printings_matched: 8, name_mismatches: 1 },
+  guide_snapshot: { guide_date: '2026-11-20', date_basis: 'createdAt', imported_at: 't', printings_known: 10, printings_matched: 8, name_mismatches: 1, name_check: true, age_days: 2, stale: false },
   cards: [
     { card_id: 'e', name: 'Entered Walker', status: 'value', eur_cents: 999, finish: 'nonfoil', printing: 'ABC 1',
       guide: { low_cents: 45, low_finish: 'nonfoil', low_printing: 'CMM 464', trend_cents: 94 },
@@ -199,11 +201,20 @@ const saved = [];
 const view = W.tamPurchaseView(h, answer, missing, { sort: 'price-asc', budget: '', onSave: (...args) => { saved.push(args); return Promise.resolve(answer); } });
 const links = all(view).filter((el) => el.tag === 'a').map((el) => el.props);
 const noGuide = W.tamPurchaseRows(missing, { ...answer, guide_snapshot: null });
+const staleAnswer = { ...answer, guide_snapshot: { ...answer.guide_snapshot, stale: true, age_days: 20, name_check: false } };
+const staleGuide = W.tamPurchaseRows(missing, staleAnswer);
+const staleView = text(W.tamPurchaseView(h, staleAnswer, missing, { sort: 'name', budget: '' }));
+const noFlag = W.tamPurchaseRows(missing, { ...answer, guide_snapshot: { ...answer.guide_snapshot, stale: undefined } });
+const options = all(view).filter((el) => el.tag === 'option' && ['MT', 'NM', 'EX', 'GD', 'LP', 'PL'].includes(el.props.value)).map((el) => [el.props.value, text(el)]);
 const button = all(view).find((el) => el.tag === 'button' && el.props.class === 'small tam-cm-save');
 button.props.onclick();
 console.log(JSON.stringify({
   rows: rows.map((r) => [r.card_id, r.status, r.basis, r.cents]),
   noGuide: noGuide.map((r) => [r.card_id, r.basis, r.cents]),
+  staleGuide: staleGuide.map((r) => [r.card_id, r.basis, r.cents]),
+  staleView,
+  noFlag: noFlag.map((r) => r.basis),
+  options,
   asc: W.sortTamRows(rows, 'price-asc').map((r) => r.card_id),
   budget: W.filterTamBudget(rows, 200).rows.map((r) => r.card_id),
   sum: W.tamSumText(W.summarizeTamRows(rows)),
@@ -243,7 +254,7 @@ def test_the_view_uses_entered_then_guide_then_approximation_and_never_a_stale_e
     view = str(result["view"])
     assert "Cardmarket DE/EX: 12,50 € (eingetragen am 22.11.2026)" in view
     assert (
-        "Cardmarket ab 0,45 € (Trend 0,94 €) · ohne Filter Land/Zustand · Stand 20.11.2026 · "
+        "Cardmarket ab 0,45 € (Trend 0,94 €) · ohne Filter Land/Sprache/Zustand · Stand 20.11.2026 · "
         "CMM 464, Nicht-Foil" in view
     )
     assert (
@@ -255,7 +266,26 @@ def test_the_view_uses_entered_then_guide_then_approximation_and_never_a_stale_e
         "Näherung aus Scryfall (Cardmarket-Preisführer, kein Filter Deutschland/Excellent), "
         "Stand 2026-11-20: 1,50 € · MH2 12, Foil" in view
     )
-    assert "8 von 10 Drucken zugeordnet, 1 wegen abweichendem Namen ausgelassen" in view
+    assert (
+        "8 von 10 Drucken zugeordnet, Namen mit der Produktliste geprüft, 1 wegen abweichendem "
+        "Namen ausgelassen" in view
+    )
+    # a price guide older than 14 days: shown and marked, never used; Scryfall steps in
+    assert result["staleGuide"][:4] == [
+        ["e", "eingetragen", 1250], ["s", None, None], ["t", None, None], ["n", "naeherung", 150],
+    ]  # fmt: skip
+    stale_view = str(result["staleView"])
+    assert "veraltet (älter als 14 Tage), zählt nicht" in stale_view
+    assert "veraltet: Cardmarket ab 2,00 € (Trend 3,00 €)" in stale_view
+    assert "Namen nicht geprüft (ohne Produktliste)" in stale_view
+    # a server without the stale flag is read as stale (fail closed)
+    assert result["noFlag"][:3] == ["eingetragen", None, None]
+    # only Excellent (from the Owner's link) is a confirmed condition number
+    assert result["options"] == [
+        ["MT", "Mint (Nummer unbelegt)"], ["NM", "Near Mint (Nummer unbelegt)"],
+        ["EX", "Excellent"], ["GD", "Good (Nummer unbelegt)"],
+        ["LP", "Light Played (Nummer unbelegt)"], ["PL", "Played (Nummer unbelegt)"],
+    ]  # fmt: skip
     assert "Land: Deutschland · Sprache: Englisch, Deutsch · Mindestzustand: Excellent" in view
     assert not re.search(r"(?<![\d.])0,00 €", view)
     links = result["links"]
@@ -370,3 +400,31 @@ def test_the_download_asks_no_other_address(tmp_path: Path) -> None:
         "https://downloads.s3.cardmarket.com/productCatalog/priceGuide/price_guide_1.json",
         "https://downloads.s3.cardmarket.com/productCatalog/productList/products_singles_1.json",
     }
+
+
+def test_a_refusal_is_noted_and_no_request_follows_for_a_day(server: str, tmp_path: Path) -> None:
+    _Handler.answers = {
+        "/priceGuide/price_guide_1.json": (429, b""),
+        "/productList/products_singles_1.json": (200, b'{"products": []}'),
+    }
+    start = time.time()
+    with pytest.raises(tam_cardmarket.DownloadFailed, match="HTTP 429"):
+        tam_cardmarket.download(tmp_path, get=_local(server), now=start)  # type: ignore[arg-type]
+    assert (tmp_path / tam_cardmarket.FAILURE_FILE).is_file()
+    _Handler.answers["/priceGuide/price_guide_1.json"] = (200, b'{"priceGuides": []}')
+    later = start + tam_cardmarket.CACHE_SECONDS - 60
+    with pytest.raises(tam_cardmarket.DownloadFailed, match="kein neuer Abruf"):
+        tam_cardmarket.download(tmp_path, get=_local(server), now=later)  # type: ignore[arg-type]
+    assert len(_Handler.seen) == 1  # the second call asked nothing
+    # a day later both files are asked again and the note is gone
+    day_after = start + tam_cardmarket.CACHE_SECONDS + 60
+    report = tam_cardmarket.download(tmp_path, get=_local(server), now=day_after)  # type: ignore[arg-type]
+    assert [r["from"] for r in report.values()] == ["download", "download"]
+    assert not (tmp_path / tam_cardmarket.FAILURE_FILE).exists()
+
+
+def test_the_download_folder_never_lies_in_the_repository() -> None:
+    inside = Path(__file__).resolve().parents[2] / "data" / "cardmarket-guard"
+    with pytest.raises(tam_cardmarket.DownloadFailed, match="nicht im Repository"):
+        tam_cardmarket.download(inside, get=lambda url: b"{}")
+    assert not inside.exists()

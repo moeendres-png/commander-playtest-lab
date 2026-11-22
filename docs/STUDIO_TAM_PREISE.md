@@ -10,15 +10,15 @@ nur im lokalen Studio-Datenordner auf deinem PC und kommen nie ins Repository.
 | Anzeige | Quelle | Was sie misst |
 | --- | --- | --- |
 | „Cardmarket DE/EX: 12,50 € (eingetragen am 22.11.2026)“ | von dir auf Cardmarket abgelesen und eingetragen | genau das, was du mit deinen Filtern gesehen hast; älter als 14 Tage: „veraltet“, zählt nicht |
-| „Cardmarket ab 0,45 € (Trend 0,94 €) · ohne Filter Land/Zustand · Stand …“ | Cardmarket-Preisführer (offizieller Download) | niedrigstes Angebot („low“, Foil oder Nicht-Foil) und Trend über alle spielbaren Drucke, **ohne** Filter Deutschland/Excellent; Druck und Finish des niedrigsten Werts stehen dabei |
+| „Cardmarket ab 0,45 € (Trend 0,94 €) · ohne Filter Land/Sprache/Zustand · Stand …“ | Cardmarket-Preisführer (offizieller Download) | niedrigstes Angebot („low“, Foil oder Nicht-Foil) und Trend über alle spielbaren Drucke, **ohne** Filter Land, Sprache und Zustand; Druck und Finish des niedrigsten Werts stehen dabei; älter als 14 Tage: „veraltet“, zählt nicht |
 | „Näherung aus Scryfall (…), Stand …“ | Scryfall-Bulk-Datei | Cardmarket-Trend (Foil oder Nicht-Foil); nur wenn der Preisführer die Karte nicht hat |
 
 Summe, Sortierung und Budgetfilter der Zukauf-Liste nehmen je Karte den obersten vorhandenen Wert;
 die Zeile über der Tabelle sagt, wie viele Karten welchen Wert nutzen („n von N Karten mit
 eingetragenem Preis“). Ein fehlender Preis heißt „unbekannt“, nie 0 €.
 
-Der Preisführer kennt weder das Verkäuferland noch den Zustand. Wie viel ein deutsches Angebot in
-Excellent mehr kostet, lässt sich ohne Angebotsdaten nicht sagen; dafür gibt es den Link und das
+Der Preisführer kennt weder das Verkäuferland noch die Sprache noch den Zustand. Wie viel ein
+deutsches Angebot (Englisch/Deutsch) in Excellent mehr kostet, lässt sich ohne Angebotsdaten nicht sagen; dafür gibt es den Link und das
 Eintragen von Hand.
 
 ## Einmal einrichten und aktualisieren (im Terminal, im Studio-Ordner)
@@ -30,16 +30,18 @@ Eintragen von Hand.
    `python -m commander_lab.studio import-cardmarket-priceguide`. Der Befehl lädt die beiden
    veröffentlichten Dateien (Preisführer und Produktliste) je einmal in den Datenordner
    (`cardmarket/`); eine Kopie jünger als 24 Stunden wird wiederverwendet. Antwortet Cardmarket
-   mit etwas anderem als HTTP 200 (etwa 403 oder 429), bricht er sofort ab und meldet das; dann
-   nicht wiederholen, sondern die Datei im Browser laden und
+   mit etwas anderem als HTTP 200 (etwa 403 oder 429), bricht er sofort ab, meldet das und fragt
+   24 Stunden lang nicht neu an; dann die Dateien im Browser laden und
    `python -m commander_lab.studio import-cardmarket-priceguide --file <price_guide_1.json> --products <products_singles_1.json>`
-   nutzen.
+   nutzen (ohne `--products` steht in der Liste „Namen nicht geprüft“). Download-Ordner und
+   Dateien dürfen nicht im Repository liegen.
 3. Im Studio: TAM-Deck öffnen, Zukauf-Modus an, „Zukauf-Liste mit Richtwerten (TAM)“.
 
 ## Genauen Preis von Hand eintragen
 
 - Über der Tabelle stehen die Cardmarket-Filter, beschriftet etwa „Land: Deutschland · Sprache:
-  Englisch, Deutsch · Mindestzustand: Excellent“; du kannst sie ändern.
+  Englisch, Deutsch · Mindestzustand: Excellent“; du kannst sie ändern. Belegt sind nur die
+  Nummern deines Beispiel-Links; andere Zustände tragen den Zusatz „Nummer unbelegt“.
 - Je Karte öffnet „Cardmarket ↗“ die Kartenseite mit diesen Filtern in einem neuen Tab deines
   Browsers. Das Studio selbst ruft diese Seite nie ab. Bei Namen, deren Cardmarket-Adresse nicht
   sicher ist (etwa „A // B“, Umlaute, Bindestriche), öffnet „Cardmarket-Suche ↗“ die Suche; die
