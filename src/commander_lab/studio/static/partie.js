@@ -1685,7 +1685,11 @@ async function newGame(wantedRevision) {
     timeoutNote.hidden = !humanPlay.checked;
     fillCounts(); fill();
   });
-  const applyPod = (ids) => {
+  const applyPod = (preset) => {
+    // never more seats than the current list offers (after a rollback of a lock a preset may name more)
+    const offered = offeredCounts();
+    const ids = preset.slice(0, offered[offered.length - 1]);
+    if (!ids.length) return;
     count.value = String(ids.length);
     fillCounts();
     seats.textContent = "";

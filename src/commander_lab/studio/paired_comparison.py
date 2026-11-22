@@ -916,6 +916,11 @@ def parallel_window_player(
     use_pool = play_single is None and (
         pool is not None or (series_pool if series_pool is not None else series_pool_enabled())
     )
+    if use_pool and pool is None:
+        # Pre-flight (#1661): the pool of this series needs the wall-clock limit of its seat count;
+        # a table without one (five and six seats until F6) is refused here, before the manifest or
+        # any game is written, not in the middle of planning. No limit is guessed.
+        game_wall_limit_seconds(len(opponents) + 1)
     pool_holder: list[GamePool] = [pool] if pool is not None else []
 
     lock = threading.Lock()

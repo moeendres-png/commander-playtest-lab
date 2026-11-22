@@ -1344,6 +1344,46 @@ def test_new_game_dialog_offers_the_table_sizes_of_the_lock_of_its_path(
     assert bool(replay) is (offered_players == 6)
 
 
+@pytest.mark.parametrize(
+    ("lock", "human", "seats_after"),
+    [
+        (None, False, 6),
+        (None, True, 6),
+        ({"play": 3, "ai": 5}, True, 4),
+        ({"play": 3, "ai": 3}, False, 4),
+    ],
+)
+def test_a_pod_preset_never_seats_more_than_the_dialog_offers(
+    lock: dict[str, int] | None, human: bool, seats_after: int
+) -> None:
+    """A preset that names five opponents fills five AI seats where six players are offered; where the
+    list ends at four players (a lock set back) it fills three, and the posted table matches the count
+    shown (review of #1743, P3)."""
+    out = _node(
+        f"""
+(async () => {{
+  TABLE.pods = {{ big: ['precon/d0', 'precon/d1', 'precon/d2', 'precon/d3', 'precon/d4'] }};
+  const {{ page, posted }} = loadPage({json.dumps(lock)});
+  await page.newGame('rev@own');
+  const box = registry['modal-box'];
+  const checkbox = box.all().find((n) => n.tagName === 'INPUT' && n.attrs.type === 'checkbox');
+  if ({json.dumps(human)}) {{ checkbox.checked = true; checkbox.fire('change'); }}
+  const countOf = () => box.all().filter((n) => n.tagName === 'SELECT').find((s) => s.children.some((o) => /Spieler$/.test(o.textContent)));
+  const button = box.all().find((n) => n.tagName === 'BUTTON' && /^Pod: big/.test(n.textContent));
+  for (const f of button.listeners.click) f({{}});
+  const seats = box.all().filter((n) => n.tagName === 'LABEL' && /\\(KI\\)/.test(n.textContent)).length;
+  const go = box.all().find((n) => n.tagName === 'BUTTON' && n.textContent === 'Partie starten');
+  for (const f of go.listeners.click) await f({{}});
+  console.log(JSON.stringify({{ shown: countOf().value, seats, body: posted[0] || null }}));
+}})();
+"""
+    )
+    assert isinstance(out, dict)
+    assert out["seats"] == min(5, seats_after - 1)
+    assert out["shown"] == str(out["seats"])  # the count shown is the table that is built
+    assert len(out["body"]["opponent_ids"]) == out["seats"]
+
+
 # ---- part B helper: the identity digest of one game log (F3), checked here on synthetic logs ---
 
 _VOLATILE_RESULT_KEYS = frozenset(

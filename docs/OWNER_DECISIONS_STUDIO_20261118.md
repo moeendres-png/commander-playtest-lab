@@ -419,6 +419,7 @@ Owner-Entscheid; Owner-Vorbehalte (Abschnitt 5 dieser Datei, `AGENTS.md` §8) bl
   „aktiv sind 2 bis 4 Sitze“ (§4) bleiben bis zur Owner-Freigabe unverändert;** „PLAY bis dahin ‚nicht
   qualifiziert‘ sichtbar“ heißt nur: die Oberfläche weist darauf hin, dass 5/6 noch nicht freigegeben
   sind, sie macht 5/6 nicht spielbar. 7/8 zurückgestellt bis zur 6er-Messung.
+  **[Stand vor E16: überholt durch das bedingte Go vom 2026-11-22, siehe E16; Sperre und „2 bis 4 Sitze“ gelten nur noch bis zur Wirkung von E16, 7/8 s. E16 Nr. 4.]**
 - **Q6 Gegner:** beliebige Studio-Deck-Stände als Gegner-Sitze (Chulane bleibt das einzige
   optimierte Deck); Korpus-Gegner in PLAY v1 später.
 - **Q7 PLAY:** Zahlungs-Vorschlag aus dem Piloten-Planer, vom Menschen ausgelöst, nur angebotene
@@ -458,7 +459,7 @@ Co-Lead hat sie in den unten genannten Kommentaren festgehalten (von den drei
 Entscheid-Kommentaren nennt nur 7038409631 als Ort den Session-Chat; die Frage in 7031730010 nennt
 ihn ebenfalls). Der Inhalt ist hier sinngemäß nach diesen Kommentaren übernommen (keine Anführungszeichen, siehe „Lesart“).
 
-1. **Freigabe 5/6 Sitze: Option A = warten** (2026-11-20, #1661, Kommentar 7043554602). Keine
+1. **Freigabe 5/6 Sitze: Option A = warten** (2026-11-20, #1661, Kommentar 7043554602; **historischer Stand vor E16, überholt durch das bedingte Go vom 2026-11-22, siehe E16**). Keine
    Freigabe; `launch.MAX_RELEASED_SEATS = 4` bleibt. SIMULATE 5/6 wird frühestens freigegeben,
    wenn (a) #1715 geklärt ist, einschließlich einer 4-Sitz-Vergleichsmessung mit n/N, (b) F5
    (die acht Regelpunkte aus Plan §2 als gezielte Szenarien) und das Replay-Tape mindestens für
@@ -505,7 +506,7 @@ ihn ebenfalls). Der Inhalt ist hier sinngemäß nach diesen Kommentaren übernom
    - Die Ausnahme ändert nur, wer das Kreuz-Review leistet. Das Frischkontext-Review und die
      übrigen Merge-Bedingungen aus `AGENTS.md` §10 gelten unverändert.
    - **Weiter owner-vorbehalten** (Abschnitt 5, `AGENTS.md` §8): die Freigabe von 5/6 Sitzen
-     (Option A, Punkt 1), Fork-Push und Repin, Siegel/`qualification/`/WS17, Sichtbarkeit
+     (Option A, Punkt 1; seit dem 2026-11-22 als bedingtes Go erteilt, E16), Fork-Push und Repin, Siegel/`qualification/`/WS17, Sichtbarkeit
      (#1108), Bezahldienste, die Sammlungstrennung und Preise (außer TAM-Zukauf, 2026-11-21,
      „Preise für TAM“).
 
@@ -614,7 +615,7 @@ Sitzen aus #1656, Kommentar 7062128464, fest.
    und ein Freigabe-PR mit Review. **Die Sperre `launch.MAX_RELEASED_SEATS = 4` bleibt**, „aktiv
    sind 2 bis 4 Sitze“ bleibt, und die Freigabe von 5/6 bleibt owner-vorbehalten (Abschnitt 5,
    `AGENTS.md` §8). PLAY 5/6 bleibt nach Option A getrennt und ist nicht Teil des
-   SIMULATE-Freigabe-PR. Ob #1692 neben (a) bis (c) Voraussetzung bleibt, ist weiter offen
+   SIMULATE-Freigabe-PR. **[Stand vor E16: überholt durch das bedingte Go vom 2026-11-22, siehe E16.]** Ob #1692 neben (a) bis (c) Voraussetzung bleibt, ist weiter offen
    (Punkt 1).
 
 6. **Pflichtlektüre und Archiv (8a).** Charta v2 (`docs/STUDIO_CHARTA_V2.md`) und dieses
@@ -659,6 +660,54 @@ Sitzen aus #1656, Kommentar 7062128464, fest.
    bleibt**, bis die Voraussetzungen belegt sind und der Owner das finale Ja gegeben hat; die
    Freigabe von 5/6 bleibt owner-vorbehalten (Abschnitt 5, `AGENTS.md` §8). Bis zu 8 Sitze sind ein
    Wunsch: Sinn und Machbarkeit prüft ein Papier unter #1672, nichts davon ist freigegeben.
+   **[Stand vor E16: die Sperre und der Vorbehalt dieses Absatzes sind durch das bedingte Go vom
+   2026-11-22 überholt; zu 7/8 gilt die Owner-Anweisung vom 2026-11-22, siehe E16 Nr. 4.]**
+
+### E16: Freigabe 5/6 Sitze, bedingtes Go (2026-11-22, #1656, #1661, #1743)
+
+Owner, 2026-11-22, Session-Chat. Der Co-Lead hat die Antworten in #1656, Kommentar 7071394052,
+festgehalten („wörtlich soweit in Anführungszeichen“). Das Register übernimmt nur, was dort in
+Anführungszeichen steht, als Owner-Wortlaut; alles andere unten ist als Auslegung des Co-Leads
+gekennzeichnet (Einspruch des Owners jederzeit möglich).
+
+1. **Owner-Wortlaut zu 5/6 Sitzen:** „Ja 5/6 sitze freigegeben wenn alles dabei funktioniert“, für
+   SIMULATE und PLAY (so der Co-Lead im selben Kommentar). Das ist ein **bedingtes Go**: Es ersetzt
+   „Option A = warten“ (Entscheide 2026-11-20/21, Nr. 1) und den Vorbehalt „finales Ja nach der
+   Beleg-Seite“; die Einschränkung, PLAY 5/6 bleibe getrennt und nicht Teil des
+   SIMULATE-Freigabe-PR, gilt damit nicht mehr (E15 Q5 „gilt dann für SIMULATE und PLAY“ ist wieder
+   voll wirksam). Die frühere Auslegung des Co-Leads, die Sperre `launch.MAX_RELEASED_SEATS = 4`
+   bleibe bis zu einem weiteren Ja, ist durch dieses Go überholt.
+
+2. **Auslegung des Co-Leads (keine Owner-Aussage) der Bedingung „alles funktioniert“:**
+   (a) Determinismus bei 5 und 6 Sitzen gemessen und gleich (Stand des Kommentars: 4 Sitze 36/36,
+   12/12, 20/20; 5 Sitze 8/8 und 8/8; 6 Sitze Messung lief), (b) F5 und die Tape-Gates auf `main`
+   (F5-3 nur PARTIAL wegen einer bekannten Engine-Abweichung), (c) die Real-Engine-Tests für PLAY
+   5/6 laufen grün, (d) die CI des Freigabe-PR #1743 ist grün (inklusive der Konformanz und PB-03,
+   soweit deren Pfadfilter greifen), (e) Abnahme durch den Owner nach der Freigabe: eine eigene
+   PLAY-Partie mit 5 Sitzen; geht sie nicht, wird die Freigabe zurückgenommen. Werden (a) bis (d)
+   erfüllt, merged der Co-Lead #1743 und meldet es sofort. Die Belege stehen im PR-Text von #1743
+   und in den Kommentaren in #1661 und #1715; das Register führt sie nicht.
+
+3. **Umsetzung:** Zwei Sperren, je eine Zeile in `studio/launch.py`: `MAX_RELEASED_SEATS` (SIMULATE
+   und Partien ohne Mensch-Sitz) und `MAX_RELEASED_PLAY_SEATS` (Partie mit Mensch-Sitz), beide 6;
+   die Oberfläche (`partie.js`, `paired.js`) folgt je einer Liste, Wächter-Tests halten Konstante und
+   Seite gleich. **Rücknahme** (bei Misserfolg von (e) oder auf Owner-Wunsch): die Konstante
+   auf 4 setzen, plus die zugehörige Liste in `partie.js` bzw. `paired.js`; das ist ein Einzeiler
+   je Pfad. Die Obergrenze des Codes bleibt 6 (`MIN_SEATS, MAX_SEATS = 2, 6`).
+
+4. **7/8 Sitze (nur als Hinweis):** Der Owner hat am selben Tag für SIMULATE angewiesen („ja kümmer
+   dich drum, dass es halt geht und führe es auch ein für die Simulationen“, #1656, Kommentar
+   7071394052, Punkt 6; eigene direkte Owner-Anweisung im Sinne von
+   `docs/OWNER_DECISION_SIX_PLAYER_MAX_20261108.md`). Vorgehen laut Co-Lead: erst ein isolierter
+   Machbarkeitsversuch (#1672), nie als 4P/6P-Beleg; PLAY 7/8 ist nicht beauftragt. Dieser Eintrag
+   ändert die Obergrenze 6 im Code nicht.
+
+5. **Aufgehobene Aussagen (historischer Stand vor E16):** Die Sätze „die Sperre bleibt bei 4“,
+   „aktiv sind 2 bis 4 Sitze“ und „PLAY 5/6 ist nicht Teil des SIMULATE-Freigabe-PR“ in Q5 (E15), in
+   „Entscheide 2026-11-20/21“ Nr. 1, in „Entscheide 2026-11-21“ Nr. 5 und Nr. 8 und in der Tabelle
+   in Abschnitt 3 beschreiben den Stand vor dem Go vom 2026-11-22 und sind dort mit einem Verweis
+   auf E16 gekennzeichnet; sie bleiben als Verlauf stehen (E10). Der Vorbehalt in `AGENTS.md` §8
+   nennt die Freigabe jetzt als erteilt, mit Zitat; sonst bleibt §8 unverändert.
 
 ## 3. Was aufgehoben, geändert oder neu ist
 
@@ -669,7 +718,7 @@ Sitzen aus #1656, Kommentar 7062128464, fest.
 | S2 und Einfrierung neuer Pilot-Mikro-Messreihen (2026-11-10) | nur für die reine Zählung von Pilot-Auslassungen aufgehoben (E3) | O4 |
 | K4 „keine Kombination“, E1.a „Rubrik-Gewicht 0“, Ablehnung einer modellgestützten Einschätzung, A4 „nur objektive Daten“ | nur für das neue, gekennzeichnete Gesamtrating aufgehoben (E6) | Owner 18.11., angenommen 18.11. |
 | PLAY „fertig“, wenn der Owner eine ganze Partie spielt (`STUDIO_ROADMAP_20261112.md`) | Abnahme nach AK-1 bis AK-8 (E4) | O6 |
-| 5 und 6 Sitze: nur durch Regel nicht freigegeben; Code nimmt 2 bis 6 Sitze an (`studio/launch.py`: `MIN_SEATS, MAX_SEATS = 2, 6`) | neu: technische Sperre für 5 und 6 Sitze; aufgehoben wird sie nur per Owner-Freigabe. Im Studio-Startpfad (Partie, PLAY) ist sie mit PR #1515 auf `main` (`launch.MAX_RELEASED_SEATS = 4`). In den Serien-Routen und in `compare-decks` gilt sie seit PR #1536 (`compare-decks` mit Schalter `--allow-unreleased-seats`, standardmäßig aus). | Empfehlung O11 des Optionspapiers, Owner-GO 2026-11-18 |
+| 5 und 6 Sitze: nur durch Regel nicht freigegeben; Code nimmt 2 bis 6 Sitze an (`studio/launch.py`: `MIN_SEATS, MAX_SEATS = 2, 6`) | neu: technische Sperre für 5 und 6 Sitze; aufgehoben wird sie nur per Owner-Freigabe. Im Studio-Startpfad (Partie, PLAY) ist sie mit PR #1515 auf `main` (`launch.MAX_RELEASED_SEATS = 4`). In den Serien-Routen und in `compare-decks` gilt sie seit PR #1536 (`compare-decks` mit Schalter `--allow-unreleased-seats`, standardmäßig aus). **Seit E16 (2026-11-22) zwei Sperren, `MAX_RELEASED_SEATS` und `MAX_RELEASED_PLAY_SEATS`, beide auf 6 freigegeben; Stand vor E16 wie hier beschrieben.** | Empfehlung O11 des Optionspapiers, Owner-GO 2026-11-18 |
 | `docs/STUDIO_TARGET_SCOPE.md` als Zielumfang (PR #1510) | ersetzt durch `STUDIO_SCOPE.md` (seit 2026-11-21 archiviert, bindende Regeln in Abschnitt 6) | Owner 2026-11-18 (Abschnitt 1), Optionspapier §D.1 |
 | G-SIM Punkt 2: Stichprobe 200/20, eigene Owner-Bestätigung nötig; S2 nur für die Zählung aufgehoben | Pilot-Audit dreiteilig; S2 zusätzlich nur für dieses Audit aufgehoben | E7, C1 |
 | Weg in die Tierliste: „nach G-SIM eigenes Design“ | Stufen 0 / 1 / 2; Gewicht größer 0 erst in Stufe 2 | E7, C3 |
@@ -678,11 +727,12 @@ Sitzen aus #1656, Kommentar 7062128464, fest.
 | „Keine Preise, kein Kaufmodus“ (B1) und „kein Multi-Commander über den Chulane-Fokus hinaus“ (B2), soweit BUILD betroffen | Zukauf-Modus im BUILD ohne Preise und TAM als zweiter Commander im BUILD erlaubt; Preise bleiben Owner-Vorbehalt, Chulane bleibt Standard (E14); für TAM überholt durch „Preise für TAM (2026-11-21)“ | Owner 2026-11-19, #1187 |
 | Preise und Preisdaten für Zukäufe bleiben Owner-Vorbehalt (E14, T3; `AGENTS.md` §8, §12) | Preisanzeige für noch nicht besessene Karten in der TAM-Zukaufansicht erlaubt (vor allem Planeswalker und Schlüsselkarten), Planungsfunktionen abschließend Summe, Sortierung und Budgetfilter der TAM-Zukauf-Liste und Kennzeichnung als Richtwert (Umfang vom Co-Lead); mit Quelle aus dem Quellregister und Zeitstempel, fehlend „unbekannt“; Schnappschüsse nur im lokalen Studio-Store; Preise nie in Vorschläge, Kürzen/Tauschen, Evidenz/Reife, Rating, Tierliste, Ranking oder Simulationszahlen; keine Kaufabwicklung, keine Bezahldienste, kein Scraping; Chulane bleibt „nur Sammlung“ ohne Preise; andere Preise bleiben Owner-Vorbehalt („Preise für TAM (2026-11-21)“) | Owner 2026-11-21, #1656 |
 | E6 (Gesamtrating mit Rubrik und Tierlisten-Gewichte), B11/E2 (Gewicht `simulation` 0 bis G-SIM), A4 („nur objektive Daten“), E7/C7 (jeder MATERIAL-PR mit Kreuz-Review), Rundenlimit nur nach Owner-Entscheid (`STUDIO_SCOPE.md` am Commit `aef76b8e`, Zeilen 101–102 und 269), 5/6 Sitze (E15 Q5), Datei-Schnitt Schema 21 → 22 | beschlossen; wirksam sind schon Gesamtrating v1, Layers, Rubrik v1, Turnier-Signal und Gewicht `simulation` entfernt (#1684, #1686, #1691, #1696), die zweite Tierlisten-Skala ist mit #1701 entfernt (#1680), die Evidenz R0–R3 ist mit #1717 als Paket 1 im Serien-Verlauf gebaut (höchstens R1 erreichbar; Erfassung für R2/R3 sowie Evidenz im Diff und in der Kürzen-/Tauschen-Spalte offen, Q1-c, #1666) (Q1), Vorschläge als eigene Klasse (Q2), MATERIAL in A/B (Q10, umgesetzt in `AGENTS.md` §10 mit dem Doku-Wahrheits-Pass #1697), rundenbegrenzte Frühphasen-Serie als Experiment-Typ nach Messversuch (Q4: gilt als Owner-Entscheid für dieses Rundenlimit, weiterhin mit vollen Piloten, kein Goldfish-/Passiv-Modus, `STUDIO_SCOPE.md` am Commit `aef76b8e`, Zeilen 268–269), Qualifikation 5/6 (Q5, Sperre bleibt), Gegner aus Studio-Deck-Ständen (Q6), Pilot-Regeln (Q8), drei Dateien (Q9), Ältere Lanes bleiben (Q11) | Owner 2026-11-20 (E15) |
-| 5/6-Freigabe: Owner-Wunsch „wenn es problemlos geht“; Vorab-Ermächtigung verneint (Option B, #1167, Kommentar 7038409631, Punkt 2; Beleg-Zusammenfassung mit der Ein-Seiten-Evidenz #1661, Kommentar 7043142024 vorgelegt) | Option A = warten (neue Liste A/B/C): frühestens nach #1715 (mit 4-Sitz-Vergleichsmessung n/N), F5 (die acht Regelpunkte aus Plan §2 als gezielte Szenarien) und Replay-Tape mindestens für 5 Sitze und Owner-Entscheid zu F1, dann finales Ja und Freigabe-PR mit Review; `launch.MAX_RELEASED_SEATS = 4` bleibt; PLAY 5/6 bleibt getrennt (nicht Teil des SIMULATE-Freigabe-PR), Q5 „gilt dann für SIMULATE und PLAY“ ist insoweit eingeschränkt und offen; ob #1692 Voraussetzung bleibt, ist offen (Entscheide 2026-11-20/21, Nr. 1 und 3) | Owner 2026-11-20 (#1661) |
+| 5/6-Freigabe: Owner-Wunsch „wenn es problemlos geht“; Vorab-Ermächtigung verneint (Option B, #1167, Kommentar 7038409631, Punkt 2; Beleg-Zusammenfassung mit der Ein-Seiten-Evidenz #1661, Kommentar 7043142024 vorgelegt) | Option A = warten (neue Liste A/B/C): frühestens nach #1715 (mit 4-Sitz-Vergleichsmessung n/N), F5 (die acht Regelpunkte aus Plan §2 als gezielte Szenarien) und Replay-Tape mindestens für 5 Sitze und Owner-Entscheid zu F1, dann finales Ja und Freigabe-PR mit Review; `launch.MAX_RELEASED_SEATS = 4` bleibt; PLAY 5/6 bleibt getrennt (nicht Teil des SIMULATE-Freigabe-PR), Q5 „gilt dann für SIMULATE und PLAY“ ist insoweit eingeschränkt und offen; ob #1692 Voraussetzung bleibt, ist offen (Entscheide 2026-11-20/21, Nr. 1 und 3). **Historischer Stand vor E16, überholt durch das bedingte Go vom 2026-11-22 (E16).** | Owner 2026-11-20 (#1661) |
 | Abweichende Frame-Folge bei Seed 123 (#1692): Wegnormalisieren als Umklassifizierung dem Owner vorgelegt (#1661, Kommentar 7043142024) | keine Umklassifizierung: bleibt FAIL (`NEUTRAL`), nichts in `UNORDERED_LISTS`, #1692 offen bis zur Ursache auf der Bridge-Seite (Entscheide 2026-11-20/21, Nr. 2) | Owner 2026-11-20 (#1661) |
 | Kreuz-Review der Klasse A durch eine Sitzung des anderen Agenten (E7/C7, E15 Q10) | bestätigt als Option 1 (`AGENTS.md` §10 wie geschrieben, Klasse B nur Frischkontext-Review); befristete Ausnahme seit 2026-11-21: Co-Lead alleiniger Writer, zweites Frischkontext-Review auf einem anderen Modell ersetzt das Kreuz-Review, solange der andere Agent nicht verfügbar ist (Entscheide 2026-11-20/21, Nr. 4) | Owner 2026-11-20 und 2026-11-21 (#1167) |
 | Entscheid-Dokumente: „fortgeschrieben, nie gelöscht“ (diese Datei, `AGENTS.md` §9 „archived, never deleted“) | überholter Wortlaut darf mit Begründung, Datum und Verweis im PR ersetzt oder entfernt werden; Git-Historie bleibt Quelle (E10) | Owner 2026-11-19, #1612 |
-| F1 offen (Entscheide 2026-11-20/21, Nr. 3): Einflussbereich, Angriffsoption, 6 Sitze ohne Replay-Anspruch | angenommen wie im Entwurf des Teil-A-Berichts §4, Wortlaut mit Pfad und Commit-SHA kopiert; schließt nur Voraussetzung (c), `launch.MAX_RELEASED_SEATS = 4` bleibt, (a) und (b) und das finale Ja fehlen, PLAY 5/6 bleibt getrennt (Entscheide 2026-11-21, Nr. 5) | Owner 2026-11-21 (2a; #1656, #1167) |
+| F1 offen (Entscheide 2026-11-20/21, Nr. 3): Einflussbereich, Angriffsoption, 6 Sitze ohne Replay-Anspruch | angenommen wie im Entwurf des Teil-A-Berichts §4, Wortlaut mit Pfad und Commit-SHA kopiert; schließt nur Voraussetzung (c), `launch.MAX_RELEASED_SEATS = 4` bleibt, (a) und (b) und das finale Ja fehlen, PLAY 5/6 bleibt getrennt (Entscheide 2026-11-21, Nr. 5; **Stand vor E16**, das bedingte Go vom 2026-11-22 überholt die Sperre und die Trennung) | Owner 2026-11-21 (2a; #1656, #1167) |
+| 5/6-Freigabe „nur nach finalem Ja“ (Entscheide 2026-11-20/21, Nr. 1; 2026-11-21, Nr. 5 und 8) | bedingtes Go: „Ja 5/6 sitze freigegeben wenn alles dabei funktioniert“, SIMULATE und PLAY; beide Sperren auf 6, Rücknahme ein Einzeiler (E16) | Owner 2026-11-22 (#1656, Kommentar 7071394052) |
 | Pflichtlektüre: `AGENTS.md`, `CLAUDE.md`, `STUDIO_SCOPE.md` (verbindlicher Scope), beide Entscheid-Dateien, `STUDIO_PLAN_SIMULATOR.md`, Onboarding; seit E15 Q10 zuerst Charta v2 und Register, Scope blieb verbindlich | Charta v2 und Entscheid-Register sind die Pflichtlektüre; Scope, Plan und Roadmap sind archiviert, ihre bindenden Regeln stehen in Abschnitt 6, der Referenzsatz des Bridge-Gates in `docs/STUDIO_BRIDGE_GATE_TOOLING.md` (Entscheide 2026-11-21, Nr. 6) | Owner 2026-11-21 (8a; #1656, #1167) |
 
 ## 4. Gilt unverändert
@@ -711,7 +761,7 @@ Nicht durch die Anweisung, nach den Empfehlungen zu arbeiten, oder das GO abgede
 - Versiegeln, Entsiegeln oder Umschreiben von Datensätzen unter `qualification/`.
 - `pyproject.toml`, `requirements/lock.txt` und dessen Digest (außer innerhalb einer
   Neuversiegelung oder der D5-Freigabe, `AGENTS.md` §4, §10).
-- Freigabe von 5 und 6 Sitzen.
+- Freigabe von 5 und 6 Sitzen (erteilt als bedingtes Go am 2026-11-22, E16; eine Änderung der Bedingungen oder die Rücknahme bleibt beim Owner).
 - Sichtbarkeit der Repositorys und #1108.
 - Bezahldienste, Preisdaten und Kaufabwicklung (T3 aus E14); ausgenommen ist die Preisanzeige für den TAM-Zukauf (2026-11-21, „Preise für TAM“).
 

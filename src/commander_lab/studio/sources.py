@@ -274,7 +274,7 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         reproducibility="DYNAMIC_EPHEMERAL_WEB",
         bias_risks=(
             "Seat position skew (state 2026-11-08, provider figures): seat 1 45.3% in 674 games, "
-            "seat 5 16.3% in 43 games (seats 5 and 6 are locked for Studio play until the Owner releases them)",
+            "seat 5 16.3% in 43 games (seats 5 and 6 were locked for Studio play until the Owner released them on 2026-11-22, register E16)",
             "Archetype skew: Playgroup Chulane population is heavily Landfall-focused",
             "Small sample sizes for non-staple cards (n < 30)",
         ),

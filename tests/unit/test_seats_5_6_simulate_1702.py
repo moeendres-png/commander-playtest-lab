@@ -285,6 +285,77 @@ def test_series_start_checks_the_table_size_against_the_opponents(
 
 
 @pytest.mark.parametrize("seats", [5, 6])
+def test_the_pool_path_refuses_a_table_without_a_wall_limit_before_it_writes_anything(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch, tmp_path: Path, seats: int
+) -> None:
+    """F6 has not measured the wall-clock limit of a five- or six-seat game, so the series pool (off by
+    default) refuses such a table. It does so on the route, before any series file or pool manifest is
+    written (review of #1743, P3); the default path without the pool is not affected."""
+    import types
+
+    from commander_lab.studio.game_pool import SERIES_POOL_ENV
+
+    manager = paired_series.paired_series_manager
+    # the lab's wrapper hands every series a test player (no pool); the real start is what is checked
+    monkeypatch.setattr(
+        manager,
+        "start_series",
+        types.MethodType(paired_series.PairedSeriesManager.start_series, manager),
+    )
+    folder = Path(str(lab["folder"]))
+    before = {p for p in folder.rglob("*") if p.is_file()}
+    monkeypatch.setenv(SERIES_POOL_ENV, "1")
+    res = _post(lab, table_size=seats, budget_pairs=seats * seats)
+    assert res.status_code == 422, res.text  # type: ignore[attr-defined]
+    assert f"keine Wandzeit-Grenze für {seats} Sitze" in res.json()["detail"]  # type: ignore[attr-defined]
+    after = {p for p in folder.rglob("*") if p.is_file()}
+    # nothing new that belongs to a series: no record, no manifest, no deck snapshots
+    assert not [
+        p
+        for p in after - before
+        if "paired" in p.name or "manifest" in p.name or "paired_decks" in str(p)
+    ]
+    assert lab["calls"] == []
+    # the pre-flight is exact: four seats have a limit, and with the pool off nothing is asked
+    paired_series._preflight_pool_wall_limit(3)
+    monkeypatch.delenv(SERIES_POOL_ENV)
+    paired_series._preflight_pool_wall_limit(seats - 1)
+
+
+@pytest.mark.parametrize("seats", [5, 6])
+def test_the_pool_player_refuses_a_table_without_a_wall_limit_before_its_manifest(
+    tmp_path: Path, seats: int
+) -> None:
+    """The same refusal one level down: ``parallel_window_player`` with the pool on stops before the
+    first game is planned, so no ``SeriesRecord`` manifest exists (an injected pool is not asked)."""
+    from types import SimpleNamespace
+
+    jar = tmp_path / "bridge.jar"
+    jar.write_bytes(b"jar")
+    ids = [f"opp-{n}" for n in range(seats - 1)]
+    kwargs: dict[str, object] = {
+        "series_id": "pf",
+        "base_deck": SimpleNamespace(deck_id="base"),
+        "variant_deck": SimpleNamespace(deck_id="variant"),
+        "opponents": [SimpleNamespace(deck_id=i) for i in ids],
+        "paths_by_deck_id": {d: tmp_path / "x.json" for d in ("base", "variant", *ids)},
+        "seeds": [1],
+        "tested_seats": [0],
+        "budget_pairs": 1,
+        "look_every_pairs": 1,
+        "workers": 1,
+        "games_per_jvm": 6,
+        "command": ("java", "-jar", str(jar), "full-game"),
+    }
+    before = {p for p in tmp_path.rglob("*")}
+    with pytest.raises(ValueError, match=f"keine Wandzeit-Grenze für {seats} Sitze"):
+        paired_comparison.parallel_window_player(tmp_path, series_pool=True, **kwargs)  # type: ignore[arg-type]
+    assert {p for p in tmp_path.rglob("*")} == before  # no manifest, no journal
+    # the pool off: the default path builds its player as before
+    assert callable(paired_comparison.parallel_window_player(tmp_path, series_pool=False, **kwargs))  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize("seats", [5, 6])
 def test_under_the_shipped_lock_the_series_route_plans_and_plays_whole_blocks(
     lab: dict[str, object], seats: int
 ) -> None:
