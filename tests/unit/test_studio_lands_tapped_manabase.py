@@ -442,6 +442,16 @@ def test_different_commanders_get_no_commander_delta() -> None:
     assert cmd["target"] is None and cmd["base"] is not None
 
 
+def test_partner_sets_that_differ_get_no_commander_delta_even_for_the_shared_partner() -> None:
+    partner_b = _row("Partner B", zone="commander", mana_cost="{G}", mana_value=1)
+    partner_c = _row("Partner C", zone="commander", mana_cost="{W}", mana_value=1)
+    mb = deck_diff.manabase_delta([*BASE, partner_b], [*TARGET, partner_c])
+    assert mb["commander"]["same"] is False
+    shared = next(row for row in mb["commander"]["rows"] if row["name"] == "Cmd")
+    assert shared["base"] is not None and shared["target"] is not None
+    assert shared["delta_pp"] is None  # two different commander sets are never compared
+
+
 def test_diff_contracts_carry_the_manabase_as_exact_and_pp() -> None:
     zahlen = number_contract.diff_zahlen({"manabase": deck_diff.manabase_delta(BASE, TARGET)})
     by_id = {z["id"]: z for z in zahlen}
@@ -540,7 +550,7 @@ def test_diff_page_shows_pp_deltas_only_in_and_unknown() -> None:
     b = _render("diffimpact.js", "diffManabaseNodes(h, data.b)", data, ids)
     table = a["diff-manabase"] or ""
     assert "90,3 %" in table and "96,6 %" in table and "+6,3 pp" in table
-    assert "nur in Basis" in table and "nur aktuell" in table
+    assert "G Zug 1 · nur in Basis" in table and "W Zug 1 · nur aktuell" in table
     assert "0,0 pp" in (a["diff-opening-hand"] or "")
     tapped = a["diff-tapped"] or ""
     assert "2 von 8" in tapped and "0 von 8" in tapped and "\u22122" in tapped
