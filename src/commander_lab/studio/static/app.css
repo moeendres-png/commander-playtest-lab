@@ -339,3 +339,6 @@ body:has(#data-state details.datastate[open]) main{min-height:540px}
 .understanding-criteria .nowrap{white-space:nowrap}
 .understanding-criteria td:nth-child(3){min-width:200px}
 .understanding-criteria th{white-space:normal}
+#tam-zukauf .tam-cm-more,#tam-zukauf .tam-cm-stale{display:block;font-size:12px;color:var(--muted)}
+#tam-zukauf .tam-cm-stale{color:var(--warn,var(--muted))}
+#tam-zukauf .tam-cm-price{width:7em}

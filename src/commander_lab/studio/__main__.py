@@ -19,6 +19,7 @@ from . import (
     roles,
     rulings,
     signals,
+    tam_cardmarket,
     tam_prices,
     universe,
 )
@@ -95,13 +96,37 @@ def _parser() -> argparse.ArgumentParser:
     )
     tam_price_cmd = commands.add_parser(
         "import-tam-prices",
-        help="TAM purchase guide values (#1637): only the field prices.eur of a local Scryfall "
-        "bulk file, into the local store only (never committed); nothing is requested",
+        help="TAM purchase approximations (#1637): only the fields prices.eur, prices.eur_foil "
+        "and cardmarket_id of a local Scryfall bulk file, into the local store only (never "
+        "committed); nothing is requested",
     )
     tam_price_cmd.add_argument("path", help="Scryfall bulk file or folder of its .jsonl parts")
     tam_price_cmd.add_argument(
         "--bulk-date",
         help="date of the bulk file (YYYY-MM-DD) when its file name carries none",
+    )
+    guide_cmd = commands.add_parser(
+        "import-cardmarket-priceguide",
+        help="TAM purchase prices (#1637): Cardmarket's published price guide (and singles "
+        "product list) into the local store only; downloads both files once (a copy younger "
+        "than 24 hours in the data folder is reused) unless --file is given; any HTTP status "
+        "other than 200 stops",
+    )
+    guide_cmd.add_argument("--file", help="a price_guide_1.json downloaded before")
+    guide_cmd.add_argument(
+        "--products", help="the matching products_singles_1.json (only with --file)"
+    )
+    guide_cmd.add_argument("--date", help="date of the price guide (YYYY-MM-DD) without createdAt")
+    csv_cmd = commands.add_parser(
+        "import-tam-cardmarket-csv",
+        help="TAM purchase prices (#1637): Cardmarket prices the Owner read, from a local "
+        "Name;Preis;Datum file outside the repository, into the local store only",
+    )
+    csv_cmd.add_argument("deck_id", help="the stored TAM deck")
+    csv_cmd.add_argument("path", help="the Name;Preis;Datum file")
+    csv_cmd.add_argument("--branch", default="main")
+    csv_cmd.add_argument(
+        "--filters", default="DE/EX/EN+DE", help="filters the prices were read under"
     )
     scryfall = commands.add_parser("import-scryfall")
     scryfall.add_argument("path")
@@ -982,6 +1007,36 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
             raise SystemExit(f"import-signals: {error}") from None
     elif args.command == "import-tam-prices":
         result = tam_prices.import_scryfall_prices(store, args.path, bulk_date=args.bulk_date)
+    elif args.command == "import-cardmarket-priceguide":
+        if args.products and not args.file:
+            raise SystemExit(
+                "import-cardmarket-priceguide: --products gilt nur zusammen mit --file "
+                "(ohne --file lädt der Befehl Preisführer und Produktliste selbst)"
+            )
+        try:
+            if args.file:
+                guide, products = args.file, args.products
+            else:
+                if store.path is None:
+                    raise SystemExit("import-cardmarket-priceguide: no data folder")
+                folder = store.path.parent / "cardmarket"
+                fetched = tam_cardmarket.download(folder)
+                guide = str(folder / tam_cardmarket.PRICE_GUIDE_FILE)
+                products = str(folder / tam_cardmarket.PRODUCT_LIST_FILE)
+            result = tam_prices.import_cardmarket_priceguide(
+                store, guide, products_path=products, guide_date=args.date
+            )
+            if not args.file:
+                result["files"] = fetched
+        except (tam_cardmarket.DownloadFailed, ValueError) as error:
+            raise SystemExit(f"import-cardmarket-priceguide: {error}") from None
+    elif args.command == "import-tam-cardmarket-csv":
+        try:
+            result = tam_prices.import_cardmarket_csv(
+                store, args.deck_id, args.path, branch=args.branch, filters=args.filters
+            )
+        except (KeyError, ValueError) as error:
+            raise SystemExit(f"import-tam-cardmarket-csv: {error}") from None
     elif args.command == "import-scryfall":
         result = catalog.import_scryfall_oracle(
             store, args.path, disambiguation_path=args.disambiguation

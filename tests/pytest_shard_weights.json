@@ -336,6 +336,8 @@
   "tests/unit/test_studio_style_and_plan.py": 0.9,
   "tests/unit/test_studio_subarchetypes.py": 0.1,
   "tests/unit/test_studio_swap.py": 0.8,
+  "tests/unit/test_studio_tam_cardmarket.py": 3.1,
+  "tests/unit/test_studio_tam_prices.py": 60.0,
   "tests/unit/test_studio_tierliste_e0.py": 0.1,
   "tests/unit/test_studio_tierliste_role_gaps.py": 0.3,
   "tests/unit/test_studio_tierliste_wp6.py": 1.9,

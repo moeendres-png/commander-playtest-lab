@@ -26,6 +26,7 @@ and bridge are fit for this; it is never edited.
 | `STUDIO_TARGET_SCOPE.md` | Target scope merged with PR #1510; superseded by the scope (now archived) and the decision register |
 | `STUDIO_DECKBUILDER.md`, `STUDIO_GAME_VIEWER.md`, `DECKBUILDER_DATA_1205.md`, `DECKBUILDER_TIERLIST_DESIGN.md` | Deck builder, spectator page, data and tier-list design |
 | `STUDIO_OWNER_PC_SETUP.md`, `STUDIO_ABNAHME_PROTOKOLL.md` | Owner-PC setup prerequisites, preflight and fillable acceptance protocol (AK-1 to AK-8) |
+| `STUDIO_TAM_PREISE.md` | Owner guide to the TAM purchase prices (#1637): entered Cardmarket prices, the Cardmarket price guide download, the Scryfall approximation, spot check |
 | `STUDIO_STATE_EXPORT_FORMAT.md` | Export format `studio-user-state-1` of the Studio user state: backup, migration path, round-trip check (#1668) |
 | `STUDIO_BRIDGE_GATE_TOOLING.md` | Bridge and gate tooling used by the Studio, with the fixed reference set of the Studio bridge gate |
 | `CURRENT_EXECUTION_AUTHORITY.md` | Who runs what, at which effort (with `AGENTS.md` §6–§8) |

@@ -19,6 +19,10 @@ PRICE_FILE = "wishlist.js"
 PRICE_BEGIN = "// TAM-RICHTWERT-BEGIN"
 PRICE_END = "// TAM-RICHTWERT-END"
 TAM_PRICE_ROUTE = "/api/tam/zukauf-richtwerte"
+TAM_ENTRY_ROUTE = "/api/tam/cardmarket-eintrag"
+# The word Cardmarket (#1637 WP-10b): inside the TAM block of wishlist.js (link, labels) and in
+# app.js only inside openTamPurchase (the entry route and the filter setting); nowhere else.
+CARDMARKET_WORD = re.compile(r"cardmarket", re.IGNORECASE)
 
 
 def _outside_price_block(text: str) -> str:
@@ -117,12 +121,26 @@ def test_price_wording_is_opened_only_for_the_one_tam_block() -> None:
             assert TAM_PRICE_ROUTE not in text, path.name
     app = (STATIC / "app.js").read_text(encoding="utf-8")
     assert app.count(TAM_PRICE_ROUTE) == 1 and app.count("tamPurchaseView") == 1
+    assert app.count(TAM_ENTRY_ROUTE) == 1
     opener = app[app.index("async function openTamPurchase(") :]
     opener = opener[: opener.index("\n}\n")]
-    assert TAM_PRICE_ROUTE in opener and "tamPurchaseView" in opener
-    # the working list reaches the server before the question (the server reads the draft)
+    assert TAM_PRICE_ROUTE in opener and "tamPurchaseView" in opener and TAM_ENTRY_ROUTE in opener
+    # the working list reaches the server before the first question (the server reads the draft)
     assert "if (state.dirty && state.needsDraftPut) await syncDraft();" in opener
-    assert opener.index("await syncDraft();") < opener.index(TAM_PRICE_ROUTE)
+    assert opener.index("await syncDraft();") < opener.index("answer = await ask();")
+    # Cardmarket only in the TAM block and the opener; no file requests a Cardmarket address
+    outside_opener = app.replace(opener, "")
+    assert not CARDMARKET_WORD.search(outside_opener)
+    for path in [*_files("*.html"), *_files("*.js"), *_files("*.css")]:
+        text = path.read_text(encoding="utf-8")
+        if path.name == PRICE_FILE:
+            assert CARDMARKET_WORD.search(text[text.index(PRICE_BEGIN) : text.index(PRICE_END)])
+            text = _outside_price_block(text)
+        if path.name != "app.js":
+            assert not CARDMARKET_WORD.search(text), path.name
+            assert TAM_ENTRY_ROUTE not in text, path.name
+        for call in re.findall(r"(?:fetch|request|api)\(([^)]*)\)", text):
+            assert "cardmarket.com" not in call, (path.name, call)
     assert "deck_id: state.deckId, branch: state.branch" in opener
     gate = "!StudioWishlist.tamPricesAllowed(COMMANDER, state.includeUnowned)) return;"
     assert gate in opener and opener.index(gate) < opener.index(TAM_PRICE_ROUTE)
@@ -1951,28 +1969,45 @@ console.log(JSON.stringify({
     # 1234,56 + 2 x 2,50; of the five cards to buy three have no value (two unknown, one zero);
     # the owned card is counted apart, never as "ohne Preis"
     assert result["sum"] == (
-        "Summe (Richtwert): 1.239,56 € · 3 von 5 Karten ohne Preis · 1 im Besitz (kein Preis)"
+        "Summe (eingetragen, sonst Cardmarket-Preisführer, sonst Näherung): 1.239,56 € · "
+        "0 von 5 Karten mit eingetragenem Preis · 0 Preisführer · 2 Näherung · "
+        "3 von 5 Karten ohne Preis · 1 im Besitz (kein Preis)"
     )
     assert result["sumCentsUnknown"] is None  # no sum, not a sum of 0
-    assert result["sumUnknown"] == "Summe (Richtwert): unbekannt · 6 von 6 Karten ohne Preis"
-    assert result["sumEmpty"] == "Summe (Richtwert): unbekannt · 0 von 0 Karten ohne Preis"
+    assert result["sumUnknown"] == (
+        "Summe (eingetragen, sonst Cardmarket-Preisführer, sonst Näherung): unbekannt · "
+        "0 von 6 Karten mit eingetragenem Preis · 0 Preisführer · 0 Näherung · "
+        "6 von 6 Karten ohne Preis"
+    )
+    assert result["sumEmpty"] == (
+        "Summe (eingetragen, sonst Cardmarket-Preisführer, sonst Näherung): unbekannt · "
+        "0 von 0 Karten mit eingetragenem Preis · 0 Preisführer · 0 Näherung · "
+        "0 von 0 Karten ohne Preis"
+    )
     view = str(result["view"])
-    assert "Scryfall prices.eur (lokale Bulk-Datei)" in view and "Bulk-Datum 2026-11-20" in view
-    assert "Richtwert" in view and "im Besitz (kein Preis)" in view and "unbekannt" in view
+    assert (
+        "Näherung aus Scryfall (Cardmarket-Preisführer, kein Filter Deutschland/Excellent)" in view
+    )
+    assert "Stand 2026-11-20" in view and "Kein Cardmarket-Preisführer importiert" in view
+    assert "im Besitz (kein Preis)" in view and "unbekannt" in view
     assert view.index("Alpha Walker") < view.index("Beta Key") < view.index("Charlie Unknown")
     for shown in (view, str(result["emptyView"]), str(result["filteredView"])):
         assert "0,00 €" not in shown and " 0 €" not in shown
-    assert "Kein Preis-Schnappschuss importiert" in str(result["emptyView"])
+    assert "Kein Scryfall-Schnappschuss importiert: keine Näherung" in str(result["emptyView"])
     # the command the empty state names is the real one (python -m, not a missing alias)
     assert "python -m commander_lab.studio import-tam-prices" in str(result["emptyView"])
-    assert "Summe (Richtwert): unbekannt" in str(result["emptyView"])
+    assert (
+        "Summe (eingetragen, sonst Cardmarket-Preisführer, sonst Näherung): " + "unbekannt"
+        in str(result["emptyView"])
+    )
     assert (
         "Budgetfilter: 1 Karten über dem Höchstwert, 3 Karten ohne Preis und 1 im Besitz "
         "ausgeblendet." in str(result["filteredView"])
     )
     wishlist = (STATIC / "wishlist.js").read_text(encoding="utf-8")
     # only the planning functions named in the register: no cumulative pick, no cheapest offer
-    for forbidden in ("günstigst", "Angebot:", "Cardmarket", "kaufen", "Warenkorb", "wants"):
+    # (Cardmarket stands only in the TAM block: test_price_wording_is_opened_only_for_the_one_tam_block)
+    for forbidden in ("günstigst", "Angebot:", "kaufen", "Warenkorb", "wants"):
         assert forbidden.casefold() not in wishlist.casefold(), forbidden
 
 
