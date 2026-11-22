@@ -15,7 +15,7 @@
 - **„Besser“ (§7):** B1 ICC(2,1) 0,82 [0,80; 0,84], Spearman-Brown vorhergesagt 0,90 (n = 922). **B2 gegen G1: „unbelegt“** (Familie R2 gegen G1 unbekannt). B3 Retest (50/50, nur beschreibend): ICC 0,96, SD_Retest/√2 = 3,93, Verzerrung +1,5.
 - **Abweichungen |d| ≥ 15:** **266 von 922** (28,8 %), davon |d| ≥ 30: 22. Alle markiert, nichts gelöscht.
 - **Regelclaims (blind zur Herkunft):** offensichtlich falsch **0 von 50** (Welle 2) und **0 von 50** (F1), beide grün.
-- **Lesart des Co-Leads (§6, wörtlich):** Streuung „mindestens ±8“ bleibt; Spells-Unterschied ist ein Rater-Unterschied, keine Wahrheitsaussage; **K1 nicht anwenden**; Vorschlag an den Owner: Anzeige H_pooled mit `n_bewertungen` und Marke „Bewertungen weichen stark ab“.
+- **Lesart des Co-Leads (Zusammenfassung; Wortlaut in §6):** Streuung „mindestens ±8“ bleibt; Spells-Unterschied ist ein Rater-Unterschied, keine Wahrheitsaussage; **K1 nicht anwenden**; Vorschlag an den Owner: Anzeige H_pooled mit `n_bewertungen` und Marke „Bewertungen weichen stark ab“.
 - **Grenzen:** Familie und Dateizugriff der Rater UNKNOWN (nur Selbstauskunft, A3); Regelclaim-Prüfer sind Modell-Instanzen; B2 unbelegt; für Länder kein Schluss (§7).
 
 ## 1. Reihenfolge der Schritte (Plan §9) mit Belegen
@@ -24,8 +24,8 @@ Belegt durch Zeitstempel der GitHub-Kommentare und Merge-Zeiten (UTC). Dateizeit
 
 | Schritt | Zeitpunkt | Beleg |
 |---|---|---|
-| Plan, Eingaben, Guides im Repo | 2026-11-22T16:41:48Z | #1761, Squash `73c22de3` |
-| Lauf Chargen 1 bis 8 (Start laut Protokoll 16:45Z) | bis 16:52Z | `run_log_redacted.md` |
+| Plan, Eingaben, Guides im Repo | Draft-Commit 2026-11-22T16:19:39Z; Squash 16:41:48Z | #1761, Draft-Commit `a3cd2b4af` (Lauf-Eingaben byte-gleich), Squash `73c22de3` |
+| Lauf Chargen 1 bis 8 | Start und Ende je Charge nicht protokolliert; Entscheid Retest-Charge 8 „vor dem Start“ 16:45Z; alle Ausgaben fertig vor dem Freeze | `run_log_redacted.md` |
 | **Freeze:** SHA-256 der 8 Ausgaben gepostet, vor jedem Öffnen | 16:52:39Z | [Kommentar 7082408782](https://github.com/moeendres-png/commander-playtest-lab/issues/1404#issuecomment-7082408782) |
 | Auswerteskript committet (vor dem ersten Lesen) | 20:44:27Z | #1763, Squash `2987afc6` |
 | **Verweis-Treffer** (`hits`, nur Treffersätze, keine Werte) | 20:45:27Z | [Kommentar 7085521227](https://github.com/moeendres-png/commander-playtest-lab/issues/1404#issuecomment-7085521227) |
@@ -221,7 +221,7 @@ Die 22 Karten mit |d| ≥ 30 (alle markiert, keine gelöscht oder ersetzt):
 
 ## 10. Herkunft und Reproduktion
 
-Alle Dateien unter `data/research/chulane_rubric_v2_20261118/second_run_full_20261122/`; die vollständige SHA-256-Liste der in diesem PR neuen Dateien steht in `results_sha256.txt` (gleicher Ordner, `sha256sum`-Format).
+Alle Dateien unter `data/research/chulane_rubric_v2_20261118/second_run_full_20261122/`; die SHA-256-Liste der in diesem PR neuen Dateien dieses Ordners steht in `results_sha256.txt` (gleicher Ordner, `sha256sum`-Format).
 
 | Datei | Inhalt | SHA-256 (gepostet in) |
 |---|---|---|
