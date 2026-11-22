@@ -602,5 +602,8 @@ def test_play_sessions_refuse_seven_or_eight_seats_with_a_human_seat_in_their_ow
 
 def test_the_scenario_model_seats_eight_and_refuses_seat_nine() -> None:
     assert _future(8).seat == 8
+    # the field bound itself (the published schema), not only the seat <= player_count validator
+    props = FutureXmageScenario.model_json_schema()["properties"]
+    assert (props["seat"]["maximum"], props["player_count"]["maximum"]) == (8, 8)
     with pytest.raises(ValidationError):
         _future(8).model_validate({**_future(8).model_dump(), "seat": 9})

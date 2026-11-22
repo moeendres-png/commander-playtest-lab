@@ -885,11 +885,16 @@ Auslegung des Co-Leads (Einspruch des Owners jederzeit möglich).
    `docs/fable-sonnet-haiku-reports`); das Register führt nur den Befund zu (a).
    **Bedingung (a) ist bei 8 Sitzen nicht erfüllt, sondern vom Owner akzeptiert:** 7 Sitze gleichen
    in allen Feldern 8/8 und 8/8; bei 8 Sitzen gleichen Transkript, Sieger und Entscheidungen 8/8,
-   der normalisierte Frame-Digest nur 7/8 (Seed 7: in 2 von 7.238 Frames steht ein Friedhof in
-   anderer Reihenfolge, von Lauf zu Lauf verschieden; `LOCAL_OBSERVED`, N = 8 Seeds, allgemein
-   `UNKNOWN`, Ursache nicht gezeigt). „Gemessen und gleich“ im Sinne von E16 Nr. 2 gilt damit für
-   8 Sitze nicht; die Freigabe beruht für 8 Sitze allein auf dem Owner-Wort (Nr. 7). Ein Eingriff
-   in die Engine (Fork) bräuchte ein eigenes Owner-Go (`AGENTS.md` §8).
+   der normalisierte Frame-Digest weicht in 1 von 8 Partien ab (Seed 7; in dieser Partie in 2 von
+   7.238 Frames, ab Frame 1.286: die Reihenfolge des Friedhofs von Sitz 4). Nachmessung nach dem
+   Review von #1762: Seed 7 noch dreimal einzeln, je eigene JVM ohne vorherige Partie: 0/3 gleich
+   der Einzel-Basis, alle vier Einzelläufe paarweise verschieden (6/6 Paare), immer nur in diesem
+   Friedhof; `up` gegen `down` ebenfalls 7/8 (Seed 7). Das Muster tritt also auch ohne
+   JVM-Vorgeschichte von Lauf zu Lauf auf; die Ursache (Engine oder Bridge) ist nicht gezeigt
+   (`LOCAL_OBSERVED`, N = 8 Seeds und 4 Einzelläufe eines Seeds, allgemein `UNKNOWN`). „Gemessen
+   und gleich“ im Sinne von E16 Nr. 2 gilt damit für 8 Sitze nicht: Das Owner-Wort (Nr. 7) trägt
+   die Abweichung bei 8 Sitzen als akzeptiert, nicht als erfüllt; E16 Nr. 6 deckte nur 6 Sitze.
+   Ein Eingriff in die Engine (Fork) bräuchte ein eigenes Owner-Go (`AGENTS.md` §8).
 5. **Zurücksetzen** (Auslegung des Co-Leads, fail-closed, jederzeit bei einem Defekt oder auf
    Owner-Wunsch): `MAX_RELEASED_SEATS = 6` plus `PAIRED_RELEASED_SEATS = 6` in `paired.js`; das
    ist ein Einzeiler je Datei. Eine erneute Freigabe oder geänderte Bedingungen sind Owner-Sache.
@@ -906,7 +911,10 @@ Auslegung des Co-Leads (Einspruch des Owners jederzeit möglich).
    in 2 von 7.238 Frames steht ein Friedhof in anderer Reihenfolge, von Lauf zu Lauf verschieden,
    Ursache UNKNOWN); bei 6 Sitzen gab es dieselbe Art Abweichung und der Owner hat zugestimmt; 7
    Sitze: 8/8 und 8/8 in allen Feldern. Wie soll 7/8 freigegeben werden?“ Antwort des Owners
-   (Auswahl, Wortlaut): **„7 und 8 freigeben (Empfehlung)“**. Damit sind 7 und 8 Sitze für
+   (Auswahl, Wortlaut): **„7 und 8 freigeben (Empfehlung)“**. Einordnung der Prämisse: „von Lauf zu
+   Lauf verschieden“ war zum Zeitpunkt der Frage nur teils belegt (die drei damaligen Läufe hatten
+   verschiedene JVM-Vorgeschichte); die Nachmessung (Nr. 4) zeigt es für Einzelläufe ohne
+   Vorgeschichte, die Ursache bleibt UNKNOWN. Damit sind 7 und 8 Sitze für
    Simulationen freigegeben; die Abweichung steht hier als beobachteter Lauf-zu-Lauf-Effekt,
    Ursache UNKNOWN (Nr. 4), nicht als erfüllte Bedingung. Zurücksetzen der SIMULATE-Sperre auf 6 ist
    jederzeit erlaubt (Nr. 5, Auslegung des Co-Leads, fail-closed); eine Neufreigabe entscheidet nur
