@@ -146,6 +146,15 @@ def series_status(raw: Mapping[str, object]) -> str:
     return STATUS_COMPLETED
 
 
+def series_table_size(raw: Mapping[str, object]) -> int | None:
+    """The table size a stored series names (#1661): ``seed_plan.player_count`` (2 to 6), else
+    None ("Tischgröße unbekannt", an older record). Never the number of tested seats: a series
+    without seat rotation tests one seat at any table size."""
+    plan = raw.get("seed_plan")
+    count = plan.get("player_count") if isinstance(plan, dict) else None
+    return count if type(count) is int and 2 <= count <= 6 else None
+
+
 def _entry(raw: Mapping[str, object], status: str) -> dict[str, object]:
     result = raw.get("result")
     res: Mapping[str, object] = result if isinstance(result, dict) else {}
@@ -195,6 +204,8 @@ def _entry(raw: Mapping[str, object], status: str) -> dict[str, object]:
         "seeds": seeds,
         "tested_seats": seats,
         "seats_planned": not counts,
+        # 4-, 5- and 6-seat series are separate cohorts (base win rate 1/N); None = unknown
+        "table_size": series_table_size(raw),
         "pilots": _str_list(res.get("pilots")),
         "bridge_jar_sha256s": bridge_shas,
         "bridge_qualification_states": qualification,

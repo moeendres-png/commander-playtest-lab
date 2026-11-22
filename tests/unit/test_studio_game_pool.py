@@ -1377,8 +1377,10 @@ def test_two_starts_of_one_series_never_overwrite_the_first_manifest(
 
 def test_the_wall_limit_is_set_per_seat_count_without_changing_the_table_hash() -> None:
     assert [table_spec.game_wall_limit_seconds(n) for n in (2, 3, 4)] == [1800.0] * 3
-    for seats in (5, 6):
-        with pytest.raises(ValueError, match="S2/F6"):
+    # five and six seats: the 1,800 s every part-B pool game finished under (#1661, F6)
+    assert [table_spec.game_wall_limit_seconds(n) for n in (5, 6)] == [1800.0] * 2
+    for seats in (1, 7):
+        with pytest.raises(ValueError, match="keine Wandzeit-Grenze"):
             table_spec.game_wall_limit_seconds(seats)
     spec = table_spec.TableSpec(seats=3, opponents=["a", "b"])
     assert spec.game_wall_limit_seconds() == 1800.0

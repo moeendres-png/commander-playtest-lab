@@ -635,11 +635,26 @@ def _one(
         "n": _int(entry.get("pairs_completed")),
         "N": _int(entry.get("pairs_planned")),
         "bezug": "Paare (abgeschlossen / geplant)",
+        **table_fields(entry.get("table_size")),
         "stand": stand,
         "empfehlungsfaehig": not reasons,
         "empfehlungsfaehig_gruende": reasons,
         "hinweise": notes,
         "data_class": DATA_CLASS,
+    }
+
+
+def table_fields(value: object) -> dict[str, object]:
+    """The table of a finding (#1661): its seat count and a text naming it with the base win
+    rate 1/N; an unknown size stays "Tischgröße unbekannt", never 4. Findings of different
+    table sizes are separate cohorts: the Holm family already follows the ``table_hash``,
+    which holds the seat count."""
+    size = _int(value)
+    if size is None or size < 2:
+        return {"tisch_sitze": None, "tisch_text": "Tischgröße unbekannt"}
+    return {
+        "tisch_sitze": size,
+        "tisch_text": f"Tisch mit {size} Sitzen (Zufallsbasis 1/{size})",
     }
 
 

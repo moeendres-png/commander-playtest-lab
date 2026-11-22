@@ -107,7 +107,8 @@ def test_duration_is_unknown_where_no_throughput_is_measured_and_never_zero() ->
     four = paired_series.estimate_series_duration(40, table_size=4)
     assert four["duration_known"] is True and four["minimum_minutes"] == 8.9
     assert four["measured_table_seats"] == 4 and four["measured_games"] is None
-    for seats in (2, 3, 5, 6):
+    # five and six seats are a derived estimate since #1661 part B (test_seats56_evaluation.py)
+    for seats in (2, 3):
         est = paired_series.estimate_series_duration(25, seats_per_seed=seats, table_size=seats)
         assert est["duration_known"] is False
         for key in ("minimum_seconds", "minimum_minutes", "estimated_seconds", "estimated_minutes"):
@@ -297,10 +298,11 @@ def test_with_the_lock_lifted_locally_the_series_route_plans_and_plays_whole_blo
     assert result["pairs_completed"] == block and result["pairs_censored"] == 0
     assert result["data_class"] == "SIMULATED_RESULT"
     assert job["games_played"] == 2 * block and job["games_planned_max"] == 2 * block
-    # duration: nothing is measured at this table, so the record says unknown, never a number
+    # duration (#1661 part B): a derived estimate from the measured wall ratio, never a floor
     estimate = job["estimate"]
     assert isinstance(estimate, dict)
-    assert estimate["duration_known"] is False and estimate["minimum_minutes"] is None
+    assert estimate["duration_kind"] == "derived_estimate" and estimate["minimum_minutes"] is None
+    assert estimate["minimum_is_lower_bound"] is False
     assert estimate["table_size"] == seats and estimate["max_games"] == 2 * block
 
 
@@ -440,7 +442,8 @@ def test_the_plan_route_plans_a_locked_table_and_says_it_starts_nothing(
         assert "nicht freigegeben" in table["locked_text"]
         assert "Das Studio startet 2 bis 4 Sitze" in table["locked_text"]
     effort = table["effort"]
-    assert effort["max_games"] == 2 * block and effort["duration_known"] is released
+    # duration known at 4 (floor) and, since #1661 part B, at 5 and 6 (derived, never a floor)
+    assert effort["max_games"] == 2 * block and effort["duration_known"] is True
     assert (effort["minimum_minutes"] is not None) is released
     assert "planning" not in effort
     # a fixed seat plays one seat per seed
@@ -763,9 +766,9 @@ console.log(JSON.stringify({ first, six, sixIncomplete, posts: page.calls.filter
     opponents = ", ".join(launch.pod_opponent_ids("precon", 5))
     assert f"Gegner (Sitz 2 bis 6): {opponents}" in six["plan"]
     assert "Tische mit 6 Sitzen sind nicht freigegeben" in six["plan"]  # the server's own text
-    est = six["estimate"]
-    assert est.startswith("Dauer: unbekannt (UNKNOWN)") and "n = 0 Partien" in est
-    assert "bis zu 72 Partien (36 je Arm)" in est and "mindestens" not in est
+    est = six["estimate"]  # #1661 part B: derived from the measured wall ratio, never a floor
+    assert est.startswith("Dauer: geschätzt ~") and "keine Untergrenze" in est
+    assert "bis zu 72 Partien" in est and "mindestens" not in est
     # a locked table never posts
     assert out["posts"] == 0 and any("nicht freigegeben" in t for t in out["toasts"])
     assert "Rotation unvollständig: 1 volle Blöcke plus 4 Paare" in out["sixIncomplete"]
@@ -842,9 +845,10 @@ console.log(JSON.stringify({
     assert isinstance(out, dict)
     assert out["four"].startswith("Dauer: mindestens ~8,9 min für bis zu 80 Partien")
     assert out["fourDefault"] == out["four"]
-    for key, games in (("five", "50"), ("two", "20")):
+    for key, games in (("two", "20"),):  # five seats: test_seats56_evaluation.py (#1661)
         assert out[key].startswith("Dauer: unbekannt (UNKNOWN)")
         assert f"bis zu {games} Partien" in out[key] and "mindestens" not in out[key]
+    assert out["five"].startswith("Dauer: geschätzt ~") and "mindestens" not in out["five"]
     assert out["mon5"] == "Tisch: 5 Sitze, getestete Sitze: 5."
     assert out["monOld"] == "Tisch: Sitzzahl unbekannt (ältere Serie)."
     assert out["opts"] == [[2, False], [3, False], [4, False], [5, True], [6, True]]

@@ -88,7 +88,7 @@ function experimentMaturity(h, detail) {
   const pairs = befund.n === null || befund.N === null ? "Paare unbekannt" : `n/N ${StudioUI.num(befund.n)} / ${StudioUI.num(befund.N)} ${befund.bezug}`;
   return h("div", { class: "evidence-row" },
     befund.stufe ? h("span", { class: "pill" }, befund.stufe_text) : h("span", { class: "muted" }, befund.stufe_text),
-    h("div", {}, `Ergebnis (simuliert): ${befund.urteil_text} · ${pairs}`),
+    h("div", {}, `Ergebnis (simuliert): ${befund.urteil_text} · ${pairs} · ${typeof befund.tisch_text === "string" && befund.tisch_text ? befund.tisch_text : "Tischgröße unbekannt"}`),
     h("div", { class: other ? "muted" : "" },
       other ? h("span", { class: "pill warn" }, "anderer Stand") : null,
       other ? " " : "",
@@ -117,6 +117,15 @@ function experimentFinding(h, detail, zahlen) {
     h("div", { class: "muted" }, `Herkunft: Plan ${experimentText(detail.sources && detail.sources.plan)} · Ergebnis ${experimentText(detail.sources && detail.sources.result)} · ${experimentText(detail.sources && detail.sources.index)}`));
 }
 
+// The table of the plan (#1661): its seat count from the resolved table; 4-, 5- and 6-seat
+// experiments are separate cohorts (own Holm family, own base win rate 1/N). Unknown stays text.
+function experimentTableText(detail) {
+  const seats = detail && detail.table ? detail.table.seats : null;
+  return Number.isInteger(seats) && seats >= 2
+    ? `Tisch: ${StudioUI.num(seats, 0)} Sitze (Zufallsbasis 1/${StudioUI.num(seats, 0)}, eigene Kohorte)`
+    : "Tisch: Tischgröße unbekannt";
+}
+
 function experimentPlan(h, detail) {
   const plan = detail.plan;
   const [cls, text] = EXPERIMENT_PLAN_STATE[detail.plan_state] || ["pill warn", "Plan-Zustand unbekannt"];
@@ -128,6 +137,7 @@ function experimentPlan(h, detail) {
     h("div", {}, h("span", { class: cls }, text)),
     h("div", {}, `Zweck: ${experimentPurpose(detail.purpose)}`),
     h("div", {}, `Seeds: ${seedText}`),
+    h("div", {}, experimentTableText(detail)),
     h("div", {}, `Sitze getestet: ${Array.isArray(detail.tested_seats) ? detail.tested_seats.map((seat) => StudioUI.num(seat + 1)).join(", ") : "unbekannt"}`),
     h("div", {}, `Tisch-Hash: ${experimentShort(detail.table_hash)}`),
   ];
@@ -318,5 +328,5 @@ async function renderExperiments(slot, historyRows, deps) {
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { renderExperiments, experimentDetailView, experimentListTable, experimentLegacyNote, experimentConsequences, experimentPairs, experimentOpen };
+  module.exports = { renderExperiments, experimentDetailView, experimentListTable, experimentLegacyNote, experimentConsequences, experimentPairs, experimentOpen, experimentTableText };
 }

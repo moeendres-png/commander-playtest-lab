@@ -1345,6 +1345,7 @@ class InteractivePlayManager:
             "header": header,
             "cohort": recorded.get("cohort", COHORT_UNKNOWN),
             "played_seats": recorded.get("played_seats", []),
+            "table_size": recorded.get("table_size"),
             "human_seats": human_list,
             "decision_timeout_seconds": (
                 header.get(

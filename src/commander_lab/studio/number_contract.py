@@ -582,6 +582,13 @@ def _outcome_table(
         )
 
 
+def _series_cohort(series: Mapping[str, object]) -> str:
+    """The cohort of a stored series (#1661): its pod and its table size, the size always named
+    (a 4-, 5- and 6-seat series of one pod are three cohorts, never one figure)."""
+    size = _table_size_text(series)
+    return f"Tisch {series.get('pod')} · {size}" if _text(series.get("pod")) else size
+
+
 def series_zahlen(
     payload: Mapping[str, object], hashes: Mapping[str, str]
 ) -> list[dict[str, object]]:
@@ -614,7 +621,7 @@ def series_zahlen(
             N=planned,
             bezug="Paare (abgeschlossen / geplant)",
             intervall=_interval(series.get("difference_ci95_pp")),
-            kohorte=f"Tisch {series.get('pod')}" if _text(series.get("pod")) else None,
+            kohorte=_series_cohort(series),
             stand_datum=created[:10] if isinstance(created, str) and created else None,
             stand_hash=hashes.get(str(series.get("variant_ref"))),
             basis_hash=hashes.get(str(series.get("base_ref"))),
