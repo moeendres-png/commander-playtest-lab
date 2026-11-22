@@ -15,7 +15,7 @@
 | Determinismus 7 Sitze (Tisch A7, Seeds 1–8, jede Partie in eigener JVM gegen 8 Partien je JVM auf- und absteigend) | 24/24 Partien beendet. Gegen `up` und gegen `down`: Status, Transkript, Sieger, Entscheidungen, Frame-Zahl und normalisierter Frame-Digest je **8/8** gleich |
 | Determinismus 8 Sitze (Tisch A8, gleiche Methode) | 24/24 Partien beendet. Transkript, Sieger, Entscheidungen und Frame-Zahl je **8/8** gleich; normalisierter Frame-Digest **7/8** gegen `up` und **7/8** gegen `down` |
 | Echt-Engine-Smoke über den Studio-Serienpfad (`compare-decks`, 2 Paare je Tisch, Tisch `precon` A7/A8) | 7 Sitze: 4/4 Partien beendet, 0 gescheitert. 8 Sitze: 4/4 beendet, 0 gescheitert. `series_table_check` = (7 bzw. 8, `consistent`), also Evidenzzeile „Tisch mit 7/8 Sitzen“. Ausgabe trägt `BRIDGE_AHEAD_OF_QUALIFICATION` |
-| PLAY-Echt-Engine-Tests (`test_human_seat_play_1169.py` mit AFTER-JAR) | **100/100** grün, 0 übersprungen (PLAY 5/6 unverändert) |
+| `test_human_seat_play_1169.py` mit AFTER-JAR | **100/100** Testfälle grün, davon 9 Echt-Engine-Fälle (laufen nur mit JAR, ohne JAR 9 übersprungen), 0 übersprungen (PLAY 5/6 unverändert) |
 
 **Befund 8 Sitze, Seed 7 (`LOCAL_OBSERVED`, Ursache UNKNOWN):** Die Abweichung steht in 2 von 7.238 Frames, erstmals in Frame 1.286 (Zug 31, `choose_use` „Move Bello, Bard of the Brambles … to the command zone …?“). In `players[3].graveyard` stehen dieselben Karten in anderer Reihenfolge. Alle drei Läufe (einzeln, `up`, `down`) weichen paarweise voneinander ab. Das ist also ein Effekt von Lauf zu Lauf, nicht vom Stapeln (Batching). Transkript, Entscheidungen und Sieger sind in allen Läufen gleich. Bei 6 Sitzen gab es einen ähnlichen Befund (Seed 4, Schadensmarker, E16 Nr. 6). Das Owner-Wort dort deckt nur 6 Sitze. Nichts ist umklassifiziert (Register, Entscheide 2026-11-20/21 Nr. 2). Ob Bedingung (a) bei 8 Sitzen als erfüllt gilt, entscheidet der Owner.
 
@@ -28,7 +28,7 @@
 
 Speicher bei 16 Partien je JVM (Studio-Standard): UNKNOWN (n = 0).
 
-**Mutationen** (`mutate.out`, eigener Worktree am Stand `6ce01aba`): **22/22** getötet. M13 (Tischprüfung `deck_series` zurück auf 2..6) überlebte zuerst. Danach wurde der Test um die Herkunft „aus Plan und gespielten Partien“ geschärft, und der Nachlauf tötete M13. Abgedeckt sind: beide Sperren und die Rücknahme auf 6, die Code-Obergrenze, die Partie-Grenze, Runner und Handshake (nur 8, oder auch 7), Policy, Bindung, Szenario-Modell, Planer-Basis, die Sperrzeile der Seite, ein gekürztes Preset, die Wandgrenze bei 7 Sitzen (der Pool würde sich öffnen), die Java-Konstante, der Spiegel der Referenzwerte, `load_decks`, `DeckComparisonSpec` und der Dauer-Hinweis.
+**Mutationen** (`mutate.out`, eigener Worktree am Stand `6ce01aba`): **22/22** getötet; nach dem Review von #1762 drei weitere (Partie-Body über `MAX_SEATS`, Batch-Grenze 8→6, Code-Obergrenze für die angepassten Readiness-/CLI-Tests): 3/3 getötet. M13 (Tischprüfung `deck_series` zurück auf 2..6) überlebte zuerst. Danach wurde der Test um die Herkunft „aus Plan und gespielten Partien“ geschärft, und der Nachlauf tötete M13. Abgedeckt sind: beide Sperren und die Rücknahme auf 6, die Code-Obergrenze, die Partie-Grenze, Runner und Handshake (nur 8, oder auch 7), Policy, Bindung, Szenario-Modell, Planer-Basis, die Sperrzeile der Seite, ein gekürztes Preset, die Wandgrenze bei 7 Sitzen (der Pool würde sich öffnen), die Java-Konstante, der Spiegel der Referenzwerte, `load_decks`, `DeckComparisonSpec` und der Dauer-Hinweis.
 
 ## Nicht gelaufen (NOT_RUN / UNKNOWN)
 
