@@ -67,3 +67,5 @@ tests/qualification/_bridge_stubs/
 # Per-shard logs of tests/pytest_shards.py (written next to the JUnit report)
 pytest-shard-*.log
 .pytest-junit-shard-*.xml
+# Maven fetched by scripts/bootstrap_engine_linux.sh (one-click starter fallback, Refs #1519).
+.tools/

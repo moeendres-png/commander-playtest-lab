@@ -575,8 +575,11 @@ def engine_meldet_pin(u: Umgebung, java: str, jar: Path) -> str | None:
         '{"request_id":"studio-start-2","protocol_version":"2.0.0",'
         '"message_type":"shutdown_engine"}\n'
     )
+    workdir = u.data / "engine-laufzeit"  # XMage writes ./db/ into its working folder
+    workdir.mkdir(parents=True, exist_ok=True)
     done = u.run(
         [java, "-jar", str(jar), "full-game"],
+        cwd=workdir,
         capture=True,
         timeout=HANDSHAKE_TIMEOUT,
         stdin_text=requests,

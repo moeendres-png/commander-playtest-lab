@@ -21,7 +21,7 @@ from commander_lab.studio import oneclick as oc
 PIN = "a" * 40
 OTHER_PIN = "b" * 40
 HEAD = "c" * 40
-SECRET = "ghp_SECRETSECRETSECRET"
+SECRET = "TOKEN-DARF-NIE-ERSCHEINEN"
 
 Rule = tuple[
     Callable[[list[str]], bool], oc.Lauf | Callable[[list[str], dict[str, object]], oc.Lauf]
@@ -762,3 +762,11 @@ def test_a_store_locked_by_a_running_studio_is_not_empty(world: World) -> None:
     finally:
         holder.rollback()
         holder.close()
+
+
+def test_the_handshake_runs_outside_the_repository(world: World) -> None:
+    u, run, _out = world
+    oc.engine_meldet_pin(u, "java", Path("x.jar"))
+    cwd = Path(str(run.kwargs[-1]["cwd"]))
+    assert not cwd.resolve().is_relative_to(u.repo.resolve())
+    assert cwd.resolve().is_relative_to(u.data.resolve())
