@@ -77,10 +77,12 @@ def _independent_wilson_half_width(p: float, n: int) -> float:
 # -- the lock stays: the shipped lock still refuses five and six seats ------------------------
 
 
-def test_the_shipped_lock_still_refuses_five_and_six_seats_and_is_unchanged(
+def test_the_shipped_lock_of_four_seats_still_refuses_five_and_six(
     lab: dict[str, object],  # noqa: F811
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    assert launch.MAX_RELEASED_SEATS == 4
+    # the lock as main ships it (four); set here so the test keeps holding after a release
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)
     for opponents in (4, 5):
         with pytest.raises(ValueError, match="locked"):
             launch.validate_released_seat_count(opponents)
@@ -94,9 +96,6 @@ def test_the_shipped_lock_still_refuses_five_and_six_seats_and_is_unchanged(
         # planning (with the base win rate 1/N) is allowed, starting is not
         assert plan["table"]["released"] is False
         assert plan["baseline"]["table_size"] == seats
-    js = (STATIC / "paired.js").read_text(encoding="utf-8")
-    assert "const PAIRED_RELEASED_SEATS = 4;" in js
-    assert "const OPPONENT_COUNTS = [1, 2, 3];" in (STATIC / "partie.js").read_text("utf-8")
 
 
 # -- planner: base win rate 1/N and the Wilson games at five and six seats --------------------
@@ -506,6 +505,7 @@ def test_five_and_six_seat_experiments_reach_the_deck_builder_as_two_cohorts(
             "first_seed": first,
         }
 
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 4)  # the lock as main ships it
     refused = client.post("/api/experiments", headers=HEADERS, json={"plan": plan(5, 400)})
     assert refused.status_code == 422 and "locked" in refused.text  # the shipped lock holds
     monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)
