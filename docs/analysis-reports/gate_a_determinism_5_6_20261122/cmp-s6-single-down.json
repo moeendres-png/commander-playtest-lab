@@ -1,0 +1,119 @@
+{
+ "summary": {
+  "status": "8/8",
+  "semantic_transcript_sha256": "8/8",
+  "winner_seats": "8/8",
+  "decision_count": "8/8",
+  "frames": "8/8",
+  "frame_digest_norm": "7/8",
+  "frame_digest_raw": "0/8"
+ },
+ "N": 8,
+ "rows": [
+  {
+   "game": "g56-s6-1.jsonl.gz",
+   "base_sha256": "dcbb36d75d0d73ce86a17198cf5d193b1de51163b597848659789edc1b80b4b2",
+   "other_sha256": "bee52b9e0367e9e19cafd5c3051aa4a194c2157bb1f08e716e2fbdba34e0c6fc",
+   "equal": {
+    "status": true,
+    "semantic_transcript_sha256": true,
+    "winner_seats": true,
+    "decision_count": true,
+    "frames": true
+   },
+   "frame_digest_norm_equal": true
+  },
+  {
+   "game": "g56-s6-2.jsonl.gz",
+   "base_sha256": "e70853745a4bf11dab7275a322cb6da79d3666ca3aea5da2f290049a9c08eaaa",
+   "other_sha256": "ad817aa7cff35ad4c6c95ee4189e7311e8f52e9c99fa75cd972d68f4e61fd065",
+   "equal": {
+    "status": true,
+    "semantic_transcript_sha256": true,
+    "winner_seats": true,
+    "decision_count": true,
+    "frames": true
+   },
+   "frame_digest_norm_equal": true
+  },
+  {
+   "game": "g56-s6-3.jsonl.gz",
+   "base_sha256": "c8978e7067a3913b28b594b76e96a3aedd29f15c24d49f4aa46cecd91edd4f6f",
+   "other_sha256": "dc7d3450d3f016a15d41cef58000958e60ad0fe110d6c901b49b06c5bf4b6480",
+   "equal": {
+    "status": true,
+    "semantic_transcript_sha256": true,
+    "winner_seats": true,
+    "decision_count": true,
+    "frames": true
+   },
+   "frame_digest_norm_equal": true
+  },
+  {
+   "game": "g56-s6-4.jsonl.gz",
+   "base_sha256": "eaf2b67de4e3b54e69979aee2261c70beb55832278e8aaef48d0a11099c98926",
+   "other_sha256": "03f49f1e93a6ffe832bb281d10337c36f099db204fefe8edc860e1343534e94a",
+   "equal": {
+    "status": true,
+    "semantic_transcript_sha256": true,
+    "winner_seats": true,
+    "decision_count": true,
+    "frames": true
+   },
+   "frame_digest_norm_equal": false,
+   "first_differing_frame": 3694
+  },
+  {
+   "game": "g56-s6-5.jsonl.gz",
+   "base_sha256": "d03da709dd615d629e6ad3ab1cdf7b737794f751f4d28633d8ae68885c0b7f16",
+   "other_sha256": "38b98a04a59e8381117290dfad28e6685ed97c72453e6ae2051d01ce142f003f",
+   "equal": {
+    "status": true,
+    "semantic_transcript_sha256": true,
+    "winner_seats": true,
+    "decision_count": true,
+    "frames": true
+   },
+   "frame_digest_norm_equal": true
+  },
+  {
+   "game": "g56-s6-6.jsonl.gz",
+   "base_sha256": "7b6913ff1fe1942062886d1da036f449bf0d96895308c0136a2181186bb976b0",
+   "other_sha256": "8f86cf34081743f39793aca5459d8f51a3f5ca29f1d6d73cc13c58e16f36e2a9",
+   "equal": {
+    "status": true,
+    "semantic_transcript_sha256": true,
+    "winner_seats": true,
+    "decision_count": true,
+    "frames": true
+   },
+   "frame_digest_norm_equal": true
+  },
+  {
+   "game": "g56-s6-7.jsonl.gz",
+   "base_sha256": "dd3e8a6425194115655d80eb313f8ca5d708087c3510833e3ea4e8f232413881",
+   "other_sha256": "486568ee4500e7da280d34ff3f141a0e620518533ddfaadceda32ee61031b611",
+   "equal": {
+    "status": true,
+    "semantic_transcript_sha256": true,
+    "winner_seats": true,
+    "decision_count": true,
+    "frames": true
+   },
+   "frame_digest_norm_equal": true
+  },
+  {
+   "game": "g56-s6-8.jsonl.gz",
+   "base_sha256": "431bb8d1c5ef905435444011e5ecc3345d8e1e27397f0898e7caf640434b525c",
+   "other_sha256": "07e54c4912c94d8a4953d289e3520ce4694ea9b160582ff513039c221e736929",
+   "equal": {
+    "status": true,
+    "semantic_transcript_sha256": true,
+    "winner_seats": true,
+    "decision_count": true,
+    "frames": true
+   },
+   "frame_digest_norm_equal": true
+  }
+ ]
+}

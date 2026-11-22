@@ -1,0 +1,28 @@
+{
+ "summary": {
+  "status": "1/1",
+  "semantic_transcript_sha256": "1/1",
+  "winner_seats": "1/1",
+  "decision_count": "1/1",
+  "frames": "1/1",
+  "frame_digest_norm": "0/1",
+  "frame_digest_raw": "0/1"
+ },
+ "N": 1,
+ "rows": [
+  {
+   "game": "g56-s6-4.jsonl.gz",
+   "base_sha256": "eaf2b67de4e3b54e69979aee2261c70beb55832278e8aaef48d0a11099c98926",
+   "other_sha256": "05e3015de6d7f7a9e8935942845dfaf63042bc91d65a4f09a6e6d8ec1adb6b22",
+   "equal": {
+    "status": true,
+    "semantic_transcript_sha256": true,
+    "winner_seats": true,
+    "decision_count": true,
+    "frames": true
+   },
+   "frame_digest_norm_equal": false,
+   "first_differing_frame": 3694
+  }
+ ]
+}
