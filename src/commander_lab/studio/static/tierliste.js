@@ -65,7 +65,11 @@ const CONF_WORDS = { high: "solide", medium: "dünn", low: "sehr dünn" };
 // (zahl.js). The column shows the score H of the model raters; it is no tier, no rank and not part of the index.
 const UNDERSTANDING_NAME = "Kartenverständnis (Modellurteil)";
 const UNDERSTANDING_ID = "kartenverstaendnis:";
-const UNDERSTANDING_H = "H Gesamtwert (0 bis 100): Wie viel besser wird ein abgestimmtes Chulane-Deck (Bracket 3, vier Spieler) mit dieser Karte? Einschätzung von Modell-Ratern aus dem Regeltext, keine Messung, nicht gegen Spielergebnisse validiert; keine Stufe, kein Rang, nicht Teil des Stärke-Index.";
+const UNDERSTANDING_H = "H Gesamtwert (0 bis 100): Wie viel besser wird ein abgestimmtes Chulane-Deck (Bracket 3, vier Spieler) mit dieser Karte? Einschätzung von Modell-Ratern aus dem Regeltext, keine Messung, nicht gegen Spielergebnisse validiert; keine Stufe, kein Rang, nicht Teil des Stärke-Index. Angezeigt wird das Mittel der zwei Bewertungen (Lauf 1 F1, Lauf 2 R2; Owner-Entscheid E19), ohne Zusatzkorrektur.";
+// How the shown H of a card comes about (field `bewertungen`, Owner decision E19): the mean of two ratings, the first
+// rating only, or H_F1 because no pooled value fits ("nur Lauf 1"). The number of ratings is always visible.
+const RATING_SHORT = { mittel: "2 Bewertungen", nur_erstbewertung: "1 Bewertung, nur erste", nur_lauf_1: "nur Lauf 1" };
+const DEVIATION_LABEL = "Bewertungen weichen stark ab";
 const SORTS = [
   ["name", "Name"],
   ["mv", "Manawert"],
@@ -604,7 +608,22 @@ function spreadNode(field, wert) {
   // "≈" marks the audit's estimate per H range: no measured interval of this card (intervall stays null)
   return h("span", { class: band ? "zahl-band" : "zahl-band typisch", title: band ? `Kein Intervall: ${title}` : title }, ` ${band ? bandShort(band) : `mind. ${spread.kurz}`}`);
 }
-// Visible extras of one H cell: spread band, the rater's confidence, the audit doubt (T3) and the land scale (T5).
+const scoreText = (value) => StudioUI.numFlex(value, 1); // a score unrounded: 42,5 and 40, never "40,0"
+// The number of ratings of one card (always shown) and, at |ΔH| >= 15, the mark with both raw values.
+function ratingNodes(field, card) {
+  const ratings = field && field.bewertungen && field.bewertungen.karten ? field.bewertungen.karten : {};
+  const rating = ratings[card.card_id];
+  if (!rating) return [h("span", { class: "zahl-bewertungen unknown", title: "Zahl der Bewertungen nicht geliefert" }, " · Bewertungen unbekannt")];
+  const short = RATING_SHORT[rating.art] || rating.kurz || "Bewertungen unbekannt";
+  return [
+    h("span", { class: `zahl-bewertungen ${rating.art === "mittel" ? "" : "einzeln"}`.trim(), title: rating.text || short }, ` · ${short}`),
+    rating.abweichung === true && typeof rating.h_f1 === "number" && typeof rating.h_r2 === "number"
+      ? h("span", { class: "badge warn bewertungen-abweichung", title: rating.marke || DEVIATION_LABEL }, `${DEVIATION_LABEL} (Δ ${scoreText(Math.abs(rating.h_r2 - rating.h_f1))}: F1 ${scoreText(rating.h_f1)}, R2 ${scoreText(rating.h_r2)})`)
+      : null,
+  ];
+}
+// Visible extras of one H cell: spread band, the number of ratings and the deviation mark (E19), the rater's
+// confidence, the audit doubt (T3) and the land scale (T5).
 function understandingExtras(card, figure) {
   const field = understandingField();
   const notes = Array.isArray(figure.hinweise) ? figure.hinweise : [];
@@ -615,6 +634,7 @@ function understandingExtras(card, figure) {
   const claimFindings = field && field.regelclaim_befunde && field.regelclaim_befunde.karten ? field.regelclaim_befunde.karten[card.card_id] || [] : [];
   return [
     spreadNode(field, figure.wert),
+    ...ratingNodes(field, card),
     said ? h("span", { class: "zahl-vertrauen", title: "Rater-Vertrauen (Selbstauskunft des Raters)" }, ` · ${CONFIDENCE_SHORT[said[1]] || said[1]}`) : null,
     doubt ? h("span", { class: doubt.unter_rauschgate === true ? "badge pruefer-zweifel unter-rauschgate" : "badge warn pruefer-zweifel", title: `${doubt.text}. ${doubt.grund}${basis}` }, doubt.kurz || "Prüfer-Modell-Zweifel") : null,
     ...claimFindings.map((f) => h("span", { class: "badge warn regelclaim-befund", title: `Claim ${nf(f.index + 1)}: ${f.korrektur} (${f.quelle})` }, f.kurz)),
@@ -654,11 +674,19 @@ function understandingHint() {
   const basisTitle = doubt && doubt.pruefbasis ? doubt.pruefbasis.text : "";
   const lands = field.laender_skala;
   const landText = lands ? ` · Länder-Skala: ${nf(lands.n_laender)} Länder, T = 0 bei ${nf(lands.n_t_null)}` : "";
-  const title = [UNDERSTANDING_H, spread ? spreadTitle(spread) : "", doubt ? doubt.quelle : "", basisTitle, lands ? `${lands.text}; ${lands.quelle}` : ""].filter(Boolean).join(" · ");
+  const ratings = field.bewertungen;
+  const runText = (run) => `${run.lauf} n/N = ${run.n === null || run.n === undefined ? "unbekannt" : nf(run.n)}/${nf(run.N)}`;
+  const ratingText = !ratings ? " · Zahl der Bewertungen unbekannt"
+    : ratings.verfuegbar === true
+      ? ` · H = Mittel aus 2 Bewertungen bei ${nf(ratings.n_mittel)} von ${nf(ratings.N)} Karten${ratings.n_nur_erstbewertung ? `, 1 Bewertung (nur erste) bei ${nf(ratings.n_nur_erstbewertung)}` : ""}${ratings.n_nur_lauf_1 ? `, nur Lauf 1 bei ${nf(ratings.n_nur_lauf_1)}` : ""} (${(ratings.laeufe || []).map(runText).join(", ")}; ohne Zusatzkorrektur); ${DEVIATION_LABEL} (|ΔH| ≥ ${nf(ratings.schwelle_abweichung)}): ${nf(ratings.n_abweichung)} von ${nf(ratings.N)}${ratings.abweichung_datensatz && typeof ratings.abweichung_datensatz.n === "number" ? ` (Datensatz ${nf(ratings.abweichung_datensatz.n)} von ${nf(ratings.abweichung_datensatz.N)})` : ""}`
+      : ` · H nur Lauf 1 (F1), Mittel nicht verfügbar: ${ratings.grund || "kein Grund geliefert"}`;
+  const ratingTitle = ratings ? [ratings.text, ratings.standardfehler_hinweis, ratings.quelle].filter(Boolean).join(" · ") : "";
+  const title = [UNDERSTANDING_H, ratingTitle, spread ? spreadTitle(spread) : "", doubt ? doubt.quelle : "", basisTitle, lands ? `${lands.text}; ${lands.quelle}` : ""].filter(Boolean).join(" · ");
   return [h("div", { id: "understanding-hint", class: "hint", title },
     h("b", {}, `${UNDERSTANDING_NAME}: `),
     `Kriterium H, ${nf(field.n_bewertet)} von ${nf(field.n_gesamt)} Karten bewertet · `,
     h("span", { class: "understanding-origin" }, `Quelle: ${sources.join(" | ") || "unbekannt"} · Kohorte: ${cohorts.join(" | ") || "unbekannt"}`),
+    h("span", { class: "understanding-ratings-head", title: ratingTitle }, ratingText),
     h("span", { class: "understanding-spread-head", title: spread ? spreadTitle(spread) : "" }, ` · ${spreadText}`),
     `${doubtText}${landText} · nicht gegen Spielergebnisse validiert; keine Spielstärke, keine Stufe, kein Rang.`)];
 }

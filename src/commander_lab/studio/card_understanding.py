@@ -399,6 +399,191 @@ def match_audit(rows: dict[str, UnderstandingRow], flags: list[AuditFlag]) -> Au
     }
 
 
+# --- the pooled H of two ratings (Owner decision of 2026-11-22, register E19, #1404) -----------
+#
+# The second rating of all 922 cards (wave 1, #1758; wave 2, #1764) gives every card two ratings
+# of H: F1 (the full run, the scores of the data set above) and R2. The evaluation script of the
+# pre-registered plan wrote the mean of both, unrounded, to ``pooled.jsonl`` in the research
+# folder. The Studio only reads that file; it never writes or rounds it, and it never reads the
+# correction proposal K1 of the file (the Owner chose the plain mean, no correction). A broken file
+# fails as a whole (a half-read file would mix pooled and single values silently).
+
+POOLED_PATH: Final = (
+    Path(__file__).resolve().parents[3]
+    / "data"
+    / "research"
+    / "chulane_rubric_v2_20261118"
+    / "second_run_full_20261122"
+    / "pooled.jsonl"
+)
+POOLED_SOURCE: Final = (
+    "data/research/chulane_rubric_v2_20261118/second_run_full_20261122/pooled.jsonl "
+    "(Bericht docs/analysis-reports/rating_full_second_run_20261122.md)"
+)
+# |H_R2 - H_F1| from which the two ratings count as far apart (plan §4, marks of the file).
+DEVIATION_MARK: Final = 15.0
+DEVIATION_STRONG: Final = 30.0
+POOLED_MARKS: Final[tuple[str, ...]] = (
+    "abweichung_ge15",
+    "abweichung_ge30",
+    "nur_erstbewertung",
+    "charge_auffaellig",
+)
+_POOLED_REQUIRED: Final[tuple[str, ...]] = (
+    "oracle_id",
+    "card",
+    "H_F1",
+    "H_R2",
+    "H_pooled",
+    "n_bewertungen",
+    "marken",
+    "grund_nur_erstbewertung",
+    "quelle_R2",
+)
+# present in the file, never read by the Studio (K1 is not applied; only H was decided)
+_POOLED_IGNORED: Final[tuple[str, ...]] = ("H_pooled_K1_vorschlag", "teilkriterien_gepoolt")
+
+
+class PooledRow(TypedDict):
+    """One validated line of ``pooled.jsonl``: both ratings of H, their mean and the marks.
+    ``h_r2`` is None when the card has only the first rating (``n_bewertungen`` 1); ``h_pooled``
+    is then ``h_f1``."""
+
+    oracle_id: str
+    card: str
+    h_f1: float
+    h_r2: float | None
+    h_pooled: float
+    n_bewertungen: int
+    marken: list[str]
+    grund: str | None
+    quelle_r2: str | None
+
+
+def _score(raw: dict[str, object], key: str) -> float:
+    number = _number(raw.get(key))
+    if number is None or not 0.0 <= number <= 100.0:
+        raise UnderstandingDataError(f"{key} must be a number in 0..100")
+    return number
+
+
+def parse_pooled_row(raw: object) -> PooledRow:
+    """Validate one decoded line of the pooled file; raises ``UnderstandingDataError``. The mean,
+    the number of ratings and the marks must agree with the two raw values."""
+    if not isinstance(raw, dict):
+        raise UnderstandingDataError("a pooled line must be a JSON object")
+    unknown = sorted(
+        str(key) for key in raw if key not in _POOLED_REQUIRED and key not in _POOLED_IGNORED
+    )
+    if unknown:
+        raise UnderstandingDataError(f"unknown pooled fields {unknown}")
+    missing = [key for key in _POOLED_REQUIRED if key not in raw]
+    if missing:
+        raise UnderstandingDataError(f"missing pooled fields {missing}")
+    h_f1 = _score(raw, "H_F1")
+    h_pooled = _score(raw, "H_pooled")
+    count = raw["n_bewertungen"]
+    if isinstance(count, bool) or count not in (1, 2):
+        raise UnderstandingDataError("n_bewertungen must be 1 or 2")
+    marks = raw["marken"]
+    if not isinstance(marks, list) or any(mark not in POOLED_MARKS for mark in marks):
+        raise UnderstandingDataError(f"marken must be a list of {list(POOLED_MARKS)}")
+    reason = raw["grund_nur_erstbewertung"]
+    source = raw["quelle_R2"]
+    if count == 2:
+        second = _score(raw, "H_R2")
+        h_r2: float | None = second
+        if not isinstance(source, str) or not source.strip():
+            raise UnderstandingDataError("quelle_R2 must name the second rating")
+        if reason is not None or "nur_erstbewertung" in marks:
+            raise UnderstandingDataError("two ratings carry no reason for a single rating")
+        if not math.isclose(h_pooled, (h_f1 + second) / 2.0, abs_tol=1e-9):
+            raise UnderstandingDataError("H_pooled is not the mean of H_F1 and H_R2")
+        gap = abs(second - h_f1)
+    else:
+        if raw["H_R2"] is not None:
+            raise UnderstandingDataError("a single rating has no H_R2")
+        if not math.isclose(h_pooled, h_f1, abs_tol=1e-9):
+            raise UnderstandingDataError("a single rating keeps H_pooled = H_F1")
+        if not isinstance(reason, str) or not reason.strip() or "nur_erstbewertung" not in marks:
+            raise UnderstandingDataError("a single rating needs the mark and its reason")
+        h_r2, source, gap = None, None, 0.0
+    if ("abweichung_ge15" in marks) != (gap >= DEVIATION_MARK):
+        raise UnderstandingDataError("abweichung_ge15 does not match |H_R2 - H_F1|")
+    if ("abweichung_ge30" in marks) != (gap >= DEVIATION_STRONG):
+        raise UnderstandingDataError("abweichung_ge30 does not match |H_R2 - H_F1|")
+    return {
+        "oracle_id": _text(raw, "oracle_id"),
+        "card": _text(raw, "card"),
+        "h_f1": h_f1,
+        "h_r2": h_r2,
+        "h_pooled": h_pooled,
+        "n_bewertungen": int(count),
+        "marken": [str(mark) for mark in marks],
+        "grund": str(reason) if reason is not None else None,
+        "quelle_r2": str(source) if source is not None else None,
+    }
+
+
+def load_pooled(path: Path | None = None) -> dict[str, PooledRow]:
+    """The pooled file (default ``POOLED_PATH``) by ``oracle_id``. A missing file is
+    ``DatasetNotFoundError``; a broken line or a repeated ``oracle_id`` fails the whole load."""
+    target = POOLED_PATH if path is None else path
+    if not target.is_file():
+        raise DatasetNotFoundError(f"Datei der gepoolten Werte nicht gefunden: {target.name}")
+    try:
+        text = target.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as error:
+        raise UnderstandingDataError(
+            f"pooled file cannot be read ({type(error).__name__})"
+        ) from error
+    rows: dict[str, PooledRow] = {}
+    errors: list[str] = []
+    for number, line in enumerate(text.splitlines(), start=1):
+        if not line.strip():
+            continue
+        try:
+            row = parse_pooled_row(json.loads(line))
+        except json.JSONDecodeError as error:
+            errors.append(f"line {number}: not valid JSON ({error.msg})")
+            continue
+        except UnderstandingDataError as error:
+            errors.append(f"line {number}: {error}")
+            continue
+        except (ValueError, OverflowError, RecursionError) as error:
+            errors.append(f"line {number}: cannot be decoded ({type(error).__name__})")
+            continue
+        if row["oracle_id"] in rows:
+            errors.append(f"line {number}: oracle_id {row['oracle_id']} appears twice")
+            continue
+        rows[row["oracle_id"]] = row
+    if errors:
+        shown = "; ".join(errors[:MAX_ERRORS])
+        raise UnderstandingDataError(f"{len(errors)} broken pooled line(s): {shown}")
+    return rows
+
+
+def pooled_stamp(path: Path | None = None) -> tuple[str, int, int] | None:
+    """Identity of the pooled file for cache keys; None if absent."""
+    return stamp(POOLED_PATH if path is None else path)
+
+
+def load_pooled_cached() -> dict[str, PooledRow]:
+    """``load_pooled()`` of ``POOLED_PATH``, parsed once per file identity. Same failures."""
+    found = pooled_stamp()
+    if found is None:
+        return load_pooled()
+    cached = _POOLED.get("pooled")
+    if cached is not None and cached[0] == found:
+        return cached[1]
+    rows = load_pooled()
+    _POOLED["pooled"] = (found, rows)
+    return rows
+
+
+_POOLED: dict[str, tuple[tuple[str, int, int], dict[str, PooledRow]]] = {}
+
+
 # --- the rules-claim review of rubric v2.1 (Audit D) ------------------------------------------
 #
 # Audit D checked 100 random rules claims (100 right, 5 of them right but unsharply worded) and

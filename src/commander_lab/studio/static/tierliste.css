@@ -189,7 +189,7 @@ td.spread{min-width:160px}
 #tier-table .ucell{flex-direction:row;gap:var(--s1);align-items:center}
 #understanding-hint{line-height:1.35}
 .zahl-kompakt{white-space:nowrap}
-.zahl-kompakt .zahl-band,.zahl-kompakt .zahl-vertrauen{color:var(--muted);font-size:12px}
+.zahl-kompakt .zahl-band,.zahl-kompakt .zahl-vertrauen,.zahl-kompakt .zahl-bewertungen{color:var(--muted);font-size:12px}
 .zahl-kompakt .badge{margin-left:4px}
 .rank-band{font-size:12px;color:var(--muted)}
 .rank-band.tie{color:var(--text)}
