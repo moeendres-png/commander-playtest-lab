@@ -15,6 +15,7 @@ import hashlib
 import io
 import json
 import queue
+import re
 import sys
 import textwrap
 import threading
@@ -2142,6 +2143,188 @@ def test_a_path_like_jvm_option_value_is_never_written_to_the_manifest_journal_o
     assert options["env_options"] == {"JAVA_TOOL_OPTIONS": game_pool.jvm_env_digest(secret)}
     assert task.game_key == _key_of(task, jvm_options=options)
     assert game_pool.jvm_env_digest(secret) in wire
+
+
+# --- S1 Rest (#1660): the options before -jar of the worker command are in the key --------------
+
+#: One example per entry of ``PERFORMANCE_ONLY_JVM_OPTIONS`` (in its order): none changes a game.
+_PERFORMANCE_EXAMPLES = (
+    "-Xmx6g",
+    "-Xms512m",
+    "-Xss4m",
+    "-XX:+UseSerialGC",
+    "-XX:+UseStringDeduplication",
+    "-Xshare:auto",
+    "-XX:SharedArchiveFile=/x/y/bridge.jsa",
+    "-Xlog:all=warning:stderr",
+    "-Dh2.bindAddress=127.0.0.1",
+    f"{_SKIP}=true",
+    f"{_NESTED}=false",
+    "-Dcommanderlab.fullGame.gamesPerJvm=16",
+)
+
+
+def test_every_performance_only_option_is_named_with_a_reason_and_one_example_each() -> None:
+    entries = game_pool.PERFORMANCE_ONLY_JVM_OPTIONS
+    assert len(entries) == len(_PERFORMANCE_EXAMPLES)
+    for (pattern, reason), example in zip(entries, _PERFORMANCE_EXAMPLES, strict=True):
+        assert reason.strip() and re.fullmatch(pattern, example, re.DOTALL), pattern
+        # the example is left out of the digest, and so only through its own entry
+        assert game_pool.jvm_command_options_digest(("java", example, "-jar", "b")) is None
+
+
+def test_options_that_decide_nothing_do_not_change_the_command_digest() -> None:
+    digest = game_pool.jvm_command_options_digest
+    plain = ("java", "-Dfoo=1", "-jar", "b", "full-game")
+    assert digest(("java", "-jar", "b")) is None
+    assert digest(("java", *_PERFORMANCE_EXAMPLES, "-jar", "b")) is None
+    # logically equal option sets: performance options anywhere, in any order, other values,
+    # another launcher path, other arguments after -jar
+    equal = (
+        ("java", "-Xmx3g", "-Dfoo=1", "-XX:+UseSerialGC", "-jar", "b", "full-game"),
+        ("/opt/jdk/bin/java", "-Dfoo=1", "-Xlog:disable", "-Xss1m", "-jar", "c.jar"),
+        ("java", "-XX:+UseG1GC", "-Xms1g", "-Dfoo=1", "-Dh2.bindAddress=0.0.0.0", "-jar", "b"),
+        (
+            "java",
+            f"{_SKIP}=false",
+            "-Dfoo=1",
+            "-Dcommanderlab.fullGame.gamesPerJvm=24",
+            "-jar",
+            "b",
+        ),
+    )
+    assert digest(plain) is not None
+    for command in equal:
+        assert digest(command) == digest(plain), command
+    assert game_pool.jvm_options_of(plain, {}) == game_pool.jvm_options_of(equal[0], {})
+    # what follows -jar is an argument of the bridge, not a JVM option
+    assert digest(("java", "-jar", "b", "-Dfoo=9", "-javaagent:/a.jar")) is None
+
+
+@pytest.mark.parametrize(
+    "different",
+    [
+        ("java", "-javaagent:/opt/a.jar", "-Dfoo=1", "-jar", "b"),
+        ("java", "-javaagent:/opt/b.jar", "-Dfoo=1", "-jar", "b"),
+        ("java", "-Dfoo=2", "-jar", "b"),
+        ("java", "-Dfoo=1", "-Dbar=1", "-jar", "b"),
+        ("java", "-Dfoo=1", "-Dfoo=2", "-jar", "b"),  # the last of two equal -D wins: order counts
+        ("java", "-Dfoo=2", "-Dfoo=1", "-jar", "b"),
+        ("java", "-Dfoo=1", "-cp", "/x/extra.jar", "-jar", "b"),
+        ("java", "-Dfoo=1", "-Xmn256m", "-jar", "b"),  # not on the list: fail-closed, it counts
+        ("java", "-Dfoo=1", "-Xmxbig", "-jar", "b"),  # not a heap size: not matched whole
+        ("java", "-Dfoo=1", "-XX:+UseSerialGCExtra", "-jar", "b"),
+        ("java", "-Dfoo=1", "-Dcommanderlab.nestedCopySkip", "-jar", "b"),  # no "=": not the switch
+        ("java", "-Dfoo=1", "-Dfoo=1", "-jar", "b"),  # a repeat is another list
+    ],
+)
+def test_another_agent_property_or_unknown_option_changes_the_digest_and_the_game_key(
+    different: tuple[str, ...],
+) -> None:
+    base = ("java", "-Dfoo=1", "-jar", "b")
+    base_digest = game_pool.jvm_command_options_digest(base)
+    digest = game_pool.jvm_command_options_digest(different)
+    assert digest is not None and digest != base_digest
+    # the digest alone reaches the key: the planned game, its wire form and the worker's key agree
+    options = game_pool.jvm_options_of(different, {})
+    first, second = (
+        _plan(jvm_options=game_pool.jvm_options_of(base, {})),
+        _plan(jvm_options=options),
+    )
+    assert second.game_key != first.game_key and second.game_key == _key_of(
+        second, jvm_options=options
+    )
+    assert game_pool.task_key_of(second.to_wire()) == second.game_key
+
+
+def test_a_command_with_no_option_of_its_own_and_one_with_a_set_option_are_not_equal_in_the_key() -> (
+    None
+):
+    none = game_pool.jvm_options_of(("java", "-Xmx3g", "-jar", "b"), {})
+    agent = game_pool.jvm_options_of(("java", "-Xmx3g", "-javaagent:/a.jar", "-jar", "b"), {})
+    assert none["command_options"] is None and isinstance(agent["command_options"], str)
+    assert _plan(jvm_options=none).game_key != _plan(jvm_options=agent).game_key
+
+
+def test_a_path_like_command_option_is_never_written_anywhere(tmp_path: Path) -> None:
+    command = (
+        "/home/alice/jdk/bin/java",
+        r"-javaagent:/home/alice/agents/trace.jar=C:\Users\bob\out",
+        "-Dwork.dir=/home/alice/lab",
+        "-Xmx3g",
+        "-jar",
+        "/home/alice/b.jar",
+        "full-game",
+    )
+    options = game_pool.jvm_options_of(command, {})
+    digest = options["command_options"]
+    assert isinstance(digest, str) and re.fullmatch("[0-9a-f]{64}", digest)
+    task = _plan(jvm_options=options)
+    ids = {"task_id": task.task_id, "game_id": task.game_id, "game_key": task.game_key}
+    record = SeriesRecord.open(tmp_path, "cmdpriv", games=[ids], table_hash=None, table=None)
+    record.record(task.game_id, {"status": "finished", "semantic_transcript_sha256": "a" * 64})
+    # the worker's command lacks the agent: refused, and the refusal text names no option
+    refused = game_pool.config_refusal(
+        task.to_wire(), engine_pin=PIN, command=("java", "-jar", "b"), env={}
+    )
+    assert refused is not None and refused["failure_class"] == "GameKeyMismatch"
+    with pytest.raises(ValueError) as caught:
+        series_record.game_key(
+            **{**_KEY_INPUT, "jvm_options": {**options, "command_options": command[1]}}
+        )  # type: ignore[arg-type]
+    written = [json.dumps(task.to_wire(), sort_keys=True), json.dumps(refused), str(caught.value)]
+    written += [p.read_text(encoding="utf-8") for p in record.folder.iterdir()]
+    assert len(written) == 5  # task, refusal, error text, manifest, journal
+    for text in written:
+        for name in (
+            "alice",
+            "bob",
+            "agents",
+            "trace.jar",
+            "work.dir",
+            "-javaagent",
+            "C:",
+            "/home/",
+        ):
+            assert name not in text, name
+    assert digest in written[0] and task.game_key == _key_of(task, jvm_options=options)
+
+
+@pytest.mark.parametrize(
+    ("worker_flags", "task_command"),
+    [
+        ("-javaagent:/x/a.jar", ("java", "-jar", "b")),  # the worker has an agent, the task not
+        ("", ("java", "-javaagent:/x/a.jar", "-jar", "b")),  # the task has one, the worker not
+        ("-javaagent:/x/a.jar", ("java", "-javaagent:/x/other.jar", "-jar", "b")),
+        ("-Dfoo=1", ("java", "-Dfoo=2", "-jar", "b")),
+    ],
+)
+def test_the_session_worker_refuses_a_task_planned_for_other_command_options(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    worker_flags: str,
+    task_command: tuple[str, ...],
+) -> None:
+    engine = _session_engine(tmp_path, monkeypatch, worker_flags)
+    task = _task_for(jvm_options=game_pool.jvm_options_of(task_command, {}))
+    assert game_pool.task_refusal(task.to_wire()) is None  # in itself consistent
+    summary = engine.play(task.to_wire(), lambda: None)
+    assert summary["failure_class"] == "GameKeyMismatch" and "Befehl" in str(
+        summary["failure_message"]
+    )
+    assert summary["failure_kind"] == "infrastructure" and summary["status"] == "failed"
+    assert engine._session.pilots is None  # type: ignore[attr-defined]  # the engine never played
+
+
+def test_the_session_worker_plays_a_task_with_the_same_command_options_and_other_performance_ones(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # gamesPerJvm=2 is in the worker's command already; the supervisor's command differs in
+    # performance-only options only
+    engine = _session_engine(tmp_path, monkeypatch, "-javaagent:/x/a.jar -Xmx1g")
+    planned = ("java", "-Xmx6g", "-XX:+UseSerialGC", "-javaagent:/x/a.jar", "-jar", "b")
+    task = _task_for(jvm_options=game_pool.jvm_options_of(planned, {}))
+    assert engine.play(task.to_wire(), lambda: None)["status"] == "finished"
 
 
 def test_the_pool_ends_the_series_on_a_determinism_violation(tmp_path: Path) -> None:
