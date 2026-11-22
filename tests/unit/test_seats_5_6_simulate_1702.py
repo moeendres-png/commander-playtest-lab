@@ -618,7 +618,7 @@ function loadPaired(release) {
     if (!src.includes(locked)) throw new Error('lock line changed');
     src = src.replace(locked, 'const PAIRED_RELEASED_SEATS = 6;');
   }
-  return new Function('document', 'StudioUI', src + '\n;return {renderPairedComparisonSection, estimatePairedText, pairedMonitorTableText, pairedTableOptions, pairedBudgetOptions};')(document, StudioUI);
+  return new Function('document', 'StudioUI', src + '\n;return {renderPairedComparisonSection, estimatePairedText, pairedMonitorTableText, pairedTableOptions, pairedBudgetOptions, pairedGuardParts};')(document, StudioUI);
 }
 function h(tag, props, ...children) {
   const el = document.createElement(tag);
@@ -920,3 +920,35 @@ def test_a_five_seat_series_started_with_the_switch_does_not_resume_under_the_lo
             job.series_id,
             play_override=lambda *_a: {"exposure": None, "failure_class": None},
         )
+
+
+def test_the_series_list_text_says_unbewacht_n_von_N_and_vergleichbar_and_unknown_is_text() -> None:
+    """S1 Rest (#1660): the guard of a series in words; unknown is never 0, numbers via num()."""
+    out = _paired_node(
+        """
+const p = loadPaired(false);
+const g = (guard) => p.pairedGuardParts(guard);
+console.log(JSON.stringify({
+  ok: g({ violation: false, unguarded: 1, finished: 2, comparable_keys: 1 }),
+  zero: g({ violation: false, unguarded: 0, finished: 48, comparable_keys: 0 }),
+  nocmp: g({ violation: false, unguarded: 1, finished: 2 }),
+  none: g(null), undef: g(undefined), nofinished: g({ violation: false, unguarded: null, finished: null, comparable_keys: null }),
+  violation: g({ violation: true, unguarded: null, finished: null, comparable_keys: null }),
+  error: g({ error: "Journal ohne lesbares Manifest, nicht prüfbar" }),
+}));
+""",
+        {},
+    )
+    assert isinstance(out, dict)
+    assert out["ok"]["short"] == "unbewacht 1/2"
+    assert "vergleichbar: 1 Schlüssel mit mindestens 2 Partien" in out["ok"]["text"]
+    assert (
+        out["zero"]["short"] == "unbewacht 0/48"
+        and "vergleichbar: 0 Schlüssel" in out["zero"]["text"]
+    )
+    assert "vergleichbar: unbekannt viele Schlüssel" in out["nocmp"]["text"]
+    for key in ("none", "undef", "nofinished"):
+        assert out[key]["short"] == "unbekannt" and "0/0" not in out[key]["text"]
+    assert out["violation"]["short"] == "DETERMINISM_VIOLATION"
+    assert out["error"]["short"] == "nicht prüfbar" and "nicht prüfbar" in out["error"]["text"]
+    assert all("verglichen:" not in v["text"] for v in out.values())
