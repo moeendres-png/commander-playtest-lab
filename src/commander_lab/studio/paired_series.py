@@ -65,6 +65,7 @@ from .series_record import (
     DETERMINISM_VIOLATION,
     ManifestMismatch,
     series_guard,
+    series_key_problem,
     series_violation,
 )
 from .store import StudioStore, now_utc
@@ -1122,6 +1123,8 @@ class PairedSeriesManager:
             try:
                 if series_violation(target_folder, sid) is not None:
                     return False
+                if series_key_problem(target_folder, sid) is not None:
+                    return False  # recorded with another game key version: start a new series
             except (ManifestMismatch, ValueError):
                 return False
             deck_dir = games_folder(target_folder) / "paired_decks" / sid
@@ -1223,6 +1226,10 @@ class PairedSeriesManager:
             violation = series_violation(target_folder, safe_id)
             if violation is not None:
                 raise ValueError(f"{violation} (nicht fortsetzbar)")
+            key_problem = series_key_problem(target_folder, safe_id)
+            if key_problem is not None:
+                # an older key version is no violation and never mixed with new games
+                raise ValueError(f"{key_problem} (nicht fortsetzbar)")
 
             base_files = sorted(deck_dir.glob("base-*.json"))
             variant_files = sorted(deck_dir.glob("variant-*.json"))
@@ -1410,11 +1417,7 @@ class PairedSeriesManager:
             if isinstance(raw, dict):
                 found = self._normalize_disk_series(raw, target_folder)
         if found is not None:
-            # the determinism guard of the pool path: "unbewacht n/N", None when unknown
-            try:
-                found["determinism_guard"] = series_guard(target_folder, safe_id)
-            except ManifestMismatch as error:
-                found["determinism_guard"] = {"error": str(error)}
+            found["determinism_guard"] = _guard_of(target_folder, safe_id)
         return found
 
     def get_job(self, series_id: str) -> PairedSeriesJob | None:
@@ -1449,7 +1452,26 @@ class PairedSeriesManager:
                     by_id[sid] = job.to_dict()
         items = list(by_id.values())
         items.sort(key=lambda row: str(row.get("created_at") or ""), reverse=True)
+        # read field only (S1 Rest): "unbewacht n/N" and "vergleichbar" next to every listed series
+        for item in items[:30]:
+            item["determinism_guard"] = _guard_of(target_folder, str(item.get("series_id")))
         return items[:30]
+
+
+def _guard_of(data_folder: Path, series_id: str) -> dict[str, object] | None:
+    """The determinism guard of a stored series as a read field; ``None`` when unknown.
+
+    ``unbewacht n/N`` is ``unguarded`` of ``finished``, ``vergleichbar`` is ``comparable_keys``
+    (see ``series_record.series_guard``). A series without a journal (the chunked path, or
+    nothing played yet) and a series whose id is no valid id give ``None``: unknown, never 0.
+    A manifest or journal that cannot be read gives ``{"error": ...}``.
+    """
+    try:
+        return series_guard(data_folder, series_id)
+    except ManifestMismatch as error:
+        return {"error": str(error)}
+    except ValueError:
+        return None
 
 
 paired_series_manager = PairedSeriesManager()
