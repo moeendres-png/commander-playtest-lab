@@ -411,7 +411,7 @@ def _series_result(scenario: object, position: int):  # type: ignore[no-untyped-
 
 def _own_configuration(monkeypatch: pytest.MonkeyPatch) -> None:
     """The worker's own pin is ``PIN`` and its environment sets no JVM option variable."""
-    monkeypatch.setattr(game_pool, "own_engine_pin", lambda: PIN)
+    monkeypatch.setattr(game_pool, "own_engine_pin", lambda _folder: PIN)
     for name in game_pool.JVM_ENV_OPTION_NAMES:
         monkeypatch.delenv(name, raising=False)
 
@@ -2171,3 +2171,11 @@ def test_an_infrastructure_failure_is_final_on_resume_like_in_the_progress_log(
 
 def test_the_pool_default_wall_limit_is_the_four_seat_value() -> None:
     assert game_pool.GAME_WALL_LIMIT_SECONDS == table_spec.game_wall_limit_seconds(4) == 1800.0
+
+
+def test_the_worker_reads_its_pin_from_the_one_place_the_studio_names_it(tmp_path: Path) -> None:
+    from commander_lab.qualification.current_boundary.bridge_launcher import (
+        canonical_xmage_engine_pin,
+    )
+
+    assert game_pool.own_engine_pin(tmp_path) == canonical_xmage_engine_pin()

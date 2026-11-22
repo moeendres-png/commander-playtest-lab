@@ -319,7 +319,7 @@ class SessionWorkerEngine:
         self._command = command if command is not None else engine_command(data_folder)
         self._jar_sha = bridge_jar_sha256(data_folder, self._command)
         # the configuration this worker plays with, read once: its pin, command and environment
-        self._engine_pin = own_engine_pin()
+        self._engine_pin = own_engine_pin(data_folder)
         self._environment = dict(os.environ)
         self._headers: dict[str, tuple[str, dict[str, object]]] = {}
         self._runner = BatchRecordingRunner(
@@ -514,13 +514,18 @@ def task_refusal(message: Mapping[str, object]) -> GameSummary | None:
     return None
 
 
-def own_engine_pin() -> str:
-    """The engine pin this worker's code runs under (``config/rules_engines.json``)."""
-    from commander_lab.qualification.current_boundary.bridge_launcher import (
-        canonical_xmage_engine_pin,
-    )
+def own_engine_pin(data_folder: str | Path) -> str:
+    """The engine pin this worker's code runs under (``config/rules_engines.json``).
 
-    return canonical_xmage_engine_pin()
+    Read through ``launch.engine_state``, the one place of the Studio that names it, so the
+    package keeps its recorded imports of the qualification layer.
+    """
+    from .launch import engine_state
+
+    pin = engine_state(data_folder).get("pin")
+    if not isinstance(pin, str) or not pin:
+        raise GamePoolError("kein Engine-Pin bekannt: ein Worker spielt keine Partie ohne ihn")
+    return pin
 
 
 def config_refusal(

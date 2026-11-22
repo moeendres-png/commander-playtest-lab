@@ -642,7 +642,7 @@ function h(tag, props, ...children) {
   return el;
 }
 const flush = () => new Promise((r) => setImmediate(r));
-function mount(release, plans, failing) {
+function mount(release, plans, failing, history) {
   const paired = loadPaired(release);
   const body = new El('div');
   const calls = [], toasts = [];
@@ -662,7 +662,7 @@ function mount(release, plans, failing) {
       return {};
     },
     currentRevision: () => 'rev@one', commanderQuery: '', decks: () => [], currentDeckId: () => null,
-    activePaired: () => null, setActivePaired() {}, pairedHistory: () => [], readinessAudit: () => null,
+    activePaired: () => null, setActivePaired() {}, pairedHistory: () => history || [], readinessAudit: () => null,
     setReadinessAudit() {}, pollPaired() {}, entries: () => [], commander: ['x'], poolCardById: () => null, openCard() {},
   };
   paired.renderPairedComparisonSection(body, deps);
@@ -952,3 +952,23 @@ console.log(JSON.stringify({
     assert out["violation"]["short"] == "DETERMINISM_VIOLATION"
     assert out["error"]["short"] == "nicht prüfbar" and "nicht prüfbar" in out["error"]["text"]
     assert all("verglichen:" not in v["text"] for v in out.values())
+
+
+def test_the_saved_series_table_shows_the_guard_of_each_series_in_its_own_cell() -> None:
+    out = _paired_node(
+        """
+const history = [
+  { series_id: 'paired-a', status: 'completed', determinism_guard: { violation: false, unguarded: 1, finished: 2, comparable_keys: 1 } },
+  { series_id: 'paired-b', status: 'completed', determinism_guard: null },
+];
+mount(false, {}, null, history);
+const slot = document.getElementById('paired-history-slot');
+const cells = slot.all().filter((n) => n.tagName === 'TD' && n.className === 'paired-guard');
+const heads = slot.all().filter((n) => n.tagName === 'TH').map((n) => n.textContent);
+console.log(JSON.stringify({ cells: cells.map((c) => c.textContent), heads, title: cells[0].attrs.title }));
+""",
+        {},
+    )
+    assert isinstance(out, dict)
+    assert out["cells"] == ["unbewacht 1/2", "unbekannt"] and "Wächter" in out["heads"]
+    assert "vergleichbar: 1 Schlüssel mit mindestens 2 Partien" in out["title"]
