@@ -1,0 +1,53 @@
+{
+ "a8_abweichungen": [],
+ "chargen": {
+  "1": {
+   "abbrueche_a7": 0,
+   "blindheitsverstoss_protokoll": false,
+   "nachlauf_a1": false
+  },
+  "2": {
+   "abbrueche_a7": 0,
+   "blindheitsverstoss_protokoll": false,
+   "nachlauf_a1": false
+  },
+  "3": {
+   "abbrueche_a7": 0,
+   "blindheitsverstoss_protokoll": false,
+   "nachlauf_a1": false
+  },
+  "4": {
+   "abbrueche_a7": 0,
+   "blindheitsverstoss_protokoll": false,
+   "nachlauf_a1": false
+  },
+  "5": {
+   "abbrueche_a7": 0,
+   "blindheitsverstoss_protokoll": false,
+   "nachlauf_a1": false
+  },
+  "6": {
+   "abbrueche_a7": 0,
+   "blindheitsverstoss_protokoll": false,
+   "nachlauf_a1": false
+  },
+  "7": {
+   "abbrueche_a7": 0,
+   "blindheitsverstoss_protokoll": false,
+   "nachlauf_a1": false
+  },
+  "8": {
+   "abbrueche_a7": 0,
+   "blindheitsverstoss_protokoll": false,
+   "nachlauf_a1": false
+  }
+ },
+ "dateizugriff_protokolliert": false,
+ "familie_R2_gegen_F1": "unbekannt",
+ "familie_R2_gegen_G1": "unbekannt",
+ "gleiche_modell_id_und_stufe_wie_welle1": "unbekannt",
+ "hashes_vor_oeffnen_gepostet": true,
+ "laufprotokoll_vorhanden": true,
+ "retest_charge_8_gelaufen": true,
+ "skript_vor_oeffnen_committet": true
+}

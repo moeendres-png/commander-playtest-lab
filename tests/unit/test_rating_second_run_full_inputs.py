@@ -391,7 +391,12 @@ def test_a_changed_wave1_guide_stops_the_build(mini: Path, tmp_path: Path) -> No
 def test_the_committed_wave2_inputs_regenerate_byte_for_byte(tmp_path: Path) -> None:
     out = tmp_path / "rec"
     g.build(REPO, out, out / "rater", "<RATER_DIR>")
-    committed = sorted(p.name for p in (COMMITTED / "rater").iterdir())
+    # the frozen rater outputs of the run and their checksum list (report PR, Refs #1404) sit next
+    # to the inputs so the committed evaluation script can read the folder as its --rater-dir
+    run_files = {f"rr2_output_{k}.jsonl" for k in range(1, 9)} | {"output_sha256.txt"}
+    present = {p.name for p in (COMMITTED / "rater").iterdir()}
+    assert present & run_files in (set(), run_files)
+    committed = sorted(present - run_files)
     assert len(committed) == 18  # 8 inputs, 8 guides, schema, instructions
     assert committed == sorted(p.name for p in (out / "rater").iterdir())
     for name in committed:

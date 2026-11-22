@@ -1,0 +1,1017 @@
+{
+ "claims": [
+  {
+   "card": "Palace Guard",
+   "card_block": "CARD: Palace Guard\noracle_id: 5c92f375-ae6a-4be5-a499-ab87d6bdc49b\nMana cost: {2}{W} | Mana value: 3 | Cost symbols (front face): W x1, generic 2\nType line: Creature — Human Soldier | Group: Creature | Colour identity: W\nPower/toughness (front face): 1/4 | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  This creature can block any number of creatures.\nRoles: none labelled\nOn-time cast, reference mana base: turn 3: P(land drops met) 0.7729, P(colours met given lands) 0.8901, P(both) 0.688\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 3\nCreature bodies at the same mana value: 113 peers, median power+toughness 4; this card 5: 71 smaller, 22 equal, 20 larger\nPattern hits: none",
+   "charge": 6,
+   "claim": "its only ability is defensive",
+   "feld": "rule_claims[0].claim",
+   "nr": 1,
+   "oracle_id": "5c92f375-ae6a-4be5-a499-ab87d6bdc49b",
+   "seq": 59
+  },
+  {
+   "card": "Sphere of the Suns",
+   "card_block": "CARD: Sphere of the Suns\noracle_id: 7c709413-dacf-48af-8ac9-8f61b2699bf1\nMana cost: {2} | Mana value: 2 | Cost symbols (front face): generic 2\nType line: Artifact | Group: Artifact | Colour identity: colourless\nPower/toughness (front face): none | Keywords: none | Produces mana: WUBRG\nGame Changer: no | Layout: normal\nOracle text:\n  This artifact enters tapped and with three charge counters on it.\n  {T}, Remove a charge counter from this artifact: Add one mana of any color.\nRoles (labels from a tagger and a text rule; they can be wrong): mana_rock; ramp | main: mana_rock\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 1.0, P(both) 0.9018 (cost has no coloured symbol)\nPeers with role mana_rock (main): 23 other pool cards, median mana value 2 (quartiles 2 to 3); this card 2: 2 cheaper, 10 equal, 11 dearer\nPeers with role ramp: 99 other pool cards, median mana value 3 (quartiles 2 to 3); this card 2: 12 cheaper, 35 equal, 52 dearer\nPeers of type group Artifact: 81 other pool cards, median mana value 2; this card 2\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - noncreature_draw_or_ramp: \"roles by text: ramp\"",
+   "charge": 4,
+   "claim": "each use spends one of the three counters",
+   "feld": "rule_claims[1].claim",
+   "nr": 2,
+   "oracle_id": "7c709413-dacf-48af-8ac9-8f61b2699bf1",
+   "seq": 73
+  },
+  {
+   "card": "Ramunap Excavator",
+   "card_block": "CARD: Ramunap Excavator\noracle_id: 4f819ba4-52ef-4fdd-8e4c-5ae3b2f44db5\nMana cost: {2}{G} | Mana value: 3 | Cost symbols (front face): G x1, generic 2\nType line: Creature — Snake Cleric | Group: Creature | Colour identity: G\nPower/toughness (front face): 2/3 | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  You may play lands from your graveyard.\nRoles (labels from a tagger and a text rule; they can be wrong): recursion | main: recursion\nOn-time cast, reference mana base: turn 3: P(land drops met) 0.7729, P(colours met given lands) 0.9391, P(both) 0.7258\nPeers with role recursion (main): 31 other pool cards, median mana value 3 (quartiles 1.5 to 4.5); this card 3: 11 cheaper, 5 equal, 15 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 3\nCreature bodies at the same mana value: 113 peers, median power+toughness 4; this card 5: 71 smaller, 22 equal, 20 larger\nRulings (shown 2 of 2):\n  - 2017-07-14: Ramunap Excavator doesn't allow you to activate activated abilities (such as cycling) of land cards in your graveyard.\n  - 2017-07-14: Ramunap Excavator doesn't change the times when you can play those land cards. You can still play only one land per turn, and only during your main phase when you have priority and the stack is empty.\nPattern hits: none",
+   "charge": 6,
+   "claim": "lands in the graveyard can be played as the land play",
+   "feld": "rule_claims[0].claim",
+   "nr": 3,
+   "oracle_id": "4f819ba4-52ef-4fdd-8e4c-5ae3b2f44db5",
+   "seq": 74
+  },
+  {
+   "card": "Sol Ring",
+   "card_block": "CARD: Sol Ring\noracle_id: 6ad8011d-3471-4369-9d68-b264cc027487\nMana cost: {1} | Mana value: 1 | Cost symbols (front face): generic 1\nType line: Artifact | Group: Artifact | Colour identity: colourless\nPower/toughness (front face): none | Keywords: none | Produces mana: C\nGame Changer: no | Layout: normal\nOracle text:\n  {T}: Add {C}{C}.\nRoles (labels from a tagger and a text rule; they can be wrong): mana_rock; ramp | main: mana_rock\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 1.0, P(both) 0.9762 (cost has no coloured symbol)\nPeers with role mana_rock (main): 23 other pool cards, median mana value 2 (quartiles 2 to 3); this card 1: 0 cheaper, 1 equal, 22 dearer\nPeers with role ramp: 99 other pool cards, median mana value 3 (quartiles 2 to 3); this card 1: 0 cheaper, 11 equal, 88 dearer\nPeers of type group Artifact: 81 other pool cards, median mana value 2; this card 1\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - noncreature_draw_or_ramp: \"roles by text: ramp\"",
+   "charge": 6,
+   "claim": "According to the card text, it makes colourless mana only, which can pay Chulane's {3} activation but not coloured costs.",
+   "feld": "rule_claims[0].claim",
+   "nr": 4,
+   "oracle_id": "6ad8011d-3471-4369-9d68-b264cc027487",
+   "seq": 23
+  },
+  {
+   "card": "Razor Boomerang",
+   "card_block": "CARD: Razor Boomerang\noracle_id: f2649e48-4252-43f3-bd1e-c4c6fcb0aa3a\nMana cost: {3} | Mana value: 3 | Cost symbols (front face): generic 3\nType line: Artifact — Equipment | Group: Artifact | Colour identity: colourless\nPower/toughness (front face): none | Keywords: Equip | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Equipped creature has \"{T}, Unattach Razor Boomerang: It deals 1 damage to any target. Return Razor Boomerang to its owner's hand.\"\n  Equip {2}\nRoles (labels from a tagger and a text rule; they can be wrong): bounce; mana_sink; removal | main: removal\nOn-time cast, reference mana base: turn 3: P(land drops met) 0.7729, P(colours met given lands) 1.0, P(both) 0.7729 (cost has no coloured symbol)\nPeers with role removal (main): 128 other pool cards, median mana value 3 (quartiles 2 to 4); this card 3: 58 cheaper, 36 equal, 34 dearer\nPeers with role bounce: 33 other pool cards, median mana value 3 (quartiles 2 to 5); this card 3: 15 cheaper, 9 equal, 9 dearer\nPeers with role mana_sink: 29 other pool cards, median mana value 3 (quartiles 2 to 4); this card 3: 13 cheaper, 6 equal, 10 dearer\nPeers of type group Artifact: 81 other pool cards, median mana value 2; this card 3\nRulings (shown 4 of 4):\n  - 2010-03-01: Unattaching Razor Boomerang is a cost to activate the equipped creature’s ability.\n  - 2010-03-01: If the targeted creature is an illegal target by the time the equipped creature’s ability resolves, the entire ability doesn’t resolve. Razor Boomerang remains on the battlefield unattached.\n  - 2010-03-01: The source of the damage is Razor Boomerang, not the equipped creature. However, the equipped creature’s ability is what targets the permanent or player. If Razor Boomerang is equipped to a red creature, for example, the ability couldn’t t…\n  - 2010-03-01: If Razor Boomerang is no longer on the battlefield by time the equipped creature’s ability resolves, it’s not returned to its owner’s hand. The rest of the ability resolves as normal, so Razor Boomerang will still deal damage to the target…\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - bounce_self: \"equipped creature has \"{t}, unattach ~: it deals 1 damage to any target. return ~ to its owner's hand.\"\"\n  - creature_dependent: \"equipped creature has \"{t}, unattach ~: it deals 1 damage to any target. return ~ to its owner's hand.\"\"",
+   "charge": 1,
+   "claim": "attaching costs two more mana each time",
+   "feld": "rule_claims[1].claim",
+   "nr": 5,
+   "oracle_id": "f2649e48-4252-43f3-bd1e-c4c6fcb0aa3a",
+   "seq": 44
+  },
+  {
+   "card": "Groundswell",
+   "card_block": "CARD: Groundswell\noracle_id: ddbacb74-1f98-4607-a92e-d14973b9d0ef\nMana cost: {G} | Mana value: 1 | Cost symbols (front face): G x1\nType line: Instant | Group: Instant | Colour identity: G\nPower/toughness (front face): none | Keywords: Landfall | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Target creature gets +2/+2 until end of turn.\n  Landfall — If you had a land enter the battlefield under your control this turn, that creature gets +4/+4 until end of turn instead.\nRoles (labels from a tagger and a text rule; they can be wrong): combat_trick; landfall | main: landfall\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 0.8282, P(both) 0.8085\nPeers with role landfall (main): 19 other pool cards, median mana value 3 (quartiles 3 to 4.5); this card 1: 0 cheaper, 1 equal, 18 dearer\nPeers with role combat_trick: 118 other pool cards, median mana value 2 (quartiles 2 to 4); this card 1: 0 cheaper, 26 equal, 92 dearer\nPeers of type group Instant: 145 other pool cards, median mana value 2; this card 1\nRulings (shown 4 of 5):\n  - 2024-11-08: Whether you had a land enter the battlefield under your control this turn is checked as this spell resolves, not as you cast it.\n  - 2024-11-08: The landfall ability checks for an action that has happened in the past. It doesn't matter if a land that entered the battlefield under your control previously in the turn is still on the battlefield, is still under your control, or is sti…\n  - 2024-11-08: The effect of this spell's landfall ability replaces its normal effect. If you had a land enter under your control this turn, only the landfall-based effect happens.\n  - 2024-11-08: Once the spell resolves, having a land enter under your control provides no further benefit.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - landfall: \"landfall — if you had a land enter the battlefield under your control this turn, that creature gets +4/+4 until end of turn instead.\"",
+   "charge": 7,
+   "claim": "the bonus lasts one turn",
+   "feld": "rule_claims[0].claim",
+   "nr": 6,
+   "oracle_id": "ddbacb74-1f98-4607-a92e-d14973b9d0ef",
+   "seq": 77
+  },
+  {
+   "card": "Greater Basilisk",
+   "card_block": "CARD: Greater Basilisk\noracle_id: 6e42e7dc-acd9-4125-a90d-75fd8da204b3\nMana cost: {3}{G}{G} | Mana value: 5 | Cost symbols (front face): G x2, generic 3\nType line: Creature — Basilisk | Group: Creature | Colour identity: G\nPower/toughness (front face): 3/5 | Keywords: Deathtouch | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Deathtouch (Any amount of damage this deals to a creature is enough to destroy it.)\nRoles: none labelled\nOn-time cast, reference mana base: turn 5: P(land drops met) 0.4451, P(colours met given lands) 0.8808, P(both) 0.3921\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 5\nCreature bodies at the same mana value: 60 peers, median power+toughness 7; this card 8: 36 smaller, 15 equal, 9 larger\nPattern hits: none",
+   "charge": 1,
+   "claim": "Greater Basilisk is a creature spell, so casting it triggers Chulane's draw and land drop.",
+   "feld": "rule_claims[0].claim",
+   "nr": 7,
+   "oracle_id": "6e42e7dc-acd9-4125-a90d-75fd8da204b3",
+   "seq": 40
+  },
+  {
+   "card": "Sunlance",
+   "card_block": "CARD: Sunlance\noracle_id: 3c8cc7e2-7bff-46e0-bb5b-1e721a56a3ef\nMana cost: {W} | Mana value: 1 | Cost symbols (front face): W x1\nType line: Sorcery | Group: Sorcery | Colour identity: W\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Sunlance deals 3 damage to target nonwhite creature.\nRoles (labels from a tagger and a text rule; they can be wrong): removal | main: removal\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 0.7595, P(both) 0.7414\nPeers with role removal (main): 128 other pool cards, median mana value 3 (quartiles 2 to 4); this card 1: 0 cheaper, 21 equal, 107 dearer\nPeers of type group Sorcery: 65 other pool cards, median mana value 4; this card 1\nPattern hits: none",
+   "charge": 3,
+   "claim": "According to the card text it cannot target white creatures, and 3 damage kills only toughness 3 or less.",
+   "feld": "rule_claims[0].claim",
+   "nr": 8,
+   "oracle_id": "3c8cc7e2-7bff-46e0-bb5b-1e721a56a3ef",
+   "seq": 35
+  },
+  {
+   "card": "Suntail Hawk",
+   "card_block": "CARD: Suntail Hawk\noracle_id: a8d31e2f-7b2e-4135-8074-9e6ef778bd80\nMana cost: {W} | Mana value: 1 | Cost symbols (front face): W x1\nType line: Creature — Bird | Group: Creature | Colour identity: W\nPower/toughness (front face): 1/1 | Keywords: Flying | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Flying\nRoles (labels from a tagger and a text rule; they can be wrong): evasion | main: evasion\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 0.7595, P(both) 0.7414\nPeers with role evasion (main): 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 1: 0 cheaper, 13 equal, 142 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 1\nCreature bodies at the same mana value: 37 peers, median power+toughness 2; this card 2: 5 smaller, 23 equal, 9 larger\nPattern hits: none",
+   "charge": 6,
+   "claim": "Suntail Hawk can be returned for {3} and recast for {W}, which triggers Chulane again.",
+   "feld": "rule_claims[1].claim",
+   "nr": 9,
+   "oracle_id": "a8d31e2f-7b2e-4135-8074-9e6ef778bd80",
+   "seq": 35
+  },
+  {
+   "card": "Copper Carapace",
+   "card_block": "CARD: Copper Carapace\noracle_id: 8ffbff60-a59d-4f71-864e-3c16cb61e43b\nMana cost: {1} | Mana value: 1 | Cost symbols (front face): generic 1\nType line: Artifact — Equipment | Group: Artifact | Colour identity: colourless\nPower/toughness (front face): none | Keywords: Equip | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Equipped creature gets +2/+2 and can't block.\n  Equip {3} ({3}: Attach to target creature you control. Equip only as a sorcery.)\nRoles: none labelled\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 1.0, P(both) 0.9762 (cost has no coloured symbol)\nPeers of type group Artifact: 81 other pool cards, median mana value 2; this card 1\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - creature_dependent: \"equipped creature gets +2/+2 and can't block.\"",
+   "charge": 5,
+   "claim": "Each attachment costs {3} and can be done only at sorcery speed, so the equipment never becomes cheap to move.",
+   "feld": "rule_claims[1].claim",
+   "nr": 10,
+   "oracle_id": "8ffbff60-a59d-4f71-864e-3c16cb61e43b",
+   "seq": 40
+  },
+  {
+   "card": "Kor Skyfisher",
+   "card_block": "CARD: Kor Skyfisher\noracle_id: 054a0193-861e-4644-ab0a-8aa33407abc8\nMana cost: {1}{W} | Mana value: 2 | Cost symbols (front face): W x1, generic 1\nType line: Creature — Kor Soldier | Group: Creature | Colour identity: W\nPower/toughness (front face): 2/3 | Keywords: Flying | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Flying\n  When this creature enters, return a permanent you control to its owner's hand.\nRoles (labels from a tagger and a text rule; they can be wrong): bounce; evasion | main: bounce\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8302, P(both) 0.7487\nPeers with role bounce (main): 33 other pool cards, median mana value 3 (quartiles 2 to 5); this card 2: 5 cheaper, 9 equal, 19 dearer\nPeers with role evasion: 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 2: 14 cheaper, 32 equal, 109 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 2\nCreature bodies at the same mana value: 125 peers, median power+toughness 4; this card 5: 119 smaller, 3 equal, 3 larger\nRulings (shown 2 of 2):\n  - 2017-03-14: If Kor Skyfisher is still on the battlefield as its triggered ability resolves, you may return Kor Skyfisher itself.\n  - 2017-03-14: Kor Skyfisher’s triggered ability doesn’t target a permanent. You choose which one to return to its owner’s hand as the ability resolves. No one can respond to the choice.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - bounce_own_creature: \"when ~ enters, return a permanent you control to its owner's hand.\"\n  - etb_own: \"when ~ enters, return a permanent you control to its owner's hand.\"",
+   "charge": 5,
+   "claim": "a 2 mana own-bounce; the returned creature is cast again and triggers Chulane",
+   "feld": "rule_claims[0].claim",
+   "nr": 11,
+   "oracle_id": "054a0193-861e-4644-ab0a-8aa33407abc8",
+   "seq": 35
+  },
+  {
+   "card": "An Offer You Can't Refuse",
+   "card_block": "CARD: An Offer You Can't Refuse\noracle_id: 234a734b-ba28-4f1b-9d01-3c3e7d516590\nMana cost: {U} | Mana value: 1 | Cost symbols (front face): U x1\nType line: Instant | Group: Instant | Colour identity: U\nPower/toughness (front face): none | Keywords: Treasure | Produces mana: WUBRG\nGame Changer: no | Layout: normal\nOracle text:\n  Counter target noncreature spell. Its controller creates two Treasure tokens. (They're artifacts with \"{T}, Sacrifice this token: Add one mana of any color.\")\nRoles (labels from a tagger and a text rule; they can be wrong): counterspell | main: counterspell\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 0.8072, P(both) 0.788\nPeers with role counterspell (main): 26 other pool cards, median mana value 2 (quartiles 2 to 3); this card 1: 0 cheaper, 5 equal, 21 dearer\nPeers of type group Instant: 145 other pool cards, median mana value 2; this card 1\nRulings (shown 2 of 2):\n  - 2022-04-29: If the target is no longer legal as An Offer You Can't Refuse resolves, no Treasure tokens are created.\n  - 2022-04-29: If the target is still legal as it resolves but the spell can't be countered for some reason, its controller will still create two Treasure tokens.\nPattern hits: none",
+   "charge": 6,
+   "claim": "Against a spell that cannot be countered I would still give the opponent two Treasures without stopping the spell.",
+   "feld": "rule_claims[1].claim",
+   "nr": 12,
+   "oracle_id": "234a734b-ba28-4f1b-9d01-3c3e7d516590",
+   "seq": 17
+  },
+  {
+   "card": "Aether Tradewinds",
+   "card_block": "CARD: Aether Tradewinds\noracle_id: 3a0dd318-9523-4740-b0aa-a911032e3851\nMana cost: {2}{U} | Mana value: 3 | Cost symbols (front face): U x1, generic 2\nType line: Instant | Group: Instant | Colour identity: U\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Return target permanent you control and target permanent you don't control to their owners' hands.\nRoles (labels from a tagger and a text rule; they can be wrong): bounce; removal | main: removal\nOn-time cast, reference mana base: turn 3: P(land drops met) 0.7729, P(colours met given lands) 0.9252, P(both) 0.7151\nPeers with role removal (main): 128 other pool cards, median mana value 3 (quartiles 2 to 4); this card 3: 58 cheaper, 36 equal, 34 dearer\nPeers with role bounce: 33 other pool cards, median mana value 3 (quartiles 2 to 5); this card 3: 15 cheaper, 9 equal, 9 dearer\nPeers of type group Instant: 145 other pool cards, median mana value 2; this card 3\nRulings (shown 1 of 1):\n  - 2016-09-20: If one target permanent becomes an illegal target, the other will be returned to its owner's hand. If both targets become illegal, Aether Tradewinds won't resolve.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - bounce_own_creature: \"return target permanent you control and target permanent you don't control to their owners' hands.\"",
+   "charge": 2,
+   "claim": "an own creature returned this way can be cast again, which triggers Chulane and its ETB",
+   "feld": "rule_claims[0].claim",
+   "nr": 13,
+   "oracle_id": "3a0dd318-9523-4740-b0aa-a911032e3851",
+   "seq": 71
+  },
+  {
+   "card": "Thunderclap Drake",
+   "card_block": "CARD: Thunderclap Drake\noracle_id: 88d0a394-79e2-42ac-9a37-1a7b78231941\nMana cost: {1}{U} | Mana value: 2 | Cost symbols (front face): U x1, generic 1\nType line: Creature — Drake | Group: Creature | Colour identity: U\nPower/toughness (front face): 2/1 | Keywords: Flying | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Flying\n  Instant and sorcery spells you cast cost {1} less to cast.\n  {2}{U}, Sacrifice this creature: When you next cast an instant or sorcery spell this turn, copy it for each time you've cast your commander from the command zone this game. You may choose new targets for the copies.\nRoles (labels from a tagger and a text rule; they can be wrong): copy; cost_reduction; evasion | main: cost_reduction\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8735, P(both) 0.7877\nPeers with role cost_reduction (main): 18 other pool cards, median mana value 4.5 (quartiles 3 to 7); this card 2: 0 cheaper, 2 equal, 16 dearer\nPeers with role copy: 11 other pool cards, median mana value 4 (quartiles 3 to 5); this card 2: 0 cheaper, 0 equal, 11 dearer\nPeers with role evasion: 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 2: 14 cheaper, 32 equal, 109 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 2\nCreature bodies at the same mana value: 125 peers, median power+toughness 4; this card 3: 28 smaller, 30 equal, 67 larger\nRulings (shown 4 of 9):\n  - 2024-04-12: The copies made by Thunderclap Drake's delayed triggered ability are created on the stack, so they're not \"cast.\"\n  - 2024-04-12: If a spell that's copied has an X whose value was determined as it was cast, the copies will have the same value of X.\n  - 2024-04-12: If the spell that's copied divides damage or distributes counters among a number of targets, the division and number of targets can't be changed.\n  - 2024-04-12: You can't choose to pay any additional costs for the copies. However, effects based on any additional costs that were paid for the original spell are copied as though those same costs were paid for the copies too.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - cost_reduction_typed_spell: \"instant and sorcery spells you cast cost {1} less to cast.\"",
+   "charge": 2,
+   "claim": "copies are not cast",
+   "feld": "rule_claims[1].claim",
+   "nr": 14,
+   "oracle_id": "88d0a394-79e2-42ac-9a37-1a7b78231941",
+   "seq": 78
+  },
+  {
+   "card": "Foil",
+   "card_block": "CARD: Foil\noracle_id: 7dde4eb6-e9d7-4259-abc2-3af738e0f00f\nMana cost: {2}{U}{U} | Mana value: 4 | Cost symbols (front face): U x2, generic 2\nType line: Instant | Group: Instant | Colour identity: U\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  You may discard an Island card and another card rather than pay this spell's mana cost.\n  Counter target spell.\nRoles (labels from a tagger and a text rule; they can be wrong): counterspell | main: counterspell\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 0.7626, P(both) 0.4656\nPeers with role counterspell (main): 26 other pool cards, median mana value 2 (quartiles 2 to 3); this card 4: 22 cheaper, 2 equal, 2 dearer\nPeers of type group Instant: 145 other pool cards, median mana value 2; this card 4\nPattern hits: none",
+   "charge": 3,
+   "claim": "can be cast with no mana at the price of two extra cards",
+   "feld": "rule_claims[0].claim",
+   "nr": 15,
+   "oracle_id": "7dde4eb6-e9d7-4259-abc2-3af738e0f00f",
+   "seq": 6
+  },
+  {
+   "card": "Celestial Purge",
+   "card_block": "CARD: Celestial Purge\noracle_id: ec1f6188-2516-46ac-8a03-7b7285b23a62\nMana cost: {1}{W} | Mana value: 2 | Cost symbols (front face): W x1, generic 1\nType line: Instant | Group: Instant | Colour identity: W\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Exile target black or red permanent.\nRoles (labels from a tagger and a text rule; they can be wrong): hate; removal | main: removal\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8302, P(both) 0.7487\nPeers with role removal (main): 128 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 22 cheaper, 35 equal, 71 dearer\nPeers with role hate: 94 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 15 cheaper, 30 equal, 49 dearer\nPeers of type group Instant: 145 other pool cards, median mana value 2; this card 2\nRulings (shown 1 of 1):\n  - 2009-10-01: Lands are colorless (even if their frames have some colored elements to them). You can’t target a Swamp, a Mountain, or any other land with Celestial Purge (unless some other effect has turned that land black or red).\nPattern hits: none",
+   "charge": 3,
+   "claim": "only black or red permanents are legal targets",
+   "feld": "rule_claims[0].claim",
+   "nr": 16,
+   "oracle_id": "ec1f6188-2516-46ac-8a03-7b7285b23a62",
+   "seq": 28
+  },
+  {
+   "card": "Farseek",
+   "card_block": "CARD: Farseek\noracle_id: 495e52e6-4c2b-4574-9474-eadbdcc8b4ac\nMana cost: {1}{G} | Mana value: 2 | Cost symbols (front face): G x1, generic 1\nType line: Sorcery | Group: Sorcery | Colour identity: G\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Search your library for a Plains, Island, Swamp, or Mountain card, put it onto the battlefield tapped, then shuffle.\nRoles (labels from a tagger and a text rule; they can be wrong): land_ramp; ramp; tutor | main: land_ramp\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8917, P(both) 0.8041\nPeers with role land_ramp (main): 51 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 6 cheaper, 13 equal, 32 dearer\nPeers with role ramp: 99 other pool cards, median mana value 3 (quartiles 2 to 3); this card 2: 12 cheaper, 35 equal, 52 dearer\nPeers with role tutor: 48 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 7 cheaper, 10 equal, 31 dearer\nPeers of type group Sorcery: 65 other pool cards, median mana value 4; this card 2\nRulings (shown 1 of 1):\n  - 2021-03-19: Farseek can find any land with any of the listed land types, including nonbasic ones, even if that land is a Forest in addition to one or more of those types.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - noncreature_draw_or_ramp: \"roles by text: land_ramp, ramp\"",
+   "charge": 3,
+   "claim": "one extra land on the battlefield for two mana; it cannot fetch a basic Forest",
+   "feld": "rule_claims[0].claim",
+   "nr": 17,
+   "oracle_id": "495e52e6-4c2b-4574-9474-eadbdcc8b4ac",
+   "seq": 42
+  },
+  {
+   "card": "Kraven's Cats",
+   "card_block": "CARD: Kraven's Cats\noracle_id: 976db753-9887-448a-8e67-ec7937b6505c\nMana cost: {1}{G} | Mana value: 2 | Cost symbols (front face): G x1, generic 1\nType line: Creature — Cat Villain | Group: Creature | Colour identity: G\nPower/toughness (front face): 2/2 | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  {2}{G}: This creature gets +2/+2 until end of turn. Activate only once each turn.\nRoles (labels from a tagger and a text rule; they can be wrong): combat_trick; mana_sink | main: mana_sink\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8917, P(both) 0.8041\nPeers with role mana_sink (main): 29 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 3 cheaper, 9 equal, 17 dearer\nPeers with role combat_trick: 118 other pool cards, median mana value 2 (quartiles 2 to 4); this card 2: 27 cheaper, 33 equal, 58 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 2\nCreature bodies at the same mana value: 125 peers, median power+toughness 4; this card 4: 59 smaller, 59 equal, 7 larger\nPattern hits: none",
+   "charge": 6,
+   "claim": "the only ability is a temporary self-pump",
+   "feld": "rule_claims[0].claim",
+   "nr": 18,
+   "oracle_id": "976db753-9887-448a-8e67-ec7937b6505c",
+   "seq": 82
+  },
+  {
+   "card": "Grow Extra Arms",
+   "card_block": "CARD: Grow Extra Arms\noracle_id: 52f03e73-3dba-44c2-b256-10e7e208b961\nMana cost: {1}{G} | Mana value: 2 | Cost symbols (front face): G x1, generic 1\nType line: Instant | Group: Instant | Colour identity: G\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  This spell costs {1} less to cast if it targets a Spider.\n  Target creature gets +4/+4 until end of turn.\nRoles (labels from a tagger and a text rule; they can be wrong): combat_trick; cost_reduction | main: cost_reduction\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8917, P(both) 0.8041\nPeers with role cost_reduction (main): 18 other pool cards, median mana value 4.5 (quartiles 3 to 7); this card 2: 0 cheaper, 2 equal, 16 dearer\nPeers with role combat_trick: 118 other pool cards, median mana value 2 (quartiles 2 to 4); this card 2: 27 cheaper, 33 equal, 58 dearer\nPeers of type group Instant: 145 other pool cards, median mana value 2; this card 2\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - self_cost_reduction: \"~ costs {1} less to cast if it targets a spider.\"",
+   "charge": 5,
+   "claim": "a temporary size boost only",
+   "feld": "rule_claims[0].claim",
+   "nr": 19,
+   "oracle_id": "52f03e73-3dba-44c2-b256-10e7e208b961",
+   "seq": 52
+  },
+  {
+   "card": "Rubbleback Rhino",
+   "card_block": "CARD: Rubbleback Rhino\noracle_id: 33e87ab4-f680-4463-a48d-289fed7e196e\nMana cost: {4}{G} | Mana value: 5 | Cost symbols (front face): G x1, generic 4\nType line: Creature — Rhino | Group: Creature | Colour identity: G\nPower/toughness (front face): 3/4 | Keywords: Hexproof | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Hexproof (This creature can't be the target of spells or abilities your opponents control.)\nRoles (labels from a tagger and a text rule; they can be wrong): protection | main: protection\nOn-time cast, reference mana base: turn 5: P(land drops met) 0.4451, P(colours met given lands) 0.9851, P(both) 0.4385\nPeers with role protection (main): 59 other pool cards, median mana value 3 (quartiles 2 to 4); this card 5: 46 cheaper, 5 equal, 8 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 5\nCreature bodies at the same mana value: 60 peers, median power+toughness 7; this card 7: 25 smaller, 10 equal, 25 larger\nPattern hits: none",
+   "charge": 3,
+   "claim": "Hexproof only stops spells and abilities your opponents control, so Chulane's {3},{T} ability (yours) can still target it.",
+   "feld": "rule_claims[1].claim",
+   "nr": 20,
+   "oracle_id": "33e87ab4-f680-4463-a48d-289fed7e196e",
+   "seq": 84
+  },
+  {
+   "card": "Storm Crow",
+   "card_block": "CARD: Storm Crow\noracle_id: 000d5588-5a4c-434e-988d-396632ade42c\nMana cost: {1}{U} | Mana value: 2 | Cost symbols (front face): U x1, generic 1\nType line: Creature — Bird | Group: Creature | Colour identity: U\nPower/toughness (front face): 1/2 | Keywords: Flying | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Flying (This creature can't be blocked except by creatures with flying or reach.)\nRoles (labels from a tagger and a text rule; they can be wrong): evasion | main: evasion\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8735, P(both) 0.7877\nPeers with role evasion (main): 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 2: 14 cheaper, 32 equal, 109 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 2\nCreature bodies at the same mana value: 125 peers, median power+toughness 4; this card 3: 28 smaller, 30 equal, 67 larger\nPattern hits: none",
+   "charge": 1,
+   "claim": "as a creature spell it draws a card and may put a land into play",
+   "feld": "rule_claims[0].claim",
+   "nr": 21,
+   "oracle_id": "000d5588-5a4c-434e-988d-396632ade42c",
+   "seq": 56
+  },
+  {
+   "card": "Quakestrider Ceratops",
+   "card_block": "CARD: Quakestrider Ceratops\noracle_id: e56629ba-82d4-470f-9a6b-40c29d835af2\nMana cost: {3}{G}{G}{G} | Mana value: 6 | Cost symbols (front face): G x3, generic 3\nType line: Creature — Dinosaur | Group: Creature | Colour identity: G\nPower/toughness (front face): 12/8 | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  (no rules text: a known fact, not missing data)\nRoles: none labelled\nOn-time cast, reference mana base: turn 6: P(land drops met) 0.3007, P(colours met given lands) 0.7408, P(both) 0.2228\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 6\nCreature bodies at the same mana value: 26 peers, median power+toughness 9; this card 20: 26 smaller, 0 equal, 0 larger\nPattern hits: none",
+   "charge": 4,
+   "claim": "It is a creature spell, so casting it triggers Chulane even though it has no text of its own.",
+   "feld": "rule_claims[0].claim",
+   "nr": 22,
+   "oracle_id": "e56629ba-82d4-470f-9a6b-40c29d835af2",
+   "seq": 7
+  },
+  {
+   "card": "Steppe Lynx",
+   "card_block": "CARD: Steppe Lynx\noracle_id: b16cef02-dcf8-4866-ac42-6ee929ddbea2\nMana cost: {W} | Mana value: 1 | Cost symbols (front face): W x1\nType line: Creature — Cat | Group: Creature | Colour identity: W\nPower/toughness (front face): 0/1 | Keywords: Landfall | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Landfall — Whenever a land you control enters, this creature gets +2/+2 until end of turn.\nRoles (labels from a tagger and a text rule; they can be wrong): combat_trick; landfall | main: landfall\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 0.7595, P(both) 0.7414\nPeers with role landfall (main): 19 other pool cards, median mana value 3 (quartiles 3 to 4.5); this card 1: 0 cheaper, 1 equal, 18 dearer\nPeers with role combat_trick: 118 other pool cards, median mana value 2 (quartiles 2 to 4); this card 1: 0 cheaper, 26 equal, 92 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 1\nCreature bodies at the same mana value: 37 peers, median power+toughness 2; this card 1: 2 smaller, 2 equal, 33 larger\nRulings (shown 3 of 3):\n  - 2024-11-08: A landfall ability doesn't trigger if a permanent already on the battlefield becomes a land.\n  - 2024-11-08: Whenever a land you control enters, each landfall ability of the permanents you control will trigger. You can put them   on the stack in any order. The last ability you put on the stack will be the first one to resolve (As a result, you ca…\n  - 2024-11-08: A landfall ability triggers whenever a land you control enters for any reason. It triggers whenever you play a land, as well as whenever a spell or ability puts a land onto the battlefield under your control.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - landfall: \"landfall — whenever a land you control enters, ~ gets +2/+2 until end of turn.\"",
+   "charge": 1,
+   "claim": "Lands put onto the battlefield by Chulane's trigger also trigger Steppe Lynx's landfall ability.",
+   "feld": "rule_claims[0].claim",
+   "nr": 23,
+   "oracle_id": "b16cef02-dcf8-4866-ac42-6ee929ddbea2",
+   "seq": 17
+  },
+  {
+   "card": "Noggle the Mind",
+   "card_block": "CARD: Noggle the Mind\noracle_id: b49efbe8-e15b-4dc7-82de-970cbce92b79\nMana cost: {1}{U} | Mana value: 2 | Cost symbols (front face): U x1, generic 1\nType line: Enchantment — Aura | Group: Enchantment | Colour identity: U\nPower/toughness (front face): none | Keywords: Enchant, Flash | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Flash\n  Enchant creature\n  Enchanted creature loses all abilities and is a colorless Noggle with base power and toughness 1/1. (It loses all colors and all other creature types.)\nRoles (labels from a tagger and a text rule; they can be wrong): combat_trick; hate; removal | main: removal\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8735, P(both) 0.7877\nPeers with role removal (main): 128 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 22 cheaper, 35 equal, 71 dearer\nPeers with role combat_trick: 118 other pool cards, median mana value 2 (quartiles 2 to 4); this card 2: 27 cheaper, 33 equal, 58 dearer\nPeers with role hate: 94 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 15 cheaper, 30 equal, 49 dearer\nPeers of type group Enchantment: 80 other pool cards, median mana value 3; this card 2\nRulings (shown 2 of 2):\n  - 2025-11-17: Noggle the Mind overwrites all previous effects that set the creature's base power and toughness to specific values. Any power- or toughness-setting effects that start to apply afterward will overwrite this effect.\n  - 2025-11-17: Effects that modify the creature's power and/or toughness, such as the effect of Appeal to Eirdu, will apply to the creature no matter when they started to take effect. The same is true for counters that change its power and/or toughness a…\nPattern hits: none",
+   "charge": 2,
+   "claim": "Power or toughness bonuses from other sources still apply, so the creature can be larger than 1/1.",
+   "feld": "rule_claims[1].claim",
+   "nr": 24,
+   "oracle_id": "b49efbe8-e15b-4dc7-82de-970cbce92b79",
+   "seq": 9
+  },
+  {
+   "card": "Wild Unraveling",
+   "card_block": "CARD: Wild Unraveling\noracle_id: dd1a4219-437b-494f-ae0e-1d3181ffcd63\nMana cost: {U}{U} | Mana value: 2 | Cost symbols (front face): U x2\nType line: Instant | Group: Instant | Colour identity: U\nPower/toughness (front face): none | Keywords: Blight | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  As an additional cost to cast this spell, blight 2 or pay {1}. (To blight 2, put two -1/-1 counters on a creature you control.)\n  Counter target spell.\nRoles (labels from a tagger and a text rule; they can be wrong): counterspell | main: counterspell\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.5264, P(both) 0.4747\nPeers with role counterspell (main): 26 other pool cards, median mana value 2 (quartiles 2 to 3); this card 2: 6 cheaper, 11 equal, 9 dearer\nPeers of type group Instant: 145 other pool cards, median mana value 2; this card 2\nRulings (shown 4 of 6):\n  - 2025-11-17: All of the -1/-1 counters must be put on a single creature. You can't choose to split them up between multiple creatures.\n  - 2025-11-17: If a creature that has +1/+1 counters on it receives enough -1/-1 counters to cause it to be destroyed by lethal damage or put into its owner's graveyard for having 0 or less toughness, effects that refer to the counters on that creature w…\n  - 2025-11-17: The creature you choose to put -1/-1 counters on doesn't have to have enough toughness to survive the process. For example, if you blight 2, you can choose to put the counters on a 1/1 creature you control.\n  - 2025-11-17: If you can't place -1/-1 counters on any creatures you control (probably because you control no creatures), you can't choose to blight.\nPattern hits: none",
+   "charge": 2,
+   "claim": "According to the card text it can counter any spell, creature or noncreature, from any opponent.",
+   "feld": "rule_claims[1].claim",
+   "nr": 25,
+   "oracle_id": "dd1a4219-437b-494f-ae0e-1d3181ffcd63",
+   "seq": 55
+  },
+  {
+   "card": "Excommunicate",
+   "card_block": "CARD: Excommunicate\noracle_id: 6c2cf22e-5dbb-4fa9-8ece-17069e6f1d7f\nMana cost: {2}{W} | Mana value: 3 | Cost symbols (front face): W x1, generic 2\nType line: Sorcery | Group: Sorcery | Colour identity: W\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Put target creature on top of its owner's library.\nRoles (labels from a tagger and a text rule; they can be wrong): removal | main: removal\nOn-time cast, reference mana base: turn 3: P(land drops met) 0.7729, P(colours met given lands) 0.8901, P(both) 0.688\nPeers with role removal (main): 128 other pool cards, median mana value 3 (quartiles 2 to 4); this card 3: 58 cheaper, 36 equal, 34 dearer\nPeers of type group Sorcery: 65 other pool cards, median mana value 4; this card 3\nPattern hits: none",
+   "charge": 4,
+   "claim": "According to the card text the creature is not destroyed or exiled; it goes on top of its owner's library and the owner will draw it again, so the effect is tempo and not permanent removal.",
+   "feld": "rule_claims[0].claim",
+   "nr": 26,
+   "oracle_id": "6c2cf22e-5dbb-4fa9-8ece-17069e6f1d7f",
+   "seq": 55
+  },
+  {
+   "card": "Gathering Stone",
+   "card_block": "CARD: Gathering Stone\noracle_id: 9f6d6e90-7462-46e5-bf2f-725b4badc394\nMana cost: {4} | Mana value: 4 | Cost symbols (front face): generic 4\nType line: Artifact | Group: Artifact | Colour identity: colourless\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  As this artifact enters, choose a creature type.\n  Spells you cast of the chosen type cost {1} less to cast.\n  When this artifact enters and at the beginning of your upkeep, look at the top card of your library. If it's a card of the chosen type, you may reveal it and put it into your hand. If you don't put the card into your hand, you may put it into your graveyard.\nRoles (labels from a tagger and a text rule; they can be wrong): card_advantage; card_selection; cost_reduction; mill | main: card_advantage\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 1.0, P(both) 0.6106 (cost has no coloured symbol)\nPeers with role card_advantage (main): 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 98 cheaper, 40 equal, 28 dearer\nPeers with role card_selection: 41 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 28 cheaper, 10 equal, 3 dearer\nPeers with role cost_reduction: 18 other pool cards, median mana value 4.5 (quartiles 3 to 7); this card 4: 7 cheaper, 2 equal, 9 dearer\nPeers of type group Artifact: 81 other pool cards, median mana value 2; this card 4\nRulings (shown 3 of 3):\n  - 2025-11-17: To determine the total cost of a spell, start with the mana cost or alternative cost you're paying (such as a flashback cost), add any cost increases (such as kicker costs), then apply any cost reductions (such as that of this ability). Th…\n  - 2025-11-17: You don't have to reveal the card you look at with Gathering Stone's third ability even if it's a card of the chosen type. If you choose not to reveal it this way, you can still put it into your graveyard.\n  - 2025-11-17: Gathering Stone's second ability applies only to generic mana in the total cost of spells you cast of the chosen type.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - cost_reduction_typed_spell: \"spells you cast of the chosen type cost {1} less to cast.\"\n  - etb_own: \"when ~ enters and at the beginning of your upkeep, look at the top card of your library. if it's a card of the chosen type, you may reveal it and put it into your hand. if you don't put the card into your hand, you may …\"",
+   "charge": 7,
+   "claim": "coloured costs are not reduced",
+   "feld": "rule_claims[1].claim",
+   "nr": 27,
+   "oracle_id": "9f6d6e90-7462-46e5-bf2f-725b4badc394",
+   "seq": 31
+  },
+  {
+   "card": "Self-Reflection",
+   "card_block": "CARD: Self-Reflection\noracle_id: 5c68853e-4fb8-465e-b262-e6dbaf972533\nMana cost: {4}{U}{U} | Mana value: 6 | Cost symbols (front face): U x2, generic 4\nType line: Sorcery | Group: Sorcery | Colour identity: U\nPower/toughness (front face): none | Keywords: Flashback | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Create a token that's a copy of target creature you control.\n  Flashback {3}{U} (You may cast this card from your graveyard for its flashback cost. Then exile it.)\nRoles (labels from a tagger and a text rule; they can be wrong): copy | main: copy\nOn-time cast, reference mana base: turn 6: P(land drops met) 0.3007, P(colours met given lands) 0.913, P(both) 0.2746\nPeers with role copy (main): 11 other pool cards, median mana value 4 (quartiles 3 to 4.5); this card 6: 10 cheaper, 1 equal, 0 dearer\nPeers of type group Sorcery: 65 other pool cards, median mana value 4; this card 6\nRulings (shown 4 of 11):\n  - 2024-11-08: You can cast a spell using flashback even if it was somehow put into your graveyard without having been cast.\n  - 2024-11-08: To determine the total cost of a spell, start with the mana cost or alternative cost (such as a flashback cost) you're paying, add any cost increases, then apply any cost reductions. The mana value of the spell is determined only by its ma…\n  - 2024-11-08: If a card with flashback is put into your graveyard during your turn, you can cast it if it's legal to do so before any other player can take any actions.\n  - 2024-11-08: You must still follow any timing restrictions and permissions, including those based on the card's type. For instance, you can cast a sorcery using flashback only when you could normally cast a sorcery.\nPattern hits: none",
+   "charge": 4,
+   "claim": "A created token is not cast, so according to the card text it does not trigger Chulane.",
+   "feld": "rule_claims[0].claim",
+   "nr": 28,
+   "oracle_id": "5c68853e-4fb8-465e-b262-e6dbaf972533",
+   "seq": 76
+  },
+  {
+   "card": "Sun-Spider, Nimble Webber",
+   "card_block": "CARD: Sun-Spider, Nimble Webber\noracle_id: 2d961997-4f5f-4ce2-b062-11411147e2f7\nMana cost: {3}{W/U} | Mana value: 4 | Cost symbols (front face): W x1, U x1, generic 3, 1 hybrid symbol(s)\nType line: Legendary Creature — Spider Human Hero | Group: Creature | Colour identity: WU\nPower/toughness (front face): 3/2 | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  During your turn, Sun-Spider has flying.\n  When Sun-Spider enters, search your library for an Aura or Equipment card, reveal it, put it into your hand, then shuffle.\nRoles (labels from a tagger and a text rule; they can be wrong): evasion; tutor | main: tutor\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 1.0, P(both) 0.6106 (cost has no coloured symbol)\nPeers with role tutor (main): 48 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 34 cheaper, 8 equal, 6 dearer\nPeers with role evasion: 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 4: 82 cheaper, 33 equal, 40 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 4\nCreature bodies at the same mana value: 84 peers, median power+toughness 6; this card 5: 29 smaller, 6 equal, 49 larger\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - etb_own: \"when ~ enters, search your library for an aura or equipment card, reveal it, put it into your hand, then shuffle.\"",
+   "charge": 4,
+   "claim": "each cast finds one Aura or Equipment card, as long as one is left",
+   "feld": "rule_claims[0].claim",
+   "nr": 29,
+   "oracle_id": "2d961997-4f5f-4ce2-b062-11411147e2f7",
+   "seq": 75
+  },
+  {
+   "card": "Treasure Hunt",
+   "card_block": "CARD: Treasure Hunt\noracle_id: 05079479-86a6-4041-a395-83d325b6ddb7\nMana cost: {1}{U} | Mana value: 2 | Cost symbols (front face): U x1, generic 1\nType line: Sorcery | Group: Sorcery | Colour identity: U\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Reveal cards from the top of your library until you reveal a nonland card, then put all cards revealed this way into your hand.\nRoles (labels from a tagger and a text rule; they can be wrong): card_advantage | main: card_advantage\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8735, P(both) 0.7877\nPeers with role card_advantage (main): 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 17 cheaper, 41 equal, 108 dearer\nPeers of type group Sorcery: 65 other pool cards, median mana value 4; this card 2\nRulings (shown 2 of 2):\n  - 2010-03-01: If all the cards left in your library are lands, you’ll reveal all of them and put them all into your hand.\n  - 2010-03-01: The cards you put into your hand this way include one nonland card, plus all the land cards on top of it in your library (if any). If the top card of your library is a nonland card, you just get that one.\nPattern hits: none",
+   "charge": 3,
+   "claim": "Treasure Hunt is a Sorcery, not a creature spell, so casting it does not trigger Chulane.",
+   "feld": "rule_claims[0].claim",
+   "nr": 30,
+   "oracle_id": "05079479-86a6-4041-a395-83d325b6ddb7",
+   "seq": 17
+  },
+  {
+   "card": "Luminollusk",
+   "card_block": "CARD: Luminollusk\noracle_id: c8bf2dce-7bcd-45cb-bf15-f53e24333a01\nMana cost: {3}{G} | Mana value: 4 | Cost symbols (front face): G x1, generic 3\nType line: Creature — Elemental | Group: Creature | Colour identity: G\nPower/toughness (front face): 2/4 | Keywords: Vivid, Deathtouch | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Deathtouch\n  Vivid — When this creature enters, you gain life equal to the number of colors among permanents you control.\nRoles (labels from a tagger and a text rule; they can be wrong): lifegain | main: lifegain\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 0.9687, P(both) 0.5915\nPeers with role lifegain (main): 83 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 57 cheaper, 10 equal, 16 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 4\nCreature bodies at the same mana value: 84 peers, median power+toughness 6; this card 6: 36 smaller, 16 equal, 32 larger\nRulings (shown 2 of 2):\n  - 2025-11-17: The colors are white, blue, black, red, and green. Colorless is not a color.\n  - 2025-11-17: Lands are normally colorless permanents, even if they tap for mana of a certain color.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - etb_own: \"vivid — when ~ enters, you gain life equal to the number of colors among permanents you control.\"",
+   "charge": 5,
+   "claim": "each entry gains up to 3 life in a green, white and blue deck",
+   "feld": "rule_claims[0].claim",
+   "nr": 31,
+   "oracle_id": "c8bf2dce-7bcd-45cb-bf15-f53e24333a01",
+   "seq": 30
+  },
+  {
+   "card": "Shinestriker",
+   "card_block": "CARD: Shinestriker\noracle_id: 1b94ee87-a2f4-47f1-9fc7-4a167cad1b3b\nMana cost: {4}{U}{U} | Mana value: 6 | Cost symbols (front face): U x2, generic 4\nType line: Creature — Elemental | Group: Creature | Colour identity: U\nPower/toughness (front face): 3/3 | Keywords: Flying, Vivid | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Flying\n  Vivid — When this creature enters, draw cards equal to the number of colors among permanents you control.\nRoles (labels from a tagger and a text rule; they can be wrong): card_advantage; card_draw; evasion | main: card_advantage\nOn-time cast, reference mana base: turn 6: P(land drops met) 0.3007, P(colours met given lands) 0.913, P(both) 0.2746\nPeers with role card_advantage (main): 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 6: 155 cheaper, 3 equal, 8 dearer\nPeers with role card_draw: 141 other pool cards, median mana value 3 (quartiles 2 to 4); this card 6: 130 cheaper, 4 equal, 7 dearer\nPeers with role evasion: 155 other pool cards, median mana value 3 (quartiles 2 to 4.5); this card 6: 135 cheaper, 10 equal, 10 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 6\nCreature bodies at the same mana value: 26 peers, median power+toughness 9; this card 6: 2 smaller, 1 equal, 23 larger\nRulings (shown 2 of 2):\n  - 2025-11-17: Lands are normally colorless permanents, even if they tap for mana of a certain color.\n  - 2025-11-17: The colors are white, blue, black, red, and green. Colorless is not a color.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - etb_own: \"vivid — when ~ enters, draw cards equal to the number of colors among permanents you control.\"\n  - etb_own_draw: \"vivid — when ~ enters, draw cards equal to the number of colors among permanents you control.\"",
+   "charge": 7,
+   "claim": "Lands do not add colours to the count.",
+   "feld": "rule_claims[1].claim",
+   "nr": 32,
+   "oracle_id": "1b94ee87-a2f4-47f1-9fc7-4a167cad1b3b",
+   "seq": 60
+  },
+  {
+   "card": "Nettlecyst",
+   "card_block": "CARD: Nettlecyst\noracle_id: 04c7f4fe-2098-4311-866d-6733c08d5178\nMana cost: {3} | Mana value: 3 | Cost symbols (front face): generic 3\nType line: Artifact — Equipment | Group: Artifact | Colour identity: colourless\nPower/toughness (front face): none | Keywords: Equip, Living weapon | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Living weapon (When this Equipment enters, create a 0/0 black Phyrexian Germ creature token, then attach this to it.)\n  Equipped creature gets +1/+1 for each artifact and/or enchantment you control.\n  Equip {2}\nRoles (labels from a tagger and a text rule; they can be wrong): token_production | main: token_production\nOn-time cast, reference mana base: turn 3: P(land drops met) 0.7729, P(colours met given lands) 1.0, P(both) 0.7729 (cost has no coloured symbol)\nPeers with role token_production (main): 61 other pool cards, median mana value 3 (quartiles 3 to 4); this card 3: 15 cheaper, 20 equal, 26 dearer\nPeers of type group Artifact: 81 other pool cards, median mana value 2; this card 3\nRulings (shown 4 of 6):\n  - 2021-06-18: The Phyrexian Germ token enters the battlefield as a 0/0 creature and the Equipment becomes attached to it before state-based actions would cause the token to die. Abilities that trigger as the token enters the battlefield see that a 0/0 c…\n  - 2021-06-18: If a permanent you control is both an artifact and an enchantment, count it only once when determining the bonus from an equipped Nettlecyst.\n  - 2021-06-18: If the living weapon trigger causes two Phyrexian Germs to be created (due to an effect such as that of Doubling Season), the Equipment becomes attached to one of them. The other will be put into your graveyard and subsequently cease to ex…\n  - 2021-06-18: Like other Equipment, each Equipment with living weapon has an equip cost. You can pay this cost to attach an Equipment to another creature you control. Once the Phyrexian Germ token is no longer equipped, it will be put into your graveyar…\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - creature_dependent: \"equipped creature gets +1/+1 for each artifact and/or enchantment you control.\"",
+   "charge": 3,
+   "claim": "Nettlecyst is an artifact you control, so the equipped creature gets at least +1/+1.",
+   "feld": "rule_claims[1].claim",
+   "nr": 33,
+   "oracle_id": "04c7f4fe-2098-4311-866d-6733c08d5178",
+   "seq": 7
+  },
+  {
+   "card": "Afterthought Sentry",
+   "card_block": "CARD: Afterthought Sentry\noracle_id: f0c533a2-751a-4c5a-8cec-b83da3c8c62f\nMana cost: {2} | Mana value: 2 | Cost symbols (front face): generic 2\nType line: Artifact Creature — Gargoyle | Group: Creature | Colour identity: colourless\nPower/toughness (front face): 2/2 | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  {2}: This creature gains flying until end of turn.\n  Whenever this creature attacks, exile up to one target card from a graveyard.\nRoles (labels from a tagger and a text rule; they can be wrong): combat_trick; evasion; graveyard_hate; hate | main: evasion\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 1.0, P(both) 0.9018 (cost has no coloured symbol)\nPeers with role evasion (main): 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 2: 14 cheaper, 32 equal, 109 dearer\nPeers with role combat_trick: 118 other pool cards, median mana value 2 (quartiles 2 to 4); this card 2: 27 cheaper, 33 equal, 58 dearer\nPeers with role graveyard_hate: 6 other pool cards, median mana value 1.5 (quartiles 1 to 3.5); this card 2: 3 cheaper, 1 equal, 2 dearer [small group]\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 2\nCreature bodies at the same mana value: 125 peers, median power+toughness 4; this card 4: 59 smaller, 59 equal, 7 larger\nPattern hits: none",
+   "charge": 5,
+   "claim": "According to the card text, flying lasts only until end of turn and costs {2} each time, so it is a mana sink and not permanent evasion.",
+   "feld": "rule_claims[0].claim",
+   "nr": 34,
+   "oracle_id": "f0c533a2-751a-4c5a-8cec-b83da3c8c62f",
+   "seq": 69
+  },
+  {
+   "card": "Aerial Extortionist",
+   "card_block": "CARD: Aerial Extortionist\noracle_id: 7e7d7f4d-2c22-4803-ba5e-5eb653c25b5e\nMana cost: {3}{W}{W} | Mana value: 5 | Cost symbols (front face): W x2, generic 3\nType line: Creature — Bird Soldier | Group: Creature | Colour identity: W\nPower/toughness (front face): 4/3 | Keywords: Flying | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Flying\n  Whenever this creature enters or deals combat damage to a player, exile up to one target nonland permanent. For as long as that card remains exiled, its owner may cast it.\n  Whenever another player casts a spell from anywhere other than their hand, draw a card.\nRoles (labels from a tagger and a text rule; they can be wrong): card_advantage; card_draw; evasion; hate; removal; tax | main: removal\nOn-time cast, reference mana base: turn 5: P(land drops met) 0.4451, P(colours met given lands) 0.7779, P(both) 0.3463\nPeers with role removal (main): 128 other pool cards, median mana value 3 (quartiles 2 to 4); this card 5: 101 cheaper, 16 equal, 11 dearer\nPeers with role card_advantage: 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 5: 139 cheaper, 15 equal, 12 dearer\nPeers with role card_draw: 141 other pool cards, median mana value 3 (quartiles 2 to 4); this card 5: 115 cheaper, 14 equal, 12 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 5\nCreature bodies at the same mana value: 60 peers, median power+toughness 7; this card 7: 25 smaller, 10 equal, 25 larger\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - etb_own: \"whenever ~ enters or deals combat damage to a player, exile up to one target nonland permanent. for as long as that card remains exiled, its owner may cast it.\"",
+   "charge": 3,
+   "claim": "the exile is temporary for opponents and a recast option for own creatures",
+   "feld": "rule_claims[0].claim",
+   "nr": 35,
+   "oracle_id": "7e7d7f4d-2c22-4803-ba5e-5eb653c25b5e",
+   "seq": 58
+  },
+  {
+   "card": "Magnifying Glass",
+   "card_block": "CARD: Magnifying Glass\noracle_id: f2ce9e55-07c0-4f36-a59e-127693fc0f62\nMana cost: {3} | Mana value: 3 | Cost symbols (front face): generic 3\nType line: Artifact | Group: Artifact | Colour identity: colourless\nPower/toughness (front face): none | Keywords: Investigate | Produces mana: C\nGame Changer: no | Layout: normal\nOracle text:\n  {T}: Add {C}.\n  {4}, {T}: Investigate. (Create a Clue token. It's an artifact with \"{2}, Sacrifice this token: Draw a card.\")\nRoles (labels from a tagger and a text rule; they can be wrong): card_advantage; card_draw; mana_rock; mana_sink; ramp | main: mana_rock\nOn-time cast, reference mana base: turn 3: P(land drops met) 0.7729, P(colours met given lands) 1.0, P(both) 0.7729 (cost has no coloured symbol)\nPeers with role mana_rock (main): 23 other pool cards, median mana value 2 (quartiles 2 to 3); this card 3: 13 cheaper, 8 equal, 2 dearer\nPeers with role card_advantage: 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 3: 59 cheaper, 38 equal, 69 dearer\nPeers with role card_draw: 141 other pool cards, median mana value 3 (quartiles 2 to 4); this card 3: 54 cheaper, 31 equal, 56 dearer\nPeers of type group Artifact: 81 other pool cards, median mana value 2; this card 3\nRulings (shown 3 of 3):\n  - 2016-04-08: You can't sacrifice a Clue to pay multiple costs. For example, you can't sacrifice a Clue token to activate its own ability and also to activate Alquist Proft, Master Sleuth's ability.\n  - 2016-04-08: If an effect refers to a Clue, it means any Clue artifact, not just a Clue artifact token. For example, you can sacrifice Wrench to pay for Alquist Proft, Master Sleuth's activated ability.\n  - 2016-04-08: Clue is an artifact type. Even though it appears on some cards with other permanent types, it's never a creature type, a land type, or anything but an artifact type.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - noncreature_draw_or_ramp: \"roles by text: card_advantage, card_draw, ramp\"",
+   "charge": 2,
+   "claim": "each card drawn this way costs six mana in total",
+   "feld": "rule_claims[0].claim",
+   "nr": 36,
+   "oracle_id": "f2ce9e55-07c0-4f36-a59e-127693fc0f62",
+   "seq": 31
+  },
+  {
+   "card": "Holy Strength",
+   "card_block": "CARD: Holy Strength\noracle_id: 9357de36-f8be-4f49-b2c8-9fe9eaf82b07\nMana cost: {W} | Mana value: 1 | Cost symbols (front face): W x1\nType line: Enchantment — Aura | Group: Enchantment | Colour identity: W\nPower/toughness (front face): none | Keywords: Enchant | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Enchant creature\n  Enchanted creature gets +1/+2.\nRoles: none labelled\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 0.7595, P(both) 0.7414\nPeers of type group Enchantment: 80 other pool cards, median mana value 3; this card 1\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - creature_dependent: \"enchanted creature gets +1/+2.\"",
+   "charge": 4,
+   "claim": "If the enchanted creature is returned to its owner's hand by Chulane's ability, the Aura no longer has anything to enchant and is not kept.",
+   "feld": "rule_claims[0].claim",
+   "nr": 37,
+   "oracle_id": "9357de36-f8be-4f49-b2c8-9fe9eaf82b07",
+   "seq": 32
+  },
+  {
+   "card": "Cudgel Troll",
+   "card_block": "CARD: Cudgel Troll\noracle_id: c2f86723-4765-4dac-a9f6-9cfa543613b2\nMana cost: {2}{G}{G} | Mana value: 4 | Cost symbols (front face): G x2, generic 2\nType line: Creature — Troll | Group: Creature | Colour identity: G\nPower/toughness (front face): 4/3 | Keywords: Heal, Regenerate | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  {G}: Regenerate this creature. (The next time this creature would be destroyed this turn, instead tap it, remove it from combat, and heal all damage on it.)\nRoles: none labelled\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 0.7991, P(both) 0.4879\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 4\nCreature bodies at the same mana value: 84 peers, median power+toughness 6; this card 7: 53 smaller, 17 equal, 14 larger\nRulings (shown 3 of 3):\n  - 2010-08-15: Activating Cudgel Troll’s ability causes a “regeneration shield” to be created for it. The next time Cudgel Troll would be destroyed that turn, the regeneration shield is used up instead. This works only if Cudgel Troll is dealt lethal dam…\n  - 2010-08-15: If Cudgel Troll is dealt lethal damage and is dealt damage by a source with deathtouch during the same combat damage step, a single regeneration shield will save it.\n  - 2010-08-15: To work, the regeneration shield must be created before Cudgel Troll is destroyed. This usually means activating its ability during the declare blockers step, or in response to a spell or ability that would destroy it.\nPattern hits: none",
+   "charge": 4,
+   "claim": "mana must be held open in advance for the protection",
+   "feld": "rule_claims[1].claim",
+   "nr": 38,
+   "oracle_id": "c2f86723-4765-4dac-a9f6-9cfa543613b2",
+   "seq": 19
+  },
+  {
+   "card": "Gardenize",
+   "card_block": "CARD: Gardenize\noracle_id: e74a2a4c-ca3c-49e8-9b0f-b4d1bb91fb54\nMana cost: {1}{G}{G} | Mana value: 3 | Cost symbols (front face): G x2, generic 1\nType line: Enchantment | Group: Enchantment | Colour identity: G\nPower/toughness (front face): none | Keywords: none | Produces mana: G\nGame Changer: no | Layout: normal\nOracle text:\n  Whenever a creature you control dies, put a charge counter on this enchantment.\n  At the beginning of your first main phase, add {G} for each charge counter on this enchantment.\nRoles (labels from a tagger and a text rule; they can be wrong): ramp | main: ramp\nOn-time cast, reference mana base: turn 3: P(land drops met) 0.7729, P(colours met given lands) 0.6891, P(both) 0.5326\nPeers with role ramp (main): 99 other pool cards, median mana value 3 (quartiles 2 to 3); this card 3: 48 cheaper, 31 equal, 20 dearer\nPeers of type group Enchantment: 80 other pool cards, median mana value 3; this card 3\nRulings (shown 1 of 1):\n  - 2026-08-21: If Gardenize is no longer on the battlefield at the time its last ability resolves, use the number of counters it had on it the last time it was on the battlefield to determine the amount of {G} to add.\nPattern hits: none",
+   "charge": 7,
+   "claim": "Gardenize is an Enchantment, not a creature spell, so casting it does not trigger Chulane.",
+   "feld": "rule_claims[2].claim",
+   "nr": 39,
+   "oracle_id": "e74a2a4c-ca3c-49e8-9b0f-b4d1bb91fb54",
+   "seq": 49
+  },
+  {
+   "card": "Griffin Sentinel",
+   "card_block": "CARD: Griffin Sentinel\noracle_id: 72df0b70-5c9f-44f3-96d5-81c95abc0065\nMana cost: {2}{W} | Mana value: 3 | Cost symbols (front face): W x1, generic 2\nType line: Creature — Griffin | Group: Creature | Colour identity: W\nPower/toughness (front face): 1/3 | Keywords: Flying, Vigilance | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Flying\n  Vigilance (Attacking doesn't cause this creature to tap.)\nRoles (labels from a tagger and a text rule; they can be wrong): evasion | main: evasion\nOn-time cast, reference mana base: turn 3: P(land drops met) 0.7729, P(colours met given lands) 0.8901, P(both) 0.688\nPeers with role evasion (main): 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 3: 47 cheaper, 34 equal, 74 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 3\nCreature bodies at the same mana value: 113 peers, median power+toughness 4; this card 4: 25 smaller, 45 equal, 43 larger\nPattern hits: none",
+   "charge": 6,
+   "claim": "According to the card text, it has flying and vigilance, so it can attack and still block.",
+   "feld": "rule_claims[0].claim",
+   "nr": 40,
+   "oracle_id": "72df0b70-5c9f-44f3-96d5-81c95abc0065",
+   "seq": 69
+  },
+  {
+   "card": "Elvish Mystic",
+   "card_block": "CARD: Elvish Mystic\noracle_id: 3f3b2c10-21f8-4e13-be83-4ef3fa36e123\nMana cost: {G} | Mana value: 1 | Cost symbols (front face): G x1\nType line: Creature — Elf Druid | Group: Creature | Colour identity: G\nPower/toughness (front face): 1/1 | Keywords: none | Produces mana: G\nGame Changer: no | Layout: normal\nOracle text:\n  {T}: Add {G}.\nRoles (labels from a tagger and a text rule; they can be wrong): mana_dork; ramp | main: mana_dork\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 0.8282, P(both) 0.8085\nPeers with role mana_dork (main): 19 other pool cards, median mana value 2 (quartiles 2 to 3); this card 1: 0 cheaper, 3 equal, 16 dearer\nPeers with role ramp: 99 other pool cards, median mana value 3 (quartiles 2 to 3); this card 1: 0 cheaper, 11 equal, 88 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 1\nCreature bodies at the same mana value: 37 peers, median power+toughness 2; this card 2: 5 smaller, 23 equal, 9 larger\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - mana_creature_cheap: \"{t}: add {g}.\"",
+   "charge": 7,
+   "claim": "According to the card text, it produces only green mana; the other two colours must come from lands.",
+   "feld": "rule_claims[0].claim",
+   "nr": 41,
+   "oracle_id": "3f3b2c10-21f8-4e13-be83-4ef3fa36e123",
+   "seq": 71
+  },
+  {
+   "card": "Empyrean Eagle",
+   "card_block": "CARD: Empyrean Eagle\noracle_id: 270d14b2-07bc-46bc-918f-658102265ccf\nMana cost: {1}{W}{U} | Mana value: 3 | Cost symbols (front face): W x1, U x1, generic 1\nType line: Creature — Bird Spirit | Group: Creature | Colour identity: WU\nPower/toughness (front face): 2/3 | Keywords: Flying | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Flying\n  Other creatures you control with flying get +1/+1.\nRoles (labels from a tagger and a text rule; they can be wrong): anthem; evasion | main: anthem\nOn-time cast, reference mana base: turn 3: P(land drops met) 0.7729, P(colours met given lands) 0.8251, P(both) 0.6377\nPeers with role anthem (main): 15 other pool cards, median mana value 4 (quartiles 3 to 5); this card 3: 3 cheaper, 4 equal, 8 dearer\nPeers with role evasion: 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 3: 47 cheaper, 34 equal, 74 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 3\nCreature bodies at the same mana value: 113 peers, median power+toughness 4; this card 5: 71 smaller, 22 equal, 20 larger\nRulings (shown 1 of 1):\n  - 2019-07-12: Because damage remains marked on a creature until it's removed as the turn ends, nonlethal damage dealt to other creatures you control with flying may become lethal if Empyrean Eagle leaves the battlefield during that turn.\nPattern hits: none",
+   "charge": 1,
+   "claim": "The anthem does not buff Empyrean Eagle itself and only affects my other fliers.",
+   "feld": "rule_claims[0].claim",
+   "nr": 42,
+   "oracle_id": "270d14b2-07bc-46bc-918f-658102265ccf",
+   "seq": 23
+  },
+  {
+   "card": "River's Rebuke",
+   "card_block": "CARD: River's Rebuke\noracle_id: c52cfb41-18f3-4e73-b5e7-d75baf74e578\nMana cost: {4}{U}{U} | Mana value: 6 | Cost symbols (front face): U x2, generic 4\nType line: Sorcery | Group: Sorcery | Colour identity: U\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Return all nonland permanents target player controls to their owner's hand.\nRoles (labels from a tagger and a text rule; they can be wrong): board_wipe; bounce; removal | main: board_wipe\nOn-time cast, reference mana base: turn 6: P(land drops met) 0.3007, P(colours met given lands) 0.913, P(both) 0.2746\nPeers with role board_wipe (main): 8 other pool cards, median mana value 5.5 (quartiles 5 to 6.5); this card 6: 4 cheaper, 2 equal, 2 dearer\nPeers with role bounce: 33 other pool cards, median mana value 3 (quartiles 2 to 3); this card 6: 29 cheaper, 3 equal, 1 dearer\nPeers with role removal: 128 other pool cards, median mana value 3 (quartiles 2 to 4); this card 6: 118 cheaper, 5 equal, 5 dearer\nPeers of type group Sorcery: 65 other pool cards, median mana value 4; this card 6\nRulings (shown 1 of 1):\n  - 2018-01-19: There are many important moments in the story, but the most crucial—called \"story spotlights\"—are shown on cards. These cards have the Planeswalker symbol in their text box; this symbol has no effect on gameplay. You can read more about th…\nPattern hits: none",
+   "charge": 4,
+   "claim": "it is one-sided: only the chosen player's permanents are returned, and tokens are lost",
+   "feld": "rule_claims[0].claim",
+   "nr": 43,
+   "oracle_id": "c52cfb41-18f3-4e73-b5e7-d75baf74e578",
+   "seq": 25
+  },
+  {
+   "card": "Griffin Rider",
+   "card_block": "CARD: Griffin Rider\noracle_id: af8aa11b-34be-42a3-a8a2-3cad38f29f66\nMana cost: {1}{W} | Mana value: 2 | Cost symbols (front face): W x1, generic 1\nType line: Creature — Human Knight | Group: Creature | Colour identity: W\nPower/toughness (front face): 1/1 | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  As long as you control a Griffin creature, this creature gets +3/+3 and has flying.\nRoles (labels from a tagger and a text rule; they can be wrong): evasion | main: evasion\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8302, P(both) 0.7487\nPeers with role evasion (main): 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 2: 14 cheaper, 32 equal, 109 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 2\nCreature bodies at the same mana value: 125 peers, median power+toughness 4; this card 2: 2 smaller, 25 equal, 98 larger\nPattern hits: none",
+   "charge": 7,
+   "claim": "Casting Griffin Rider triggers Chulane, because the card is a creature spell.",
+   "feld": "rule_claims[1].claim",
+   "nr": 44,
+   "oracle_id": "af8aa11b-34be-42a3-a8a2-3cad38f29f66",
+   "seq": 29
+  },
+  {
+   "card": "Horizon Spellbomb",
+   "card_block": "CARD: Horizon Spellbomb\noracle_id: 12080ea9-0800-4601-b553-6711dd9f9806\nMana cost: {1} | Mana value: 1 | Cost symbols (front face): generic 1\nType line: Artifact | Group: Artifact | Colour identity: G\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  {2}, {T}, Sacrifice this artifact: Search your library for a basic land card, reveal it, put it into your hand, then shuffle.\n  When this artifact is put into a graveyard from the battlefield, you may pay {G}. If you do, draw a card.\nRoles (labels from a tagger and a text rule; they can be wrong): card_advantage; card_draw; land_ramp; ramp; tutor | main: land_ramp\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 1.0, P(both) 0.9762 (cost has no coloured symbol)\nPeers with role land_ramp (main): 51 other pool cards, median mana value 3 (quartiles 2 to 4); this card 1: 0 cheaper, 5 equal, 46 dearer\nPeers with role card_advantage: 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 1: 0 cheaper, 16 equal, 150 dearer\nPeers with role card_draw: 141 other pool cards, median mana value 3 (quartiles 2 to 4); this card 1: 0 cheaper, 13 equal, 128 dearer\nPeers of type group Artifact: 81 other pool cards, median mana value 2; this card 1\nRulings (shown 1 of 1):\n  - 2013-04-15: When you sacrifice Horizon Spellbomb, it’s search ability goes on the stack, and then the triggered draw ability goes on the stack on top of it. This means you first choose whether to pay {G} and draw a card, then you search; you do not se…\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - noncreature_draw_or_ramp: \"roles by text: card_draw\"",
+   "charge": 6,
+   "claim": "The fetched basic land is a land card in hand, so a later Chulane trigger may put it onto the battlefield.",
+   "feld": "rule_claims[0].claim",
+   "nr": 45,
+   "oracle_id": "12080ea9-0800-4601-b553-6711dd9f9806",
+   "seq": 88
+  },
+  {
+   "card": "Esior, Wardwing Familiar",
+   "card_block": "CARD: Esior, Wardwing Familiar\noracle_id: ddf38a32-302a-4658-9eaf-b813ebe275c9\nMana cost: {1}{U} | Mana value: 2 | Cost symbols (front face): U x1, generic 1\nType line: Legendary Creature — Bird | Group: Creature | Colour identity: U\nPower/toughness (front face): 1/3 | Keywords: Flying, Partner | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Flying\n  Spells your opponents cast that target one or more commanders you control cost {3} more to cast.\n  Partner (You can have two commanders if both have partner.)\nRoles (labels from a tagger and a text rule; they can be wrong): evasion; hate; tax | main: evasion\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8735, P(both) 0.7877\nPeers with role evasion (main): 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 2: 14 cheaper, 32 equal, 109 dearer\nPeers with role hate: 94 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 15 cheaper, 30 equal, 49 dearer\nPeers with role tax: 16 other pool cards, median mana value 4 (quartiles 2 to 5); this card 2: 1 cheaper, 6 equal, 9 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 2\nCreature bodies at the same mana value: 125 peers, median power+toughness 4; this card 4: 59 smaller, 59 equal, 7 larger\nRulings (shown 4 of 9):\n  - 2020-11-10: Spells that target more than one commander you control cost only {3} more to cast.\n  - 2020-11-10: To determine the total cost of an opponent's spell that targets a commander you control, start with the mana cost or alternative cost that player is paying, add any cost increases (such as that of Esior's middle ability), then apply any co…\n  - 2020-11-10: If something refers to your commander while you have two commanders, it refers to one of them of your choice. If you are instructed to perform an action on your commander (e.g. put it from the command zone into your hand due to Command Bea…\n  - 2020-11-10: To have two commanders, both must have the partner ability as the game begins. Losing the ability during the game doesn't cause either to cease to be your commander.\nPattern hits: none",
+   "charge": 4,
+   "claim": "Esior is a creature spell, so casting it triggers Chulane for only two mana.",
+   "feld": "rule_claims[2].claim",
+   "nr": 46,
+   "oracle_id": "ddf38a32-302a-4658-9eaf-b813ebe275c9",
+   "seq": 39
+  },
+  {
+   "card": "Exploration Broodship",
+   "card_block": "CARD: Exploration Broodship\noracle_id: 8a83ecee-092b-456c-803f-a9aaa17c4da9\nMana cost: {G} | Mana value: 1 | Cost symbols (front face): G x1\nType line: Artifact — Spacecraft | Group: Artifact | Colour identity: G\nPower/toughness (front face): 4/4 | Keywords: Station | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Station (Tap another creature you control: Put charge counters equal to its power on this Spacecraft. Station only as a sorcery. It's an artifact creature at 8+.)\n  3+ | You may play an additional land on each of your turns.\n  8+ | Flying\n  Once during each of your turns, you may cast a permanent spell from your graveyard by sacrificing a land in addition to paying its other costs.\nRoles (labels from a tagger and a text rule; they can be wrong): evasion; land_ramp; ramp; recursion; sacrifice_outlet | main: land_ramp\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 0.8282, P(both) 0.8085\nPeers with role land_ramp (main): 51 other pool cards, median mana value 3 (quartiles 2 to 4); this card 1: 0 cheaper, 5 equal, 46 dearer\nPeers with role evasion: 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 1: 0 cheaper, 13 equal, 142 dearer\nPeers with role ramp: 99 other pool cards, median mana value 3 (quartiles 2 to 3); this card 1: 0 cheaper, 11 equal, 88 dearer\nPeers of type group Artifact: 81 other pool cards, median mana value 2; this card 1\nRulings (shown 1 of 1):\n  - 2025-07-25: You pay all costs and follow all timing rules for cards cast with the permission granted by Exploration Broodship’s last ability. For example, you may cast a creature spell from your graveyard only during your main phase while the stack is…\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - land_extra_drop_or_from_hand: \"3+ | you may play an additional land on each of your turns.\"",
+   "charge": 6,
+   "claim": "According to the card text, once it has 3 or more charge counters you may play an extra land each turn.",
+   "feld": "rule_claims[0].claim",
+   "nr": 47,
+   "oracle_id": "8a83ecee-092b-456c-803f-a9aaa17c4da9",
+   "seq": 67
+  },
+  {
+   "card": "Infantry Veteran",
+   "card_block": "CARD: Infantry Veteran\noracle_id: 42798e2b-9a5c-4f93-8f77-b7bb7a916d07\nMana cost: {W} | Mana value: 1 | Cost symbols (front face): W x1\nType line: Creature — Human Soldier | Group: Creature | Colour identity: W\nPower/toughness (front face): 1/1 | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  {T}: Target attacking creature gets +1/+1 until end of turn.\nRoles (labels from a tagger and a text rule; they can be wrong): combat_trick | main: combat_trick\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 0.7595, P(both) 0.7414\nPeers with role combat_trick (main): 118 other pool cards, median mana value 2 (quartiles 2 to 4); this card 1: 0 cheaper, 26 equal, 92 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 1\nCreature bodies at the same mana value: 37 peers, median power+toughness 2; this card 2: 5 smaller, 23 equal, 9 larger\nRulings (shown 1 of 1):\n  - 2010-08-15: An “attacking creature” is one that has been declared as an attacker this combat, or one that was put onto the battlefield attacking this combat. Unless that creature leaves combat, it continues to be an attacking creature through the end …\nPattern hits: none",
+   "charge": 6,
+   "claim": "the ability only helps attackers",
+   "feld": "rule_claims[0].claim",
+   "nr": 48,
+   "oracle_id": "42798e2b-9a5c-4f93-8f77-b7bb7a916d07",
+   "seq": 45
+  },
+  {
+   "card": "Primal Might",
+   "card_block": "CARD: Primal Might\noracle_id: 58d7b8b3-ac47-4805-8259-4ba8e70d7dc3\nMana cost: {X}{G} | Mana value: 1 | Cost symbols (front face): G x1, X\nType line: Sorcery | Group: Sorcery | Colour identity: G\nPower/toughness (front face): none | Keywords: Fight | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Target creature you control gets +X/+X until end of turn. Then it fights up to one target creature you don't control. (Each deals damage equal to its power to the other.)\nRoles (labels from a tagger and a text rule; they can be wrong): combat_trick; removal | main: removal\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 0.8282, P(both) 0.8085\nPeers with role removal (main): 128 other pool cards, median mana value 3 (quartiles 2 to 4); this card 1: 0 cheaper, 21 equal, 107 dearer\nPeers with role combat_trick: 118 other pool cards, median mana value 2 (quartiles 2 to 4); this card 1: 0 cheaper, 26 equal, 92 dearer\nPeers of type group Sorcery: 65 other pool cards, median mana value 4; this card 1\nRulings (shown 4 of 4):\n  - 2020-06-23: If the creature you control is an illegal target as Primal Might tries to resolve, no creature gets +X/+X. If that creature is a legal target but the creature you don't control isn't, it still gets +X/+X.\n  - 2020-06-23: If you choose two target creatures and either target is an illegal target as Primal Might tries to resolve, neither creature will deal or be dealt damage.\n  - 2020-06-23: You can cast Primal Might targeting only the creature you control.\n  - 2020-06-23: You can cast Primal Might with 0 as the value of X to just have the two target creatures fight.\nPattern hits: none",
+   "charge": 6,
+   "claim": "The effect needs a creature I control as a target; without one it cannot be cast usefully.",
+   "feld": "rule_claims[0].claim",
+   "nr": 49,
+   "oracle_id": "58d7b8b3-ac47-4805-8259-4ba8e70d7dc3",
+   "seq": 25
+  },
+  {
+   "card": "Divine Favor",
+   "card_block": "CARD: Divine Favor\noracle_id: bffa18c3-642c-4239-b425-238599007976\nMana cost: {1}{W} | Mana value: 2 | Cost symbols (front face): W x1, generic 1\nType line: Enchantment — Aura | Group: Enchantment | Colour identity: W\nPower/toughness (front face): none | Keywords: Enchant | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Enchant creature\n  When this Aura enters, you gain 3 life.\n  Enchanted creature gets +1/+3.\nRoles (labels from a tagger and a text rule; they can be wrong): lifegain | main: lifegain\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8302, P(both) 0.7487\nPeers with role lifegain (main): 83 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 17 cheaper, 22 equal, 44 dearer\nPeers of type group Enchantment: 80 other pool cards, median mana value 3; this card 2\nRulings (shown 1 of 1):\n  - 2014-07-18: If the creature targeted by Divine Favor is an illegal target when Divine Favor tries to resolve, Divine Favor won't resolve. It won't enter the battlefield and its enters-the-battlefield ability won't trigger.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - creature_dependent: \"enchanted creature gets +1/+3.\"\n  - etb_own: \"when ~ enters, you gain 3 life.\"",
+   "charge": 7,
+   "claim": "If the enchanted creature is returned by Chulane's {3},{T} ability, the Aura is lost (standard Aura rules).",
+   "feld": "rule_claims[0].claim",
+   "nr": 50,
+   "oracle_id": "bffa18c3-642c-4239-b425-238599007976",
+   "seq": 67
+  },
+  {
+   "card": "Summoned Dromedary",
+   "card_block": "CARD: Summoned Dromedary\noracle_id: 697b14c6-fe6a-4880-9cf2-b6602a52ca0b\nMana cost: {3}{W} | Mana value: 4 | Cost symbols (front face): W x1, generic 3\nType line: Creature — Spirit Camel | Group: Creature | Colour identity: W\nPower/toughness (front face): 4/3 | Keywords: Vigilance | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Vigilance\n  {1}{W}: Return this card from your graveyard to your hand. Activate only as a sorcery.\nRoles (labels from a tagger and a text rule; they can be wrong): recursion | main: recursion\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 0.9336, P(both) 0.5701\nPeers with role recursion (main): 31 other pool cards, median mana value 3 (quartiles 1.5 to 4.5); this card 4: 17 cheaper, 6 equal, 8 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 4\nCreature bodies at the same mana value: 84 peers, median power+toughness 6; this card 7: 53 smaller, 17 equal, 14 larger\nPattern hits: none",
+   "charge": 4,
+   "claim": "Returning it and casting it again is a new creature spell cast and triggers Chulane, for {1}{W} plus {3}{W}.",
+   "feld": "rule_claims[0].claim",
+   "nr": 51,
+   "oracle_id": "697b14c6-fe6a-4880-9cf2-b6602a52ca0b",
+   "seq": 43
+  },
+  {
+   "card": "Open the Armory",
+   "card_block": "CARD: Open the Armory\noracle_id: 2ecf7771-8061-4710-ad2e-80b092ae0b4b\nMana cost: {1}{W} | Mana value: 2 | Cost symbols (front face): W x1, generic 1\nType line: Sorcery | Group: Sorcery | Colour identity: W\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Search your library for an Aura or Equipment card, reveal it, put it into your hand, then shuffle.\nRoles (labels from a tagger and a text rule; they can be wrong): tutor | main: tutor\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8302, P(both) 0.7487\nPeers with role tutor (main): 48 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 7 cheaper, 10 equal, 31 dearer\nPeers of type group Sorcery: 65 other pool cards, median mana value 4; this card 2\nPattern hits: none",
+   "charge": 7,
+   "claim": "According to the card text it can fetch only an Aura or Equipment card, not a creature or land, so it does not find Chulane's engine creatures.",
+   "feld": "rule_claims[0].claim",
+   "nr": 52,
+   "oracle_id": "2ecf7771-8061-4710-ad2e-80b092ae0b4b",
+   "seq": 16
+  },
+  {
+   "card": "Curiosity",
+   "card_block": "CARD: Curiosity\noracle_id: 223fa044-d387-4884-bf4e-75f1b61c6a46\nMana cost: {U} | Mana value: 1 | Cost symbols (front face): U x1\nType line: Enchantment — Aura | Group: Enchantment | Colour identity: U\nPower/toughness (front face): none | Keywords: Enchant | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Enchant creature\n  Whenever enchanted creature deals damage to an opponent, you may draw a card.\nRoles (labels from a tagger and a text rule; they can be wrong): card_advantage; card_draw | main: card_advantage\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 0.8072, P(both) 0.788\nPeers with role card_advantage (main): 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 1: 0 cheaper, 16 equal, 150 dearer\nPeers with role card_draw: 141 other pool cards, median mana value 3 (quartiles 2 to 4); this card 1: 0 cheaper, 13 equal, 128 dearer\nPeers of type group Enchantment: 80 other pool cards, median mana value 3; this card 1\nRulings (shown 4 of 5):\n  - 2011-09-22: \"You\" refers to the controller of Curiosity, which may be different from the controller of the enchanted creature. \"An opponent\" refers to an opponent of Curiosity's controller.\n  - 2011-09-22: Any damage dealt by the enchanted creature to an opponent will cause Curiosity to trigger, not just combat damage.\n  - 2023-09-01: Curiosity doesn't trigger if the enchanted creature deals damage to a planeswalker or to a battle.\n  - 2023-09-01: You draw one card each time the enchanted creature deals damage to an opponent, no matter how much damage it deals.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - noncreature_draw_or_ramp: \"roles by text: card_advantage, card_draw\"",
+   "charge": 2,
+   "claim": "It triggers on damage to an opponent, not only combat damage, and draws a card each time.",
+   "feld": "rule_claims[0].claim",
+   "nr": 53,
+   "oracle_id": "223fa044-d387-4884-bf4e-75f1b61c6a46",
+   "seq": 48
+  },
+  {
+   "card": "Tumble Magnet",
+   "card_block": "CARD: Tumble Magnet\noracle_id: 0481adcd-b66d-432e-80ba-3a4718bb3a7d\nMana cost: {3} | Mana value: 3 | Cost symbols (front face): generic 3\nType line: Artifact | Group: Artifact | Colour identity: colourless\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  This artifact enters with three charge counters on it.\n  {T}, Remove a charge counter from this artifact: Tap target artifact or creature.\nRoles (labels from a tagger and a text rule; they can be wrong): hate; tapper | main: tapper\nOn-time cast, reference mana base: turn 3: P(land drops met) 0.7729, P(colours met given lands) 1.0, P(both) 0.7729 (cost has no coloured symbol)\nPeers with role tapper (main): 26 other pool cards, median mana value 3 (quartiles 2 to 4); this card 3: 8 cheaper, 10 equal, 8 dearer\nPeers with role hate: 94 other pool cards, median mana value 3 (quartiles 2 to 4); this card 3: 46 cheaper, 13 equal, 35 dearer\nPeers of type group Artifact: 81 other pool cards, median mana value 2; this card 3\nRulings (shown 1 of 1):\n  - 2020-08-07: Once Tumble Magnet has run out of charge counters, it remains on the battlefield.\nPattern hits: none",
+   "charge": 1,
+   "claim": "The artifact stays in play with no effect once the counters are gone.",
+   "feld": "rule_claims[1].claim",
+   "nr": 54,
+   "oracle_id": "0481adcd-b66d-432e-80ba-3a4718bb3a7d",
+   "seq": 88
+  },
+  {
+   "card": "Sakura-Tribe Elder",
+   "card_block": "CARD: Sakura-Tribe Elder\noracle_id: e3afc704-220f-498f-9eaa-0821b17dc24c\nMana cost: {1}{G} | Mana value: 2 | Cost symbols (front face): G x1, generic 1\nType line: Creature — Snake Shaman | Group: Creature | Colour identity: G\nPower/toughness (front face): 1/1 | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Sacrifice this creature: Search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.\nRoles (labels from a tagger and a text rule; they can be wrong): land_ramp; ramp; tutor | main: land_ramp\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8917, P(both) 0.8041\nPeers with role land_ramp (main): 51 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 6 cheaper, 13 equal, 32 dearer\nPeers with role ramp: 99 other pool cards, median mana value 3 (quartiles 2 to 3); this card 2: 12 cheaper, 35 equal, 52 dearer\nPeers with role tutor: 48 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 7 cheaper, 10 equal, 31 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 2\nCreature bodies at the same mana value: 125 peers, median power+toughness 4; this card 2: 2 smaller, 25 equal, 98 larger\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - land_onto_battlefield_effect: \"sacrifice ~: search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.\"",
+   "charge": 7,
+   "claim": "the land comes from the library onto the battlefield, outside the land drop",
+   "feld": "rule_claims[0].claim",
+   "nr": 55,
+   "oracle_id": "e3afc704-220f-498f-9eaa-0821b17dc24c",
+   "seq": 54
+  },
+  {
+   "card": "Angel of Finality",
+   "card_block": "CARD: Angel of Finality\noracle_id: 48d14b5c-711a-4f8a-9de5-55415cb7a79a\nMana cost: {3}{W} | Mana value: 4 | Cost symbols (front face): W x1, generic 3\nType line: Creature — Angel | Group: Creature | Colour identity: W\nPower/toughness (front face): 3/4 | Keywords: Flying | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Flying\n  When this creature enters, exile target player's graveyard.\nRoles (labels from a tagger and a text rule; they can be wrong): evasion; graveyard_hate; hate; removal | main: removal\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 0.9336, P(both) 0.5701\nPeers with role removal (main): 128 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 95 cheaper, 5 equal, 28 dearer\nPeers with role evasion: 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 4: 82 cheaper, 33 equal, 40 dearer\nPeers with role graveyard_hate: 6 other pool cards, median mana value 1.5 (quartiles 1 to 2); this card 4: 5 cheaper, 0 equal, 1 dearer [small group]\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 4\nCreature bodies at the same mana value: 84 peers, median power+toughness 6; this card 7: 53 smaller, 17 equal, 14 larger\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - etb_own: \"when ~ enters, exile target player's graveyard.\"",
+   "charge": 5,
+   "claim": "each entry exiles one player's graveyard",
+   "feld": "rule_claims[0].claim",
+   "nr": 56,
+   "oracle_id": "48d14b5c-711a-4f8a-9de5-55415cb7a79a",
+   "seq": 46
+  },
+  {
+   "card": "Frost Breath",
+   "card_block": "CARD: Frost Breath\noracle_id: 382097b3-f753-493c-bde4-101c0538feb4\nMana cost: {2}{U} | Mana value: 3 | Cost symbols (front face): U x1, generic 2\nType line: Instant | Group: Instant | Colour identity: U\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Tap up to two target creatures. Those creatures don't untap during their controller's next untap step.\nRoles (labels from a tagger and a text rule; they can be wrong): tapper | main: tapper\nOn-time cast, reference mana base: turn 3: P(land drops met) 0.7729, P(colours met given lands) 0.9252, P(both) 0.7151\nPeers with role tapper (main): 26 other pool cards, median mana value 3 (quartiles 2 to 4); this card 3: 8 cheaper, 10 equal, 8 dearer\nPeers of type group Instant: 145 other pool cards, median mana value 2; this card 3\nRulings (shown 1 of 1):\n  - 2020-06-23: Frost Breath can target tapped creatures. If a targeted creature is already tapped when the spell resolves, that creature just remains tapped and doesn't untap during its controller's next untap step.\nPattern hits: none",
+   "charge": 3,
+   "claim": "Casting Frost Breath does not trigger Chulane because it is an Instant, not a creature spell.",
+   "feld": "rule_claims[0].claim",
+   "nr": 57,
+   "oracle_id": "382097b3-f753-493c-bde4-101c0538feb4",
+   "seq": 9
+  },
+  {
+   "card": "Axebane Stag",
+   "card_block": "CARD: Axebane Stag\noracle_id: a45d7135-c042-40d9-818c-74fa1c7af8ad\nMana cost: {6}{G} | Mana value: 7 | Cost symbols (front face): G x1, generic 6\nType line: Creature — Elk | Group: Creature | Colour identity: G\nPower/toughness (front face): 6/7 | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  (no rules text: a known fact, not missing data)\nRoles: none labelled\nOn-time cast, reference mana base: turn 7: P(land drops met) 0.1892, P(colours met given lands) 0.9972, P(both) 0.1887\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 7\nCreature bodies at the same mana value: 16 peers, median power+toughness 10; this card 13: 15 smaller, 0 equal, 1 larger\nPattern hits: none",
+   "charge": 5,
+   "claim": "A creature spell without rules text still triggers Chulane when cast.",
+   "feld": "rule_claims[0].claim",
+   "nr": 58,
+   "oracle_id": "a45d7135-c042-40d9-818c-74fa1c7af8ad",
+   "seq": 4
+  },
+  {
+   "card": "Jade Mage",
+   "card_block": "CARD: Jade Mage\noracle_id: 6daf3c59-7636-4d44-872b-67722b4868cb\nMana cost: {1}{G} | Mana value: 2 | Cost symbols (front face): G x1, generic 1\nType line: Creature — Human Shaman | Group: Creature | Colour identity: G\nPower/toughness (front face): 2/1 | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  {2}{G}: Create a 1/1 green Saproling creature token.\nRoles (labels from a tagger and a text rule; they can be wrong): mana_sink; token_production | main: token_production\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8917, P(both) 0.8041\nPeers with role token_production (main): 61 other pool cards, median mana value 3 (quartiles 3 to 4); this card 2: 3 cheaper, 11 equal, 47 dearer\nPeers with role mana_sink: 29 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 3 cheaper, 9 equal, 17 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 2\nCreature bodies at the same mana value: 125 peers, median power+toughness 4; this card 3: 28 smaller, 30 equal, 67 larger\nPattern hits: none",
+   "charge": 5,
+   "claim": "tokens are created, not cast, so they do not trigger",
+   "feld": "rule_claims[1].claim",
+   "nr": 59,
+   "oracle_id": "6daf3c59-7636-4d44-872b-67722b4868cb",
+   "seq": 38
+  },
+  {
+   "card": "Sylvok Lifestaff",
+   "card_block": "CARD: Sylvok Lifestaff\noracle_id: e69b8388-1311-427f-9300-42badd5338ff\nMana cost: {1} | Mana value: 1 | Cost symbols (front face): generic 1\nType line: Artifact — Equipment | Group: Artifact | Colour identity: colourless\nPower/toughness (front face): none | Keywords: Equip | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Equipped creature gets +1/+0.\n  Whenever equipped creature dies, you gain 3 life.\n  Equip {1}\nRoles (labels from a tagger and a text rule; they can be wrong): lifegain | main: lifegain\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 1.0, P(both) 0.9762 (cost has no coloured symbol)\nPeers with role lifegain (main): 83 other pool cards, median mana value 3 (quartiles 2 to 4); this card 1: 1 cheaper, 15 equal, 67 dearer\nPeers of type group Artifact: 81 other pool cards, median mana value 2; this card 1\nRulings (shown 1 of 1):\n  - 2011-01-01: If Sylvok Lifestaff and the equipped creature are put into their owners’ graveyards at the same time (due to Planar Cleansing, perhaps), the triggered ability will still trigger. You’ll gain 3 life.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - creature_dependent: \"equipped creature gets +1/+0.\" (+1 more)",
+   "charge": 4,
+   "claim": "the card does nothing without a creature to carry it",
+   "feld": "rule_claims[1].claim",
+   "nr": 60,
+   "oracle_id": "e69b8388-1311-427f-9300-42badd5338ff",
+   "seq": 6
+  },
+  {
+   "card": "Moment of Heroism",
+   "card_block": "CARD: Moment of Heroism\noracle_id: a167d593-cded-43e1-b9bb-2287dbd0cbec\nMana cost: {1}{W} | Mana value: 2 | Cost symbols (front face): W x1, generic 1\nType line: Instant | Group: Instant | Colour identity: W\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Target creature gets +2/+2 and gains lifelink until end of turn. (Damage dealt by the creature also causes its controller to gain that much life.)\nRoles (labels from a tagger and a text rule; they can be wrong): combat_trick; lifegain | main: lifegain\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8302, P(both) 0.7487\nPeers with role lifegain (main): 83 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 17 cheaper, 22 equal, 44 dearer\nPeers with role combat_trick: 118 other pool cards, median mana value 2 (quartiles 2 to 4); this card 2: 27 cheaper, 33 equal, 58 dearer\nPeers of type group Instant: 145 other pool cards, median mana value 2; this card 2\nRulings (shown 1 of 1):\n  - 2019-07-12: Multiple instances of lifelink on the same creature are redundant.\nPattern hits: none",
+   "charge": 7,
+   "claim": "the effect ends at end of turn and leaves nothing behind",
+   "feld": "rule_claims[0].claim",
+   "nr": 61,
+   "oracle_id": "a167d593-cded-43e1-b9bb-2287dbd0cbec",
+   "seq": 2
+  },
+  {
+   "card": "Chrome Steed",
+   "card_block": "CARD: Chrome Steed\noracle_id: 8475f55e-473c-4df0-bae2-3cbbbde4ff12\nMana cost: {4} | Mana value: 4 | Cost symbols (front face): generic 4\nType line: Artifact Creature — Horse | Group: Creature | Colour identity: colourless\nPower/toughness (front face): 2/2 | Keywords: Metalcraft | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Metalcraft — This creature gets +2/+2 as long as you control three or more artifacts.\nRoles: none labelled\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 1.0, P(both) 0.6106 (cost has no coloured symbol)\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 4\nCreature bodies at the same mana value: 84 peers, median power+toughness 6; this card 4: 6 smaller, 22 equal, 56 larger\nPattern hits: none",
+   "charge": 3,
+   "claim": "without three artifacts it stays a 2/2",
+   "feld": "rule_claims[0].claim",
+   "nr": 62,
+   "oracle_id": "8475f55e-473c-4df0-bae2-3cbbbde4ff12",
+   "seq": 33
+  },
+  {
+   "card": "Distant Memories",
+   "card_block": "CARD: Distant Memories\noracle_id: 12c78cc4-7fbe-4639-bef7-bf959a0d6d68\nMana cost: {2}{U}{U} | Mana value: 4 | Cost symbols (front face): U x2, generic 2\nType line: Sorcery | Group: Sorcery | Colour identity: U\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Search your library for a card, exile it, then shuffle. Any opponent may have you put that card into your hand. If no player does, you draw three cards.\nRoles (labels from a tagger and a text rule; they can be wrong): card_advantage; card_draw; tutor | main: tutor\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 0.7626, P(both) 0.4656\nPeers with role tutor (main): 48 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 34 cheaper, 8 equal, 6 dearer\nPeers with role card_advantage: 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 98 cheaper, 40 equal, 28 dearer\nPeers with role card_draw: 141 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 86 cheaper, 28 equal, 27 dearer\nPeers of type group Sorcery: 65 other pool cards, median mana value 4; this card 4\nRulings (shown 3 of 3):\n  - 2011-06-01: If no opponent has you put the card into your hand, the card remains exiled.\n  - 2011-06-01: The card is exiled face up. Each opponent will know what the card is when deciding whether to have you put it in your hand.\n  - 2011-06-01: In multiplayer formats, your opponents each make the decision in turn order.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - noncreature_draw_or_ramp: \"roles by text: card_advantage, card_draw\"",
+   "charge": 5,
+   "claim": "the opponents choose between the tutor and three cards",
+   "feld": "rule_claims[0].claim",
+   "nr": 63,
+   "oracle_id": "12c78cc4-7fbe-4639-bef7-bf959a0d6d68",
+   "seq": 84
+  },
+  {
+   "card": "Wildwood Scourge",
+   "card_block": "CARD: Wildwood Scourge\noracle_id: b9dec104-c636-4770-a7fc-7a3331face15\nMana cost: {X}{G} | Mana value: 1 | Cost symbols (front face): G x1, X\nType line: Creature — Hydra | Group: Creature | Colour identity: G\nPower/toughness (front face): 0/0 | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  This creature enters with X +1/+1 counters on it.\n  Whenever one or more +1/+1 counters are put on another non-Hydra creature you control, put a +1/+1 counter on this creature.\nRoles (labels from a tagger and a text rule; they can be wrong): counters | main: counters\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 0.8282, P(both) 0.8085\nPeers with role counters (main): 57 other pool cards, median mana value 3 (quartiles 2 to 4); this card 1: 0 cheaper, 9 equal, 48 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 1\nCreature bodies at the same mana value: 37 peers, median power+toughness 2; this card 0: 0 smaller, 1 equal, 36 larger\nRulings (shown 2 of 2):\n  - 2024-11-08: Wildwood Scourge gets just one +1/+1 counter when its last ability resolves, no matter how many counters were put on the non-Hydra creature.\n  - 2024-11-08: Abilities that trigger when counters are put on a creature trigger when a creature enters with counters and when a player puts counters on a creature.\nPattern hits: none",
+   "charge": 4,
+   "claim": "After Chulane returns it to hand, it can be cast again with a different X, and each cast triggers Chulane.",
+   "feld": "rule_claims[0].claim",
+   "nr": 64,
+   "oracle_id": "b9dec104-c636-4770-a7fc-7a3331face15",
+   "seq": 61
+  },
+  {
+   "card": "Icy Manipulator",
+   "card_block": "CARD: Icy Manipulator\noracle_id: 3608f1f7-8dc5-4dd1-ae91-c830e1de9529\nMana cost: {4} | Mana value: 4 | Cost symbols (front face): generic 4\nType line: Artifact | Group: Artifact | Colour identity: colourless\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  {1}, {T}: Tap target artifact, creature, or land.\nRoles (labels from a tagger and a text rule; they can be wrong): hate; tapper | main: tapper\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 1.0, P(both) 0.6106 (cost has no coloured symbol)\nPeers with role tapper (main): 26 other pool cards, median mana value 3 (quartiles 2 to 3.75); this card 4: 19 cheaper, 3 equal, 4 dearer\nPeers with role hate: 94 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 60 cheaper, 16 equal, 18 dearer\nPeers of type group Artifact: 81 other pool cards, median mana value 2; this card 4\nRulings (shown 1 of 1):\n  - 2022-12-08: Once a player announces that they're casting a spell or activating an ability, no player may take other actions until the spell or ability has been paid for. Notably, other players can't try to tap that player's permanents to stop them fro…\nPattern hits: none",
+   "charge": 5,
+   "claim": "According to the card text the {T} cost means one activation per untap, tapping one permanent.",
+   "feld": "rule_claims[0].claim",
+   "nr": 65,
+   "oracle_id": "3608f1f7-8dc5-4dd1-ae91-c830e1de9529",
+   "seq": 27
+  },
+  {
+   "card": "Aven Fisher",
+   "card_block": "CARD: Aven Fisher\noracle_id: 69a72414-d02f-4a5c-b5c9-8941bb181f61\nMana cost: {3}{U} | Mana value: 4 | Cost symbols (front face): U x1, generic 3\nType line: Creature — Bird Soldier | Group: Creature | Colour identity: U\nPower/toughness (front face): 2/2 | Keywords: Flying | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Flying (This creature can't be blocked except by creatures with flying or reach.)\n  When this creature dies, you may draw a card.\nRoles (labels from a tagger and a text rule; they can be wrong): card_advantage; card_draw; evasion | main: card_advantage\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 0.9593, P(both) 0.5857\nPeers with role card_advantage (main): 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 98 cheaper, 40 equal, 28 dearer\nPeers with role card_draw: 141 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 86 cheaper, 28 equal, 27 dearer\nPeers with role evasion: 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 4: 82 cheaper, 33 equal, 40 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 4\nCreature bodies at the same mana value: 84 peers, median power+toughness 6; this card 4: 6 smaller, 22 equal, 56 larger\nPattern hits: none",
+   "charge": 3,
+   "claim": "If it is killed or swept it still draws a card, which lowers its Wrath exposure.",
+   "feld": "rule_claims[1].claim",
+   "nr": 66,
+   "oracle_id": "69a72414-d02f-4a5c-b5c9-8941bb181f61",
+   "seq": 23
+  },
+  {
+   "card": "Puca's Eye",
+   "card_block": "CARD: Puca's Eye\noracle_id: 499b4cf9-2aaa-45a0-8362-77b727b7f7cc\nMana cost: {2} | Mana value: 2 | Cost symbols (front face): generic 2\nType line: Artifact | Group: Artifact | Colour identity: colourless\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  When this artifact enters, draw a card, then choose a color. This artifact becomes the chosen color.\n  {3}, {T}: Draw a card. Activate only if there are five colors among permanents you control.\nRoles (labels from a tagger and a text rule; they can be wrong): cantrip; card_advantage; card_draw; mana_sink | main: card_advantage\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 1.0, P(both) 0.9018 (cost has no coloured symbol)\nPeers with role card_advantage (main): 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 17 cheaper, 41 equal, 108 dearer\nPeers with role cantrip: 35 other pool cards, median mana value 2 (quartiles 2 to 3); this card 2: 5 cheaper, 16 equal, 14 dearer\nPeers with role card_draw: 141 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 14 cheaper, 39 equal, 88 dearer\nPeers of type group Artifact: 81 other pool cards, median mana value 2; this card 2\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - etb_own: \"when ~ enters, draw a card, then choose a color. ~ becomes the chosen color.\"\n  - etb_own_draw: \"when ~ enters, draw a card, then choose a color. ~ becomes the chosen color.\"\n  - noncreature_draw_or_ramp: \"roles by text: card_advantage, card_draw\"",
+   "charge": 4,
+   "claim": "with three deck colours plus the Eye's chosen colour the condition is not met",
+   "feld": "rule_claims[0].claim",
+   "nr": 67,
+   "oracle_id": "499b4cf9-2aaa-45a0-8362-77b727b7f7cc",
+   "seq": 54
+  },
+  {
+   "card": "Crib Swap",
+   "card_block": "CARD: Crib Swap\noracle_id: 2987c385-011a-4032-a516-a46d1e9dc9e8\nMana cost: {2}{W} | Mana value: 3 | Cost symbols (front face): W x1, generic 2\nType line: Kindred Instant — Shapeshifter | Group: Instant | Colour identity: W\nPower/toughness (front face): none | Keywords: Changeling | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Changeling (This card is every creature type.)\n  Exile target creature. Its controller creates a 1/1 colorless Shapeshifter creature token with changeling.\nRoles (labels from a tagger and a text rule; they can be wrong): removal | main: removal\nOn-time cast, reference mana base: turn 3: P(land drops met) 0.7729, P(colours met given lands) 0.8901, P(both) 0.688\nPeers with role removal (main): 128 other pool cards, median mana value 3 (quartiles 2 to 4); this card 3: 58 cheaper, 36 equal, 34 dearer\nPeers of type group Instant: 145 other pool cards, median mana value 2; this card 3\nRulings (shown 4 of 12):\n  - 2020-08-07: Changeling applies in all zones, not just the battlefield.\n  - 2020-08-07: Kindred is a card type (like creature or instant), not a supertype (like legendary).\n  - 2020-08-07: If the target creature is an illegal target by the time Crib Swap tries to resolve, the spell won't resolve. No player will create a Shapeshifter token.\n  - 2024-06-07: Kindred is a card type that allows noncreature cards to have creature types. For example, Echoes of Eternity is an Eldrazi (although not a creature) while on the battlefield and an Eldrazi card (although not a creature card) in zones other…\nPattern hits: none",
+   "charge": 2,
+   "claim": "the card has creature types but is not a creature spell, so Chulane's cast trigger does not see it",
+   "feld": "rule_claims[1].claim",
+   "nr": 68,
+   "oracle_id": "2987c385-011a-4032-a516-a46d1e9dc9e8",
+   "seq": 46
+  },
+  {
+   "card": "Lightkeeper of Emeria",
+   "card_block": "CARD: Lightkeeper of Emeria\noracle_id: 7f31aa43-cf75-4488-b47f-e16e923a2d01\nMana cost: {3}{W} | Mana value: 4 | Cost symbols (front face): W x1, generic 3\nType line: Creature — Angel | Group: Creature | Colour identity: W\nPower/toughness (front face): 2/4 | Keywords: Flying, Multikicker | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Multikicker {W} (You may pay an additional {W} any number of times as you cast this spell.)\n  Flying\n  When this creature enters, you gain 2 life for each time it was kicked.\nRoles (labels from a tagger and a text rule; they can be wrong): evasion; lifegain | main: evasion\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 0.9336, P(both) 0.5701\nPeers with role evasion (main): 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 4: 82 cheaper, 33 equal, 40 dearer\nPeers with role lifegain: 83 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 57 cheaper, 10 equal, 16 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 4\nCreature bodies at the same mana value: 84 peers, median power+toughness 6; this card 6: 36 smaller, 16 equal, 32 larger\nRulings (shown 4 of 6):\n  - 2024-11-08: If a card or token enters as a copy of a permanent, the new permanent isn't kicked, even if the original was.\n  - 2024-11-08: To determine a spell's total cost, start with the mana cost (or an alternative cost if another card's effect allows you to pay one instead), add any cost increases (such as kicker), then apply any cost reductions. The spell's mana value re…\n  - 2024-11-08: If you copy a kicked spell on the stack, the copy is also kicked. If the copied spell is a permanent spell, the token the copy of that spell becomes when it enters is also kicked.\n  - 2024-11-08: The kicker ability doesn't let you pay a kicker cost more than once.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - etb_own: \"when ~ enters, you gain 2 life for each time it was kicked.\"",
+   "charge": 5,
+   "claim": "a replay only gains life again, and only if kicked again",
+   "feld": "rule_claims[0].claim",
+   "nr": 69,
+   "oracle_id": "7f31aa43-cf75-4488-b47f-e16e923a2d01",
+   "seq": 36
+  },
+  {
+   "card": "Brazen Borrower // Petty Theft",
+   "card_block": "CARD: Brazen Borrower // Petty Theft\noracle_id: c7b044c3-3cfa-407e-bf20-2875e8e04b7b\nMana cost: {1}{U}{U} // {1}{U} | Mana value: 3 | Cost symbols (front face): U x2, generic 1\nType line: Creature — Faerie Rogue // Instant — Adventure | Group: Creature | Colour identity: U\nPower/toughness (front face): 3/1 | Keywords: Flying, Flash | Produces mana: none\nGame Changer: no | Layout: adventure\nFace 1: Brazen Borrower | Creature — Faerie Rogue | {1}{U}{U}:\n  Flash\n  Flying\n  This creature can block only creatures with flying.\nFace 2: Petty Theft | Instant — Adventure | {1}{U}:\n  Return target nonland permanent an opponent controls to its owner's hand.\nRoles (labels from a tagger and a text rule; they can be wrong): bounce; evasion; removal | main: removal\nOn-time cast, reference mana base: turn 3: P(land drops met) 0.7729, P(colours met given lands) 0.6494, P(both) 0.5019\nPeers with role removal (main): 128 other pool cards, median mana value 3 (quartiles 2 to 4); this card 3: 58 cheaper, 36 equal, 34 dearer\nPeers with role bounce: 33 other pool cards, median mana value 3 (quartiles 2 to 5); this card 3: 15 cheaper, 9 equal, 9 dearer\nPeers with role evasion: 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 3: 47 cheaper, 34 equal, 74 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 3\nCreature bodies at the same mana value: 113 peers, median power+toughness 4; this card 4: 25 smaller, 45 equal, 43 larger\nRulings (shown 4 of 12):\n  - 2025-06-06: If an effect copies an Adventure spell, that copy is exiled as it resolves. It ceases to exist as a state-based action; it's not possible to play the copy as a permanent.\n  - 2025-06-06: An adventurer card uses only its non-Adventure characteristics in every zone except the stack, as well as while on the stack if not cast as an Adventure. Ignore its alternative characteristics in those cases. For example, while it's in you…\n  - 2025-06-06: If an object becomes a copy of an object that has an Adventure, the copy also has an Adventure. If it changes zones, it will either cease to exist (if it's a token) or cease to be a copy (if it's a nontoken permanent), and so you won't be …\n  - 2025-06-06: An effect may refer to a card, spell, or permanent that \"has an Adventure.\" This refers to a card, spell, or permanent that has an adventurer card's set of alternative characteristics, even if they're not being used and even if that card w…\nPattern hits: none",
+   "charge": 5,
+   "claim": "the creature cast, and so the Chulane trigger, can happen on an opponent's turn",
+   "feld": "rule_claims[1].claim",
+   "nr": 70,
+   "oracle_id": "c7b044c3-3cfa-407e-bf20-2875e8e04b7b",
+   "seq": 15
+  },
+  {
+   "card": "Clachan Festival",
+   "card_block": "CARD: Clachan Festival\noracle_id: 5396045d-744b-435e-8324-a1bfbb03449d\nMana cost: {2}{W} | Mana value: 3 | Cost symbols (front face): W x1, generic 2\nType line: Kindred Enchantment — Kithkin | Group: Enchantment | Colour identity: W\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  When this enchantment enters, create two 1/1 green and white Kithkin creature tokens.\n  {4}{W}: Create a 1/1 green and white Kithkin creature token.\nRoles (labels from a tagger and a text rule; they can be wrong): mana_sink; token_production | main: token_production\nOn-time cast, reference mana base: turn 3: P(land drops met) 0.7729, P(colours met given lands) 0.8901, P(both) 0.688\nPeers with role token_production (main): 61 other pool cards, median mana value 3 (quartiles 3 to 4); this card 3: 15 cheaper, 20 equal, 26 dearer\nPeers with role mana_sink: 29 other pool cards, median mana value 3 (quartiles 2 to 4); this card 3: 13 cheaper, 6 equal, 10 dearer\nPeers of type group Enchantment: 80 other pool cards, median mana value 3; this card 3\nRulings (shown 3 of 3):\n  - 2025-11-17: While it appears only on cards that already have other card types, kindred is a card type and will be counted by effects that refer to the number of card types among cards in a zone.\n  - 2025-11-17: Some older cards were originally printed with the \"tribal\" card type. That card type has been replaced with \"kindred.\" This change does not affect the gameplay function of these cards.\n  - 2025-11-17: Kindred is a card type that allows noncreature cards to have creature types. For example, Morcant's Eyes is an Elf (although not a creature) while on the battlefield and an Elf card (although not a creature card) in zones other than the ba…\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - etb_own: \"when ~ enters, create two 1/1 green and white kithkin creature tokens.\"",
+   "charge": 3,
+   "claim": "Chulane can only return a creature, so the Festival cannot be replayed for its ETB; bouncing a token loses it.",
+   "feld": "rule_claims[1].claim",
+   "nr": 71,
+   "oracle_id": "5396045d-744b-435e-8324-a1bfbb03449d",
+   "seq": 11
+  },
+  {
+   "card": "Throne of Geth",
+   "card_block": "CARD: Throne of Geth\noracle_id: 5a5f39ab-21b4-415f-aa1f-d8fad420d372\nMana cost: {2} | Mana value: 2 | Cost symbols (front face): generic 2\nType line: Artifact | Group: Artifact | Colour identity: colourless\nPower/toughness (front face): none | Keywords: Proliferate | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  {T}, Sacrifice an artifact: Proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)\nRoles (labels from a tagger and a text rule; they can be wrong): sacrifice_outlet | main: sacrifice_outlet\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 1.0, P(both) 0.9018 (cost has no coloured symbol)\nPeers with role sacrifice_outlet (main): 24 other pool cards, median mana value 3 (quartiles 2 to 4.25); this card 2: 5 cheaper, 3 equal, 16 dearer\nPeers of type group Artifact: 81 other pool cards, median mana value 2; this card 2\nRulings (shown 4 of 7):\n  - 2020-08-07: You may sacrifice Throne of Geth to pay the cost of its own ability.\n  - 2023-02-04: To proliferate, you can choose any permanent that has a counter, including ones controlled by opponents. You can choose any player who has a counter, including opponents. You can't choose cards in any zone other than the battlefield, even …\n  - 2023-02-04: An ability that triggers \"Whenever you proliferate\" triggers even if you chose no permanents or players while doing so.\n  - 2023-02-04: Players can respond to a spell or ability whose effect includes proliferating. Once that spell or ability starts to resolve, however, and its controller chooses which permanents and players will get new counters, it's too late for anyone t…\nPattern hits: none",
+   "charge": 3,
+   "claim": "With no other artifact it can only be used once by sacrificing itself.",
+   "feld": "rule_claims[0].claim",
+   "nr": 72,
+   "oracle_id": "5a5f39ab-21b4-415f-aa1f-d8fad420d372",
+   "seq": 77
+  },
+  {
+   "card": "Blacksmith's Skill",
+   "card_block": "CARD: Blacksmith's Skill\noracle_id: 5c5b308c-07d5-422a-8b45-b8b19cb967ca\nMana cost: {W} | Mana value: 1 | Cost symbols (front face): W x1\nType line: Instant | Group: Instant | Colour identity: W\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Target permanent gains hexproof and indestructible until end of turn. If it's an artifact creature, it gets +2/+2 until end of turn.\nRoles (labels from a tagger and a text rule; they can be wrong): combat_trick; protection | main: protection\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 0.7595, P(both) 0.7414\nPeers with role protection (main): 59 other pool cards, median mana value 3 (quartiles 2 to 4); this card 1: 0 cheaper, 11 equal, 48 dearer\nPeers with role combat_trick: 118 other pool cards, median mana value 2 (quartiles 2 to 4); this card 1: 0 cheaper, 26 equal, 92 dearer\nPeers of type group Instant: 145 other pool cards, median mana value 2; this card 1\nRulings (shown 1 of 1):\n  - 2021-06-18: Blacksmith's Skill checks whether the permanent is an artifact creature when it resolves. If the target isn't an artifact creature when the spell is cast but becomes one before the spell resolves, it will get +2/+2.\nPattern hits: none",
+   "charge": 5,
+   "claim": "According to the card text it grants only hexproof and indestructible, so it stops targeted effects and destroy effects on that one permanent, but effects that neither target nor destroy are not stopped by this text.",
+   "feld": "rule_claims[0].claim",
+   "nr": 73,
+   "oracle_id": "5c5b308c-07d5-422a-8b45-b8b19cb967ca",
+   "seq": 6
+  },
+  {
+   "card": "Voracious Greatshark",
+   "card_block": "CARD: Voracious Greatshark\noracle_id: 5d96840e-f9b3-4c86-8f59-f12e5736318f\nMana cost: {3}{U}{U} | Mana value: 5 | Cost symbols (front face): U x2, generic 3\nType line: Creature — Shark | Group: Creature | Colour identity: U\nPower/toughness (front face): 5/4 | Keywords: Flash | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Flash (You may cast this spell any time you could cast an instant.)\n  When this creature enters, counter target artifact or creature spell.\nRoles (labels from a tagger and a text rule; they can be wrong): counterspell | main: counterspell\nOn-time cast, reference mana base: turn 5: P(land drops met) 0.4451, P(colours met given lands) 0.8512, P(both) 0.3789\nPeers with role counterspell (main): 26 other pool cards, median mana value 2 (quartiles 2 to 3); this card 5: 25 cheaper, 1 equal, 0 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 5\nCreature bodies at the same mana value: 60 peers, median power+toughness 7; this card 9: 52 smaller, 2 equal, 6 larger\nRulings (shown 1 of 1):\n  - 2020-04-17: You can cast Voracious Greatshark without a target for its enters-the-battlefield triggered ability. That ability will simply not happen. It won't cause Voracious Greatshark to counter itself. It's not that hungry.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - etb_own: \"when ~ enters, counter target artifact or creature spell.\"",
+   "charge": 3,
+   "claim": "each recast counters another artifact or creature spell",
+   "feld": "rule_claims[0].claim",
+   "nr": 74,
+   "oracle_id": "5d96840e-f9b3-4c86-8f59-f12e5736318f",
+   "seq": 40
+  },
+  {
+   "card": "Pest Infestation",
+   "card_block": "CARD: Pest Infestation\noracle_id: 1b704798-0c69-4c18-ac7e-42933ce90028\nMana cost: {X}{X}{G} | Mana value: 1 | Cost symbols (front face): G x1, X\nType line: Sorcery | Group: Sorcery | Colour identity: G\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Destroy up to X target artifacts and/or enchantments. Create twice X 1/1 black and green Pest creature tokens with \"When this token dies, you gain 1 life.\"\nRoles (labels from a tagger and a text rule; they can be wrong): lifegain; removal; token_production | main: removal\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 0.8282, P(both) 0.8085\nPeers with role removal (main): 128 other pool cards, median mana value 3 (quartiles 2 to 4); this card 1: 0 cheaper, 21 equal, 107 dearer\nPeers with role lifegain: 83 other pool cards, median mana value 3 (quartiles 2 to 4); this card 1: 1 cheaper, 15 equal, 67 dearer\nPeers with role token_production: 61 other pool cards, median mana value 3 (quartiles 3 to 4); this card 1: 0 cheaper, 2 equal, 59 dearer\nPeers of type group Sorcery: 65 other pool cards, median mana value 4; this card 1\nRulings (shown 2 of 2):\n  - 2021-04-16: If any artifacts or enchantments were chosen as targets, and all of them are illegal targets as Pest Infestation tries to resolve, it won't resolve and none of its effects will happen. No Pests will be created.\n  - 2021-04-16: The number of Pests created is equal to twice the chosen value of X, no matter how many artifacts and enchantments were destroyed.\nPattern hits: none",
+   "charge": 7,
+   "claim": "The number of Pests depends only on X, not on how many permanents were destroyed.",
+   "feld": "rule_claims[1].claim",
+   "nr": 75,
+   "oracle_id": "1b704798-0c69-4c18-ac7e-42933ce90028",
+   "seq": 19
+  },
+  {
+   "card": "Darkslick Drake",
+   "card_block": "CARD: Darkslick Drake\noracle_id: cef11518-ecb2-4250-996c-a03fa9dfb09e\nMana cost: {2}{U}{U} | Mana value: 4 | Cost symbols (front face): U x2, generic 2\nType line: Creature — Phyrexian Drake | Group: Creature | Colour identity: U\nPower/toughness (front face): 2/4 | Keywords: Flying | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Flying\n  When this creature dies, draw a card.\nRoles (labels from a tagger and a text rule; they can be wrong): card_advantage; card_draw; evasion | main: card_advantage\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 0.7626, P(both) 0.4656\nPeers with role card_advantage (main): 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 98 cheaper, 40 equal, 28 dearer\nPeers with role card_draw: 141 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 86 cheaper, 28 equal, 27 dearer\nPeers with role evasion: 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 4: 82 cheaper, 33 equal, 40 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 4\nCreature bodies at the same mana value: 84 peers, median power+toughness 6; this card 6: 36 smaller, 16 equal, 32 larger\nPattern hits: none",
+   "charge": 4,
+   "claim": "Casting it triggers Chulane once.",
+   "feld": "rule_claims[1].claim",
+   "nr": 76,
+   "oracle_id": "cef11518-ecb2-4250-996c-a03fa9dfb09e",
+   "seq": 44
+  },
+  {
+   "card": "Champions of the Perfect",
+   "card_block": "CARD: Champions of the Perfect\noracle_id: 9cb7f23f-322d-4a87-b6c6-15b9d446aef3\nMana cost: {3}{G} | Mana value: 4 | Cost symbols (front face): G x1, generic 3\nType line: Creature — Elf Warrior | Group: Creature | Colour identity: G\nPower/toughness (front face): 6/6 | Keywords: Behold | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  As an additional cost to cast this spell, behold an Elf and exile it. (Exile an Elf you control or an Elf card from your hand.)\n  Whenever you cast a creature spell, draw a card.\n  When this creature leaves the battlefield, return the exiled card to its owner's hand.\nRoles (labels from a tagger and a text rule; they can be wrong): card_advantage; card_draw | main: card_advantage\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 0.9687, P(both) 0.5915\nPeers with role card_advantage (main): 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 98 cheaper, 40 equal, 28 dearer\nPeers with role card_draw: 141 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 86 cheaper, 28 equal, 27 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 4\nCreature bodies at the same mana value: 84 peers, median power+toughness 6; this card 12: 82 smaller, 1 equal, 1 larger\nRulings (shown 4 of 4):\n  - 2025-11-17: If a cost to cast a spell includes revealing a card, that card remains revealed from the time the spell is announced until the time it leaves the stack.\n  - 2025-11-17: If Champions of the Perfect is countered or otherwise fails to resolve, the beheld card will remain in exile indefinitely.\n  - 2025-11-17: If an effect refers to a \"[subtype] card,\" it refers only to a card that has that subtype. For example, Glen Elendra's Answer creates a Faerie token and features a Faerie in its art, but it isn't a Faerie card.\n  - 2025-11-17: If a card in your hand is already revealed (perhaps because it was revealed to pay a cost of a spell that's still on the stack or due to the effect of a card like Telepathy), you may reveal it again to pay the cost of another spell or abil…\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - cast_creature_draw: \"whenever you cast a creature spell, draw a card.\"\n  - cast_trigger_creature: \"whenever you cast a creature spell, draw a card.\"",
+   "charge": 1,
+   "claim": "returning it with Chulane gives the Elf back to hand to be cast again",
+   "feld": "rule_claims[2].claim",
+   "nr": 77,
+   "oracle_id": "9cb7f23f-322d-4a87-b6c6-15b9d446aef3",
+   "seq": 54
+  },
+  {
+   "card": "Rest for the Weary",
+   "card_block": "CARD: Rest for the Weary\noracle_id: c7f08962-6c54-4fd5-a55e-7513e758af32\nMana cost: {1}{W} | Mana value: 2 | Cost symbols (front face): W x1, generic 1\nType line: Instant | Group: Instant | Colour identity: W\nPower/toughness (front face): none | Keywords: Landfall | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Target player gains 4 life.\n  Landfall — If you had a land enter the battlefield under your control this turn, that player gains 8 life instead.\nRoles (labels from a tagger and a text rule; they can be wrong): landfall; lifegain | main: landfall\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8302, P(both) 0.7487\nPeers with role landfall (main): 19 other pool cards, median mana value 3 (quartiles 3 to 4.5); this card 2: 2 cheaper, 2 equal, 15 dearer\nPeers with role lifegain: 83 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 17 cheaper, 22 equal, 44 dearer\nPeers of type group Instant: 145 other pool cards, median mana value 2; this card 2\nRulings (shown 4 of 5):\n  - 2024-11-08: Once the spell resolves, having a land enter under your control provides no further benefit.\n  - 2024-11-08: Having more than one land enter the battlefield under your control this turn provides no additional benefit.\n  - 2024-11-08: The landfall ability checks for an action that has happened in the past. It doesn't matter if a land that entered the battlefield under your control previously in the turn is still on the battlefield, is still under your control, or is sti…\n  - 2024-11-08: Whether you had a land enter the battlefield under your control this turn is checked as this spell resolves, not as you cast it.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - landfall: \"landfall — if you had a land enter the battlefield under your control this turn, that player gains 8 life instead.\"",
+   "charge": 7,
+   "claim": "the whole effect is life gain",
+   "feld": "rule_claims[0].claim",
+   "nr": 78,
+   "oracle_id": "c7f08962-6c54-4fd5-a55e-7513e758af32",
+   "seq": 45
+  },
+  {
+   "card": "Wind Zendikon",
+   "card_block": "CARD: Wind Zendikon\noracle_id: d6786f80-818c-433d-8978-81814171dd39\nMana cost: {U} | Mana value: 1 | Cost symbols (front face): U x1\nType line: Enchantment — Aura | Group: Enchantment | Colour identity: U\nPower/toughness (front face): none | Keywords: Enchant | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Enchant land\n  Enchanted land is a 2/2 blue Elemental creature with flying. It's still a land.\n  When enchanted land dies, return that card to its owner's hand.\nRoles (labels from a tagger and a text rule; they can be wrong): card_advantage; evasion; recursion | main: card_advantage\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 0.8072, P(both) 0.788\nPeers with role card_advantage (main): 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 1: 0 cheaper, 16 equal, 150 dearer\nPeers with role evasion: 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 1: 0 cheaper, 13 equal, 142 dearer\nPeers with role recursion: 31 other pool cards, median mana value 3 (quartiles 2 to 4.5); this card 1: 0 cheaper, 7 equal, 24 dearer\nPeers of type group Enchantment: 80 other pool cards, median mana value 3; this card 1\nRulings (shown 4 of 6):\n  - 2010-03-01: When a land becomes a creature, that doesn't count as having a creature enter. The permanent was already on the battlefield; it only changed its types. Abilities that trigger whenever a creature enters won't trigger.\n  - 2010-03-01: If a Zendikon and the land it's enchanting are destroyed at the same time (due to Akroma's Vengeance, for example), the Zendikon's last ability will still trigger.\n  - 2010-03-01: The enchanted permanent will be both a land and a creature and can be affected by anything that affects either a land or a creature.\n  - 2010-03-01: If a Zendikon's last ability triggers, but the land card it refers to leaves the graveyard before it resolves, it will resolve but do nothing.\nPattern hits: none",
+   "charge": 2,
+   "claim": "an Aura spell does not trigger Chulane",
+   "feld": "rule_claims[2].claim",
+   "nr": 79,
+   "oracle_id": "d6786f80-818c-433d-8978-81814171dd39",
+   "seq": 23
+  },
+  {
+   "card": "Solemn Simulacrum",
+   "card_block": "CARD: Solemn Simulacrum\noracle_id: 00c0543c-2a1f-4425-8283-4062d74a1637\nMana cost: {4} | Mana value: 4 | Cost symbols (front face): generic 4\nType line: Artifact Creature — Golem | Group: Creature | Colour identity: colourless\nPower/toughness (front face): 2/2 | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  When this creature enters, you may search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.\n  When this creature dies, you may draw a card.\nRoles (labels from a tagger and a text rule; they can be wrong): card_advantage; card_draw; land_ramp; ramp; tutor | main: land_ramp\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 1.0, P(both) 0.6106 (cost has no coloured symbol)\nPeers with role land_ramp (main): 51 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 35 cheaper, 8 equal, 8 dearer\nPeers with role card_advantage: 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 98 cheaper, 40 equal, 28 dearer\nPeers with role card_draw: 141 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 86 cheaper, 28 equal, 27 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 4\nCreature bodies at the same mana value: 84 peers, median power+toughness 6; this card 4: 6 smaller, 22 equal, 56 larger\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - etb_own: \"when ~ enters, you may search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.\"\n  - land_onto_battlefield_effect: \"when ~ enters, you may search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.\"",
+   "charge": 4,
+   "claim": "Returning it with Chulane's ability and casting it again gives another land fetch and another Chulane cast trigger.",
+   "feld": "rule_claims[0].claim",
+   "nr": 80,
+   "oracle_id": "00c0543c-2a1f-4425-8283-4062d74a1637",
+   "seq": 33
+  },
+  {
+   "card": "Bristlebane Outrider",
+   "card_block": "CARD: Bristlebane Outrider\noracle_id: 48f7217e-ae11-44bd-ac42-7c8d9dd5dc36\nMana cost: {3}{G} | Mana value: 4 | Cost symbols (front face): G x1, generic 3\nType line: Creature — Kithkin Knight | Group: Creature | Colour identity: G\nPower/toughness (front face): 3/5 | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  This creature can't be blocked by creatures with power 2 or less.\n  As long as another creature entered the battlefield under your control this turn, this creature gets +2/+0.\nRoles (labels from a tagger and a text rule; they can be wrong): evasion; hate | main: evasion\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 0.9687, P(both) 0.5915\nPeers with role evasion (main): 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 4: 82 cheaper, 33 equal, 40 dearer\nPeers with role hate: 94 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 60 cheaper, 16 equal, 18 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 4\nCreature bodies at the same mana value: 84 peers, median power+toughness 6; this card 8: 71 smaller, 7 equal, 6 larger\nRulings (shown 1 of 1):\n  - 2025-11-17: Once a creature with power 3 or greater has blocked Bristlebane Outrider, changing the power of the blocking creature won't cause Bristlebane Outrider to become unblocked.\nPattern hits: none",
+   "charge": 2,
+   "claim": "small creatures cannot block it",
+   "feld": "rule_claims[1].claim",
+   "nr": 81,
+   "oracle_id": "48f7217e-ae11-44bd-ac42-7c8d9dd5dc36",
+   "seq": 83
+  },
+  {
+   "card": "Calcite Snapper",
+   "card_block": "CARD: Calcite Snapper\noracle_id: 36593200-e53c-46e4-a04e-8deec8273c65\nMana cost: {1}{U}{U} | Mana value: 3 | Cost symbols (front face): U x2, generic 1\nType line: Creature — Turtle | Group: Creature | Colour identity: U\nPower/toughness (front face): 1/4 | Keywords: Shroud, Landfall | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Shroud (This creature can't be the target of spells or abilities.)\n  Landfall — Whenever a land you control enters, you may switch this creature's power and toughness until end of turn.\nRoles (labels from a tagger and a text rule; they can be wrong): landfall; protection | main: protection\nOn-time cast, reference mana base: turn 3: P(land drops met) 0.7729, P(colours met given lands) 0.6494, P(both) 0.5019\nPeers with role protection (main): 59 other pool cards, median mana value 3 (quartiles 2 to 4); this card 3: 29 cheaper, 11 equal, 19 dearer\nPeers with role landfall: 19 other pool cards, median mana value 3 (quartiles 2.5 to 4.5); this card 3: 5 cheaper, 6 equal, 8 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 3\nCreature bodies at the same mana value: 113 peers, median power+toughness 4; this card 5: 71 smaller, 22 equal, 20 larger\nRulings (shown 4 of 6):\n  - 2021-03-19: Effects that switch a creature's power and toughness apply after all other effects, regardless of when those effects began to apply. For instance, if you target a 1/2 creature then give it +2/+0 later in the turn, it's a 2/3 creature, not …\n  - 2021-03-19: Because damage remains marked on a creature until the damage is removed as the turn ends, nonlethal damage dealt to a creature may become lethal if you switch its power and toughness during that turn.\n  - 2021-03-19: Switching a creature's power and toughness twice (or any even number of times) effectively returns the creature to the power and toughness it had before any switches.\n  - 2024-11-08: A landfall ability triggers whenever a land you control enters for any reason. It triggers whenever you play a land, as well as whenever a spell or ability puts a land onto the battlefield under your control.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - landfall: \"landfall — whenever a land you control enters, you may switch ~'s power and toughness until end of turn.\"",
+   "charge": 6,
+   "claim": "Because the switch is a may ability, several land entries in one turn let you choose whether it ends as 1/4 or 4/1.",
+   "feld": "rule_claims[2].claim",
+   "nr": 82,
+   "oracle_id": "36593200-e53c-46e4-a04e-8deec8273c65",
+   "seq": 87
+  },
+  {
+   "card": "Faerie Mastermind",
+   "card_block": "CARD: Faerie Mastermind\noracle_id: a984db23-40ea-428d-829f-e944267280f8\nMana cost: {1}{U} | Mana value: 2 | Cost symbols (front face): U x1, generic 1\nType line: Creature — Faerie Rogue | Group: Creature | Colour identity: U\nPower/toughness (front face): 2/1 | Keywords: Flying, Flash | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Flash\n  Flying\n  Whenever an opponent draws their second card each turn, you draw a card.\n  {3}{U}: Each player draws a card.\nRoles (labels from a tagger and a text rule; they can be wrong): card_advantage; card_draw; evasion; hate; mana_sink; tax | main: card_advantage\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8735, P(both) 0.7877\nPeers with role card_advantage (main): 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 17 cheaper, 41 equal, 108 dearer\nPeers with role card_draw: 141 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 14 cheaper, 39 equal, 88 dearer\nPeers with role evasion: 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 2: 14 cheaper, 32 equal, 109 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 2\nCreature bodies at the same mana value: 125 peers, median power+toughness 4; this card 3: 28 smaller, 30 equal, 67 larger\nRulings (shown 1 of 1):\n  - 2023-04-14: Faerie Mastermind doesn't need to have been under your control when the first card is drawn for its ability to trigger. As long as you control it when an opponent draws their second card in a turn, that ability will trigger.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - symmetric_benefit: \"{3}{u}: each player draws a card.\"",
+   "charge": 2,
+   "claim": "all players draw; in an opponent's turn this can be that opponent's second card",
+   "feld": "rule_claims[1].claim",
+   "nr": 83,
+   "oracle_id": "a984db23-40ea-428d-829f-e944267280f8",
+   "seq": 43
+  },
+  {
+   "card": "Skywinder Drake",
+   "card_block": "CARD: Skywinder Drake\noracle_id: e894ccf5-fc71-48bd-bca5-cfeb05315f42\nMana cost: {2}{U} | Mana value: 3 | Cost symbols (front face): U x1, generic 2\nType line: Creature — Drake | Group: Creature | Colour identity: U\nPower/toughness (front face): 3/1 | Keywords: Flying | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Flying\n  This creature can block only creatures with flying.\nRoles (labels from a tagger and a text rule; they can be wrong): evasion | main: evasion\nOn-time cast, reference mana base: turn 3: P(land drops met) 0.7729, P(colours met given lands) 0.9252, P(both) 0.7151\nPeers with role evasion (main): 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 3: 47 cheaper, 34 equal, 74 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 3\nCreature bodies at the same mana value: 113 peers, median power+toughness 4; this card 4: 25 smaller, 45 equal, 43 larger\nPattern hits: none",
+   "charge": 2,
+   "claim": "According to the card text the Drake cannot block ground creatures, so it adds little defence.",
+   "feld": "rule_claims[1].claim",
+   "nr": 84,
+   "oracle_id": "e894ccf5-fc71-48bd-bca5-cfeb05315f42",
+   "seq": 15
+  },
+  {
+   "card": "Tine Shrike",
+   "card_block": "CARD: Tine Shrike\noracle_id: e20ad2f7-cb41-4e6e-8f3b-bd260f4a2ecf\nMana cost: {3}{W} | Mana value: 4 | Cost symbols (front face): W x1, generic 3\nType line: Creature — Phyrexian Bird | Group: Creature | Colour identity: W\nPower/toughness (front face): 2/1 | Keywords: Flying, Infect | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Flying\n  Infect (This creature deals damage to creatures in the form of -1/-1 counters and to players in the form of poison counters.)\nRoles (labels from a tagger and a text rule; they can be wrong): evasion | main: evasion\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 0.9336, P(both) 0.5701\nPeers with role evasion (main): 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 4: 82 cheaper, 33 equal, 40 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 4\nCreature bodies at the same mana value: 84 peers, median power+toughness 6; this card 3: 5 smaller, 0 equal, 79 larger\nPattern hits: none",
+   "charge": 2,
+   "claim": "According to the card text, its damage to players is poison counters, not life loss, so it does not help any life-total plan.",
+   "feld": "rule_claims[0].claim",
+   "nr": 85,
+   "oracle_id": "e20ad2f7-cb41-4e6e-8f3b-bd260f4a2ecf",
+   "seq": 19
+  },
+  {
+   "card": "Angel's Feather",
+   "card_block": "CARD: Angel's Feather\noracle_id: 3d0d4ba4-d5aa-4d9f-89ab-46687637fecf\nMana cost: {2} | Mana value: 2 | Cost symbols (front face): generic 2\nType line: Artifact | Group: Artifact | Colour identity: colourless\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Whenever a player casts a white spell, you may gain 1 life.\nRoles (labels from a tagger and a text rule; they can be wrong): hate; lifegain; tax | main: lifegain\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 1.0, P(both) 0.9018 (cost has no coloured symbol)\nPeers with role lifegain (main): 83 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 17 cheaper, 22 equal, 44 dearer\nPeers with role hate: 94 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 15 cheaper, 30 equal, 49 dearer\nPeers with role tax: 16 other pool cards, median mana value 4 (quartiles 2 to 5); this card 2: 1 cheaper, 6 equal, 9 dearer\nPeers of type group Artifact: 81 other pool cards, median mana value 2; this card 2\nRulings (shown 2 of 2):\n  - 2009-10-01: The ability triggers whenever any player, not just you, casts a white spell.\n  - 2009-10-01: If a player casts a white spell, Angel’s Feather’s ability triggers and is put on the stack on top of that spell. Angel’s Feather’s ability will resolve (causing you to gain 1 life) before the spell does.\nPattern hits: none",
+   "charge": 3,
+   "claim": "Opponents' white spells also give you 1 life",
+   "feld": "rule_claims[0].claim",
+   "nr": 86,
+   "oracle_id": "3d0d4ba4-d5aa-4d9f-89ab-46687637fecf",
+   "seq": 5
+  },
+  {
+   "card": "Wildwood Geist",
+   "card_block": "CARD: Wildwood Geist\noracle_id: 9fb4aa2d-6414-4176-9070-e5230e100c6a\nMana cost: {4}{G} | Mana value: 5 | Cost symbols (front face): G x1, generic 4\nType line: Creature — Spirit | Group: Creature | Colour identity: G\nPower/toughness (front face): 3/3 | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  During your turn, this creature gets +2/+2.\nRoles: none labelled\nOn-time cast, reference mana base: turn 5: P(land drops met) 0.4451, P(colours met given lands) 0.9851, P(both) 0.4385\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 5\nCreature bodies at the same mana value: 60 peers, median power+toughness 7; this card 6: 11 smaller, 13 equal, 36 larger\nPattern hits: none",
+   "charge": 1,
+   "claim": "the bonus does not apply when it blocks in opponents' turns",
+   "feld": "rule_claims[0].claim",
+   "nr": 87,
+   "oracle_id": "9fb4aa2d-6414-4176-9070-e5230e100c6a",
+   "seq": 75
+  },
+  {
+   "card": "Pitiless Fists",
+   "card_block": "CARD: Pitiless Fists\noracle_id: 0d46a97a-b1d6-4bf3-b3ba-a5cdfd4c8bf5\nMana cost: {3}{G} | Mana value: 4 | Cost symbols (front face): G x1, generic 3\nType line: Enchantment — Aura | Group: Enchantment | Colour identity: G\nPower/toughness (front face): none | Keywords: Fight, Enchant | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Enchant creature you control\n  When this Aura enters, enchanted creature fights up to one target creature an opponent controls. (Each deals damage equal to its power to the other.)\n  Enchanted creature gets +2/+2.\nRoles (labels from a tagger and a text rule; they can be wrong): removal | main: removal\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 0.9687, P(both) 0.5915\nPeers with role removal (main): 128 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 95 cheaper, 5 equal, 28 dearer\nPeers of type group Enchantment: 80 other pool cards, median mana value 3; this card 4\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - creature_dependent: \"enchanted creature gets +2/+2.\"\n  - etb_own: \"when ~ enters, enchanted creature fights up to one target creature an opponent controls.\"",
+   "charge": 7,
+   "claim": "needs an own creature on the battlefield",
+   "feld": "rule_claims[1].claim",
+   "nr": 88,
+   "oracle_id": "0d46a97a-b1d6-4bf3-b3ba-a5cdfd4c8bf5",
+   "seq": 61
+  },
+  {
+   "card": "Grizzled Leotau",
+   "card_block": "CARD: Grizzled Leotau\noracle_id: 59edd0e7-37c2-45f9-9f9d-8002be459662\nMana cost: {G}{W} | Mana value: 2 | Cost symbols (front face): W x1, G x1\nType line: Creature — Cat | Group: Creature | Colour identity: WG\nPower/toughness (front face): 1/5 | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  (no rules text: a known fact, not missing data)\nRoles: none labelled\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.7507, P(both) 0.6769\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 2\nCreature bodies at the same mana value: 125 peers, median power+toughness 4; this card 6: 123 smaller, 0 equal, 2 larger\nPattern hits: none",
+   "charge": 6,
+   "claim": "a vanilla creature still triggers Chulane when cast",
+   "feld": "rule_claims[0].claim",
+   "nr": 89,
+   "oracle_id": "59edd0e7-37c2-45f9-9f9d-8002be459662",
+   "seq": 24
+  },
+  {
+   "card": "Embrace the Paradox",
+   "card_block": "CARD: Embrace the Paradox\noracle_id: b9110be0-3f0c-449b-8baf-689e92fdb8f0\nMana cost: {3}{G}{U} | Mana value: 5 | Cost symbols (front face): U x1, G x1, generic 3\nType line: Instant | Group: Instant | Colour identity: UG\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Draw three cards. You may put a land card from your hand onto the battlefield tapped.\nRoles (labels from a tagger and a text rule; they can be wrong): card_advantage; card_draw; land_ramp; ramp | main: land_ramp\nOn-time cast, reference mana base: turn 5: P(land drops met) 0.4451, P(colours met given lands) 0.9644, P(both) 0.4293\nPeers with role land_ramp (main): 51 other pool cards, median mana value 3 (quartiles 2 to 4); this card 5: 44 cheaper, 3 equal, 4 dearer\nPeers with role card_advantage: 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 5: 139 cheaper, 15 equal, 12 dearer\nPeers with role card_draw: 141 other pool cards, median mana value 3 (quartiles 2 to 4); this card 5: 115 cheaper, 14 equal, 12 dearer\nPeers of type group Instant: 145 other pool cards, median mana value 2; this card 5\nRulings (shown 1 of 1):\n  - 2026-03-20: Putting a land card onto the battlefield with Embrace the Paradox doesn't count as playing a land. You can put a land card onto the battlefield this way even if you've already played a land for the turn.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - land_extra_drop_or_from_hand: \"draw three cards. you may put a land card from your hand onto the battlefield tapped.\"\n  - noncreature_draw_or_ramp: \"roles by text: card_advantage, card_draw\"",
+   "charge": 3,
+   "claim": "the land is in addition to the land drop",
+   "feld": "rule_claims[1].claim",
+   "nr": 90,
+   "oracle_id": "b9110be0-3f0c-449b-8baf-689e92fdb8f0",
+   "seq": 48
+  },
+  {
+   "card": "Loran's Escape",
+   "card_block": "CARD: Loran's Escape\noracle_id: 1a9048d6-f3fa-4f3b-9baa-35318177bc6e\nMana cost: {W} | Mana value: 1 | Cost symbols (front face): W x1\nType line: Instant | Group: Instant | Colour identity: W\nPower/toughness (front face): none | Keywords: Scry | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Target artifact or creature gains hexproof and indestructible until end of turn. Scry 1.\nRoles (labels from a tagger and a text rule; they can be wrong): card_selection; combat_trick; protection | main: protection\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 0.7595, P(both) 0.7414\nPeers with role protection (main): 59 other pool cards, median mana value 3 (quartiles 2 to 4); this card 1: 0 cheaper, 11 equal, 48 dearer\nPeers with role card_selection: 41 other pool cards, median mana value 3 (quartiles 2 to 4); this card 1: 0 cheaper, 6 equal, 35 dearer\nPeers with role combat_trick: 118 other pool cards, median mana value 2 (quartiles 2 to 4); this card 1: 0 cheaper, 26 equal, 92 dearer\nPeers of type group Instant: 145 other pool cards, median mana value 2; this card 1\nPattern hits: none",
+   "charge": 1,
+   "claim": "one creature survives destroy effects and targeted spells for the turn",
+   "feld": "rule_claims[0].claim",
+   "nr": 91,
+   "oracle_id": "1a9048d6-f3fa-4f3b-9baa-35318177bc6e",
+   "seq": 31
+  },
+  {
+   "card": "Wash Away",
+   "card_block": "CARD: Wash Away\noracle_id: a4630da0-fe9b-4ead-9621-eac4b7825c35\nMana cost: {U} | Mana value: 1 | Cost symbols (front face): U x1\nType line: Instant | Group: Instant | Colour identity: U\nPower/toughness (front face): none | Keywords: Cleave | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Cleave {1}{U}{U} (You may cast this spell for its cleave cost. If you do, remove the words in square brackets.)\n  Counter target spell [that wasn't cast from its owner's hand].\nRoles (labels from a tagger and a text rule; they can be wrong): counterspell | main: counterspell\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 0.8072, P(both) 0.788\nPeers with role counterspell (main): 26 other pool cards, median mana value 2 (quartiles 2 to 3); this card 1: 0 cheaper, 5 equal, 21 dearer\nPeers of type group Instant: 145 other pool cards, median mana value 2; this card 1\nRulings (shown 4 of 5):\n  - 2021-11-19: You can't cast a spell for both its cleave cost and another alternative cost. For example, if an effect gives an Alchemist's Retrieval in your graveyard a flashback cost of {U}, you can't cast it from your graveyard for its cleave cost.\n  - 2021-11-19: If you cast a spell for its cleave cost, that spell doesn't have any of the text in square brackets while it's on the stack.\n  - 2021-11-19: A cleave cost is an alternative cost that's paid instead of the spell's mana cost. Casting a spell for its cleave cost doesn't change the spell's mana value.\n  - 2021-11-19: Copies of spells are never cast from a player's hand, so Wash Away can counter copies of spells even if its cleave cost wasn't paid, regardless of whether the original spell being copied was cast from a player's hand.\nPattern hits: none",
+   "charge": 4,
+   "claim": "According to the card text the {U} mode only hits spells not cast from hand, such as flashback or cascade spells.",
+   "feld": "rule_claims[1].claim",
+   "nr": 92,
+   "oracle_id": "a4630da0-fe9b-4ead-9621-eac4b7825c35",
+   "seq": 85
+  },
+  {
+   "card": "Snakeskin Veil",
+   "card_block": "CARD: Snakeskin Veil\noracle_id: 1e6a24be-8281-41c1-a5ba-b68f0ef1d7b8\nMana cost: {G} | Mana value: 1 | Cost symbols (front face): G x1\nType line: Instant | Group: Instant | Colour identity: G\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Put a +1/+1 counter on target creature you control. It gains hexproof until end of turn. (It can't be the target of spells or abilities your opponents control.)\nRoles (labels from a tagger and a text rule; they can be wrong): combat_trick; counters; protection | main: protection\nOn-time cast, reference mana base: turn 1: P(land drops met) 0.9762, P(colours met given lands) 0.8282, P(both) 0.8085\nPeers with role protection (main): 59 other pool cards, median mana value 3 (quartiles 2 to 4); this card 1: 0 cheaper, 11 equal, 48 dearer\nPeers with role combat_trick: 118 other pool cards, median mana value 2 (quartiles 2 to 4); this card 1: 0 cheaper, 26 equal, 92 dearer\nPeers with role counters: 57 other pool cards, median mana value 3 (quartiles 2 to 4); this card 1: 0 cheaper, 9 equal, 48 dearer\nPeers of type group Instant: 145 other pool cards, median mana value 2; this card 1\nPattern hits: none",
+   "charge": 1,
+   "claim": "The creature cannot be targeted by opposing spells or abilities this turn; non-targeting effects such as sweepers are unaffected.",
+   "feld": "rule_claims[0].claim",
+   "nr": 93,
+   "oracle_id": "1e6a24be-8281-41c1-a5ba-b68f0ef1d7b8",
+   "seq": 58
+  },
+  {
+   "card": "Inspiring Statuary",
+   "card_block": "CARD: Inspiring Statuary\noracle_id: 78b2b68d-6e27-49f3-8373-6e19faf6f679\nMana cost: {3} | Mana value: 3 | Cost symbols (front face): generic 3\nType line: Artifact | Group: Artifact | Colour identity: colourless\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Nonartifact spells you cast have improvise. (Your artifacts can help cast those spells. Each artifact you tap after you're done activating mana abilities pays for {1}.)\nRoles (labels from a tagger and a text rule; they can be wrong): cost_reduction; mana_rock; ramp | main: mana_rock\nOn-time cast, reference mana base: turn 3: P(land drops met) 0.7729, P(colours met given lands) 1.0, P(both) 0.7729 (cost has no coloured symbol)\nPeers with role mana_rock (main): 23 other pool cards, median mana value 2 (quartiles 2 to 3); this card 3: 13 cheaper, 8 equal, 2 dearer\nPeers with role cost_reduction: 18 other pool cards, median mana value 4.5 (quartiles 3 to 7); this card 3: 3 cheaper, 3 equal, 12 dearer\nPeers with role ramp: 99 other pool cards, median mana value 3 (quartiles 2 to 3); this card 3: 48 cheaper, 31 equal, 20 dearer\nPeers of type group Artifact: 81 other pool cards, median mana value 2; this card 3\nRulings (shown 4 of 11):\n  - 2017-02-09: When using improvise to cast a spell with {X} in its mana cost, first choose the value for X. That choice, plus any cost increases or decreases, will determine the spell's total cost. Then you can tap artifacts you control to help pay that…\n  - 2017-02-09: Because improvise isn't an alternative cost, it can be used in conjunction with alternative costs.\n  - 2017-02-09: If you cast a nonartifact spell that requires you to sacrifice a permanent as an additional cost, you may tap that permanent (if it's an artifact) for the spell's improvise ability before you sacrifice it to pay that cost.\n  - 2017-02-09: Improvise can't pay for {W}, {U}, {B}, {R}, {G}, or {C} mana symbols in a spell's total cost.\nPattern hits: none",
+   "charge": 4,
+   "claim": "it gives no colour fixing",
+   "feld": "rule_claims[1].claim",
+   "nr": 94,
+   "oracle_id": "78b2b68d-6e27-49f3-8373-6e19faf6f679",
+   "seq": 82
+  },
+  {
+   "card": "Vapor Snare",
+   "card_block": "CARD: Vapor Snare\noracle_id: 29ae5540-5fdf-48be-86ba-b4db0fe19f6c\nMana cost: {4}{U} | Mana value: 5 | Cost symbols (front face): U x1, generic 4\nType line: Enchantment — Aura | Group: Enchantment | Colour identity: U\nPower/toughness (front face): none | Keywords: Enchant | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Enchant creature\n  You control enchanted creature.\n  At the beginning of your upkeep, sacrifice this Aura unless you return a land you control to its owner's hand.\nRoles (labels from a tagger and a text rule; they can be wrong): bounce | main: bounce\nOn-time cast, reference mana base: turn 5: P(land drops met) 0.4451, P(colours met given lands) 0.9793, P(both) 0.4359\nPeers with role bounce (main): 33 other pool cards, median mana value 3 (quartiles 2 to 3); this card 5: 25 cheaper, 3 equal, 5 dearer\nPeers of type group Enchantment: 80 other pool cards, median mana value 3; this card 5\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - bounce_own_land: \"at the beginning of your upkeep, sacrifice ~ unless you return a land you control to its owner's hand.\"",
+   "charge": 7,
+   "claim": "one land returns to hand every turn and must be replayed",
+   "feld": "rule_claims[1].claim",
+   "nr": 95,
+   "oracle_id": "29ae5540-5fdf-48be-86ba-b4db0fe19f6c",
+   "seq": 25
+  },
+  {
+   "card": "Predictive Preparations",
+   "card_block": "CARD: Predictive Preparations\noracle_id: d06a5642-861b-4b0d-9ea5-07046b7e1d37\nMana cost: {1}{W} | Mana value: 2 | Cost symbols (front face): W x1, generic 1\nType line: Sorcery | Group: Sorcery | Colour identity: W\nPower/toughness (front face): none | Keywords: Flashback | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Put a +1/+1 counter on each of one or two target creatures.\n  Flashback {3}{W} (You may cast this card from your graveyard for its flashback cost. Then exile it.)\nRoles (labels from a tagger and a text rule; they can be wrong): counters | main: counters\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8302, P(both) 0.7487\nPeers with role counters (main): 57 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 10 cheaper, 13 equal, 34 dearer\nPeers of type group Sorcery: 65 other pool cards, median mana value 4; this card 2\nRulings (shown 4 of 6):\n  - 2026-08-21: You can cast a spell using flashback even if it was somehow put into your graveyard without having been cast.\n  - 2026-08-21: If a card with flashback is put into your graveyard during your turn, you can cast it if it's legal to do so before any other player can take any actions.\n  - 2026-08-21: \"Flashback [cost]\" means \"You may cast this card from your graveyard if the resulting spell is an instant or sorcery spell by paying [cost] rather than paying its mana cost\" and \"If the flashback cost was paid, exile this card instead of p…\n  - 2026-08-21: To determine the total cost of a spell, start with the mana cost or alternative cost (such as a flashback cost) you're paying, add any cost increases, then apply any cost reductions. The mana value of the spell is determined only by its ma…\nPattern hits: none",
+   "charge": 1,
+   "claim": "it can be used a second time at a higher price",
+   "feld": "rule_claims[1].claim",
+   "nr": 96,
+   "oracle_id": "d06a5642-861b-4b0d-9ea5-07046b7e1d37",
+   "seq": 30
+  },
+  {
+   "card": "Zimone's Experiment",
+   "card_block": "CARD: Zimone's Experiment\noracle_id: 5faa9e54-1cc4-48c0-bbfa-a495087c36d6\nMana cost: {3}{G} | Mana value: 4 | Cost symbols (front face): G x1, generic 3\nType line: Sorcery | Group: Sorcery | Colour identity: G\nPower/toughness (front face): none | Keywords: none | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Look at the top five cards of your library. You may reveal up to two creature and/or land cards from among them, then put the rest on the bottom of your library in a random order. Put all land cards revealed this way onto the battlefield tapped and put all creature cards revealed this way into your hand.\nRoles (labels from a tagger and a text rule; they can be wrong): card_advantage; card_selection; land_ramp; ramp | main: land_ramp\nOn-time cast, reference mana base: turn 4: P(land drops met) 0.6106, P(colours met given lands) 0.9687, P(both) 0.5915\nPeers with role land_ramp (main): 51 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 35 cheaper, 8 equal, 8 dearer\nPeers with role card_advantage: 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 98 cheaper, 40 equal, 28 dearer\nPeers with role card_selection: 41 other pool cards, median mana value 3 (quartiles 2 to 4); this card 4: 28 cheaper, 10 equal, 3 dearer\nPeers of type group Sorcery: 65 other pool cards, median mana value 4; this card 4\nPattern hits: none",
+   "charge": 1,
+   "claim": "chosen lands enter the battlefield directly, which is ramp and a landfall event",
+   "feld": "rule_claims[0].claim",
+   "nr": 97,
+   "oracle_id": "5faa9e54-1cc4-48c0-bbfa-a495087c36d6",
+   "seq": 65
+  },
+  {
+   "card": "Surveilling Sprite",
+   "card_block": "CARD: Surveilling Sprite\noracle_id: 449142ff-7190-471b-99a5-f77095a827dd\nMana cost: {1}{U} | Mana value: 2 | Cost symbols (front face): U x1, generic 1\nType line: Creature — Faerie Rogue | Group: Creature | Colour identity: U\nPower/toughness (front face): 1/1 | Keywords: Flying | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Flying\n  When this creature dies, you may draw a card.\nRoles (labels from a tagger and a text rule; they can be wrong): card_advantage; card_draw; evasion | main: card_advantage\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8735, P(both) 0.7877\nPeers with role card_advantage (main): 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 17 cheaper, 41 equal, 108 dearer\nPeers with role card_draw: 141 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 14 cheaper, 39 equal, 88 dearer\nPeers with role evasion: 155 other pool cards, median mana value 3 (quartiles 2 to 5); this card 2: 14 cheaper, 32 equal, 109 dearer\nPeers of type group Creature: 477 other pool cards, median mana value 3; this card 2\nCreature bodies at the same mana value: 125 peers, median power+toughness 4; this card 2: 2 smaller, 25 equal, 98 larger\nPattern hits: none",
+   "charge": 2,
+   "claim": "a two-mana creature spell draws a card with Chulane",
+   "feld": "rule_claims[1].claim",
+   "nr": 98,
+   "oracle_id": "449142ff-7190-471b-99a5-f77095a827dd",
+   "seq": 41
+  },
+  {
+   "card": "Cryptic Caves",
+   "card_block": "CARD: Cryptic Caves\noracle_id: b2eb7a64-a307-4a78-a25d-63fb3ae1e237\nMana cost: (none) | Mana value: 0 | Cost symbols (front face): no mana cost\nType line: Land | Group: Land | Colour identity: colourless\nPower/toughness (front face): none | Keywords: none | Produces mana: C\nGame Changer: no | Layout: normal\nOracle text:\n  {T}: Add {C}.\n  {1}, {T}, Sacrifice this land: Draw a card. Activate only if you control five or more lands.\nLand facts: makes no of the deck's colours | enters: untapped | any colour of the identity: no | fetches a land: no\nRoles (labels from a tagger and a text rule; they can be wrong): card_advantage; card_draw; utility_land | main: card_advantage\nLand peer group 0col_untapped: 11 other pool lands\nRulings (shown 2 of 2):\n  - 2019-07-12: Cryptic Caves can be one of the five lands you control. You don't need to control five other lands. It's okay that you'll only control four lands as you finish activating Cryptic Caves's last ability.\n  - 2019-07-12: If you control two Cryptic Caves and exactly three other lands, you can activate the last ability of only one of the Cryptic Caves. As soon as the cost for that ability is paid, you will no longer control enough lands to activate the abili…\nPattern hits: none",
+   "charge": 1,
+   "claim": "the card draw is only available from five lands on and costs the land",
+   "feld": "rule_claims[0].claim",
+   "nr": 99,
+   "oracle_id": "b2eb7a64-a307-4a78-a25d-63fb3ae1e237",
+   "seq": 19
+  },
+  {
+   "card": "Think Twice",
+   "card_block": "CARD: Think Twice\noracle_id: fa85c5a2-8e83-4624-a35a-a0bbf17ecbb4\nMana cost: {1}{U} | Mana value: 2 | Cost symbols (front face): U x1, generic 1\nType line: Instant | Group: Instant | Colour identity: U\nPower/toughness (front face): none | Keywords: Flashback | Produces mana: none\nGame Changer: no | Layout: normal\nOracle text:\n  Draw a card.\n  Flashback {2}{U} (You may cast this card from your graveyard for its flashback cost. Then exile it.)\nRoles (labels from a tagger and a text rule; they can be wrong): cantrip; card_advantage; card_draw | main: card_advantage\nOn-time cast, reference mana base: turn 2: P(land drops met) 0.9018, P(colours met given lands) 0.8735, P(both) 0.7877\nPeers with role card_advantage (main): 166 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 17 cheaper, 41 equal, 108 dearer\nPeers with role cantrip: 35 other pool cards, median mana value 2 (quartiles 2 to 3); this card 2: 5 cheaper, 16 equal, 14 dearer\nPeers with role card_draw: 141 other pool cards, median mana value 3 (quartiles 2 to 4); this card 2: 14 cheaper, 39 equal, 88 dearer\nPeers of type group Instant: 145 other pool cards, median mana value 2; this card 2\nRulings (shown 4 of 6):\n  - 2024-11-08: A spell cast using flashback will always be exiled afterward, whether it resolves, is countered, or leaves the stack in some other way.\n  - 2024-11-08: To determine the total cost of a spell, start with the mana cost or alternative cost (such as a flashback cost) you're paying, add any cost increases, then apply any cost reductions. The mana value of the spell is determined only by its ma…\n  - 2024-11-08: You must still follow any timing restrictions and permissions, including those based on the card's type. For instance, you can cast a sorcery using flashback only when you could normally cast a sorcery.\n  - 2024-11-08: If a card with flashback is put into your graveyard during your turn, you can cast it if it's legal to do so before any other player can take any actions.\nPattern hits (rule-based hints; '~' stands for this card; check each in pattern_check):\n  - noncreature_draw_or_ramp: \"roles by text: cantrip, card_draw\"",
+   "charge": 7,
+   "claim": "The type line is Instant, so according to the text this is not a creature spell and does not trigger Chulane.",
+   "feld": "rule_claims[1].claim",
+   "nr": 100,
+   "oracle_id": "fa85c5a2-8e83-4624-a35a-a0bbf17ecbb4",
+   "seq": 86
+  }
+ ],
+ "eingefrorene_ausgaben_sha256": {
+  "rr2_output_1.jsonl": "0b40276fbb78d5fedd157fa90a0b7a6e2a7f016a58fa5ee48ae5ec65112ef144",
+  "rr2_output_2.jsonl": "f676350260d53e6339aa0e4501a8e7f4f7cd8c6298e672f4c9ba90251c51802f",
+  "rr2_output_3.jsonl": "e6ba2a4f5aa54ad033cb362bf6079cc52addb57d4a3f723553ce51f96c05d3d5",
+  "rr2_output_4.jsonl": "7e220a312c47fdb6f374d600239e067eaeb26874dcf1ae261c41b5b032c9a45f",
+  "rr2_output_5.jsonl": "c9573199c40f16ab8679d53dc417d2f526ff2577fa7ec9f140c28e4dad49ee26",
+  "rr2_output_6.jsonl": "3d848c67c974210d36d1b4ce8e1c68d0e9428df0d1718e5110eab90241200705",
+  "rr2_output_7.jsonl": "e55cb3c84d9b882f6c5c8877d42d026b9d8363536ef99247907cdc7e3eb1e0d1",
+  "rr2_output_8.jsonl": "86365c1aacf06897820560d0c434799ccc08822ebdab5efd4f26a2f986028606"
+ },
+ "hinweis": "Nur Kartenblock und Claim; Herkunft verdeckt. Je Nr: falsch / korrekt / unscharf.",
+ "schema": "rr2-regelclaims-blind-1",
+ "seed": 20261125
+}
