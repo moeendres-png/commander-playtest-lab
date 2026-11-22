@@ -1540,6 +1540,9 @@ upper bound), the lands per tapped class (n of N, delta as a count) and the comm
 taken from the shares rounded to four decimals; a side that cannot be computed (for example no
 draw holds enough lands) is "unbekannt", and so is the delta. Number contracts: `manabase.*`
 (EXAKT, shares and pp). Before, the comparison only counted coloured land sources per colour.
+Runtime, measured in this container per comparison (the castability of both lists and the
+colour access of both, once per request, not per card): Chulane baseline against a one-land
+swap 0.07 s; the synthetic five-colour deck with 27 land groups (see above) 1.6 s.
 
 ### Bracket facts and data gaps ("Bracket & Lücken", #1404 options 1 and 10)
 
@@ -1669,15 +1672,18 @@ name in the rules text, also the short name before the comma). Every getappt cla
 quoted sentence; a search land is classed by its own entry, and the sentence that brings the
 fetched land tapped is quoted next to it. The page shows the four counts as n of N lands and
 "Klasse bestimmt für n von N Ländern"; unknown is its own class and is never counted as
-untapped. Measured on the QA store copy: the card facts (134 lands) 134 of 134 get a class (47
-ungetappt, 70 immer getappt, 17 bedingt getappt); the public card data (commander-legal cards
-whose front face is a land, a separate figure) 1,153 of 1,153 (539, 449, 165). Chulane baseline: 8 of 36 lands always tapped (three bounce lands, three
+untapped. Measured on a QA store copy whose card data match the search land count above (134
+lands in the card facts, 1,231 land rows in the public card data): the card facts 134 of 134 get
+a class (47 ungetappt, 70 immer getappt, 17 bedingt getappt); the public card data, filtered to
+the 1,153 commander-legal lands (front face a land, distinct names; a separate figure), 1,153 of
+1,153 (539, 449, 165). Chulane baseline: 8 of 36 lands always tapped (three bounce lands, three
 temples, a tri-land, Path of Ancestry), 2 of 36 tapped unless the player controls two or more
 basic lands, 26 of 36 untapped (three of them search lands that fetch tapped).
 
 **Early colour access (stage 2).** Per colour with a coloured symbol in the list
 (`castability.colour_access`): the exact chance of at least one direct source of the colour in
-the 7-card opening hand (any class), and of at least one direct source that enters untapped among
+the 7-card opening hand (any class), and of at least one direct source ("direkt", a land with
+a colour of its own) that enters untapped among
 the 7 + T cards seen by turn T for T = 1 and 2 (non-starting player; the starting player reads
 the value one turn earlier). Assumption, stated in the code (`TAPPED_ACCESS_ASSUMPTION`) and on
 the page, in one sentence: an untapped land of the colour drawn by turn T is played as the land

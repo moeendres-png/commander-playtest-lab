@@ -843,7 +843,7 @@ def _tapped_zahlen(payload: Mapping[str, object], source: str) -> list[dict[str,
             _try(
                 out,
                 f"cast.access.{colour}.hand.{field}",
-                f"Starthand mit Quelle der Farbe {colour} ({label})",
+                f"Starthand mit direkter Quelle der Farbe {colour} ({label})",
                 _float_or_none(hand.get(field)),
                 klasse=EXAKT,
                 einheit="Anteil",
@@ -855,7 +855,8 @@ def _tapped_zahlen(payload: Mapping[str, object], source: str) -> list[dict[str,
                 _try(
                     out,
                     f"cast.access.{colour}.{turn.get('turn')}.{field}",
-                    f"Ungetappte Quelle der Farbe {colour} in Zug {turn.get('turn')} ({label})",
+                    f"Ungetappte direkte Quelle der Farbe {colour} in Zug {turn.get('turn')} "
+                    f"({label}, nur direkte Quellen)",
                     _float_or_none(turn.get(field)),
                     klasse=EXAKT,
                     einheit="Anteil",

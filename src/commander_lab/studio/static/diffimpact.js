@@ -51,13 +51,13 @@ function diffManabaseNodes(h, mb) {
   if (!mb) return [];
   const lists = mb.lists || {};
   const head = (labels) => h("thead", {}, h("tr", {}, ...labels.map((label, index) => h("th", index ? { class: "num" } : {}, label))));
+  // One cell per figure in the form of the colour table: "Basis → aktuell (Delta)".
+  const pair = (base, target, delta) => `${diffPct(base)} → ${diffPct(target)} (${diffPp(delta)})`;
   const reqRows = (mb.requirements || []).map((item) => {
     const only = item.in_base && item.in_target ? "" : (item.in_base ? " · nur in Basis" : " · nur aktuell");
     return h("tr", {},
       h("td", { class: "nowrap" }, item.label, ` Zug ${StudioUI.num(item.turn, 0)}`, only ? h("span", { class: "note" }, only) : ""),
-      h("td", { class: "num" }, diffPct(item.base.p_colours_given_lands)),
-      h("td", { class: "num" }, diffPct(item.target.p_colours_given_lands)),
-      diffPpCell(h, item.delta_pp.p_colours_given_lands),
+      h("td", { class: "num" + (item.delta_pp.p_colours_given_lands ? " changed" : "") }, pair(item.base.p_colours_given_lands, item.target.p_colours_given_lands, item.delta_pp.p_colours_given_lands)),
       diffPpCell(h, item.delta_pp.p_colours_given_lands_with_search),
       diffPpCell(h, item.delta_pp.p_on_curve));
   });
@@ -65,9 +65,9 @@ function diffManabaseNodes(h, mb) {
     h("p", { class: "note" }, `Basis: ${StudioUI.num(lists.base ? lists.base.lands : 0, 0)} Länder in ${StudioUI.num(lists.base ? lists.base.main_cards : 0, 0)} Karten; aktuell: ${StudioUI.num(lists.target ? lists.target.lands : 0, 0)} Länder in ${StudioUI.num(lists.target ? lists.target.main_cards : 0, 0)} Karten (ohne Commander). ${mb.assumptions.delta}`)];
   if (reqRows.length) {
     nodes.push(h("div", { class: "table-wrap" }, h("table", { id: "diff-manabase" },
-      head(["Anforderung", "Farben Basis*", "Farben aktuell*", "Delta Farben direkt", "Delta Farben mit Suchland", "Delta auf Kurve"]),
+      head(["Anforderung", "Farben direkt* (Basis → aktuell)", "Delta mit Suchland*", "Delta auf Kurve"]),
       h("tbody", {}, reqRows))),
-    h("p", { class: "note" }, "* Farben: Anteil mit den nötigen farbigen Quellen unter den Ziehungen mit genug Land-Drops bis zum Zug des Manawerts (direkt, Karsten 2022; jedes Farbsymbol braucht ein eigenes Land). „mit Suchland“ unter der Rechenannahme der Länderklassen. „Auf Kurve“ = Land-Drops und Farben zusammen."));
+    h("p", { class: "note" }, "* Farben: Anteil mit den nötigen farbigen Quellen unter den Ziehungen mit genug Land-Drops bis zum Zug des Manawerts (Karsten 2022; jedes Farbsymbol braucht ein eigenes Land). „mit Suchland“ unter der Rechenannahme der Länderklassen. „Auf Kurve“ = Land-Drops und Farben zusammen, direkt."));
   }
   const hand = mb.opening_hand;
   if (hand) nodes.push(h("p", { id: "diff-opening-hand" }, `Spielbare Starthand (${hand.rule}): ${diffPct(hand.base)} → ${diffPct(hand.target)} (${diffPp(hand.delta_pp)}).`));
@@ -75,16 +75,15 @@ function diffManabaseNodes(h, mb) {
   if (access.length) {
     const range = (low, high) => (low === null || low === undefined || high === null || high === undefined) ? "unbekannt" : (low === high ? diffPct(low) : `${diffPct(low)} – ${diffPct(high)}`);
     const rangePp = (low, high) => (low === null || low === undefined || high === null || high === undefined) ? "unbekannt" : (low === high ? diffPp(low) : `${diffPp(low)} / ${diffPp(high)}`);
+    const cell = (base, target, deltaLow, deltaHigh, lowKey, highKey) => h("td", { class: "num" },
+      `${range(base[lowKey], base[highKey])} → ${range(target[lowKey], target[highKey])} (${rangePp(deltaLow, deltaHigh)})`);
     nodes.push(h("div", { class: "table-wrap" }, h("table", { id: "diff-colour-access" },
-      head(["Farbe", "Starthand Basis → aktuell", "Delta Starthand", "ungetappt Zug 1 Basis → aktuell", "Delta Zug 1", "ungetappt Zug 2 Basis → aktuell", "Delta Zug 2"]),
+      head(["Farbe", "Starthand (Basis → aktuell)", "ungetappt direkt Zug 1", "ungetappt direkt Zug 2"]),
       h("tbody", {}, access.map((item) => h("tr", {},
         h("td", {}, h("span", { class: "ms ms-" + item.colour }, item.colour), item.in_base && item.in_target ? "" : h("span", { class: "note" }, item.in_base ? " nur in Basis gebraucht" : " nur aktuell gebraucht")),
-        h("td", { class: "num" }, `${range(item.base.hand, item.base.hand_high)} → ${range(item.target.hand, item.target.hand_high)}`),
-        h("td", { class: "num" }, rangePp(item.delta_pp.hand, item.delta_pp.hand_high)),
-        h("td", { class: "num" }, `${range(item.base.turn1_low, item.base.turn1_high)} → ${range(item.target.turn1_low, item.target.turn1_high)}`),
-        h("td", { class: "num" }, rangePp(item.delta_pp.turn1_low, item.delta_pp.turn1_high)),
-        h("td", { class: "num" }, `${range(item.base.turn2_low, item.base.turn2_high)} → ${range(item.target.turn2_low, item.target.turn2_high)}`),
-        h("td", { class: "num" }, rangePp(item.delta_pp.turn2_low, item.delta_pp.turn2_high))))))),
+        cell(item.base, item.target, item.delta_pp.hand, item.delta_pp.hand_high, "hand", "hand_high"),
+        cell(item.base, item.target, item.delta_pp.turn1_low, item.delta_pp.turn1_high, "turn1_low", "turn1_high"),
+        cell(item.base, item.target, item.delta_pp.turn2_low, item.delta_pp.turn2_high, "turn2_low", "turn2_high")))))),
     h("p", { class: "note" }, h("strong", {}, mb.assumptions.access), " ", mb.assumptions.access_rule, " Zwei Werte: untere / obere Grenze."));
   }
   const tapped = mb.tapped;
