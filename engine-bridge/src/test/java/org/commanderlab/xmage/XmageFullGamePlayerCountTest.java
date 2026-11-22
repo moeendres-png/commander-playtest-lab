@@ -11,14 +11,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * WS215 variable-player cardinality gate, R19-widened and R21-remediated:
- * the full-game lane supports exactly 2..6 Commander Free-for-All principals
+ * the full-game lane supports exactly 2..8 Commander Free-for-All principals
  * under one authoritative contract (R19 gates 2-6: bridge suites, live 6P
- * smoke + full gate with replay MATCH, XmageSixPlayerGateTest). Out-of-range
+ * smoke + full gate with replay MATCH, XmageSixPlayerGateTest; seven and
+ * eight seats since #1672, SIMULATE only, no replay claim). Out-of-range
  * construction fails closed at the session boundary before any deck
  * resolution or engine contact (no silent seat creation, no default
  * fourth player, no hidden dummies, no partial lifecycle). Every supported
- * count constructs with the exact seat/principal map. Seven players is the
- * preserved negative control above the supported range.
+ * count constructs with the exact seat/principal map. Nine players is the
+ * negative control above the supported range (seven was until #1672).
  */
 class XmageFullGamePlayerCountTest {
 
@@ -63,16 +64,34 @@ class XmageFullGamePlayerCountTest {
     }
 
     @Test
-    void sevenPlayerConstructionFailsClosed() {
+    void sevenAndEightPlayersPassCardinalityGate() {
+        // #1672: fails on the BEFORE bridge (MAX_PLAYERS 6), where 7 and 8 were refused.
+        for (int count : new int[]{7, 8}) {
+            XmageDeckImporter importer = new XmageDeckImporter();
+            List<String> handles = fakeHandles(count);
+            RuntimeException failure = assertThrows(
+                    RuntimeException.class,
+                    () -> new XmageFullGameSession(
+                            "ws215-" + count + "p", handles, 0, 40, 1L, importer)
+            );
+            assertTrue(
+                    !failure.getMessage().contains("FULL_GAME_INVALID_PLAYER_COUNT"),
+                    "supported count " + count + " must pass the cardinality gate"
+            );
+        }
+    }
+
+    @Test
+    void ninePlayerConstructionFailsClosed() {
         XmageDeckImporter importer = new XmageDeckImporter();
-        List<String> handles = new ArrayList<>(
-                List.of("d0", "d1", "d2", "d3", "d4", "d5", "d6"));
+        List<String> handles = fakeHandles(9);
         IllegalArgumentException failure = assertThrows(
                 IllegalArgumentException.class,
                 () -> new XmageFullGameSession(
-                        "ws215-7p", handles, 0, 40, 1L, importer)
+                        "ws215-9p", handles, 0, 40, 1L, importer)
         );
         assertTrue(failure.getMessage().contains("FULL_GAME_INVALID_PLAYER_COUNT"));
+        assertTrue(failure.getMessage().contains("(supported 2..8)"));
     }
 
     @Test
@@ -88,7 +107,7 @@ class XmageFullGamePlayerCountTest {
 
     @Test
     void supportedCountsConstructWithExactPlayerCount() {
-        for (int count : new int[]{2, 3, 4, 5, 6}) {
+        for (int count : new int[]{2, 3, 4, 5, 6, 7, 8}) {
             XmageDeckImporter importer = new XmageDeckImporter();
             List<String> handles = fakeHandles(count);
             // Fake handles fail at deck resolution (after the cardinality
@@ -106,9 +125,11 @@ class XmageFullGamePlayerCountTest {
     }
 
     @Test
-    void capabilityBoundsAreTwoToSix() {
+    void capabilityBoundsAreTwoToEight() {
         assertEquals(2, XmageFullGameSession.MIN_PLAYERS);
-        assertEquals(6, XmageFullGameSession.MAX_PLAYERS);
+        assertEquals(8, XmageFullGameSession.MAX_PLAYERS);
+        // the mid-game starting-state lane is not widened by #1672
+        assertEquals(6, XmageFullGameSession.MIDGAME_MAX_PLAYERS);
     }
 
     private static List<String> fakeHandles(int count) {

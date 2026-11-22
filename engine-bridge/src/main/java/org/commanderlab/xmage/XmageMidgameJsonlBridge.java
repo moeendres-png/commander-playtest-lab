@@ -1498,7 +1498,7 @@ final class XmageMidgameJsonlBridge {
         capabilities.addProperty("partner_supported", true);
         capabilities.addProperty("multiplayer_supported", true);
         capabilities.addProperty("min_players", XmageFullGameSession.MIN_PLAYERS);
-        capabilities.addProperty("max_players", XmageFullGameSession.MAX_PLAYERS);
+        capabilities.addProperty("max_players", XmageFullGameSession.MIDGAME_MAX_PLAYERS);
         capabilities.addProperty("headless_supported", true);
         capabilities.addProperty("seed_supported", true);
         capabilities.addProperty("deck_import_supported", true);
@@ -1568,7 +1568,7 @@ final class XmageMidgameJsonlBridge {
         lane.addProperty("decision_protocol_version",
                 XmageFullGameDecisionController.PROTOCOL_VERSION);
         lane.addProperty("min_players", XmageFullGameSession.MIN_PLAYERS);
-        lane.addProperty("max_players", XmageFullGameSession.MAX_PLAYERS);
+        lane.addProperty("max_players", XmageFullGameSession.MIDGAME_MAX_PLAYERS);
         lane.addProperty("evidence_class", XmageFullGameSession.EVIDENCE_CLASS);
         lane.addProperty("one_game_per_process", true);
         lane.addProperty("global_starting_state_injection_claimed", false);

@@ -475,14 +475,16 @@ def test_new_game_dialog_lists_follow_the_two_server_locks() -> None:
     js = (STATIC / "partie.js").read_text(encoding="utf-8")
     for name, lock in (
         ("OPPONENT_COUNTS_PLAY", launch.MAX_RELEASED_PLAY_SEATS),  # a game with a human seat
-        ("OPPONENT_COUNTS_AI", launch.MAX_RELEASED_SEATS),  # AI seats only: the SIMULATE lock
+        # AI seats only: the SIMULATE lock, on this page at most MAX_PARTIE_SEATS (#1672)
+        ("OPPONENT_COUNTS_AI", min(launch.MAX_RELEASED_SEATS, launch.MAX_PARTIE_SEATS)),
     ):
         declared = re.search(rf"const {name} = \[([0-9, ]+)\];", js)
         assert declared is not None, name
         counts = [int(n) for n in declared.group(1).split(",")]
         # N seats offer N - 1 opponents: from the smallest table to the lock, never above it
         assert counts == list(range(launch.MIN_SEATS - 1, lock)), name
-    assert f"const OPPONENT_COUNTS_MAX = {launch.MAX_SEATS - 1};" in js
+    assert f"const OPPONENT_COUNTS_MAX = {launch.MAX_PARTIE_SEATS - 1};" in js
+    assert launch.MAX_PARTIE_SEATS == 6 and launch.MAX_RELEASED_PLAY_SEATS <= launch.MAX_PARTIE_SEATS
     assert "OPPONENT_COUNTS_PLAY.map(" not in js and "[1, 2, 3, 4, 5].map" not in js
     assert "const OPPONENT_COUNTS = " not in js  # one list per path, no shared list
 

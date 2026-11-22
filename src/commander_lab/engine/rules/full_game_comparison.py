@@ -84,7 +84,8 @@ class DeckComparisonSpec(_StrictModel):
 
     comparison_id: str = Field(min_length=1)
     contenders: tuple[RulesDeckInput, ...] = Field(min_length=2)
-    opponents: tuple[RulesDeckInput, ...] = Field(min_length=1, max_length=5)
+    # 1..7 opponents: tables of 2 to 8 seats (7/8 since #1672, SIMULATE)
+    opponents: tuple[RulesDeckInput, ...] = Field(min_length=1, max_length=7)
     seeds: tuple[int, ...] = Field(min_length=1)
     rotate_seats: bool = True
     xmage_commit: str = Field(pattern=r"^[0-9a-f]{40}$")

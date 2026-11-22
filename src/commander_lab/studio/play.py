@@ -255,9 +255,9 @@ def snapshot_revision_id(deck: RulesDeckInput) -> str | None:
 
 
 def load_decks(paths: list[Path]) -> tuple[RulesDeckInput, ...]:
-    """Deck snapshots in seat order. Two to six decks, each with its own id."""
-    if not 2 <= len(paths) <= 6:
-        raise ValueError("a game has two to six seats")
+    """Deck snapshots in seat order. Two to eight decks (#1672), each with its own id."""
+    if not 2 <= len(paths) <= 8:
+        raise ValueError("a game has two to eight seats")
     decks = tuple(_with_hash(load_rules_deck_snapshot(path)) for path in paths)
     if len({deck.deck_id for deck in decks}) != len(decks):
         raise ValueError("every seat needs its own deck (distinct deck ids)")

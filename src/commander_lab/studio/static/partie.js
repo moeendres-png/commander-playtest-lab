@@ -7,12 +7,14 @@ const STEPS = { untap: "Enttappen", upkeep: "Versorgung", draw: "Ziehen", precom
 const CLASSES = { priority: "Aktion", mana_payment: "Mana zahlen", choose_object: "Auswahl", choose_use: "Ja oder Nein", target: "Ziel", declare_attacker: "Angriff", declare_blocker: "Block", mulligan: "Mulligan", choice: "Wahl", trigger_order: "Reihenfolge", announce_x: "Wert für X", amount: "Anzahl", multi_amount: "Verteilung", mode: "Modus", pile: "Stapelwahl", target_amount: "Zielmenge", replacement_effect: "Ersatzeffekt", order: "Reihenfolge" };
 // Table sizes the new-game dialog offers, as numbers of opponents. Two locks, as on the server:
 // a game with a human seat follows launch.MAX_RELEASED_PLAY_SEATS, a game of AI seats only follows
-// launch.MAX_RELEASED_SEATS (the SIMULATE lock, like the series dialog in paired.js). A size above its lock
-// is not offered and the dialog says so; the server refuses it too. Five and six seats are released
-// (conditional Owner go of 2026-11-22, register E16); a guard test keeps both lists equal to the server locks.
+// launch.MAX_RELEASED_SEATS (the SIMULATE lock, like the series dialog in paired.js), but on this page only
+// up to launch.MAX_PARTIE_SEATS (six: the board ends there; seven and eight seats, E17 #1672, run as series
+// only). A size above its lock is not offered and the dialog says so; the server refuses it too. Five and
+// six seats are released (conditional Owner go of 2026-11-22, register E16); a guard test keeps both lists
+// equal to the server locks.
 const OPPONENT_COUNTS_PLAY = [1, 2, 3, 4, 5];
 const OPPONENT_COUNTS_AI = [1, 2, 3, 4, 5];
-const OPPONENT_COUNTS_MAX = 5; // six seats: the engine maximum
+const OPPONENT_COUNTS_MAX = 5; // six seats: the most this page shows (launch.MAX_PARTIE_SEATS)
 
 const DEFAULT_AI_DELAY_MS = 250;
 const SPEEDS = [[2000, "langsam"], [1000, "1 pro Sekunde"], [500, "2 pro Sekunde"], [250, "250 ms (sichtbare KI-Schritte)"], [120, "8 pro Sekunde"], [50, "sehr schnell"], [0, "ohne Pause"]];

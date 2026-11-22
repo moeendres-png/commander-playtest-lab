@@ -120,10 +120,43 @@ POOL_REFERENCE_PART_B: dict[int, dict[str, object]] = {
 #: Assumed block correlation of the seat rotations of one seed, as in ``power_table`` (#1043).
 PLANNING_BLOCK_CORRELATION = 0.25
 PLANNING_REFERENCE_EFFECT_PP = 5.0
-#: Tables whose plan uses the base win rate 1/N of N equally strong seats (#1661): five and six
-#: seats. Four seats keep the engine lane's 0.63 (built on 25 % = 1/4) byte for byte; two and
-#: three seats also keep it (their 1/N lies above 25 %, a pre-existing gap not changed here).
-BASELINE_PLAN_SEATS = (5, 6)
+#: Tables whose plan uses the base win rate 1/N of N equally strong seats (#1661, #1672): five to
+#: eight seats (1/7 = 14.3 %, 1/8 = 12.5 %). Four seats keep the engine lane's 0.63 (built on
+#: 25 % = 1/4) byte for byte; two and three seats also keep it (their 1/N lies above 25 %, a
+#: pre-existing gap not changed here).
+BASELINE_PLAN_SEATS = (5, 6, 7, 8)
+#: Seven and eight seats (#1672): no throughput and no wall-time ratio is measured on the Owner PC,
+#: so the duration of a series stays UNKNOWN. What exists is one game per JVM in the cloud container
+#: of the feasibility run (research branch ``research/seats-7-8-1672``, report
+#: docs/analysis-reports/seats_7_8_feasibility_20261122.md, table A7/A8, seeds 1-6, foreign load,
+#: no AppCDS, -Xmx3g, SIMULATED_RESULT, never 4P/6P evidence): per game median wall time
+#: (min-max), JVM peak RSS median and maximum, n/N finished games. Shown as a reference beside the
+#: plan, never used as a rate; memory with several games per JVM is UNKNOWN (n = 0).
+SINGLE_GAME_REFERENCE_7_8: dict[int, dict[str, object]] = {
+    7: {
+        "wall_seconds_median": 87.0,
+        "wall_seconds_range": (46.1, 102.3),
+        "rss_mib_median": 955,
+        "rss_mib_max": 1343,
+        "decisions_median": 9760,
+        "games": 6,
+        "planned": 6,
+    },
+    8: {
+        "wall_seconds_median": 98.8,
+        "wall_seconds_range": (65.7, 121.9),
+        "rss_mib_median": 945,
+        "rss_mib_max": 1006,
+        "decisions_median": 10314,
+        "games": 6,
+        "planned": 6,
+    },
+}
+SINGLE_GAME_REFERENCE_7_8_SOURCE = (
+    "Machbarkeitsversuch 7/8 Sitze (#1672, docs/analysis-reports/seats_7_8_feasibility_20261122.md "
+    "auf dem Forschungs-Branch): Cloud-Container mit Fremdlast, eine JVM je Partie, -Xmx3g, ohne "
+    "AppCDS, Tisch A7/A8, Seeds 1 bis 6, SIMULATED_RESULT, kein Owner-PC-Wert"
+)
 #: The precision a single win share is planned for: +-20 % of the base win rate (relative).
 WILSON_RELATIVE_PRECISION = 0.20
 _SD_AT_QUARTER = math.sqrt(2 * 0.25 * 0.75)
@@ -422,6 +455,22 @@ def table_plan(
     }
 
 
+def single_game_reference_text(size: int) -> str:
+    """The warning of a table of seven or eight seats (#1672): duration and memory of one game in
+    the container of the feasibility run, with n/N and origin; no Owner-PC value, no rate."""
+    ref = SINGLE_GAME_REFERENCE_7_8[int(size)]
+    low, high = cast(tuple[float, float], ref["wall_seconds_range"])
+    return (
+        f"Hinweis {size} Sitze: eine Partie dauerte im Median {_de(float(cast(float, ref['wall_seconds_median'])), 1)} s "
+        f"({_de(low, 1)} bis {_de(high, 1)} s) bei etwa {ref['decisions_median']} Entscheidungen, "
+        f"Spitzen-Speicher der Engine (RSS) im Median {ref['rss_mib_median']} MiB, höchstens "
+        f"{ref['rss_mib_max']} MiB (n = {ref['games']}/{ref['planned']} Partien; "
+        f"{SINGLE_GAME_REFERENCE_7_8_SOURCE}). Speicher bei mehreren Partien je JVM ist "
+        "unbekannt (n = 0): wenige Worker wählen und den freien Arbeitsspeicher prüfen (je Worker "
+        "eine JVM mit bis zu 3 GB Heap)."
+    )
+
+
 def estimate_series_duration(
     budget_pairs: int,
     *,
@@ -496,6 +545,9 @@ def estimate_series_duration(
             f"Der Aufwand ist die Zahl der Partien: bis zu {max_games} "
             f"({pairs} je Arm), 2 Partien je Paar."
         )
+    reference = SINGLE_GAME_REFERENCE_7_8.get(size)
+    if reference is not None:
+        basis += " " + single_game_reference_text(size)
     payload: dict[str, object] = {
         "budget_pairs": int(budget_pairs),
         "table_size": size,
@@ -511,6 +563,15 @@ def estimate_series_duration(
         "wall_ratio_seed_pair_median": WALL_RATIO_SEED_PAIR_MEDIAN.get(size),
         "wall_ratio_table_b_vs_a4": WALL_RATIO_TABLE_B_VS_A4.get(size),
         "pool_reference_part_b": dict(pool_ref) if pool_ref is not None else None,
+        "single_game_reference": (
+            {
+                **{k: list(v) if isinstance(v, tuple) else v for k, v in reference.items()},
+                "source": SINGLE_GAME_REFERENCE_7_8_SOURCE,
+                "multi_game_jvm_memory_known": False,
+            }
+            if reference is not None
+            else None
+        ),
         "minimum_seconds": seconds if floor else None,
         "minimum_minutes": minutes if floor else None,
         "minimum_is_lower_bound": floor_holds and floor,

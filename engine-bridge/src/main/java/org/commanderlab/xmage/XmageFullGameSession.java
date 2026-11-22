@@ -38,9 +38,18 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 final class XmageFullGameSession {
 
-    /** WS215 variable-player contract, R19 widened: Commander tables for 2..6 principals. */
+    /**
+     * WS215 variable-player contract, R19 widened: Commander tables for 2..8 principals.
+     * Seven and eight seats since #1672 (Owner instruction 2026-11-22, SIMULATE only; the
+     * Studio's seat locks decide what is released, this is only what the bridge can seat).
+     */
     static final int MIN_PLAYERS = 2;
-    static final int MAX_PLAYERS = 6;
+    static final int MAX_PLAYERS = 8;
+    /**
+     * The mid-game native starting-state lane (restoration plans, its capability handshake)
+     * keeps 2..6 principals: #1672 widens only the full-game lane.
+     */
+    static final int MIDGAME_MAX_PLAYERS = 6;
     static final String EVIDENCE_CLASS = "technical_conformance_only";
 
     private final String protocolGameId;

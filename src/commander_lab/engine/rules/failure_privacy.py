@@ -82,7 +82,7 @@ _PUBLIC_CONFIGURATION_ERRORS = frozenset(
         "stop_at_turn must be positive",
         "full-game bridge command must not be empty",
         "full-game bridge command must explicitly include the full-game subcommand",
-        "full-game policy requires two to six pilot bindings",
+        "full-game policy requires two to eight pilot bindings",
     }
 )
 
