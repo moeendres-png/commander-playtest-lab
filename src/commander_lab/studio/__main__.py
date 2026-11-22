@@ -96,8 +96,9 @@ def _parser() -> argparse.ArgumentParser:
     )
     tam_price_cmd = commands.add_parser(
         "import-tam-prices",
-        help="TAM purchase guide values (#1637): only the field prices.eur of a local Scryfall "
-        "bulk file, into the local store only (never committed); nothing is requested",
+        help="TAM purchase approximations (#1637): only the fields prices.eur, prices.eur_foil "
+        "and cardmarket_id of a local Scryfall bulk file, into the local store only (never "
+        "committed); nothing is requested",
     )
     tam_price_cmd.add_argument("path", help="Scryfall bulk file or folder of its .jsonl parts")
     tam_price_cmd.add_argument(

@@ -155,8 +155,9 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
         allowed_retrieval_method=(
             "Bulk GET (daily manifest, conditional ETag requests; generic User-Agent and Accept "
             "headers required; strip price fields on write into scryfall_card; only for the TAM "
-            "purchase view (#1637) the field prices.eur of a local bulk file goes into the local "
-            "store table tam_price_eur, never committed; no single-card polling loop)."
+            "purchase view (#1637) the fields prices.eur, prices.eur_foil and cardmarket_id of a "
+            "local bulk file go into the local store table tam_price_eur and its companion "
+            "table, never committed; no single-card polling loop)."
         ),
         reproducibility="DETERMINISTIC_OFFLINE_SNAPSHOT",
         bias_risks=(
