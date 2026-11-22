@@ -301,6 +301,16 @@ def test_cluster_bootstrap_resamples_chunks_not_only_cards() -> None:
     assert cl[0] < 0 < cl[1]  # the cluster interval includes 0
     res = ev.spells_test(dict(enumerate(clusters, 1)), [], draws=500)
     assert res["verdict"] == "nicht bestaetigt"
+    # b <= -3 and 6 of 7 chunks below 0, but one chunk carries the bias: the cluster interval
+    # reaches above 0 ("nicht bestaetigt"); a card bootstrap would wrongly say "bestaetigt"
+    carried = {
+        k: [mu + (i % 3) - 1 for i in range(39)]
+        for k, mu in enumerate([-25, -1, -1, -1, -1, -1, 5], 1)
+    }
+    r = ev.spells_test(carried, [], draws=500)
+    assert r["b_W2"] == pytest.approx(-25 / 7) and r["chunks_negative"] == 6
+    assert r["ci95_card_descriptive"][1] < 0 <= r["ci95_cluster"][1]
+    assert r["verdict"] == "nicht bestaetigt"
 
 
 def test_cluster_bootstrap_is_deterministic() -> None:
@@ -760,6 +770,9 @@ def test_format_gaps_are_only_counted(lab: Lab) -> None:
     lab.overrides[oid("c", 1, 3)] = {
         "scores": {"E": 65, "F": 65, "T": 65, "R": 65, "K": 65, "D": 65, "H": 40}
     }
+    lab.overrides[oid("c", 1, 4)] = {
+        "scores": {"E": 20, "F": 20, "T": 20, "R": 20, "K": 20, "D": 20, "H": 45}
+    }  # 45 - 20 = 25 above the mean: not more than 25
     lab.build()
     res, pooled = lab.run()
     fl = res["chargen"]["1"]["formatluecken_H_gt25_vom_mittel"]
