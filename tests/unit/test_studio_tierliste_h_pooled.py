@@ -372,6 +372,20 @@ def test_the_card_detail_names_both_runs_and_keeps_the_other_criteria_on_run_1()
     assert detail["streuung"] == understanding_field.SPREAD
 
 
+def test_the_card_detail_falls_back_to_run_1_without_the_pooled_file(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(card_understanding, "POOLED_PATH", tmp_path / "missing.jsonl")
+    detail = _real_detail("Veil of Summer")
+    criteria = {c["kriterium"]: c["zahl"] for c in detail["kriterien"]}
+    assert criteria["H"]["wert"] == 20.0  # H_F1, never 0 and never a stale mean
+    ratings = detail["bewertungen"]
+    assert ratings["verfuegbar"] is False and "nicht gefunden" in ratings["grund"]
+    assert ratings["text"].startswith("nur Lauf 1: H aus Lauf 1 (F1)")
+    assert "Mittel der zwei" not in ratings["text"]
+    assert ratings["karte"]["kurz"] == "nur Lauf 1" and ratings["laeufe"][1]["n"] is None
+
+
 def test_the_card_window_shows_the_count_both_raw_values_and_the_mark() -> None:
     veil = _real_detail("Veil of Summer")
     calm = _real_detail("Solemn Simulacrum")  # 70 and 70: no mark

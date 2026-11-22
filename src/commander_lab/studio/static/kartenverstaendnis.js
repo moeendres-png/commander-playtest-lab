@@ -74,7 +74,7 @@ const StudioKartenverstaendnis = (() => {
     out.append(h("p", { class: "understanding-note" }, `${detail.hinweis || "Modellurteil, keine Spielstärke"}.`));
     if (detail.verfuegbar !== true) { out.append(h("p", {}, `${NAME} nicht verfügbar: ${detail.grund || "kein Grund geliefert"}.`)); return out; }
     const origin = detail.herkunft || {};
-    const tier = origin.rater_tier ? `, Modell-Rater Stufe ${origin.rater_tier}, ${origin.raters === 1 ? "1 Bewerter" : `${num(origin.raters)} Bewerter`}` : "";
+    const tier = origin.rater_tier ? `, Modell-Rater Stufe ${origin.rater_tier}, ${origin.raters === 1 ? "1 Bewerter" : `${num(origin.raters)} Bewerter`}${detail.bewertungen ? ", Lauf 1 (F1)" : ""}` : "";
     out.append(h("p", { class: "understanding-origin" }, `Quelle: Rubrik ${origin.version || UNKNOWN} (${origin.rubric || UNKNOWN})${tier} · Kohorte: ${detail.kohorte || UNKNOWN}`));
     if (detail.bewertet !== true) out.append(h("p", { class: "understanding-unrated" }, "Diese Karte ist im Datensatz nicht bewertet: alle sieben Kriterien sind unbekannt, nicht 0."));
     else out.append(...ratingNodes(h, detail.bewertungen));

@@ -889,7 +889,11 @@ def card_detail(
             "verfuegbar": pooled_rows is not None,
             "grund": pooled_reason,
             "quelle": card_understanding.POOLED_SOURCE,
-            "text": RATINGS_TEXT,
+            "text": (
+                RATINGS_TEXT
+                if pooled_rows is not None
+                else f"{FALLBACK_SHORT}: H aus {RUN_1} ({pooled_reason})"
+            ),
             "laeufe": _runs(rows, pooled_rows),
             "karte": rating,
             "schwelle_abweichung": card_understanding.DEVIATION_MARK,
