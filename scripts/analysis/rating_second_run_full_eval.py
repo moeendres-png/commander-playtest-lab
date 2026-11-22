@@ -460,28 +460,38 @@ def d_stats(ds: Sequence[float]) -> dict[str, Any]:
     }
 
 
-def _boot_fns() -> dict[str, Callable[[list[Any]], float]]:
-    def f(key: str) -> Callable[[list[Any]], float]:
-        def g(sample: list[Any]) -> float:
-            v = d_stats([float(x) for x in sample]).get(key)
-            return float("nan") if v is None else float(v)
+D_KEYS = ("b", "sd", "rms", "mean_abs", "share_ge15", "sigma1", "sigma1_rms", "se_pooled")
+ICC_KEYS = ("icc21", "icc22", "icc31", "spearman_brown", "spearman")
 
-        return g
 
-    return {
-        k: f(k)
-        for k in ("b", "sd", "rms", "mean_abs", "share_ge15", "sigma1", "sigma1_rms", "se_pooled")
-    }
+def bootstrap_multi(
+    groups: Sequence[Sequence[Any]],
+    fn: Callable[[list[Any]], Mapping[str, Any]],
+    keys: Sequence[str],
+    draws: int,
+    seed: int = SEED,
+) -> dict[str, list[float | None]]:
+    """Same resampling as the wave-1 ``bootstrap`` (cards within each group, fresh seeded generator),
+    but every statistic of one draw comes from one call of ``fn``."""
+    rng = random.Random(seed)
+    acc: dict[str, list[float]] = {k: [] for k in keys}
+    for _ in range(draws):
+        sample: list[Any] = []
+        for g in groups:
+            sample.extend(rng.choices(g, k=len(g)))
+        res = fn(sample)
+        for k in keys:
+            v = res.get(k)
+            acc[k].append(float("nan") if v is None else float(v))
+    return {k: interval(v) for k, v in acc.items()}
 
 
 def stratified_d(groups: Sequence[Sequence[float]], draws: int) -> dict[str, Any]:
     """d statistics with a card bootstrap within strata (wave x stratum), fresh seeded generator."""
     flat = [x for g in groups for x in g]
     out = d_stats(flat)
-    nonempty = [list(g) for g in groups if g]
     if len(flat) > 1:
-        ci = w1.bootstrap(nonempty, _boot_fns(), draws=draws, seed=SEED)
-        out["ci95"] = {k: [None if math.isnan(x) else x for x in v] for k, v in ci.items()}
+        out["ci95"] = bootstrap_multi([list(g) for g in groups if g], d_stats, D_KEYS, draws)
     return out
 
 
@@ -520,12 +530,7 @@ def icc_block(groups: Sequence[Sequence[tuple[float, float]]], draws: int) -> di
     flat = [p for g in groups for p in g]
     out: dict[str, Any] = {"n": len(flat), **icc_set(flat)}
     if len(flat) >= 3:
-        fns = {
-            k: (lambda key: lambda s: icc_set(s)[key])(k)
-            for k in ("icc21", "icc22", "icc31", "spearman_brown", "spearman")
-        }
-        ci = w1.bootstrap([list(g) for g in groups if g], fns, draws=draws, seed=SEED)
-        out["ci95"] = {k: [None if math.isnan(x) else x for x in v] for k, v in ci.items()}
+        out["ci95"] = bootstrap_multi([list(g) for g in groups if g], icc_set, ICC_KEYS, draws)
     return out
 
 
@@ -842,8 +847,10 @@ def analyse(
     g1_path: Path,
     f2_path: Path,
     tier_rule: Mapping[str, Any] | None,
-    draws: int = DRAWS,
+    draws: int | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Stage 2. ``draws`` is only for tests; the command line always uses the plan's 5000."""
+    draws = DRAWS if draws is None else draws
     # ---- stage-1 gate: hits recomputed and classified before any difference
     hits_bytes, hits, chunks, frozen = run_hits(
         manifest_path, rater_dir, checksums_path, final_replies

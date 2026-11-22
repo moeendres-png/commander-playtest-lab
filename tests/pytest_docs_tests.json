@@ -27,6 +27,7 @@
   "tests/unit/test_phase12_4_packages.py",
   "tests/unit/test_pilot_decision_records.py",
   "tests/unit/test_pytest_shards.py",
+  "tests/unit/test_rating_second_run_full_eval.py",
   "tests/unit/test_rating_second_run_full_inputs.py",
   "tests/unit/test_release_workflow_contract.py",
   "tests/unit/test_repository_tree_guard.py",
