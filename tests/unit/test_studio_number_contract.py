@@ -585,7 +585,12 @@ def test_castability_route_sends_exact_contracts_for_every_probability(tmp_path:
     # commander: land drops, colours and on curve, each direkt, plus two mit Suchland (WP-3)
     commanders = [item for item in body["commander"] if item["known"]]
     assert len(commanders) == 1
-    assert len(zahlen) == 3 * len(body["requirements"]) + 1 + 5 * len(commanders) + 2 * role_hands
+    # WP-4: four tapped classes, and per needed colour the opening hand and turns 1 and 2,
+    # each as a lower and an upper bound
+    colours = len(body["colour_access"]["colours"])
+    assert len(zahlen) == (
+        3 * len(body["requirements"]) + 1 + 5 * len(commanders) + 2 * role_hands + 4 + 6 * colours
+    )
     search = [item for item in zahlen if item["id"].endswith("_with_search")]
     assert len(search) == len(body["requirements"]) + 2
     for item in search:

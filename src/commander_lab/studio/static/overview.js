@@ -1,6 +1,6 @@
 "use strict";
 // Single-page deck state overview (#1404 option 9): curve vs cohort, lands & sources vs
-// colour pips & castability, role coverage on both sides, bracket check, data gaps,
+// colour pips & castability (with the tapped land classes, WP-4), role coverage on both sides, bracket check, data gaps,
 // data freshness, and simulator readiness — strictly descriptive counts with denominators
 // and provenance, zero total score, zero verdict, CSP-safe DOM creation via h().
 
@@ -104,6 +104,11 @@ function _buildOverviewNodes(data, deps, options = {}) {
         ? `Commander ${cmd.name} (${cmd.mana_cost}) auf Kurve Zug ${StudioUI.num(cmd.turn, 0)}: ${_ovPct(cmd.p_on_curve)} direkt (Land-Drops ${_ovPct(cmd.p_land_drops)} × Farben ${_ovPct(cmd.p_colours_given_lands)}), mit Suchland ${_ovPct(cmd.with_search && cmd.with_search.p_on_curve)}; aus der Kommandozone, ohne Commander-Steuer.`
         : `Commander ${cmd.name}: auf Kurve unbekannt (${cmd.reason}).`));
     });
+    if (castData.tapped && castData.tapped.of) {
+      const tc = castData.tapped.counts || {};
+      const of = StudioUI.num(castData.tapped.of, 0);
+      manaChildren.push(h("p", { class: "note overview-tapped" }, `Getappte Länder (laut Regeltext): immer ${StudioUI.num(tc.immer_getappt || 0, 0)} von ${of}, bedingt ${StudioUI.num(tc.bedingt_getappt || 0, 0)} von ${of}, Klasse unbekannt ${StudioUI.num(tc.unbekannt || 0, 0)} von ${of}; Zitate und Farbzugriff Zug 1/2 im Tab Zahlen.`));
+    }
     const reqs = (castData.requirements || []).slice(0, 8);
     if (reqs.length) {
       manaChildren.push(h("div", { class: "table-wrap" },
