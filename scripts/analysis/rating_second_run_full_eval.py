@@ -42,7 +42,20 @@ names). Every key is optional; a missing key takes the STRICT consequence named 
                      "a2_verstoesse_frueher": int,           # earlier moved-away violations
                      "abbrueche_a7": int, "nachlauf_a1": bool}}}
 
-Classification input (``--classification``, JSON):
+A run-log key that is missing is read strictly: ``a2_verstoesse_frueher`` is REQUIRED for a
+chunk whose output name appears more than once in the checksum list (otherwise the script
+refuses); ``abbrueche_a7`` missing is reported as "unbekannt", never 0.
+
+  claims Plan section 9: the rule-claim sample (``random.Random(20261125)``, 50 claims from wave 2
+         and 50 from F1 for other wave-2 cards, at most one per card, mixed). Writes a blind list
+         (card, chunk, field, claim, card block; no score, no origin) and a separate key. ``eval``
+         recomputes the same sample and grades it per origin from ``--claim-verdicts``.
+
+Final replies: ``eval`` refuses unless the final reply of every chunk with a frozen output was
+given to ``hits`` (``--final-replies``); the hits file records which chunks were scanned.
+
+Classification input (``--classification``, JSON; ``eval`` also needs ``--classification-sha256``,
+the SHA-256 of that file as posted in #1404, so no unposted classification can run):
   {"hits_sha256": "<sha256 of the hits output file>", "github_kommentar": "<#1404 comment>",
    "einstufung": {"<hit id>": {"zaehlt": bool, "buchstabe": "a"|"b"|"c"|null}}}
 ``zaehlt: false`` needs a letter a to c; ``zaehlt: true`` has none.
@@ -103,6 +116,23 @@ WAVE1_OUTPUT_SHA256 = {
     "rr_output_2.jsonl": "156cb4fd0a1ec80ae8172a5fef49fab503a955b607bad4db9d403ed02568fe0a",
     "rr_output_3.jsonl": "4d09a087521abc5c04bb3c42e305fff8aaea6015b3b9cdf47a28e3151fdce8f4",
 }
+# SHA-256 of the fixed reference inputs (repository state of PR #1761 / report #1758), by role.
+# F1 and the wave-1 inputs and manifest are named in the wave-1 report; G1, F2 and the wave-2
+# manifest are the committed files the plan refers to. A different file is refused.
+REFERENCE_SHA256 = {
+    "manifest": "bac9fb03c2318f225c411848ee8da29cf498ae40930621a7a5e3ed7472e3a41d",
+    "f1": "eb81d9c35be9dedf1448b2b1c3bd2d46d51c6b62ca15fc73b28bd2309ab6aa12",
+    "g1": "a95cb14c450c6034fca2d0bb31145d74feef48e221695a68723a45c8a1ab296f",
+    "f2": "c870fae31b9cbb8ec23b85fcf209784fbdf32df0403bf20c5e5f4f9b962a6417",
+    "wave1_manifest": "c6b22bdc8336b9ce761d52a24ea5c1c00db72a0aa17ddf075307554c571a0302",
+    "wave1_input_1": "e7024b5545ccfe5f8c9980f1822888d0cddf1a6b31f32284bb3c8d2d4e32d07f",
+    "wave1_input_2": "95661051fb4bb713da8b5797e8a293ac1236fadb64e425c21e354421d09415d4",
+    "wave1_input_3": "4b0d282e72f51db2d588f35c8567f48d6cb566aeadd3ae3190d8f409cb642c45",
+}
+SEED_CLAIMS = 20261125  # plan section 9, rule-claim sample
+CLAIMS_PER_ORIGIN = 50
+CLAIM_GREEN_MAX = 2  # green: at most 2 of 50 obviously wrong
+CLAIM_RED_MIN = 5  # red: at least 5 of 50
 WAVE1_STRATUM = {"flagged": "flagged", "top20": "top20", "rest": "rest", "rest_fill": "rest", "land": "land"}  # fmt: skip
 NON_ANCHOR_SPELL_STRATA = ("top20", "rest")
 
@@ -173,16 +203,18 @@ def interval(values: Sequence[float]) -> list[float | None]:
 # ---------------------------------------------------------------- freeze guard
 
 
-def parse_checksums(text: str) -> dict[str, set[str]]:
-    """``sha256sum`` lines (``<hex>  <name>`` or ``<hex> *<name>``); several hashes per name allowed."""
-    out: dict[str, set[str]] = {}
+def parse_checksums(text: str) -> dict[str, list[str]]:
+    """``sha256sum`` lines (``<hex>  <name>`` or ``<hex> *<name>``) in list order. Several hashes per
+    name are allowed (an output frozen again after an A1/A7 resume or an A2 repeat); only the LAST
+    one counts, so a moved-away earlier version cannot be put back."""
+    out: dict[str, list[str]] = {}
     for line in text.splitlines():
         if not line.strip():
             continue
         m = re.fullmatch(r"([0-9a-fA-F]{64}) [ *](.+)", line.strip())
         if not m:
             raise RefusedError(f"checksum line not in sha256sum format: {line!r}")
-        out.setdefault(Path(m.group(2).strip()).name, set()).add(m.group(1).lower())
+        out.setdefault(Path(m.group(2).strip()).name, []).append(m.group(1).lower())
     return out
 
 
@@ -190,7 +222,7 @@ def output_path(rater_dir: Path, k: int) -> Path:
     return rater_dir / f"rr2_output_{k}.jsonl"
 
 
-def freeze_guard(rater_dir: Path, checksums: Mapping[str, set[str]]) -> dict[int, str]:
+def freeze_guard(rater_dir: Path, checksums: Mapping[str, Sequence[str]]) -> dict[int, str]:
     """SHA-256 of every present wave-2 output, each checked against the frozen list (plan section 9,
     steps 3 and 5). Raises before any output line is parsed."""
     frozen: dict[int, str] = {}
@@ -205,8 +237,8 @@ def freeze_guard(rater_dir: Path, checksums: Mapping[str, set[str]]) -> dict[int
         digest = sha256_file(path)
         if not listed:
             problems.append(f"{path.name}: present but not frozen (not in the checksum list)")
-        elif digest not in listed:
-            problems.append(f"{path.name}: SHA-256 {digest} differs from the frozen list")
+        elif digest != listed[-1]:
+            problems.append(f"{path.name}: SHA-256 {digest} differs from the last frozen hash")
         else:
             frozen[k] = digest
     unknown = sorted(set(checksums) - {output_path(rater_dir, k).name for k in ALL_CHUNKS})
@@ -235,6 +267,14 @@ def verify_rater_inputs(manifest: Mapping[str, Any], rater_dir: Path) -> dict[st
     if problems:
         raise RefusedError("rater inputs differ from the manifest: " + "; ".join(problems))
     return hashes
+
+
+def verify_reference(path: Path, role: str) -> str:
+    """A fixed reference input must be the committed file (pinned SHA-256)."""
+    digest = sha256_file(path) if path.exists() else "missing"
+    if digest != REFERENCE_SHA256[role]:
+        raise RefusedError(f"{role} {path.name}: {digest} != pinned {REFERENCE_SHA256[role]}")
+    return digest
 
 
 def verify_wave1_outputs(wave1_dir: Path) -> dict[str, str]:
@@ -317,27 +357,44 @@ def sentence_at(text: str, pos: int) -> str:
 
 
 def rater_fields(row: Mapping[str, Any]) -> list[tuple[str, str]]:
-    """Only the rater's own output fields (plan section 9): notes, reason, uncertainty, claim."""
+    """The rater's own output fields (plan section 9): notes, reason, uncertainty, claim. A field in
+    an unexpected form is scanned as its whole text (``notes`` as a string, a claim entry that is
+    no object, ``rule_claims`` that is no list), and so is every top-level key outside the schema;
+    only ``rule_claims[].quote`` of a well-formed claim is never scanned."""
     out: list[tuple[str, str]] = []
     notes = row.get("notes")
     if isinstance(notes, Mapping):
         out += [(f"notes.{k}", str(v)) for k, v in sorted(notes.items(), key=lambda kv: str(kv[0]))]
+    elif "notes" in row:
+        out.append(("notes", str(notes)))
     for key in ("reason", "uncertainty"):
         if key in row:
             out.append((key, str(row[key])))
     claims = row.get("rule_claims")
     if isinstance(claims, list):
         for i, c in enumerate(claims):
-            if isinstance(c, Mapping) and "claim" in c:
-                out.append((f"rule_claims[{i}].claim", str(c["claim"])))
+            if isinstance(c, Mapping):
+                if "claim" in c:
+                    out.append((f"rule_claims[{i}].claim", str(c["claim"])))
+                for extra in sorted(
+                    str(x) for x in c if x not in ("quote", "claim", "interaction", "basis")
+                ):
+                    out.append((f"rule_claims[{i}].{extra}", str(c[extra])))
+            else:
+                out.append((f"rule_claims[{i}]", str(c)))
+    elif "rule_claims" in row:
+        out.append(("rule_claims", str(claims)))
+    for extra in sorted(str(x) for x in row if x not in w1.TOP_KEYS):
+        out.append((f"zusatzfeld.{extra}", str(row[extra])))
     return out
 
 
 def find_hits(
     chunks: Mapping[int, Mapping[str, Any]], final_replies: Mapping[str, str]
 ) -> list[dict[str, Any]]:
-    """Every match of the reference list, one hit per match. A line that does not parse is scanned
-    as raw text with score fields blanked out (field ``rohzeile``)."""
+    """Every match of the reference list, one hit per match. A line that does not parse, and every
+    parsed line that is not valid (plan section 3), is also scanned as raw text with score fields
+    blanked out (field ``rohzeile``), so no form error can hide a reference."""
     hits: list[dict[str, Any]] = []
 
     def add(k: int, seq: int, card: str, oid: str, field: str, text: str) -> None:
@@ -355,7 +412,7 @@ def find_hits(
             if r["row"] is not None:
                 for field, text in rater_fields(r["row"]):
                     add(k, r["seq"], r["name"], r["oracle_id"], field, text)
-            elif r["line"] is not None:
+            if r["line"] is not None and (r["row"] is None or r["problems"]):
                 add(
                     k,
                     r["seq"],
@@ -370,9 +427,14 @@ def find_hits(
     return hits
 
 
-def render_hits(hits: Sequence[Mapping[str, Any]], frozen: Mapping[int, str]) -> bytes:
+def render_hits(
+    hits: Sequence[Mapping[str, Any]], frozen: Mapping[int, str], final_replies: Mapping[str, str]
+) -> bytes:
     per_chunk = Counter(h["charge"] for h in hits)
     doc = {
+        "schlussantwort_gescannt": {
+            str(k): bool(final_replies.get(str(k), "").strip()) for k in sorted(frozen)
+        },
         "schema": SCHEMA_HITS,
         "regex": EARLIER.pattern,
         "felder": "notes (alle sieben), reason, uncertainty, rule_claims[].claim, Schlussantwort; nie quote",
@@ -423,6 +485,7 @@ def check_classification(
 def run_hits(
     manifest_path: Path, rater_dir: Path, checksums_path: Path, final_replies: Mapping[str, str]
 ) -> tuple[bytes, list[dict[str, Any]], dict[int, dict[str, Any]], dict[int, str]]:
+    verify_reference(manifest_path, "manifest")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     verify_rater_inputs(manifest, rater_dir)
     frozen = freeze_guard(rater_dir, parse_checksums(checksums_path.read_text(encoding="utf-8")))
@@ -431,7 +494,7 @@ def run_hits(
         for k in ALL_CHUNKS
     }
     hits = find_hits(chunks, final_replies)
-    return render_hits(hits, frozen), hits, chunks, frozen
+    return render_hits(hits, frozen, final_replies), hits, chunks, frozen
 
 
 # ---------------------------------------------------------------- statistics
@@ -539,8 +602,8 @@ def cluster_bootstrap(
 ) -> list[float | None]:
     """Two-stage bootstrap (plan section 6): draw m clusters with replacement from the m valid
     chunks, then each drawn chunk's cards with replacement; b* = mean over all drawn cards."""
-    usable = [list(c) for c in clusters if c]
-    if not usable:
+    usable = [list(c) for c in clusters]
+    if not any(usable):
         return [None, None]
     rng = random.Random(seed)
     stats = []
@@ -548,8 +611,11 @@ def cluster_bootstrap(
     for _ in range(draws):
         sample: list[float] = []
         for c in rng.choices(usable, k=m):
-            sample.extend(rng.choices(c, k=len(c)))
-        stats.append(sum(sample) / len(sample))
+            if c:
+                sample.extend(rng.choices(c, k=len(c)))
+        # a chunk without valid spells counts in m and is drawn like any other (stricter); a draw
+        # of only such chunks has no mean and is left out of the percentiles
+        stats.append(sum(sample) / len(sample) if sample else float("nan"))
     return interval(stats)
 
 
@@ -810,13 +876,17 @@ def run_log_view(log: Mapping[str, Any] | None) -> dict[str, Any]:
     assert isinstance(raw, Mapping)
     for k in ALL_CHUNKS:
         c = raw.get(str(k), {}) if isinstance(raw.get(str(k), {}), Mapping) else {}
-        prior = c.get("a2_verstoesse_frueher", 0)
+        prior = c.get("a2_verstoesse_frueher")
+        a7 = c.get("abbrueche_a7")
         view["chargen"][str(k)] = {
             "blindheitsverstoss_protokoll": c.get("blindheitsverstoss_protokoll") is True,
-            "a2_verstoesse_frueher": prior if isinstance(prior, int) and prior >= 0 else 0,
-            "abbrueche_a7": c.get("abbrueche_a7", 0)
-            if isinstance(c.get("abbrueche_a7", 0), int)
-            else 0,
+            # None = not in the run log (unknown); analyse() refuses where it matters
+            "a2_verstoesse_frueher": prior
+            if isinstance(prior, int) and not isinstance(prior, bool) and prior >= 0
+            else None,
+            "abbrueche_a7": a7
+            if isinstance(a7, int) and not isinstance(a7, bool) and a7 >= 0
+            else UNKNOWN,
             "nachlauf_a1": c.get("nachlauf_a1") is True,
         }
     view["A3"] = not (present and access)
@@ -824,6 +894,116 @@ def run_log_view(log: Mapping[str, Any] | None) -> dict[str, Any]:
     view["A10"] = not (view["skript_vor_oeffnen_committet"] and view["hashes_vor_oeffnen_gepostet"])
     view["A8"] = bool(view["a8_abweichungen"])
     return view
+
+
+# ---------------------------------------------------------------- rule-claim sample (section 9)
+
+
+def pick_claims(
+    cards: Sequence[tuple[str, Sequence[Any]]], k: int, rng: random.Random
+) -> list[tuple[str, int]]:
+    """At most one claim per card, as the wave-1 ``select_claims`` but with a shared generator: per
+    card (in the given order) one claim, preferred interactions first, then ``k`` cards drawn."""
+    chosen: list[tuple[str, int]] = []
+    for cid, claims in cards:
+        idx = [
+            i
+            for i, c in enumerate(claims)
+            if isinstance(c, Mapping) and str(c.get("claim", "")).strip()
+        ]
+        if not idx:
+            continue
+        pref = [i for i in idx if claims[i].get("interaction") in w1.PREFERRED_INTERACTIONS]
+        chosen.append((cid, rng.choice(pref or idx)))
+    if len(chosen) <= k:
+        return chosen
+    picked = set(rng.sample(range(len(chosen)), k))
+    return [c for i, c in enumerate(chosen) if i in picked]
+
+
+def claim_sample(
+    chunks: Mapping[int, Mapping[str, Any]], f1: Mapping[str, Mapping[str, Any]]
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Plan section 9: 100 claims, ``random.Random(20261125)``, at most one per card: 50 from the
+    valid wave-2 lines (chunks 1 to 7) and 50 from F1 for OTHER wave-2 cards, mixed. Returns the
+    blind list (card, chunk, field, claim, card block; never a score or the origin) and the key."""
+    rng = random.Random(SEED_CLAIMS)
+    rows = [r for k in POOL_CHUNKS for r in chunks[k]["rows"]]
+    by_oid = {r["oracle_id"]: r for r in rows}
+    w2 = pick_claims(
+        [(r["oracle_id"], r["row"].get("rule_claims") or []) for r in rows if not r["problems"]],
+        CLAIMS_PER_ORIGIN,
+        rng,
+    )
+    used = {o for o, _ in w2}
+    f1c = pick_claims(
+        [
+            (r["oracle_id"], f1[r["oracle_id"]].get("rule_claims") or [])
+            for r in rows
+            if r["oracle_id"] not in used
+        ],
+        CLAIMS_PER_ORIGIN,
+        rng,
+    )
+    items = [("welle2", o, i) for o, i in w2] + [("F1", o, i) for o, i in f1c]
+    rng.shuffle(items)
+    blind, key = [], []
+    for nr, (origin, o, i) in enumerate(items, 1):
+        r = by_oid[o]
+        src = r["row"] if origin == "welle2" else f1[o]
+        blind.append({
+            "nr": nr, "charge": r["chunk"], "seq": r["seq"], "card": r["name"], "oracle_id": o,
+            "feld": f"rule_claims[{i}].claim", "claim": str(src["rule_claims"][i]["claim"]),
+            "card_block": r["block"],
+        })  # fmt: skip
+        key.append({"nr": nr, "herkunft": origin, "oracle_id": o, "claim_index": i})
+    return blind, key
+
+
+def grade_claims(
+    blind: Sequence[Mapping[str, Any]], key: Sequence[Mapping[str, Any]], verdicts: Any
+) -> dict[str, Any]:
+    """Per origin: green <= 2 of 50 obviously wrong, red >= 5 of 50; 'unbekannt' until every claim
+    of that origin has a hand verdict (``{"nr": "falsch" | "korrekt" | "unscharf"}``)."""
+    out: dict[str, Any] = {"n": len(blind), "seed": SEED_CLAIMS}
+    vd = {str(k): str(v) for k, v in verdicts.items()} if isinstance(verdicts, Mapping) else {}
+    for origin in ("welle2", "F1"):
+        nrs = [str(x["nr"]) for x in key if x["herkunft"] == origin]
+        judged = [n for n in nrs if n in vd]
+        wrong = sum(vd[n] == "falsch" for n in judged)
+        if not nrs or len(judged) < len(nrs):
+            stufe: Any = UNKNOWN
+        elif wrong <= CLAIM_GREEN_MAX:
+            stufe = "gruen"
+        elif wrong >= CLAIM_RED_MIN:
+            stufe = "rot"
+        else:
+            stufe = "gelb"
+        out[origin] = {
+            "N": len(nrs),
+            "beurteilt": len(judged),
+            "offensichtlich_falsch": wrong if judged else None,
+            "stufe": stufe,
+        }
+    return out
+
+
+def run_claims(
+    manifest_path: Path, rater_dir: Path, checksums_path: Path, f1_path: Path
+) -> tuple[bytes, bytes]:
+    """The blind rule-claim list and its key; behind the freeze guard and the pinned F1."""
+    _, _, chunks, frozen = run_hits(manifest_path, rater_dir, checksums_path, {})
+    verify_reference(f1_path, "f1")
+    f1 = {r["oracle_id"]: r for r in load_jsonl(f1_path)}
+    blind, key = claim_sample(chunks, f1)
+    head = {f"rr2_output_{k}.jsonl": v for k, v in sorted(frozen.items())}
+    blind_doc = {
+        "schema": "rr2-regelclaims-blind-1", "seed": SEED_CLAIMS, "eingefrorene_ausgaben_sha256": head,
+        "hinweis": "Nur Kartenblock und Claim; Herkunft verdeckt. Je Nr: falsch / korrekt / unscharf.",
+        "claims": blind,
+    }  # fmt: skip
+    key_doc = {"schema": "rr2-regelclaims-schluessel-1", "seed": SEED_CLAIMS, "schluessel": key}
+    return dumps(blind_doc).encode("utf-8"), dumps(key_doc).encode("utf-8")
 
 
 # ---------------------------------------------------------------- stage 2: evaluation
@@ -838,7 +1018,8 @@ def analyse(
     manifest_path: Path,
     rater_dir: Path,
     checksums_path: Path,
-    classification: Any,
+    classification_bytes: bytes,
+    classification_sha256: str,
     hits_file_bytes: bytes,
     run_log: Mapping[str, Any] | None,
     final_replies: Mapping[str, str],
@@ -847,6 +1028,7 @@ def analyse(
     g1_path: Path,
     f2_path: Path,
     tier_rule: Mapping[str, Any] | None,
+    claim_verdicts: Any = None,
     draws: int | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """Stage 2. ``draws`` is only for tests; the command line always uses the plan's 5000."""
@@ -857,9 +1039,41 @@ def analyse(
     )
     if hits_file_bytes != hits_bytes:
         raise RefusedError("the given hits file differs from the recomputed hits output")
+    no_reply = [k for k in sorted(frozen) if not final_replies.get(str(k), "").strip()]
+    if no_reply:
+        raise RefusedError(f"no final reply scanned for chunks {no_reply} (plan section 9)")
+    # only the classification whose SHA-256 was posted in #1404 may run (no preview with a dummy)
+    if sha256_bytes(classification_bytes) != classification_sha256.strip().lower():
+        raise RefusedError("classification file differs from the SHA-256 posted in #1404")
+    try:
+        classification = json.loads(classification_bytes.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RefusedError(f"classification is not JSON: {exc}") from exc
     cls = check_classification(classification, hits, hits_bytes)
     wave1_hashes = verify_wave1_outputs(wave1_dir)
+    ref_hashes = {
+        "f1": verify_reference(f1_path, "f1"),
+        "g1": verify_reference(g1_path, "g1"),
+        "f2": verify_reference(f2_path, "f2"),
+        "wave1_manifest": verify_reference(wave1_dir / "rr_sample_manifest.json", "wave1_manifest"),
+        **{
+            f"wave1_input_{f}": verify_reference(
+                wave1_dir / f"rr_input_{f}.jsonl", f"wave1_input_{f}"
+            )
+            for f in WAVE1_FILES
+        },
+    }
     log = run_log_view(run_log)
+    listed = parse_checksums(checksums_path.read_text(encoding="utf-8"))
+    for k in ALL_CHUNKS:
+        lc = log["chargen"][str(k)]
+        if lc["a2_verstoesse_frueher"] is None:
+            if len(listed.get(output_path(rater_dir, k).name, [])) > 1:
+                raise RefusedError(
+                    f"chunk {k} was frozen more than once: the run log must state "
+                    "'a2_verstoesse_frueher' for it"
+                )
+            lc["a2_verstoesse_frueher"] = 0
     # ---- A2 per chunk
     counting = Counter(h["charge"] for h in hits if cls[h["id"]]["zaehlt"])
     a2: dict[int, dict[str, Any]] = {}
@@ -1061,6 +1275,9 @@ def analyse(
     def is_file(f: int) -> Callable[[dict[str, Any]], bool]:
         return lambda c: bool(c["source"] == f"welle1:{f}")
 
+    def is_file_primary(f: int) -> Callable[[dict[str, Any]], bool]:
+        return lambda c: bool(c["source"] == f"welle1:{f}" and c["stratum"] != "flagged")
+
     def is_band(lab: str) -> Callable[[dict[str, Any]], bool]:
         return lambda c: bool(w1.band(c["H_F1"]) == lab)
 
@@ -1074,6 +1291,9 @@ def analyse(
     }
     spread["charge"] = {str(k): group(is_chunk(k)) for k in POOL_CHUNKS}
     spread["datei_welle1"] = {str(f): group(is_file(f)) for f in WAVE1_FILES}
+    # the wave-1 report's file effect (88 / 88 / 89) used the primary set, i.e. without the 35
+    # flagged cards; both readings are given
+    spread["datei_welle1_ohne_markierte"] = {str(f): group(is_file_primary(f)) for f in WAVE1_FILES}
     spread["band_H_F1"] = {lab: group(is_band(lab)) for _, lab in BANDS}
     spread["sigma2_charge"] = chunk_variance(chunk_ds)
     spread["anteil_ge15_je_klasse"] = {
@@ -1276,6 +1496,9 @@ def analyse(
             })  # fmt: skip
     list_ge15.sort(key=lambda x: (-abs(x["d"]), x["card"]))
 
+    blind, key = claim_sample(chunks, f1)
+    claims_result = grade_claims(blind, key, claim_verdicts)
+
     provenance = {
         "skript_sha256": sha256_file(Path(__file__)),
         "seed": SEED, "draws": draws, "N_pool": N_POOL,
@@ -1283,7 +1506,8 @@ def analyse(
             manifest_path.name: sha256_file(manifest_path), f1_path.name: sha256_file(f1_path),
             g1_path.name: sha256_file(g1_path), f2_path.name: sha256_file(f2_path),
             checksums_path.name: sha256_file(checksums_path),
-            "hits.json": sha256_bytes(hits_bytes), "rr_sample_manifest.json": sha256_file(wave1_dir / "rr_sample_manifest.json"),
+            "hits.json": sha256_bytes(hits_bytes), "klassifikation.json": sha256_bytes(classification_bytes),
+            **{f"referenz:{k}": v for k, v in ref_hashes.items()},
             **{f"rr2_output_{k}.jsonl": v for k, v in sorted(frozen.items())}, **wave1_hashes,
         },
         "klassifikation_kommentar": str(classification.get("github_kommentar")),
@@ -1316,7 +1540,7 @@ def analyse(
         },
         "B1": b1, "B2_G1": b2, "F2_beschreibend": f2, "B3_retest": b3,
         "abweichungen_ge15": list_ge15,
-        "nicht_umgesetzt": ["Regelclaim-Stichprobe section 9 (Seed 20261125, blind zur Herkunft): nicht Teil dieses Skripts"],
+        "regelclaims": claims_result,
     }  # fmt: skip
     return clean(result), pooled
 
@@ -1394,7 +1618,13 @@ def report(result: Mapping[str, Any]) -> str:
     lines += [row(f"Schicht {k}", v) for k, v in sorted(s["schicht"].items())]
     lines += [row(f"Kartenart {k}", v) for k, v in sorted(s["kartenart"].items())]
     lines += [row(f"Charge {k}", v) for k, v in sorted(s["charge"].items())]
-    lines += [row(f"Welle-1-Datei {k}", v) for k, v in sorted(s["datei_welle1"].items())]
+    lines += [
+        row(f"Welle-1-Datei {k} (mit markierten)", v) for k, v in sorted(s["datei_welle1"].items())
+    ]
+    lines += [
+        row(f"Welle-1-Datei {k} (ohne markierte, wie #1758)", v)
+        for k, v in sorted(s["datei_welle1_ohne_markierte"].items())
+    ]
     lines += [row(f"Band H_F1 {k}", v) for k, v in s["band_H_F1"].items()]
     lines += [
         "",
@@ -1435,6 +1665,10 @@ def report(result: Mapping[str, Any]) -> str:
         f"{fmt_ci(b2.get('ci95_K0'))}; Urteil **{b2['urteil']}**.",
         f"- F2 beschreibend: Delta {fmt(result['F2_beschreibend'].get('delta_K0'))}, n = {result['F2_beschreibend']['n']}.",
         f"- B3 Retest: {json.dumps(result['B3_retest'], ensure_ascii=False, sort_keys=True)}",
+        f"- Regelclaims section 9 (Seed {result['regelclaims']['seed']}, n = {result['regelclaims']['n']}): "
+        f"Welle 2 {fmt(result['regelclaims']['welle2']['stufe'])} ({fmt(result['regelclaims']['welle2']['offensichtlich_falsch'])} "
+        f"von {result['regelclaims']['welle2']['N']}), F1 {fmt(result['regelclaims']['F1']['stufe'])} "
+        f"({fmt(result['regelclaims']['F1']['offensichtlich_falsch'])} von {result['regelclaims']['F1']['N']}).",
         "",
         f"## Abweichungen >= 15 (markiert, nie geloescht): {len(result['abweichungen_ge15'])} Karten",
         "",
@@ -1489,8 +1723,17 @@ def build_parser() -> argparse.ArgumentParser:
     pe.add_argument("--g1", type=Path, required=True)
     pe.add_argument("--f2", type=Path, required=True)
     pe.add_argument("--tier-rule", type=Path)
+    pe.add_argument("--classification-sha256", required=True, help="the SHA-256 posted in #1404")
+    pe.add_argument("--claim-verdicts", type=Path)
     pe.add_argument("--report", type=Path, required=True)
     pe.add_argument("--pooled-out", type=Path, required=True)
+    pc = sub.add_parser("claims")
+    pc.add_argument("--manifest", type=Path, required=True)
+    pc.add_argument("--rater-dir", type=Path, required=True)
+    pc.add_argument("--checksums", type=Path, required=True)
+    pc.add_argument("--f1", type=Path, required=True)
+    pc.add_argument("--out", type=Path, required=True, help="blind list for the checker")
+    pc.add_argument("--key-out", type=Path, required=True, help="origin key; not for the checker")
     return ap
 
 
@@ -1498,6 +1741,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     ap = build_parser()
     a = ap.parse_args(argv)
     try:
+        if a.cmd == "claims":
+            blind, key = run_claims(a.manifest, a.rater_dir, a.checksums, a.f1)
+            a.out.write_bytes(blind)
+            a.key_out.write_bytes(key)
+            print(
+                f"Regelclaim-Stichprobe: SHA-256 blind {sha256_bytes(blind)}, Schluessel {sha256_bytes(key)}"
+            )
+            return 0
         replies = _final_replies(a.final_replies)
         if a.cmd == "hits":
             data, hits, _, _ = run_hits(a.manifest, a.rater_dir, a.checksums, replies)
@@ -1510,7 +1761,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         result, pooled = analyse(
             manifest_path=a.manifest, rater_dir=a.rater_dir, checksums_path=a.checksums,
-            classification=_json_or_none(a.classification), hits_file_bytes=a.hits.read_bytes(),
+            classification_bytes=a.classification.read_bytes(),
+            classification_sha256=a.classification_sha256, hits_file_bytes=a.hits.read_bytes(),
+            claim_verdicts=_json_or_none(a.claim_verdicts),
             run_log=_json_or_none(a.run_log), final_replies=replies, wave1_dir=a.wave1_dir,
             f1_path=a.f1, g1_path=a.g1, f2_path=a.f2, tier_rule=_json_or_none(a.tier_rule),
         )  # fmt: skip

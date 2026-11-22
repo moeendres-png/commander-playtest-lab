@@ -95,7 +95,9 @@ class Lab:
         self.overrides: dict[str, dict[str, Any]] = {}
         self.raw_lines: dict[tuple[int, int], str] = {}
         self.write_chunk8 = True
-        self.final_replies: dict[str, str] = {}
+        self.final_replies: dict[str, str] = {
+            str(k): "Done; read only the allowed files." for k in range(1, 9)
+        }
         self.run_log: dict[str, Any] = {
             "laufprotokoll_vorhanden": True, "dateizugriff_protokolliert": True,
             "familie_R2_gegen_F1": "andere", "familie_R2_gegen_G1": "andere",
@@ -104,6 +106,7 @@ class Lab:
         }  # fmt: skip
         self.g1_ids = [oid("c", k, 1) for k in range(1, 8)] + [oid("w", 1, 1)]
         self.f2_ids = [oid("c", 1, 2)]
+        self.g1: dict[str, int] = {}  # G1 H per card; default = F1
 
     def row_for(self, o: str, h: int | None) -> str | None:
         if h is None:
@@ -172,12 +175,22 @@ class Lab:
 
         def ratings(path: Path, hs: dict[str, int]) -> Path:
             path.write_text("".join(json.dumps({"oracle_id": o, "card": self.cards[o]["name"], "reason": "old reason",
-                                                "scores": {k: h for k in CRIT}}) + "\n" for o, h in sorted(hs.items())), encoding="utf-8")  # fmt: skip
+                                                "scores": {k: h for k in CRIT},
+                                                "rule_claims": [{"quote": "draw a card", "interaction": "other",
+                                                                 "claim": f"first-run claim for {o}", "basis": "card_text"}]})
+                                    + "\n" for o, h in sorted(hs.items())), encoding="utf-8")  # fmt: skip
             return path
 
         self.f1_path = ratings(self.root / "f1.jsonl", self.f1)
-        self.g1_path = ratings(self.root / "g1.jsonl", {o: self.f1[o] for o in self.g1_ids})
+        self.g1_path = ratings(
+            self.root / "g1.jsonl", {o: self.g1.get(o, self.f1[o]) for o in self.g1_ids}
+        )
         self.f2_path = ratings(self.root / "f2.jsonl", {o: self.f1[o] for o in self.f2_ids})
+        self.refs = {
+            "manifest": _sha(self.manifest), "f1": _sha(self.f1_path), "g1": _sha(self.g1_path),
+            "f2": _sha(self.f2_path), "wave1_manifest": _sha(self.w1dir / "rr_sample_manifest.json"),
+            **{f"wave1_input_{f}": _sha(self.w1dir / f"rr_input_{f}.jsonl") for f in (1, 2, 3)},
+        }  # fmt: skip
         self.sums = self.root / "sums.txt"
         self.sums.write_text(
             "".join(
@@ -198,14 +211,22 @@ class Lab:
                                          else {"zaehlt": False, "buchstabe": "a"}) for h in hits}}  # fmt: skip
 
     def run(
-        self, draws: int = 40, counting: set[str] | None = None, cls: Any = None, tier: Any = None
+        self,
+        draws: int = 40,
+        counting: set[str] | None = None,
+        cls: Any = None,
+        tier: Any = None,
+        cls_sha: str | None = None,
+        verdicts: Any = None,
     ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         data, _ = self.hits()
+        raw = json.dumps(cls if cls is not None else self.classification(counting)).encode()
         return ev.analyse(  # type: ignore[no-any-return]
             manifest_path=self.manifest, rater_dir=self.rater, checksums_path=self.sums,
-            classification=cls if cls is not None else self.classification(counting), hits_file_bytes=data,
-            run_log=self.run_log, final_replies=self.final_replies, wave1_dir=self.w1dir, f1_path=self.f1_path,
-            g1_path=self.g1_path, f2_path=self.f2_path, tier_rule=tier, draws=draws,
+            classification_bytes=raw, classification_sha256=cls_sha or hashlib.sha256(raw).hexdigest(),
+            hits_file_bytes=data, run_log=self.run_log, final_replies=self.final_replies, wave1_dir=self.w1dir,
+            f1_path=self.f1_path, g1_path=self.g1_path, f2_path=self.f2_path, tier_rule=tier,
+            claim_verdicts=verdicts, draws=draws,
         )  # fmt: skip
 
 
@@ -218,6 +239,7 @@ def lab(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Lab:
     def build() -> None:
         orig_build()
         monkeypatch.setattr(ev, "WAVE1_OUTPUT_SHA256", lab.w1_hashes)
+        monkeypatch.setattr(ev, "REFERENCE_SHA256", lab.refs)
 
     lab.build = build  # type: ignore[method-assign]
     return lab
@@ -325,22 +347,24 @@ def test_freeze_guard_refuses_unlisted_changed_or_missing_outputs(tmp_path: Path
     out = tmp_path / "rr2_output_1.jsonl"
     out.write_text("x\n", encoding="utf-8")
     good = hashlib.sha256(b"x\n").hexdigest()
-    assert ev.freeze_guard(tmp_path, {"rr2_output_1.jsonl": {good}}) == {1: good}
-    # several hashes for one name (A2 repeat) are allowed
-    assert ev.freeze_guard(tmp_path, {"rr2_output_1.jsonl": {"0" * 64, good}}) == {1: good}
+    assert ev.freeze_guard(tmp_path, {"rr2_output_1.jsonl": [good]}) == {1: good}
+    # several hashes for one name (A2 repeat, A1 resume) are allowed; only the LAST one counts
+    assert ev.freeze_guard(tmp_path, {"rr2_output_1.jsonl": ["0" * 64, good]}) == {1: good}
+    with pytest.raises(ev.RefusedError, match="last frozen"):
+        ev.freeze_guard(tmp_path, {"rr2_output_1.jsonl": [good, "0" * 64]})
     with pytest.raises(ev.RefusedError, match="not frozen"):
         ev.freeze_guard(tmp_path, {})
     with pytest.raises(ev.RefusedError, match="differs"):
-        ev.freeze_guard(tmp_path, {"rr2_output_1.jsonl": {"0" * 64}})
+        ev.freeze_guard(tmp_path, {"rr2_output_1.jsonl": ["0" * 64]})
     with pytest.raises(ev.RefusedError, match="missing"):
-        ev.freeze_guard(tmp_path, {"rr2_output_1.jsonl": {good}, "rr2_output_2.jsonl": {good}})
+        ev.freeze_guard(tmp_path, {"rr2_output_1.jsonl": [good], "rr2_output_2.jsonl": [good]})
     with pytest.raises(ev.RefusedError, match="no wave-2 output"):
-        ev.freeze_guard(tmp_path, {"rr2_output_1.jsonl": {good}, "other.jsonl": {good}})
+        ev.freeze_guard(tmp_path, {"rr2_output_1.jsonl": [good], "other.jsonl": [good]})
 
 
 def test_parse_checksums_reads_sha256sum_format() -> None:
     text = f"{'a' * 64}  rr2_output_1.jsonl\n{'b' * 64} *dir/rr2_output_1.jsonl\n\n"
-    assert ev.parse_checksums(text) == {"rr2_output_1.jsonl": {"a" * 64, "b" * 64}}
+    assert ev.parse_checksums(text) == {"rr2_output_1.jsonl": ["a" * 64, "b" * 64]}
     with pytest.raises(ev.RefusedError):
         ev.parse_checksums("abc rr2_output_1.jsonl")
 
@@ -446,6 +470,7 @@ def test_main_refuses_without_classification_file(
     ]
     assert ev.main(["hits", *common, "--out", str(hits_path)]) == 0
     rc = ev.main(["eval", *common, "--out", str(lab.root / "r.json"), "--classification", str(lab.root / "none.json"),
+                  "--classification-sha256", "0" * 64,
                   "--hits", str(hits_path), "--wave1-dir", str(lab.w1dir), "--f1", str(lab.f1_path),
                   "--g1", str(lab.g1_path), "--f2", str(lab.f2_path), "--report", str(lab.root / "r.txt"),
                   "--pooled-out", str(lab.root / "p.jsonl")])  # fmt: skip
@@ -631,6 +656,12 @@ def test_a8_thresholds_are_fixed_constants_and_not_options() -> None:
         6,
     )
     assert (ev.FLAG_GE15, ev.FLAG_GE30, ev.SEED, ev.DRAWS) == (15, 30, 20261124, 5000)
+    assert (ev.SEED_CLAIMS, ev.CLAIMS_PER_ORIGIN, ev.CLAIM_GREEN_MAX, ev.CLAIM_RED_MIN) == (
+        20261125,
+        50,
+        2,
+        5,
+    )
     sub = next(a for a in ev.build_parser()._actions if a.dest == "cmd")
     for name in ("hits", "eval"):
         opts = {o for act in sub.choices[name]._actions for o in act.option_strings}
@@ -828,15 +859,20 @@ def test_main_is_byte_identical_over_two_runs(lab: Lab, monkeypatch: pytest.Monk
         "--checksums",
         str(lab.sums),
     ]
+    replies = lab.root / "replies.json"
+    replies.write_text(json.dumps(lab.final_replies), encoding="utf-8")
+    common += ["--final-replies", str(replies)]
     assert ev.main(["hits", *common, "--out", str(hits_path)]) == 0
     cls_path = lab.root / "cls.json"
     cls_path.write_text(json.dumps(lab.classification()), encoding="utf-8")
+    cls_sha = _sha(cls_path)
     log_path = lab.root / "log.json"
     log_path.write_text(json.dumps(lab.run_log), encoding="utf-8")
     outs = []
     for i in (1, 2):
         files = [lab.root / f"r{i}.json", lab.root / f"r{i}.txt", lab.root / f"p{i}.jsonl"]
         rc = ev.main(["eval", *common, "--out", str(files[0]), "--classification", str(cls_path), "--hits", str(hits_path),
+                      "--classification-sha256", cls_sha,
                       "--run-log", str(log_path), "--wave1-dir", str(lab.w1dir), "--f1", str(lab.f1_path),
                       "--g1", str(lab.g1_path), "--f2", str(lab.f2_path), "--report", str(files[1]),
                       "--pooled-out", str(files[2])])  # fmt: skip
@@ -855,3 +891,232 @@ def test_bootstrap_multi_draws_like_the_wave1_bootstrap() -> None:
     ours = ev.bootstrap_multi(groups, lambda s: {"m": sum(s) / len(s)}, ("m",), draws=200)
     theirs = ev.w1.bootstrap(groups, {"m": lambda s: sum(s) / len(s)}, draws=200, seed=ev.SEED)
     assert ours["m"] == list(theirs["m"])
+
+
+# ---------------------------------------------------------------- review round 1 (#1763)
+
+
+def test_hits_scan_fields_in_unexpected_form(lab: Lab) -> None:
+    lab.overrides[oid("c", 2, 1)] = {
+        "notes": "Copied from the earlier rating and the F1 tier list."
+    }
+    lab.overrides[oid("c", 2, 3)] = {"rule_claims": ["earlier rating said high"]}
+    lab.overrides[oid("c", 2, 4)] = {"comment": "see audit"}  # key outside the schema
+    lab.build()
+    _, hits = lab.hits()
+    got = {(h["seq"], h["feld"], h["treffer"]) for h in hits if h["charge"] == 2}
+    assert (1, "notes", "earlier rating") in got and (1, "notes", "F1") in got
+    assert (1, "notes", "tier list") in got
+    assert (3, "rule_claims[0]", "earlier rating") in got
+    assert (4, "zusatzfeld.comment", "audit") in got
+    # an invalid line (notes not an object) is also scanned as raw text; seq 3 stays valid (plan
+    # section 3 does not check rule_claims), its claim string is scanned as a field
+    assert (1, "rohzeile", "earlier rating") in got and (3, "rohzeile", "earlier rating") not in got
+
+
+def test_eval_refuses_without_final_reply_of_a_present_chunk(lab: Lab) -> None:
+    lab.final_replies.pop("4")
+    lab.build()
+    data, _ = lab.hits()
+    assert json.loads(data)["schlussantwort_gescannt"]["4"] is False
+    with pytest.raises(ev.RefusedError, match="final reply"):
+        lab.run()
+
+
+def test_refrozen_output_needs_the_earlier_a2_count(lab: Lab) -> None:
+    lab.build()
+    old = "f" * 64
+    lab.sums.write_text(
+        f"{old}  rr2_output_3.jsonl\n" + lab.sums.read_text(encoding="utf-8"), encoding="utf-8"
+    )
+    with pytest.raises(ev.RefusedError, match="a2_verstoesse_frueher"):
+        lab.run()
+    lab.run_log["chargen"] = {"3": {"a2_verstoesse_frueher": 1}}
+    lab.overrides[oid("c", 5, 2)] = {"reason": "Same as the earlier rating."}
+    lab.build()
+    lab.sums.write_text(
+        f"{old}  rr2_output_3.jsonl\n" + lab.sums.read_text(encoding="utf-8"), encoding="utf-8"
+    )
+    _, hits = lab.hits()
+    res, _ = lab.run(counting={hits[0]["id"]})
+    assert res["A2"] == {"verstoss_chargen": [3, 5], "abbruch": True}
+    assert res["spells_test"]["verdict"] == "kein Schluss"
+
+
+def test_missing_a7_count_is_unknown_not_zero(lab: Lab) -> None:
+    lab.build()
+    res, _ = lab.run()
+    assert res["chargen"]["4"]["A7_abbrueche"] == "unbekannt"
+
+
+def test_moved_away_output_cannot_be_put_back(lab: Lab) -> None:
+    lab.build()
+    path = lab.rater / "rr2_output_3.jsonl"
+    old_bytes = path.read_bytes()
+    old = _sha(path)
+    path.write_text(
+        path.read_text(encoding="utf-8").replace("Plain text", "Other text"), encoding="utf-8"
+    )
+    lab.sums.write_text(
+        lab.sums.read_text(encoding="utf-8") + f"{_sha(path)}  rr2_output_3.jsonl\n",
+        encoding="utf-8",
+    )
+    assert old in lab.sums.read_text(encoding="utf-8")
+    lab.hits()  # the re-run (last hash) passes
+    path.write_bytes(old_bytes)  # putting the earlier frozen version back
+    with pytest.raises(ev.RefusedError, match="last frozen"):
+        lab.hits()
+
+
+def test_reference_inputs_are_pinned(lab: Lab) -> None:
+    lab.build()
+    lab.f1_path.write_text(
+        lab.f1_path.read_text(encoding="utf-8").replace('"H": 40', '"H": 0'), encoding="utf-8"
+    )
+    with pytest.raises(ev.RefusedError, match="f1"):
+        lab.run()
+    assert set(ev.REFERENCE_SHA256) == {
+        "manifest", "f1", "g1", "f2", "wave1_manifest", "wave1_input_1", "wave1_input_2", "wave1_input_3",
+    }  # fmt: skip
+
+
+def test_pinned_hashes_are_the_published_ones() -> None:
+    src = _load()  # fresh module, not monkeypatched
+    assert src.REFERENCE_SHA256["f1"].startswith("eb81d9c3")  # wave-1 report, section 8
+    assert src.REFERENCE_SHA256["wave1_manifest"].startswith("c6b22bdc")
+    assert src.WAVE1_OUTPUT_SHA256["rr_output_1.jsonl"].startswith("7d55f195")
+    sys.modules["rating_second_run_full_eval"] = ev
+
+
+def test_eval_runs_only_with_the_posted_classification_sha(lab: Lab) -> None:
+    lab.build()
+    with pytest.raises(ev.RefusedError, match="posted"):
+        lab.run(cls_sha="0" * 64)
+    res, _ = lab.run()
+    assert len(res["herkunft"]["eingaben_sha256"]["klassifikation.json"]) == 64
+
+
+def test_b2_never_better_with_unknown_family(lab: Lab) -> None:
+    for o in lab.g1_ids:
+        lab.g1[o] = lab.f1[o] - 5  # G1 = R2: pooled is closer to G1 than F1
+    lab.build()
+    res, _ = lab.run(draws=200)
+    assert (
+        res["B2_G1"]["delta_K0"] == pytest.approx(2.5) and res["B2_G1"]["urteil"] == "besser belegt"
+    )
+    lab.run_log["familie_R2_gegen_G1"] = "unbekannt"
+    res2, _ = lab.run(draws=200)
+    assert res2["B2_G1"]["urteil"].startswith("unbelegt")
+    lab.run_log.pop("familie_R2_gegen_G1")
+    res3, _ = lab.run(draws=200)
+    assert res3["B2_G1"]["urteil"].startswith("unbelegt")
+
+
+def test_a4_sd_criterion_excludes_with_distinct_values(lab: Lab) -> None:
+    # F1 20..70 (pop. SD 17.1); R2 35, 40, 45, 50, 55, 60 distinct (no mode share), SD 8.5 < 0.6 x 17.1
+    for j in range(1, 7):
+        lab.r2[oid("c", 4, j)] = 30 + 5 * j
+    lab.build()
+    res, _ = lab.run()
+    a4 = res["chargen"]["4"]["A4"]
+    assert a4["mode_share"] == pytest.approx(1 / 6) and a4["triggered"] is True
+    assert res["gueltige_chargen"]["ausgeschlossen"] == {"4": "A4_skalenstauchung"}
+
+
+def test_a2_violation_in_retest_chunk_counts_for_two_chunks(lab: Lab) -> None:
+    lab.overrides[oid("c", 3, 2)] = {"reason": "Same as the earlier rating."}
+    lab.overrides[oid("w", 1, 2)] = {"reason": "As in the previous run."}
+    lab.build()
+    _, hits = lab.hits()
+    ids = {h["id"] for h in hits if h["feld"] == "reason"}
+    assert {h["charge"] for h in hits if h["id"] in ids} == {3, 8}
+    res, _ = lab.run(counting=ids)
+    assert res["A2"] == {"verstoss_chargen": [3, 8], "abbruch": True}
+    assert res["B3_retest"]["berechnet"] is False
+
+
+def test_k1_only_on_confirmed(lab: Lab) -> None:
+    for o, c in lab.cards.items():
+        if c["wave"] == 2 and not c["is_land"]:
+            lab.r2[o] = lab.f1[o] - 10  # b = -10: "bestaetigt"
+    lab.build()
+    res, pooled = lab.run(draws=200)
+    assert res["spells_test"]["verdict"] == "bestaetigt" and res["K1"]["berechnet"] is True
+    p = by_id(pooled)[oid("c", 1, 1)]  # F1 20, R2 10, b_W2 -10 -> (20 + 10 + 10) / 2 = 20
+    assert p["H_pooled_K1_vorschlag"] == pytest.approx(20.0) and p["H_pooled"] == 15.0
+    for o, c in lab.cards.items():
+        if c["wave"] == 2 and not c["is_land"]:
+            lab.r2[o] = lab.f1[o] + (5 if c["chunk"] in (1, 2) else -5)  # 5 of 7 chunks below 0
+    lab.build()
+    res2, pooled2 = lab.run(draws=200)
+    assert res2["spells_test"]["verdict"] != "bestaetigt" and res2["K1"]["berechnet"] is False
+    assert "H_pooled_K1_vorschlag" not in by_id(pooled2)[oid("c", 1, 1)]
+
+
+def test_a6_flags_when_either_reading_exceeds_four() -> None:
+    # others: chunk 2 one card at 0, chunk 3 ten cards at -10 -> mean of means -5, pooled -9.09
+    ds = {1: [-4.5, -4.5], 2: [0.0], 3: [-10.0] * 10}
+    eff = ev.chunk_effect(ds)["1"]
+    assert eff["gap_means"] == pytest.approx(0.5) and eff["gap_pooled"] == pytest.approx(
+        -4.5 + 100 / 11
+    )
+    assert eff["auffaellig"] is True  # only the pooled reading is above 4
+    ds2 = {1: [-0.5, -0.5], 2: [0.0] * 10, 3: [-10.0]}
+    eff2 = ev.chunk_effect(ds2)["1"]  # mean of means -5 (gap 4.5), pooled -0.91 (gap 0.41)
+    assert eff2["gap_pooled"] == pytest.approx(-0.5 + 10 / 11) and eff2["auffaellig"] is True
+
+
+def test_chunk_without_valid_spells_counts_in_m() -> None:
+    clusters = {k: _tight(-6.0) for k in range(1, 7)} | {7: []}
+    res = ev.spells_test(clusters, [], draws=300)
+    assert res["m"] == 7 and res["chunks_negative"] == 6 and res["verdict"] == "bestaetigt"
+    clusters[6] = []
+    assert ev.spells_test(clusters, [], draws=300)["verdict"] == "nicht bestaetigt"  # 5 of 7
+
+
+def test_claim_sample_is_blind_deterministic_and_one_per_card(lab: Lab, tmp_path: Path) -> None:
+    lab.build()
+    blind1, key1 = ev.run_claims(lab.manifest, lab.rater, lab.sums, lab.f1_path)
+    blind2, key2 = ev.run_claims(lab.manifest, lab.rater, lab.sums, lab.f1_path)
+    assert (blind1, key1) == (blind2, key2)
+    b = json.loads(blind1)["claims"]
+    k = json.loads(key1)["schluessel"]
+    # 42 wave-2 lines, each with one claim: all 42 drawn from wave 2 (< 50); F1 has no other card left
+    assert len(b) == 42 and {x["herkunft"] for x in k} == {"welle2"}
+    assert len({x["oracle_id"] for x in b}) == len(b)
+    text = blind1.decode()
+    assert "herkunft" not in text and '"scores"' not in text and "welle2" not in text
+
+
+def test_claim_sample_draws_f1_claims_for_other_wave2_cards(lab: Lab) -> None:
+    for o, c in lab.cards.items():
+        if c["wave"] == 2 and c["seq"] >= 4:
+            lab.overrides[o] = {"rule_claims": []}  # 21 wave-2 lines without claims
+    lab.build()
+    blind, key = ev.run_claims(lab.manifest, lab.rater, lab.sums, lab.f1_path)
+    k = json.loads(key)["schluessel"]
+    w2 = {x["oracle_id"] for x in k if x["herkunft"] == "welle2"}
+    f1 = {x["oracle_id"] for x in k if x["herkunft"] == "F1"}
+    assert len(w2) == 21 and len(f1) == 21 and not (w2 & f1)
+    claims = {x["oracle_id"]: x["claim"] for x in json.loads(blind)["claims"]}
+    assert all(claims[o] == f"first-run claim for {o}" for o in f1)
+
+
+def test_claims_are_graded_per_origin(lab: Lab) -> None:
+    key = [{"nr": i, "herkunft": "welle2" if i <= 50 else "F1"} for i in range(1, 101)]
+    blind = [{"nr": i} for i in range(1, 101)]
+    vd = {str(i): "korrekt" for i in range(1, 101)} | {"1": "falsch", "2": "falsch", "51": "falsch"}
+    vd |= {str(i): "falsch" for i in range(52, 56)}  # F1: 5 wrong
+    g = ev.grade_claims(blind, key, vd)
+    assert g["welle2"]["stufe"] == "gruen" and g["F1"]["stufe"] == "rot"
+    vd.pop("3")
+    assert ev.grade_claims(blind, key, vd)["welle2"]["stufe"] == "unbekannt"
+    assert ev.grade_claims(blind, key, None)["F1"]["stufe"] == "unbekannt"
+
+
+def test_cluster_bootstrap_draws_empty_chunks_too() -> None:
+    # an empty chunk is one of the m clusters drawn (k = m = 3, not 2); dropping it changes the draws
+    full = [[-9.0, -8.0, -7.0], [1.0, 2.0, 3.0]]
+    with_empty = ev.cluster_bootstrap([*full, []], draws=400)
+    assert with_empty != ev.cluster_bootstrap(full, draws=400)
+    assert ev.cluster_bootstrap([[], []], draws=10) == [None, None]
