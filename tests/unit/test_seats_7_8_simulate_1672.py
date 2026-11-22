@@ -212,6 +212,12 @@ def test_the_bridge_seats_eight_and_the_midgame_lane_keeps_six() -> None:
     ).read_text(encoding="utf-8")
     assert '"max_players", XmageFullGameSession.MAX_PLAYERS' not in midgame
     assert midgame.count('"max_players", XmageFullGameSession.MIDGAME_MAX_PLAYERS') == 2
+    # every mid-game entry builds its scaffolding through the guard before any session exists
+    scaffolding = midgame.index("String deckTag, XmageLosslessHiddenPlan lossless) {\n")
+    assert midgame[scaffolding:].split("\n")[1].strip() == (
+        "requireMidgamePlayerCount(plan.playerCount());"
+    )
+    assert "playerCount > XmageFullGameSession.MIDGAME_MAX_PLAYERS" in midgame
     restoration = (
         ROOT / "engine-bridge/src/main/java/org/commanderlab/xmage/XmageNativeStateRestoration.java"
     ).read_text(encoding="utf-8")
@@ -447,3 +453,78 @@ def test_seven_and_eight_seat_series_are_their_own_cohorts_and_name_their_table(
         assert deck_series.series_table_check(raw) == (seats, "consistent")
     raw9 = {**_raw_series(result={**_pods(9), "pairs_completed": 25}), "seed_plan": None}
     assert deck_series.series_table_check(raw9) == (None, "unreadable")
+
+
+@pytest.mark.parametrize("seats", SEVEN_EIGHT)
+def test_an_experiment_plan_at_seven_and_eight_seats_follows_the_simulate_lock(
+    lab: dict[str, object],  # noqa: F811
+    monkeypatch: pytest.MonkeyPatch,
+    seats: int,
+) -> None:
+    client = lab["client"]
+    revs = lab["revs"]
+    assert isinstance(client, TestClient) and isinstance(revs, dict)
+    plan = {
+        "schema": "studio-experiment-plan-1",
+        "question": "38 statt 40 Wälder",
+        "question_kind": "axis",
+        "deck_id": "chulane-b2",
+        "base": {"revision_id": revs["base"]},
+        "variants": [{"revision_id": revs["variant"]}],
+        "table": {"seats": seats, "opponents": list(launch.pod_opponent_ids("precon", seats - 1))},
+        "purpose": "exploration",
+        "budget_pairs": seats * seats,
+        "look_every_pairs": 100,
+        "first_seed": 300,
+    }
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)  # the rollback, in memory
+    locked = client.post("/api/experiments", headers=HEADERS, json={"plan": plan})
+    assert locked.status_code == 422 and "locked" in locked.text
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 8)  # E17
+    res = client.post("/api/experiments", headers=HEADERS, json={"plan": plan})
+    assert res.status_code == 200, res.text
+    started = res.json()
+    assert started["tested_seats"] == list(range(seats))
+    assert started["seeds"]["count"] == seats
+    job = _finished(lab, started["series_id"])
+    assert job["seed_plan"]["player_count"] == seats  # type: ignore[index]
+    assert len(lab["calls"]) == 2 * seats * seats  # type: ignore[arg-type]
+
+
+def test_the_batch_route_follows_the_simulate_lock_at_seven_and_eight(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """With the lock at six (the rollback) a batch of seven or eight seats is refused before any
+    game; under the shipped lock the refusal is no longer the seat lock (here: unknown decks)."""
+    from commander_lab.studio.store import StudioStore
+    from tests.unit.test_studio_simulations import _seed_test_deck
+
+    store = StudioStore.open(tmp_path)
+    try:
+        rev_id = _seed_test_deck(store)
+    finally:
+        store.close()
+    client = TestClient(create_app(tmp_path))
+
+    def post(seats: int) -> Any:
+        return client.post(
+            "/api/simulations/batch",
+            headers=HEADERS,
+            json={
+                "revision_id": rev_id,
+                "opponent_ids": [f"precon/d{i}" for i in range(seats - 1)],
+                "games_count": 2,
+                "base_seed": 100,
+            },
+        )
+
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)
+    for seats in SEVEN_EIGHT:
+        res = post(seats)
+        assert res.status_code == 422
+        assert f"tables of {seats} seats are locked" in res.json()["detail"]
+    monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 8)
+    for seats in SEVEN_EIGHT:
+        res = post(seats)
+        assert "seats are locked" not in res.text
+        assert res.status_code in (409, 422), res.text  # unknown decks / no engine, never a game

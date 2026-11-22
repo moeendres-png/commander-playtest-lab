@@ -132,6 +132,20 @@ class XmageFullGamePlayerCountTest {
         assertEquals(6, XmageFullGameSession.MIDGAME_MAX_PLAYERS);
     }
 
+    @Test
+    void midgameLaneRefusesSevenAndEightBeforeAnySession() {
+        // #1672 widens only the full-game lane: the mid-game entries keep 2..6.
+        for (int count : new int[]{2, 3, 4, 5, 6}) {
+            XmageMidgameJsonlBridge.requireMidgamePlayerCount(count);
+        }
+        for (int count : new int[]{1, 7, 8, 9}) {
+            XmageNativeStateRestoration.RestorationException failure = assertThrows(
+                    XmageNativeStateRestoration.RestorationException.class,
+                    () -> XmageMidgameJsonlBridge.requireMidgamePlayerCount(count));
+            assertTrue(failure.getMessage().startsWith("UNSUPPORTED_PLAYER_COUNT: " + count));
+        }
+    }
+
     private static List<String> fakeHandles(int count) {
         List<String> handles = new ArrayList<>(count);
         for (int index = 0; index < count; index++) {

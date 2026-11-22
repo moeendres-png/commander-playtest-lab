@@ -13,12 +13,12 @@ plays real 100-card Commander decks rules-correctly, so simulated games can stan
 
 - Rules-correct play is required, but not at any cost: where full correctness for a rare interaction
   is unreachable, record the gap visibly and move on. Simulate as many cards as possible, including
-  cards the base XMage engine lacks. Four players is the usual game; two to six seats are active:
+  cards the base XMage engine lacks. Four players is the usual game. PLAY runs two to six seats:
   the Owner released five and six seats on 2026-11-22 as a conditional go
-  (`docs/OWNER_DECISIONS_STUDIO_20261118.md`, E16); the measurements are `SIMULATED_RESULT`, not a
-  qualification. Six seats are the maximum for PLAY; simulations (AI on every seat) run up to eight
+  (`docs/OWNER_DECISIONS_STUDIO_20261118.md`, E16). Simulations (AI on every seat) run two to eight
   seats by the Owner's instruction of 2026-11-22 („führe es auch ein für die Simulationen“, E17;
-  Co-Lead reading: SIMULATE only, same gates as five and six seats).
+  Co-Lead reading: SIMULATE only, same gates as five and six seats). The measurements are
+  `SIMULATED_RESULT`, not a qualification.
 - The simulator is one part of the local Commander Studio (BUILD, PLAY, SIMULATE):
   `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`. Required reading before any Studio
   work is the charter `docs/STUDIO_CHARTA_V2.md` (the Owner accepted only its §5, Q1 to Q11; the
