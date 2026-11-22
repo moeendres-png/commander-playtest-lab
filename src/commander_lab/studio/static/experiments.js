@@ -64,6 +64,18 @@ function experimentRows(data) {
   }));
 }
 
+// The table of a listed series (#1661): 4-, 5- and 6-seat runs of the same question are separate
+// cohorts, so each row names its size; a size the played games do not prove is named as such.
+const EXPERIMENT_TABLE_CHECK_TEXT = {
+  mismatch: "Tischgröße unbekannt (Plan und gespielte Partien weichen ab)",
+  unreadable: "Tischgröße unbekannt (Sitzzahl der gespielten Partien nicht lesbar)",
+};
+function experimentEntryTable(entry) {
+  if (EXPERIMENT_TABLE_CHECK_TEXT[entry.table_size_check]) return EXPERIMENT_TABLE_CHECK_TEXT[entry.table_size_check];
+  if (!Number.isInteger(entry.table_size) || entry.table_size < 2) return "Tischgröße unbekannt";
+  return `${StudioUI.num(entry.table_size, 0)} Sitze${entry.table_size_check === "unobserved" ? " (geplant, nicht an Partien geprüft)" : ""}`;
+}
+
 function experimentListTable(h, data, onOpen) {
   const rows = experimentRows(data).map(({ key, entry }) => {
     const exp = entry.experiment;
@@ -71,13 +83,14 @@ function experimentListTable(h, data, onOpen) {
       h("td", {}, experimentDate(entry.created_at)),
       h("td", {}, exp ? exp.question : "Alt-Serie ohne Plan"),
       h("td", {}, exp ? experimentPurpose(exp.purpose) : "Zweck unbekannt"),
+      h("td", {}, experimentEntryTable(entry)),
       h("td", { class: "num" }, experimentPairs(entry)),
       h("td", {}, entry.status_text),
       h("td", {}, exp ? exp.decision_text : "keine Entscheidung (Alt-Serie)"),
       h("td", {}, h("button", { type: "button", class: "small", onclick: () => onOpen(key) }, "Ansehen")));
   });
   return h("div", { class: "table-wrap" }, h("table", {},
-    h("thead", {}, h("tr", {}, ["Angelegt", "Frage", "Zweck", "Paare (n/N)", "Status", "Entscheidung", ""].map((label) => h("th", {}, label)))),
+    h("thead", {}, h("tr", {}, ["Angelegt", "Frage", "Zweck", "Tisch", "Paare (n/N)", "Status", "Entscheidung", ""].map((label) => h("th", {}, label)))),
     h("tbody", {}, rows)));
 }
 
@@ -88,7 +101,7 @@ function experimentMaturity(h, detail) {
   const pairs = befund.n === null || befund.N === null ? "Paare unbekannt" : `n/N ${StudioUI.num(befund.n)} / ${StudioUI.num(befund.N)} ${befund.bezug}`;
   return h("div", { class: "evidence-row" },
     befund.stufe ? h("span", { class: "pill" }, befund.stufe_text) : h("span", { class: "muted" }, befund.stufe_text),
-    h("div", {}, `Ergebnis (simuliert): ${befund.urteil_text} · ${pairs}`),
+    h("div", {}, `Ergebnis (simuliert): ${befund.urteil_text} · ${pairs} · ${typeof befund.tisch_text === "string" && befund.tisch_text ? befund.tisch_text : "Tischgröße unbekannt"}`),
     h("div", { class: other ? "muted" : "" },
       other ? h("span", { class: "pill warn" }, "anderer Stand") : null,
       other ? " " : "",
@@ -117,6 +130,19 @@ function experimentFinding(h, detail, zahlen) {
     h("div", { class: "muted" }, `Herkunft: Plan ${experimentText(detail.sources && detail.sources.plan)} · Ergebnis ${experimentText(detail.sources && detail.sources.result)} · ${experimentText(detail.sources && detail.sources.index)}`));
 }
 
+// The table of the plan (#1661): its seat count from the resolved table; 4-, 5- and 6-seat
+// experiments are separate cohorts (own Holm family, own base win rate 1/N), but only once the
+// played games prove the size (result.table_size_check "consistent"): a mismatch or an
+// unreadable table claims no cohort, a size no pair has checked yet is named as planned only.
+function experimentTableText(detail) {
+  const seats = detail && detail.table ? detail.table.seats : null;
+  const check = detail && detail.result ? detail.result.table_size_check : undefined;
+  if (EXPERIMENT_TABLE_CHECK_TEXT[check]) return `Tisch: ${EXPERIMENT_TABLE_CHECK_TEXT[check]}`;
+  if (!Number.isInteger(seats) || seats < 2) return "Tisch: Tischgröße unbekannt";
+  if (check !== "consistent") return `Tisch: ${StudioUI.num(seats, 0)} Sitze (geplant, nicht an Partien geprüft)`;
+  return `Tisch: ${StudioUI.num(seats, 0)} Sitze (Zufallsbasis 1/${StudioUI.num(seats, 0)}, eigene Kohorte)`;
+}
+
 function experimentPlan(h, detail) {
   const plan = detail.plan;
   const [cls, text] = EXPERIMENT_PLAN_STATE[detail.plan_state] || ["pill warn", "Plan-Zustand unbekannt"];
@@ -128,6 +154,7 @@ function experimentPlan(h, detail) {
     h("div", {}, h("span", { class: cls }, text)),
     h("div", {}, `Zweck: ${experimentPurpose(detail.purpose)}`),
     h("div", {}, `Seeds: ${seedText}`),
+    h("div", {}, experimentTableText(detail)),
     h("div", {}, `Sitze getestet: ${Array.isArray(detail.tested_seats) ? detail.tested_seats.map((seat) => StudioUI.num(seat + 1)).join(", ") : "unbekannt"}`),
     h("div", {}, `Tisch-Hash: ${experimentShort(detail.table_hash)}`),
   ];
@@ -318,5 +345,5 @@ async function renderExperiments(slot, historyRows, deps) {
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { renderExperiments, experimentDetailView, experimentListTable, experimentLegacyNote, experimentConsequences, experimentPairs, experimentOpen };
+  module.exports = { renderExperiments, experimentDetailView, experimentListTable, experimentLegacyNote, experimentConsequences, experimentPairs, experimentOpen, experimentTableText, experimentEntryTable };
 }

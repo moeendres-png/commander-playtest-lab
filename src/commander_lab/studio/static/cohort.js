@@ -2,7 +2,8 @@
 // What a recorded game is called on the pages (Issue #1662): a simulated game, a game a human
 // played, or a game whose origin is not known. Pure helpers: no network, no DOM, no rules. The
 // value comes from the server (`cohort` and `played_seats` of /api/games, /api/games/{id} and
-// /api/play/{id}, which read the game log header); nothing is derived from other fields here.
+// /api/play/{id}, `table_size` of the last two, all read from the game log header); nothing is
+// derived from other fields here.
 // A missing or unrecognised value is "unknown" and is never worded as a simulation.
 const StudioCohort = (() => {
   const SIMULATED = "SIMULATED_RESULT";
@@ -16,6 +17,17 @@ const StudioCohort = (() => {
     const raw = record && Array.isArray(record.played_seats) ? record.played_seats : [];
     return [...new Set(raw.filter((seat) => Number.isInteger(seat) && seat >= 0))].sort((a, b) => a - b);
   }
+
+  // The table size the server read from the header (#1661): an integer of 2 or more, else null.
+  // A 4-, 5- and 6-seat game are three cohorts of the evaluation; an unknown size adds nothing.
+  function tableSize(record) {
+    const value = record ? record.table_size : null;
+    return Number.isInteger(value) && value >= 2 ? value : null;
+  }
+  const seatsText = (record) => {
+    const size = tableSize(record);
+    return size === null ? "" : `, ${size} Sitze`;
+  };
 
   // The cohort the server reported; anything but the two named cohorts is UNKNOWN.
   function cohortOf(record) {
@@ -41,7 +53,7 @@ const StudioCohort = (() => {
       return {
         cohort,
         cls: "pill good",
-        text: `gespielt (${where}), zählt in keiner Simulationszahl`,
+        text: `gespielt (${where}${seatsText(record)}), zählt in keiner Simulationszahl`,
         title: "Eine von einem Menschen gespielte Partie (PLAYED_GAME): keine Simulation, nie in einer Simulationszahl, keiner Kartenauswertung und keinem Deck-Vergleich. Sie zeigt, was in dieser Partie passiert ist."
       };
     }
@@ -49,8 +61,8 @@ const StudioCohort = (() => {
       return {
         cohort,
         cls: "pill warn",
-        text: "simuliert (KI auf allen Plätzen)",
-        title: "Eine einzelne simulierte Partie: ein Seed, KI auf allen Plätzen. Sie zeigt, was in dieser Partie passiert ist, nicht wie stark ein Deck ist."
+        text: `simuliert (KI auf allen Plätzen${seatsText(record)})`,
+        title: `Eine einzelne simulierte Partie: ein Seed, KI auf allen Plätzen${tableSize(record) === null ? "" : `, Tisch mit ${tableSize(record)} Sitzen (eigene Kohorte, nie mit einer anderen Tischgröße zusammengezählt)`}. Sie zeigt, was in dieser Partie passiert ist, nicht wie stark ein Deck ist.`
       };
     }
     return {
@@ -81,6 +93,6 @@ const StudioCohort = (() => {
     };
   }
 
-  return { SIMULATED, PLAYED, UNKNOWN, cohortOf, playedSeats, pill, mark };
+  return { SIMULATED, PLAYED, UNKNOWN, cohortOf, playedSeats, tableSize, pill, mark };
 })();
 if (typeof module !== "undefined") module.exports = StudioCohort;

@@ -25,7 +25,7 @@ import threading
 import time
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
-from typing import cast
+from typing import NamedTuple, cast
 
 from commander_lab.agents.card_knowledge import CardCatalogError, card_facts
 from commander_lab.bridge_qualification import bridge_qualification
@@ -40,7 +40,7 @@ from commander_lab.engine.rules.project import load_rules_deck_snapshot
 from commander_lab.models import RulesDeckInput
 
 from . import builder, decks, launch, paired_comparison, strength_view
-from .card_outcomes import pilot_identity
+from .card_outcomes import pilot_identity, wilson_unrounded
 from .decks import RevisionCard, lab_snapshot, list_rows, resolve_repo_baseline_cards
 from .games import games_folder
 from .launch import (
@@ -91,9 +91,153 @@ THROUGHPUT_SOURCE = (
     "gemessen sind nur 541 Partien/h für eine ganze Batch-Serie mit 6 Workern und 8 Partien je "
     "JVM (#1251), also etwa 90 je Worker; für gepaarte Serien ist der Durchsatz ungemessen"
 )
+#: Five and six seats (#1661, Owner 2026-11-22): the duration is the measured four-seat rate
+#: divided by the measured wall-time ratio of one game at that table against four seats (part
+#: B, F6): table A, seeds 1-10, one JVM per game, median wall 12.91 s (4) -> 20.18 s (5) ->
+#: 28.73 s (6), n = 10/10 finished games per seat count, SIMULATED_RESULT on the Owner PC
+#: (docs/analysis-reports/seats_5_6_part_b_report.md, section 5). A ratio of medians of one
+#: table is no floor and no forecast: the figure is a rough orientation from table A, never
+#: "mindestens". Two and three seats are not measured.
+#: 20.18 / 12.91 = 1.563 -> 1.56; 28.73 / 12.91 = 2.2254 -> 2.23 (the report rounds it to 2.22).
+WALL_RATIO_VS_FOUR_SEATS: dict[int, float] = {5: 1.56, 6: 2.23}
+WALL_RATIO_GAMES = (10, 10)  # n/N finished games per seat count behind each ratio
+WALL_RATIO_SOURCE = (
+    "Verhältnis der Wandzeit-Mediane je Partie gegenüber 4 Sitzen aus #1661 Teil B (F6): nur "
+    "Tisch A, Seeds 1 bis 10, eine JVM je Partie, Median 12,91 s (4) → 20,18 s (5) → 28,73 s "
+    "(6), n = 10/10 Partien je Sitzzahl, Owner-PC (WSL2), SIMULATED_RESULT"
+)
+#: How much that ratio spreads (part B, section 5): the median of the per-seed ratios on table A
+#: and table B's medians against table A at four seats (table B has no four-seat run).
+WALL_RATIO_SEED_PAIR_MEDIAN: dict[int, float] = {5: 1.63, 6: 2.63}
+WALL_RATIO_TABLE_B_VS_A4: dict[int, float] = {5: 1.43, 6: 1.68}
+#: The paired series of part B in the pool (B6/F8, 3 workers, 16 games per JVM): a reference
+#: with its own n/N, never the figure used (another path and worker count than the four-seat
+#: rate; it would show five seats faster than four).
+POOL_REFERENCE_PART_B: dict[int, dict[str, object]] = {
+    5: {"games_per_hour": 607.3, "games": 50, "planned": 50, "workers": 3, "games_per_jvm": 16},
+    6: {"games_per_hour": 379.2, "games": 72, "planned": 72, "workers": 3, "games_per_jvm": 16},
+}
 #: Assumed block correlation of the seat rotations of one seed, as in ``power_table`` (#1043).
 PLANNING_BLOCK_CORRELATION = 0.25
 PLANNING_REFERENCE_EFFECT_PP = 5.0
+#: Tables whose plan uses the base win rate 1/N of N equally strong seats (#1661): five and six
+#: seats. Four seats keep the engine lane's 0.63 (built on 25 % = 1/4) byte for byte; two and
+#: three seats also keep it (their 1/N lies above 25 %, a pre-existing gap not changed here).
+BASELINE_PLAN_SEATS = (5, 6)
+#: The precision a single win share is planned for: +-20 % of the base win rate (relative).
+WILSON_RELATIVE_PRECISION = 0.20
+_SD_AT_QUARTER = math.sqrt(2 * 0.25 * 0.75)
+
+
+def _de(value: float, digits: int) -> str:
+    """A decimal in German notation (comma), for the duration texts."""
+    return f"{value:.{digits}f}".replace(".", ",")
+
+
+class ObservedTables(NamedTuple):
+    """What the played games of a stored series say about its table (#1661)."""
+
+    #: the table sizes of the readable pods, sorted (never dropped because another pod is broken)
+    sizes: list[int]
+    #: a pod that cannot be read, or counted pairs without a readable pod: the size is not proven
+    unreadable: bool
+
+
+def observed_table_sizes(raw: Mapping[str, object]) -> ObservedTables:
+    """The table sizes the played games of a stored series show (#1661).
+
+    Read from the result's ``pods``: each pod is the decks of the other seats of its pairs, as the
+    seat rows of the game headers named them (``pair_exposures``), so its size is 1 + that count.
+    Fail-closed: a pod that cannot be read (no list of non-empty deck ids, no positive pair count)
+    sets ``unreadable`` and keeps the sizes already seen; a result whose readable pods do not
+    cover every counted pair (``pairs_completed`` against the sum of the pods' ``pairs``, also
+    with no pod at all) is ``unreadable`` too, never "nothing seen".
+    """
+    result = raw.get("result")
+    res: Mapping[str, object] = result if isinstance(result, dict) else {}
+    pods = res.get("pods")
+    sizes: set[int] = set()
+    unreadable = pods is not None and not isinstance(pods, list)
+    pod_pairs = 0
+    for pod in pods if isinstance(pods, list) else []:
+        opponents = pod.get("opponents") if isinstance(pod, dict) else None
+        count = pod.get("pairs") if isinstance(pod, dict) else None
+        if (
+            isinstance(opponents, list)
+            and opponents
+            and all(isinstance(deck, str) and deck.strip() for deck in opponents)
+            and type(count) is int
+            and count > 0
+        ):
+            sizes.add(1 + len(opponents))
+            pod_pairs += count
+        else:
+            unreadable = True  # no deck ids, or no pair count: this pod proves no table
+    pairs = res.get("pairs_completed")
+    if type(pairs) is int and pairs > 0 and (not sizes or pod_pairs != pairs):
+        unreadable = True  # the pods do not cover every counted pair
+    return ObservedTables(sorted(sizes), unreadable)
+
+
+def planning_pair_sd(table_size: int) -> float:
+    """The planning sd of one pair at ``table_size`` seats.
+
+    Four seats (and two and three): the engine lane's conservative 0.63, unchanged. Five and
+    six seats: the same conservative factor (0.63 / 0.612) on the exact sd of independent games
+    at the base win rate p = 1/N, ``sqrt(2 * p * (1 - p))``: 0.582 at five, 0.542 at six seats.
+    """
+    seats = int(table_size)
+    if seats not in BASELINE_PLAN_SEATS:
+        return PLANNED_PAIR_SD
+    p = 1.0 / seats
+    return round(PLANNED_PAIR_SD * math.sqrt(2 * p * (1 - p)) / _SD_AT_QUARTER, 4)
+
+
+def wilson_games_needed(win_rate: float, relative: float = WILSON_RELATIVE_PRECISION) -> int:
+    """Fewest games whose 95 % Wilson interval at the share ``win_rate`` is at most
+    ``relative * win_rate`` wide on each side (half the interval width), e.g. +-4 pp at 20 %.
+
+    Uses the Wilson bounds of the card evaluation (``card_outcomes.wilson_unrounded``), unrounded.
+    """
+    p = float(win_rate)
+    if not 0.0 < p < 1.0 or relative <= 0.0:
+        raise ValueError("win_rate muss zwischen 0 und 1 liegen, relative größer 0")
+    target = relative * p
+    games = 1
+    while True:
+        low, high = wilson_unrounded(p * games, games)
+        if (high - low) / 2.0 <= target:
+            return games
+        games += 1
+
+
+def planning_baseline(table_size: int) -> dict[str, object]:
+    """The base win rate 1/N of a table and the games a single win share needs for +-20 %.
+
+    ``applies_to_plan`` says whether the pair sd of the plan is built on it (five and six
+    seats) or the engine lane's 0.63 stays (two to four seats)."""
+    seats = int(table_size)
+    if not MIN_SEATS <= seats <= MAX_SEATS:
+        raise ValueError(f"Tischgröße muss zwischen {MIN_SEATS} und {MAX_SEATS} liegen")
+    p = 1.0 / seats
+    games = wilson_games_needed(p)
+    return {
+        "table_size": seats,
+        "win_rate": round(p, 4),
+        "win_rate_pct": round(100.0 * p, 1),
+        "relative_precision": WILSON_RELATIVE_PRECISION,
+        "half_width_pp": round(100.0 * p * WILSON_RELATIVE_PRECISION, 2),
+        "games_needed_wilson": games,
+        "applies_to_plan": seats in BASELINE_PLAN_SEATS,
+        "basis": (
+            f"Zufallsbasis 1/{seats} bei {seats} gleich starken Plätzen; ein einzelner "
+            f"Siegrate-Anteil braucht {games} Partien, bis das 95-%-Wilson-Intervall höchstens "
+            f"±{round(100.0 * p * WILSON_RELATIVE_PRECISION, 2):g} pp (±20 % relativ) breit "
+            "ist. Ein Plan, keine Messung."
+        ),
+    }
+
+
 SERIES_PURPOSES = ("unspecified", "exploration", "confirmation", "control")
 _SAFE_SERIES_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,95}$")
 
@@ -109,14 +253,16 @@ def validate_series_id(series_id: str) -> str:
     return cleaned
 
 
-def _planned_detectable(pairs: int, seats_per_seed: int) -> float:
+def _planned_detectable(pairs: int, seats_per_seed: int, sd: float = PLANNED_PAIR_SD) -> float:
     """``(t95 + t80) * sd / sqrt(pairs)`` with t at (seeds - 1) df, as the evaluation uses."""
     seeds = max(1, math.ceil(pairs / seats_per_seed))
     t95, t80 = difference_quantiles(max(1, seeds - 1))
-    return (t95 + t80) * PLANNED_PAIR_SD / math.sqrt(pairs)
+    return (t95 + t80) * sd / math.sqrt(pairs)
 
 
-def planned_detectable_difference_pp(budget_pairs: int, seats_per_seed: int) -> dict[str, object]:
+def planned_detectable_difference_pp(
+    budget_pairs: int, seats_per_seed: int, table_size: int = MEASURED_TABLE_SEATS
+) -> dict[str, object]:
     """What ``budget_pairs`` can detect before a game is played, with the assumptions named.
 
     The arithmetic of the evaluation (``cluster_difference_stats``: Student-t quantiles at
@@ -125,16 +271,24 @@ def planned_detectable_difference_pp(budget_pairs: int, seats_per_seed: int) -> 
     ``sqrt(2 * 0.25 * 0.75) = 0.612``). The pairing correlation is unmeasured, so the sd is not
     lowered for it; the seat rotations of one seed count with the design effect
     ``1 + (m - 1) * 0.25`` at the upper end. A plan, not a measurement.
+
+    ``table_size`` (seats at the table, never the seats per seed: without rotation that is 1)
+    names the base win rate 1/N (``baseline``); at five and six seats the pair sd is built on
+    it (``planning_pair_sd``), at two to four seats the 0.63 stays.
     """
     pairs = max(2, int(budget_pairs))
     seats = max(1, int(seats_per_seed))
+    baseline = planning_baseline(table_size)
+    sd = planning_pair_sd(table_size)
+    on_baseline = bool(baseline["applies_to_plan"])
+    p = 1.0 / int(table_size) if on_baseline else 0.25
     design_effect = 1.0 + (seats - 1) * PLANNING_BLOCK_CORRELATION
     seeds = max(1, math.ceil(pairs / seats))
     # one seed: no spread between seeds, the evaluation gives no interval either (unknown)
-    low: float | None = _planned_detectable(pairs, seats) if seeds >= 2 else None
+    low: float | None = _planned_detectable(pairs, seats, sd) if seeds >= 2 else None
     effect = PLANNING_REFERENCE_EFFECT_PP / 100.0
-    needed = pairs_needed(effect, PLANNED_PAIR_SD)  # normal quantiles: a lower bound
-    while _planned_detectable(needed, seats) > effect:
+    needed = pairs_needed(effect, sd)  # normal quantiles: a lower bound
+    while _planned_detectable(needed, seats, sd) > effect:
         needed += 1
     return {
         "budget_pairs": pairs,
@@ -150,17 +304,28 @@ def planned_detectable_difference_pp(budget_pairs: int, seats_per_seed: int) -> 
             "power": 0.80,
             "quantiles": "Student-t at seeds - 1 degrees of freedom (as cluster_difference_stats)",
             "degrees_of_freedom": max(1, seeds - 1),
-            "pair_sd": PLANNED_PAIR_SD,
-            "pair_sd_independent_exact": round(math.sqrt(2 * 0.25 * 0.75), 4),
+            "pair_sd": sd,
+            "pair_sd_independent_exact": round(math.sqrt(2 * p * (1 - p)), 4),
+            "pair_sd_win_rate_pct": round(100.0 * p, 1),
             "pair_sd_basis": (
-                "conservative planning value; independent games at 25 % win rate give 0.612; "
-                "pairing correlation unmeasured"
+                (
+                    f"conservative planning value on the base win rate 1/{int(table_size)}: "
+                    f"independent games at {round(100.0 * p, 1):g} % win rate give "
+                    f"{round(math.sqrt(2 * p * (1 - p)), 3):g}, times 0.63 / 0.612 as at four "
+                    "seats; pairing correlation unmeasured"
+                )
+                if on_baseline
+                else (
+                    "conservative planning value; independent games at 25 % win rate give "
+                    "0.612; pairing correlation unmeasured"
+                )
             ),
             "seats_per_seed": seats,
             "design_effect": round(design_effect, 4),
             "block_correlation_assumed": PLANNING_BLOCK_CORRELATION,
             "sequential_looks": "not included (O'Brien-Fleming looks cost a little power)",
         },
+        "baseline": baseline,
     }
 
 
@@ -222,14 +387,15 @@ def table_plan(
 ) -> dict[str, object]:
     """The plan of a series at ``table_size`` seats, also behind the seat lock (#1702).
 
-    The usual plan (detectable difference at the seats per seed) plus ``table``: the rotation
-    (``rotation_plan``), the effort (games, duration: UNKNOWN where nothing is measured) and
+    The usual plan (detectable difference at the seats per seed, base win rate 1/N) plus
+    ``table``: the rotation (``rotation_plan``), the effort (games, duration: measured at four
+    seats, a rough orientation from table A at five and six, UNKNOWN at two and three) and
     whether the Studio may start this table at all. Planning a locked table starts nothing;
     ``released`` false and ``locked_text`` say why.
     """
     rotation = rotation_plan(table_size, budget_pairs, rotate_seats=rotate_seats)
     seats_per_seed = len(cast(list[int], rotation["tested_seats"]))
-    plan = planned_detectable_difference_pp(budget_pairs, seats_per_seed)
+    plan = planned_detectable_difference_pp(budget_pairs, seats_per_seed, table_size)
     effort = estimate_series_duration(
         budget_pairs, seats_per_seed=seats_per_seed, table_size=table_size
     )
@@ -267,60 +433,95 @@ def estimate_series_duration(
 ) -> dict[str, object]:
     """Pre-run duration floor and plan for a paired A-vs-B comparison series.
 
-    The measured rate belongs to a table of ``MEASURED_TABLE_SEATS`` seats. For any other
-    ``table_size`` the duration is UNKNOWN (``duration_known`` false, no seconds, no minutes):
-    nothing is measured for that table, so no figure is given and none is called a floor.
-
-    The duration is the time at the one measured rate (``MEASURED_BATCH_GAMES_PER_HOUR``, a
-    whole 6-worker batch series): a lower bound, not a forecast, while no more than 6 workers
-    run. ``estimated_seconds`` / ``estimated_minutes`` keep their names for older readers and
-    carry the same floor. The #1513 per-worker figure stays visible as an unmeasured assumption.
+    The measured rate belongs to a table of ``MEASURED_TABLE_SEATS`` seats: there the duration
+    is the time at that rate (``MEASURED_BATCH_GAMES_PER_HOUR``, a whole 6-worker batch series),
+    a lower bound, not a forecast, while no more than 6 workers run. At five and six seats it is
+    a rough orientation from table A (``duration_kind`` ``rough_orientation``, neither floor nor
+    forecast): the four-seat batch rate divided by the ratio of the wall-time medians of table A
+    (``WALL_RATIO_VS_FOUR_SEATS``, with its n/N and its spread), never called a floor (``minimum_*`` stay None, ``estimated_*`` carry it); the part-B pool rate is
+    shown beside it as a reference with its own n/N. At two and three seats nothing is measured:
+    UNKNOWN (``duration_known`` false, no seconds, no minutes). ``estimated_seconds`` /
+    ``estimated_minutes`` keep their names for older readers. The #1513 per-worker figure stays
+    visible as an unmeasured assumption.
     """
+    size = int(table_size)
+    if not MIN_SEATS <= size <= MAX_SEATS:
+        # never a silent stand-in table: the plan block would name another size
+        raise ValueError(f"Tischgröße muss zwischen {MIN_SEATS} und {MAX_SEATS} liegen")
     used_workers = max(1, int(workers)) if workers is not None else 1
     assumed_rate = ESTIMATED_GAMES_PER_HOUR * used_workers
     pairs = max(0, int(pairs_planned_max if pairs_planned_max is not None else budget_pairs))
     max_games = pairs * 2
-    seconds = round(max_games * (3600.0 / MEASURED_BATCH_GAMES_PER_HOUR))
+    ratio = WALL_RATIO_VS_FOUR_SEATS.get(size)
+    floor = size == MEASURED_TABLE_SEATS
+    known = floor or ratio is not None
+    rate = MEASURED_BATCH_GAMES_PER_HOUR / (ratio if ratio is not None else 1.0)
+    seconds = round(max_games * (3600.0 / rate))
     minutes = round(seconds / 60.0, 1)
     floor_holds = used_workers <= MEASURED_BATCH_WORKERS
-    known = int(table_size) == MEASURED_TABLE_SEATS
+    pool_ref = POOL_REFERENCE_PART_B.get(size)
+    if floor:
+        basis = (
+            f"mindestens ~{minutes} min bei der gemessenen Rate von "
+            f"{MEASURED_BATCH_GAMES_PER_HOUR:.0f} Partien/h; {THROUGHPUT_SOURCE}, die Dauer "
+            "ist vermutlich deutlich länger"
+            + ("" if floor_holds else " (mit mehr als 6 Workern keine sichere Untergrenze)")
+            + ". 2 Partien je Paar; früher Stopp je nach Look möglich."
+        )
+    elif ratio is not None and pool_ref is not None:
+        pool_rate = float(cast(float, pool_ref["games_per_hour"]))
+        basis = (
+            f"grobe Orientierung ~{_de(minutes, 1)} min aus Tisch A (weder Untergrenze noch "
+            f"Prognose): die Batch-Rate des Vierertischs {MEASURED_BATCH_GAMES_PER_HOUR:.0f} "
+            "Partien/h (ganze Batch-Serie, 6 Worker, 8 Partien je JVM, #1251) geteilt durch "
+            f"{_de(ratio, 2)} = {rate:.0f} Partien/h; {WALL_RATIO_SOURCE}. Das Verhältnis streut: "
+            f"Median der Seed-Paar-Verhältnisse {_de(WALL_RATIO_SEED_PAIR_MEDIAN[size], 2)}, "
+            f"Tisch B gegen Tisch A mit 4 Sitzen etwa {_de(WALL_RATIO_TABLE_B_VS_A4[size], 2)}. "
+            f"Gemessen ist bei {size} Sitzen die gepaarte Serie im Pool mit "
+            f"{pool_ref['workers']} Workern mit {pool_rate:.0f} Partien/h "
+            f"(n = {pool_ref['games']}/{pool_ref['planned']} Partien, #1661 Teil B, B6), "
+            f"{'schneller' if pool_rate > rate else 'langsamer'} als dieser Wert: die Dauer "
+            "kann deutlich kürzer oder länger sein. Bis zu "
+            f"{max_games} Partien ({pairs} je Arm), 2 Partien je Paar; früher Stopp je nach "
+            "Look möglich."
+        )
+    else:
+        basis = (
+            f"unbekannt (UNKNOWN): für einen Tisch mit {size} Sitzen ist kein "
+            "Durchsatz gemessen (n = 0 Partien). Gemessen ist nur der Vierertisch "
+            f"({MEASURED_BATCH_GAMES_PER_HOUR:.0f} Partien/h, ganze Batch-Serie, 6 Worker, "
+            "8 Partien je JVM, #1251, Zahl der Partien im Repository nicht belegt) und das "
+            "Wandzeit-Verhältnis für 5 und 6 Sitze (#1661 Teil B); ein Wert eines anderen "
+            "Tisches ist hier weder Schätzung noch Untergrenze. "
+            f"Der Aufwand ist die Zahl der Partien: bis zu {max_games} "
+            f"({pairs} je Arm), 2 Partien je Paar."
+        )
     payload: dict[str, object] = {
         "budget_pairs": int(budget_pairs),
-        "table_size": int(table_size),
+        "table_size": size,
         "duration_known": known,
+        "duration_kind": "floor" if floor else ("rough_orientation" if known else "unknown"),
         "measured_table_seats": MEASURED_TABLE_SEATS,
         "measured_games": None,  # the number of games behind the 541.2 is not in the repository
         "max_games": max_games,
         "measured_batch_games_per_hour": MEASURED_BATCH_GAMES_PER_HOUR,
-        "minimum_seconds": seconds if known else None,
-        "minimum_minutes": minutes if known else None,
-        "minimum_is_lower_bound": floor_holds and known,
+        "games_per_hour_used": round(rate, 1) if known else None,
+        "wall_ratio_vs_four_seats": ratio,
+        "wall_ratio_games": list(WALL_RATIO_GAMES) if ratio is not None else None,
+        "wall_ratio_seed_pair_median": WALL_RATIO_SEED_PAIR_MEDIAN.get(size),
+        "wall_ratio_table_b_vs_a4": WALL_RATIO_TABLE_B_VS_A4.get(size),
+        "pool_reference_part_b": dict(pool_ref) if pool_ref is not None else None,
+        "minimum_seconds": seconds if floor else None,
+        "minimum_minutes": minutes if floor else None,
+        "minimum_is_lower_bound": floor_holds and floor,
         "estimated_seconds": seconds if known else None,
         "estimated_minutes": minutes if known else None,
         "assumed_games_per_hour_unmeasured": int(assumed_rate),
         "workers": used_workers,
         "throughput_measured_for_paired_series": False,
         "throughput_source": THROUGHPUT_SOURCE,
-        "basis": (
-            (
-                f"mindestens ~{minutes} min bei der gemessenen Rate von "
-                f"{MEASURED_BATCH_GAMES_PER_HOUR:.0f} Partien/h; {THROUGHPUT_SOURCE}, die Dauer "
-                "ist vermutlich deutlich länger"
-                + ("" if floor_holds else " (mit mehr als 6 Workern keine sichere Untergrenze)")
-                + ". 2 Partien je Paar; früher Stopp je nach Look möglich."
-            )
-            if known
-            else (
-                f"unbekannt (UNKNOWN): für einen Tisch mit {int(table_size)} Sitzen ist kein "
-                "Durchsatz gemessen (n = 0 Partien). Gemessen ist nur der Vierertisch "
-                f"({MEASURED_BATCH_GAMES_PER_HOUR:.0f} Partien/h, ganze Batch-Serie, 6 Worker, "
-                "8 Partien je JVM, #1251, Zahl der Partien im Repository nicht belegt); ein "
-                "Wert eines anderen Tisches ist hier weder Schätzung noch Untergrenze. "
-                f"Der Aufwand ist die Zahl der Partien: bis zu {max_games} "
-                f"({pairs} je Arm), 2 Partien je Paar."
-            )
-        ),
-        "planning": planned_detectable_difference_pp(max(2, pairs), seats_per_seed),
+        "basis": basis,
+        "planning": planned_detectable_difference_pp(max(2, pairs), seats_per_seed, size),
     }
     if games_per_jvm is not None:
         payload["games_per_jvm"] = int(games_per_jvm)
@@ -1283,6 +1484,18 @@ class PairedSeriesManager:
                 raise ValueError(
                     f"Sitzanzahl ({1 + len(opponents)}) weicht vom seed_plan "
                     f"({plan_players}) ab (nicht fortsetzbar)"
+                )
+            seen = observed_table_sizes(raw)
+            if any(size != 1 + len(opponents) for size in seen.sizes):
+                # the played games' seat rows name another table: never resumed on top of them
+                raise ValueError(
+                    f"Sitzanzahl ({1 + len(opponents)}) weicht von den gespielten Partien "
+                    f"({', '.join(map(str, seen.sizes))} Sitze) ab (nicht fortsetzbar)"
+                )
+            if seen.unreadable:
+                raise ValueError(
+                    f"Sitzanzahl der gespielten Partien in Serie {safe_id} nicht lesbar "
+                    "(nicht fortsetzbar)"
                 )
             seeds = [first_seed + i for i in range(seeds_planned)]
 

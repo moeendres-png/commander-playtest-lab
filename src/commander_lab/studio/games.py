@@ -409,13 +409,36 @@ def played_seats(header: object) -> list[int]:
     return sorted(seats)
 
 
+def header_table_size(header: object) -> int | None:
+    """The table size a header names (#1661): the number of its seat rows, or None.
+
+    The rule of the card evaluation (``card_outcomes._table_size``, #1683; a test holds both
+    equal): only a complete seat list counts, a non-empty list of mappings that each carry an
+    integer seat, numbered 0 .. n-1 without gaps or repeats. Anything else is unknown: the size
+    is never guessed from the seats that happen to be readable.
+    """
+    rows = header.get("seats") if isinstance(header, Mapping) else None
+    if not isinstance(rows, list) or not rows:
+        return None
+    seats: list[int] = []
+    for row in rows:
+        seat = row.get("seat") if isinstance(row, Mapping) else None
+        if type(seat) is not int:
+            return None
+        seats.append(seat)
+    return len(seats) if sorted(seats) == list(range(len(seats))) else None
+
+
 def cohort_fields(header: object) -> dict[str, object]:
     """The read fields the pages show instead of guessing (#1662): ``cohort`` (see
-    ``game_cohort``) and, for a ``PLAYED_GAME``, ``played_seats`` (empty otherwise)."""
+    ``game_cohort``), for a ``PLAYED_GAME`` ``played_seats`` (empty otherwise) and the
+    ``table_size`` of the header (``header_table_size``, None when unknown, #1661): a 4-, 5- and
+    6-seat game are three cohorts of the evaluation, so the page names the size."""
     cohort = game_cohort(header)
     return {
         "cohort": cohort,
         "played_seats": played_seats(header) if cohort == COHORT_PLAYED else [],
+        "table_size": header_table_size(header),
     }
 
 

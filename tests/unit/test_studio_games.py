@@ -921,8 +921,13 @@ def test_games_carry_the_cohort_the_pages_show_instead_of_guessing(tmp_path: Pat
     assert games.cohort_fields({"seats": [{"pilot": "Mensch"}]}) == {
         "cohort": "PLAYED_GAME",
         "played_seats": [],
+        "table_size": None,  # a seat row without a seat number names no table size (#1661)
     }
-    assert games.cohort_fields("no header") == {"cohort": "UNKNOWN", "played_seats": []}
+    assert games.cohort_fields("no header") == {
+        "cohort": "UNKNOWN",
+        "played_seats": [],
+        "table_size": None,
+    }
 
 
 def test_the_state_routes_carry_the_cohort_of_a_recorded_game(studio_folder: Path) -> None:

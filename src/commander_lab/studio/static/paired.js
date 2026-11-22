@@ -73,10 +73,29 @@ function pairedTableLines(table) {
   return lines;
 }
 
+// Five and six seats (#1661, part B, F6): the four-seat batch rate divided by the ratio of the
+// wall-time medians of table A only (seeds 1-10, one JVM per game, n = 10/10 games per seat count).
+// A ratio of one table's medians is neither floor nor forecast: the text says "grobe Orientierung aus
+// Tisch A", never "mindestens", and names the spread (seed-pair median, table B) and the measured pool
+// series of part B with its own n/N (paired_series.WALL_RATIO_VS_FOUR_SEATS,
+// WALL_RATIO_SEED_PAIR_MEDIAN, WALL_RATIO_TABLE_B_VS_A4, POOL_REFERENCE_PART_B; a test holds them equal).
+const PAIRED_WALL_RATIO_VS_FOUR_SEATS = { 5: 1.56, 6: 2.23 }; // 20,18 / 12,91 and 28,73 / 12,91 = 2,2254
+const PAIRED_WALL_RATIO_SPREAD = { 5: [1.63, 1.43], 6: [2.63, 1.68] };
+const PAIRED_POOL_REFERENCE_PART_B = { 5: [607.3, 50, 50], 6: [379.2, 72, 72] };
+
 function estimatePairedText(budgetPairs, workers = 4, tableSeats = PAIRED_MEASURED_TABLE_SEATS) {
   const pairs = Math.max(0, Number(budgetPairs) || 0);
+  const ratio = PAIRED_WALL_RATIO_VS_FOUR_SEATS[Number(tableSeats)];
+  if (ratio !== undefined) {
+    const games = pairs * 2;
+    const rate = PAIRED_MEASURED_BATCH_GAMES_PER_HOUR / ratio;
+    const seconds = Math.round(games * (3600.0 / rate));
+    const [poolRate, poolN, poolPlanned] = PAIRED_POOL_REFERENCE_PART_B[Number(tableSeats)];
+    const [seedPair, tableB] = PAIRED_WALL_RATIO_SPREAD[Number(tableSeats)];
+    return `Dauer: grobe Orientierung ~${StudioUI.num(seconds / 60.0, 1)} min für bis zu ${StudioUI.num(games, 0)} Partien, aus Tisch A (weder Untergrenze noch Prognose): die Batch-Rate des Vierertischs von 541 Partien/h (ganze Batch-Serie, 6 Worker, 8 Partien je JVM, #1251) geteilt durch das Verhältnis der Wandzeit-Mediane ${StudioUI.num(ratio, 2)} bei ${StudioUI.num(tableSeats, 0)} Sitzen (#1661 Teil B: nur Tisch A, Seeds 1–10, n = 10/10 Partien je Sitzzahl), also etwa ${StudioUI.num(rate, 0)} Partien/h. Das Verhältnis streut: Median der Seed-Paar-Verhältnisse ${StudioUI.num(seedPair, 2)}, Tisch B gegen Tisch A mit 4 Sitzen etwa ${StudioUI.num(tableB, 2)}. Gemessen ist die gepaarte Serie im Pool mit 3 Workern mit ${StudioUI.num(poolRate, 0)} Partien/h (n = ${StudioUI.num(poolN, 0)}/${StudioUI.num(poolPlanned, 0)} Partien), ${poolRate > rate ? "schneller" : "langsamer"} als dieser Wert: die Dauer kann deutlich kürzer oder länger sein. Früher Stopp je nach Look möglich.`;
+  }
   if (Number(tableSeats) !== PAIRED_MEASURED_TABLE_SEATS) {
-    return `Dauer: unbekannt (UNKNOWN). Für einen Tisch mit ${StudioUI.num(tableSeats, 0)} Sitzen ist kein Durchsatz gemessen (n = 0 Partien); gemessen sind nur Vierertische (541 Partien/h, ganze Batch-Serie mit 6 Workern, #1251; die Zahl der Partien dieser Messung ist im Repository nicht belegt). Aufwand: bis zu ${StudioUI.num(pairs * 2, 0)} Partien (${StudioUI.num(pairs, 0)} je Arm).`;
+    return `Dauer: unbekannt (UNKNOWN). Für einen Tisch mit ${StudioUI.num(tableSeats, 0)} Sitzen ist kein Durchsatz gemessen (n = 0 Partien); gemessen sind nur Vierertische (541 Partien/h, ganze Batch-Serie mit 6 Workern, #1251; die Zahl der Partien dieser Messung ist im Repository nicht belegt) und das Wandzeit-Verhältnis für 5 und 6 Sitze (#1661 Teil B). Aufwand: bis zu ${StudioUI.num(pairs * 2, 0)} Partien (${StudioUI.num(pairs, 0)} je Arm).`;
   }
   const usedWorkers = Math.max(1, Math.min(16, Math.round(Number(workers) || 1)));
   const maxGames = pairs * 2;
@@ -89,9 +108,21 @@ function estimatePairedText(budgetPairs, workers = 4, tableSeats = PAIRED_MEASUR
 // The pre-run plan comes from the backend (paired_series.planned_detectable_difference_pp via
 // GET /api/simulations/paired-plan): one computation, with the Student-t quantiles at
 // (seeds - 1) degrees of freedom that the evaluation uses. This only formats it.
+// The reference sentence of the plan (#1661): at five and six seats the server's base win rate 1/N
+// and the games a single win share needs for +-20 % (Wilson); at two to four seats the long-standing
+// reference at 25 %. Nothing is computed here.
+function planPairedReference(plan) {
+  const b = plan.baseline;
+  if (!b || !b.applies_to_plan) return "Referenz: ein einzelner Siegrate-Anteil braucht bei 25 % rund 800 Partien für ±3 pp.";
+  const pct = (v) => StudioUI.num(v, Number.isInteger(v) ? 0 : Math.abs(v * 10 - Math.round(v * 10)) < 1e-9 ? 1 : 2);
+  return `Referenz: Zufallsbasis 1/${StudioUI.num(b.table_size, 0)} = ${pct(b.win_rate_pct)} % bei ${StudioUI.num(b.table_size, 0)} gleich starken Plätzen; ein einzelner Siegrate-Anteil braucht ${StudioUI.num(b.games_needed_wilson, 0)} Partien für ±${pct(b.half_width_pp)} pp (±20 % relativ, 95-%-Wilson-Intervall).`;
+}
+
 function planPairedLines(plan, thresholdPp) {
   const range = (a, b, digits) => (a === b ? StudioUI.num(a, digits) : `${StudioUI.num(a, digits)} bis ${StudioUI.num(b, digits)}`);
   const a = plan.assumptions || {};
+  const sdRate = a.pair_sd_win_rate_pct === undefined || a.pair_sd_win_rate_pct === null ? 25 : Number(a.pair_sd_win_rate_pct);
+  const sdBase = plan.baseline && plan.baseline.applies_to_plan ? ` = Zufallsbasis 1/${StudioUI.num(plan.baseline.table_size, 0)}` : "";
   const threshold = Number(thresholdPp) || 0;
   const unknown = plan.detectable_pp_low === null || plan.detectable_pp_low === undefined;
   const first = unknown
@@ -101,8 +132,8 @@ function planPairedLines(plan, thresholdPp) {
     : `Mit ${StudioUI.num(plan.budget_pairs, 0)} Paaren entscheidbar: erst Abstände zur Schwelle von ${StudioUI.num(threshold, 1)} pp ab etwa ${range(plan.detectable_pp_low, plan.detectable_pp_high, 1)} Prozentpunkten (95 %, Power 80 %).`;
   return [
     first,
-    `Für ${StudioUI.num(plan.reference_effect_pp, 0)} pp bräuchte es etwa ${range(plan.pairs_needed_low, plan.pairs_needed_high, 0)} Paare. Referenz: ein einzelner Siegrate-Anteil braucht bei 25 % rund 800 Partien für ±3 pp.`,
-    `Annahmen: Paar-Streuung ${StudioUI.num(a.pair_sd, 2)} als vorsichtiger Planungswert (exakt ${StudioUI.num(a.pair_sd_independent_exact, 3)} für unabhängige Partien mit 25 % Siegrate; gepaart: Korrelation ungemessen); Student-t mit ${StudioUI.num(a.degrees_of_freedom, 0)} Freiheitsgraden (Seeds − 1) wie in der Auswertung${a.seats_per_seed > 1 ? `; Sitzrotation mit ${StudioUI.num(a.seats_per_seed, 0)} Sitzen je Seed bis Design-Effekt ${StudioUI.num(a.design_effect, 2)} (Blockkorrelation ${StudioUI.num(a.block_correlation_assumed, 2)} angenommen)` : ""}; Zwischenblicke nicht eingerechnet. Ein Plan, keine Messung.`,
+    `Für ${StudioUI.num(plan.reference_effect_pp, 0)} pp bräuchte es etwa ${range(plan.pairs_needed_low, plan.pairs_needed_high, 0)} Paare. ${planPairedReference(plan)}`,
+    `Annahmen: Paar-Streuung ${StudioUI.num(a.pair_sd, 2)} als vorsichtiger Planungswert (exakt ${StudioUI.num(a.pair_sd_independent_exact, 3)} für unabhängige Partien mit ${StudioUI.num(sdRate, Number.isInteger(sdRate) ? 0 : 1)} % Siegrate${sdBase}; gepaart: Korrelation ungemessen); Student-t mit ${StudioUI.num(a.degrees_of_freedom, 0)} Freiheitsgraden (Seeds − 1) wie in der Auswertung${a.seats_per_seed > 1 ? `; Sitzrotation mit ${StudioUI.num(a.seats_per_seed, 0)} Sitzen je Seed bis Design-Effekt ${StudioUI.num(a.design_effect, 2)} (Blockkorrelation ${StudioUI.num(a.block_correlation_assumed, 2)} angenommen)` : ""}; Zwischenblicke nicht eingerechnet. Ein Plan, keine Messung.`,
   ];
 }
 

@@ -173,6 +173,12 @@ const outcomesBaseRate = (size) =>
     ? `Basis-Siegrate bei ${StudioUI.num(size, 0)} ${size === 1 ? "Sitz" : "Sitzen"}: 1/${StudioUI.num(size, 0)}`
     : "Basis-Siegrate unbekannt";
 
+// What a cell's figures were counted for (#1661): "Gezählt für 5 Sitze"; an unknown size is named.
+const outcomesCountedFor = (size) =>
+  Number.isInteger(size) && size > 0
+    ? `Gezählt für ${StudioUI.num(size, 0)} ${size === 1 ? "Sitz" : "Sitze"}`
+    : "Gezählt für unbekannte Tischgröße";
+
 // One cell (table size and pilot fingerprint, #1694/#1687) as its own section: its own strata
 // only, combined stratified when they may be, never together with another cell. Every stratum of
 // the cell keeps its own section with n/N and provenance; a single stratum is not shown twice.
@@ -188,6 +194,7 @@ function outcomesCohortSection(h, cohort, deps) {
       : `${count} Deck-Stände nicht zusammengeführt`;
   const sizeLabel = outcomesCellName(cohort);
   const parts = [
+    outcomesCountedFor(cohort.table_size),
     `Schichten dieses Abschnitts: ${outcomesInt(cohort.strata)}`,
     `Partien: ${outcomesInt(cohort.games_total)}`,
     `${outcomesBaseRate(cohort.table_size)}, nie mit einer anderen Tischgröße oder einem anderen Pilot-Fingerabdruck gemischt`,
@@ -479,6 +486,7 @@ if (typeof module !== "undefined" && module.exports) {
     outcomesRatio,
     outcomesShortHash,
     outcomesBaseRate,
+    outcomesCountedFor,
     outcomesStandLabel,
     outcomesStratumName,
     outcomesReasonText,

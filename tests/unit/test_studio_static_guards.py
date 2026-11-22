@@ -2132,7 +2132,10 @@ def test_partie_cohort_wiring_reads_the_server_value_and_uses_no_html_sinks() ->
     assert html.index('src="cohort.js"') < html.index('src="partie.js"')
     assert index.index('src="cohort.js"') < index.index('src="app.js"')
     # the value is the server's: set from every state answer, reset when another game opens
-    assert "state.cohortRecord = { cohort: page.cohort, played_seats: page.played_seats };" in js
+    assert (
+        "state.cohortRecord = { cohort: page.cohort, played_seats: page.played_seats, "
+        "table_size: page.table_size };"
+    ) in js
     assert "Object.assign(state, { gameId, cohortRecord: null," in js
     assert (
         "human_seats" not in cohort and "pilot" not in cohort
