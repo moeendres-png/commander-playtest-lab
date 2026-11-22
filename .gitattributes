@@ -24,3 +24,6 @@ docs/J_P5_DEVELOPMENT_EVIDENCE.json -text
 src/commander_lab/decision_statistics.py -text
 src/commander_lab/models/optimization.py -text
 tests/unit/test_j_p5_optimizer_validation.py -text
+
+# Windows batch files need CRLF line endings on checkout (one-click starter, Refs #1519).
+*.cmd text eol=crlf

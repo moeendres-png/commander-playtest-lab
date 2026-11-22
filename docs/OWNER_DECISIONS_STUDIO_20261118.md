@@ -926,6 +926,33 @@ Auslegung des Co-Leads (Einspruch des Owners jederzeit möglich).
    jederzeit erlaubt (Nr. 5, Auslegung des Co-Leads, fail-closed); eine Neufreigabe entscheidet nur
    der Owner. PLAY und die Partie-Seite bleiben bei 6.
 
+### E20: Ein-Klick-Starter für das Studio (2026-11-22, #1519, #1167)
+
+Owner, 2026-11-22, Session-Chat; Niederschrift des Co-Leads. Owner-Wortlaut (nur der Text in
+Anführungszeichen): „Können wir das ganze eventuell so umbauen/umsetzen, dass das starten des
+Programms einfacher macht? Dann kann ich es auch leichter testen“. Alles Weitere ist Auslegung des
+Co-Leads bzw. der umsetzenden Sitzung (Einspruch des Owners jederzeit möglich).
+
+1. **Umsetzung:** `Studio starten.cmd` im Repo-Hauptordner ruft die dünne Hülle
+   `scripts/studio_oneclick.ps1` (Linux/WSL: `scripts/studio_oneclick.sh`), die Logik liegt in
+   `src/commander_lab/studio/oneclick.py` (acht Schritte, Bedienung in
+   `docs/STUDIO_START_EINFACH.md`). Der bisherige Weg (`scripts/studio_start.ps1`) bleibt.
+2. **Netzwege (Auslegung des Co-Leads):** „einfacher starten“ deckt genau zwei Abrufe: `git pull
+   --ff-only` (nur auf sauberem `main` mit Gegenstelle) und den Download des Artefakts von
+   `release-artifacts.yml` auf `main` über die GitHub-CLI `gh` mit der Anmeldung des Owners. Eine
+   JAR gilt nur, wenn ihre SHA-256 zur `.sha256`-Datei und zu `PLAYTEST_LAB_SHA256SUMS.txt` passt
+   und `ENGINE_PIN.txt` gleich dem Pin aus `config/rules_engines.json` ist; eine selbst gebaute
+   oder vorhandene JAR ohne Prüfdateien nur, wenn die Engine selbst diesen Pin meldet. Fork und
+   Pin ändert der Starter nie. Keine Preise (der Preisführer bleibt ein eigener Befehl), keine
+   Telemetrie, kein Upload, kein Token wird gelesen, gespeichert oder ausgegeben.
+3. **Zustimmung:** Programm-Installationen (winget: Python, Java) nur nach getipptem „J“, auch
+   nicht mit `--ja`; der Eigenbau mit Maven und der Rückfall `pip install -e ".[api]"` nur nach
+   Bestätigung. Nie `reset`, `stash` oder `clean`; Dateien des Owners bleiben unberührt.
+4. **Privat:** Sammlung, Decks und die Scryfall-Datei liegen nur im Studio-Datenordner, nie im
+   Repository; der Server bleibt auf 127.0.0.1.
+5. **Stand:** auf Windows nicht ausgeführt (keine Windows-Umgebung in der Agenten-Sitzung); der
+   Owner-PC ist der erste echte Lauf (zu prüfen am PC).
+
 ## 3. Was aufgehoben, geändert oder neu ist
 
 | Bisher | Jetzt | Quelle |

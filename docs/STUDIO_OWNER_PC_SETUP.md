@@ -83,6 +83,20 @@ Alle Schritte sind aus den Skripten abgeleitet; keiner wurde auf dem Owner-PC au
 
 ## 4. Startbefehl
 
+**Einfacher Weg (seit 2026-11-22, Register E20):** im Repo-Hauptordner doppelt auf
+`Studio starten.cmd` klicken (Linux/WSL: `scripts/studio_oneclick.sh`). Der Starter
+(`scripts/studio_oneclick.ps1`, Logik in `src/commander_lab/studio/oneclick.py`) erledigt die
+Schritte 1 bis 8 aus Abschnitt 3 selbst und überspringt, was fertig ist: Python 3.12+ und Java 17+
+prüfen (winget-Installation nur nach getipptem „J“), `git pull --ff-only` nur auf sauberem `main`,
+`.venv` mit `requirements/lock.txt` (nur bei geänderter Prüfsumme), die Bridge-JAR aus dem
+Artefakt von `release-artifacts.yml` über `gh` (Prüfsummen und `ENGINE_PIN.txt` gegen den Pin;
+Rückfall Eigenbau mit Maven nur nach Bestätigung, Pin-Nachweis über `get_provider_version`),
+`build-appcds` bei neuer JAR, `doctor` mit Zusammenfassung, `import-all --from-repo` für Chulane
+bei leerem Datenordner (die Scryfall-Datei muss unter `<Datenordner>\kartendaten\` liegen),
+`serve --open` nach Port-Prüfung. Bedienung und Bedeutung jeder Meldung:
+`docs/STUDIO_START_EINFACH.md`. Auf Windows nicht ausgeführt: der Owner-PC ist der erste echte
+Lauf (ZPAP). Der bisherige Weg bleibt:
+
 ```powershell
 .\scripts\studio_start.ps1
 ```
