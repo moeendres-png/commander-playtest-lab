@@ -1,8 +1,9 @@
 """The one-click starter (``commander_lab.studio.oneclick``) with fake processes and folders.
 
-Every guard the Owner asked for has a test that fails when the guard is removed: no pull on a
-dirty or foreign branch, no install without a typed "J", no JAR without pin and checksum check,
-no start when the port is taken, no token in the output, no write in ``--nur-pruefen``.
+The guards the Owner asked for (no pull on a dirty or foreign branch, no program install without a
+typed "J", no JAR without pin and checksum check, no start when the port is taken, no token in the
+output, no write in ``--nur-pruefen``) have tests here; how many hand-made mutations they catch is
+recorded, as X of Y, in the pull request, not claimed for every possible change.
 """
 
 from __future__ import annotations
@@ -102,6 +103,7 @@ def world(tmp_path: Path) -> tuple[oc.Umgebung, FakeRun, list[str]]:
     run.on(lambda c: c[-2:] == ["rev-parse", "HEAD"], oc.Lauf(0, f"{HEAD}\n"))
     run.on(has("status", "--porcelain"), oc.Lauf(0, ""))
     run.on(has("@{u}"), oc.Lauf(0, "origin/main\n"))
+    run.on(has("remote", "get-url"), oc.Lauf(0, f"https://github.com/{oc.REPO_SLUG}.git\n"))
     tools = {"git": "/usr/bin/git", "java": "/usr/bin/java", "winget": "winget"}
     u = oc.Umgebung(
         repo=repo,
@@ -299,6 +301,7 @@ def _engine(u: oc.Umgebung, jar: bytes = b"JAR", pin: str = PIN, sha: str | None
     (engine / oc.JAR_NAME).write_bytes(jar)
     (engine / oc.SHA_NAME).write_text(f"{sha or _sha(jar)}  {oc.JAR_NAME}\n", encoding="utf-8")
     (engine / oc.PIN_NAME).write_text(f"{pin}\n", encoding="utf-8")
+    (engine / oc.SOURCE_NAME).write_text(f"{HEAD}\n", encoding="utf-8")
     return engine
 
 
@@ -557,9 +560,35 @@ def test_first_import_runs_once_and_marks_only_success(world: World) -> None:
     run.on(has("import-all"), oc.Lauf(0))
     oc.erstimport(u, oc.Bericht(), None, nur_pruefen=False)
     assert (u.data / oc.STATE_FOLDER / oc.IMPORT_MARKER).is_file()
+    _fill_store(u)
     run.calls.clear()
-    oc.erstimport(u, oc.Bericht(), None, nur_pruefen=False)
+    bericht = oc.Bericht()
+    oc.erstimport(u, bericht, None, nur_pruefen=False)
     assert not run.ran("import-all")
+    assert bericht.befunde[-1].farbe == oc.GRUEN
+
+
+def _fill_store(u: oc.Umgebung) -> None:
+    u.data.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(u.data / oc.DATABASE_NAME) as db:
+        db.execute("CREATE TABLE IF NOT EXISTS card (oracle_id TEXT)")
+        db.execute("INSERT INTO card VALUES ('x')")
+    db.close()
+
+
+def test_a_marker_without_a_store_is_not_green_and_imports_again(world: World) -> None:
+    u, run, _out = world
+    marker = u.data / oc.STATE_FOLDER / oc.IMPORT_MARKER
+    marker.parent.mkdir(parents=True)
+    marker.write_text("{}", encoding="utf-8")
+    bericht = oc.Bericht()
+    oc.erstimport(u, bericht, None, nur_pruefen=False)
+    assert bericht.befunde[-1].farbe == oc.GELB  # no Scryfall file: yellow, never green
+    scry = u.data / oc.SCRYFALL_FOLDER / "oracle-cards-1.jsonl.gz"
+    scry.parent.mkdir(parents=True)
+    scry.write_bytes(b"x")
+    oc.erstimport(u, oc.Bericht(), None, nur_pruefen=False)
+    assert run.ran("import-all")
 
 
 def test_no_scryfall_file_means_no_import_and_a_yellow_hint(world: World) -> None:
@@ -746,7 +775,7 @@ def test_a_failed_copy_is_reported_not_raised(tmp_path: Path) -> None:
     blocked.write_text("a file where the engine folder should be", encoding="utf-8")
     source = tmp_path / "x.jar"
     source.write_bytes(b"JAR")
-    assert oc.stelle_bereit(source, blocked, _sha(b"JAR"), PIN) is False
+    assert oc.stelle_bereit(source, blocked, _sha(b"JAR"), PIN, HEAD) is False
 
 
 def test_a_store_locked_by_a_running_studio_is_not_empty(world: World) -> None:
@@ -770,3 +799,237 @@ def test_the_handshake_runs_outside_the_repository(world: World) -> None:
     cwd = Path(str(run.kwargs[-1]["cwd"]))
     assert not cwd.resolve().is_relative_to(u.repo.resolve())
     assert cwd.resolve().is_relative_to(u.data.resolve())
+
+
+# --- negative tests from the reviews of #1766 --------------------------------------------
+
+
+def test_eof_and_an_empty_answer_are_no(world: World) -> None:
+    u, _run, _out = world
+    u.interaktiv = True
+
+    def eof(_prompt: str) -> str:
+        raise EOFError
+
+    u.eingabe = eof
+    assert oc.frage(u, "Frage?") is False
+    u.eingabe = lambda _prompt: ""
+    assert oc.frage(u, "Frage?") is False
+
+
+def test_a_missing_sha_file_makes_the_jar_invalid(world: World) -> None:
+    u, _run, _out = world
+    engine = _engine(u)
+    (engine / oc.SHA_NAME).unlink()
+    assert oc.jar_geprueft(engine, PIN)[0] is False
+
+
+def _reply(commit: str, request_id: str = "studio-start-1") -> oc.Lauf:
+    body = {"request_id": request_id, "success": True, "payload": {"engine_commit": commit}}
+    return oc.Lauf(0, json.dumps(body) + "\n")
+
+
+@pytest.mark.parametrize("answer", [_reply(OTHER_PIN), oc.Lauf(0, ""), oc.Lauf(1, "boom")])
+def test_an_existing_jar_without_sidecars_and_a_wrong_or_silent_engine_stays_unverified(
+    world: World, answer: oc.Lauf
+) -> None:
+    u, run, _out = world
+    engine = _engine(u)
+    for name in (oc.SHA_NAME, oc.PIN_NAME, oc.SOURCE_NAME):
+        (engine / name).unlink()
+    run.on(has("-jar"), answer)
+    oc.sorge_fuer_engine(u, oc.Bericht(), PIN, "/usr/bin/java", nur_pruefen=False)
+    assert not (engine / oc.SHA_NAME).exists() and not (engine / oc.PIN_NAME).exists()
+    assert oc.jar_geprueft(engine, PIN)[0] is False
+
+
+def test_maven_with_a_silent_engine_is_not_staged_and_drops_repository_override(
+    world: World,
+) -> None:
+    u, run, _out = world
+    tools = {"git": "g", "java": "j", "javac": "jc", "mvn": "mvn"}
+    u.which = lambda name: tools.get(name)
+    u.ja = True
+    u.env["COMMANDER_LAB_XMAGE_REPOSITORY"] = "https://example.invalid/fork.git"
+    jar = u.repo / oc.BUILT_JAR
+    jar.parent.mkdir(parents=True)
+    jar.write_bytes(b"BUILT")
+    run.on(has("-jar"), oc.Lauf(0, ""))
+    ok, _why = oc.baue_mit_maven(u, PIN, "/usr/bin/java")
+    assert not ok and not (u.data / "engine" / oc.JAR_NAME).exists()
+    env = next(kw["env"] for c, kw in zip(run.calls, run.kwargs, strict=True) if "bash" in c)
+    assert "COMMANDER_LAB_XMAGE_REPOSITORY" not in env  # type: ignore[operator]
+
+
+def test_a_failing_git_status_counts_as_not_clean(world: World) -> None:
+    u, run, _out = world
+    run.on(has("status", "--porcelain"), oc.Lauf(128, ""))
+    assert oc.aktualisiere_repo(u, oc.Bericht(), nur_pruefen=False) is False
+    assert not run.ran("pull")
+
+
+@pytest.mark.parametrize(
+    ("upstream", "url"),
+    [
+        ("fork/feature", f"https://github.com/{oc.REPO_SLUG}.git"),
+        ("origin/main", "https://github.com/someone/commander-playtest-lab.git"),
+        ("origin/main", "https://example.invalid/moeendres-png/commander-playtest-lab"),
+    ],
+)
+def test_pull_needs_main_of_the_official_repository(world: World, upstream: str, url: str) -> None:
+    u, run, _out = world
+    run.on(has("@{u}"), oc.Lauf(0, f"{upstream}\n"))
+    run.on(has("remote", "get-url"), oc.Lauf(0, f"{url}\n"))
+    bericht = oc.Bericht()
+    assert oc.aktualisiere_repo(u, bericht, nur_pruefen=False) is False
+    assert not run.ran("pull") and bericht.befunde[-1].farbe == oc.GELB
+
+
+def test_a_pull_lists_what_came_in_and_names_ohne_update(world: World) -> None:
+    u, run, out = world
+    heads = iter([f"{HEAD}\n", f"{'d' * 40}\n"])
+    run.on(lambda c: c[-2:] == ["rev-parse", "HEAD"], lambda _c, _k: oc.Lauf(0, next(heads)))
+    run.on(has("rev-list", "--count"), oc.Lauf(0, "2\n"))
+    run.on(has("log", "--format=%s"), oc.Lauf(0, "Erste Änderung\nZweite Änderung\n"))
+    assert oc.aktualisiere_repo(u, oc.Bericht(), nur_pruefen=False) is True
+    text = "\n".join(out)
+    assert "2 neue Änderungen" in text and "Zweite Änderung" in text and "--ohne-update" in text
+
+
+def test_winget_is_never_offered_in_nur_pruefen(world: World) -> None:
+    u, run, _out = world
+    _no_java(u)
+    u.interaktiv, u.eingabe = True, (lambda _prompt: "J")
+    oc.pruefe_java(u, oc.Bericht(), nur_pruefen=True)
+    assert not run.ran("winget")
+
+
+def test_an_artifact_named_for_another_commit_is_not_picked(world: World) -> None:
+    u, run, _out = world
+    run.on(has("api"), _runs(_run(8, HEAD)))
+    run.on(lambda c: "actions/runs/8/artifacts" in " ".join(c), _arts("9" * 40))
+    assert oc.waehle_artefakt(u, "gh", HEAD)[0] is None
+
+
+def test_a_symlinked_file_in_the_artifact_is_refused(tmp_path: Path) -> None:
+    folder = tmp_path / "a"
+    _artifact_folder(folder)
+    real = tmp_path / "pin.txt"
+    real.write_text(PIN, encoding="utf-8")
+    (folder / oc.PIN_NAME).unlink()
+    (folder / oc.PIN_NAME).symlink_to(real)
+    assert oc.pruefe_artefakt(folder, PIN)[0] is None
+
+
+def test_a_copy_that_changes_on_the_way_is_not_activated(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    source = tmp_path / "x.jar"
+    source.write_bytes(b"JAR")
+    monkeypatch.setattr(oc.shutil, "copyfile", lambda _a, b: Path(b).write_bytes(b"EVIL"))
+    engine = tmp_path / "engine"
+    assert oc.stelle_bereit(source, engine, _sha(b"JAR"), PIN, HEAD) is False
+    assert not (engine / oc.JAR_NAME).exists()
+
+
+def test_soll_pin_needs_a_full_commit() -> None:
+    assert oc.soll_pin({"expected_pin": "abc"}) is None
+    assert oc.soll_pin({"expected_pin": PIN}) == PIN
+
+
+def test_a_reply_to_another_request_does_not_count(world: World) -> None:
+    u, run, _out = world
+    run.on(has("-jar"), _reply(PIN, request_id="other"))
+    assert oc.engine_meldet_pin(u, "java", Path("x.jar")) is None
+
+
+def test_the_download_names_the_repository_and_the_restart_never_pulls(world: World) -> None:
+    u, run, _out = world
+    _gh_world(u, run)
+    oc.hole_artefakt(u, PIN, None)
+    download = next(c for c in run.calls if "download" in c)
+    assert download[download.index("-R") + 1] == oc.REPO_SLUG
+    cmd = oc.neustart_befehl("py", ["--ja", "--ohne-update"])
+    assert cmd.count("--ohne-update") == 1 and cmd[-1] == "--ohne-update" and "--ja" in cmd
+
+
+def test_an_artifact_whose_engine_stays_silent_is_not_staged(world: World) -> None:
+    u, run, _out = world
+    _gh_world(u, run)
+    run.on(has("-jar"), oc.Lauf(0, ""))
+    assert oc.sorge_fuer_engine(u, oc.Bericht(), PIN, "/usr/bin/java", nur_pruefen=False) is False
+    assert not (u.data / "engine" / oc.JAR_NAME).exists()
+
+
+def test_an_oversized_artifact_is_not_downloaded(world: World) -> None:
+    u, run, _out = world
+    _gh_world(u, run)
+    big = {"name": f"{oc.ARTIFACT_PREFIX}1.25.0-{HEAD}", "expired": False, "size_in_bytes": 3 << 30}
+    run.on(
+        lambda c: "actions/runs/8/artifacts" in " ".join(c),
+        oc.Lauf(0, json.dumps({"artifacts": [big]})),
+    )
+    assert oc.hole_artefakt(u, PIN, None)[0] is None
+    assert not run.ran("run", "download")
+
+
+def test_a_stale_bridge_asks_gh_and_a_foreign_artifact_is_only_yellow(world: World) -> None:
+    u, run, _out = world
+    _gh_world(u, run)
+    _engine(u)
+    run.on(has("diff", "--quiet"), oc.Lauf(1))  # engine-bridge/ differs from HEAD
+    bericht = oc.Bericht()
+    assert oc.sorge_fuer_engine(u, bericht, PIN, None, nur_pruefen=False) is True
+    assert run.ran("run", "download")
+    assert bericht.befunde[-1].farbe == oc.GELB
+    assert (u.data / "engine" / oc.SOURCE_NAME).read_text(encoding="utf-8").strip() == HEAD
+
+
+def test_a_stale_bridge_without_a_new_package_stays_yellow_and_is_kept(world: World) -> None:
+    u, run, _out = world
+    _engine(u)
+    run.on(has("diff", "--quiet"), oc.Lauf(1))
+    bericht = oc.Bericht()
+    assert oc.sorge_fuer_engine(u, bericht, PIN, None, nur_pruefen=False) is False
+    assert bericht.befunde[-1].farbe == oc.GELB
+    assert (u.data / "engine" / oc.JAR_NAME).is_file()
+    assert not run.ran("mvn")
+
+
+def test_a_fallback_install_stays_yellow_and_retries_the_lock(world: World) -> None:
+    u, run, _out = world
+    marker = u.repo / ".venv" / oc.PACKAGES_MARKER
+    marker.write_text(f"{oc.pakete_pruefsumme(u.repo)} api\n", encoding="utf-8")
+    run.on(has("--require-hashes"), oc.Lauf(1))
+    bericht = oc.Bericht()
+    assert oc.richte_venv_ein(u, bericht, nur_pruefen=False, neu=False) is True
+    assert run.ran("--require-hashes")
+    assert bericht.befunde[-1].farbe == oc.GELB
+
+
+def test_unreadable_java_version_damaged_store_and_own_engine_command_are_yellow(
+    world: World,
+) -> None:
+    u, run, _out = world
+    run.on(has("-version"), oc.Lauf(1, "", "kaputt"))
+    bericht = oc.Bericht()
+    oc.pruefe_java(u, bericht, nur_pruefen=False)
+    assert bericht.befunde[-1].farbe == oc.GELB
+    u.data.mkdir(parents=True)
+    (u.data / oc.DATABASE_NAME).write_bytes(b"not a database" * 100)
+    oc.erstimport(u, bericht, None, nur_pruefen=False)
+    assert bericht.befunde[-1].farbe == oc.GELB
+    u.env[oc.ENGINE_COMMAND_ENV] = "java -jar x.jar full-game"
+    oc.sorge_fuer_engine(u, bericht, PIN, None, nur_pruefen=False)
+    assert bericht.befunde[-1].farbe == oc.GELB
+
+
+def test_the_shortcut_is_never_made_by_ja_alone_and_never_overwritten(world: World) -> None:
+    u, run, _out = world
+    u.windows, u.ja = True, True
+    oc.verknuepfung(u)
+    assert not run.ran("powershell")
+    u.interaktiv, u.eingabe = True, (lambda _prompt: "J")
+    oc.verknuepfung(u)
+    script = next(c for c in run.calls if "powershell" in c)[-1]
+    assert "Test-Path" in script and "exit 3" in script

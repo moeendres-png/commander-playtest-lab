@@ -7,8 +7,9 @@ ist der erste echte Lauf** (zu prüfen am PC, `docs/STUDIO_ABNAHME_PROTOKOLL.md`
 ## So startest du
 
 1. Im Programmordner doppelt auf **`Studio starten.cmd`** klicken.
-2. Lesen, was das Fenster sagt; nur bei „(J/N)“ antwortest du. Ohne dein „J“ wird nichts
-   installiert.
+2. Lesen, was das Fenster sagt; nur bei „(J/N)“ antwortest du. Programme (Python, Java)
+   installiert er nie ohne dein „J“; die Python-Pakete in `.venv` und das Engine-Paket holt er
+   ohne Rückfrage, weil das der Zweck des Starters ist.
 3. Am Ende steht „Alles bereit.“ oder „Es fehlt: …“, und der Browser öffnet das Studio.
 
 Der Starter macht jedes Mal dieselben acht Schritte und überspringt, was schon fertig ist:
@@ -36,10 +37,13 @@ Programm-Installationen fragt er trotzdem). Der alte Weg über `scripts/studio_s
 |---|---|---|
 | Python zu alt oder fehlt | Ohne Python 3.12 läuft nichts. | `winget install --id Python.Python.3.12 -e`, Fenster schließen, neu starten. |
 | Java fehlt oder ist zu alt | Das Studio startet, aber ohne Partien und Serien. | „J“ beim Angebot oder `winget install --id EclipseAdoptium.Temurin.17.JDK -e`, dann neu starten. |
-| Nicht aktualisiert (gelb) | Anderer Zweig als `main`, geänderte Dateien oder kein Netz. Der Starter fasst deine Dateien nie an. | Nichts nötig; für den neuesten Stand auf `main` wechseln. |
+| Nicht aktualisiert (gelb) | Anderer Zweig als `main`, geänderte Dateien, eine andere Gegenstelle als `main` von `moeendres-png/commander-playtest-lab` oder kein Netz. Der Starter fasst deine Dateien nie an. | Nichts nötig; für den neuesten Stand auf `main` wechseln. |
+| „N neue Änderungen geholt“ | Er hat den neuen Programmstand geholt, zeigt bis zu zehn Betreffzeilen und startet sich neu. | Nichts nötig. Ohne Aktualisieren: `--ohne-update`. |
+| Python-Pakete ohne feste Prüfsummen (gelb) | Die Lock-Datei klappte nicht; nach deinem „J“ lief der Rückfall `pip install -e ".[api]"`. | Nichts nötig zum Starten; er versucht die Lock-Datei bei jedem Start erneut. |
 | Python-Pakete | Die Installation ist gescheitert. | Die Meldungen von pip lesen, Netz prüfen, neu starten. Bei kaputter `.venv`: den Ordner umbenennen (z. B. `.venv-alt`). |
 | Engine fehlt | Kein geprüftes Engine-Paket. Der Starter holt es mit dem GitHub-Programm `gh`. | Einmal `winget install --id GitHub.cli -e` und `gh auth login`, dann neu starten. Sonst bietet er den Eigenbau mit Maven an (dauert lange). |
-| Engine-Version passt nicht | Die Engine gehört nicht zum Pin in `config/rules_engines.json`. Sie wird nie ungeprüft benutzt. | Neu starten; der Starter holt die passende Engine. |
+| Engine-Version passt nicht | Die Engine gehört nicht zum Pin in `config/rules_engines.json` oder antwortet nicht. Sie wird nie ungeprüft benutzt. | Neu starten; der Starter holt die passende Engine. |
+| Engine älter als der Programmstand (gelb) | Die Engine-Quellen haben sich seit dem Bau der Engine geändert, und es gibt noch kein neueres Paket. | Nichts nötig; später neu starten. |
 | Schnellstart-Datei (gelb) | Partien starten etwas langsamer. | Nichts nötig; der Starter baut sie beim nächsten Mal. |
 | Kartendaten fehlen (gelb) | Für den ersten Import fehlt die Scryfall-Datei „Oracle Cards“. Sie wird nie automatisch geladen. | Bei scryfall.com/docs/api/bulk-data „Oracle Cards“ laden und in `%LOCALAPPDATA%\CommanderStudio\kartendaten\` legen, neu starten. |
 | Erster Import nicht vollständig | `import-all` ist abgebrochen. | Meldungen lesen; beim nächsten Start versucht er es erneut. |
@@ -49,11 +53,12 @@ Programm-Installationen fragt er trotzdem). Der alte Weg über `scripts/studio_s
 
 ## Was der Starter nie tut
 
-- Er installiert nichts ohne dein getipptes „J“ und ändert nie Fork oder Pin der Engine.
+- Er installiert keine Programme ohne dein getipptes „J“ und ändert nie Fork oder Pin der Engine.
 - Er setzt nichts zurück (`reset`, `stash`, `clean`) und löscht keine Dateien von dir.
-- Aus dem Netz holt er: den neuen Programmstand (`git pull`), die Python-Pakete von PyPI (nur
-  beim ersten Mal und wenn sich `requirements/lock.txt` ändert, jede Datei mit fester Prüfsumme)
-  und das Engine-Paket aus GitHub Actions über `gh` (das ist neu). Nur nach deinem „J“ kommen
+- Aus dem Netz holt er ohne Rückfrage: den neuen Programmstand (`git pull`, bei jedem Start),
+  die Python-Pakete von PyPI (nur beim ersten Mal und wenn sich `requirements/lock.txt` ändert,
+  jede Datei mit fester Prüfsumme; im Rückfall ohne feste Prüfsumme, dann gelb) und das
+  Engine-Paket aus GitHub Actions über `gh`. Das ist alles neu gegenüber dem Handbetrieb. Nur nach deinem „J“ kommen
   winget-Installationen und der Eigenbau mit Maven dazu (Engine-Quellen und Maven-Bibliotheken).
   Keine Preise, keine Nutzungsdaten, kein Upload.
 - Er gibt keine Zugangsschlüssel aus und speichert keine.

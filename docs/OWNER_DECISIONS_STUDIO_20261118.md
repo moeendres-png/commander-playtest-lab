@@ -980,25 +980,46 @@ Co-Leads bzw. der umsetzenden Sitzung (Einspruch des Owners jederzeit möglich).
    `scripts/studio_oneclick.ps1` (Linux/WSL: `scripts/studio_oneclick.sh`), die Logik liegt in
    `src/commander_lab/studio/oneclick.py` (acht Schritte, Bedienung in
    `docs/STUDIO_START_EINFACH.md`). Der bisherige Weg (`scripts/studio_start.ps1`) bleibt.
-2. **Netzwege (Auslegung des Co-Leads):** „einfacher starten“ deckt als neuen Abruf nur den
-   Download des Artefakts von `release-artifacts.yml` (Ereignis `push` auf `main` dieses
-   Repositorys, nie ein Pull-Request-Lauf) über die GitHub-CLI `gh` mit der Anmeldung des Owners.
-   Daneben laufen die schon dokumentierten Wege der Setup-Seite: `git pull --ff-only` (nur auf
-   sauberem `main` mit Gegenstelle), `pip` aus PyPI nach `requirements/lock.txt` (hash-gebunden,
-   nur beim ersten Lauf und bei geänderter Lock-Datei) und, nur nach Bestätigung, winget sowie der
-   Maven-Eigenbau (Engine-Quellen und Maven-Bibliotheken). Eine
-   JAR gilt nur, wenn ihre SHA-256 zur `.sha256`-Datei und zu `PLAYTEST_LAB_SHA256SUMS.txt` passt
-   und `ENGINE_PIN.txt` gleich dem Pin aus `config/rules_engines.json` ist; eine selbst gebaute
-   oder vorhandene JAR ohne Prüfdateien nur, wenn die Engine selbst diesen Pin meldet. Fork und
-   Pin ändert der Starter nie. Keine Preise (der Preisführer bleibt ein eigener Befehl), keine
-   Telemetrie, kein Upload, kein Token wird gelesen, gespeichert oder ausgegeben.
-3. **Zustimmung:** Programm-Installationen (winget: Python, Java) nur nach getipptem „J“, auch
-   nicht mit `--ja`; der Eigenbau mit Maven und der Rückfall `pip install -e ".[api]"` nur nach
-   Bestätigung. Nie `reset`, `stash` oder `clean`; Dateien des Owners bleiben unberührt.
+2. **Netzwege (Auslegung des Co-Leads):** Alle folgenden Abrufe des Starters sind neu als
+   automatischer Ablauf (die Setup-Seite, Abschnitt 3, kannte weder `git pull` noch winget) und
+   gelten als Lesart von „einfacher starten“, nicht als Owner-Wortlaut:
+   (a) `git pull --ff-only` bei jedem Start, nur auf sauberem `main`, dessen Gegenstelle `main`
+   von `moeendres-png/commander-playtest-lab` ist; danach startet der Starter sich mit dem neuen
+   Stand neu. Jeder Merge auf `main` läuft damit beim nächsten Doppelklick auf dem Owner-PC; der
+   Starter zeigt die Zahl der geholten Änderungen und bis zu zehn Betreffzeilen und nennt den
+   Schalter `--ohne-update`. Das automatische Aktualisieren bleibt Standard, weil der Owner das
+   Starten ohne Handarbeit verlangt hat.
+   (b) `pip` aus PyPI in `.venv` nach `requirements/lock.txt` (hash-gebunden), ohne Rückfrage,
+   beim ersten Lauf und bei geänderter Lock-Datei; der Rückfall `pip install -e ".[api]"` (ohne
+   feste Prüfsummen) nur nach Bestätigung und danach gelb, bis die Lock-Datei klappt.
+   (c) Der Download des Artefakts von `release-artifacts.yml` (Ereignis `push` auf `main` dieses
+   Repositorys, nie ein Pull-Request-Lauf) über die GitHub-CLI `gh` mit der Anmeldung des Owners,
+   ohne Rückfrage.
+   (d) winget-Installationen (Python, Java) und der Maven-Eigenbau (Engine-Quellen, Maven-
+   Bibliotheken) nur nach Bestätigung.
+   Eine JAR gilt nur, wenn ihre SHA-256 zur `.sha256`-Datei und zu `PLAYTEST_LAB_SHA256SUMS.txt`
+   passt, `ENGINE_PIN.txt` gleich dem Pin aus `config/rules_engines.json` ist und, wenn Java da
+   ist, die Engine selbst diesen Pin meldet; eine selbst gebaute oder vorhandene JAR ohne
+   Prüfdateien nur über diese Meldung. Grün ist sie nur, wenn `engine-bridge/` am Stand ihres
+   Artefakts (`ENGINE_QUELLE.txt`) gleich dem Programmstand ist; sonst holt der Starter ein neueres
+   Paket oder meldet gelb. Fork und Pin ändert der Starter nie. Keine Preise (der Preisführer
+   bleibt ein eigener Befehl), keine Telemetrie, kein Upload, kein Token wird gelesen, gespeichert
+   oder ausgegeben.
+3. **Zustimmung:** Programm-Installationen (winget: Python, Java) nur nach getipptem „J“ in einer
+   Konsole, auch nicht mit `--ja`. Der Eigenbau mit Maven und der Rückfall
+   `pip install -e ".[api]"` brauchen eine Bestätigung: ein getipptes „J“ oder, ohne Konsole, den
+   Schalter `--ja`. Die Desktop-Verknüpfung entsteht nur nach getipptem „J“ und überschreibt nie
+   eine vorhandene. Nie `reset`, `stash` oder `clean`; Dateien des Owners bleiben unberührt.
 4. **Privat:** Sammlung, Decks und die Scryfall-Datei liegen nur im Studio-Datenordner, nie im
    Repository; der Server bleibt auf 127.0.0.1.
 5. **Stand:** auf Windows nicht ausgeführt (keine Windows-Umgebung in der Agenten-Sitzung); der
    Owner-PC ist der erste echte Lauf (zu prüfen am PC).
+6. **Owner-Antworten zu den offenen Fragen (2026-11-22, Session-Chat, Niederschrift des Co-Leads in
+   #1519, Kommentar 7087746346).** Wortlaut: „Zu 1. Empfehlung: erst gh, Release später. Und 2.:
+   Empfehlung: manuell lassen“. Lesart des Co-Leads: (1) Die Engine-Datei kommt vorerst über `gh`;
+   ein zusätzliches GitHub-Release (ohne `gh`-Anmeldung, ohne 30-Tage-Verfall) ist ein späterer
+   eigener PR (Workflow-Änderung, Klasse A) und wird erst nach Owner-Go gebaut. (2) Die
+   Scryfall-Datei „Oracle Cards“ bleibt manuell; der Starter lädt sie nicht.
 
 ## 3. Was aufgehoben, geändert oder neu ist
 

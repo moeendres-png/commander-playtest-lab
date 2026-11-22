@@ -62,6 +62,11 @@ def test_wrappers_call_the_tested_python_module() -> None:
 def test_the_cmd_file_pauses_on_error_and_has_crlf_on_checkout() -> None:
     text = CMD.read_text(encoding="utf-8")
     assert "pause" in text and "ExecutionPolicy Bypass" in text and "-File" in text
+    body = [
+        ln.strip() for ln in text.splitlines() if ln.strip() and not ln.lower().startswith("rem")
+    ]
+    # one parenthesised block that ends with exit /b: a pull during the run cannot shift lines
+    assert body[:3] == ["@echo off", "setlocal", "("] and body[-2:] == ["exit /b", ")"]
     attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
     assert re.search(r"^\*\.cmd\s+text\s+eol=crlf\s*$", attributes, re.MULTILINE)
 

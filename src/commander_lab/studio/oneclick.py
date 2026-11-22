@@ -55,6 +55,9 @@ JAR_NAME = "xmage-engine-bridge.jar"
 SHA_NAME = f"{JAR_NAME}.sha256"
 PIN_NAME = "ENGINE_PIN.txt"
 SUMS_NAME = "PLAYTEST_LAB_SHA256SUMS.txt"
+SOURCE_NAME = "ENGINE_QUELLE.txt"  # repository commit the staged bridge JAR was built from
+MAX_ARTIFACT_BYTES = 2 * 1024**3
+MAX_JAR_BYTES = 1024**3
 BUILT_JAR = Path("engine-bridge") / "target" / "xmage-engine-bridge-0.1.0-SNAPSHOT.jar"
 ENGINE_COMMAND_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
@@ -76,6 +79,9 @@ WINGET_GH = ("winget", "install", "--id", "GitHub.cli", "-e")
 HANDSHAKE_TIMEOUT = 180
 _SHA40 = re.compile(r"[0-9a-f]{40}")
 _SHA256 = re.compile(r"[0-9a-f]{64}")
+_REMOTE_URL = re.compile(
+    r"github\.com[:/]moeendres-png/commander-playtest-lab(?:\.git)?/?$", re.IGNORECASE
+)
 _JAVA_VERSION = re.compile(r'version "(\d+)(?:\.(\d+))?')
 
 GRUEN, GELB, ROT = "grün", "gelb", "rot"
@@ -283,10 +289,18 @@ def pruefe_java(u: Umgebung, bericht: Bericht, *, nur_pruefen: bool) -> str | No
     if java:
         probe = u.run([java, "-version"], capture=True, timeout=20)
         major = parse_java_major(f"{probe.stderr}\n{probe.stdout}")
-    if java and (major is None or major >= MIN_JAVA):
-        shown = f"Java {major}" if major is not None else "Java (Version nicht lesbar)"
-        u.sagen(f"  {shown} ist da.")
-        bericht.add("Java", GRUEN, f"{shown} ist installiert.")
+    if java and major is None:
+        u.sagen("  Java ist da, aber seine Version ist nicht lesbar.")
+        bericht.add(
+            "Java",
+            GELB,
+            "Java ist da, aber „java -version“ liefert keine lesbare Version.",
+            f"Java 17 neu installieren ({' '.join(WINGET_JAVA)}), wenn Partien nicht starten.",
+        )
+        return java
+    if java and major is not None and major >= MIN_JAVA:
+        u.sagen(f"  Java {major} ist da.")
+        bericht.add("Java", GRUEN, f"Java {major} ist installiert.")
         return java
     command = " ".join(WINGET_JAVA)
     reason = "Java 17 oder neuer" if not java else f"Java 17 oder neuer (gefunden: {major})"
@@ -368,9 +382,23 @@ def aktualisiere_repo(u: Umgebung, bericht: Bericht, *, nur_pruefen: bool) -> bo
         )
         return False
     upstream = g("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
-    if upstream.returncode != 0 or not upstream.stdout.strip():
-        u.sagen("  Der Zweig main hat keine Gegenstelle; ich aktualisiere nicht.")
-        bericht.add("Aktualisieren", GELB, "Nicht aktualisiert: main hat keine Gegenstelle.")
+    remote, _, remote_branch = upstream.stdout.strip().partition("/")
+    url = g("remote", "get-url", remote).stdout.strip() if remote else ""
+    if (
+        upstream.returncode != 0
+        or remote_branch != "main"
+        or not _REMOTE_URL.search(url.removesuffix("/"))
+    ):
+        u.sagen(
+            "  main folgt nicht dem main-Zweig von moeendres-png/commander-playtest-lab; "
+            "ich aktualisiere nicht."
+        )
+        bericht.add(
+            "Aktualisieren",
+            GELB,
+            "Nicht aktualisiert: main folgt nicht dem offiziellen main-Zweig.",
+            "Die Gegenstelle prüfen (git branch -vv); der Starter ändert sie nicht.",
+        )
         return False
     if nur_pruefen:
         u.sagen("  Aktualisieren wäre möglich (nur prüfen: nichts geändert).")
@@ -389,7 +417,12 @@ def aktualisiere_repo(u: Umgebung, bericht: Bericht, *, nur_pruefen: bool) -> bo
         return False
     after = g("rev-parse", "HEAD").stdout.strip()
     if after and after != before:
-        u.sagen("  Neuer Stand geholt.")
+        count = g("rev-list", "--count", f"{before}..{after}").stdout.strip() or "?"
+        subjects = g("log", "--format=%s", "-n", "10", f"{before}..{after}").stdout
+        u.sagen(f"  {count} neue Änderungen geholt:")
+        for line in subjects.splitlines()[:10]:
+            u.sagen(f"    - {line}")
+        u.sagen("  (Ohne Aktualisieren starten: mit dem Schalter --ohne-update.)")
         return True
     u.sagen("  Das Programm ist schon auf dem neuesten Stand.")
     bericht.add("Aktualisieren", GRUEN, "Das Programm ist auf dem neuesten Stand.")
@@ -448,10 +481,21 @@ def richte_venv_ein(u: Umgebung, bericht: Bericht, *, nur_pruefen: bool, neu: bo
         return False
     marker = u.repo / ".venv" / PACKAGES_MARKER
     wanted = pakete_pruefsumme(u.repo)
-    recorded = (marker.read_text(encoding="utf-8").split() or [""])[0] if marker.is_file() else ""
-    if recorded == wanted and not neu:
+    fields = marker.read_text(encoding="utf-8").split() if marker.is_file() else []
+    recorded = fields[0] if fields else ""
+    recorded_way = fields[1] if len(fields) > 1 else ""
+    if recorded == wanted and recorded_way == "lock" and not neu:
         u.sagen("  Die Python-Pakete sind aktuell.")
         bericht.add("Python-Pakete", GRUEN, "Die Python-Pakete sind installiert und aktuell.")
+        return True
+    api_before = recorded == wanted and recorded_way == "api"
+    if api_before and nur_pruefen:
+        bericht.add(
+            "Python-Pakete",
+            GELB,
+            "Die Python-Pakete sind ohne feste Prüfsummen installiert (Rückfall).",
+            "Den Starter ohne --nur-pruefen laufen lassen; er versucht die Lock-Datei erneut.",
+        )
         return True
     if nur_pruefen:
         fehlt(u, "aktuelle Python-Pakete.", "nichts (nur prüfen).")
@@ -472,6 +516,15 @@ def richte_venv_ein(u: Umgebung, bericht: Bericht, *, nur_pruefen: bool, neu: bo
         capture=False,
     )
     weg = "lock"
+    if lock.returncode != 0 and api_before:
+        u.sagen("  Die Lock-Datei klappt weiter nicht; die Pakete aus dem Rückfall bleiben.")
+        bericht.add(
+            "Python-Pakete",
+            GELB,
+            "Die Python-Pakete sind ohne feste Prüfsummen installiert (Rückfall).",
+            "Nichts nötig zum Starten; die Meldungen von pip oben an den Lead geben.",
+        )
+        return True
     if lock.returncode != 0:
         u.sagen("  Die Installation aus der Lock-Datei hat nicht geklappt.")
         if not frage(u, 'Soll ich stattdessen pip install -e ".[api]" versuchen?'):
@@ -501,7 +554,15 @@ def richte_venv_ein(u: Umgebung, bericht: Bericht, *, nur_pruefen: bool, neu: bo
         return False
     marker.write_text(f"{wanted} {weg}\n", encoding="utf-8")
     u.sagen("  Die Python-Pakete sind installiert.")
-    bericht.add("Python-Pakete", GRUEN, "Die Python-Pakete sind installiert und aktuell.")
+    if weg == "api":
+        bericht.add(
+            "Python-Pakete",
+            GELB,
+            "Die Python-Pakete sind ohne feste Prüfsummen installiert (Rückfall).",
+            "Nichts nötig zum Starten; beim nächsten Lauf versucht der Starter die Lock-Datei.",
+        )
+    else:
+        bericht.add("Python-Pakete", GRUEN, "Die Python-Pakete sind installiert und aktuell.")
     return True
 
 
@@ -598,17 +659,17 @@ def engine_meldet_pin(u: Umgebung, java: str, jar: Path) -> str | None:
     return None
 
 
-def stelle_bereit(source: Path, engine_dir: Path, sha: str, pin: str) -> bool:
+def stelle_bereit(source: Path, engine_dir: Path, sha: str, pin: str, quelle: str) -> bool:
     """Copy a verified JAR next to its sidecars: temp file in the same folder, re-hash, replace.
     False when copying failed (for example a JAR held open by a running game on Windows)."""
     try:
-        _stelle_bereit(source, engine_dir, sha, pin)
+        _stelle_bereit(source, engine_dir, sha, pin, quelle)
     except (OSError, RuntimeError):
         return False
     return True
 
 
-def _stelle_bereit(source: Path, engine_dir: Path, sha: str, pin: str) -> None:
+def _stelle_bereit(source: Path, engine_dir: Path, sha: str, pin: str, quelle: str) -> None:
     engine_dir.mkdir(parents=True, exist_ok=True)
     temp = engine_dir / f"{JAR_NAME}.neu"
     shutil.copyfile(source, temp)
@@ -616,10 +677,37 @@ def _stelle_bereit(source: Path, engine_dir: Path, sha: str, pin: str) -> None:
         temp.unlink()
         raise RuntimeError("Prüfsumme nach dem Kopieren verschieden")
     os.replace(temp, engine_dir / JAR_NAME)
-    for name, text in ((SHA_NAME, f"{sha}  {JAR_NAME}\n"), (PIN_NAME, f"{pin}\n")):
+    sidecars = (
+        (SHA_NAME, f"{sha}  {JAR_NAME}\n"),
+        (PIN_NAME, f"{pin}\n"),
+        (SOURCE_NAME, f"{quelle}\n"),
+    )
+    for name, text in sidecars:
         part = engine_dir / f"{name}.neu"
         part.write_text(text, encoding="utf-8")
         os.replace(part, engine_dir / name)
+
+
+def lokaler_head(u: Umgebung) -> str:
+    git = u.which("git")
+    if not git:
+        return ""
+    head = u.run([git, "-C", str(u.repo), "rev-parse", "HEAD"], capture=True).stdout.strip()
+    return head if _SHA40.fullmatch(head) else ""
+
+
+def bridge_wie_head(u: Umgebung, quelle: str) -> bool | None:
+    """True when ``engine-bridge/`` at ``quelle`` equals HEAD, False when it differs, None when
+    that cannot be told (no git, unknown or missing commit)."""
+    git = u.which("git")
+    if not git or not _SHA40.fullmatch(quelle):
+        return None
+    done = u.run(
+        [git, "-C", str(u.repo), "diff", "--quiet", quelle, "HEAD", "--", "engine-bridge/"],
+        capture=True,
+        timeout=120,
+    )
+    return {0: True, 1: False}.get(done.returncode)
 
 
 def _gh_json(u: Umgebung, gh: str, route: str) -> object:
@@ -710,20 +798,19 @@ def pruefe_artefakt(folder: Path, pin: str) -> tuple[str | None, str]:
     return sha, "geprüft"
 
 
-def hole_artefakt(u: Umgebung, pin: str, java: str | None) -> tuple[bool, str]:
+def hole_artefakt(u: Umgebung, pin: str, java: str | None) -> tuple[str | None, str]:
+    """(head sha of the staged artifact or None, reason)."""
     gh = u.which("gh")
     if not gh:
-        return False, f"Das GitHub-Programm gh fehlt (installieren: {' '.join(WINGET_GH)})."
+        return None, f"Das GitHub-Programm gh fehlt (installieren: {' '.join(WINGET_GH)})."
     if u.run([gh, "auth", "status"], capture=True, timeout=60, env=u.env).returncode != 0:
-        return False, "gh ist nicht angemeldet (einmal ausführen: gh auth login)."
-    git = u.which("git")
-    head = ""
-    if git:
-        head = u.run([git, "-C", str(u.repo), "rev-parse", "HEAD"], capture=True).stdout.strip()
-    picked, reason = waehle_artefakt(u, gh, head)
+        return None, "gh ist nicht angemeldet (einmal ausführen: gh auth login)."
+    picked, reason = waehle_artefakt(u, gh, lokaler_head(u))
     if picked is None:
-        return False, reason
+        return None, reason
     run_id, name, head_sha, size = picked.run_id, picked.name, picked.head_sha, picked.size
+    if size > MAX_ARTIFACT_BYTES:
+        return None, "Das Engine-Paket ist unerwartet groß; ich lade es nicht."
     u.sagen(f"  Ich lade das Engine-Paket vom Stand {head_sha[:10]} (etwa {size // 1_000_000} MB).")
     u.data.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(
@@ -737,20 +824,25 @@ def hole_artefakt(u: Umgebung, pin: str, java: str | None) -> tuple[bool, str]:
             env=u.env,
         )
         if done.returncode != 0:
-            return False, "Der Download des Engine-Pakets hat nicht geklappt."
+            return None, "Der Download des Engine-Pakets hat nicht geklappt."
+        jar = target / JAR_NAME
+        if jar.is_file() and jar.stat().st_size > MAX_JAR_BYTES:
+            return None, "Die Engine-Datei im Paket ist unerwartet groß; ich nutze sie nicht."
         sha, reason = pruefe_artefakt(target, pin)
         if sha is None:
-            return False, reason
-        if java:
-            reported = engine_meldet_pin(u, java, target / JAR_NAME)
-            if reported is not None and reported != pin:
-                return False, "Die Engine meldet eine andere Version als config/rules_engines.json."
-        if not stelle_bereit(target / JAR_NAME, u.data / "engine", sha, pin):
-            return False, "Die Engine-Datei ließ sich nicht in den Datenordner kopieren."
-    return True, f"Engine-Paket vom Stand {head_sha[:10]} geprüft und bereitgestellt."
+            return None, reason
+        if java and engine_meldet_pin(u, java, jar) != pin:
+            return None, (
+                "Die Engine aus dem Paket meldet nicht die Version aus config/rules_engines.json "
+                "(oder antwortet nicht)."
+            )
+        if not stelle_bereit(jar, u.data / "engine", sha, pin, head_sha):
+            return None, "Die Engine-Datei ließ sich nicht in den Datenordner kopieren."
+    return head_sha, f"Engine-Paket vom Stand {head_sha[:10]} geprüft und bereitgestellt."
 
 
 def baue_mit_maven(u: Umgebung, pin: str, java: str | None) -> tuple[bool, str]:
+    """Self-build; the staged JAR records the local HEAD as its source."""
     missing = [
         name for name in ("git", "javac", "mvn") if not (u.which(name) or u.which(f"{name}.cmd"))
     ]
@@ -787,7 +879,8 @@ def baue_mit_maven(u: Umgebung, pin: str, java: str | None) -> tuple[bool, str]:
             False,
             "Die selbst gebaute Engine meldet nicht die Version aus config/rules_engines.json.",
         )
-    if not stelle_bereit(jar, u.data / "engine", sha256_datei(jar), pin):
+    quelle = lokaler_head(u) or "unbekannt"
+    if not stelle_bereit(jar, u.data / "engine", sha256_datei(jar), pin, quelle):
         return False, "Die Engine-Datei ließ sich nicht in den Datenordner kopieren."
     return True, "Engine selbst gebaut, Version geprüft und bereitgestellt."
 
@@ -798,7 +891,12 @@ def sorge_fuer_engine(
     """Step 4; returns True when a new JAR was staged in this run."""
     if u.env.get(ENGINE_COMMAND_ENV, "").strip():
         u.sagen(f"  {ENGINE_COMMAND_ENV} ist gesetzt; die Engine bleibt, wie sie ist.")
-        bericht.add("Engine", GRUEN, "Ein eigener Engine-Befehl ist eingestellt (unverändert).")
+        bericht.add(
+            "Engine",
+            GELB,
+            "Ein eigener Engine-Befehl ist eingestellt; der Starter prüft ihn nicht.",
+            f"Nichts nötig, wenn das gewollt ist; sonst {ENGINE_COMMAND_ENV} entfernen.",
+        )
         return False
     if pin is None:
         fehlt(
@@ -815,39 +913,63 @@ def sorge_fuer_engine(
         return False
     engine_dir = u.data / "engine"
     valid, reason = jar_geprueft(engine_dir, pin)
-    if valid:
-        u.sagen("  Die Engine ist da und geprüft.")
-        bericht.add("Engine", GRUEN, "Die Engine ist da; Prüfsumme und Version passen.")
-        return False
     jar = engine_dir / JAR_NAME
+    # A JAR without (matching) sidecars counts only when the engine itself reports the pin.
     if (
-        jar.is_file()
+        not valid
+        and jar.is_file()
         and java
         and not nur_pruefen
         and engine_meldet_pin(u, java, jar) == pin
-        and stelle_bereit(jar, engine_dir, sha256_datei(jar), pin)
+        and stelle_bereit(jar, engine_dir, sha256_datei(jar), pin, "unbekannt")
     ):
         u.sagen("  Die vorhandene Engine meldet die richtige Version; Prüfdateien ergänzt.")
-        bericht.add(
-            "Engine", GRUEN, "Die Engine ist da; die Engine selbst meldet die richtige Version."
+        valid, reason = True, "Engine-Datei geprüft"
+    fresh: bool | None = None
+    if valid:
+        fresh = bridge_wie_head(u, _first_token(engine_dir / SOURCE_NAME))
+        if fresh:
+            u.sagen("  Die Engine ist da, geprüft und passt zum Programmstand.")
+            bericht.add("Engine", GRUEN, "Die Engine ist da; Prüfsumme, Version und Stand passen.")
+            return False
+        reason = (
+            "die Engine ist älter als der Programmstand"
+            if fresh is False
+            else "der Programmstand der Engine ist unbekannt"
         )
-        return False
     if nur_pruefen:
-        fehlt(u, f"eine geprüfte Engine ({reason}).", "nichts (nur prüfen).")
+        fehlt(u, f"eine aktuelle, geprüfte Engine ({reason}).", "nichts (nur prüfen).")
         bericht.add(
             "Engine",
-            ROT,
-            f"Keine geprüfte Engine: {reason}.",
+            GELB if valid else ROT,
+            f"Keine aktuelle, geprüfte Engine: {reason}.",
             "Den Starter ohne --nur-pruefen laufen lassen.",
         )
         return False
-    fehlt(u, f"eine geprüfte Engine ({reason}).", "das fertige Engine-Paket von GitHub holen.")
-    ok, why = hole_artefakt(u, pin, java)
-    if ok:
-        u.sagen(f"  {why}")
-        bericht.add("Engine", GRUEN, why)
-        return True
+    fehlt(u, f"eine aktuelle, geprüfte Engine ({reason}).", "das Engine-Paket von GitHub holen.")
+    staged, why = hole_artefakt(u, pin, java)
     u.sagen(f"  {why}")
+    if staged is not None:
+        if bridge_wie_head(u, staged):
+            bericht.add("Engine", GRUEN, why)
+        else:
+            bericht.add(
+                "Engine",
+                GELB,
+                f"Die Engine stammt vom Stand {staged[:10]}; ihre Quellen weichen vom "
+                "Programmstand ab oder sind nicht prüfbar.",
+                "Später neu starten; sobald ein Paket für den aktuellen Stand gebaut ist, "
+                "holt der Starter es.",
+            )
+        return True
+    if valid:
+        bericht.add(
+            "Engine",
+            GELB,
+            f"Die vorhandene Engine bleibt ({reason}); ein neueres Paket gab es nicht: {why}",
+            "gh installieren und anmelden (gh auth login) und neu starten.",
+        )
+        return False
     fehlt(u, "das fertige Engine-Paket.", "dir den Eigenbau mit Maven anbieten.")
     built, built_why = baue_mit_maven(u, pin, java)
     u.sagen(f"  {built_why}")
@@ -978,24 +1100,29 @@ def fasse_doctor_zusammen(u: Umgebung, bericht: Bericht, report: dict[str, objec
 # --- step 7: first data import -------------------------------------------------------------
 
 
-def datenordner_leer(data: Path) -> bool:
+def store_zustand(data: Path) -> str:
+    """``leer`` (no store or no cards), ``voll`` or ``unlesbar`` (locked or damaged)."""
     db = data / DATABASE_NAME
     if not db.is_file():
-        return True
+        return "leer"
     try:
         connection = sqlite3.connect(f"{db.as_uri()}?mode=ro", uri=True, timeout=1)
     except sqlite3.Error:
-        return False
+        return "unlesbar"
     try:
         row = connection.execute("SELECT COUNT(*) FROM card").fetchone()
     except sqlite3.OperationalError as error:
         # Only a store without the card table is empty; a locked or damaged store is not.
-        return "no such table" in str(error)
+        return "leer" if "no such table" in str(error) else "unlesbar"
     except sqlite3.Error:
-        return False
+        return "unlesbar"
     finally:
         connection.close()
-    return not row or int(row[0]) == 0
+    return "leer" if not row or int(row[0]) == 0 else "voll"
+
+
+def datenordner_leer(data: Path) -> bool:
+    return store_zustand(data) == "leer"
 
 
 def finde_scryfall(data: Path, given: Path | None) -> Path | None:
@@ -1010,10 +1137,22 @@ def finde_scryfall(data: Path, given: Path | None) -> Path | None:
 
 def erstimport(u: Umgebung, bericht: Bericht, scryfall: Path | None, *, nur_pruefen: bool) -> None:
     marker = u.data / STATE_FOLDER / IMPORT_MARKER
-    if marker.is_file() or not datenordner_leer(u.data):
+    zustand = store_zustand(u.data)
+    if zustand == "voll":
         u.sagen("  Die Studio-Daten sind schon da.")
         bericht.add("Daten", GRUEN, "Sammlung und Kartendaten sind importiert.")
         return
+    if zustand == "unlesbar":
+        u.sagen("  Die Studio-Datenbank ist gerade nicht lesbar; ich importiere nichts.")
+        bericht.add(
+            "Daten",
+            GELB,
+            "Die Studio-Datenbank ist gesperrt oder beschädigt; ich habe nichts importiert.",
+            "Das Studio schließen und neu starten; bleibt es so, eine Sicherung prüfen.",
+        )
+        return
+    if marker.is_file():
+        u.sagen("  Der frühere Import ist nicht mehr im Datenordner; ich importiere neu.")
     found = finde_scryfall(u.data, scryfall)
     if found is None:
         folder = u.data / SCRYFALL_FOLDER
@@ -1077,23 +1216,30 @@ def verknuepfung(u: Umgebung) -> None:
     state = u.data / STATE_FOLDER / SHORTCUT_STATE
     if state.is_file():
         return
-    if not u.interaktiv and not u.ja:
+    if not u.interaktiv:
+        return  # asked only in a console, never answered by --ja
+    try:
+        wanted = u.eingabe(
+            "Soll ich eine Verknüpfung „Commander Studio“ auf dem Desktop anlegen? (J/N): "
+        ).strip().lower() in {"j", "ja", "y", "yes"}
+    except EOFError:
         return
-    wanted = frage(u, "Soll ich eine Verknüpfung „Commander Studio“ auf dem Desktop anlegen?")
     if wanted:
         target = str(u.repo / "Studio starten.cmd").replace("'", "''")
         workdir = str(u.repo).replace("'", "''")
         script = (
             "$s = New-Object -ComObject WScript.Shell; "
             "$d = [Environment]::GetFolderPath('Desktop'); "
-            "$l = $s.CreateShortcut((Join-Path $d 'Commander Studio.lnk')); "
+            "$p = Join-Path $d 'Commander Studio.lnk'; "
+            "if (Test-Path -LiteralPath $p) { exit 3 }; "
+            "$l = $s.CreateShortcut($p); "
             f"$l.TargetPath = '{target}'; $l.WorkingDirectory = '{workdir}'; $l.Save()"
         )
         made = u.run(["powershell", "-NoProfile", "-Command", script], capture=True, timeout=60)
         u.sagen(
-            "  Verknüpfung angelegt."
-            if made.returncode == 0
-            else "  Die Verknüpfung ließ sich nicht anlegen."
+            {0: "  Verknüpfung angelegt.", 3: "  Es gibt schon eine Verknüpfung; sie bleibt."}.get(
+                made.returncode, "  Die Verknüpfung ließ sich nicht anlegen."
+            )
         )
     state.parent.mkdir(parents=True, exist_ok=True)
     state.write_text(json.dumps({"angelegt": wanted}) + "\n", encoding="utf-8")
@@ -1247,6 +1393,12 @@ def parser() -> argparse.ArgumentParser:
     return p
 
 
+def neustart_befehl(python: str, raw: Sequence[str]) -> list[str]:
+    """The command that restarts the starter after a pull, never pulling a second time."""
+    rest = [arg for arg in raw if arg != "--ohne-update"]
+    return [python, "-m", "commander_lab.studio.oneclick", *rest, "--ohne-update"]
+
+
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
@@ -1267,7 +1419,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
 
     def neu_starten() -> int:
-        cmd = [sys.executable, "-m", "commander_lab.studio.oneclick", *raw, "--ohne-update"]
+        cmd = neustart_befehl(sys.executable, raw)
         return u.run(cmd, cwd=u.repo, env=kind_env(u), capture=False).returncode
 
     try:
