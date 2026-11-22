@@ -1811,6 +1811,19 @@ def test_jvm_options_are_read_from_the_command_and_the_environment() -> None:
     assert game_pool.jvm_env_digest("-Da -Db") != game_pool.jvm_env_digest("-Db -Da")
 
 
+def test_s3_the_forced_pass_switch_is_read_like_boolean_getboolean_without_trimming() -> None:
+    """``Boolean.getBoolean``: "true" in any case, nothing trimmed (a trailing space is not true)."""
+    skip = game_pool.skip_forced_decisions_of
+    for padded in (f"{_SKIP}=true ", f"{_SKIP}= true", f"{_SKIP}=true\t", f"{_SKIP}=\ttrue"):
+        assert skip(("java", padded, "-jar", "b")) is False, repr(padded)
+    assert skip(("java", f"{_SKIP}=true", "-jar", "b")) is True
+    assert skip(("java", f"{_SKIP}=True", "-jar", "b")) is True
+    assert skip(("java", f"{_SKIP}=yes", "-jar", "b")) is False
+    assert skip(("java", f"{_SKIP}=", "-jar", "b")) is False  # set, but empty: not true
+    # the padded option is still the switch's own (no other option leaks into the key)
+    assert game_pool.jvm_command_options_digest(("java", f"{_SKIP}=true ", "-jar", "b")) is None
+
+
 def test_pure_performance_options_are_not_part_of_the_game_key() -> None:
     """gamesPerJvm, heap, collector, AppCDS and the loopback bind do not enter the key (named).
 

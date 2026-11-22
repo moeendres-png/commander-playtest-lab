@@ -1814,6 +1814,67 @@ def test_the_series_list_carries_the_guard_of_every_series_and_unknown_without_a
     assert "nicht prüfbar" in str(broken["determinism_guard"])
 
 
+def test_g3_an_unreadable_guard_stays_unknown_and_never_becomes_zero_of_zero(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """``_guard_of`` turns a ValueError into ``None`` (unknown): the table would read "0/0"."""
+    from commander_lab.studio import paired_series
+
+    for bad_id in ("a/b", "..", "x\\y", ""):
+        assert paired_series._guard_of(tmp_path, bad_id) is None, bad_id
+    calls: list[str] = []
+
+    def refuse(_folder: object, series_id: str) -> dict[str, object] | None:
+        calls.append(series_id)
+        raise ValueError("ungültige Serien-Kennung")
+
+    monkeypatch.setattr(paired_series, "series_guard", refuse)
+    got = paired_series._guard_of(tmp_path, "paired-x")
+    assert calls == ["paired-x"] and got is None
+    # a stored series whose id the guard cannot read is still listed, its guard unknown (None)
+    _stored_series_with_journal(tmp_path, "paired-listed", violation=False)
+    row = {
+        str(r["series_id"]): r for r in paired_series.PairedSeriesManager().list_series(tmp_path)
+    }
+    assert row["paired-listed"]["determinism_guard"] is None
+
+
+@pytest.mark.parametrize("pool_switch", [None, "1"])
+def test_k5_a_real_violation_of_an_old_key_series_is_reported_as_violation_not_as_key_version(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, pool_switch: str | None
+) -> None:
+    """Order of ``resume_series``: the determinism violation is checked BEFORE the key version.
+
+    A series of the old key version (manifest without ``game_key_schema``) whose journal shows a
+    real violation stays a ``DETERMINISM_VIOLATION`` (binding on every path); only a series of
+    the old version without a violation gets the "neue Serie starten" text.
+    """
+    from commander_lab.studio import paired_series, series_record
+
+    if pool_switch is None:
+        monkeypatch.delenv("COMMANDER_LAB_STUDIO_SERIES_POOL", raising=False)
+    else:
+        monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", pool_switch)
+    manager = paired_series.PairedSeriesManager()
+    for name, violation in (("legviol", True), ("legclean", False)):
+        _stored_series_with_journal(tmp_path, name, violation=violation)
+        path = series_record.series_folder(tmp_path, name) / "manifest.json"
+        legacy = json.loads(path.read_text(encoding="utf-8"))
+        del legacy["game_key_schema"]
+        path.write_text(json.dumps(legacy), encoding="utf-8")
+    assert series_record.series_key_problem(tmp_path, "legviol") is not None  # both problems exist
+    with pytest.raises(ValueError, match=r"DETERMINISM_VIOLATION.*nicht fortsetzbar") as caught:
+        manager.resume_series(tmp_path, "legviol", play_override=lambda *_a: {})  # type: ignore[arg-type,return-value]
+    assert "Spielschlüssel-Version" not in str(caught.value)
+    view = manager.get_series(tmp_path, "legviol")
+    assert view is not None and view["resumable"] is False
+    guard = view["determinism_guard"]
+    assert isinstance(guard, dict) and guard["violation"] is True
+    with pytest.raises(ValueError, match=r"neue Serie starten") as other:
+        manager.resume_series(tmp_path, "legclean", play_override=lambda *_a: {})  # type: ignore[arg-type,return-value]
+    assert "DETERMINISM_VIOLATION" not in str(other.value)
+
+
 @pytest.mark.parametrize("pool_switch", [None, "1"])
 def test_a_series_recorded_with_the_old_key_version_is_not_resumable_and_not_a_violation(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, pool_switch: str | None
