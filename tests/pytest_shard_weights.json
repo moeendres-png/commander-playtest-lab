@@ -349,6 +349,7 @@
   "tests/unit/test_topdeck_collector.py": 0.5,
   "tests/unit/test_topdeck_conversion.py": 0.1,
   "tests/unit/test_upstream_delta.py": 1.8,
+  "tests/unit/test_validate_h_t6_t7.py": 0.3,
   "tests/unit/test_validation_registry_external_outcomes.py": 0.1,
   "tests/unit/test_wave4_card_roles.py": 0.1,
   "tests/unit/test_wave4_payment.py": 0.1,
