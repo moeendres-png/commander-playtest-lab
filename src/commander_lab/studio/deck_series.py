@@ -146,32 +146,46 @@ def series_status(raw: Mapping[str, object]) -> str:
     return STATUS_COMPLETED
 
 
-#: Checks whose table size is not proven by the played games (``series_table_check``).
-TABLE_NOT_PROVEN = ("mismatch", "unreadable", "unobserved")
-
-
 def series_table_check(raw: Mapping[str, object]) -> tuple[int | None, str]:
     """The table size of a stored series and how it was checked (#1661).
 
     The plan names it (``seed_plan.player_count``, 2 to 6); the played games name it too (the
-    seat rows of their headers, ``paired_series.observed_table_sizes``). ``consistent``: every
-    readable pod has the planned size and none is unreadable; ``mismatch``: a played game shows
-    another size (unknown, fail-closed, never one of the two); ``unreadable``: a pod cannot be
-    read or counted pairs have no readable pod (unknown); ``unobserved``: no pair is played yet,
-    the planned size stands but is not checked against games ("geplant, nicht an Partien
-    geprüft"); ``unknown``: the plan names no valid size. Never the number of tested seats: a
-    series without seat rotation tests one seat at any table size."""
+    seat rows of their headers, ``paired_series.observed_table_sizes``). ``consistent``: the
+    readable pods all show one size, none is unreadable, and it is the planned size (or, for a
+    plan without a valid size such as an older series, a size of 2 to 6 the games alone show:
+    ``series_table_source`` says so); ``mismatch``: the games show another size than the plan,
+    or several sizes (unknown, fail-closed); ``unreadable``: a pod cannot be read or the pods do
+    not cover the counted pairs (unknown); ``unobserved``: no pair is played yet; the planned size
+    is named as planned only ("geplant, nicht an Partien geprüft"). Only ``consistent`` proves
+    the size (``maturity.table_unproven``). Never the number of tested seats:
+    a series without seat rotation tests one seat at any table size."""
     plan = raw.get("seed_plan")
     count = plan.get("player_count") if isinstance(plan, dict) else None
     planned = count if type(count) is int and 2 <= count <= 6 else None
-    if planned is None:
-        return None, "unknown"
     seen = observed_table_sizes(raw)
-    if any(size != planned for size in seen.sizes):
+    if len(seen.sizes) > 1 or (planned is not None and seen.sizes and seen.sizes != [planned]):
         return None, "mismatch"
     if seen.unreadable:
         return None, "unreadable"
-    return (planned, "consistent") if seen.sizes else (planned, "unobserved")
+    if not seen.sizes:
+        return planned, "unobserved"
+    size = seen.sizes[0]
+    if planned is None and not 2 <= size <= 6:
+        return None, "unreadable"
+    return size, "consistent"
+
+
+def series_table_source(raw: Mapping[str, object]) -> str | None:
+    """Where a proven table size comes from: the plan and the games, or the games alone."""
+    size, check = series_table_check(raw)
+    if check != "consistent" or size is None:
+        return None
+    plan = raw.get("seed_plan")
+    count = plan.get("player_count") if isinstance(plan, dict) else None
+    planned = count if type(count) is int and 2 <= count <= 6 else None
+    return (
+        "aus Plan und gespielten Partien" if planned is not None else "aus den gespielten Partien"
+    )
 
 
 def series_table_size(raw: Mapping[str, object]) -> int | None:
@@ -231,6 +245,7 @@ def _entry(raw: Mapping[str, object], status: str) -> dict[str, object]:
         # 4-, 5- and 6-seat series are separate cohorts (base win rate 1/N); None = unknown
         "table_size": series_table_size(raw),
         "table_size_check": series_table_check(raw)[1],
+        "table_size_source": series_table_source(raw),
         "pilots": _str_list(res.get("pilots")),
         "bridge_jar_sha256s": bridge_shas,
         "bridge_qualification_states": qualification,

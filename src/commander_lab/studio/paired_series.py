@@ -148,24 +148,34 @@ def observed_table_sizes(raw: Mapping[str, object]) -> ObservedTables:
 
     Read from the result's ``pods``: each pod is the decks of the other seats of its pairs, as the
     seat rows of the game headers named them (``pair_exposures``), so its size is 1 + that count.
-    Fail-closed: a pod that cannot be read sets ``unreadable`` and keeps the sizes already seen;
-    a result that counts pairs (``pairs_completed`` > 0) without any readable pod (no ``pods``,
-    an empty list) is ``unreadable`` too, never "nothing seen".
+    Fail-closed: a pod that cannot be read (no list of non-empty deck ids, no positive pair count)
+    sets ``unreadable`` and keeps the sizes already seen; a result whose readable pods do not
+    cover every counted pair (``pairs_completed`` against the sum of the pods' ``pairs``, also
+    with no pod at all) is ``unreadable`` too, never "nothing seen".
     """
     result = raw.get("result")
     res: Mapping[str, object] = result if isinstance(result, dict) else {}
     pods = res.get("pods")
     sizes: set[int] = set()
     unreadable = pods is not None and not isinstance(pods, list)
+    pod_pairs = 0
     for pod in pods if isinstance(pods, list) else []:
         opponents = pod.get("opponents") if isinstance(pod, dict) else None
-        if isinstance(opponents, list) and opponents:
+        count = pod.get("pairs") if isinstance(pod, dict) else None
+        if (
+            isinstance(opponents, list)
+            and opponents
+            and all(isinstance(deck, str) and deck.strip() for deck in opponents)
+            and type(count) is int
+            and count > 0
+        ):
             sizes.add(1 + len(opponents))
+            pod_pairs += count
         else:
-            unreadable = True
+            unreadable = True  # no deck ids, or no pair count: this pod proves no table
     pairs = res.get("pairs_completed")
-    if not sizes and type(pairs) is int and pairs > 0:
-        unreadable = True
+    if type(pairs) is int and pairs > 0 and (not sizes or pod_pairs != pairs):
+        unreadable = True  # the pods do not cover every counted pair
     return ObservedTables(sorted(sizes), unreadable)
 
 

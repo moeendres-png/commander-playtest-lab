@@ -423,7 +423,7 @@ def test_findings_name_their_table_and_holm_never_crosses_table_sizes() -> None:
         assert isinstance(notes, list)
         # one family per table: each confirmation is alone in its family
         assert any(str(n).startswith("Holm-Familie: 1 Bestätigung(en)") for n in notes), notes
-        assert got[sid]["stufe"] in (None, "R0", "R1")  # R2/R3 are not reachable
+        assert got[sid]["stufe"] == "R1"  # confirmed, fresh seeds, Holm: R1; R2/R3 not reachable
     # the same table (one table_hash) is one family of two
     a, b = _finding("a", table_hash="t5"), _finding("b", table_hash="t5", first_seed=600)
     same = _assess(a, b)
@@ -462,7 +462,8 @@ const cells = deckSeriesCells(h, item('s6', 6), 'base', { open: () => {} }, new 
 process.stdout.write(JSON.stringify({
   ev5: text(deckSeriesEvidence(h, befund(5))), ev0: text(deckSeriesEvidence(h, befund(null))),
   diff: text(diff), cells,
-  exp: [E.experimentTableText({ table: { seats: 5 } }), E.experimentTableText({ table: { seats: 6 } }), E.experimentTableText({ table: null })],
+  exp: [E.experimentTableText({ table: { seats: 5 }, result: { table_size_check: 'consistent' } }), E.experimentTableText({ table: { seats: 6 }, result: { table_size_check: 'consistent' } }), E.experimentTableText({ table: null }),
+    E.experimentTableText({ table: { seats: 5 }, result: { table_size_check: 'mismatch' } }), E.experimentTableText({ table: { seats: 6 }, result: { table_size_check: 'unobserved' } }), E.experimentTableText({ table: { seats: 5 } })],
 }));
 """
     )
@@ -482,6 +483,9 @@ process.stdout.write(JSON.stringify({
         "Tisch: 5 Sitze (Zufallsbasis 1/5, eigene Kohorte)",
         "Tisch: 6 Sitze (Zufallsbasis 1/6, eigene Kohorte)",
         "Tisch: Tischgröße unbekannt",
+        "Tisch: Tischgröße unbekannt (Plan und gespielte Partien weichen ab)",
+        "Tisch: 6 Sitze (geplant, nicht an Partien geprüft)",
+        "Tisch: 5 Sitze (geplant, nicht an Partien geprüft)",  # no result: no cohort claim
     ]
 
 
@@ -578,7 +582,12 @@ def test_five_and_six_seat_experiments_reach_the_deck_builder_as_two_cohorts(
         sid = str(started[seats]["series_id"])
         assert by_id[sid]["table_size"] == seats
         assert befunde[sid]["tisch_sitze"] == seats
-        assert befunde[sid]["stufe"] in (None, "R0", "R1")  # never above R1 today
+        # the table condition is met (proven by the played games); the level is then exactly
+        # R1 when the result is evaluable (the test bridge can give zero spread: no level)
+        assert by_id[sid]["table_size_check"] == "consistent"
+        met = {c["name"]: c["erfuellt"] for c in befunde[sid]["bedingungen"]}
+        assert met["Tischgröße an den gespielten Partien belegt"] is True
+        assert befunde[sid]["stufe"] == ("R1" if met["Ergebnis auswertbar"] else None)
         assert f"Tisch mit {seats} Sitzen" in zahlen[f"series.{sid}.difference_pp"]["kohorte"]
         detail = client.get(
             f"/api/experiments/{started[seats]['experiment_id']}", headers=HEADERS
@@ -600,7 +609,7 @@ def test_the_rendered_experiment_plan_names_five_and_six_seats() -> None:
 const E = require('./experiments.js');
 const detail = (seats) => ({ question: 'q', purpose: 'confirmation', plan_state: 'intact', plan: null,
   seeds: { first: 1, last: 5, count: 5 }, tested_seats: [0, 1, 2, 3, 4], table_hash: 'a'.repeat(64),
-  table: seats === null ? null : { seats }, arms: [], provenance: {}, result: null, sources: {} });
+  table: seats === null ? null : { seats }, arms: [], provenance: {}, result: { table_size_check: 'consistent' }, sources: {} });
 const ctx = { labels: new Map(), zahlen: null, h };
 const plan = (seats) => text(E.experimentDetailView(h, detail(seats), ctx).kids[1]);
 process.stdout.write(JSON.stringify({ five: plan(5), six: plan(6), none: plan(null) }));
@@ -611,8 +620,15 @@ process.stdout.write(JSON.stringify({ five: plan(5), six: plan(6), none: plan(nu
     assert "Tisch: Tischgröße unbekannt" in str(out["none"])
 
 
-def _pods(*sizes: int) -> dict[str, object]:
-    return {"pods": [{"opponents": [f"o{i}" for i in range(n - 1)], "pairs": 5} for n in sizes]}
+def _pods(*sizes: int, total: int = 25) -> dict[str, object]:
+    """Pods of these table sizes whose pairs add up to ``total`` (the counted pairs)."""
+    share, rest = divmod(total, len(sizes))
+    return {
+        "pods": [
+            {"opponents": [f"o{i}" for i in range(n - 1)], "pairs": share + (rest if k == 0 else 0)}
+            for k, n in enumerate(sizes)
+        ]
+    }
 
 
 @pytest.mark.parametrize("seats", [5, 6])
@@ -620,8 +636,8 @@ def test_the_planned_size_is_checked_against_the_played_games(seats: int) -> Non
     plan = {"player_count": seats}
     other = 6 if seats == 5 else 5
 
-    def check(result: dict[str, object]) -> tuple[int | None, str]:
-        raw = _raw_series(seed_plan=plan, result=result)
+    def check(result: dict[str, object], seed_plan: object = plan) -> tuple[int | None, str]:
+        raw = _raw_series(seed_plan=seed_plan, result=result)
         entry = deck_series._entry(raw, "completed")
         assert (entry["table_size"], entry["table_size_check"]) == deck_series.series_table_check(
             raw
@@ -631,10 +647,12 @@ def test_the_planned_size_is_checked_against_the_played_games(seats: int) -> Non
     agree = {**_pods(seats), "pairs_completed": 25}
     assert check(agree) == (seats, "consistent")
     assert paired_series.observed_table_sizes({"result": agree}) == ([seats], False)
+    source = deck_series.series_table_source(_raw_series(seed_plan=plan, result=agree))
+    assert source == "aus Plan und gespielten Partien"
     for result in (_pods(other), _pods(seats, other)):
         # fail-closed: neither the planned nor the played size, but unknown
         assert check({**result, "pairs_completed": 25}) == (None, "mismatch")
-    # review round 2: a broken pod never hides a pod of another size already seen
+    # a broken pod never hides a pod of another size already seen
     other_then_broken = {
         "pods": [
             {"opponents": [f"o{i}" for i in range(other - 1)], "pairs": 20},
@@ -644,15 +662,44 @@ def test_the_planned_size_is_checked_against_the_played_games(seats: int) -> Non
     }
     assert check(other_then_broken) == (None, "mismatch")
     assert paired_series.observed_table_sizes({"result": other_then_broken}) == ([other], True)
-    same_then_broken = {**other_then_broken, "pods": [*_pods(seats)["pods"], {"opponents": "x"}]}  # type: ignore[list-item]
+    same_then_broken = {
+        "pods": [*_pods(seats, total=20)["pods"], {"opponents": "x", "pairs": 5}],  # type: ignore[list-item]
+        "pairs_completed": 25,
+    }
     assert check(same_then_broken) == (None, "unreadable")
     # counted pairs without any readable pod are unknown, never "nothing seen"
     for result in ({"pairs_completed": 25}, {"pods": [], "pairs_completed": 25}):
         assert check(result) == (None, "unreadable")
     assert check({"pods": "x"}) == (None, "unreadable")
+    # review round 3: pods that do not cover the counted pairs, or name no deck ids, prove nothing
+    assert check({**_pods(seats, total=1), "pairs_completed": 25}) == (None, "unreadable")
+    no_ids = {"pods": [{"opponents": [None] * (seats - 1), "pairs": 25}], "pairs_completed": 25}
+    assert check(no_ids) == (None, "unreadable")
+    blank = {"pods": [{"opponents": [" "] * (seats - 1), "pairs": 25}], "pairs_completed": 25}
+    assert check(blank) == (None, "unreadable")
+    no_count = {"pods": [{"opponents": [f"o{i}" for i in range(seats - 1)]}], "pairs_completed": 25}
+    assert check(no_count) == (None, "unreadable")
     # nothing played yet: planned, not checked against games
     assert check({}) == (seats, "unobserved")
     assert check({"pairs_completed": 0}) == (seats, "unobserved")
+
+
+@pytest.mark.parametrize("plan", [{}, None, {"player_count": 7}, {"player_count": "5"}])
+def test_a_plan_without_a_valid_size_reads_the_games_alone(plan: object) -> None:
+    def check(result: dict[str, object]) -> tuple[int | None, str]:
+        raw = {**_raw_series(result=result), "seed_plan": plan}
+        return deck_series.series_table_check(raw)
+
+    for seats in (5, 6):
+        uniform = {**_pods(seats), "pairs_completed": 25}
+        assert check(uniform) == (seats, "consistent")
+        raw = {**_raw_series(result=uniform), "seed_plan": plan}
+        assert deck_series.series_table_source(raw) == "aus den gespielten Partien"
+    assert check({**_pods(5, 6), "pairs_completed": 25}) == (None, "mismatch")
+    assert check({**_pods(7), "pairs_completed": 25}) == (None, "unreadable")  # no seatable table
+    assert check({"pods": [{"opponents": []}], "pairs_completed": 25}) == (None, "unreadable")
+    assert check({}) == (None, "unobserved")
+    assert check({"pairs_completed": 0}) == (None, "unobserved")
 
 
 def test_the_history_names_a_mismatch_as_unknown() -> None:
@@ -728,12 +775,14 @@ def test_a_resume_refuses_played_games_whose_table_cannot_be_read(
 # -- review round 2: an unproven table gives no maturity and joins no Holm family -------------
 
 
-@pytest.mark.parametrize("check", ["mismatch", "unreadable", "unobserved"])
-def test_a_table_the_played_games_do_not_prove_gives_no_maturity_and_no_holm_family(
+@pytest.mark.parametrize("check", ["mismatch", "unreadable", "unobserved", "unknown"])
+def test_a_table_the_played_games_do_not_prove_gives_no_maturity_and_stays_a_placeholder(
     check: str,
 ) -> None:
-    bad = _finding("bad", table_hash="t5", wins=8)
-    good = _finding("good", table_hash="t5", first_seed=600, wins=8)
+    # the unproven member alone would be decided (10:0, p = 0.002): as a placeholder it never
+    # lifts the proven one past Holm, it only keeps the family at two
+    bad = _finding("bad", table_hash="t5", wins=10)
+    good = _finding("good", table_hash="t5", first_seed=600, wins=6)
     bad.entry.update(table_size=None, table_size_check=check)
     good.entry.update(table_size=5, table_size_check="consistent")
     got = _assess(bad, good)
@@ -743,13 +792,49 @@ def test_a_table_the_played_games_do_not_prove_gives_no_maturity_and_no_holm_fam
     assert reason in got["bad"]["empfehlungsfaehig_gruende"]  # type: ignore[operator]
     unmet = {c["name"]: c["grund"] for c in got["bad"]["bedingungen"] if not c["erfuellt"]}  # type: ignore[attr-defined,union-attr]
     assert unmet["Tischgröße an den gespielten Partien belegt"] == reason
-    # the proven one stays in its table's family, alone: the unproven one is in no family
-    assert got["good"]["stufe"] == "R1" and got["good"]["belegt"] is True
-    assert any(
-        str(n).startswith("Holm-Familie: 1 Bestätigung(en)")
-        for n in got["good"]["hinweise"]  # type: ignore[union-attr]
+    # review round 3: the unproven member stays in the family as a placeholder (p = 1); the
+    # family keeps its size, so 6:0 (p = 0.031) is withheld at Holm 2 * p > 0.05
+    notes = got["good"]["hinweise"]
+    assert isinstance(notes, list)
+    assert any(str(n).startswith("Holm-Familie: 2 Bestätigung(en)") for n in notes), notes
+    assert "Ergebnis durch Holm zurückgehalten" in notes
+    assert got["good"]["belegt"] is False and got["good"]["stufe"] == "R1"
+
+
+def test_a_cancelled_confirmation_without_pairs_keeps_the_family_at_two() -> None:
+    raw = _raw_series(series_id="cancelled", status="cancelled", result=None)
+    entry = deck_series._entry(raw, "cancelled")
+    assert entry["table_size_check"] == "unobserved" and entry["counts_as_result"] is False
+    entry["experiment"] = {
+        "experiment_id": "exp-cancelled",
+        "purpose": "confirmation",
+        "table_hash": "t5",
+        "seeds": [700, 704],
+        "pilot_fingerprint": "f" * 64,
+    }
+    entry["base_ref"] = "rev-main"
+    cancelled = maturity.Finding("cancelled", entry, {}, True, "f" * 64)
+    good = _finding("good", table_hash="t5", first_seed=600, wins=6)
+    good.entry.update(table_size=5, table_size_check="consistent")
+    got = _assess(cancelled, good)
+    notes = got["good"]["hinweise"]
+    assert isinstance(notes, list)
+    assert any(str(n).startswith("Holm-Familie: 2 Bestätigung(en)") for n in notes), notes
+    assert "Ergebnis durch Holm zurückgehalten" in notes and got["good"]["belegt"] is False
+    assert got["cancelled"]["stufe"] is None
+
+
+def test_the_finding_table_text_never_claims_a_cohort_without_proof() -> None:
+    assert maturity.table_fields(5, "unobserved") == {
+        "tisch_sitze": None,
+        "tisch_text": "Tisch mit 5 Sitzen (geplant, nicht an Partien geprüft)",
+    }
+    assert maturity.table_fields(None, "mismatch")["tisch_text"] == (
+        "Tischgröße unbekannt: Plan und gespielte Partien weichen ab"
     )
-    assert not any("Holm-Familie" in str(n) for n in got["bad"]["hinweise"])  # type: ignore[union-attr]
+    assert maturity.table_fields(6, "consistent")["tisch_text"] == (
+        "Tisch mit 6 Sitzen (Zufallsbasis 1/6)"
+    )
 
 
 def test_the_experiment_list_names_the_table_of_each_row() -> None:

@@ -64,7 +64,7 @@ from commander_lab.engine.rules.full_game_comparison import (
     sign_test_p_value,
 )
 
-from .deck_series import TABLE_NOT_PROVEN, plan_intact, plan_record, read_series_file
+from .deck_series import plan_intact, plan_record, read_series_file
 from .games import games_folder
 from .pilot_fingerprint import pilot_fingerprint
 from .play import POLICY_VERSION
@@ -423,8 +423,6 @@ def assess(
             continue
         if not exp.get("table_hash"):
             continue
-        if finding.entry.get("table_size_check") in TABLE_NOT_PROVEN:
-            continue  # the played games do not prove the planned table: in no table's family
         key = (str(finding.entry.get("base_ref")), str(exp.get("table_hash")))
         families.setdefault(key, []).append(finding)
     corrected: dict[str, tuple[PairedVariantResult, int, float]] = {}
@@ -435,13 +433,17 @@ def assess(
         family_level = min(known)
         entries = [
             _placeholder(f.series_id)
-            if bases[f.series_id] is None or not f.plan_ok
+            if bases[f.series_id] is None or not f.plan_ok or table_unproven(f.entry)
             else _redecide(bases[f.series_id], family_level)
             for f in members
         ]
         adjusted = holm(entries, family_level)
         for member, entry in zip(members, adjusted, strict=True):
-            if bases[member.series_id] is None or not member.plan_ok:
+            if (
+                bases[member.series_id] is None
+                or not member.plan_ok
+                or table_unproven(member.entry)
+            ):
                 continue  # a placeholder shows nothing of its own
             if len(members) == 1:  # Holm over one test is the test itself (adjusted p = p)
                 entry = entry.model_copy(update={"holm_adjusted_p_value": entry.effective_p_value})
@@ -536,7 +538,7 @@ def _one(
     shas = entry.get("bridge_jar_sha256s")
     jar_list = [s for s in shas if isinstance(s, str)] if isinstance(shas, list) else []
     table_check = entry.get("table_size_check")
-    table_proven = table_check not in TABLE_NOT_PROVEN
+    table_proven = not table_unproven(entry)
     conditions = [
         _condition(R0, "Serie zählt als Ergebnis", counted, "Serie zählt nicht als Ergebnis"),
         # #1661 review: a plan the played games contradict, cannot show or have not yet shown
@@ -655,7 +657,7 @@ def _one(
         "n": _int(entry.get("pairs_completed")),
         "N": _int(entry.get("pairs_planned")),
         "bezug": "Paare (abgeschlossen / geplant)",
-        **table_fields(entry.get("table_size")),
+        **table_fields(entry.get("table_size"), table_check),
         "stand": stand,
         "empfehlungsfaehig": not reasons,
         "empfehlungsfaehig_gruende": reasons,
@@ -669,17 +671,37 @@ TABLE_CHECK_TEXT = {
     "mismatch": "Tischgröße unbekannt: Plan und gespielte Partien weichen ab",
     "unreadable": "Tischgröße unbekannt: Sitzzahl der gespielten Partien nicht lesbar",
     "unobserved": "Tischgröße geplant, nicht an Partien geprüft",
+    "unknown": "Tischgröße unbekannt: weder Plan noch gespielte Partien nennen sie",
 }
 
 
-def table_fields(value: object) -> dict[str, object]:
+def table_unproven(entry: Mapping[str, object]) -> bool:
+    """Whether the played games do not prove the table of a series (#1661, review round 3).
+
+    A positive list, fail-closed: only ``consistent`` (``deck_series.series_table_check``) proves
+    it. An entry of ``deck_series`` always carries the check; one without the field (a caller
+    that builds entries by hand) is not judged here. An unproven confirmation still belongs to
+    its plan's Holm family, as a placeholder with p = 1 (it never shrinks the family), but it gets
+    no maturity and no ``belegt`` of its own."""
+    return "table_size_check" in entry and entry.get("table_size_check") != "consistent"
+
+
+def table_fields(value: object, check: object = None) -> dict[str, object]:
     """The table of a finding (#1661): its seat count and a text naming it with the base win
-    rate 1/N; an unknown size stays "Tischgröße unbekannt", never 4. Findings of different
-    table sizes are separate cohorts: the Holm family already follows the ``table_hash``,
-    which holds the seat count."""
+    rate 1/N; an unknown size stays "Tischgröße unbekannt", never 4. A size the played games
+    have not checked yet is named as planned, with no cohort claim; a mismatch or an unreadable
+    table names why it is unknown. The Holm family follows the ``table_hash``, which holds the
+    seat count."""
     size = _int(value)
+    if check in ("mismatch", "unreadable"):
+        return {"tisch_sitze": None, "tisch_text": TABLE_CHECK_TEXT[str(check)]}
     if size is None or size < 2:
         return {"tisch_sitze": None, "tisch_text": "Tischgröße unbekannt"}
+    if check == "unobserved":
+        return {
+            "tisch_sitze": None,
+            "tisch_text": f"Tisch mit {size} Sitzen (geplant, nicht an Partien geprüft)",
+        }
     return {
         "tisch_sitze": size,
         "tisch_text": f"Tisch mit {size} Sitzen (Zufallsbasis 1/{size})",

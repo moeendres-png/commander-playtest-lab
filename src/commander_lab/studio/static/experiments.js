@@ -131,12 +131,16 @@ function experimentFinding(h, detail, zahlen) {
 }
 
 // The table of the plan (#1661): its seat count from the resolved table; 4-, 5- and 6-seat
-// experiments are separate cohorts (own Holm family, own base win rate 1/N). Unknown stays text.
+// experiments are separate cohorts (own Holm family, own base win rate 1/N), but only once the
+// played games prove the size (result.table_size_check "consistent"): a mismatch or an
+// unreadable table claims no cohort, a size no pair has checked yet is named as planned only.
 function experimentTableText(detail) {
   const seats = detail && detail.table ? detail.table.seats : null;
-  return Number.isInteger(seats) && seats >= 2
-    ? `Tisch: ${StudioUI.num(seats, 0)} Sitze (Zufallsbasis 1/${StudioUI.num(seats, 0)}, eigene Kohorte)`
-    : "Tisch: Tischgröße unbekannt";
+  const check = detail && detail.result ? detail.result.table_size_check : undefined;
+  if (EXPERIMENT_TABLE_CHECK_TEXT[check]) return `Tisch: ${EXPERIMENT_TABLE_CHECK_TEXT[check]}`;
+  if (!Number.isInteger(seats) || seats < 2) return "Tisch: Tischgröße unbekannt";
+  if (check !== "consistent") return `Tisch: ${StudioUI.num(seats, 0)} Sitze (geplant, nicht an Partien geprüft)`;
+  return `Tisch: ${StudioUI.num(seats, 0)} Sitze (Zufallsbasis 1/${StudioUI.num(seats, 0)}, eigene Kohorte)`;
 }
 
 function experimentPlan(h, detail) {
