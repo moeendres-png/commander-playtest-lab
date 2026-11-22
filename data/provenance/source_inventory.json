@@ -1,16 +1,16 @@
 {
   "schema_version": "evidence-source-inventory-1.0.0",
   "description": "Systematic inventory of qualified evidence sources for Commander Studio (P0 Deliverable 1).",
-  "total_sources": 11,
+  "total_sources": 12,
   "status_counts": {
     "VERIFIED": 5,
-    "REVIEW": 4,
+    "REVIEW": 5,
     "UNAVAILABLE": 2
   },
   "access_status_counts": {
     "ok": 1,
     "ok_with_conditions": 5,
-    "unclear": 1,
+    "unclear": 2,
     "prohibited": 4
   },
   "sources": [
@@ -41,7 +41,7 @@
       },
       "double_counting_risk": "None; cards fold strictly 1:1 to canonical oracle_id across printings.",
       "license_terms": "Scryfall API Terms: free personal / non-commercial use with fan content attribution; no AI training.",
-      "allowed_retrieval_method": "Bulk GET (daily manifest, conditional ETag requests; generic User-Agent and Accept headers required; strip price fields on write into scryfall_card; only for the TAM purchase view (#1637) the field prices.eur of a local bulk file goes into the local store table tam_price_eur, never committed; no single-card polling loop).",
+      "allowed_retrieval_method": "Bulk GET (daily manifest, conditional ETag requests; generic User-Agent and Accept headers required; strip price fields on write into scryfall_card; only for the TAM purchase view (#1637) the fields prices.eur, prices.eur_foil and cardmarket_id of a local bulk file go into the local store table tam_price_eur and its companion table, never committed; no single-card polling loop).",
       "reproducibility": "DETERMINISTIC_OFFLINE_SNAPSHOT",
       "bias_risks": [
         "Facts and mechanics, no evaluation of gameplay strength or deck fit",
@@ -436,6 +436,42 @@
       "access_status": "prohibited",
       "access_evidence_url": "https://api2.moxfield.com/robots.txt",
       "access_checked_at_utc": "2026-11-18"
+    },
+    {
+      "source_id": "cardmarket:price-guide",
+      "priority": 12,
+      "title": "Cardmarket Price Guide and Singles Product List (published downloads)",
+      "direct_url": "https://downloads.s3.cardmarket.com/productCatalog/priceGuide/price_guide_1.json",
+      "reference_urls": [
+        "https://downloads.s3.cardmarket.com/productCatalog/productList/products_singles_1.json",
+        "https://www.cardmarket.com/robots.txt"
+      ],
+      "publisher": "Cardmarket",
+      "retrieved_at_utc": null,
+      "observation_period": "Daily file; only a local copy on the Owner's computer, never committed",
+      "snapshot_id": null,
+      "schema_format": "JSON (priceGuides: idProduct, avg, low, trend and -foil fields)",
+      "card_identifier": "idProduct = cardmarket_id of the Scryfall printing",
+      "coverage_scope": "Only the TAM purchase list (#1637, register entry 'Preise für TAM'): lowest low and trend per card over its playable printings; never evidence, rating, tier list, ranking, suggestion or simulation input",
+      "evidence_layer": "EXTERNAL_OPINION",
+      "has_exact_numerator_denominator": false,
+      "game_context": {
+        "format": "Commander",
+        "commander": "Tam, the Possibility (purchase list only; Chulane never)"
+      },
+      "double_counting_risk": "One price row per Cardmarket product; cards fold to oracle_id by minimum.",
+      "license_terms": "Terms for automated retrieval not read (UNBELEGT); the files are published for download by Cardmarket; robots.txt carries a reservation of rights (EU 2019/790). Owner exception 2026-11-22: the risk (e.g. a block) lies with the Owner.",
+      "allowed_retrieval_method": "Owner command only (import-cardmarket-priceguide): one GET per file, a local copy younger than 24 hours is reused, honest User-Agent, no cookies, account, key, proxy or redirect; any status other than 200 stops. No page of www.cardmarket.com is read (no scraping); values only in the local Studio store, never committed.",
+      "reproducibility": "DYNAMIC_EPHEMERAL_WEB",
+      "bias_risks": [
+        "low and trend are not filtered by seller country or condition (no DE/EX)",
+        "low reflects one offer of any language or condition and swings on thin markets"
+      ],
+      "status": "REVIEW",
+      "status_rationale": "Owner exception 2026-11-22 (register entry 'Preise für TAM'): allowed for the TAM purchase list only, as a labelled approximation; access status stays unclear until the terms are read.",
+      "access_status": "unclear",
+      "access_evidence_url": "https://www.cardmarket.com/robots.txt",
+      "access_checked_at_utc": "2026-11-22"
     }
   ]
 }
