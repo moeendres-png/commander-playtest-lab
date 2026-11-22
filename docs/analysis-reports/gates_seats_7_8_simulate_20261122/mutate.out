@@ -1,0 +1,23 @@
+KILLED   M01 SIMULATE lock 8->6 | 1 failed in 2.48s
+KILLED   M02 SIMULATE lock 8->7 | 1 failed in 0.58s
+KILLED   M03 code ceiling 8->6 | 1 failed in 0.71s
+KILLED   M04 PLAY lock 6->8 | 1 failed in 0.70s
+KILLED   M05 Partie cap 6->8 | 1 failed in 1.04s
+KILLED   M06 Partie check removed | 1 failed, 3 passed in 1.60s
+KILLED   M07 runner MAX_PLAYERS 8->6 | 1 failed, 5 passed in 1.67s
+KILLED   M08 handshake accepts only 8 | 1 failed, 6 passed in 1.85s
+KILLED   M09 handshake accepts 7 too | 1 failed, 6 passed in 1.83s
+KILLED   M10 policy state bound 8->9 | 1 failed, 5 passed in 2.04s
+KILLED   M11 pilot binding le=8->9 | 1 failed, 5 passed in 2.08s
+KILLED   M12 scenario model le=8->6 | 1 failed, 5 passed in 1.89s
+SURVIVED M13 deck_series back to 2..6 | 28 passed in 6.51s
+KILLED   M14 baseline plan without 7/8 | 1 failed, 14 passed in 2.01s
+KILLED   M15 page lock drifts to 6 | 1 failed, 4 passed in 2.04s
+KILLED   M16 preset shortened | 1 failed, 2 passed in 0.68s
+KILLED   M17 wall limit for 7 (pool opens) | 1 failed, 8 passed in 2.00s
+KILLED   M18 Java MAX_PLAYERS 8->6 | 1 failed, 7 passed in 1.70s
+KILLED   M19 page reference drifts | 1 failed, 18 passed in 1.81s
+KILLED   M20 load_decks bound 8->9 | 1 failed, 5 passed in 1.58s
+KILLED   M21 comparison opponents 7->8 | 1 failed, 5 passed in 1.66s
+KILLED   M22 duration warning dropped | 1 failed, 16 passed in 1.87s
+{"killed": 21, "total": 22}

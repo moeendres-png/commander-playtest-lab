@@ -1,0 +1,134 @@
+{
+  "schema": "studio-paired-comparison-1",
+  "data_class": "SIMULATED_RESULT",
+  "estimand": "win-credit difference variant minus base over paired games (same seed, same seat, same other decks); simulated games, these pilots, this pod set",
+  "status": "NOT_DECIDED",
+  "answer": null,
+  "stop_reason": "BUDGET_EXHAUSTED",
+  "base_deck_id": "precon/2023/eldrazi_unbound",
+  "variant_deck_id": "precon/2024/eldrazi_incursion",
+  "question": {
+    "threshold_pp": 0.0,
+    "significance_level": 0.05,
+    "method": "Looks at fixed cumulative pair counts; the level of each look is spent along an O'Brien-Fleming-type Lan-DeMets function over the planned looks (commander_lab.engine.rules.full_game_comparison.sequential_look_alphas), so repeated looking keeps the overall level. Cluster-robust Student-t interval of the paired win-credit differences (one cluster per seed, cluster_difference_stats); a look decides when that interval at the look's level lies entirely above the threshold (difference greater) or entirely at or below it (not greater). A zero-spread look (no variation between the seed clusters) decides only through the exact sign test on the discordant seeds at the look's level: the seat rotations of one seed share one library shuffle, so the seed, not the pair, is the independent unit. Failed games censor their pair and never count as a loss."
+  },
+  "pairs_completed": 2,
+  "pairs_censored": 0,
+  "unpaired_base": 0,
+  "unpaired_variant": 0,
+  "games_failed_base": 0,
+  "games_failed_variant": 0,
+  "failure_classes": {
+    "base": {},
+    "variant": {}
+  },
+  "base_rate": 0.0,
+  "variant_rate": 0.0,
+  "difference_pp": 0.0,
+  "difference_ci95_pp": null,
+  "decision_alpha": 0.05,
+  "decision_level_pct": 95.0,
+  "decision_ci_pp": null,
+  "detectable_difference_pp": null,
+  "variant_only_wins": 0,
+  "baseline_only_wins": 0,
+  "tied_pairs": 2,
+  "discordant_share": 0.0,
+  "discordant_share_if_independent": 0.0,
+  "sign_test_p_value": 1.0,
+  "seeds": [
+    1,
+    2
+  ],
+  "seeds_completed": [
+    1,
+    2
+  ],
+  "pods": [
+    {
+      "opponents": [
+        "precon/2026/lorehold_spirit",
+        "precon/2024/animated_army",
+        "precon/2022/token_triumph",
+        "precon/2023/veloci_ramp_tor",
+        "precon/2023/blood_rites",
+        "precon/2023/divine_convocation"
+      ],
+      "pairs": 2
+    }
+  ],
+  "tested_seats": [
+    0
+  ],
+  "engine_commits": [
+    "f4d12f6e8066203fba7aa38bd35ea3358117393d"
+  ],
+  "bridge_jar_sha256s": [
+    "08cad92aa3e3b6f08618206f160ee614ef7c302c3c59e93fe5a4b934059e4a10"
+  ],
+  "bridge_qualification_states": [
+    "BRIDGE_AHEAD_OF_QUALIFICATION"
+  ],
+  "covered_by_sealed_epoch": false,
+  "pilots": [
+    "fp:51818f6859adb2aef8d79f879934f1e7efe6564a0be8fad1d2c896f0242b4a9f"
+  ],
+  "decision_policies": [
+    "xmage-full-game-policy-1.0.0"
+  ],
+  "engine_pin": "f4d12f6e8066203fba7aa38bd35ea3358117393d",
+  "looks_planned": 1,
+  "looks_used": 1,
+  "pairs_played": 2,
+  "execution": {
+    "mode": "series",
+    "executor": "studio-paired-comparison-1",
+    "series_id": "smk78-7",
+    "command": "studio compare-decks",
+    "rotate_seats": false,
+    "look_every_pairs": 2,
+    "budget_pairs": 2,
+    "workers": 3,
+    "games_per_jvm": 16,
+    "games_dir": "<scratchpad>/s78gate/smoke78_data/games"
+  },
+  "warnings": [
+    "paired games were produced with BRIDGE_AHEAD_OF_QUALIFICATION; not covered by the sealed qualification epoch"
+  ],
+  "pairs": [
+    {
+      "seed": 1,
+      "seat": 0,
+      "opponents": [
+        "precon/2026/lorehold_spirit",
+        "precon/2024/animated_army",
+        "precon/2022/token_triumph",
+        "precon/2023/veloci_ramp_tor",
+        "precon/2023/blood_rites",
+        "precon/2023/divine_convocation"
+      ],
+      "base_game_id": "smk78-7-base-s1-t0",
+      "variant_game_id": "smk78-7-variant-s1-t0",
+      "base_credit": 0.0,
+      "variant_credit": 0.0,
+      "difference": 0.0
+    },
+    {
+      "seed": 2,
+      "seat": 0,
+      "opponents": [
+        "precon/2026/lorehold_spirit",
+        "precon/2024/animated_army",
+        "precon/2022/token_triumph",
+        "precon/2023/veloci_ramp_tor",
+        "precon/2023/blood_rites",
+        "precon/2023/divine_convocation"
+      ],
+      "base_game_id": "smk78-7-base-s2-t0",
+      "variant_game_id": "smk78-7-variant-s2-t0",
+      "base_credit": 0.0,
+      "variant_credit": 0.0,
+      "difference": 0.0
+    }
+  ]
+}

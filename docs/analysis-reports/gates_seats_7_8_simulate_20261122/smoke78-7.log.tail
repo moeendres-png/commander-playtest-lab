@@ -1,0 +1,6 @@
+question: is the difference greater than 0.0 pp?  stop reason BUDGET_EXHAUSTED
+pairs 2  censored 0  unpaired base 0 / variant 0  failed games base 0 / variant 0  looks 1/1
+win rate base 0.000  variant 0.000  difference 0.0 pp 95% CI -  (discordant 0 : 0, sign test p 1.0)
+seeds 2  pods 1  tested seats [0]  engine f4d12f6e80  pin f4d12f6e80  pilots fp:51818f6859adb2aef8d79f879934f1e7efe6564a0be8fad1d2c896f0242b4a9f
+bridge_jar 08cad92aa3e3  qualification BRIDGE_AHEAD_OF_QUALIFICATION  sealed no
+WARNING paired games were produced with BRIDGE_AHEAD_OF_QUALIFICATION; not covered by the sealed qualification epoch

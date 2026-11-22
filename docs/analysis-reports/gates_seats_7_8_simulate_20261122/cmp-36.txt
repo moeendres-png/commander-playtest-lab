@@ -1,0 +1,6 @@
+settings A: workers 4, games_per_jvm 9, jvm_options ['-XX:+UseSerialGC', '-Dh2.bindAddress=127.0.0.1', '-Dcommanderlab.fullGame.gamesPerJvm=9'], jar 417342256ed03ebb37b5f2a612fb70165d4d2e85ef7a32823ace650bfdd9a89f
+settings B: workers 4, games_per_jvm 9, jvm_options ['-XX:+UseSerialGC', '-Dh2.bindAddress=127.0.0.1', '-Dcommanderlab.fullGame.gamesPerJvm=9'], jar 08cad92aa3e3b6f08618206f160ee614ef7c302c3c59e93fe5a4b934059e4a10
+identical 36/36
+frames identical 36/36
+cpu  n/a (workers > 1: the per-game CPU of overlapping games overlaps)
+elapsed 475.1 -> 507.7 s (+6.9 %)

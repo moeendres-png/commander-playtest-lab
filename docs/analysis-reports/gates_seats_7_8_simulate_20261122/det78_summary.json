@@ -1,0 +1,86 @@
+{
+ "7": {
+  "single_n": 8,
+  "single_rc0": 8,
+  "single_wall_median": 114.4,
+  "single_wall_min": 74.07,
+  "single_wall_max": 140.91,
+  "single_rss_mib_median": 891,
+  "single_rss_mib_max": 1132,
+  "up_rc": 0,
+  "up_wall_s": 665.81,
+  "up_rss_mib": 1231,
+  "cmp_up": {
+   "status": "8/8",
+   "semantic_transcript_sha256": "8/8",
+   "winner_seats": "8/8",
+   "decision_count": "8/8",
+   "frames": "8/8",
+   "frame_digest_norm": "8/8",
+   "frame_digest_raw": "0/8"
+  },
+  "down_rc": 0,
+  "down_wall_s": 603.87,
+  "down_rss_mib": 883,
+  "cmp_down": {
+   "status": "8/8",
+   "semantic_transcript_sha256": "8/8",
+   "winner_seats": "8/8",
+   "decision_count": "8/8",
+   "frames": "8/8",
+   "frame_digest_norm": "8/8",
+   "frame_digest_raw": "0/8"
+  },
+  "single_status": {
+   "finished": 8
+  },
+  "up_status": {
+   "finished": 8
+  },
+  "down_status": {
+   "finished": 8
+  }
+ },
+ "8": {
+  "single_n": 8,
+  "single_rc0": 8,
+  "single_wall_median": 143.8,
+  "single_wall_min": 83.9,
+  "single_wall_max": 188.95,
+  "single_rss_mib_median": 909,
+  "single_rss_mib_max": 1181,
+  "up_rc": 0,
+  "up_wall_s": 813.12,
+  "up_rss_mib": 1255,
+  "cmp_up": {
+   "status": "8/8",
+   "semantic_transcript_sha256": "8/8",
+   "winner_seats": "8/8",
+   "decision_count": "8/8",
+   "frames": "8/8",
+   "frame_digest_norm": "7/8",
+   "frame_digest_raw": "0/8"
+  },
+  "down_rc": 0,
+  "down_wall_s": 684.33,
+  "down_rss_mib": 1255,
+  "cmp_down": {
+   "status": "8/8",
+   "semantic_transcript_sha256": "8/8",
+   "winner_seats": "8/8",
+   "decision_count": "8/8",
+   "frames": "8/8",
+   "frame_digest_norm": "7/8",
+   "frame_digest_raw": "0/8"
+  },
+  "single_status": {
+   "finished": 8
+  },
+  "up_status": {
+   "finished": 8
+  },
+  "down_status": {
+   "finished": 8
+  }
+ }
+}

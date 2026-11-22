@@ -1,0 +1,7 @@
+lab_head 6ce01abad6a9c2fabce11ee0755148f736908a97
+417342256ed03ebb37b5f2a612fb70165d4d2e85ef7a32823ace650bfdd9a89f  <scratchpad>/s78gate/before/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
+08cad92aa3e3b6f08618206f160ee614ef7c302c3c59e93fe5a4b934059e4a10  <scratchpad>/s78gate/after2/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
+commander_lab /home/user/s78/src/commander_lab/__init__.py
+openjdk version "21.0.12.1" 2026-08-18
+OpenJDK Runtime Environment (build 21.0.12.1+1-1-24.04.4-Ubuntu)
+OpenJDK 64-Bit Server VM (build 21.0.12.1+1-1-24.04.4-Ubuntu, mixed mode, sharing)

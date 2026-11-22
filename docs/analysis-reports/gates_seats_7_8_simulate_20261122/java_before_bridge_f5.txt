@@ -1,0 +1,17 @@
+[ERROR] Tests run: 37, Failures: 0, Errors: 16, Skipped: 0, Time elapsed: 28.72 s <<< FAILURE! -- in org.commanderlab.xmage.XmageSeatsFiveSixF5ScenarioTest
+[ERROR] org.commanderlab.xmage.XmageSeatsFiveSixF5ScenarioTest.point6ConcedesDownToTheLastPlayerLeaveThatPlayerTheWinner(int)[3] -- Time elapsed: 0.005 s <<< ERROR!
+[ERROR] org.commanderlab.xmage.XmageSeatsFiveSixF5ScenarioTest.point6ConcedesDownToTheLastPlayerLeaveThatPlayerTheWinner(int)[4] -- Time elapsed: 0.002 s <<< ERROR!
+[ERROR] org.commanderlab.xmage.XmageSeatsFiveSixF5ScenarioTest.point4LastSeatMayTargetEveryPlayerAndNoFrameShowsAnotherSeatsHiddenCards(int)[3] -- Time elapsed: 0.003 s <<< ERROR!
+[ERROR] org.commanderlab.xmage.XmageSeatsFiveSixF5ScenarioTest.point4LastSeatMayTargetEveryPlayerAndNoFrameShowsAnotherSeatsHiddenCards(int)[4] -- Time elapsed: 0.003 s <<< ERROR!
+[ERROR] org.commanderlab.xmage.XmageSeatsFiveSixF5ScenarioTest.point7TurnsPassThroughEverySeatAndWrapFromTheLastSeatToP1(int)[3] -- Time elapsed: 0.002 s <<< ERROR!
+[ERROR] org.commanderlab.xmage.XmageSeatsFiveSixF5ScenarioTest.point7TurnsPassThroughEverySeatAndWrapFromTheLastSeatToP1(int)[4] -- Time elapsed: 0.001 s <<< ERROR!
+[ERROR] org.commanderlab.xmage.XmageSeatsFiveSixF5ScenarioTest.point3CommanderDamageCountsPerOrderedPairAndNeverAcrossCommanders(int)[3] -- Time elapsed: 0.001 s <<< ERROR!
+[ERROR] org.commanderlab.xmage.XmageSeatsFiveSixF5ScenarioTest.point3CommanderDamageCountsPerOrderedPairAndNeverAcrossCommanders(int)[4] -- Time elapsed: 0.003 s <<< ERROR!
+[ERROR] org.commanderlab.xmage.XmageSeatsFiveSixF5ScenarioTest.point7ADepartedSeatTakesNoTurnAndTheLastSeatStillWrapsToP1(int)[3] -- Time elapsed: 0.002 s <<< ERROR!
+[ERROR] org.commanderlab.xmage.XmageSeatsFiveSixF5ScenarioTest.point7ADepartedSeatTakesNoTurnAndTheLastSeatStillWrapsToP1(int)[4] -- Time elapsed: 0.001 s <<< ERROR!
+[ERROR] org.commanderlab.xmage.XmageSeatsFiveSixF5ScenarioTest.point2LastSeatLeavesWhileItsSpellIsOnTheStack(int)[3] -- Time elapsed: 0.003 s <<< ERROR!
+[ERROR] org.commanderlab.xmage.XmageSeatsFiveSixF5ScenarioTest.point2LastSeatLeavesWhileItsSpellIsOnTheStack(int)[4] -- Time elapsed: 0.001 s <<< ERROR!
+[ERROR] org.commanderlab.xmage.XmageSeatsFiveSixF5ScenarioTest.point5EachFarDefenderMayBlockOnlyTheCreatureAttackingThem(int)[3] -- Time elapsed: 0.002 s <<< ERROR!
+[ERROR] org.commanderlab.xmage.XmageSeatsFiveSixF5ScenarioTest.point5EachFarDefenderMayBlockOnlyTheCreatureAttackingThem(int)[4] -- Time elapsed: 0.001 s <<< ERROR!
+[ERROR] org.commanderlab.xmage.XmageSeatsFiveSixF5ScenarioTest.point1ApnapTriggersWrapFromTheLastSeatToP1(int, String)[2] -- Time elapsed: 0.001 s <<< ERROR!
+[ERROR] org.commanderlab.xmage.XmageSeatsFiveSixF5ScenarioTest.point1ApnapTriggersWrapFromTheLastSeatToP1(int, String)[3] -- Time elapsed: 0.001 s <<< ERROR!
