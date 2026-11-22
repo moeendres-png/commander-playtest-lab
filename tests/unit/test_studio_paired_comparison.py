@@ -1433,7 +1433,7 @@ def test_the_manifest_key_of_a_pool_series_is_the_game_key_of_its_pin_and_comman
             table_options=None,
             skip_forced_decisions=skip_forced,
             round_limit=None,
-            jvm_options={"nested_copy_skip": None, "env_options": {}},
+            jvm_options={"nested_copy_skip": None, "env_options": {}, "command_options": None},
         )
         assert task.game_key == expected and keys[task.game_id] == expected
         assert task.engine_pin == pin and task.skip_forced_decisions is skip_forced
@@ -1454,7 +1454,11 @@ def test_the_task_of_a_pool_series_carries_the_jvm_options_of_its_command_and_en
     player = _pool_player(tmp_path, pool, monkeypatch, command=command)
     player("base", 1, 0)
     digest = game_pool.jvm_env_digest("-Dsome.flag=1")
-    expected = {"nested_copy_skip": False, "env_options": {"JAVA_TOOL_OPTIONS": digest}}
+    expected = {
+        "nested_copy_skip": False,
+        "env_options": {"JAVA_TOOL_OPTIONS": digest},
+        "command_options": None,
+    }
     assert pool.runs and pool.runs[0]
     assert all(task.jvm_options == expected for task in pool.runs[0])
     manifest = json.loads(pool.record.manifest_path.read_text(encoding="utf-8"))

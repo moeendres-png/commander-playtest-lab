@@ -151,7 +151,11 @@ def _pool(
 _DECKS: list[Path] = []
 JAR = "j" * 64
 PIN = "p" * 40
-NO_JVM_OPTIONS: dict[str, object] = {"nested_copy_skip": None, "env_options": {}}
+NO_JVM_OPTIONS: dict[str, object] = {
+    "nested_copy_skip": None,
+    "env_options": {},
+    "command_options": None,
+}
 
 
 @pytest.fixture(autouse=True)
@@ -1062,7 +1066,7 @@ _KEY_CHANGES: dict[str, object] = {
     "table_options": {"seats": 4, "opponent_mode": "rotation"},
     "skip_forced_decisions": False,
     "round_limit": 30,
-    "jvm_options": {"nested_copy_skip": False, "env_options": {}},
+    "jvm_options": {"nested_copy_skip": False, "env_options": {}, "command_options": None},
 }
 
 
@@ -1687,7 +1691,11 @@ def _task_for(**changes: object) -> GameTask:
 
 
 _D1, _D2 = game_pool.jvm_env_digest("-Dx=1"), game_pool.jvm_env_digest("-Dx=2")
-_TOOL_OPTIONS = {"nested_copy_skip": None, "env_options": {"JAVA_TOOL_OPTIONS": _D1}}
+_TOOL_OPTIONS = {
+    "nested_copy_skip": None,
+    "env_options": {"JAVA_TOOL_OPTIONS": _D1},
+    "command_options": None,
+}
 
 
 @pytest.mark.parametrize(
@@ -1697,7 +1705,17 @@ _TOOL_OPTIONS = {"nested_copy_skip": None, "env_options": {"JAVA_TOOL_OPTIONS": 
         ("", {"skip_forced_decisions": True}, "erzwungene"),  # the command does not set it
         (f"{_SKIP}=true", {"skip_forced_decisions": None}, "erzwungene"),
         (f"{_SKIP}=true", {"skip_forced_decisions": False}, "erzwungene"),
-        ("", {"jvm_options": {"nested_copy_skip": False, "env_options": {}}}, "JVM-Optionen"),
+        (
+            "",
+            {
+                "jvm_options": {
+                    "nested_copy_skip": False,
+                    "env_options": {},
+                    "command_options": None,
+                }
+            },
+            "JVM-Optionen",
+        ),
         (f"{_NESTED}=false", {"jvm_options": NO_JVM_OPTIONS}, "JVM-Optionen"),
         ("", {"jvm_options": _TOOL_OPTIONS}, "JVM-Optionen"),
     ],
@@ -1726,7 +1744,7 @@ def test_the_session_worker_plays_a_task_that_matches_its_own_configuration(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     engine = _session_engine(tmp_path, monkeypatch, f"{_SKIP}=true {_NESTED}=false")
-    options = {"nested_copy_skip": False, "env_options": {}}
+    options = {"nested_copy_skip": False, "env_options": {}, "command_options": None}
     task = _task_for(skip_forced_decisions=True, jvm_options=options)
     assert engine.play(task.to_wire(), lambda: None)["status"] == "finished"
     # the worker read its environment at start: a variable set later is not its configuration
@@ -1821,12 +1839,24 @@ def test_pure_performance_options_are_not_part_of_the_game_key() -> None:
 @pytest.mark.parametrize(
     "options",
     [
-        {"nested_copy_skip": False, "env_options": {}},
-        {"nested_copy_skip": True, "env_options": {}},
-        {"nested_copy_skip": None, "env_options": {"JAVA_TOOL_OPTIONS": _D1}},
-        {"nested_copy_skip": None, "env_options": {"JDK_JAVA_OPTIONS": _D1}},
-        {"nested_copy_skip": None, "env_options": {"_JAVA_OPTIONS": _D1}},
-        {"nested_copy_skip": None, "env_options": {"JAVA_TOOL_OPTIONS": _D2}},
+        {"nested_copy_skip": False, "env_options": {}, "command_options": None},
+        {"nested_copy_skip": True, "env_options": {}, "command_options": None},
+        {
+            "nested_copy_skip": None,
+            "env_options": {"JAVA_TOOL_OPTIONS": _D1},
+            "command_options": None,
+        },
+        {
+            "nested_copy_skip": None,
+            "env_options": {"JDK_JAVA_OPTIONS": _D1},
+            "command_options": None,
+        },
+        {"nested_copy_skip": None, "env_options": {"_JAVA_OPTIONS": _D1}, "command_options": None},
+        {
+            "nested_copy_skip": None,
+            "env_options": {"JAVA_TOOL_OPTIONS": _D2},
+            "command_options": None,
+        },
     ],
 )
 def test_each_jvm_option_that_can_change_a_game_changes_its_key_and_the_manifest(
@@ -1850,10 +1880,12 @@ def test_the_order_of_the_environment_options_does_not_change_the_key() -> None:
     first = {
         "nested_copy_skip": None,
         "env_options": {"_JAVA_OPTIONS": _D1, "JAVA_TOOL_OPTIONS": _D2},
+        "command_options": None,
     }
     second = {
         "nested_copy_skip": None,
         "env_options": {"JAVA_TOOL_OPTIONS": _D2, "_JAVA_OPTIONS": _D1},
+        "command_options": None,
     }
     assert _plan(jvm_options=first).game_key == _plan(jvm_options=second).game_key
 
@@ -1863,18 +1895,28 @@ def test_the_order_of_the_environment_options_does_not_change_the_key() -> None:
     [
         {"nested_copy_skip": None},
         {**NO_JVM_OPTIONS, "gamesPerJvm": 16},
-        {"nested_copy_skip": "false", "env_options": {}},
-        {"nested_copy_skip": None, "env_options": {"JAVA_TOOL_OPTIONS": 1}},
+        {"nested_copy_skip": "false", "env_options": {}, "command_options": None},
+        {
+            "nested_copy_skip": None,
+            "env_options": {"JAVA_TOOL_OPTIONS": 1},
+            "command_options": None,
+        },
         # the text itself (it can name machine paths) is never a valid value, only its digest
         {
             "nested_copy_skip": None,
             "env_options": {"JAVA_TOOL_OPTIONS": "-javaagent:/home/u/a.jar"},
+            "command_options": None,
         },
-        {"nested_copy_skip": None, "env_options": ["x"]},
+        {**NO_JVM_OPTIONS, "command_options": "-javaagent:/home/u/a.jar"},  # text, not a digest
+        {**NO_JVM_OPTIONS, "command_options": 7},
+        {"nested_copy_skip": None, "env_options": {}},  # the field is required
+        {**NO_JVM_OPTIONS, "env_options": ["x"]},
     ],
 )
 def test_a_game_key_takes_exactly_the_known_jvm_option_fields(bad: dict[str, object]) -> None:
-    with pytest.raises(ValueError, match=r"nested_copy_skip|JVM-Optionen|env_options"):
+    with pytest.raises(
+        ValueError, match=r"nested_copy_skip|JVM-Optionen|env_options|command_options"
+    ):
         series_record.game_key(**{**_KEY_INPUT, "jvm_options": bad})  # type: ignore[arg-type]
 
 

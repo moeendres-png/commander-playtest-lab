@@ -1,19 +1,26 @@
 """Game key, manifest and journal of a series played on the worker pool (S1, #1660).
 
-``game_key`` names everything that decides a game: bridge JAR, engine pin, the pilot fingerprint
-and style of every seat, the pilot strategy, the deck files in seat order, seed, seat count,
-table options, the forced-pass switch, the round limit, the engine's mana-copy switch
-(``-Dcommanderlab.nestedCopySkip``) and the JVM option variables of the environment
-(``JAVA_TOOL_OPTIONS``, ``JDK_JAVA_OPTIONS``, ``_JAVA_OPTIONS``: their text can carry any ``-D``
-property or agent, so its normalised SHA-256 is part of the key; the text itself, which can name
-machine paths, is never stored: not in the key, the task, the manifest or the journal, AGENTS.md
-section 12). The event log is not part of it (its order
-is not stable, #1589). Two games with the same key must have the same transcript; the determinism
-guard ends a series whose journal shows one key with two transcript hashes
-(``DETERMINISM_VIOLATION``).
+``game_key`` covers every input that this package can name and that can decide a game: bridge
+JAR, engine pin, the pilot fingerprint and style of every seat, the pilot strategy, the deck
+files in seat order, seed, seat count, table options, the forced-pass switch, the round limit,
+the engine's mana-copy switch (``-Dcommanderlab.nestedCopySkip``), the JVM option variables of the
+environment (``JAVA_TOOL_OPTIONS``, ``JDK_JAVA_OPTIONS``, ``_JAVA_OPTIONS``) and all other JVM
+options of the worker command before ``-jar`` (``-javaagent``, any other ``-D``, ...). The option
+texts can carry any ``-D`` property or agent and can name machine paths, so each enters the key
+only as a SHA-256 (environment variables: of the whitespace-normalised text, one digest per
+variable; the command: of the remaining options in their order, one digest) and the text itself is
+never stored: not in the key, the task, the manifest or the journal (AGENTS.md section 12). The
+command's options are closed against a list of performance-only options
+(``game_pool.PERFORMANCE_ONLY_JVM_OPTIONS``: heap, stack, collector, AppCDS, logging); an option not
+on it counts (fail-closed). It does not cover what lies outside the process's own configuration
+(the content of a ``JDK_JAVA_OPTIONS`` ``@argfile``, files an agent reads) and it deliberately
+excludes the performance-only options and ``-Dcommanderlab.fullGame.gamesPerJvm`` (below). The
+event log is not part of it (its order is not stable, #1589). Two games with the same key must
+have the same transcript; the determinism guard ends a series whose journal shows one key with
+two transcript hashes (``DETERMINISM_VIOLATION``).
 
 Deliberately NOT in the key (#1660, S1 Rest): ``-Dcommanderlab.fullGame.gamesPerJvm`` and the
-JVM options of ``fast_jvm_options`` / ``-Xmx`` (serial GC, AppCDS archive, loopback bind). They
+performance-only JVM options (``-Xmx``, serial GC, AppCDS archive, loopback bind, ...). They
 decide how many games one JVM plays and how fast, not a game. ``gamesPerJvm`` in particular must
 stay out: a game must not depend on its position in its JVM, and that is exactly what the guard
 shall be able to catch (the same key played at JVM position 1 and at position 16); a key that
@@ -152,9 +159,11 @@ def game_key(
     ``jvm_options`` is what ``game_pool.jvm_options_of`` reads from the bridge command and the
     environment: ``nested_copy_skip`` (``None`` when the command does not set it) and
     ``env_options`` (the JVM option variables that are set, name -> SHA-256 of the
-    normalised text; never the text). Both fields are
-    required, so a caller cannot leave them out by accident; ``{"nested_copy_skip": None,
-    "env_options": {}}`` is "nothing set", a value of its own.
+    normalised text; never the text) and ``command_options`` (SHA-256 of the options before
+    ``-jar`` that are not performance-only, ``None`` when there are none; never the options).
+    All three fields are required, so a caller cannot leave them out by accident;
+    ``{"nested_copy_skip": None, "env_options": {}, "command_options": None}`` is "nothing set",
+    a value of its own.
     """
     if not jar_sha256 or not jar_sha256.strip() or not engine_pin or not engine_pin.strip():
         raise ValueError("ein Spielschlüssel braucht Bridge-JAR-SHA und Engine-Pin")
@@ -189,7 +198,7 @@ def game_key(
 
 _SHA256: Final = re.compile(r"[0-9a-f]{64}")
 #: The fields of ``jvm_options`` in the key; nothing else may enter it unnoticed.
-JVM_OPTION_FIELDS: Final = ("nested_copy_skip", "env_options")
+JVM_OPTION_FIELDS: Final = ("nested_copy_skip", "env_options", "command_options")
 
 
 def _checked_jvm_options(options: Mapping[str, object]) -> dict[str, object]:
@@ -206,7 +215,15 @@ def _checked_jvm_options(options: Mapping[str, object]) -> dict[str, object]:
     ):
         # a digest, never the option text itself: it can name machine paths and agents (§12)
         raise ValueError("env_options ist eine Zuordnung Name -> SHA-256 des normalisierten Texts")
-    return {"nested_copy_skip": nested, "env_options": {name: env[name] for name in sorted(env)}}
+    command = options["command_options"]
+    if not (command is None or (isinstance(command, str) and _SHA256.fullmatch(command))):
+        # a digest or None (no such option), never the options themselves: they can name paths
+        raise ValueError("command_options ist None oder der SHA-256 der Befehlsoptionen")
+    return {
+        "nested_copy_skip": nested,
+        "env_options": {name: env[name] for name in sorted(env)},
+        "command_options": command,
+    }
 
 
 def series_folder(data_folder: str | Path, series_id: str) -> Path:

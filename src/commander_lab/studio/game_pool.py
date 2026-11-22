@@ -31,6 +31,7 @@ import hashlib
 import json
 import os
 import queue
+import re
 import signal
 import subprocess
 import sys
@@ -40,7 +41,7 @@ from collections import deque
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import IO, Protocol
+from typing import IO, Final, Protocol
 
 from .games import games_folder
 from .series_record import DeterminismViolation, SeriesRecord, file_sha256
@@ -153,6 +154,36 @@ NESTED_COPY_SKIP_PROPERTY = "commanderlab.nestedCopySkip"
 #: of the supervisor, which is the JVM's environment.
 JVM_ENV_OPTION_NAMES = ("JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS")
 
+#: The options before ``-jar`` that this package may leave out of the game key, and why. Every
+#: other option of the command (``-javaagent``, any other ``-D``, ``-cp``, ``--add-opens``, a
+#: collector flag this list does not name, ...) is part of the key through
+#: ``jvm_command_options_digest``: the list is closed and fail-closed, so a new or unknown option
+#: counts until someone has shown that it only changes speed or memory and adds it here with its
+#: reason. A pattern must match a whole option (``re.fullmatch``).
+PERFORMANCE_ONLY_JVM_OPTIONS: Final[tuple[tuple[str, str], ...]] = (
+    (r"-Xmx\d+[kKmMgG]?", "maximum heap: too little ends a game with an error, never changes one"),
+    (r"-Xms\d+[kKmMgG]?", "initial heap: how much memory is reserved at start"),
+    (r"-Xss\d+[kKmMgG]?", "thread stack size: the limit of recursion depth, not a rule"),
+    (r"-XX:[+-]Use\w*GC", "garbage collector selection: pauses and CPU, not the game"),
+    (r"-XX:[+-]UseStringDeduplication", "heap compaction of equal strings: memory only"),
+    (r"-Xshare:(?:auto|on|off|dump)", "class data sharing mode: start-up time"),
+    (r"-XX:SharedArchiveFile=\S+", "AppCDS archive (a path, never hashed): start-up time"),
+    (r"-Xlog(?::\S*)?", "JVM logging: where the JVM writes its own messages"),
+    (r"-Dh2\.bindAddress=\S+", "network interface of the card database (loopback): no game rule"),
+    # not a performance setting, but already part of the key through a field of its own
+    (
+        r"-Dcommanderlab\.fullGame\.skipForcedDecisions=.*",
+        "forced-pass switch: key field of its own",
+    ),
+    (r"-Dcommanderlab\.nestedCopySkip=.*", "mana-copy switch: key field of its own"),
+    # deliberately out of the key (see ``series_record``): the guard must be able to catch a game
+    # that depends on its position in its JVM
+    (r"-Dcommanderlab\.fullGame\.gamesPerJvm=.*", "games per JVM: stays out on purpose"),
+)
+_PERFORMANCE_ONLY: Final = tuple(
+    re.compile(pattern, re.DOTALL) for pattern, _reason in PERFORMANCE_ONLY_JVM_OPTIONS
+)
+
 
 def _jvm_property_of(command: Sequence[str] | None, name: str) -> str | None:
     """The value of ``-D<name>=`` among the JVM options of ``command``; the last one wins.
@@ -185,6 +216,29 @@ def jvm_env_digest(text: str) -> str:
     return hashlib.sha256(" ".join(text.split()).encode("utf-8")).hexdigest()
 
 
+def jvm_command_options_digest(command: Sequence[str] | None) -> str | None:
+    """SHA-256 of the JVM options of ``command`` that are not performance-only; ``None``: none.
+
+    The options are those before ``-jar`` (the launcher itself, the first word, is not one),
+    minus ``PERFORMANCE_ONLY_JVM_OPTIONS``: what is left can change a game (an agent, a
+    ``-D`` property, a class path) and is kept in its order, because the JVM takes the last of
+    two equal properties and agents run in order. The digest is that list's canonical JSON;
+    the options themselves can name machine paths and are never kept (AGENTS.md section 12).
+    """
+    parts = list(command or ())
+    if "-jar" in parts:
+        parts = parts[: parts.index("-jar")]
+    kept = [
+        part
+        for part in parts[1:]
+        if not any(pattern.fullmatch(part) for pattern in _PERFORMANCE_ONLY)
+    ]
+    if not kept:
+        return None
+    text = json.dumps(kept, ensure_ascii=True, separators=(",", ":"))
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
 def jvm_options_of(
     command: Sequence[str] | None, env: Mapping[str, str] | None = None
 ) -> dict[str, object]:
@@ -193,8 +247,10 @@ def jvm_options_of(
     ``nested_copy_skip``: the mana-copy switch of the command, ``None`` when it does not set it
     (exactly ``false`` is the only value that turns it off, as in the bridge). ``env_options``: each JVM
     option variable of ``env`` (default: the process environment) that is set and not blank,
-    name -> ``jvm_env_digest`` of its text (the text itself is never kept). Not read, on purpose (see ``series_record``): ``gamesPerJvm``, heap size,
-    collector and AppCDS archive.
+    name -> ``jvm_env_digest`` of its text (the text itself is never kept). ``command_options``:
+    ``jvm_command_options_digest`` of the command (the options before ``-jar`` that are not on
+    the performance-only list; ``None`` when there are none). Not read, on purpose (see
+    ``series_record``): ``gamesPerJvm`` and the performance-only options.
     """
     environment = os.environ if env is None else env
     raw = _jvm_property_of(command, NESTED_COPY_SKIP_PROPERTY)
@@ -205,7 +261,11 @@ def jvm_options_of(
         for name in JVM_ENV_OPTION_NAMES
         if environment.get(name, "").strip()
     }
-    return {"nested_copy_skip": nested, "env_options": options}
+    return {
+        "nested_copy_skip": nested,
+        "env_options": options,
+        "command_options": jvm_command_options_digest(command),
+    }
 
 
 def plan_task(
@@ -555,7 +615,7 @@ def config_refusal(
                 "Schalter für erzwungene Pässe",
                 message.get("skip_forced_decisions") != skip_forced_decisions_of(command),
             ),
-            ("JVM-Optionen (Mana-Kopie, Umgebung)", message.get("jvm_options") != own_jvm),
+            ("JVM-Optionen (Mana-Kopie, Umgebung, Befehl)", message.get("jvm_options") != own_jvm),
         )
         if differs
     ]
@@ -1189,6 +1249,7 @@ def _ends_with_newline(path: Path) -> bool:
 __all__ = [
     "ENDED_EOF_GRACE_SECONDS",
     "GAME_WALL_LIMIT_SECONDS",
+    "PERFORMANCE_ONLY_JVM_OPTIONS",
     "SERIES_POOL_ENV",
     "DeterminismViolation",
     "GamePool",
@@ -1198,6 +1259,7 @@ __all__ = [
     "SessionWorkerEngine",
     "WorkerEngine",
     "config_refusal",
+    "jvm_command_options_digest",
     "jvm_env_digest",
     "jvm_options_of",
     "own_engine_pin",
