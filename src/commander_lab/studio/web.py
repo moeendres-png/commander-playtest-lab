@@ -206,6 +206,20 @@ class TamPurchaseBody(BaseModel):
     card_ids: list[str] = Field(default_factory=list, max_length=tam_prices.MAX_CARD_IDS)
 
 
+class TamCardmarketEntryBody(BaseModel):
+    """One Cardmarket price the Owner read and entered for a card of a stored TAM deck (#1637);
+    an empty, zero or unreadable price removes the entry ("unbekannt")."""
+
+    model_config = ConfigDict(extra="forbid")
+    deck_id: str = Field(min_length=1, max_length=200)
+    branch: str = Field(default="main", min_length=1, max_length=120)
+    commander: str | None = Field(default=None, max_length=200)
+    card_id: str = Field(min_length=1, max_length=200)
+    eur_text: str = Field(default="", max_length=24)
+    entered_on: str | None = Field(default=None, max_length=10)
+    filter_code: str = Field(default="DE/EX/EN+DE", max_length=16)
+
+
 class SwapBody(BaseModel):
     commander: str | list[str]
     deck_card_ids: list[str] = Field(default_factory=list, max_length=300)
@@ -2469,7 +2483,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def tam_purchase_route(body: TamPurchaseBody) -> dict[str, object]:
         """Guide values (Richtwerte) of the TAM purchase list (#1637, register entry "Preise für
         TAM"): only for the commander TAM and only for cards not owned, from the local Scryfall
-        bulk snapshot with source and date; a card without a value is unknown. The commander is
+        bulk snapshot, the Cardmarket price guide and the Owner's entered Cardmarket prices, each
+        with source and date; a card without a value is unknown. The commander is
         the one stored for the deck: the saved revision of the variant and, when there is one, its
         draft must both have TAM as their one commander, else 403 (404 without a saved revision);
         only cards of that deck are answered. No other route reads these values."""
@@ -2478,6 +2493,27 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             return tam_prices.purchase_guide_values(
                 store, body.deck_id, body.branch, body.card_ids, commander=body.commander
             )
+        except tam_prices.NotTamError as error:
+            raise HTTPException(403, str(error)) from error
+        except KeyError as error:
+            raise HTTPException(404, f"unknown deck or variant: {error}") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/tam/cardmarket-eintrag")
+    def tam_cardmarket_entry_route(body: TamCardmarketEntryBody) -> dict[str, object]:
+        """Store the Cardmarket price the Owner read (with his filters) and entered for one card
+        of the TAM purchase list (#1637, register entry "Preise für TAM"): same gate as the
+        guide-value route (stored commander TAM, card of the working list, not owned), else
+        403/404/422. Nothing is requested from Cardmarket."""
+        store = open_store()
+        try:
+            return tam_prices.save_cardmarket_price(
+                store, body.deck_id, body.branch, body.card_id, body.eur_text,
+                price_date=body.entered_on, filters=body.filter_code, commander=body.commander,
+            )  # fmt: skip
         except tam_prices.NotTamError as error:
             raise HTTPException(403, str(error)) from error
         except KeyError as error:

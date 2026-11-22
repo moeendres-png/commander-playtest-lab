@@ -626,21 +626,32 @@ function copyWishlist(ownership) {
     openFallbackModal();
   }
 }
-// TAM only (#1637): the purchase list with guide values; every wording and rule of it lives in
+// TAM only (#1637): the purchase list with its values; every wording and rule of it lives in
 // wishlist.js. Other commanders and the Zukauf mode off never ask the server; the server checks
 // the stored commander of the deck itself.
 async function openTamPurchase(ownership) {
   if (typeof StudioWishlist === "undefined" || !StudioWishlist.tamPricesAllowed(COMMANDER, state.includeUnowned)) return;
   if (!state.deckId) return;
+  const ask = () => api("/api/tam/zukauf-richtwerte", "POST", { deck_id: state.deckId, branch: state.branch, commander: COMMANDER, card_ids: ownership.missingCards.map((card) => card.card_id) });
   let answer;
   try {
     // the server reads the deck's own commander and list: the working list is stored first
     if (state.dirty && state.needsDraftPut) await syncDraft();
-    answer = await api("/api/tam/zukauf-richtwerte", "POST", { deck_id: state.deckId, branch: state.branch, commander: COMMANDER, card_ids: ownership.missingCards.map((card) => card.card_id) });
+    answer = await ask();
   } catch (error) { fail(error); return; }
+  let filters = null;
+  try { filters = JSON.parse(localStorage.getItem("studio.tam.cardmarket.filters") || "null"); } catch (error) { /* view setting only */ }
+  const view = {
+    sort: "name", budget: "", filters,
+    onFilters: (chosen) => { try { localStorage.setItem("studio.tam.cardmarket.filters", JSON.stringify(chosen)); } catch (error) { /* view setting only */ } },
+    onSave: async (cardId, eurText, enteredOn, filterCode) => {
+      await api("/api/tam/cardmarket-eintrag", "POST", { deck_id: state.deckId, branch: state.branch, commander: COMMANDER, card_id: cardId, eur_text: eurText, entered_on: enteredOn || null, filter_code: filterCode });
+      return ask();
+    },
+  };
   const box = $("modal-box"); box.className = "plain";
   box.replaceChildren(
-    StudioWishlist.tamPurchaseView(h, answer, ownership.missingCards, { sort: "name", budget: "" }),
+    StudioWishlist.tamPurchaseView(h, answer, ownership.missingCards, view),
     h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen"))
   );
   $("modal").hidden = false;

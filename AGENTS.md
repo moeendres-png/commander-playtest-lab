@@ -227,7 +227,10 @@ Repository creation; pushes to the `moeendres-png/mage` fork, engine repins, rew
 Owner's go); setting or rotating secrets, paid services, account or repository visibility changes
 (privatizing repositories, external Drive sharing) and publication; releasing five- and six-seat
 play or qualification; lifting paused or externally gated items (the all-commander harvest #1210,
-the Drive-dependent import #1187/#1176, scraping a site without a public API, removing a required
+the Drive-dependent import #1187/#1176, scraping a site without a public API (the Cardmarket price
+guide download for the TAM purchase list is an Owner exception of 2026-11-22, §12; Co-Lead
+reading, register: the Owner's words do not name the price guide, it came afterwards as the
+replacement, #1637 comment 7077232382; to be confirmed at acceptance), removing a required
 check, activating price features or purchase handling; a purchase mode (Zukauf) for BUILD
 without prices was released on 2026-11-19, `docs/OWNER_DECISIONS_STUDIO_20261118.md` E14, and
 prices for the purchases (Zukauf) of TAM (the second commander in Studio BUILD, register E14) on
@@ -455,7 +458,14 @@ planeswalkers and key cards). That covers collecting and showing them in the Stu
 committing them: TAM price snapshots stay in the local Studio store and are not committed until
 the Owner decides; tests use synthetic values only. Prices are collected only from a source listed
 in the Studio source register (`src/commander_lab/studio/sources.py`) whose access status is `ok` or
-`ok_with_conditions` (never `unclear` or `prohibited`; Cardmarket only after its access is clarified). The
+`ok_with_conditions` (never `unclear` or `prohibited`; Cardmarket only after its access is clarified;
+Owner exception of 2026-11-22, register entry „Preise für TAM“ (Co-Lead reading, register: the
+Owner's words lift the scraping rule for these prices but do not name the price guide, which came
+afterwards as the replacement, #1637 comment 7077232382; to be confirmed at acceptance): Cardmarket's published price guide
+and singles product list may be downloaded for the TAM purchase list although their access status is
+`unclear`, on the Owner's command only, once per file and day, with an honest User-Agent, stopping at
+any status other than 200 and never circumventing access protection; no Cardmarket page is read, the
+terms on automated retrieval are unverified and the risk lies with the Owner). The
 scope and limits (Co-Lead scope) are in the register entry „Preise für TAM“: a price only for cards
 not yet owned and only in the TAM purchase view (owned cards are in the shared collection, without
 a price); planning functions are only the sum, sorting and budget filter of the TAM purchase list
