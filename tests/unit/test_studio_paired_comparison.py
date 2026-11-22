@@ -1409,6 +1409,8 @@ def test_the_manifest_key_of_a_pool_series_is_the_game_key_of_its_pin_and_comman
 
     pin = "c" * 40
     monkeypatch.setattr(paired_comparison, "canonical_xmage_engine_pin", lambda: pin)
+    for name in game_pool.JVM_ENV_OPTION_NAMES:
+        monkeypatch.delenv(name, raising=False)
     jar = tmp_path / "bridge.jar"
     flag = f"-Dcommanderlab.fullGame.skipForcedDecisions={str(skip_forced).lower()}"
     pool = _FakePool(_ScriptedPlayer(tmp_path / "p", _variant_sweeps))
@@ -1431,9 +1433,37 @@ def test_the_manifest_key_of_a_pool_series_is_the_game_key_of_its_pin_and_comman
             table_options=None,
             skip_forced_decisions=skip_forced,
             round_limit=None,
+            jvm_options={"nested_copy_skip": None, "env_options": {}, "command_options": None},
         )
         assert task.game_key == expected and keys[task.game_id] == expected
         assert task.engine_pin == pin and task.skip_forced_decisions is skip_forced
+
+
+def test_the_task_of_a_pool_series_carries_the_jvm_options_of_its_command_and_environment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """S1 Rest (#1660): mana-copy switch and JVM option variables reach the task and its key."""
+    from commander_lab.studio import game_pool
+
+    for name in game_pool.JVM_ENV_OPTION_NAMES:
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("JAVA_TOOL_OPTIONS", "-Dsome.flag=1")
+    jar = tmp_path / "bridge.jar"
+    command = ("java", "-Dcommanderlab.nestedCopySkip=false", "-jar", str(jar), "full-game")
+    pool = _FakePool(_ScriptedPlayer(tmp_path / "p", _variant_sweeps))
+    player = _pool_player(tmp_path, pool, monkeypatch, command=command)
+    player("base", 1, 0)
+    digest = game_pool.jvm_env_digest("-Dsome.flag=1")
+    expected = {
+        "nested_copy_skip": False,
+        "env_options": {"JAVA_TOOL_OPTIONS": digest},
+        "command_options": None,
+    }
+    assert pool.runs and pool.runs[0]
+    assert all(task.jvm_options == expected for task in pool.runs[0])
+    manifest = json.loads(pool.record.manifest_path.read_text(encoding="utf-8"))
+    keys = {game["game_id"]: game["game_key"] for game in manifest["games"]}
+    assert all(keys[task.game_id] == task.game_key for task in pool.runs[0])
 
 
 def test_a_pool_series_without_a_bridge_jar_plans_no_game(
@@ -1683,14 +1713,192 @@ def test_the_series_status_shows_the_unguarded_count_and_unknown_without_a_journ
     record.record("g2", {"status": "finished", "semantic_transcript_sha256": None})  # no hash
     view = manager.get_series(tmp_path, "guarded")
     assert view is not None
-    assert view["determinism_guard"] == {"violation": False, "unguarded": 1, "finished": 2}
+    assert view["determinism_guard"] == {
+        "violation": False,
+        "unguarded": 1,
+        "finished": 2,
+        "comparable_keys": 1,
+    }
     _stored_series_with_journal(tmp_path, "violated", violation=True)
     violated = manager.get_series(tmp_path, "violated")
     assert violated is not None
-    assert violated["determinism_guard"] == {"violation": True, "unguarded": None, "finished": None}
+    assert violated["determinism_guard"] == {
+        "violation": True,
+        "unguarded": None,
+        "finished": None,
+        "comparable_keys": None,
+    }
     series_record.series_folder(tmp_path, "guarded").joinpath("journal.jsonl").unlink()
     unknown = manager.get_series(tmp_path, "guarded")  # chunked path: no journal, never "0 of 0"
     assert unknown is not None and unknown["determinism_guard"] is None
     series_record.series_folder(tmp_path, "violated").joinpath("manifest.json").unlink()
     broken = manager.get_series(tmp_path, "violated")
     assert broken is not None and "nicht prüfbar" in str(broken["determinism_guard"])
+
+
+def test_the_guard_without_a_finished_game_is_unknown_and_never_zero_of_zero(
+    tmp_path: Path,
+) -> None:
+    """S1 Rest: a journal with no finished game gives no counts (0/0 would read as all guarded)."""
+    from commander_lab.studio import series_record
+
+    record = series_record.SeriesRecord.open(
+        tmp_path,
+        "nofin",
+        games=[{"game_id": "g1", "game_key": "k" * 64}, {"game_id": "g2", "game_key": "j" * 64}],
+        table_hash=None,
+        table=None,
+    )
+    assert series_record.series_guard(tmp_path, "nofin") is None  # no journal yet
+    record.record("g1", {"status": "failed", "failure_class": "TimeLimit"})
+    unknown = {"violation": False, "unguarded": None, "finished": None, "comparable_keys": None}
+    assert series_record.series_guard(tmp_path, "nofin") == unknown
+    record.record("g2", {"status": "finished", "semantic_transcript_sha256": "a" * 64})
+    assert series_record.series_guard(tmp_path, "nofin") == {
+        "violation": False,
+        "unguarded": 0,
+        "finished": 1,
+        "comparable_keys": 0,  # one game per key: nothing is comparable, nothing was compared
+    }
+
+
+def test_comparable_keys_counts_keys_with_two_different_guarded_games(tmp_path: Path) -> None:
+    from commander_lab.studio import series_record
+
+    keys = {"g1": "a" * 64, "g2": "a" * 64, "g3": "a" * 64, "g4": "b" * 64, "g5": "c" * 64}
+    record = series_record.SeriesRecord.open(
+        tmp_path,
+        "cmp",
+        games=[{"game_id": gid, "game_key": key} for gid, key in keys.items()],
+        table_hash=None,
+        table=None,
+    )
+    same = {"status": "finished", "semantic_transcript_sha256": "d" * 64}
+    record.record("g1", same)
+    record.record("g1", same)  # the same game twice is one game, not two
+    assert record.comparable_keys() == 0
+    record.record("g2", same)  # key a: two different games
+    record.record("g4", same)  # key b: one game
+    record.record("g5", {"status": "finished", "semantic_transcript_sha256": None})  # unguarded
+    assert record.comparable_keys() == 1
+    record.record("g3", same)
+    assert record.comparable_keys() == 1  # still one key, now with three games
+    guard = series_record.series_guard(tmp_path, "cmp")
+    assert guard is not None and guard["comparable_keys"] == 1
+    assert (guard["unguarded"], guard["finished"]) == (1, 5)
+
+
+def test_the_series_list_carries_the_guard_of_every_series_and_unknown_without_a_journal(
+    tmp_path: Path,
+) -> None:
+    """S1 Rest: "unbewacht n/N" is a read field of list_series, unknown stays None."""
+    from commander_lab.studio import paired_series, series_record
+
+    manager = paired_series.PairedSeriesManager()
+    for name in ("paired-guarded", "paired-plain", "paired-violated"):
+        _stored_series_with_journal(tmp_path, name, violation=name.endswith("violated"))
+    series_record.series_folder(tmp_path, "paired-plain").joinpath("journal.jsonl").unlink()
+    rows = {str(row["series_id"]): row for row in manager.list_series(tmp_path)}
+    assert set(rows) == {"paired-guarded", "paired-plain", "paired-violated"}
+    assert rows["paired-guarded"]["determinism_guard"] == {
+        "violation": False,
+        "unguarded": 0,
+        "finished": 2,
+        "comparable_keys": 1,
+    }
+    assert rows["paired-plain"]["determinism_guard"] is None  # no journal: unknown, never 0/0
+    violated = rows["paired-violated"]["determinism_guard"]
+    assert isinstance(violated, dict) and violated["violation"] is True
+    series_record.series_folder(tmp_path, "paired-guarded").joinpath("manifest.json").unlink()
+    broken = {str(r["series_id"]): r for r in manager.list_series(tmp_path)}["paired-guarded"]
+    assert "nicht prüfbar" in str(broken["determinism_guard"])
+
+
+def test_g3_an_unreadable_guard_stays_unknown_and_never_becomes_zero_of_zero(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """``_guard_of`` turns a ValueError into ``None`` (unknown): the table would read "0/0"."""
+    from commander_lab.studio import paired_series
+
+    for bad_id in ("a/b", "..", "x\\y", ""):
+        assert paired_series._guard_of(tmp_path, bad_id) is None, bad_id
+    calls: list[str] = []
+
+    def refuse(_folder: object, series_id: str) -> dict[str, object] | None:
+        calls.append(series_id)
+        raise ValueError("ungültige Serien-Kennung")
+
+    monkeypatch.setattr(paired_series, "series_guard", refuse)
+    got = paired_series._guard_of(tmp_path, "paired-x")
+    assert calls == ["paired-x"] and got is None
+    # a stored series whose id the guard cannot read is still listed, its guard unknown (None)
+    _stored_series_with_journal(tmp_path, "paired-listed", violation=False)
+    row = {
+        str(r["series_id"]): r for r in paired_series.PairedSeriesManager().list_series(tmp_path)
+    }
+    assert row["paired-listed"]["determinism_guard"] is None
+
+
+@pytest.mark.parametrize("pool_switch", [None, "1"])
+def test_k5_a_real_violation_of_an_old_key_series_is_reported_as_violation_not_as_key_version(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, pool_switch: str | None
+) -> None:
+    """Order of ``resume_series``: the determinism violation is checked BEFORE the key version.
+
+    A series of the old key version (manifest without ``game_key_schema``) whose journal shows a
+    real violation stays a ``DETERMINISM_VIOLATION`` (binding on every path); only a series of
+    the old version without a violation gets the "neue Serie starten" text.
+    """
+    from commander_lab.studio import paired_series, series_record
+
+    if pool_switch is None:
+        monkeypatch.delenv("COMMANDER_LAB_STUDIO_SERIES_POOL", raising=False)
+    else:
+        monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", pool_switch)
+    manager = paired_series.PairedSeriesManager()
+    for name, violation in (("legviol", True), ("legclean", False)):
+        _stored_series_with_journal(tmp_path, name, violation=violation)
+        path = series_record.series_folder(tmp_path, name) / "manifest.json"
+        legacy = json.loads(path.read_text(encoding="utf-8"))
+        del legacy["game_key_schema"]
+        path.write_text(json.dumps(legacy), encoding="utf-8")
+    assert series_record.series_key_problem(tmp_path, "legviol") is not None  # both problems exist
+    with pytest.raises(ValueError, match=r"DETERMINISM_VIOLATION.*nicht fortsetzbar") as caught:
+        manager.resume_series(tmp_path, "legviol", play_override=lambda *_a: {})  # type: ignore[arg-type,return-value]
+    assert "Spielschlüssel-Version" not in str(caught.value)
+    view = manager.get_series(tmp_path, "legviol")
+    assert view is not None and view["resumable"] is False
+    guard = view["determinism_guard"]
+    assert isinstance(guard, dict) and guard["violation"] is True
+    with pytest.raises(ValueError, match=r"neue Serie starten") as other:
+        manager.resume_series(tmp_path, "legclean", play_override=lambda *_a: {})  # type: ignore[arg-type,return-value]
+    assert "DETERMINISM_VIOLATION" not in str(other.value)
+
+
+@pytest.mark.parametrize("pool_switch", [None, "1"])
+def test_a_series_recorded_with_the_old_key_version_is_not_resumable_and_not_a_violation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, pool_switch: str | None
+) -> None:
+    """S1 Rest: the manifest of main before the key version has no ``game_key_schema`` field."""
+    from commander_lab.studio import paired_series, series_record
+
+    if pool_switch is None:
+        monkeypatch.delenv("COMMANDER_LAB_STUDIO_SERIES_POOL", raising=False)
+    else:
+        monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", pool_switch)
+    manager = paired_series.PairedSeriesManager()
+    _stored_series_with_journal(tmp_path, "oldkey", violation=False)
+    path = series_record.series_folder(tmp_path, "oldkey") / "manifest.json"
+    legacy = json.loads(path.read_text(encoding="utf-8"))
+    del legacy["game_key_schema"]  # the old writer did not know the field
+    path.write_text(json.dumps(legacy), encoding="utf-8")
+    journal = path.with_name("journal.jsonl")
+    before = journal.read_bytes()
+    view = manager.get_series(tmp_path, "oldkey")
+    assert view is not None and view["resumable"] is False
+    guard = view["determinism_guard"]
+    assert isinstance(guard, dict) and guard["violation"] is False  # read as recorded
+    with pytest.raises(ValueError, match=r"neue Serie starten.*nicht fortsetzbar") as caught:
+        manager.resume_series(tmp_path, "oldkey", play_override=lambda *_a: {})  # type: ignore[arg-type,return-value]
+    assert "DETERMINISM_VIOLATION" not in str(caught.value)
+    assert manager.get_job("oldkey") is None and journal.read_bytes() == before
