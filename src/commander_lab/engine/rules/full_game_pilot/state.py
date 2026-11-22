@@ -74,7 +74,8 @@ class _PolicyState:
     _PRIORITY_STEP_WINDOW_LIMIT = 64
 
     def __init__(self, runtime_pilots: tuple[_RuntimePilot, ...], scenario_seed: int) -> None:
-        if len(runtime_pilots) < 2 or len(runtime_pilots) > 6:
+        # RESEARCH ONLY (#1672): raised 6 -> 8 for the isolated 7/8-seat feasibility harness; never merge
+        if len(runtime_pilots) < 2 or len(runtime_pilots) > 8:
             raise ValueError("full-game policy requires two to six pilot bindings")
         seats = {item.binding.seat for item in runtime_pilots}
         if seats != set(range(1, len(runtime_pilots) + 1)):

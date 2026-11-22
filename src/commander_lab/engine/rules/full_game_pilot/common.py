@@ -813,7 +813,8 @@ class _StrictModel(BaseModel):
 
 
 class FullGamePilotBinding(_StrictModel):
-    seat: int = Field(ge=1, le=6)
+    # RESEARCH ONLY (#1672): raised 6 -> 8 for the isolated 7/8-seat feasibility harness; never merge
+    seat: int = Field(ge=1, le=8)
     deck_id: str = Field(min_length=1)
     strategy: str = Field(min_length=1)
     commander_names: tuple[str, ...]

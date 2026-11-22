@@ -303,7 +303,8 @@ class FullGameSmokeResult(_StrictModel):
         "xmage-full-game-smoke-result-1.1.0"
     )
     scenario_id: str
-    player_count: int = Field(ge=2, le=6)
+    # RESEARCH ONLY (#1672): raised 6 -> 8 for the isolated 7/8-seat feasibility harness; never merge
+    player_count: int = Field(ge=2, le=8)
     seed: int = Field(ge=0)
     engine_version: str
     xmage_commit: str = Field(pattern=r"^[0-9a-f]{40}$")
@@ -349,7 +350,8 @@ def smoke_progress_contract(
     priority_turns = sorted({turn for _seat, turn in priority if type(turn) is int})
     priority_seats = sorted({seat for seat, _turn in priority if type(seat) is int})
     violations = []
-    if type(player_count) is not int or not 2 <= player_count <= 6:
+    # RESEARCH ONLY (#1672): raised 6 -> 8 for the isolated 7/8-seat feasibility harness; never merge
+    if type(player_count) is not int or not 2 <= player_count <= 8:
         violations.append("invalid player count")
     if type(through_turn) is not int or through_turn < player_count:
         violations.append("progress target must cover a full seat cycle")
@@ -1226,7 +1228,8 @@ class XmageFullGameRunner:
     """Run one isolated 2..6-player XMage Commander game with Commander Lab pilot policy."""
 
     MIN_PLAYERS = 2
-    MAX_PLAYERS = 6
+    # RESEARCH ONLY (#1672): raised 6 -> 8 for the isolated 7/8-seat feasibility harness; never merge
+    MAX_PLAYERS = 8
     DECK_GATE_HASH_MISMATCH = DECK_GATE_HASH_MISMATCH
     DECK_GATE_DUPLICATE_CARD = DECK_GATE_DUPLICATE_CARD
     DECK_GATE_COLOR_IDENTITY_VIOLATION = DECK_GATE_COLOR_IDENTITY_VIOLATION

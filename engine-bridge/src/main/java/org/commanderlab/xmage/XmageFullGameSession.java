@@ -40,7 +40,8 @@ final class XmageFullGameSession {
 
     /** WS215 variable-player contract, R19 widened: Commander tables for 2..6 principals. */
     static final int MIN_PLAYERS = 2;
-    static final int MAX_PLAYERS = 6;
+    // RESEARCH ONLY (#1672): raised 6 -> 8 for the isolated 7/8-seat feasibility harness; never merge
+    static final int MAX_PLAYERS = 8;
     static final String EVIDENCE_CLASS = "technical_conformance_only";
 
     private final String protocolGameId;

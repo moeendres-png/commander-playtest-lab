@@ -59,7 +59,8 @@ class FullGameBatchCase(_StrictModel):
     @model_validator(mode="after")
     def case_matches_operational_scope(self) -> FullGameBatchCase:
         player_count = self.scenario.player_count
-        if player_count < 2 or player_count > 6:
+        # RESEARCH ONLY (#1672): raised 6 -> 8 for the isolated 7/8-seat feasibility harness; never merge
+        if player_count < 2 or player_count > 8:
             raise ValueError("full-game batch cases require two to six players")
         if len(self.decks) != player_count or len(self.pilots) != player_count:
             raise ValueError("full-game batch deck/pilot cardinality must equal player count")
