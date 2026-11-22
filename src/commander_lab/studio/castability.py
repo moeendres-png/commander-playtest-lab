@@ -302,6 +302,229 @@ def search_land_reach(
     return out
 
 
+TAP_ALWAYS = "immer_getappt"
+TAP_CONDITIONAL = "bedingt_getappt"
+TAP_UNTAPPED = "ungetappt"
+TAP_UNKNOWN = "unbekannt"
+TAP_CLASSES = (TAP_ALWAYS, TAP_CONDITIONAL, TAP_UNTAPPED, TAP_UNKNOWN)
+REASON_TAP_NO_TEXT = "kein Regeltext in den Kartendaten"
+REASON_TAP_UNREADABLE = "Satz zum getappten Eintritt hat keine lesbare Form"
+_SENTENCE = re.compile(r"(?<=[.!])\s+(?=[A-Z])")
+# Any sentence about entering tapped; only the forms below give a class, every other one is
+# unknown (for example a sentence about other permanents entering tapped).
+_MENTIONS_TAPPED_ENTRY = re.compile(r"\benters?(?: the battlefield)? tapped\b", re.IGNORECASE)
+_FETCHED_TAPPED = re.compile(r"\bonto the battlefield tapped\b", re.IGNORECASE)
+TAPPED_ORIGIN = (
+    "Klasse aus dem Regeltext der Vorderseite ohne Erinnerungstext, Satz für Satz; Subjekt "
+    "muss das Land selbst sein („this land“, „it“ oder der eigene Name im Regeltext); nie aus "
+    "dem Kartennamen allein, nie aus einer Spielannahme"
+)
+TAPPED_RULE = (
+    "immer getappt: der Regeltext sagt ohne Bedingung, dass das Land getappt eintritt; bedingt "
+    "getappt: getappter Eintritt mit Bedingung oder Wahl („unless …“, „If you don't, …“, „if …“, "
+    "„You may have … enter tapped“); ungetappt: kein Satz zum getappten Eintritt; unbekannt: "
+    "kein Regeltext oder ein Satz zum getappten Eintritt in anderer Form. Suchländer sind nach "
+    "ihrem eigenen Eintritt eingeordnet; dass sie das geholte Land getappt bringen, steht als "
+    "eigener Satz daneben."
+)
+TAPPED_ACCESS_ASSUMPTION = (
+    "Annahme (ein Satz): Ein bis Zug T gezogenes Land der Farbe, das laut Regeltext ungetappt "
+    "eintritt, wird spätestens in Zug T als Landdrop gespielt."
+)
+TAPPED_ACCESS_RULE = (
+    "Gezählt werden nur direkte Quellen (Länder mit eigener Farbe), keine Suchländer und keine "
+    "getappt eingetretenen Länder früherer Züge. Untere Grenze: bedingt getappte Länder und "
+    "Länder unbekannter Klasse zählen als getappt. Obere Grenze: sie zählen als ungetappt, und "
+    "Länder ohne Farbdaten zählen als Quelle jeder Farbe. Exakte Hypergeometrie, ohne Mulligan, "
+    "ohne Extraziehen; gerechnet für den Nichtstartspieler (zieht in Zug 1): bis Zug T 7 + T "
+    "Karten; der Startspieler sieht eine Karte weniger, für ihn gilt der Wert einen Zug früher. "
+    "Starthand: mindestens eine direkte Quelle der Farbe, gleich welcher Klasse, unter 7 Karten."
+)
+ACCESS_TURNS = (1, 2)
+
+
+def _self_subject(row: Mapping[str, object]) -> str:
+    """The words with which a land's rules text names the land itself: "this land", "this
+    card", "it", or its own name (also the short name before the comma, as in "Boseiju")."""
+    full = _text(row, "oracle_name").split(" // ")[0].strip()
+    names = [name for name in dict.fromkeys([full, full.split(", ")[0]]) if name]
+    return "|".join(["this land", "this card", "it", *(re.escape(name) for name in names)])
+
+
+def tapped_class(row: Mapping[str, object]) -> dict[str, object]:
+    """Whether a land enters tapped, read from the rules text of its front face (WP-4 of the
+    builder audit, #1404): one of ``TAP_CLASSES`` with the quoted sentence (``quote``) that
+    gives the class, and for a search land the sentence that brings the fetched land tapped
+    (``fetch_quote``). Every sentence about entering tapped must have one of the known forms
+    with the land itself as subject; otherwise the class is unknown, never a guess."""
+    lines = _front_lines(row)
+    if lines is None:
+        return {
+            "class": TAP_UNKNOWN,
+            "quote": None,
+            "reason": REASON_TAP_NO_TEXT,
+            "fetch_quote": None,
+        }
+    subject = _self_subject(row)
+    enters = r"enters(?: the battlefield)? tapped"
+    always = re.compile(rf"^(?:{subject}) {enters}(?: (?:and|with) [^.]+)?\.$", re.IGNORECASE)
+    conditional = (
+        re.compile(rf"^(?:{subject}) {enters} (?:unless|if) [^.]+\.$", re.IGNORECASE),
+        re.compile(rf"^if [^.]+?, (?:{subject}) {enters}\.$", re.IGNORECASE),
+        re.compile(rf"^you may have (?:{subject}) enter tapped\b[^.]*\.$", re.IGNORECASE),
+    )
+    found: list[tuple[str, str]] = []
+    fetch_quote = None
+    for line in lines:
+        for sentence in _SENTENCE.split(line):
+            if fetch_quote is None and _FETCHED_TAPPED.search(sentence):
+                fetch_quote = sentence
+            if not _MENTIONS_TAPPED_ENTRY.search(sentence):
+                continue
+            if always.match(sentence):
+                found.append((TAP_ALWAYS, sentence))
+            elif any(pattern.match(sentence) for pattern in conditional):
+                found.append((TAP_CONDITIONAL, sentence))
+            else:
+                found.append((TAP_UNKNOWN, sentence))
+    if not found:
+        return {
+            "class": TAP_UNTAPPED,
+            "quote": None,
+            "reason": "kein Satz zum getappten Eintritt im Regeltext",
+            "fetch_quote": fetch_quote,
+        }
+    for name, reason in (
+        (TAP_UNKNOWN, REASON_TAP_UNREADABLE),
+        (TAP_ALWAYS, "tritt laut Regeltext immer getappt ein"),
+        (TAP_CONDITIONAL, "tritt laut Regeltext nur unter einer Bedingung getappt ein"),
+    ):
+        for klass, sentence in found:
+            if klass == name:
+                return {
+                    "class": klass,
+                    "quote": sentence,
+                    "reason": reason,
+                    "fetch_quote": fetch_quote,
+                }
+    raise AssertionError("unreachable")  # pragma: no cover
+
+
+def deck_tapped(rows: Iterable[Mapping[str, object]]) -> dict[str, object]:
+    """Tempo figure, stage 1 (WP-4): the lands of the main deck counted per tapped class, with
+    n of N and per land the class, the quoted sentence and the reason. Unknown is its own
+    class and is never counted as untapped."""
+    counts: Counter[str] = Counter()
+    lands: list[dict[str, object]] = []
+    total = 0
+    for row in rows:
+        if _text(row, "zone") == "commander":
+            continue
+        if "Land" not in _text(row, "type_line").split(" // ")[0]:
+            continue
+        quantity = int(_text(row, "quantity") or "1")
+        info = tapped_class(row)
+        counts[str(info["class"])] += quantity
+        total += quantity
+        lands.append(
+            {
+                "card_id": _text(row, "card_id"),
+                "name": _text(row, "oracle_name"),
+                "quantity": quantity,
+                **info,
+            }
+        )
+    return {
+        "counts": {name: counts[name] for name in TAP_CLASSES},
+        "of": total,
+        "classified": total - counts[TAP_UNKNOWN],
+        "lands": sorted(
+            lands, key=lambda land: (TAP_CLASSES.index(str(land["class"])), str(land["name"]))
+        ),
+        "origin": TAPPED_ORIGIN,
+        "rule": TAPPED_RULE,
+    }
+
+
+def colour_access(
+    rows: Iterable[Mapping[str, object]], colours: Iterable[str]
+) -> dict[str, object]:
+    """Tempo figure, stage 2 (WP-4), per colour: the exact chance of at least one direct
+    source of the colour in the opening hand, and of at least one direct source that enters
+    untapped among the ``7 + T`` cards seen by turn ``T`` (T = 1, 2), as a lower and an upper
+    bound (see ``TAPPED_ACCESS_RULE``) under the one assumption ``TAPPED_ACCESS_ASSUMPTION``."""
+    library = 0
+    sources: Counter[str] = Counter()
+    low: Counter[str] = Counter()
+    high: Counter[str] = Counter()
+    unknown_colour = 0
+    for row in rows:
+        if _text(row, "zone") == "commander":
+            continue
+        quantity = int(_text(row, "quantity") or "1")
+        library += quantity
+        if "Land" not in _text(row, "type_line").split(" // ")[0]:
+            continue
+        produced = land_colours(row)
+        if produced is None:
+            unknown_colour += quantity
+            continue
+        klass = tapped_class(row)["class"]
+        for colour in produced:
+            sources[colour] += quantity
+            if klass == TAP_UNTAPPED:
+                low[colour] += quantity
+            if klass in (TAP_UNTAPPED, TAP_CONDITIONAL, TAP_UNKNOWN):
+                high[colour] += quantity
+    items = []
+    for colour in (c for c in COLOURS if c in set(colours)):
+        hand_high = sources[colour] + unknown_colour
+        items.append(
+            {
+                "colour": colour,
+                "sources": sources[colour],
+                "untapped_low": low[colour],
+                "untapped_high": high[colour] + unknown_colour,
+                "opening_hand": {
+                    "draws": OPENING_HAND,
+                    "p": role_in_hand(library, sources[colour], OPENING_HAND)["p_at_least_1"],
+                    "p_high": role_in_hand(library, hand_high, OPENING_HAND)["p_at_least_1"],
+                },
+                "turns": [
+                    {
+                        "turn": turn,
+                        "draws": draws_by_turn(turn),
+                        "p_low": role_in_hand(library, low[colour], draws_by_turn(turn))[
+                            "p_at_least_1"
+                        ],
+                        "p_high": role_in_hand(
+                            library, high[colour] + unknown_colour, draws_by_turn(turn)
+                        )["p_at_least_1"],
+                    }
+                    for turn in ACCESS_TURNS
+                ],
+            }
+        )
+    return {
+        "library": library,
+        "lands_unknown_colours": unknown_colour,
+        "colours": items,
+        "assumption": TAPPED_ACCESS_ASSUMPTION,
+        "rule": TAPPED_ACCESS_RULE,
+    }
+
+
+def _needed_colours(rows: Iterable[Mapping[str, object]]) -> set[str]:
+    """Colours with at least one coloured symbol in a front cost of the list (nonland cards
+    of the main deck and the commander)."""
+    found: set[str] = set()
+    for row in rows:
+        if _text(row, "zone") != "commander" and "Land" in _text(row, "type_line").split(" // ")[0]:
+            continue
+        found.update(requirement(_text(row, "mana_cost"))[0])
+    return found
+
+
 def at_least_lands(library: int, lands: int, draws: int, minimum: int) -> Fraction | None:
     """Exact hypergeometric chance to hold at least ``minimum`` lands among ``draws`` cards
     of a ``library`` with ``lands`` lands; ``None`` when the draw does not fit the library."""
@@ -614,6 +837,68 @@ def _commander_entries(
     return out
 
 
+class LandBasis:
+    """The land groups of one list, read once: ``land_groups`` (direct colours per land),
+    ``search_groups`` (search lands with the colours they reach, WP-2), the nonland cards of
+    the main deck, and the counts of lands without colour data and without coloured mana."""
+
+    def __init__(self, rows: Iterable[Mapping[str, object]]) -> None:
+        row_list = list(rows)
+        groups: Counter[frozenset[str]] = Counter()
+        search_counter: Counter[frozenset[str]] = Counter()
+        self.unknown_lands = 0
+        self.no_colour_lands = 0
+        self.lands = 0
+        self.nonland = 0
+        self.classes = search_land_reach(row_list)
+        self.class_counts: Counter[str] = Counter()
+        for entry in self.classes:
+            quantity = int(str(entry["quantity"]))
+            self.class_counts[str(entry["class"])] += quantity
+            reach = entry["reach"]
+            direct = entry["direct"]
+            if isinstance(reach, frozenset):
+                search_counter[reach] += quantity
+            elif isinstance(direct, frozenset):
+                search_counter[direct] += quantity
+            else:
+                search_counter[frozenset()] += quantity
+        for row in row_list:
+            if _text(row, "zone") == "commander":
+                continue
+            quantity = int(_text(row, "quantity") or "1")
+            if "Land" not in _text(row, "type_line").split(" // ")[0]:
+                self.nonland += quantity
+                continue
+            self.lands += quantity
+            colours = land_colours(row)
+            if colours is None:
+                self.unknown_lands += quantity
+                groups[frozenset()] += quantity
+            else:
+                if not colours:
+                    self.no_colour_lands += quantity
+                groups[colours] += quantity
+        self.land_groups = _sorted_groups(groups)
+        self.search_groups = _sorted_groups(search_counter)
+
+    def requirement(self, need: Mapping[str, int], turn: int) -> dict[str, object]:
+        """One requirement on this land base, direct and with search lands (as in
+        ``deck_castability``); used by the variant comparison (WP-5) for a requirement that
+        only the other list has."""
+        result = colour_probability(self.land_groups, self.nonland, need, turn)
+        return {
+            **result,
+            "with_search": _with_search(
+                self.search_groups,
+                self.nonland,
+                need,
+                turn,
+                result if self.search_groups == self.land_groups else None,
+            ),
+        }
+
+
 def deck_castability(rows: Iterable[Mapping[str, object]]) -> dict[str, object]:
     """Castability of every distinct coloured requirement of the deck's nonland cards, plus
     the opening hand figure. ``rows`` carry ``zone``, ``quantity``, ``oracle_name``,
@@ -621,27 +906,15 @@ def deck_castability(rows: Iterable[Mapping[str, object]]) -> dict[str, object]:
     ``oracle_text``. Each requirement and the commander are given ``direkt`` (the top-level
     fields) and ``mit Suchland`` (``with_search``)."""
     row_list = list(rows)
-    groups: Counter[frozenset[str]] = Counter()
-    search_counter: Counter[frozenset[str]] = Counter()
-    unknown_lands = 0
-    no_colour_lands = 0
+    basis = LandBasis(row_list)
+    unknown_lands = basis.unknown_lands
+    no_colour_lands = basis.no_colour_lands
     lands = early = other = 0
     unknown_mv = 0
     requirements: dict[tuple[int, tuple[tuple[str, int], ...]], list[dict[str, object]]] = {}
     hybrid_cards: list[str] = []
-    classes = search_land_reach(row_list)
-    class_counts: Counter[str] = Counter()
-    for entry in classes:
-        quantity = int(str(entry["quantity"]))
-        class_counts[str(entry["class"])] += quantity
-        reach = entry["reach"]
-        direct = entry["direct"]
-        if isinstance(reach, frozenset):
-            search_counter[reach] += quantity
-        elif isinstance(direct, frozenset):
-            search_counter[direct] += quantity
-        else:
-            search_counter[frozenset()] += quantity
+    classes = basis.classes
+    class_counts = basis.class_counts
     commanders = [row for row in row_list if _text(row, "zone") == "commander"]
     for row in row_list:
         if _text(row, "zone") == "commander":
@@ -650,14 +923,6 @@ def deck_castability(rows: Iterable[Mapping[str, object]]) -> dict[str, object]:
         front_type = _text(row, "type_line").split(" // ")[0]
         if "Land" in front_type:
             lands += quantity
-            colours = land_colours(row)
-            if colours is None:
-                unknown_lands += quantity
-                groups[frozenset()] += quantity
-            else:
-                if not colours:
-                    no_colour_lands += quantity
-                groups[colours] += quantity
             continue
         value = row.get("mana_value")
         if value is None:
@@ -680,8 +945,8 @@ def deck_castability(rows: Iterable[Mapping[str, object]]) -> dict[str, object]:
             {"card_id": _text(row, "card_id"), "name": _text(row, "oracle_name")}
         )
     nonland = early + other
-    land_groups = _sorted_groups(groups)
-    search_groups = _sorted_groups(search_counter)
+    land_groups = basis.land_groups
+    search_groups = basis.search_groups
     items = []
     for (turn, need_items), cards in sorted(requirements.items()):
         result = colour_probability(land_groups, nonland, dict(need_items), turn)
@@ -747,6 +1012,8 @@ def deck_castability(rows: Iterable[Mapping[str, object]]) -> dict[str, object]:
             ),
         },
         "commander": _commander_entries(commanders, land_groups, search_groups, nonland),
+        "tapped": deck_tapped(row_list),
+        "colour_access": colour_access(row_list, _needed_colours(row_list)),
         "land_count_table": land_count_table(lands + nonland, lands),
         "opening_hand": opening_hands(lands, early, other),
         "method": (
