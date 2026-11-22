@@ -686,8 +686,8 @@ gekennzeichnet (Einspruch des Owners jederzeit möglich).
    Frame-Digests 7/8 (Seed 4, Frame 3694, Entscheidung „Choose replacement effect“, `damage` 0
    gegen 4; 2 von 3 Wiederholungen weichen ab). Das ist `LOCAL_OBSERVED` (N = 8 Seeds und 3
    Wiederholungen eines Seeds), allgemein `UNKNOWN`; die Ursache ist nicht gezeigt (passt zur
-   Diagnose zu #1715). Bedingung (a) für 6 Sitze gilt mit dem Owner-Wort zur bekannten Abweichung
-   (Nr. 6) als erfüllt; ein Fork-Eingriff dazu braucht ein eigenes Owner-Go (`AGENTS.md` §8). (b) F5 und die
+   Diagnose zu #1715). Bedingung (a) für 6 Sitze gilt mit dem Owner-Wort (Nr. 6, Abweichung als beobachteter
+   Lauf-zu-Lauf-Effekt, Ursache UNKNOWN) als erfüllt; ein Fork-Eingriff dazu braucht ein eigenes Owner-Go (`AGENTS.md` §8). (b) F5 und die
    Tape-Gates auf `main` (F5-3 nur PARTIAL wegen einer bekannten Engine-Abweichung), (c) die
    Real-Engine-Tests für PLAY 5/6 laufen grün, (d) die CI des Freigabe-PR #1743 ist grün (inklusive
    `pb03-runtime`; die Konformanz, soweit ihr Pfadfilter greift), (e) Abnahme durch den Owner nach der Freigabe: eine eigene
@@ -698,8 +698,8 @@ gekennzeichnet (Einspruch des Owners jederzeit möglich).
 3. **Umsetzung:** Zwei Sperren, je eine Zeile in `studio/launch.py`: `MAX_RELEASED_SEATS` (SIMULATE
    und Partien ohne Mensch-Sitz) und `MAX_RELEASED_PLAY_SEATS` (Partie mit Mensch-Sitz), beide 6;
    die Oberfläche (`partie.js`, `paired.js`) folgt je einer Liste, Wächter-Tests halten Konstante und
-   Seite gleich. **Zurücksetzen** (bei Misserfolg von (e), auf Owner-Wunsch oder fail-closed bei
-   einem Defekt, jederzeit): die Konstante auf 4 setzen, plus die zugehörige Liste in `partie.js`
+   Seite gleich. **Zurücksetzen** (Auslegung des Co-Leads, fail-closed; bei Misserfolg von (e), auf Owner-Wunsch
+   oder bei einem Defekt, jederzeit): die Konstante auf 4 setzen, plus die zugehörige Liste in `partie.js`
    bzw. `paired.js`; das ist ein Einzeiler je Pfad. Eine erneute Freigabe oder geänderte
    Bedingungen sind Owner-Sache. Die Obergrenze des Codes bleibt 6 (`MIN_SEATS, MAX_SEATS = 2, 6`).
 
@@ -717,21 +717,35 @@ gekennzeichnet (Einspruch des Owners jederzeit möglich).
    `docs/OWNER_DECISIONS_STUDIO_20261112.md` (A3, Einleitung) beschreiben den Stand vor dem Go vom
    2026-11-22 und sind dort mit einem Verweis auf E16 gekennzeichnet; sie bleiben als Verlauf stehen
    (E10). Der Vorbehalt in `AGENTS.md` §8 nennt die Freigabe jetzt als erteilt, mit Zitat, und das
-   fail-closed Zurücksetzen als erlaubt; sonst bleibt §8 unverändert.
+   fail-closed Zurücksetzen als erlaubt (gekennzeichnet als Auslegung des Co-Leads, Nr. 3); sonst
+   bleibt §8 unverändert.
 
-6. **Owner-Antwort zu 6 Sitzen und zur bekannten Abweichung (2026-11-22, Session-Chat,
-   Niederschrift des Co-Leads).** Auf die Frage des Co-Leads „Wie soll ich 5/6 freigeben?“ (Optionen
-   unter anderem: beide zusammen, erst nur 5 Sitze, erst die Ursache klären) antwortete der Owner:
-   **„Beide freigeben (Empfehlung)“**, also 5 und 6 Sitze zusammen, mit der Abweichung als bekannter
-   Engine-Eigenschaft. Die Frage lautete sinngemäß (Wortlaut des Co-Leads, kein Owner-Wortlaut): Bei 6
-   Sitzen weicht in 1 von 8 Testpartien ein Beobachtungs-Detail ab (ein Schadensmarker steht in
-   einem Kampfschaden-Frame mal bei 0, mal bei 4); Entscheidungen, Sieger und Transkript waren in
-   allen beobachteten Fällen gleich; bei 4 und 5 Sitzen wurde keine Abweichung gesehen. Der Beleg
-   dazu ist `LOCAL_OBSERVED` (N = 8 Seeds und 3 Wiederholungen eines Seeds, #1661 Kommentar
-   7077057382 und #1715 Kommentar 7077057577), allgemein `UNKNOWN`; die Ursache ist nicht gezeigt. Ein
-   Eingriff in die Engine (Fork) bräuchte ein eigenes Owner-Go (`AGENTS.md` §8). Der Pool-Pfad
-   (`COMMANDER_LAB_STUDIO_SERIES_POOL`, standardmäßig aus) bleibt für 5 und 6 Sitze abgewiesen
-   (Entscheidung des Co-Leads wegen #1715, Pool-Identität; keine Wandzeit-Grenze für 5/6).
+6. **Owner-Antwort zu 6 Sitzen und zur beobachteten Abweichung (2026-11-22, Session-Chat,
+   Niederschrift des Co-Leads).** Quelle: #1656 Kommentar 7077442218, gleichlautend #1661 Kommentar
+   7077442365 und #1715 Kommentar 7077442522. Die dem Owner gestellte Frage steht dort wörtlich
+   (Frage des Co-Leads, kein Owner-Wortlaut):
+
+   > Bei 6 Sitzen weicht in 1 von 8 Testpartien ein Beobachtungs-Detail ab (ein Schadensmarker steht
+   > in einem Kampfschaden-Frame mal bei 0, mal bei 4); Entscheidungen, Sieger und Transkript waren
+   > in allen Fällen gleich, bei 4 und 5 Sitzen gab es 0 Abweichungen. Das Gleiche passiert auch
+   > zwischen zwei identischen Läufen (Engine-Zufall, kein Fehler im Studio). Wie soll ich 5/6
+   > freigeben?
+
+   Einordnung zur Prämisse „Engine-Zufall, kein Fehler im Studio“: **beobachtet, Ursache nicht
+   gezeigt.** Belegt ist nur, dass bei Seed 4 in 2 von 3 Wiederholungen der normalisierte Digest
+   abweicht (`LOCAL_OBSERVED`, N = 8 Seeds und 3 Wiederholungen eines Seeds, #1661 Kommentar
+   7077057382 und #1715 Kommentar 7077057577); ob Engine oder Bridge die Ursache ist, ist `UNKNOWN`,
+   und „in allen Fällen gleich“ gilt für Entscheidungen, Sieger und Transkript nur für diese
+   beobachteten Läufe (allgemein `UNKNOWN`). Antwort des Owners (Auswahl, Wortlaut):
+   **„Beide freigeben (Empfehlung)“**, also 5 und 6 Sitze zusammen. Der Co-Lead hat im selben
+   Kommentar festgehalten, die Abweichung stehe im Register; dort steht sie als **beobachteter
+   Lauf-zu-Lauf-Effekt, Ursache UNKNOWN** (nicht als „bekannte Engine-Eigenschaft“). Ein Eingriff in
+   die Engine (Fork) bräuchte ein eigenes Owner-Go (`AGENTS.md` §8). Das Zurücksetzen der Sperren auf
+   4 Sitze ist jederzeit möglich (fail-closed, Nr. 3); eine Neufreigabe entscheidet nur der Owner.
+   Der Pool-Pfad (`COMMANDER_LAB_STUDIO_SERIES_POOL`, standardmäßig aus) bleibt für 5 und 6 Sitze
+   abgewiesen (Entscheidung des Co-Leads wegen #1715, Pool-Identität; keine Wandzeit-Grenze für 5/6).
+   Die Serienplanung (`paired_series.py`) plant 5/6-Tische mit der Annahme einer Siegrate von 25 %
+   (konservativ, Dauer UNKNOWN); eine Anpassung an 20 % bzw. 16,7 % steht nicht in diesem PR.
 
 ## 3. Was aufgehoben, geändert oder neu ist
 
@@ -786,7 +800,7 @@ Nicht durch die Anweisung, nach den Empfehlungen zu arbeiten, oder das GO abgede
 - Versiegeln, Entsiegeln oder Umschreiben von Datensätzen unter `qualification/`.
 - `pyproject.toml`, `requirements/lock.txt` und dessen Digest (außer innerhalb einer
   Neuversiegelung oder der D5-Freigabe, `AGENTS.md` §4, §10).
-- Freigabe von 5 und 6 Sitzen (erteilt als bedingtes Go am 2026-11-22, E16; Zurücksetzen der Sperren auf 4 ist jederzeit fail-closed bei Defekt erlaubt, eine erneute Freigabe oder geänderte Bedingungen sind Owner-Sache).
+- Freigabe von 5 und 6 Sitzen (erteilt als bedingtes Go am 2026-11-22, E16; Zurücksetzen der Sperren auf 4 ist nach der Auslegung des Co-Leads (E16 Nr. 3) jederzeit fail-closed erlaubt, eine erneute Freigabe oder geänderte Bedingungen sind Owner-Sache).
 - Sichtbarkeit der Repositorys und #1108.
 - Bezahldienste, Preisdaten und Kaufabwicklung (T3 aus E14); ausgenommen ist die Preisanzeige für den TAM-Zukauf (2026-11-21, „Preise für TAM“).
 

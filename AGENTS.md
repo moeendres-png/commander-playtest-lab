@@ -228,8 +228,9 @@ Repository creation; pushes to the `moeendres-png/mage` fork, engine repins, rew
 Owner's go); setting or rotating secrets, paid services, account or repository visibility changes
 (privatizing repositories, external Drive sharing) and publication; releasing five- and six-seat
 play or qualification (released by the Owner on 2026-11-22 as a conditional go, register E16: „Ja 5/6
-sitze freigegeben wenn alles dabei funktioniert“; setting the seat locks back to 4 is allowed at any
-time, fail-closed, on a defect; a renewed release or changed conditions are the Owner's); lifting paused or externally gated items (the all-commander harvest #1210,
+sitze freigegeben wenn alles dabei funktioniert“; Co-Lead reading, register E16 no. 3, fail-closed: setting
+the seat locks back to 4 is allowed at any time; a renewed release or changed conditions are the
+Owner's); lifting paused or externally gated items (the all-commander harvest #1210,
 the Drive-dependent import #1187/#1176, scraping a site without a public API, removing a required
 check, activating price features or purchase handling; a purchase mode (Zukauf) for BUILD
 without prices was released on 2026-11-19, `docs/OWNER_DECISIONS_STUDIO_20261118.md` E14, and
