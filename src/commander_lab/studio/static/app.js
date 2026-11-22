@@ -2457,6 +2457,8 @@ async function openCard(card) {
   const duelBox = h("div", { id: "card-duel-box" });
   const trendBox = h("div", { id: "card-trend-box" });
   const strengthBox = h("div", { id: "card-strength-box" });
+  // WP-6 (T2): "Kartenverständnis (Modellurteil)" with the single ratings; the server shows it only for Chulane
+  const understandingBox = h("div", { id: "card-understanding-box" });
   const extra = h("div", {}, h("p", { class: "muted" }, "Lädt EDHREC-Zeilen."));
   const right = h("div", {},
     h("h2", {}, card.name, " ", tierMark(card)), h("div", {}, mana(card.mana_cost), " ", h("span", { class: "muted" }, card.type_line), card.power !== null ? ` · ${card.power}/${card.toughness}` : ""),
@@ -2480,7 +2482,7 @@ async function openCard(card) {
     h("p", {}, h("a", { href: `decks.html?commander=${encodeURIComponent(COMMANDER)}&must=${encodeURIComponent(card.name)}`, class: "chip" }, "Quelldecks mit dieser Karte im Deck-Browser öffnen →")),
     trendBox,
     card.universe && activeScope() ? h("p", { class: "note" }, `Im ${activeScope().label}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung)" : card.universe.matched ? `${StudioUI.num(card.universe.hits, 0)}/${StudioUI.num(card.universe.denominator, 0)} Decks (Verbreitung gezählt, keine Stärke)` : card.in_collection === false ? `unbekannt (${card.universe.reason})` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
-    card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, strengthBox, extra);
+    card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, strengthBox, understandingBox, extra);
   box.append(left, right); $("modal").hidden = false;
   if (!state.commanderIds.includes(card.card_id) && !card.basic) renderSwapBox(swapBox, card, initialSwapMode);
   if (!state.commanderIds.includes(card.card_id) && !card.basic) renderDuelBox(duelBox, card, {
@@ -2504,6 +2506,7 @@ async function openCard(card) {
     },
   });
   showStrengthBreakdown(strengthBox, card);
+  StudioKartenverstaendnis.fill(understandingBox, h, api, card.card_id, COMMANDER);
   try {
     const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}?${StudioCommander.query}&cohort=${encodeURIComponent(state.cohort)}`);
     const parts = [];
