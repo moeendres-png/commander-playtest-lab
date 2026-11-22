@@ -55,13 +55,30 @@ def test_collection_and_deck_data_carry_no_personal_storage_or_purchase_keys() -
     assert offenders == {}
 
 
+# Register entry "Preise für TAM" (Owner exception 2026-11-22): the source register lists the
+# Cardmarket price guide as the price source of the TAM purchase list, so only the word
+# "Cardmarket" is allowed, and only in data/provenance/source_inventory.json; every other
+# purchase word stays forbidden there, and every other scanned file stays checked in full.
+SOURCE_INVENTORY = "data/provenance/source_inventory.json"
+
+
+def _purchase_text(relative: str, text: str) -> bool:
+    if relative == SOURCE_INVENTORY:
+        text = text.replace("Cardmarket", "").replace("cardmarket", "")
+    return PURCHASE_TEXT.search(text) is not None
+
+
 def test_collection_and_deck_data_carry_no_purchase_records() -> None:
     offenders = [
         str(path.relative_to(ROOT))
         for path in _json_files()
-        if PURCHASE_TEXT.search(path.read_text(encoding="utf-8"))
+        if _purchase_text(str(path.relative_to(ROOT)), path.read_text(encoding="utf-8"))
     ]
     assert offenders == []
+    inventory = (ROOT / SOURCE_INVENTORY).read_text(encoding="utf-8")
+    assert "Cardmarket" in inventory  # the opening is used, and only for this word
+    assert _purchase_text(SOURCE_INVENTORY, inventory + " Kaufdatum")
+    assert _purchase_text("data/collections/x.json", "Cardmarket")
 
 
 PERSONAL_NAME_TOKEN = re.compile(

@@ -44,15 +44,16 @@ EXPECTED_PRIORITIES = (
     (9, "scryfall:tagger", "REVIEW"),
     (10, "archidekt:decks", "UNAVAILABLE"),
     (11, "moxfield:decks", "UNAVAILABLE"),
+    (12, "cardmarket:price-guide", "REVIEW"),
 )
 
 
-def test_qualified_sources_covers_all_eleven_priorities_in_exact_order() -> None:
-    assert len(QUALIFIED_SOURCES) == 11
+def test_qualified_sources_covers_all_twelve_priorities_in_exact_order() -> None:
+    assert len(QUALIFIED_SOURCES) == 12
     priorities = [s.priority for s in QUALIFIED_SOURCES]
-    assert priorities == list(range(1, 12))
+    assert priorities == list(range(1, 13))
 
-    assert len(EXPECTED_PRIORITIES) == 11
+    assert len(EXPECTED_PRIORITIES) == 12
     for (expected_prio, expected_id, expected_status), source in zip(
         EXPECTED_PRIORITIES, QUALIFIED_SOURCES, strict=True
     ):
@@ -84,7 +85,7 @@ def test_every_source_has_all_seventeen_dimensions_populated() -> None:
         "EXTERNAL_OPINION",
     }
 
-    assert len(QUALIFIED_SOURCES) == 11
+    assert len(QUALIFIED_SOURCES) == 12
     for source in QUALIFIED_SOURCES:
         # Core identification & URL
         assert source.source_id.strip() != ""
@@ -178,12 +179,13 @@ def test_get_source_and_list_sources() -> None:
     }
 
     review = list_sources(status="REVIEW")
-    assert len(review) == 4
+    assert len(review) == 5
     assert {s.source_id for s in review} == {
         "playgroup:card-atlas",
         "playgroup:chulane",
         "tournament:cedh-meta",
         "scryfall:tagger",
+        "cardmarket:price-guide",
     }
 
     unavailable = list_sources(status="UNAVAILABLE")
@@ -197,17 +199,17 @@ def test_get_source_and_list_sources() -> None:
 def test_source_inventory_payload_matches_schema() -> None:
     payload = source_inventory_payload()
     assert payload["schema_version"] == "evidence-source-inventory-1.0.0"
-    assert payload["total_sources"] == 11
+    assert payload["total_sources"] == 12
     assert payload["status_counts"]["VERIFIED"] == 5
-    assert payload["status_counts"]["REVIEW"] == 4
+    assert payload["status_counts"]["REVIEW"] == 5
     assert payload["status_counts"]["UNAVAILABLE"] == 2
     assert payload["access_status_counts"] == {
         "ok": 1,
         "ok_with_conditions": 5,
-        "unclear": 1,
+        "unclear": 2,
         "prohibited": 4,
     }
-    assert len(payload["sources"]) == 11
+    assert len(payload["sources"]) == 12
 
 
 def test_write_source_inventory_json_roundtrip(tmp_path: Path) -> None:
@@ -217,8 +219,8 @@ def test_write_source_inventory_json_roundtrip(tmp_path: Path) -> None:
 
     loaded = json.loads(written_path.read_text(encoding="utf-8"))
     assert loaded["schema_version"] == "evidence-source-inventory-1.0.0"
-    assert loaded["total_sources"] == 11
-    assert len(loaded["sources"]) == 11
+    assert loaded["total_sources"] == 12
+    assert len(loaded["sources"]) == 12
     first = loaded["sources"][0]
     assert first["source_id"] == "scryfall:bulk-oracle"
     assert first["priority"] == 1
@@ -425,8 +427,8 @@ def test_source_inventory_payload_filtered_by_status() -> None:
         assert s["status"] == "VERIFIED"
 
     review_payload = source_inventory_payload(status="REVIEW")
-    assert review_payload["total_sources"] == 4
-    assert len(review_payload["sources"]) == 4
+    assert review_payload["total_sources"] == 5
+    assert len(review_payload["sources"]) == 5
     for s in review_payload["sources"]:
         assert s["status"] == "REVIEW"
 
@@ -554,7 +556,7 @@ def test_cli_sources_commands(tmp_path: Path, capsys: pytest.CaptureFixture[str]
     captured = capsys.readouterr()
     payload = json.loads(captured.out)
     assert payload["schema_version"] == "evidence-source-inventory-1.0.0"
-    assert payload["total_sources"] == 11
+    assert payload["total_sources"] == 12
 
     # 2. Verified-only flag
     rc_v = studio_main(["sources", "--verified-only"])

@@ -9,10 +9,12 @@ answer carries or is ordered by a price.
 
 from __future__ import annotations
 
+import gzip
 import json
 import re
 import sqlite3
 import subprocess
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import httpx
@@ -213,6 +215,32 @@ def _seed_prices(store: StudioStore, values: dict[str, int], bulk_date: str = "2
             "INSERT INTO tam_price_snapshot VALUES (1, 'synthetic.json', ?, ?, 'angegeben', "
             "'2026-11-21T00:00:00Z', ?, 0)",
             ("0" * 64, bulk_date, len(values)),
+        )
+
+
+def _seed_cardmarket(
+    store: StudioStore, guide: dict[str, int], entered: dict[str, int], day: str = "2026-11-20"
+) -> None:
+    """Price guide values (low and trend) and entered Cardmarket prices, synthetic."""
+    with store.connection as db:
+        db.execute("DELETE FROM tam_cardmarket_guide")
+        db.executemany(
+            "INSERT INTO tam_cardmarket_guide(oracle_id, low_cents, low_finish, low_set_code, "
+            "low_collector_number, trend_cents) VALUES (?, ?, 'foil', 'SYN', '1', ?)",
+            [(oid, cents, cents + 1) for oid, cents in guide.items()],
+        )
+        db.execute("DELETE FROM tam_cardmarket_guide_snapshot")
+        db.execute(
+            "INSERT INTO tam_cardmarket_guide_snapshot VALUES (1, ?, 'angegeben', ?, "
+            "'2026-11-21T00:00:00Z', 1, 1, 1, 0, ?)",
+            (day, "0" * 64, len(guide)),
+        )
+        db.execute("DELETE FROM tam_cardmarket_price")
+        db.executemany(
+            "INSERT INTO tam_cardmarket_price(oracle_id, eur_cents, price_date, recorded_at, "
+            "filter_code, source_url) VALUES (?, ?, ?, '2026-11-21T00:00:00Z', 'DE/EX/EN+DE', "
+            "NULL)",
+            [(oid, cents, day) for oid, cents in entered.items()],
         )
 
 
@@ -551,6 +579,17 @@ def _answers(client: TestClient, cmd_id: str, card_id: str) -> dict[str, object]
     return out
 
 
+def _seed_all_sentinels(store: StudioStore) -> None:
+    oracle_ids = _all_oracle_ids(store)
+    _seed_prices(store, dict.fromkeys(oracle_ids, SENTINEL_CENTS))
+    _seed_cardmarket(
+        store,
+        dict.fromkeys(oracle_ids, GUIDE_SENTINEL_CENTS),
+        dict.fromkeys(oracle_ids, ENTRY_SENTINEL_CENTS),
+        day=datetime.now(UTC).date().isoformat(),
+    )
+
+
 def _all_oracle_ids(store: StudioStore) -> list[str]:
     rows = store.connection.execute(
         "SELECT oracle_id FROM scryfall_card UNION SELECT oracle_id FROM card "
@@ -573,6 +612,11 @@ def test_no_answer_carries_or_is_ordered_by_a_guide_value(tmp_path: Path) -> Non
     store = StudioStore.open(tmp_path / "studio")
     # varied values, the highest for the alphabetically first card: any use for ordering shows
     _seed_prices(store, {oid: 100 + 37 * (len(oracle_ids) - i) for i, oid in enumerate(oracle_ids)})
+    _seed_cardmarket(
+        store,
+        {oid: 50 + 41 * (len(oracle_ids) - i) for i, oid in enumerate(oracle_ids)},
+        {oid: 70 + 43 * i for i, oid in enumerate(oracle_ids)},
+    )
     store.close()
     cache.invalidate()
     with_values = _answers(client, cmd_id, "rem-high")
@@ -584,7 +628,7 @@ def test_no_answer_holds_a_price_field_or_value(tmp_path: Path) -> None:
     included), strength, swap, cut lab, alternatives or card page names a price field or holds
     the value."""
     store, cmd_id = _leak_store(tmp_path)
-    _seed_prices(store, dict.fromkeys(_all_oracle_ids(store), SENTINEL_CENTS))
+    _seed_all_sentinels(store)
     store.close()
     cache.invalidate()
     client = TestClient(create_app(tmp_path / "studio"), headers=HEADER)
@@ -605,7 +649,7 @@ def test_every_route_that_answers_holds_no_price(tmp_path: Path) -> None:
     sentinel value for every card. Only the TAM route may carry it; routes that need an engine,
     a game or an image are left out (the one-reader guard covers them statically)."""
     store, _cmd_id = _leak_store(tmp_path)
-    _seed_prices(store, dict.fromkeys(_all_oracle_ids(store), SENTINEL_CENTS))
+    _seed_all_sentinels(store)
     store.close()
     cache.invalidate()
     app = create_app(tmp_path / "studio")
@@ -622,7 +666,8 @@ def test_every_route_that_answers_holds_no_price(tmp_path: Path) -> None:
         ),
     }
     control = _ask(client, decks[TAM_COMMANDER_NAME][1], walkers)
-    assert str(SENTINEL_CENTS) in control.text  # the sentinel is live on the one route
+    for sentinel in (SENTINEL_CENTS, GUIDE_SENTINEL_CENTS, ENTRY_SENTINEL_CENTS):
+        assert str(sentinel) in control.text  # the sentinels are live on the one route
     scanned: list[str] = []
     hits: list[tuple[str, str]] = []
 
@@ -670,8 +715,29 @@ def test_every_route_that_answers_holds_no_price(tmp_path: Path) -> None:
     assert hits == []
 
 
-def test_price_tables_stay_out_of_the_user_state_export() -> None:
+def test_price_tables_stay_out_of_the_user_state_export(tmp_path: Path) -> None:
     assert not (PRICE_TABLES & state_export._TABLE_NAMES)
+    client, ids = _tam_store(tmp_path)
+    saved = client.post(
+        "/api/tam/cardmarket-eintrag",
+        json={"deck_id": ids["tam_deck"], "card_id": ids["priced"], "eur_text": "7654,32"},
+    )
+    assert saved.status_code == 200, saved.text
+    store = StudioStore.open(tmp_path / "studio")
+    _seed_cardmarket(store, {"o-tam-priced": GUIDE_SENTINEL_CENTS}, {})
+    store.connection.execute(
+        "INSERT INTO tam_cardmarket_price VALUES ('o-tam-unknown', ?, '2026-11-20', 't', "
+        "'DE/EX/EN+DE', NULL)",
+        (ENTRY_SENTINEL_CENTS,),
+    )
+    store.connection.commit()
+    target = tmp_path / "state.json.gz"
+    state_export.export_state(store, target)
+    store.close()
+    text = gzip.decompress(target.read_bytes()).decode("utf-8").casefold()
+    assert "deck" in text  # the export holds the user state
+    for marker in ("765432", "876543", "1234", "tam_price", "tam_cardmarket", "eur_cents"):
+        assert marker not in text, marker
 
 
 def test_the_local_store_refuses_the_repository(tmp_path: Path) -> None:
@@ -790,13 +856,32 @@ _HTTP_CALL = re.compile(
 
 def test_no_http_request_to_cardmarket_outside_the_price_guide_download() -> None:
     src = ROOT / "src"
-    offenders = []
+    hosts: dict[str, int] = {}
     for path in _src_files():
         text = path.read_text(encoding="utf-8")
         name = path.relative_to(src).as_posix()
-        if "cardmarket.com" in text.casefold() and _HTTP_CALL.search(text):
-            offenders.append(name)
-    assert offenders == ["commander_lab/studio/tam_cardmarket.py"]
+        if "cardmarket.com" in text.casefold():
+            hosts[name] = text.casefold().count("cardmarket.com")
+            if name != "commander_lab/studio/tam_cardmarket.py":
+                assert not _HTTP_CALL.search(text) or name.endswith("sources.py"), name
+    # the address stands only in the download module, in the source register entry of the price
+    # guide (text, no request) and in the two link constants of the TAM block of wishlist.js
+    assert set(hosts) == {
+        "commander_lab/studio/tam_cardmarket.py",
+        "commander_lab/studio/sources.py",
+        "commander_lab/studio/static/wishlist.js",
+    }
+    register = (src / "commander_lab/studio/sources.py").read_text(encoding="utf-8")
+    entry = register[register.index('source_id="cardmarket:price-guide"') :]
+    entry = entry[: entry.index("\n    ),\n")]
+    assert hosts["commander_lab/studio/sources.py"] == entry.casefold().count("cardmarket.com")
+    page = (src / "commander_lab/studio/static/wishlist.js").read_text(encoding="utf-8")
+    assert hosts["commander_lab/studio/static/wishlist.js"] == 2
+    assert 'const CM_CARD_BASE = "https://www.cardmarket.com/de/Magic/Cards/";' in page
+    assert (
+        'const CM_SEARCH_BASE = "https://www.cardmarket.com/de/Magic/Products/Search?searchString=";'
+        in page
+    )
     module = (src / "commander_lab/studio/tam_cardmarket.py").read_text(encoding="utf-8")
     hosts = set(re.findall(r"https://([a-z0-9.]+)", module))
     assert hosts == {"downloads.s3.cardmarket.com"}
@@ -808,3 +893,312 @@ def test_no_http_request_to_cardmarket_outside_the_price_guide_download() -> Non
     assert "ProxyHandler({})" in module and "_NoRedirect" in module
     assert 'USER_AGENT = "CommanderStudio/' in module
     assert module.count("_OPENER.open(") == 1
+
+
+# --- entered Cardmarket prices (WP-10b) -------------------------------------------------------
+
+
+def _enter(client: TestClient, deck_id: str, card_id: str, **extra: object) -> httpx.Response:
+    return client.post(
+        "/api/tam/cardmarket-eintrag", json={"deck_id": deck_id, "card_id": card_id, **extra}
+    )
+
+
+def test_an_entered_price_is_stored_dated_and_shown_first(tmp_path: Path) -> None:
+    client, ids = _tam_store(tmp_path)
+    today = datetime.now(UTC).date()
+    saved = _enter(client, ids["tam_deck"], ids["priced"], eur_text="1.234,5 €")
+    assert saved.status_code == 200, saved.text
+    assert saved.json() == {
+        "card_id": ids["priced"], "status": "value", "eur_cents": 123450,
+        "price_date": today.isoformat(), "filter_code": "DE/EX/EN+DE", "link_kind": "karte",
+    }  # fmt: skip
+    answer = _ask(client, ids["tam_deck"], [ids["priced"]]).json()
+    entered = answer["cards"][0]["entered"]
+    assert entered == {
+        "eur_cents": 123450, "price_date": today.isoformat(), "filter_code": "DE/EX/EN+DE",
+        "age_days": 0, "stale": False,
+    }  # fmt: skip
+    assert answer["cards"][0]["eur_cents"] == 1234  # the approximation stays apart
+    # an older date (German form) and other filters; 15 days is stale, 14 is not
+    old = today - timedelta(days=15)
+    _enter(
+        client, ids["tam_deck"], ids["priced"], eur_text="9,99",
+        entered_on=old.strftime("%d.%m.%Y"), filter_code="alle/NM/DE",
+    )  # fmt: skip
+    entered = _ask(client, ids["tam_deck"], [ids["priced"]]).json()["cards"][0]["entered"]
+    assert (entered["eur_cents"], entered["stale"], entered["filter_code"]) == (
+        999,
+        True,
+        "alle/NM/DE",
+    )
+    edge = (today - timedelta(days=14)).isoformat()
+    _enter(client, ids["tam_deck"], ids["priced"], eur_text="9,99", entered_on=edge)
+    assert (
+        _ask(client, ids["tam_deck"], [ids["priced"]]).json()["cards"][0]["entered"]["stale"]
+        is False
+    )
+
+
+@pytest.mark.parametrize("text", ["", "0", "0,00", "-5", "abc", "12,345", "1.2.3", "1e3"])
+def test_empty_zero_or_unreadable_input_removes_the_entry_never_zero(
+    tmp_path: Path, text: str
+) -> None:
+    client, ids = _tam_store(tmp_path)
+    assert _enter(client, ids["tam_deck"], ids["priced"], eur_text="5").status_code == 200
+    removed = _enter(client, ids["tam_deck"], ids["priced"], eur_text=text)
+    assert removed.status_code == 200 and removed.json()["status"] == "unknown"
+    assert removed.json()["eur_cents"] is None
+    card = _ask(client, ids["tam_deck"], [ids["priced"]]).json()["cards"][0]
+    assert "entered" not in card
+    store = StudioStore.open(tmp_path / "studio")
+    assert _rows(store, "tam_cardmarket_price") == 0
+    with pytest.raises(sqlite3.IntegrityError):  # the table itself refuses a 0 value
+        store.connection.execute(
+            "INSERT INTO tam_cardmarket_price VALUES ('o-x', 0, '2026-11-20', 't', 'x', NULL)"
+        )
+    store.close()
+
+
+def test_entries_follow_the_same_gate_as_the_guide_values(tmp_path: Path) -> None:
+    client, ids = _tam_store(tmp_path)
+    future = (datetime.now(UTC).date() + timedelta(days=3)).isoformat()
+    cases = [
+        (ids["chulane_deck"], ids["priced"], {}, 403),  # Chulane: never a price
+        (ids["tam_deck"], ids["priced"], {"commander": CHULANE}, 403),
+        ("no-such-deck", ids["priced"], {}, 404),
+        (ids["tam_deck"], ids["owned"], {}, 422),  # owned: no price
+        (ids["tam_deck"], ids["foreign"], {}, 422),  # not in the deck
+        (ids["tam_deck"], ids["priced"], {"entered_on": future}, 422),
+        (ids["tam_deck"], ids["priced"], {"entered_on": "2026-02-31"}, 422),
+        (ids["tam_deck"], ids["priced"], {"entered_on": "gestern"}, 422),
+        (ids["tam_deck"], ids["priced"], {"filter_code": "DE/PO/EN"}, 422),
+        (ids["tam_deck"], ids["priced"], {"extra": 1}, 422),
+    ]
+    for deck_id, card_id, extra, status in cases:
+        response = _enter(client, deck_id, card_id, eur_text="3,00", **extra)
+        assert response.status_code == status, (extra, response.text)
+    store = StudioStore.open(tmp_path / "studio")
+    assert _rows(store, "tam_cardmarket_price") == 0
+    store.close()
+
+
+# --- Cardmarket price guide (WP-10b) ----------------------------------------------------------
+
+
+def _guide_store(tmp_path: Path) -> StudioStore:
+    """Scryfall facts and a bulk file with cardmarket_id for three cards."""
+    from tests.unit.test_studio_builder import _fill, _insert_scryfall
+
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    for oracle_id, name in (("o-g1", "Guide One"), ("o-g2", "Guide Two"), ("o-g3", "Guide Three")):
+        _insert_scryfall(store, oracle_id=oracle_id, name=name, colors="W", type_line="Artifact")
+    store.connection.commit()
+    cards = [
+        _card(
+            "o-g1", "s-1a", {"eur": "0.94"}, cardmarket_id=101, set="cmm", collector_number="464"
+        ),
+        _card("o-g1", "s-1b", {"eur": "1.20"}, cardmarket_id=102, set="sld", collector_number="9"),
+        _card("o-g1", "s-1c", {"eur": "0.01"}, cardmarket_id=103, oversized=True),
+        _card("o-g2", "s-2a", {"eur": "5.00"}, cardmarket_id=201, set="abc", collector_number="7"),
+        _card("o-g3", "s-3a", {"eur": "3.00"}, cardmarket_id=301, set="xyz", collector_number="1"),
+        _card("o-g3", "s-3b", {"eur": "2.00"}, cardmarket_id=True),  # not an id
+    ]
+    report = tam_prices.import_scryfall_prices(
+        store, _bulk(tmp_path / "cards.jsonl", cards), bulk_date="2026-11-20"
+    )
+    assert report["printings_with_cardmarket_id"] == 4  # oversized and the bool id left out
+    return store
+
+
+def _guide_file(path: Path, guides: list[dict[str, object]], **meta: object) -> Path:
+    path.write_text(json.dumps({"version": 1, **meta, "priceGuides": guides}), encoding="utf-8")
+    return path
+
+
+GUIDES = [
+    {"idProduct": 101, "low": 0.45, "trend": 0.94, "low-foil": 2.0, "trend-foil": 3.5},
+    {"idProduct": 102, "low": 0.6, "trend": 0.9, "low-foil": 0.3, "trend-foil": None},
+    {"idProduct": 103, "low": 0.02, "trend": 0.05},  # oversized: no playable printing
+    {"idProduct": 201, "low": 0, "trend": -1, "low-foil": "4.00", "trend-foil": 6.25},
+    {"idProduct": 301, "low": 1.5, "trend": 2.5},
+    {"idProduct": 999, "low": 0.01, "trend": 0.01},  # no known printing
+]
+
+
+def test_the_price_guide_keeps_the_lowest_low_and_trend_over_playable_printings(
+    tmp_path: Path,
+) -> None:
+    store = _guide_store(tmp_path)
+    guide = _guide_file(
+        tmp_path / "price_guide_1.json", GUIDES, createdAt="2026-11-20T02:43:21+0100"
+    )
+    products = tmp_path / "products_singles_1.json"
+    products.write_text(json.dumps({"products": [
+        {"idProduct": 101, "name": "Guide One"}, {"idProduct": 102, "name": "Guide One"},
+        {"idProduct": 201, "name": "Guide Two"}, {"idProduct": 301, "name": "Another Name"},
+    ]}), encoding="utf-8")  # fmt: skip
+    report = tam_prices.import_cardmarket_priceguide(store, guide, products_path=products)
+    assert report["guide_date"] == "2026-11-20" and report["date_basis"] == "createdAt"
+    assert report["printings_known"] == 4
+    assert report["printings_matched"] == 3 and report["name_mismatches"] == 1
+    rows = store.connection.execute(
+        "SELECT oracle_id, low_cents, low_finish, low_set_code, low_collector_number, "
+        "trend_cents FROM tam_cardmarket_guide ORDER BY oracle_id"
+    ).fetchall()
+    assert [tuple(r) for r in rows] == [
+        # the foil of the second printing (0.30) is the lowest low; the lowest trend is 0.90
+        ("o-g1", 30, "foil", "sld", "9", 90),
+        # low 0, a negative trend and a text low-foil are no values: only trend-foil
+        ("o-g2", None, None, None, None, 625),
+    ]  # o-g3: its product name differs, left out
+    # without the product list no name check, o-g3 joins
+    report = tam_prices.import_cardmarket_priceguide(store, guide)
+    assert report["name_check"] is False and report["printings_matched"] == 4
+    assert _rows(store, "tam_cardmarket_guide") == 3
+    store.close()
+
+
+def test_the_price_guide_needs_a_date_and_a_guide_list(tmp_path: Path) -> None:
+    store = _guide_store(tmp_path)
+    plain = _guide_file(tmp_path / "g.json", GUIDES)
+    with pytest.raises(ValueError, match="no guide date"):
+        tam_prices.import_cardmarket_priceguide(store, plain)
+    stamped = _guide_file(tmp_path / "s.json", GUIDES, createdAt="2026-11-20T02:43:21+0100")
+    with pytest.raises(ValueError, match="conflict"):
+        tam_prices.import_cardmarket_priceguide(store, stamped, guide_date="2026-11-19")
+    future = _guide_file(tmp_path / "f.json", GUIDES, createdAt="2099-01-01T00:00:00+0100")
+    with pytest.raises(ValueError, match="future"):
+        tam_prices.import_cardmarket_priceguide(store, future)
+    wrong = tmp_path / "w.json"
+    wrong.write_text(json.dumps({"products": []}), encoding="utf-8")
+    with pytest.raises(ValueError, match="priceGuides"):
+        tam_prices.import_cardmarket_priceguide(store, wrong, guide_date="2026-11-20")
+    assert _rows(store, "tam_cardmarket_guide_snapshot") == 0
+    report = tam_prices.import_cardmarket_priceguide(store, plain, guide_date="2026-11-18")
+    assert report["date_basis"] == "angegeben"
+    store.close()
+
+
+def test_the_cli_imports_a_downloaded_guide_and_the_reader_answers_it(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from commander_lab.studio.__main__ import main as studio_main
+
+    client, ids = _tam_store(tmp_path)
+    store = StudioStore.open(tmp_path / "studio")
+    store.connection.execute(
+        "INSERT INTO tam_price_print VALUES (501, 'o-tam-priced', 'syn', '5'), "
+        "(502, 'o-tam-unknown', 'syn', '6')"
+    )
+    store.connection.commit()
+    store.close()
+    guide = _guide_file(
+        tmp_path / "price_guide_1.json",
+        [{"idProduct": 501, "low": 0.45, "trend": 0.94}, {"idProduct": 502, "trend": 7.0}],
+        createdAt="2026-11-20T02:43:21+0100",
+    )
+    argv = [
+        "--data",
+        str(tmp_path / "studio"),
+        "import-cardmarket-priceguide",
+        "--file",
+        str(guide),
+    ]
+    assert studio_main(argv) == 0
+    assert '"printings_matched": 2' in capsys.readouterr().out
+    answer = _ask(client, ids["tam_deck"], [ids["priced"], ids["unknown"], ids["owned"]]).json()
+    assert answer["guide_snapshot"]["guide_date"] == "2026-11-20"
+    assert answer["guide_label"] == "Cardmarket-Preisführer"
+    assert "ohne Filter Land/Zustand" in answer["guide_notice"]
+    cards = {c["card_id"]: c for c in answer["cards"]}
+    assert cards[ids["priced"]]["guide"] == {
+        "low_cents": 45, "low_finish": "nonfoil", "low_printing": "SYN 5", "trend_cents": 94,
+    }  # fmt: skip
+    assert cards[ids["unknown"]]["guide"] == {
+        "low_cents": None, "low_finish": "", "low_printing": "", "trend_cents": 700,
+    }  # fmt: skip
+    assert cards[ids["owned"]] == {"card_id": ids["owned"], "status": "owned"}
+    # Chulane never sees the guide
+    assert _ask(client, ids["chulane_deck"], [ids["priced"]]).status_code == 403
+
+
+def test_a_csv_of_read_prices_enters_only_cards_of_the_purchase_list(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from commander_lab.studio.__main__ import main as studio_main
+
+    client, ids = _tam_store(tmp_path)
+    store = StudioStore.open(tmp_path / "studio")
+    owned_name = store.connection.execute(
+        "SELECT oracle_name FROM card WHERE card_id = ?", (ids["owned"],)
+    ).fetchone()[0]
+    store.close()
+    today = datetime.now(UTC).date().isoformat()
+    sheet = tmp_path / "preise.csv"
+    sheet.write_text(
+        "Name;Preis;Datum\n"
+        "Walker priced;12,50;20.11.2026\n"
+        "walker unknown;3;\n"
+        f"{owned_name};1,00;\n"
+        "Walker foreign;4,00;\n"
+        "Nobody;1;\n"
+        "Walker priced;abc;2099-01-01\n",
+        encoding="utf-8",
+    )
+    argv = [
+        "--data",
+        str(tmp_path / "studio"),
+        "import-tam-cardmarket-csv",
+        ids["tam_deck"],
+        str(sheet),
+    ]
+    assert studio_main(argv) == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["stored"] == 2 and report["filter_code"] == "DE/EX/EN+DE"
+    assert [s["line"] for s in report["skipped"]] == [4, 5, 6, 7]  # owned, foreign, unknown, future
+    answer = _ask(client, ids["tam_deck"], [ids["priced"], ids["unknown"]]).json()
+    entered = {c["card_id"]: c["entered"] for c in answer["cards"]}
+    assert entered[ids["priced"]]["eur_cents"] == 1250
+    assert entered[ids["priced"]]["price_date"] == "2026-11-20"
+    assert entered[ids["unknown"]] | {"age_days": 0} == {
+        "eur_cents": 300, "price_date": today, "filter_code": "DE/EX/EN+DE", "age_days": 0,
+        "stale": False,
+    }  # fmt: skip
+    # a price file inside the repository is refused; Chulane decks are refused
+    store = StudioStore.open(tmp_path / "studio")
+    with pytest.raises(ValueError, match="outside the repository"):
+        tam_prices.import_cardmarket_csv(store, ids["tam_deck"], ROOT / "data" / "preise.csv")
+    with pytest.raises(tam_prices.NotTamError):
+        tam_prices.import_cardmarket_csv(store, ids["chulane_deck"], sheet)
+    store.close()
+
+
+def test_the_owner_exception_is_recorded_where_the_rules_are() -> None:
+    """The Cardmarket price guide download rests on the Owner exception of 2026-11-22: the
+    register quotes it with its limits, AGENTS.md names it in §8 and §12, the source register
+    lists the price guide honestly as unclear."""
+    register = (ROOT / "docs/OWNER_DECISIONS_STUDIO_20261118.md").read_text(encoding="utf-8")
+    entry = register[register.index("#### Owner-Ausnahme Cardmarket für den TAM-Zukauf") :]
+    entry = entry[: entry.index("Preis-Wächter beim Bau")]
+    for needed in (
+        "„Bitte die Regel für hier aufheben",
+        "„Will kein Skript bei meinem Browser laufen lassen",
+        "UNBELEGT",
+        "liegt beim Owner",
+        "Umgehung von Zugangsschutz",
+        "ohne Filter Land/Zustand",
+        "`unclear`",
+    ):
+        assert needed in entry, needed
+    agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    assert agents.count("Owner exception of 2026-11-22") == 2
+    assert "never circumventing access protection" in agents
+    from commander_lab.studio.sources import get_source
+
+    guide = get_source("cardmarket:price-guide")
+    assert guide.access_status == "unclear" and guide.status == "REVIEW"
+    assert "UNBELEGT" in guide.license_terms
+    guide_doc = (ROOT / "docs/STUDIO_TAM_PREISE.md").read_text(encoding="utf-8")
+    assert "import-cardmarket-priceguide" in guide_doc and "Stichprobe" in guide_doc

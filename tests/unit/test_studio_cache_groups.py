@@ -75,10 +75,10 @@ def test_every_table_of_the_schema_is_in_exactly_one_group() -> None:
     finally:
         memory.close()
     assert tables == named == set(cache.TABLE_GROUP)
-    assert len(tables) == 48  # 46 + the two local TAM guide-value tables (#1637)
+    assert len(tables) == 52  # 46 + the six local TAM price tables (#1637)
     sizes = {group: sum(g is group for g in cache.TABLE_GROUP.values()) for group in cache.Group}
     assert sizes == {
-        cache.Group.IMPORT: 29,
+        cache.Group.IMPORT: 33,
         cache.Group.DECKS: 9,
         cache.Group.MARKS: 2,
         cache.Group.PROFILES: 2,

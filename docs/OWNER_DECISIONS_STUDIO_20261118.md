@@ -533,7 +533,7 @@ Evidenz/Reife, Rating, Tierliste, Ranking oder Simulationszahlen. Nicht erlaubt 
 Kaufabschluss und Kaufabwicklung, Bezahldienste und Scraping einer Seite ohne öffentliche API
 (`AGENTS.md` §8). Preise werden nur aus einer Quelle gesammelt, die im Quellregister
 (`src/commander_lab/studio/sources.py`) mit Zugangsstatus `ok` oder `ok_with_conditions` geführt ist (nie
-`unclear` oder `prohibited`; Cardmarket erst nach geklärtem Zugang); diese Preisabrufe sind die
+`unclear` oder `prohibited`; Cardmarket erst nach geklärtem Zugang; Owner-Ausnahme 2026-11-22 unten); diese Preisabrufe sind die
 einzige Ausnahme zu SR39 („nach außen gehen nur Abrufe öffentlicher Kartenbilder und
 Kartendaten“, `AGENTS.md` §12). Jeder Preis trägt eine
 ehrliche Quelle und einen Zeitstempel, ein fehlender Preis heißt „unbekannt“, nie 0 €. Ein
@@ -555,6 +555,55 @@ Anbieters, mindestens Excellent, Minimum aus Foil und Non-Foil); (3) Export der 
 Cardmarkets Wants-Liste und Shopping Wizard (Schritt (3) liegt außerhalb der abschließenden Planungsfunktionen, ist
 ein Abruf-Gegenstück mit Datenausgang und nahe an der Kaufabwicklung: er braucht einen eigenen Entscheid und ist
 von „Preise für TAM“ nicht gedeckt).
+
+#### Owner-Ausnahme Cardmarket für den TAM-Zukauf (2026-11-22, #1637)
+
+Owner, 2026-11-22, Wortlaut in #1637, Kommentar 7071394531, Punkt 9: „ich will eigentlich für die
+Zukäufe speziell die Cardmarket-Preise deutscher Anbieter, und da das Günstigste jeder Variante der
+Karte (egal ob foil, etc., manchmal sind auch foil günstiger) und mind. Excellent-Zustand“.
+Owner, 2026-11-22, im Session-Chat, vom Co-Lead an den Builder übermittelt (Niederschrift des
+Co-Leads; die wörtliche Ablage als Kommentar in #1637 ist erbeten, Claim-Kommentar 7071587275):
+„Bitte die Regel für hier aufheben und kümmer dich vollständig darum, dir die Preise so zu besorgen,
+wie ich meinte“ und danach „Will kein Skript bei meinem Browser laufen lassen, entweder du kümmerst
+dich selber vollständig drum oder wir weichen auf etwas anderes aus, was die Preise der Karten auch
+möglichst gut repräsentiert und du aber automatisch suchen kannst.“
+
+Reichweite (Owner): Für die Preise des TAM-Zukaufs hebt der Owner die Regel „kein Scraping, Quelle nur
+mit Zugangsstatus `ok`/`ok_with_conditions`, Cardmarket erst nach geklärtem Zugang“ (`AGENTS.md` §8,
+§12) für diesen Fall auf. Ein Skript im Browser des Owners ist nicht gewollt.
+
+Umfang und Grenzen (Co-Lead, umgesetzt in PR zu #1637, WP-10b):
+
+- **Hauptweg:** der Cardmarket-Preisführer, den Cardmarket zum Download veröffentlicht
+  (`downloads.s3.cardmarket.com`, `price_guide_1.json` und `products_singles_1.json`): nur auf
+  Befehl des Owners (`python -m commander_lab.studio import-cardmarket-priceguide`), je Datei
+  höchstens ein Abruf, eine lokale Kopie jünger als 24 Stunden wird wiederverwendet, ehrlicher
+  User-Agent, keine Cookies, kein Konto, kein Schlüssel, kein Proxy, keine Umleitung; jede Antwort
+  außer HTTP 200 stoppt sofort. Zuordnung Karte zu Produkt über `cardmarket_id` der spielbaren
+  Papierdrucke der lokalen Scryfall-Datei; je Karte der niedrigste `low`/`low-foil` (mit Druck und
+  Finish) und der niedrigste `trend`/`trend-foil`. Anzeige „Cardmarket ab x,xx € (Trend y,yy €) ·
+  ohne Filter Land/Zustand · Stand …“: der Preisführer kennt weder Verkäuferland noch Zustand, der
+  Aufschlag für Deutschland/Excellent ist ohne Angebotsdaten nicht belegbar.
+- **Genauer Preis von Hand:** je Karte ein Link auf die Cardmarket-Kartenseite mit den Filtern des
+  Owners (Standard Land Deutschland, Sprache Englisch und Deutsch, Mindestzustand Excellent;
+  änderbar), den nur der Browser des Owners öffnet; der Owner trägt den abgelesenen Preis ein (oder
+  eine CSV `Name;Preis;Datum`). Anzeige „Cardmarket DE/EX: x,xx € (eingetragen am …)“; älter als
+  14 Tage gilt als veraltet und zählt nicht.
+- **Vorrang:** eingetragener Preis > Preisführer (`low`, sonst `trend`) > Scryfall-Näherung
+  (`prices.eur`/`prices.eur_foil`, Cardmarket-Trend); immer mit Quelle und Datum, fehlend
+  „unbekannt“, nie 0 €.
+- **Nicht erlaubt:** Umgehung von Zugangsschutz (kein Stealth-Browser, kein Lösen oder Umgehen
+  einer Bot-Prüfung, keine Proxys oder IP-Wechsel, keine vorgetäuschte Browser-Kennung), das Lesen
+  von Cardmarket-Seiten durch das Studio, Hintergrund- oder Massenabrufe, andere Quellen als
+  Cardmarket und Preise außerhalb der TAM-Zukaufansicht. Die übrigen Grenzen von „Preise für TAM“
+  gelten unverändert (nur nicht besessene Karten, nur Summe/Sortierung/Budgetfilter, nie in
+  Wertung, Tierliste, Ranking, Vorschläge, Kürzen/Tauschen, Evidenz, Simulation oder
+  Kartenverständnis; Chulane nie; Preisdaten nur im lokalen Studio-Store, nie committet; Tests nur
+  synthetisch).
+- **AGB-Lage:** Die Nutzungsbedingungen zu automatisiertem Abruf sind UNBELEGT (nicht gelesen);
+  `robots.txt` trägt einen Rechtevorbehalt (EU-Richtlinie 2019/790). Das Risiko (etwa eine Sperre)
+  liegt beim Owner. Im Quellregister steht der Preisführer deshalb mit Zugangsstatus `unclear`
+  (`cardmarket:price-guide`).
 
 Preis-Wächter beim Bau (mit diesem Eintrag nicht geändert; Zeilen am Stand `86802c05`, `main` mit
 #1740):
