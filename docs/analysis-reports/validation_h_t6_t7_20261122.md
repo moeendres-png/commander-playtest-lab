@@ -18,8 +18,9 @@
   Rauschobergrenze 0,227 [0,112; 0,193]. Urteil nach Vorab-Regel `MESSBAR_POSITIV`; „praktisch
   relevant“ (Schwelle 0,10) nur knapp. Die schon gezählte Trainings-Nutzung bricht dieselben
   Gleichstände rund 3,5-mal so stark: ρ_w = 0,368 [0,280; 0,334].
-- **T6, gleiche Deckzahl (G2, entscheidend für „Zusatznutzen“):** ρ_w = 0,056 [0,016; 0,068],
-  Rauschobergrenze 0,094 [0,018; 0,102]. Urteil nach Vorab-Regel `MESSBAR_POSITIV`, nicht relevant
+- **T6, gleiche Deckzahl (G2, entscheidend für „Zusatznutzen“):** ρ_w = 0,056 [0,016; 0,068];
+  Gate (Hälfte A gegen B) 0,094 [0,018; 0,102] bestanden; erreichbare Obergrenze für ρ_w
+  (Spearman-Brown) 0,42, H erreicht rund 13 % davon. Urteil nach Vorab-Regel `MESSBAR_POSITIV`, nicht relevant
   (< 0,10). **Nicht robust:** eine von fünf Faltungen ist negativ (−0,039), das nachträgliche
   t-Intervall über die fünf Faltungen enthält 0 ([−0,019; 0,132]).
 - **T7, Stichtag 2026-08-09, alle Decks (2.010 nach, 8.118 vor dem Stichtag):** G2 ρ_w = 0,103
@@ -27,10 +28,12 @@
   2026-09-30 (1.006 nach): 0,064 [0,012; 0,113], ebenfalls `MESSBAR_POSITIV`. Blindheit des Raters
   gegenüber der späteren Nutzung ist UNKNOWN, darum keine Aussage „vor der Menge“.
 - **Fazit:** H liefert nach den vorab festgelegten Regeln einen **messbaren, aber kleinen**
-  Zusatznutzen gegenüber dem Index (T6 G2 0,056 bei einer Rauschobergrenze von 0,094); er ist über
-  die Trainings-Zusammensetzung nicht robust (1 von 5 Faltungen negativ). Das
-  Rauschen innerhalb der Gruppen ist groß: selbst zwei Hälften derselben zurückgehaltenen Decks
-  ordnen sich nur mit 0,094 (G2) bzw. 0,227 (G1).
+  Zusatznutzen über die gezählte Deckzahl hinaus (T6 G2 0,056; erreichbare Obergrenze nach
+  Spearman-Brown 0,42, also rund 13 % davon); er ist über die Trainings-Zusammensetzung nicht
+  robust (1 von 5 Faltungen negativ). Das Rauschen innerhalb der Gruppen ist groß: selbst zwei
+  Hälften derselben zurückgehaltenen Decks ordnen sich nur mit 0,094 (G2) bzw. 0,227 (G1). Diese
+  Hälften-Werte sind das Gate (Plan §8 Regel 1), keine Obergrenze für ρ_w von H (Beispiel: T7
+  2026-08-09, Bracket 3, G1: H 0,132 bei Hälften-Wert 0,061).
 
 ## 1. Herkunft und Eingaben
 
@@ -105,7 +108,9 @@ Stichtag wäre `NOT_RUN`; keine lag darunter.
   2026-09-30 alle nicht.
 - Bracket 3 (die Kohorte, für die H gilt) hat nur 251 bzw. 136 Decks nach dem Stichtag; dort
   scheitert das Gate dreimal (Untergrenze der Rauschobergrenze ≤ 0). Das heißt „kein Schluss“, nicht
-  „H bringt dort nichts“; wegen der Verzerrung in Abschnitt 5 ist es eher konservativ.
+  „H bringt dort nichts“. Für die zwei Zellen 2026-09-30 liegt das Bootstrap-Mittel unter dem
+  Punktwert (eher konservativ); für 2026-08-09 G1 liegt es bei der Grenze darüber (0,071 gegen
+  0,061), dort gilt das nicht.
 
 ## 5. Eigenschaft des Bootstraps (nachträglich, nach Sicht der Ergebnisse)
 
@@ -115,10 +120,15 @@ ein zweites Zählrauschen, und das zieht jede Rangkorrelation zu 0 (die Rauschob
 weil beide Hälften verrauscht werden). Abstand Punkt minus Bootstrap-Mittel in T6: G1 H 0,025,
 G1 Grenze 0,076, G1 Vergleich 0,061, G2 H 0,014, G2 Grenze 0,037.
 
-Folgen: Untergrenzen liegen zu tief, die Urteile `MESSBAR_POSITIV` sind darum konservativ und gelten
-nach der Vorab-Regel. Obergrenzen liegen ebenfalls zu tief und werden hier für keine
-„höchstens“-Aussage benutzt. Die Intervallmethode wurde nach Sicht der Ergebnisse **nicht**
-gewechselt; die vorab festgelegten Urteile bleiben primär.
+Folgen **für T6** (Bootstrap-Mittel bei allen fünf Kennzahlen unter dem Punktwert): Untergrenzen
+liegen zu tief, die T6-Urteile `MESSBAR_POSITIV` sind darum konservativ und gelten nach der
+Vorab-Regel. Obergrenzen liegen ebenfalls zu tief und werden hier für keine „höchstens“-Aussage
+benutzt. **In T7 gilt das nicht überall:** in der Zelle 2026-09-30 · alle · G1 H liegt das
+Bootstrap-Mittel (0,057) über dem Punktwert (0,051); unter dem reflektierten Intervall
+(2·Punkt − Perzentile) wäre sie [−0,010; 0,100] und verlöre `MESSBAR_POSITIV`. Diese Zelle hängt
+also an der Intervallmethode; T6 G2 und T7 2026-08-09 G2 bleiben unter beiden Methoden positiv. Die
+Intervallmethode wurde nach Sicht der Ergebnisse **nicht** gewechselt; die vorab festgelegten Urteile
+bleiben primär.
 
 **Faltungs-t-Intervall (nachträglich, 4 Freiheitsgrade, aus den fünf Faltungswerten; erfasst auch
 die Zusammensetzung des Trainings, die der Bootstrap festhält):**
@@ -152,11 +162,16 @@ Rechnung; dort gibt es keine solche Prüfung.
 
 ## 7. Fazit
 
-Nach den vorab festgelegten Regeln liefert H einen **messbaren, aber kleinen Zusatznutzen gegenüber
-dem Index**: T6 G2 ρ_w = 0,056 [0,016; 0,068] bei einer Rauschobergrenze von 0,094 [0,018; 0,102];
-T7 (2026-08-09) G2 0,103 [0,043; 0,144] bei 0,226 [0,106; 0,270]. Er ist **nicht robust**: eine von
+Nach den vorab festgelegten Regeln liefert H einen **messbaren, aber kleinen Zusatznutzen über die
+gezählte Deckzahl hinaus** (G2 hält die Deckzahl fest, nicht den ganzen Index; die Fazit-Regel des
+Plans §8 nennt das „gegenüber dem Index“): T6 G2 ρ_w = 0,056 [0,016; 0,068], Gate (Hälften)
+0,094 [0,018; 0,102] bestanden, erreichbare Obergrenze nach Spearman-Brown 0,42 (H erreicht rund
+13 % davon). T7 wird laut Plan §8 getrennt berichtet und ist keine Stütze dieses Fazits: G2
+(2026-08-09) 0,103 [0,043; 0,144], bei UNKNOWN Blindheit des Raters gegenüber späterer Nutzung. Der
+T6-Befund ist **nicht robust**: eine von
 fünf Faltungen ist negativ, das nachträgliche Faltungs-t-Intervall enthält 0. Die Gleichstände des
-Index bricht H in Richtung der Nutzung (T6 G1 0,106), die gezählte Trainings-Nutzung aber rund
+Index bricht H in Richtung der Nutzung (T6 G1 0,106; Spearman-Brown-Obergrenze 0,61, rund 17 %
+davon), die gezählte Trainings-Nutzung aber rund
 3,5-mal so stark (0,368). Für eine Sortierung „Index, Gleichstände nach H“ (Audit §5) ist das ein
 schwaches Signal, keine Grundlage allein; die nutzungsfreie Prüfung (T8) steht aus. Dieser Bericht
 ändert nichts an Produkt, Index oder Stufen.
