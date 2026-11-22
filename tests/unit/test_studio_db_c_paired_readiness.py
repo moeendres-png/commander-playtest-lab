@@ -634,8 +634,10 @@ def test_opponent_resolution_all_pods_and_fail_closed() -> None:
     with pytest.raises(ValueError, match="doppelt"):
         paired_series._resolve_opponent_paths("precon", ["kaervek/current", "kaervek/current"])
 
-    with pytest.raises(ValueError, match="zwischen 1 und 5"):
+    with pytest.raises(ValueError, match="zwischen 1 und 7"):  # 2..8 seats since #1672
         paired_series._resolve_opponent_paths("precon", [])
+    with pytest.raises(ValueError, match="zwischen 1 und 7"):
+        paired_series._resolve_opponent_paths("precon", [f"precon/x{i}" for i in range(8)])
 
 
 def test_simulator_readiness_audit_fail_closed_gaps_and_real_chulane(
@@ -1103,7 +1105,7 @@ def test_paired_plan_route_serves_the_python_plan(tmp_path: Path) -> None:
         {"budget_pairs": 1001},
         {"budget_pairs": "abc"},
         {"budget_pairs": 40, "seats_per_seed": 0},
-        {"budget_pairs": 40, "seats_per_seed": 7},
+        {"budget_pairs": 40, "seats_per_seed": 9},  # 2..8 seats since #1672
     ):
         bad = client.get("/api/simulations/paired-plan", params=params)
         assert bad.status_code == 422, params

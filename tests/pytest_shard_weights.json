@@ -233,6 +233,7 @@
   "tests/unit/test_seats56_evaluation.py": 4.5,
   "tests/unit/test_seats_5_6_part_a_1661.py": 6.5,
   "tests/unit/test_seats_5_6_simulate_1702.py": 21.0,
+  "tests/unit/test_seats_7_8_simulate_1672.py": 4.0,
   "tests/unit/test_second_run_compare.py": 0.5,
   "tests/unit/test_security_evidence_scopes.py": 0.1,
   "tests/unit/test_selection_reopened_920.py": 0.1,

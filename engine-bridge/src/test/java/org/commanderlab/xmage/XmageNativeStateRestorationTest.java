@@ -186,7 +186,9 @@ class XmageNativeStateRestorationTest {
             XmageFullGameSession session,
             XmageNativeStateRestoration restoration,
             Map<String, Player> seats) {
-        for (int step = 0; step < 80; step++) {
+        // 160, up from 80 (#1672): an eight-seat table with the last seat restored active needs
+        // more keeps and passes before turn 1 precombat main; still a finite, fail-closed bound.
+        for (int step = 0; step < 160; step++) {
             JsonObject readback = XmageNativeStateRestoration.readback(
                     session.restorationGame(), seats);
             if (readback.get("turn_number").getAsInt() == 1

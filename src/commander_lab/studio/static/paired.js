@@ -8,12 +8,13 @@
 // (paired_series.MEASURED_BATCH_GAMES_PER_HOUR, assumed_games_per_hour_unmeasured).
 const PAIRED_MEASURED_BATCH_GAMES_PER_HOUR = 541.2;
 const PAIRED_MEASURED_BATCH_WORKERS = 6;
-// Table sizes of a series (#1702): two to six seats. PAIRED_RELEASED_SEATS mirrors the SIMULATE seat lock
-// (launch.MAX_RELEASED_SEATS, now six); a size above it can be planned here but not started, and the
-// server refuses it too. PLAY has its own lock (launch.MAX_RELEASED_PLAY_SEATS, partie.js), not this one.
+// Table sizes of a series (#1702, #1672): two to eight seats. PAIRED_RELEASED_SEATS mirrors the SIMULATE
+// seat lock (launch.MAX_RELEASED_SEATS, now eight: E18, seven and eight seats for simulations only); a size
+// above it can be planned here but not started, and the server refuses it too. PLAY has its own lock
+// (launch.MAX_RELEASED_PLAY_SEATS, six, partie.js), not this one.
 const PAIRED_MIN_SEATS = 2;
-const PAIRED_MAX_SEATS = 6;
-const PAIRED_RELEASED_SEATS = 6;
+const PAIRED_MAX_SEATS = 8;
+const PAIRED_RELEASED_SEATS = 8;
 const PAIRED_DEFAULT_SEATS = 4;
 // The one table size the rate above was measured at; for any other size the duration is UNKNOWN.
 const PAIRED_MEASURED_TABLE_SEATS = 4;
@@ -30,7 +31,7 @@ function pairedTableOptions() {
 function pairedLockNote() {
   if (PAIRED_RELEASED_SEATS >= PAIRED_MAX_SEATS) return "";
   if (PAIRED_RELEASED_SEATS + 1 === PAIRED_MAX_SEATS) return `${PAIRED_MAX_SEATS} Sitze sind nicht freigegeben (Owner-Entscheid, E15 Q5): Sie lassen sich hier planen, aber nicht starten; der Server lehnt sie ab.`;
-  return `${PAIRED_RELEASED_SEATS + 1} und ${PAIRED_MAX_SEATS} Sitze sind nicht freigegeben (Owner-Entscheid, E15 Q5): Sie lassen sich hier planen, aber nicht starten; der Server lehnt sie ab.`;
+  return `${PAIRED_RELEASED_SEATS + 1} ${PAIRED_RELEASED_SEATS + 2 === PAIRED_MAX_SEATS ? "und" : "bis"} ${PAIRED_MAX_SEATS} Sitze sind nicht freigegeben (Owner-Entscheid, E15 Q5): Sie lassen sich hier planen, aber nicht starten; der Server lehnt sie ab.`;
 }
 
 // Pairs of one block: every combination of starting seat (seed mod seats) and tested seat once.
@@ -84,6 +85,19 @@ function pairedTableLines(table) {
 const PAIRED_WALL_RATIO_VS_FOUR_SEATS = { 5: 1.56, 6: 2.23 }; // 20,18 / 12,91 and 28,73 / 12,91 = 2,2254
 const PAIRED_WALL_RATIO_SPREAD = { 5: [1.63, 1.43], 6: [2.63, 1.68] };
 const PAIRED_POOL_REFERENCE_PART_B = { 5: [607.3, 50, 50], 6: [379.2, 72, 72] };
+// Seven and eight seats (#1672): no Owner-PC throughput, the duration stays UNKNOWN. The warning names
+// one game per JVM in the container of the feasibility run (paired_series.SINGLE_GAME_REFERENCE_7_8; a
+// test holds them equal): [median wall s, min s, max s, RSS median MiB, RSS max MiB, decisions median,
+// games, planned, second median s, second max s, second games, second planned, RSS of a JVM with 8 games (two runs)].
+// Memory at 16 games per JVM is unknown (n = 0).
+const PAIRED_SINGLE_GAME_REFERENCE_7_8 = { 7: [87.0, 46.1, 102.3, 955, 1343, 9760, 6, 6, 114.4, 140.9, 8, 8, 1231, 883], 8: [98.8, 65.7, 121.9, 945, 1006, 10314, 6, 6, 143.8, 189.0, 8, 8, 1255, 1255] };
+
+function pairedSingleGameReferenceText(tableSeats) {
+  const ref = PAIRED_SINGLE_GAME_REFERENCE_7_8[Number(tableSeats)];
+  if (ref === undefined) return "";
+  const [wall, low, high, rss, rssMax, decisions, games, planned, secondWall, secondMax, secondGames, secondPlanned, batchA, batchB] = ref;
+  return ` Hinweis ${StudioUI.num(tableSeats, 0)} Sitze: eine Partie dauerte im Median ${StudioUI.num(wall, 1)} s (${StudioUI.num(low, 1)} bis ${StudioUI.num(high, 1)} s) bei etwa ${StudioUI.num(decisions, 0)} Entscheidungen, Spitzen-Speicher der Engine (RSS) im Median ${StudioUI.num(rss, 0)} MiB, höchstens ${StudioUI.num(rssMax, 0)} MiB (n = ${StudioUI.num(games, 0)}/${StudioUI.num(planned, 0)} Partien; Machbarkeitsversuch #1672 im Cloud-Container, eine JVM je Partie, SIMULATED_RESULT, kein Owner-PC-Wert). Zweite Messung (Gates #1672, zwei Tische parallel, Fremdlast): Median ${StudioUI.num(secondWall, 1)} s, bis ${StudioUI.num(secondMax, 1)} s (n = ${StudioUI.num(secondGames, 0)}/${StudioUI.num(secondPlanned, 0)} Partien); Spitzen-Speicher einer JVM mit 8 Partien ${StudioUI.num(batchA, 0)} und ${StudioUI.num(batchB, 0)} MiB (2 Läufe). Bei 16 Partien je JVM (Studio-Standard) ist der Speicher unbekannt (n = 0): wenige Worker wählen und den freien Arbeitsspeicher prüfen (je Worker eine JVM mit bis zu 3 GB Heap).`;
+}
 
 function estimatePairedText(budgetPairs, workers = 4, tableSeats = PAIRED_MEASURED_TABLE_SEATS) {
   const pairs = Math.max(0, Number(budgetPairs) || 0);
@@ -97,7 +111,7 @@ function estimatePairedText(budgetPairs, workers = 4, tableSeats = PAIRED_MEASUR
     return `Dauer: grobe Orientierung ~${StudioUI.num(seconds / 60.0, 1)} min für bis zu ${StudioUI.num(games, 0)} Partien, aus Tisch A (weder Untergrenze noch Prognose): die Batch-Rate des Vierertischs von 541 Partien/h (ganze Batch-Serie, 6 Worker, 8 Partien je JVM, #1251) geteilt durch das Verhältnis der Wandzeit-Mediane ${StudioUI.num(ratio, 2)} bei ${StudioUI.num(tableSeats, 0)} Sitzen (#1661 Teil B: nur Tisch A, Seeds 1–10, n = 10/10 Partien je Sitzzahl), also etwa ${StudioUI.num(rate, 0)} Partien/h. Das Verhältnis streut: Median der Seed-Paar-Verhältnisse ${StudioUI.num(seedPair, 2)}, Tisch B gegen Tisch A mit 4 Sitzen etwa ${StudioUI.num(tableB, 2)}. Gemessen ist die gepaarte Serie im Pool mit 3 Workern mit ${StudioUI.num(poolRate, 0)} Partien/h (n = ${StudioUI.num(poolN, 0)}/${StudioUI.num(poolPlanned, 0)} Partien), ${poolRate > rate ? "schneller" : "langsamer"} als dieser Wert: die Dauer kann deutlich kürzer oder länger sein. Früher Stopp je nach Look möglich.`;
   }
   if (Number(tableSeats) !== PAIRED_MEASURED_TABLE_SEATS) {
-    return `Dauer: unbekannt (UNKNOWN). Für einen Tisch mit ${StudioUI.num(tableSeats, 0)} Sitzen ist kein Durchsatz gemessen (n = 0 Partien); gemessen sind nur Vierertische (541 Partien/h, ganze Batch-Serie mit 6 Workern, #1251; die Zahl der Partien dieser Messung ist im Repository nicht belegt) und das Wandzeit-Verhältnis für 5 und 6 Sitze (#1661 Teil B). Aufwand: bis zu ${StudioUI.num(pairs * 2, 0)} Partien (${StudioUI.num(pairs, 0)} je Arm).`;
+    return `Dauer: unbekannt (UNKNOWN). Für einen Tisch mit ${StudioUI.num(tableSeats, 0)} Sitzen ist kein Durchsatz gemessen (n = 0 Partien); gemessen sind nur Vierertische (541 Partien/h, ganze Batch-Serie mit 6 Workern, #1251; die Zahl der Partien dieser Messung ist im Repository nicht belegt) und das Wandzeit-Verhältnis für 5 und 6 Sitze (#1661 Teil B). Aufwand: bis zu ${StudioUI.num(pairs * 2, 0)} Partien (${StudioUI.num(pairs, 0)} je Arm).${pairedSingleGameReferenceText(tableSeats)}`;
   }
   const usedWorkers = Math.max(1, Math.min(16, Math.round(Number(workers) || 1)));
   const maxGames = pairs * 2;

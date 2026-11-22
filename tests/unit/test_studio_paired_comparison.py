@@ -706,8 +706,8 @@ def test_series_stops_on_first_mixed_game_before_playing_more(tmp_path: Path) ->
 def test_compare_decks_cli_validates_bounds_and_seats_before_loading_files(
     tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    missing = [str(tmp_path / f"missing-{i}.json") for i in range(8)]
-    # Too many opponents (6 -> 7 seats > 6 max) fails before reading any file.
+    missing = [str(tmp_path / f"missing-{i}.json") for i in range(10)]
+    # Too many opponents (8 -> 9 seats > 8 max, #1672) fails before reading any file.
     args_too_many_opponents = [
         "compare-decks",
         "--base-deck",
@@ -717,7 +717,7 @@ def test_compare_decks_cli_validates_bounds_and_seats_before_loading_files(
         *[item for path in missing[2:] for item in ("--opponent", path)],
     ]
     assert studio_cli.main(args_too_many_opponents) == 2
-    assert "1 to 5 opponents" in capsys.readouterr().err
+    assert "1 to 7 opponents" in capsys.readouterr().err
 
     # Out-of-bounds --pairs fails before reading any file.
     for bad_pairs in ("1", "1001"):

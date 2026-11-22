@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class XmageFullGameBridgeContractTest {
 
     @Test
-    void advertisesTwoToSixPlayerSeededTechnicalLaneWithoutGlobalPromotion() {
+    void advertisesTwoToEightPlayerSeededTechnicalLaneWithoutGlobalPromotion() {
         XmageFullGameJsonlBridge bridge = new XmageFullGameJsonlBridge();
 
         JsonObject start = response(bridge.handle(request("start_engine", new JsonObject())).json());
@@ -20,7 +20,7 @@ class XmageFullGameBridgeContractTest {
         JsonObject started = start.getAsJsonObject("payload");
         assertEquals("xmage_full_game_external_pilots", started.get("lane").getAsString());
         assertEquals(2, started.get("min_players").getAsInt());
-        assertEquals(6, started.get("max_players").getAsInt());
+        assertEquals(8, started.get("max_players").getAsInt()); // 2..8 since #1672
         assertEquals("technical_conformance_only", started.get("evidence_class").getAsString());
 
         JsonObject capabilitiesResponse = response(
@@ -35,7 +35,7 @@ class XmageFullGameBridgeContractTest {
         assertTrue(capabilities.get("multiplayer_supported").getAsBoolean());
         assertTrue(capabilities.get("seed_supported").getAsBoolean());
         assertEquals(2, capabilities.get("min_players").getAsInt());
-        assertEquals(6, capabilities.get("max_players").getAsInt());
+        assertEquals(8, capabilities.get("max_players").getAsInt());
         assertTrue(capabilities.get("target_selection_supported").getAsBoolean());
         assertTrue(capabilities.get("mode_selection_supported").getAsBoolean());
         assertTrue(capabilities.get("trigger_order_supported").getAsBoolean());
@@ -48,7 +48,7 @@ class XmageFullGameBridgeContractTest {
         assertFalse(capabilities.get("scenario_injection_supported").getAsBoolean());
 
         assertEquals(2, lane.get("min_players").getAsInt());
-        assertEquals(6, lane.get("max_players").getAsInt());
+        assertEquals(8, lane.get("max_players").getAsInt());
         assertTrue(lane.get("one_game_per_process").getAsBoolean());
         assertFalse(lane.get("generic_capability_promotion").getAsBoolean());
         assertFalse(lane.get("bit_exact_replay_validated").getAsBoolean());
@@ -99,13 +99,14 @@ class XmageFullGameBridgeContractTest {
     }
 
     @Test
-    void rejectsSevenPlayerFullGameBeforeDeckResolution() {
+    void rejectsNinePlayerFullGameBeforeDeckResolution() {
+        // the negative control above the supported range: nine players since #1672 (was seven)
         XmageFullGameJsonlBridge bridge = new XmageFullGameJsonlBridge();
         JsonObject payload = new JsonObject();
-        payload.addProperty("game_id", "negative-7p");
+        payload.addProperty("game_id", "negative-9p");
         payload.addProperty("seed", 17);
         JsonArray handles = new JsonArray();
-        for (int index = 0; index < 7; index++) {
+        for (int index = 0; index < 9; index++) {
             handles.add("not-resolved-" + index);
         }
         payload.add("deck_handles", handles);

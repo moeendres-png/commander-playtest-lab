@@ -186,11 +186,21 @@ def test_policy_accepts_every_supported_count(player_count: int) -> None:
     assert policy._player_count == player_count
 
 
-def test_policy_rejects_single_and_seven_pilots() -> None:
+def test_policy_rejects_single_and_nine_pilots() -> None:
+    # 2..8 pilots since #1672 (SIMULATE at seven and eight seats)
     with pytest.raises(ValueError):
         _policy(1)
-    with pytest.raises(ValueError):
-        _policy(7)
+    _policy(8)
+    config = _binding(1, "fixture-1").config
+    nine = tuple(
+        _RuntimePilot(
+            binding=_binding(1 + seat % 8, f"fixture-{seat}"),
+            pilot=GenericCommanderPilot(config),
+        )
+        for seat in range(9)
+    )
+    with pytest.raises(ValueError, match="two to eight pilot bindings"):
+        ExternalPilotDecisionPolicy(nine, 7)
 
 
 def test_policy_rejects_seat_coverage_gap() -> None:
@@ -217,10 +227,11 @@ def test_pilot_state_scales_with_player_count() -> None:
         assert view.opponents_to_act_before_next_turn == player_count - 1
 
 
-def test_binding_seat_six_accepted_seven_rejected() -> None:
+def test_binding_seat_eight_accepted_nine_rejected() -> None:
     _binding(6, "fixture-6")
+    _binding(8, "fixture-8")  # 7/8 seats since #1672
     with pytest.raises(ValidationError):
-        _binding(7, "fixture-7")
+        _binding(9, "fixture-9")
 
 
 def _mana_request(

@@ -22,6 +22,7 @@ from collections.abc import Mapping
 from pathlib import Path
 
 from .games import games_folder
+from .launch import MAX_SEATS, MIN_SEATS
 from .paired_series import SCHEMA_PAIRED_JOB, observed_table_sizes, validate_series_id
 from .store import StudioStore
 from .table_spec import sha256_of
@@ -149,10 +150,10 @@ def series_status(raw: Mapping[str, object]) -> str:
 def series_table_check(raw: Mapping[str, object]) -> tuple[int | None, str]:
     """The table size of a stored series and how it was checked (#1661).
 
-    The plan names it (``seed_plan.player_count``, 2 to 6); the played games name it too (the
+    The plan names it (``seed_plan.player_count``, 2 to 8, #1672); the played games name it too (the
     seat rows of their headers, ``paired_series.observed_table_sizes``). ``consistent``: the
     readable pods all show one size, none is unreadable, and it is the planned size (or, for a
-    plan without a valid size such as an older series, a size of 2 to 6 the games alone show:
+    plan without a valid size such as an older series, a size of 2 to 8 the games alone show:
     ``series_table_source`` says so); ``mismatch``: the games show another size than the plan,
     or several sizes (unknown, fail-closed); ``unreadable``: a pod cannot be read or the pods do
     not cover the counted pairs (unknown); ``unobserved``: no pair is played yet; the planned size
@@ -161,7 +162,7 @@ def series_table_check(raw: Mapping[str, object]) -> tuple[int | None, str]:
     a series without seat rotation tests one seat at any table size."""
     plan = raw.get("seed_plan")
     count = plan.get("player_count") if isinstance(plan, dict) else None
-    planned = count if type(count) is int and 2 <= count <= 6 else None
+    planned = count if type(count) is int and MIN_SEATS <= count <= MAX_SEATS else None
     seen = observed_table_sizes(raw)
     if len(seen.sizes) > 1 or (planned is not None and seen.sizes and seen.sizes != [planned]):
         return None, "mismatch"
@@ -170,7 +171,7 @@ def series_table_check(raw: Mapping[str, object]) -> tuple[int | None, str]:
     if not seen.sizes:
         return planned, "unobserved"
     size = seen.sizes[0]
-    if planned is None and not 2 <= size <= 6:
+    if planned is None and not MIN_SEATS <= size <= MAX_SEATS:
         return None, "unreadable"
     return size, "consistent"
 
@@ -182,7 +183,7 @@ def series_table_source(raw: Mapping[str, object]) -> str | None:
         return None
     plan = raw.get("seed_plan")
     count = plan.get("player_count") if isinstance(plan, dict) else None
-    planned = count if type(count) is int and 2 <= count <= 6 else None
+    planned = count if type(count) is int and MIN_SEATS <= count <= MAX_SEATS else None
     return (
         "aus Plan und gespielten Partien" if planned is not None else "aus den gespielten Partien"
     )

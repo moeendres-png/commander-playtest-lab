@@ -1,5 +1,12 @@
 # Operational Simulation Policy
 
+> **State 2026-11-22 (seven and eight seats, #1672, register E18).** The runner and the bridge's
+> full-game lane seat 2 to 8 players (`MAX_PLAYERS = 8`; the bridge's mid-game lane keeps 6). The
+> SIMULATE lock `MAX_RELEASED_SEATS` is 8, the PLAY lock `MAX_RELEASED_PLAY_SEATS` stays 6 and the
+> Partie page shows at most 6 seats. Seven- and eight-seat behaviour is observed only as
+> `SIMULATED_RESULT` (feasibility run and the gates of #1672), never qualified; the conformance
+> table and the qualification lane stay 2 to 6. The paragraph below is the state of 2026-11-18/22.
+>
 > **State 2026-11-18 (seat counts).** The player bounds below are out of date. In current source
 > `XmageFullGameRunner` (`src/commander_lab/engine/rules/full_game.py`) and the bridge
 > (`XmageFullGameSession.java`) both have `MIN_PLAYERS = 2` and `MAX_PLAYERS = 6`. The 2–5P lane
