@@ -10,7 +10,11 @@ average mana value, land-draw probabilities, role deltas) with:
 * the overlap of the two lists as a count (shared card slots of all slots, both numbers),
 * per added, removed or changed card: roles, mana value and how many source decks of the
   commander in the chosen group play it (``decks`` of ``of``; ``None`` when no source deck of
-  the commander names the card under any spelling: unknown, never 0).
+  the commander names the card under any spelling: unknown, never 0),
+* the mana base before and after (``manabase``, WP-5 of the builder audit, #1404): per coloured
+  requirement the exact colour access of both lists and the delta in percentage points, the
+  opening hand, the colour access per colour (opening hand, untapped source in turns 1 and 2),
+  the lands per tapped class and the commander on curve (``manabase_delta``).
 
 Only counted figures: no score, no bracket, no power delta, no verdict on a swap.
 """
@@ -18,9 +22,9 @@ Only counted figures: no score, no bracket, no power delta, no verdict on a swap
 from __future__ import annotations
 
 import json
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 
-from . import builder, combos
+from . import builder, castability, combos
 from .decks import RevisionCard, list_rows
 from .land_advisor import deck_profile
 from .store import StudioStore
@@ -42,6 +46,197 @@ def _combo_keys(view: dict[str, object]) -> dict[str, list[str]]:
         cards = [str(name) for name in entry.get("cards", [])]
         keys[json.dumps(sorted(name.casefold() for name in cards))] = cards
     return keys
+
+
+_REQ_FIELDS = ("p_land_drops", "p_colours_given_lands", "p_on_curve")
+
+
+def _pp(base: object, target: object) -> float | None:
+    """Delta in percentage points of two shares; ``None`` (unknown) when one side is unknown."""
+    if not isinstance(base, int | float) or not isinstance(target, int | float):
+        return None
+    return round((float(target) - float(base)) * 100, 2)
+
+
+def _req_side(result: Mapping[str, object]) -> dict[str, object]:
+    with_search = result.get("with_search")
+    search = with_search if isinstance(with_search, Mapping) else {}
+    side: dict[str, object] = {field: result.get(field) for field in _REQ_FIELDS}
+    side["sources"] = result.get("sources")
+    side["p_colours_given_lands_with_search"] = search.get("p_colours_given_lands")
+    side["p_on_curve_with_search"] = search.get("p_on_curve")
+    return side
+
+
+def _side_deltas(base: Mapping[str, object], target: Mapping[str, object]) -> dict[str, object]:
+    keys = (*_REQ_FIELDS, "p_colours_given_lands_with_search", "p_on_curve_with_search")
+    return {key: _pp(base.get(key), target.get(key)) for key in keys}
+
+
+def _access_values(entry: Mapping[str, object]) -> dict[str, object]:
+    hand = entry["opening_hand"]
+    turns = entry["turns"]
+    if not isinstance(hand, Mapping) or not isinstance(turns, list):
+        raise TypeError("colour_access must return the opening hand as a dict and turns as a list")
+    values: dict[str, object] = {"hand": hand["p"], "hand_high": hand["p_high"]}
+    for turn in turns:
+        values[f"turn{turn['turn']}_low"] = turn["p_low"]
+        values[f"turn{turn['turn']}_high"] = turn["p_high"]
+    return values
+
+
+def _colours(cast: Mapping[str, object]) -> set[str]:
+    block = cast["colour_access"]
+    if not isinstance(block, Mapping):
+        raise TypeError("deck_castability must return colour_access as a dict")
+    return {str(entry["colour"]) for entry in block["colours"]}
+
+
+def manabase_delta(
+    base_rows: Sequence[Mapping[str, object]], target_rows: Sequence[Mapping[str, object]]
+) -> dict[str, object]:
+    """The mana base before (``base``) and after (``target``), both computed exactly with
+    ``castability`` (WP-5). A requirement that only one list has is computed on the land
+    base of the other list too (the same exact rule) and marked with ``in_base`` and
+    ``in_target``; a value that cannot be computed on a side is ``None`` (unknown), and so is
+    every delta it enters. Deltas are percentage points of the shares rounded to four
+    decimals. The commander delta is given only for the same commander(s)."""
+    cast = {
+        "base": castability.deck_castability(base_rows),
+        "target": castability.deck_castability(target_rows),
+    }
+    basis = {
+        "base": castability.LandBasis(base_rows),
+        "target": castability.LandBasis(target_rows),
+    }
+    found: dict[str, dict[tuple[int, str], dict[str, object]]] = {"base": {}, "target": {}}
+    needs: dict[tuple[int, str], dict[str, int]] = {}
+    for side in ("base", "target"):
+        for item in cast[side]["requirements"]:  # type: ignore[attr-defined]
+            key = (int(item["turn"]), str(item["label"]))
+            found[side][key] = item
+            needs[key] = dict(item["need"])
+    requirements = []
+    for key in sorted(needs):
+        sides: dict[str, dict[str, object]] = {}
+        for side in ("base", "target"):
+            result = found[side].get(key) or basis[side].requirement(needs[key], key[0])
+            sides[side] = _req_side(result)
+        requirements.append(
+            {
+                "label": key[1],
+                "turn": key[0],
+                "need": needs[key],
+                "in_base": key in found["base"],
+                "in_target": key in found["target"],
+                "base": sides["base"],
+                "target": sides["target"],
+                "delta_pp": _side_deltas(sides["base"], sides["target"]),
+            }
+        )
+
+    def hand(side: str) -> object:
+        opening = cast[side]["opening_hand"]
+        return opening.get("p_keepable") if isinstance(opening, Mapping) else None
+
+    # Colour access per colour (WP-4 stage 2) on both lists; a colour only one list needs is
+    # computed on the other list as well, with the same rule.
+    needed = sorted(
+        {
+            str(entry["colour"])
+            for side in ("base", "target")
+            for entry in cast[side]["colour_access"]["colours"]  # type: ignore[index]
+        },
+        key=castability.COLOURS.index,
+    )
+    access = {
+        side: {
+            str(entry["colour"]): _access_values(entry)
+            for entry in castability.colour_access(rows, needed)["colours"]  # type: ignore[attr-defined]
+        }
+        for side, rows in (("base", base_rows), ("target", target_rows))
+    }
+    colour_rows = [
+        {
+            "colour": colour,
+            "in_base": colour in _colours(cast["base"]),
+            "in_target": colour in _colours(cast["target"]),
+            "base": access["base"][colour],
+            "target": access["target"][colour],
+            "delta_pp": {
+                key: _pp(access["base"][colour][key], access["target"][colour][key])
+                for key in access["base"][colour]
+            },
+        }
+        for colour in needed
+    ]
+
+    tapped = {side: cast[side]["tapped"] for side in ("base", "target")}
+    tapped_counts = {
+        side: dict(tapped[side]["counts"])  # type: ignore[index]
+        for side in ("base", "target")
+    }
+    commanders = {
+        side: [entry for entry in cast[side]["commander"]]  # type: ignore[attr-defined]
+        for side in ("base", "target")
+    }
+    names = {side: sorted(str(entry["name"]) for entry in commanders[side]) for side in commanders}
+    same = bool(names["base"]) and names["base"] == names["target"]
+    commander_rows = []
+    by_name = {side: {str(e["name"]): e for e in commanders[side]} for side in commanders}
+    for name in sorted(set(names["base"]) | set(names["target"])):
+        row: dict[str, object] = {"name": name}
+        for side in ("base", "target"):
+            entry = by_name[side].get(name)
+            row[side] = None if entry is None or not entry.get("known") else _req_side(entry)
+        base_side, target_side = row["base"], row["target"]
+        row["delta_pp"] = (
+            _side_deltas(base_side, target_side)
+            if same and isinstance(base_side, Mapping) and isinstance(target_side, Mapping)
+            else None
+        )
+        commander_rows.append(row)
+    return {
+        "requirements": requirements,
+        "opening_hand": {
+            "rule": cast["target"]["opening_hand"]["rule"],  # type: ignore[index]
+            "base": hand("base"),
+            "target": hand("target"),
+            "delta_pp": _pp(hand("base"), hand("target")),
+        },
+        "colour_access": colour_rows,
+        "tapped": {
+            "base": tapped_counts["base"],
+            "target": tapped_counts["target"],
+            "base_of": tapped["base"]["of"],  # type: ignore[index]
+            "target_of": tapped["target"]["of"],  # type: ignore[index]
+            "delta": {
+                key: int(tapped_counts["target"][key]) - int(tapped_counts["base"][key])
+                for key in castability.TAP_CLASSES
+            },
+        },
+        "commander": {"same": same, "rows": commander_rows},
+        "lists": {
+            side: {
+                "main_cards": cast[side]["main_cards"],
+                "lands": cast[side]["lands"],
+                "lands_unknown_colours": cast[side]["lands_unknown_colours"],
+            }
+            for side in ("base", "target")
+        },
+        "assumptions": {
+            "search": castability.LAND_SEARCH_ASSUMPTION,
+            "access": castability.TAPPED_ACCESS_ASSUMPTION,
+            "access_rule": castability.TAPPED_ACCESS_RULE,
+            "tapped_rule": castability.TAPPED_RULE,
+            "delta": (
+                "Delta = aktuell minus Basis in Prozentpunkten, aus den auf vier Nachkommastellen "
+                "gerundeten exakten Anteilen beider Stände; unbekannt, wenn ein Stand nicht "
+                "rechenbar ist. Eine Anforderung, die nur eine Liste hat, ist auf der "
+                "Manabasis der anderen Liste mit derselben Regel gerechnet."
+            ),
+        },
+    }
 
 
 def diff_impact(
@@ -177,5 +372,8 @@ def diff_impact(
         "base_decks": base_of,
         "small": any(n is not None and n < builder.SMALL_DENOMINATOR for n in (target_of, base_of)),
     }
+    result["manabase"] = manabase_delta(
+        [dict(row) for row in base_rows], [dict(row) for row in target_rows]
+    )
     result["schema"] = SCHEMA
     return result
