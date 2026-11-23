@@ -11,7 +11,12 @@ setlocal
   chcp 65001 >nul
   set "PYTHONUTF8=1"
   powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\studio_oneclick.ps1" %*
-  if errorlevel 1 (
+  rem "if errorlevel 1" misses negative codes, and %ERRORLEVEL% would expand when the block
+  rem is read; both errorlevel tests together catch every non-zero code at run time.
+  set "STUDIO_FEHLER="
+  if errorlevel 1 set "STUDIO_FEHLER=1"
+  if not errorlevel 0 set "STUDIO_FEHLER=1"
+  if defined STUDIO_FEHLER (
     echo.
     echo Der Starter wurde mit einem Fehlercode beendet. Die Meldungen oben sagen, was fehlt.
     pause

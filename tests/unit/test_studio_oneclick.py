@@ -34,6 +34,9 @@ class FakeRun:
         self.calls: list[list[str]] = []
         self.kwargs: list[dict[str, object]] = []
         self.rules: list[Rule] = []
+        # git diff --quiet <sha> HEAD -- engine-bridge/: return code per source commit; any
+        # other spelling of the command answers 128 (unknown), so it never counts as fresh.
+        self.bridge: dict[str, int] = {HEAD: 0}
 
     def on(
         self,
@@ -46,6 +49,9 @@ class FakeRun:
         cmd = [str(part) for part in cmd]
         self.calls.append(cmd)
         self.kwargs.append(kwargs)
+        if cmd[3:5] == ["diff", "--quiet"]:
+            exact = len(cmd) == 9 and cmd[6:] == ["HEAD", "--", "engine-bridge/"]
+            return oc.Lauf(self.bridge.get(cmd[5], 128) if exact else 128)
         for match, result in self.rules:
             if match(cmd):
                 return result(cmd, kwargs) if callable(result) else result
@@ -59,6 +65,10 @@ class FakeRun:
 
 
 World = tuple[oc.Umgebung, FakeRun, list[str]]
+
+
+def STATUS(cmd: list[str]) -> bool:
+    return cmd[3:] == ["status", "--porcelain"]
 
 
 def has(*words: str) -> Callable[[list[str]], bool]:
@@ -101,7 +111,7 @@ def world(tmp_path: Path) -> tuple[oc.Umgebung, FakeRun, list[str]]:
     run.on(has("doctor", "--json"), oc.Lauf(0, json.dumps(_doctor_report())))
     run.on(has("rev-parse", "--abbrev-ref", "HEAD"), oc.Lauf(0, "main\n"))
     run.on(lambda c: c[-2:] == ["rev-parse", "HEAD"], oc.Lauf(0, f"{HEAD}\n"))
-    run.on(has("status", "--porcelain"), oc.Lauf(0, ""))
+    run.on(STATUS, oc.Lauf(0, ""))
     run.on(has("@{u}"), oc.Lauf(0, "origin/main\n"))
     run.on(has("remote", "get-url"), oc.Lauf(0, f"https://github.com/{oc.REPO_SLUG}.git\n"))
     tools = {"git": "/usr/bin/git", "java": "/usr/bin/java", "winget": "winget"}
@@ -217,8 +227,8 @@ def test_pull_only_on_clean_main_with_upstream(world: World) -> None:
 @pytest.mark.parametrize(
     ("rule", "result"),
     [
-        (has("status", "--porcelain"), oc.Lauf(0, " M src/x.py\n")),
-        (has("status", "--porcelain"), oc.Lauf(0, "?? meine_notiz.txt\n")),
+        (STATUS, oc.Lauf(0, " M src/x.py\n")),
+        (STATUS, oc.Lauf(0, "?? meine_notiz.txt\n")),
         (has("rev-parse", "--abbrev-ref", "HEAD"), oc.Lauf(0, "feature\n")),
         (has("@{u}"), oc.Lauf(128, "")),
     ],
@@ -302,6 +312,7 @@ def _engine(u: oc.Umgebung, jar: bytes = b"JAR", pin: str = PIN, sha: str | None
     (engine / oc.SHA_NAME).write_text(f"{sha or _sha(jar)}  {oc.JAR_NAME}\n", encoding="utf-8")
     (engine / oc.PIN_NAME).write_text(f"{pin}\n", encoding="utf-8")
     (engine / oc.SOURCE_NAME).write_text(f"{HEAD}\n", encoding="utf-8")
+    (engine / oc.CONFIRM_NAME).write_text(f"{pin}\n", encoding="utf-8")
     return engine
 
 
@@ -388,11 +399,11 @@ def test_artifact_choice_prefers_the_local_head(world: World) -> None:
     assert picked is not None and picked.run_id == 8
 
 
-def _gh_world(u: oc.Umgebung, run: FakeRun, *, pin: str = PIN) -> None:
+def _gh_world(u: oc.Umgebung, run: FakeRun, *, pin: str = PIN, sha: str = HEAD) -> None:
     tools = {"git": "/usr/bin/git", "java": "/usr/bin/java", "gh": "gh"}
     u.which = lambda name: tools.get(name)
-    run.on(has("api"), _runs(_run(8, HEAD)))
-    run.on(lambda c: "actions/runs/8/artifacts" in " ".join(c), _arts(HEAD))
+    run.on(has("api"), _runs(_run(8, sha)))
+    run.on(lambda c: "actions/runs/8/artifacts" in " ".join(c), _arts(sha))
 
     def download(cmd: list[str], _kw: dict[str, object]) -> oc.Lauf:
         _artifact_folder(Path(cmd[cmd.index("-D") + 1]), pin=pin)
@@ -775,7 +786,7 @@ def test_a_failed_copy_is_reported_not_raised(tmp_path: Path) -> None:
     blocked.write_text("a file where the engine folder should be", encoding="utf-8")
     source = tmp_path / "x.jar"
     source.write_bytes(b"JAR")
-    assert oc.stelle_bereit(source, blocked, _sha(b"JAR"), PIN, HEAD) is False
+    assert oc.stelle_bereit(source, blocked, _sha(b"JAR"), PIN, HEAD, gemeldet=True) is False
 
 
 def test_a_store_locked_by_a_running_studio_is_not_empty(world: World) -> None:
@@ -863,7 +874,7 @@ def test_maven_with_a_silent_engine_is_not_staged_and_drops_repository_override(
 
 def test_a_failing_git_status_counts_as_not_clean(world: World) -> None:
     u, run, _out = world
-    run.on(has("status", "--porcelain"), oc.Lauf(128, ""))
+    run.on(STATUS, oc.Lauf(128, ""))
     assert oc.aktualisiere_repo(u, oc.Bericht(), nur_pruefen=False) is False
     assert not run.ran("pull")
 
@@ -928,7 +939,7 @@ def test_a_copy_that_changes_on_the_way_is_not_activated(
     source.write_bytes(b"JAR")
     monkeypatch.setattr(oc.shutil, "copyfile", lambda _a, b: Path(b).write_bytes(b"EVIL"))
     engine = tmp_path / "engine"
-    assert oc.stelle_bereit(source, engine, _sha(b"JAR"), PIN, HEAD) is False
+    assert oc.stelle_bereit(source, engine, _sha(b"JAR"), PIN, HEAD, gemeldet=True) is False
     assert not (engine / oc.JAR_NAME).exists()
 
 
@@ -975,20 +986,22 @@ def test_an_oversized_artifact_is_not_downloaded(world: World) -> None:
 
 def test_a_stale_bridge_asks_gh_and_a_foreign_artifact_is_only_yellow(world: World) -> None:
     u, run, _out = world
-    _gh_world(u, run)
+    newer = "e" * 40
+    _gh_world(u, run, sha=newer)
     _engine(u)
-    run.on(has("diff", "--quiet"), oc.Lauf(1))  # engine-bridge/ differs from HEAD
+    run.bridge = {HEAD: 1, newer: 1}  # both differ from HEAD's engine-bridge/
     bericht = oc.Bericht()
     assert oc.sorge_fuer_engine(u, bericht, PIN, None, nur_pruefen=False) is True
     assert run.ran("run", "download")
     assert bericht.befunde[-1].farbe == oc.GELB
-    assert (u.data / "engine" / oc.SOURCE_NAME).read_text(encoding="utf-8").strip() == HEAD
+    # the source is the artifact's commit, not the local HEAD
+    assert (u.data / "engine" / oc.SOURCE_NAME).read_text(encoding="utf-8").strip() == newer
 
 
 def test_a_stale_bridge_without_a_new_package_stays_yellow_and_is_kept(world: World) -> None:
     u, run, _out = world
     _engine(u)
-    run.on(has("diff", "--quiet"), oc.Lauf(1))
+    run.bridge = {HEAD: 1}
     bericht = oc.Bericht()
     assert oc.sorge_fuer_engine(u, bericht, PIN, None, nur_pruefen=False) is False
     assert bericht.befunde[-1].farbe == oc.GELB
@@ -1033,3 +1046,150 @@ def test_the_shortcut_is_never_made_by_ja_alone_and_never_overwritten(world: Wor
     oc.verknuepfung(u)
     script = next(c for c in run.calls if "powershell" in c)[-1]
     assert "Test-Path" in script and "exit 3" in script
+
+
+# --- second delta review of #1766: freshness, caught-up handshake, no repeated download -----
+
+
+def test_three_starts_with_no_newer_package_download_exactly_once(world: World) -> None:
+    u, run, _out = world
+    _gh_world(u, run, sha=HEAD)
+    run.bridge = {HEAD: 1}  # the release run for the current code is not there yet
+    results = []
+    for _start in range(3):
+        bericht = oc.Bericht()
+        results.append(oc.sorge_fuer_engine(u, bericht, PIN, None, nur_pruefen=False))
+        assert bericht.befunde[-1].farbe != oc.GRUEN
+    assert sum(1 for c in run.calls if c[1:3] == ["run", "download"]) == 1
+    assert results == [True, False, False]
+
+
+def test_a_package_staged_without_java_is_never_green_until_the_engine_answers(
+    world: World,
+) -> None:
+    u, run, _out = world
+    _gh_world(u, run)
+    bericht = oc.Bericht()
+    assert oc.sorge_fuer_engine(u, bericht, PIN, None, nur_pruefen=False) is True
+    assert bericht.befunde[-1].farbe == oc.GELB
+    engine = u.data / "engine"
+    assert oc._first_token(engine / oc.CONFIRM_NAME) == "nein"
+    bericht = oc.Bericht()
+    oc.sorge_fuer_engine(u, bericht, PIN, None, nur_pruefen=False)
+    assert bericht.befunde[-1].farbe == oc.GELB  # still no Java: at most yellow
+    run.on(has("-jar"), _reply(OTHER_PIN))
+    bericht = oc.Bericht()
+    oc.sorge_fuer_engine(u, bericht, PIN, "/usr/bin/java", nur_pruefen=False)
+    assert oc._first_token(engine / oc.CONFIRM_NAME) != PIN
+    assert bericht.befunde[-1].farbe != oc.GRUEN
+    run.on(has("-jar"), _reply(PIN))
+    _engine(u)
+    (engine / oc.CONFIRM_NAME).write_text("nein\n", encoding="utf-8")
+    bericht = oc.Bericht()
+    oc.sorge_fuer_engine(u, bericht, PIN, "/usr/bin/java", nur_pruefen=False)
+    assert oc._first_token(engine / oc.CONFIRM_NAME) == PIN
+    assert bericht.befunde[-1].farbe == oc.GRUEN
+
+
+def test_freshness_asks_git_exactly_for_engine_bridge_at_the_recorded_source(
+    world: World,
+) -> None:
+    u, run, _out = world
+    _engine(u)
+    source = "f" * 40
+    (u.data / "engine" / oc.SOURCE_NAME).write_text(f"{source}\n", encoding="utf-8")
+    run.bridge = {source: 0}
+    bericht = oc.Bericht()
+    oc.sorge_fuer_engine(u, bericht, PIN, None, nur_pruefen=False)
+    assert bericht.befunde[-1].farbe == oc.GRUEN
+    diff = next(c for c in run.calls if c[3:5] == ["diff", "--quiet"])
+    git = ["/usr/bin/git", "-C", str(u.repo)]
+    assert diff == [*git, "diff", "--quiet", source, "HEAD", "--", "engine-bridge/"]
+
+
+def test_an_unknown_source_commit_is_never_green(world: World) -> None:
+    u, run, _out = world
+    _engine(u)
+    run.bridge = {}  # git answers 128: commit unknown here
+    bericht = oc.Bericht()
+    oc.sorge_fuer_engine(u, bericht, PIN, None, nur_pruefen=False)
+    assert bericht.befunde[-1].farbe == oc.GELB
+
+
+def test_a_non_sha_source_never_reaches_git_and_an_adopted_jar_does_not_claim_head(
+    world: World,
+) -> None:
+    u, run, _out = world
+    engine = _engine(u)
+    for name in (oc.SHA_NAME, oc.PIN_NAME, oc.SOURCE_NAME, oc.CONFIRM_NAME):
+        (engine / name).unlink()
+    run.on(has("-jar"), _reply(PIN))
+    bericht = oc.Bericht()
+    oc.sorge_fuer_engine(u, bericht, PIN, "/usr/bin/java", nur_pruefen=False)
+    assert oc._first_token(engine / oc.SOURCE_NAME) == "unbekannt"
+    assert not any(c[3:5] == ["diff", "--quiet"] for c in run.calls)
+    assert all(item.farbe != oc.GRUEN for item in bericht.befunde)
+
+
+def test_nur_pruefen_colours_a_stale_jar_yellow_and_a_missing_one_red(world: World) -> None:
+    u, run, _out = world
+    _engine(u)
+    run.bridge = {HEAD: 1}
+    bericht = oc.Bericht()
+    oc.sorge_fuer_engine(u, bericht, PIN, None, nur_pruefen=True)
+    assert bericht.befunde[-1].farbe == oc.GELB
+    (u.data / "engine" / oc.JAR_NAME).unlink()
+    bericht = oc.Bericht()
+    oc.sorge_fuer_engine(u, bericht, PIN, None, nur_pruefen=True)
+    assert bericht.befunde[-1].farbe == oc.ROT
+    assert not run.ran("run", "download")
+
+
+def test_an_oversized_jar_in_the_package_is_not_activated(
+    world: World, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    u, run, _out = world
+    _gh_world(u, run)
+    monkeypatch.setattr(oc, "MAX_JAR_BYTES", 2)
+    assert oc.hole_artefakt(u, PIN, None)[0] is None
+    assert not (u.data / "engine" / oc.JAR_NAME).exists()
+
+
+def test_a_fallback_install_is_never_green_in_the_same_run(world: World) -> None:
+    u, run, _out = world
+    u.ja = True
+    run.on(has("--require-hashes"), oc.Lauf(1))
+    bericht = oc.Bericht()
+    assert oc.richte_venv_ein(u, bericht, nur_pruefen=False, neu=False) is True
+    assert run.ran("-e", ".[api]")
+    assert bericht.befunde[-1].farbe == oc.GELB
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://notgithub.com/moeendres-png/commander-playtest-lab.git",
+        "https://evil.example/x/github.com/moeendres-png/commander-playtest-lab.git",
+    ],
+)
+def test_lookalike_remote_urls_do_not_pull(world: World, url: str) -> None:
+    u, run, _out = world
+    run.on(has("remote", "get-url"), oc.Lauf(0, f"{url}\n"))
+    assert oc.aktualisiere_repo(u, oc.Bericht(), nur_pruefen=False) is False
+    assert not run.ran("pull")
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://github.com/moeendres-png/commander-playtest-lab.git",
+        "https://github.com/moeendres-png/commander-playtest-lab",
+        "git@github.com:moeendres-png/commander-playtest-lab.git",
+        "ssh://git@github.com/moeendres-png/commander-playtest-lab.git",
+    ],
+)
+def test_the_official_remote_spellings_pull(world: World, url: str) -> None:
+    u, run, _out = world
+    run.on(has("remote", "get-url"), oc.Lauf(0, f"{url}\n"))
+    oc.aktualisiere_repo(u, oc.Bericht(), nur_pruefen=False)
+    assert run.ran("pull", "--ff-only")

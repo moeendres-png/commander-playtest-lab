@@ -1002,13 +1002,20 @@ Co-Leads bzw. der umsetzenden Sitzung (Einspruch des Owners jederzeit möglich).
    ist, die Engine selbst diesen Pin meldet; eine selbst gebaute oder vorhandene JAR ohne
    Prüfdateien nur über diese Meldung. Grün ist sie nur, wenn `engine-bridge/` am Stand ihres
    Artefakts (`ENGINE_QUELLE.txt`) gleich dem Programmstand ist; sonst holt der Starter ein neueres
-   Paket oder meldet gelb. Fork und Pin ändert der Starter nie. Keine Preise (der Preisführer
+   Paket oder meldet gelb; ist das neueste Paket schon das vorhandene, lädt er nichts neu. Grün
+   verlangt außerdem, dass die Engine ihre Version einmal selbst gemeldet hat
+   (`ENGINE_GEMELDET.txt`); ohne Java bleibt sie gelb, und der Starter holt die Meldung nach,
+   sobald Java da ist. Vertrauensstufe: Die Prüfdateien (`.sha256`, `ENGINE_PIN.txt`,
+   `ENGINE_QUELLE.txt`, `ENGINE_GEMELDET.txt`) liegen im Datenordner des Owners neben der JAR, also
+   in derselben Vertrauenszone wie die JAR selbst; sie schützen vor Verwechslung und veralteten
+   Ständen, nicht vor jemandem, der den Datenordner verändern kann. Fork und Pin ändert der Starter
+   nie. Keine Preise (der Preisführer
    bleibt ein eigener Befehl), keine Telemetrie, kein Upload, kein Token wird gelesen, gespeichert
    oder ausgegeben.
 3. **Zustimmung:** Programm-Installationen (winget: Python, Java) nur nach getipptem „J“ in einer
    Konsole, auch nicht mit `--ja`. Der Eigenbau mit Maven und der Rückfall
-   `pip install -e ".[api]"` brauchen eine Bestätigung: ein getipptes „J“ oder, ohne Konsole, den
-   Schalter `--ja`. Die Desktop-Verknüpfung entsteht nur nach getipptem „J“ und überschreibt nie
+   `pip install -e ".[api]"` brauchen eine Bestätigung: ein getipptes „J“ oder den Schalter
+   `--ja` (der sie auch in einer Konsole ohne Rückfrage bestätigt). Die Desktop-Verknüpfung entsteht nur nach getipptem „J“ und überschreibt nie
    eine vorhandene. Nie `reset`, `stash` oder `clean`; Dateien des Owners bleiben unberührt.
 4. **Privat:** Sammlung, Decks und die Scryfall-Datei liegen nur im Studio-Datenordner, nie im
    Repository; der Server bleibt auf 127.0.0.1.

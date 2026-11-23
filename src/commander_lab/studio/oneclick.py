@@ -56,6 +56,8 @@ SHA_NAME = f"{JAR_NAME}.sha256"
 PIN_NAME = "ENGINE_PIN.txt"
 SUMS_NAME = "PLAYTEST_LAB_SHA256SUMS.txt"
 SOURCE_NAME = "ENGINE_QUELLE.txt"  # repository commit the staged bridge JAR was built from
+CONFIRM_NAME = "ENGINE_GEMELDET.txt"  # pin the engine itself reported (handshake), else "nein"
+KEIN_NEUERES = "Es gibt noch keine neuere Engine als die vorhandene."
 MAX_ARTIFACT_BYTES = 2 * 1024**3
 MAX_JAR_BYTES = 1024**3
 BUILT_JAR = Path("engine-bridge") / "target" / "xmage-engine-bridge-0.1.0-SNAPSHOT.jar"
@@ -80,7 +82,8 @@ HANDSHAKE_TIMEOUT = 180
 _SHA40 = re.compile(r"[0-9a-f]{40}")
 _SHA256 = re.compile(r"[0-9a-f]{64}")
 _REMOTE_URL = re.compile(
-    r"github\.com[:/]moeendres-png/commander-playtest-lab(?:\.git)?/?$", re.IGNORECASE
+    r"^(?:https://|ssh://git@|git@)github\.com[:/]moeendres-png/commander-playtest-lab(?:\.git)?$",
+    re.IGNORECASE,
 )
 _JAVA_VERSION = re.compile(r'version "(\d+)(?:\.(\d+))?')
 
@@ -659,17 +662,21 @@ def engine_meldet_pin(u: Umgebung, java: str, jar: Path) -> str | None:
     return None
 
 
-def stelle_bereit(source: Path, engine_dir: Path, sha: str, pin: str, quelle: str) -> bool:
+def stelle_bereit(
+    source: Path, engine_dir: Path, sha: str, pin: str, quelle: str, *, gemeldet: bool
+) -> bool:
     """Copy a verified JAR next to its sidecars: temp file in the same folder, re-hash, replace.
     False when copying failed (for example a JAR held open by a running game on Windows)."""
     try:
-        _stelle_bereit(source, engine_dir, sha, pin, quelle)
+        _stelle_bereit(source, engine_dir, sha, pin, quelle, gemeldet)
     except (OSError, RuntimeError):
         return False
     return True
 
 
-def _stelle_bereit(source: Path, engine_dir: Path, sha: str, pin: str, quelle: str) -> None:
+def _stelle_bereit(
+    source: Path, engine_dir: Path, sha: str, pin: str, quelle: str, gemeldet: bool
+) -> None:
     engine_dir.mkdir(parents=True, exist_ok=True)
     temp = engine_dir / f"{JAR_NAME}.neu"
     shutil.copyfile(source, temp)
@@ -681,6 +688,7 @@ def _stelle_bereit(source: Path, engine_dir: Path, sha: str, pin: str, quelle: s
         (SHA_NAME, f"{sha}  {JAR_NAME}\n"),
         (PIN_NAME, f"{pin}\n"),
         (SOURCE_NAME, f"{quelle}\n"),
+        (CONFIRM_NAME, f"{pin if gemeldet else 'nein'}\n"),
     )
     for name, text in sidecars:
         part = engine_dir / f"{name}.neu"
@@ -798,8 +806,12 @@ def pruefe_artefakt(folder: Path, pin: str) -> tuple[str | None, str]:
     return sha, "geprüft"
 
 
-def hole_artefakt(u: Umgebung, pin: str, java: str | None) -> tuple[str | None, str]:
-    """(head sha of the staged artifact or None, reason)."""
+def hole_artefakt(
+    u: Umgebung, pin: str, java: str | None, *, vorhanden: str = ""
+) -> tuple[str | None, str]:
+    """(head sha of the staged artifact or None, reason). When the newest usable artifact is
+    the one already staged (``vorhanden``), nothing is downloaded and the reason is
+    ``KEIN_NEUERES``."""
     gh = u.which("gh")
     if not gh:
         return None, f"Das GitHub-Programm gh fehlt (installieren: {' '.join(WINGET_GH)})."
@@ -809,6 +821,8 @@ def hole_artefakt(u: Umgebung, pin: str, java: str | None) -> tuple[str | None, 
     if picked is None:
         return None, reason
     run_id, name, head_sha, size = picked.run_id, picked.name, picked.head_sha, picked.size
+    if vorhanden and head_sha == vorhanden:
+        return None, KEIN_NEUERES
     if size > MAX_ARTIFACT_BYTES:
         return None, "Das Engine-Paket ist unerwartet groß; ich lade es nicht."
     u.sagen(f"  Ich lade das Engine-Paket vom Stand {head_sha[:10]} (etwa {size // 1_000_000} MB).")
@@ -836,7 +850,7 @@ def hole_artefakt(u: Umgebung, pin: str, java: str | None) -> tuple[str | None, 
                 "Die Engine aus dem Paket meldet nicht die Version aus config/rules_engines.json "
                 "(oder antwortet nicht)."
             )
-        if not stelle_bereit(jar, u.data / "engine", sha, pin, head_sha):
+        if not stelle_bereit(jar, u.data / "engine", sha, pin, head_sha, gemeldet=bool(java)):
             return None, "Die Engine-Datei ließ sich nicht in den Datenordner kopieren."
     return head_sha, f"Engine-Paket vom Stand {head_sha[:10]} geprüft und bereitgestellt."
 
@@ -880,7 +894,7 @@ def baue_mit_maven(u: Umgebung, pin: str, java: str | None) -> tuple[bool, str]:
             "Die selbst gebaute Engine meldet nicht die Version aus config/rules_engines.json.",
         )
     quelle = lokaler_head(u) or "unbekannt"
-    if not stelle_bereit(jar, u.data / "engine", sha256_datei(jar), pin, quelle):
+    if not stelle_bereit(jar, u.data / "engine", sha256_datei(jar), pin, quelle, gemeldet=True):
         return False, "Die Engine-Datei ließ sich nicht in den Datenordner kopieren."
     return True, "Engine selbst gebaut, Version geprüft und bereitgestellt."
 
@@ -921,16 +935,33 @@ def sorge_fuer_engine(
         and java
         and not nur_pruefen
         and engine_meldet_pin(u, java, jar) == pin
-        and stelle_bereit(jar, engine_dir, sha256_datei(jar), pin, "unbekannt")
+        and stelle_bereit(jar, engine_dir, sha256_datei(jar), pin, "unbekannt", gemeldet=True)
     ):
         u.sagen("  Die vorhandene Engine meldet die richtige Version; Prüfdateien ergänzt.")
         valid, reason = True, "Engine-Datei geprüft"
-    fresh: bool | None = None
+    gemeldet = valid and _first_token(engine_dir / CONFIRM_NAME) == pin
+    if valid and not gemeldet and java and not nur_pruefen:
+        # Staged without Java (first run): the engine's own answer is caught up now.
+        if engine_meldet_pin(u, java, jar) == pin:
+            (engine_dir / CONFIRM_NAME).write_text(f"{pin}\n", encoding="utf-8")
+            gemeldet = True
+        else:
+            valid, reason = False, "die Engine meldet nicht die erwartete Version"
+    quelle = _first_token(engine_dir / SOURCE_NAME) if valid else ""
     if valid:
-        fresh = bridge_wie_head(u, _first_token(engine_dir / SOURCE_NAME))
-        if fresh:
+        fresh = bridge_wie_head(u, quelle)
+        if fresh and gemeldet:
             u.sagen("  Die Engine ist da, geprüft und passt zum Programmstand.")
             bericht.add("Engine", GRUEN, "Die Engine ist da; Prüfsumme, Version und Stand passen.")
+            return False
+        if fresh:
+            u.sagen("  Die Engine ist da; ihre Version hat sie noch nicht selbst gemeldet.")
+            bericht.add(
+                "Engine",
+                GELB,
+                "Die Engine ist da, hat ihre Version aber noch nicht selbst gemeldet (Java fehlt).",
+                "Java 17 installieren; beim nächsten Start holt der Starter die Prüfung nach.",
+            )
             return False
         reason = (
             "die Engine ist älter als der Programmstand"
@@ -947,17 +978,18 @@ def sorge_fuer_engine(
         )
         return False
     fehlt(u, f"eine aktuelle, geprüfte Engine ({reason}).", "das Engine-Paket von GitHub holen.")
-    staged, why = hole_artefakt(u, pin, java)
+    staged, why = hole_artefakt(u, pin, java, vorhanden=quelle if valid else "")
     u.sagen(f"  {why}")
     if staged is not None:
-        if bridge_wie_head(u, staged):
+        if bridge_wie_head(u, staged) and java:
             bericht.add("Engine", GRUEN, why)
         else:
             bericht.add(
                 "Engine",
                 GELB,
                 f"Die Engine stammt vom Stand {staged[:10]}; ihre Quellen weichen vom "
-                "Programmstand ab oder sind nicht prüfbar.",
+                "Programmstand ab, sind nicht prüfbar, oder sie hat ihre Version noch nicht "
+                "selbst gemeldet (Java fehlt).",
                 "Später neu starten; sobald ein Paket für den aktuellen Stand gebaut ist, "
                 "holt der Starter es.",
             )
@@ -966,8 +998,8 @@ def sorge_fuer_engine(
         bericht.add(
             "Engine",
             GELB,
-            f"Die vorhandene Engine bleibt ({reason}); ein neueres Paket gab es nicht: {why}",
-            "gh installieren und anmelden (gh auth login) und neu starten.",
+            f"Die vorhandene Engine bleibt ({reason}). {why}",
+            "Nichts nötig; später neu starten. Ohne gh: gh installieren und anmelden.",
         )
         return False
     fehlt(u, "das fertige Engine-Paket.", "dir den Eigenbau mit Maven anbieten.")

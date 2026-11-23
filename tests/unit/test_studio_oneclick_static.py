@@ -67,6 +67,8 @@ def test_the_cmd_file_pauses_on_error_and_has_crlf_on_checkout() -> None:
     ]
     # one parenthesised block that ends with exit /b: a pull during the run cannot shift lines
     assert body[:3] == ["@echo off", "setlocal", "("] and body[-2:] == ["exit /b", ")"]
+    # negative exit codes count as errors too ("if errorlevel 1" alone misses them)
+    assert "if errorlevel 1 set" in text and "if not errorlevel 0 set" in text
     attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
     assert re.search(r"^\*\.cmd\s+text\s+eol=crlf\s*$", attributes, re.MULTILINE)
 
@@ -105,8 +107,8 @@ def test_the_module_text_has_no_destructive_secret_or_price_operation() -> None:
 
 def test_the_only_http_target_of_the_module_is_localhost() -> None:
     text = MODULE.read_text(encoding="utf-8")
-    urls = set(re.findall(r"https?://[^\s\"'{}/]+", text))
-    assert urls == {"http://127.0.0.1:"}, urls
+    urls = set(re.findall(r"https?://[A-Za-z0-9][\w.-]*", text))
+    assert urls == {"http://127.0.0.1"}, urls
 
 
 def test_the_module_loads_only_the_standard_library_at_import() -> None:
