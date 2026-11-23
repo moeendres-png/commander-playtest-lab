@@ -455,6 +455,25 @@ function renderSaveState() {
     );
     return;
   }
+  // #1739: a draft conflict (409 from PUT or conditional DELETE) must stay visible and
+  // actionable even when baseStale is also set; when baseStale is set, rescue to a new variant
+  // stays offered alongside "Aktuellen Stand laden".
+  if (state.draftConflict) {
+    const items = [h("span", { class: "pill bad" }, "Konflikt: Entwurf in anderem Tab geändert")];
+    if (state.baseStale) {
+      items.push(" ", h("button", { type: "button", class: "small", onclick: () => openNewBranchModal() }, "Als neue Variante speichern"));
+    }
+    items.push(
+      " ",
+      h("button", { type: "button", class: "small", onclick: () => {
+        if (committing) { toast("Speichern läuft schon, bitte warten."); return; } // a load now would be dropped by the save
+        // the conflict is resolved by taking the stored draft: the local list is given up on purpose
+        loadDecks().then(() => loadBranch({ discardLocal: true })).catch((error) => fail(error));
+      } }, "Aktuellen Stand laden"),
+    );
+    box.replaceChildren(...items);
+    return;
+  }
   // B2b (#1658), #1727: the saved state under this draft moved (an adoption, another tab):
   // saving into this variant is refused; the work can be kept as a new variant, or the draft is
   // discarded and the current state loaded. The notice stays until one of the two is done.
@@ -465,18 +484,6 @@ function renderSaveState() {
       h("button", { type: "button", class: "small", onclick: () => openNewBranchModal() }, "Als neue Variante speichern"),
       " ",
       h("button", { type: "button", class: "small", onclick: () => discardStaleDraft().catch((error) => fail(error)) }, "Entwurf verwerfen und aktuellen Stand laden"),
-    );
-    return;
-  }
-  if (state.draftConflict) {
-    box.replaceChildren(
-      h("span", { class: "pill bad" }, "Konflikt: Entwurf in anderem Tab geändert"),
-      " ",
-      h("button", { type: "button", class: "small", onclick: () => {
-        if (committing) { toast("Speichern läuft schon, bitte warten."); return; } // a load now would be dropped by the save
-        // the conflict is resolved by taking the stored draft: the local list is given up on purpose
-        loadDecks().then(() => loadBranch({ discardLocal: true })).catch((error) => fail(error));
-      } }, "Aktuellen Stand laden"),
     );
     return;
   }
@@ -3062,16 +3069,18 @@ async function discardStaleDraft() {
   if (loadRefused("verworfen")) return;
   discardingStaleDraft = true;
   try {
-    try {
-      await api(draftDeleteUrl(state.deckId, state.branch, state.draftUpdatedAt), "DELETE");
-    } catch (error) {
-      if (error && error.status === 409) {
-        state.draftConflict = true;
-        renderSaveState();
-        toast(StudioUI.germanError(error), "error");
-        return;
+    if (state.draftUpdatedAt) {
+      try {
+        await api(draftDeleteUrl(state.deckId, state.branch, state.draftUpdatedAt), "DELETE");
+      } catch (error) {
+        if (error && error.status === 409) {
+          state.draftConflict = true;
+          renderSaveState();
+          toast(StudioUI.germanError(error), "error");
+          return;
+        }
+        throw error;
       }
-      throw error;
     }
     await loadDecks();
     await loadBranch({ discardLocal: true }); // discarding the draft is the point of this click
@@ -3286,16 +3295,19 @@ async function commitRevision(branch = state.branch, note = "") {
       }
     }
     const hints = [];
+    let keepConflict = false;
     if (result.hinweis) hints.push(result.hinweis);
     if (isNew) {
-      // the work moved to the new variant; the old draft goes unless another tab updated it (#1739)
-      try {
-        await api(draftDeleteUrl(deckId, fromBranch, fromDraftUpdatedAt), "DELETE");
-      } catch (error) {
-        if (error && error.status === 409) {
-          hints.push(`Der Entwurf in „${fromBranch}“ wurde inzwischen in einem anderen Tab geändert und behalten.`);
-        } else {
-          hints.push(`Der alte Entwurf in „${fromBranch}“ konnte nicht verworfen werden (${StudioUI.germanError(error)}); bitte dort verwerfen, nicht erneut speichern.`);
+      // the work moved to the new variant; drop the old draft only if this tab held one (#1739)
+      if (fromDraftUpdatedAt) {
+        try {
+          await api(draftDeleteUrl(deckId, fromBranch, fromDraftUpdatedAt), "DELETE");
+        } catch (error) {
+          if (error && error.status === 409) {
+            hints.push(`Der Entwurf in „${fromBranch}“ wurde inzwischen in einem anderen Tab geändert und behalten.`);
+          } else {
+            hints.push(`Der alte Entwurf in „${fromBranch}“ konnte nicht verworfen werden (${StudioUI.germanError(error)}); bitte dort verwerfen, nicht erneut speichern.`);
+          }
         }
       }
     } else if (already || result.revision_id === base) {
@@ -3309,6 +3321,7 @@ async function commitRevision(branch = state.branch, note = "") {
         }
       } catch (error) {
         if (error && error.status === 409) {
+          keepConflict = true;
           hints.push("Entwurf wurde inzwischen in einem anderen Tab geändert und behalten.");
         } else {
           hints.push(`Der unveränderte Entwurf konnte nicht verworfen werden (${StudioUI.germanError(error)}).`);
@@ -3322,7 +3335,7 @@ async function commitRevision(branch = state.branch, note = "") {
     // the list now in the editor may differ from the one saved (an edit made while the save was
     // on its way, or a list loaded meanwhile): that is an unsaved draft on the NEW base, never saved
     state.dirty = state.changeSeq !== seq || cardsKey(entries()) !== cardsKey(cards);
-    state.draftUpdatedAt = ""; state.draftConflict = false; state.needsDraftPut = state.dirty;
+    state.draftUpdatedAt = ""; state.draftConflict = keepConflict; state.needsDraftPut = state.dirty;
     rememberVariant();
     await loadDecks(); renderHeader(); renderSaveState(); toast([done, ...hints].join(" "));
     if (state.dirty) syncDraft();

@@ -2062,7 +2062,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                     store,
                     deck_id,
                     branch,
-                    expected_updated_at=expected_updated_at or None,
+                    expected_updated_at=expected_updated_at,
                 )
             return {"dropped": True}
         except builder.DraftConflict as error:

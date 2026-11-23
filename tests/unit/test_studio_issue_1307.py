@@ -331,13 +331,21 @@ def test_draft_delete_expected_updated_at_concurrency_1739(tmp_path: Path) -> No
     assert r_del_legacy.status_code == 200 and r_del_legacy.json() == {"dropped": True}
     assert client.get(base_url).json()["draft"] is None
 
-    # 2. Idempotent DELETE with expected_updated_at when no draft exists -> 200
+    # 2. Idempotent DELETE with expected_updated_at (non-empty and explicit empty) when no draft exists -> 200
     r_del_missing = client.delete(
         base_url,
         params={"expected_updated_at": "2026-11-23T00:00:00.000000Z"},
         headers=HEADERS,
     )
     assert r_del_missing.status_code == 200 and r_del_missing.json() == {"dropped": True}
+    r_del_empty_missing = client.delete(
+        base_url,
+        params={"expected_updated_at": ""},
+        headers=HEADERS,
+    )
+    assert r_del_empty_missing.status_code == 200 and r_del_empty_missing.json() == {
+        "dropped": True
+    }
 
     # 3. Stale expected_updated_at after concurrent POST /draft/card -> 409, draft preserved
     r_put1 = client.put(
@@ -398,6 +406,15 @@ def test_draft_delete_expected_updated_at_concurrency_1739(tmp_path: Path) -> No
         headers=HEADERS,
     )
     assert r_stale_put.status_code == 409
+    assert client.get(base_url).json()["draft"] == after_put
+
+    # 4b. Explicit empty expected_updated_at= fails closed (409) when a draft exists
+    r_empty_existing = client.delete(
+        base_url,
+        params={"expected_updated_at": ""},
+        headers=HEADERS,
+    )
+    assert r_empty_existing.status_code == 409
     assert client.get(base_url).json()["draft"] == after_put
 
     # 5. Matching expected_updated_at -> 200 and deletes
