@@ -2129,6 +2129,64 @@ console.log(JSON.stringify({
     assert "simuliert" not in rows["human"]["text"].lower()
 
 
+def test_partie_end_text_and_game_title_distinguish_unclean_shutdown_from_abort() -> None:
+    """Issue #1734: a game that reached engine end before an unclean JVM shutdown explains that
+    explicitly as uncredited (never 'abgebrochen' or 'nicht zu Ende gespielt'), while ordinary
+    failures keep 'abgebrochen' and seatPanel never credits uncredited_winner_seats."""
+    out = _node_json(
+        _COHORT_PRELUDE
+        + """
+const partie = read('partie.js');
+function runEndText(result, header) {
+  const state = { result, header: header || { seats: [{ seat: 0, commanders: ['Chulane'] }, { seat: 1, commanders: ['Kinnan'] }] } };
+  const seatName = (s) => (s === null || s === undefined ? '?' : 'Sitz ' + (s + 1));
+  const seatInfo = (s) => ((state.header && state.header.seats) || []).find((e) => e.seat === s) || {};
+  const seatLabel = (s) => { const i = seatInfo(s); return i.commanders && i.commanders.length ? i.commanders.join(' + ') : (i.deck_id || seatName(s)); };
+  const make = new Function('state', 'seatName', 'seatLabel', grab(partie, 'endText') + '; return endText;');
+  return make(state, seatName, seatLabel)();
+}
+function runTitle(game) {
+  const make = new Function('StudioCohort', 'seatName', grab(partie, 'gameTitle') + '; return gameTitle;');
+  return make(C, (s) => 'Sitz ' + (s + 1))(game);
+}
+const baseGame = { header: { seats: [{ deck_id: 'd1', commanders: ['Chulane'] }], seed: 5 }, frames: 7, running: false };
+console.log(JSON.stringify({
+  uncleanWithWinner: runEndText({ status: 'failed', game_reached_engine_end: true, shutdown_disposition: 'forced_kill', result_credited: false, uncredited_winner_seats: [1] }),
+  uncleanNoWinner: runEndText({ status: 'failed', game_reached_engine_end: true, shutdown_disposition: 'unacked_exit', result_credited: false, uncredited_winner_seats: [] }),
+  normalFailed: runEndText({ status: 'failed', failure_class: 'FullGameConformanceError', failure_message: 'abgebrochen' }),
+  titleUncleanTop: runTitle(Object.assign({}, baseGame, HUMAN, { game_reached_engine_end: true, shutdown_disposition: 'forced_kill', result: { status: 'failed' } })),
+  titleUncleanNested: runTitle(Object.assign({}, baseGame, HUMAN, { result: { status: 'failed', game_reached_engine_end: true, shutdown_disposition: 'already_exited' } })),
+  titleNormalFailed: runTitle(Object.assign({}, baseGame, HUMAN, { game_reached_engine_end: false, shutdown_disposition: null, result: { status: 'failed' } })),
+}));
+"""
+    )
+    assert isinstance(out, dict)
+    assert (
+        out["uncleanWithWinner"]
+        == "Partie zu Ende gespielt, Engine-Prozess endete nicht sauber (forced_kill), "
+        "Ergebnis nicht gewertet. (Engine-Sieger, nicht gewertet: Sitz 2 (Kinnan))"
+    )
+    assert "Die Partie wurde nicht zu Ende gespielt" not in out["uncleanWithWinner"]
+    assert (
+        out["uncleanNoWinner"]
+        == "Partie zu Ende gespielt, Engine-Prozess endete nicht sauber (unacked_exit), "
+        "Ergebnis nicht gewertet."
+    )
+    assert out["normalFailed"] == "Die Partie wurde nicht zu Ende gespielt (abgebrochen)."
+    assert "nicht gewertet (forced_kill)" in out["titleUncleanTop"]
+    assert "abgebrochen" not in out["titleUncleanTop"]
+    assert "Sieger" not in out["titleUncleanTop"]
+    assert "nicht gewertet (already_exited)" in out["titleUncleanNested"]
+    assert "abgebrochen" not in out["titleUncleanNested"]
+    assert out["titleNormalFailed"].endswith("abgebrochen")
+    # seatPanel stays strictly on credited winner_seats
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    panel_start = js.index("function seatPanel(")
+    panel_body = js[panel_start : js.index("\n}\n", panel_start)]
+    assert "uncredited_winner_seats" not in panel_body
+    assert "result.winner_seats" in panel_body
+
+
 def test_partie_cohort_wiring_reads_the_server_value_and_uses_no_html_sinks() -> None:
     html = (STATIC / "partie.html").read_text(encoding="utf-8")
     index = (STATIC / "index.html").read_text(encoding="utf-8")

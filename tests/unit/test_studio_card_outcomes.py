@@ -2036,3 +2036,71 @@ def test_the_recorder_never_stamps_an_unreadable_cohort_as_a_simulation(
     packed = recorder.close({"status": "finished", "winner_seats": [0]})
     with gzip.open(packed, "rt", encoding="utf-8") as handle:
         assert json.loads(handle.readline())["data_class"] == written
+
+
+def test_unclean_shutdown_played_game_is_never_counted_as_finished_or_exposure(
+    tmp_path: Path,
+) -> None:
+    """A PLAYED_GAME log with status='failed' and unclean-shutdown UI metadata (#1734) still
+    counts in played_with_deck, but NEVER in played_finished_with_deck and NEVER in exposures."""
+    header_played = {
+        "kind": "header",
+        "schema": "studio-game-log-1",
+        "game_id": "h-unclean",
+        "seed": 11,
+        "engine_commit": COMMIT,
+        "pilot": "Pilot 1.0.0",
+        "decision_policy": "policy-1",
+        "pilot_fingerprint": PILOT_FP,
+        "seats": [
+            {"seat": 0, "deck_id": DECK, "deck_hash": _hash(DECK), "commanders": ["Cmd A"]},
+            {"seat": 1, "deck_id": OTHER, "deck_hash": _hash(OTHER), "commanders": ["Cmd B"]},
+        ],
+        **PLAYED_NEW,
+    }
+    unclean_result = {
+        "kind": "result",
+        "status": "failed",
+        "failure_class": "FullGameConformanceError",
+        "failure_message": "full game shutdown not graceful",
+        "game_reached_engine_end": True,
+        "shutdown_disposition": "forced_kill",
+        "result_credited": False,
+        "uncredited_winner_seats": [0],
+        "uncredited_decision_count": 2,
+    }
+    lines = [header_played, *_simple_frames(["Sol Ring"]), unclean_result]
+    with gzip.open(tmp_path / "h-unclean.jsonl.gz", "wt", encoding="utf-8") as handle:
+        for entry in lines:
+            handle.write(json.dumps(entry) + "\n")
+
+    # Even if a SIMULATED_RESULT log carried the same failed/unclean closing entry, it stays skipped
+    header_sim = {
+        "kind": "header",
+        "schema": "studio-game-log-1",
+        "game_id": "s-unclean",
+        "seed": 12,
+        "engine_commit": COMMIT,
+        "pilot": "Pilot 1.0.0",
+        "decision_policy": "policy-1",
+        "pilot_fingerprint": PILOT_FP,
+        "seats": [
+            {"seat": 0, "deck_id": DECK, "deck_hash": _hash(DECK), "commanders": ["Cmd A"]},
+            {"seat": 1, "deck_id": OTHER, "deck_hash": _hash(OTHER), "commanders": ["Cmd B"]},
+        ],
+    }
+    with gzip.open(tmp_path / "s-unclean.jsonl.gz", "wt", encoding="utf-8") as handle:
+        for entry in [header_sim, *_simple_frames(["Sol Ring"]), unclean_result]:
+            handle.write(json.dumps(entry) + "\n")
+
+    report = load_exposures(tmp_path)
+    assert report["exposures"] == []
+    assert report["played_games"] == 1
+    assert report["played_with_deck"] == {DECK: 1, OTHER: 1}
+    assert report["played_finished_with_deck"] == {}
+    assert report["skipped_with_deck"] == {DECK: 1, OTHER: 1}
+
+    table = outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
+    assert table["played_cohort"]["games"] == 1
+    assert table["played_cohort"]["games_finished"] == 0
+    assert table["games_total"] == 0 and table["games_skipped"] == 1

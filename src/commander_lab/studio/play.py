@@ -46,6 +46,11 @@ from commander_lab.engine.rules.full_game import (
     ProgressEntry,
     XmageFullGameRunner,
 )
+from commander_lab.engine.rules.full_game_pilot.common import (
+    FULL_GAME_SHUTDOWN_ALREADY_EXITED,
+    FULL_GAME_SHUTDOWN_FORCED_KILL,
+    FULL_GAME_SHUTDOWN_UNACKED_EXIT,
+)
 from commander_lab.engine.rules.full_game_series import FullGameSeriesResult
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
@@ -70,6 +75,17 @@ PILOT_IDENTITY = "GenericCommanderPilot"
 PILOT_VERSION = "1.0.0"
 POLICY_VERSION = "xmage-full-game-policy-1.0.0"
 BRIDGE_VERSION = "xmage-engine-bridge-0.1.0-SNAPSHOT"
+
+# Observed non-graceful bridge exits after the engine reached game end (#1734):
+# status remains strictly "failed" and no result is credited; only these three
+# audited dispositions may carry uncredited end-of-game context for the UI.
+UNCLEAN_SHUTDOWN_DISPOSITIONS: frozenset[str] = frozenset(
+    {
+        FULL_GAME_SHUTDOWN_FORCED_KILL,
+        FULL_GAME_SHUTDOWN_UNACKED_EXIT,
+        FULL_GAME_SHUTDOWN_ALREADY_EXITED,
+    }
+)
 
 # Owner decision 2026-11-17: in PLAY a human waits without limit; no timeout ends the game. Every
 # start path with a human seat therefore hands the bridge the explicit value 0 (unlimited); the
@@ -478,8 +494,39 @@ def covered_by_sealed_epoch(qual_state: object, bridge_sha: object, covered_flag
     )
 
 
+def _unclean_shutdown_context(
+    raw_result: object,
+    disposition: object,
+) -> dict[str, object] | None:
+    """Build strictly uncredited UI context when a game reached engine end before an unclean exit."""
+    if not isinstance(disposition, str) or disposition not in UNCLEAN_SHUTDOWN_DISPOSITIONS:
+        return None
+    if not isinstance(raw_result, Mapping) or raw_result.get("terminal") is not True:
+        return None
+    raw_outcomes = raw_result.get("outcomes")
+    uncredited_winners: list[int] = []
+    if isinstance(raw_outcomes, list):
+        for item in raw_outcomes:
+            if isinstance(item, Mapping) and item.get("won") is True:
+                seat = item.get("seat")
+                if type(seat) is int and seat >= 0:
+                    uncredited_winners.append(seat)
+    raw_decisions = raw_result.get("decision_count")
+    uncredited_decisions = raw_decisions if type(raw_decisions) is int and raw_decisions >= 0 else 0
+    return {
+        "game_reached_engine_end": True,
+        "shutdown_disposition": disposition,
+        "result_credited": False,
+        "uncredited_winner_seats": uncredited_winners,
+        "uncredited_decision_count": uncredited_decisions,
+    }
+
+
 def close_recorded_game(
-    recorder: GameRecorder, outcome: FullGameConformanceResult | FullGameSeriesResult | Exception
+    recorder: GameRecorder,
+    outcome: FullGameConformanceResult | FullGameSeriesResult | Exception,
+    *,
+    unclean_shutdown_context: Mapping[str, object] | None = None,
 ) -> dict[str, object]:
     """Write the closing entry of a game log from its outcome and return the short summary."""
     header = getattr(recorder, "header", {})
@@ -491,7 +538,7 @@ def close_recorded_game(
     if isinstance(outcome, Exception):
         # run() is behind the public error boundary, so its message carries only a fixed
         # site and audited codes (failure_privacy); it says why the game did not start.
-        failure = {
+        failure: dict[str, object] = {
             "status": "failed",
             "failure_class": public_exception_type(outcome),
             "failure_message": public_full_game_exception_message(outcome),
@@ -499,6 +546,29 @@ def close_recorded_game(
             "bridge_qualification_state": qual_state,
             "covered_by_sealed_epoch": covered,
         }
+        if isinstance(unclean_shutdown_context, Mapping):
+            disposition = unclean_shutdown_context.get("shutdown_disposition")
+            if (
+                unclean_shutdown_context.get("game_reached_engine_end") is True
+                and isinstance(disposition, str)
+                and disposition in UNCLEAN_SHUTDOWN_DISPOSITIONS
+            ):
+                raw_winners = unclean_shutdown_context.get("uncredited_winner_seats")
+                uncredited_winners = (
+                    [seat for seat in raw_winners if type(seat) is int and seat >= 0]
+                    if isinstance(raw_winners, Sequence)
+                    and not isinstance(raw_winners, (str, bytes))
+                    else []
+                )
+                raw_decisions = unclean_shutdown_context.get("uncredited_decision_count")
+                uncredited_decisions = (
+                    raw_decisions if type(raw_decisions) is int and raw_decisions >= 0 else 0
+                )
+                failure["game_reached_engine_end"] = True
+                failure["shutdown_disposition"] = disposition
+                failure["result_credited"] = False
+                failure["uncredited_winner_seats"] = uncredited_winners
+                failure["uncredited_decision_count"] = uncredited_decisions
         path = recorder.close(failure)
         return {
             "game_id": recorder.game_id,
@@ -1016,6 +1086,7 @@ class InteractiveGameSession:
 
     def _run(self) -> None:
         outcome: FullGameConformanceResult | Exception | None = None
+        unclean_shutdown_context: dict[str, object] | None = None
         try:
             runner = XmageFullGameRunner(
                 command=self._command,
@@ -1048,11 +1119,18 @@ class InteractiveGameSession:
                     raw_result = match.result()
                     with contextlib.suppress(Exception):
                         self._recorder.save_event_log(list(match.events(0).events))
+            shutdown_disposition = bridge.shutdown_disposition
             # the result rests on how the bridge process really ended (the session is closed now)
             if match is None or raw_result is None:
                 outcome = FullGameConformanceError("Spiel durch Benutzer beendet")
             else:
-                outcome = match.conformance_result(raw_result)
+                try:
+                    outcome = match.conformance_result(raw_result)
+                except Exception as exc:
+                    outcome = exc
+                    unclean_shutdown_context = _unclean_shutdown_context(
+                        raw_result, shutdown_disposition
+                    )
         except Exception as exc:
             outcome = exc
         finally:
@@ -1069,7 +1147,11 @@ class InteractiveGameSession:
             else:
                 if outcome is None:
                     outcome = FullGameConformanceError("full game ended without outcome")
-                closed = close_recorded_game(self._recorder, outcome)
+                closed = close_recorded_game(
+                    self._recorder,
+                    outcome,
+                    unclean_shutdown_context=unclean_shutdown_context,
+                )
                 with self._lock:
                     self._pending_decision = None
                     self._pending_raw_decision = None

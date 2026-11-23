@@ -2311,7 +2311,8 @@ def test_the_result_rests_on_how_the_bridge_process_really_ended(
     tmp_path: Path, disposition: str, status: str
 ) -> None:
     """A game the engine played to its end counts as finished only after a graceful bridge
-    shutdown; any other observed process end makes it failed (fail closed, #1663)."""
+    shutdown; any other observed process end makes it failed (fail closed, #1663) while keeping
+    uncredited end-of-game context for the PLAY UI (#1734)."""
     fake = _SeedEchoEndingClient(disposition)
     game_id = f"end-{disposition}"
     app, client = _start_fake_session(tmp_path, game_id, fake, ai_delay_ms=0)
@@ -2325,9 +2326,94 @@ def test_the_result_rests_on_how_the_bridge_process_really_ended(
             assert answered.status_code == 200, answered.text
         final = _wait_finished(client, game_id)
         assert "get_full_game_result" in fake.requests and fake.closes == 1
-        assert final["result"]["status"] == status, final["result"]  # type: ignore[index]
+        result = final["result"]
+        assert isinstance(result, dict)
+        assert result["status"] == status, result
+        listed = {g["game_id"]: g for g in games.list_games(tmp_path)}
+        assert game_id in listed
+        if disposition == "graceful_shutdown":
+            assert "winner_seats" in result
+            assert "game_reached_engine_end" not in result
+            assert "result_credited" not in result
+            assert listed[game_id]["game_reached_engine_end"] is False
+            assert listed[game_id]["shutdown_disposition"] is None
+            persisted = games.read_game(tmp_path, game_id)["result"]
+            assert isinstance(persisted, dict)
+            assert "semantic_transcript_sha256" in persisted
+            assert "game_reached_engine_end" not in persisted
+        else:
+            assert result["game_reached_engine_end"] is True
+            assert result["shutdown_disposition"] == disposition
+            assert result["result_credited"] is False
+            assert result["uncredited_winner_seats"] == [1]
+            assert result["uncredited_decision_count"] == fake.decision_count
+            assert "winner_seats" not in result
+            assert "decision_count" not in result
+            assert "semantic_transcript_sha256" not in result
+            assert listed[game_id]["game_reached_engine_end"] is True
+            assert listed[game_id]["shutdown_disposition"] == disposition
+            persisted = games.read_game(tmp_path, game_id)["result"]
+            assert isinstance(persisted, dict)
+            assert persisted["status"] == "failed"
+            assert persisted["game_reached_engine_end"] is True
+            assert persisted["shutdown_disposition"] == disposition
+            assert persisted["result_credited"] is False
+            assert persisted["uncredited_winner_seats"] == [1]
+            assert "winner_seats" not in persisted
+            assert "semantic_transcript_sha256" not in persisted
     finally:
         app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def test_abort_before_engine_end_never_sets_unclean_shutdown_fields(tmp_path: Path) -> None:
+    """Stopping a game before the engine reaches game end (no raw_result) leaves
+    game_reached_engine_end unset; unknown dispositions are rejected fail-closed (#1734)."""
+    fake = _SeedEchoEndingClient("forced_kill")
+    game_id = "abort-midgame"
+    app, client = _start_fake_session(tmp_path, game_id, fake, ai_delay_ms=0)
+    try:
+        _wait_for_pending(client, game_id, "dec-h-1")
+        session = app.state.play_manager.get(game_id)  # type: ignore[attr-defined]
+        assert session is not None
+        session.shutdown()
+        final = _wait_finished(client, game_id)
+        result = final["result"]
+        assert isinstance(result, dict)
+        assert result["status"] == "failed"
+        assert "get_full_game_result" not in fake.requests
+        assert "game_reached_engine_end" not in result
+        assert "shutdown_disposition" not in result
+        assert "result_credited" not in result
+        assert "uncredited_winner_seats" not in result
+        listed = {g["game_id"]: g for g in games.list_games(tmp_path)}
+        assert listed[game_id]["game_reached_engine_end"] is False
+        assert listed[game_id]["shutdown_disposition"] is None
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+    # close_recorded_game also rejects any disposition outside the audited 3-item allowlist
+    decks = (
+        _make_deck("own", "Chulane, Teller of Tales"),
+        _make_deck("opp", "Kinnan, Bonder Prodigy"),
+    )
+    prep = play.prepare_game(
+        decks, seed=9, game_id="bad-disp", human_seats=[0], decision_timeout_seconds=0
+    )
+    recorder = games.GameRecorder(tmp_path, "bad-disp", prep.header)
+    closed = play.close_recorded_game(
+        recorder,
+        RuntimeError("unexpected"),
+        unclean_shutdown_context={
+            "game_reached_engine_end": True,
+            "shutdown_disposition": "not_in_allowlist",
+            "uncredited_winner_seats": [0],
+            "uncredited_decision_count": 5,
+        },
+    )
+    assert closed["status"] == "failed"
+    assert "game_reached_engine_end" not in closed
+    assert "shutdown_disposition" not in closed
+    assert "uncredited_winner_seats" not in closed
 
 
 class _SpyLeakClient(_FakeInteractiveClient):
