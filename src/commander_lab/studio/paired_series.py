@@ -1103,6 +1103,12 @@ class PairedSeriesJob:
             on_game_played=self.mark_game_played,
         )
 
+        final_status = "failed"
+        final_result: paired_comparison.PairedComparison | None = None
+        final_pairs_attempted: int | None = None
+        final_error: str | None = None
+        final_ended_at: str | None = None
+
         try:
             result = paired_comparison.run_comparison_series(
                 base_deck_id=self.base_deck.deck_id,
@@ -1132,25 +1138,40 @@ class PairedSeriesJob:
             pool_summary = player.pool_summary()
             if pool_summary is not None:
                 result["execution"] = {**result["execution"], "pool": pool_summary}
-            with self._lock:
-                self.result = result
-                self.pairs_attempted = int(result.get("pairs_played") or self.pairs_attempted)
-                self.status = "completed"
-                self.ended_at = now_utc()
+            final_result = result
+            pairs_played = result.get("pairs_played")
+            final_pairs_attempted = int(pairs_played) if pairs_played else None
+            final_status = "completed"
+            final_ended_at = now_utc()
         except SeriesCancelledError as exc:
-            with self._lock:
-                self.status = "cancelled"
-                self.error = str(exc)
-                self.ended_at = now_utc()
+            final_status = "cancelled"
+            final_error = str(exc)
+            final_ended_at = now_utc()
         except Exception as exc:
-            with self._lock:
-                self.status = "failed"
-                self.error = str(exc)
-                self.ended_at = now_utc()
+            final_status = "failed"
+            final_error = str(exc)
+            final_ended_at = now_utc()
         finally:
-            player.close()  # the worker processes and their bridge JVMs end with the series
-            self._release_lock()
-            self.persist()
+            try:
+                player.close()  # the worker processes and their bridge JVMs end with the series
+            finally:
+                self._release_lock()
+                with self._persist_lock:
+                    with self._lock:
+                        if final_result is not None:
+                            self.result = final_result
+                        if final_pairs_attempted is not None:
+                            self.pairs_attempted = final_pairs_attempted
+                        if final_error is not None:
+                            self.error = final_error
+                        self.ended_at = final_ended_at or now_utc()
+                    payload = self.to_dict()
+                    payload["status"] = final_status
+                    try:
+                        _write_json_atomic(self.series_file(), payload)
+                    finally:
+                        with self._lock:
+                            self.status = final_status
 
 
 class PairedSeriesManager:

@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import threading
 import time
 from pathlib import Path
 from typing import cast
@@ -2246,3 +2247,215 @@ def test_a_paired_series_ends_its_worker_pool_and_records_what_the_pool_did(
         assert _Pool.closed == 1
     finally:
         store.close()
+
+
+@pytest.mark.parametrize("outcome", ["completed", "failed", "cancelled"])
+def test_paired_job_publishes_terminal_status_only_after_close_unlock_and_persist(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, outcome: str
+) -> None:
+    """Terminal status must only become visible after player.close(), lock release and disk write
+    complete (Refs #1767, #1745)."""
+    store, folder = _make_store(tmp_path)
+    final_write_entered = threading.Event()
+    final_write_continue = threading.Event()
+    pool_closed = threading.Event()
+    lock_released = threading.Event()
+    wait_returned = threading.Event()
+    order: list[str] = []
+    writes_after_wait: list[dict[str, object]] = []
+
+    try:
+        cards = [
+            RevisionCard("cid-chulane", 1, "commander"),
+            RevisionCard("cid-sol-ring", 1, "main"),
+            RevisionCard("cid-forest", 98, "main"),
+        ]
+        rev_base = create_revision(
+            store, deck_id="chulane-order", name="C", branch="main", cards=cards
+        )
+        rev_var = create_revision(
+            store,
+            deck_id="chulane-order",
+            name="C",
+            branch="variant",
+            cards=[cards[0], RevisionCard("cid-signet", 1, "main"), cards[2]],
+        )
+        monkeypatch.setattr(paired_series, "_preflight_snapshot_cards", lambda *_a, **_k: None)
+
+        def _play(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+            if outcome == "failed":
+                raise RuntimeError("boom during play")
+            if outcome == "cancelled":
+                raise paired_series.SeriesCancelledError("cancelled during play")
+            did = "chulane-order--base" if arm == "base" else "chulane-order--variant"
+            return {
+                "exposure": _mock_exposure(  # type: ignore[typeddict-item]
+                    f"{arm}-{seed}-{seat}",
+                    seed=seed,
+                    seat=seat,
+                    tested_deck_id=did,
+                    won=(arm == "variant"),
+                ),
+                "failure_class": None,
+            }
+
+        class _TrackingPool:
+            def summary(self) -> dict[str, object]:
+                return {"executor": "studio-game-pool-1", "games_finished": 0}
+
+            def close(self) -> None:
+                order.append("player.close")
+                pool_closed.set()
+
+        pool = _TrackingPool()
+        monkeypatch.setattr(
+            paired_comparison,
+            "parallel_window_player",
+            lambda *_a, **_k: paired_comparison.WindowPlayer(_play, [pool]),  # type: ignore[list-item]
+        )
+
+        orig_release_lock = paired_series.PairedSeriesJob._release_lock
+        status_at_unlock: list[str] = []
+
+        def _wrapped_release_lock(self: paired_series.PairedSeriesJob) -> None:
+            status_at_unlock.append(self.status)
+            orig_release_lock(self)
+            order.append("release_lock")
+            lock_released.set()
+
+        monkeypatch.setattr(paired_series.PairedSeriesJob, "_release_lock", _wrapped_release_lock)
+
+        orig_write = paired_series._write_json_atomic
+
+        def _wrapped_write(path: Path, payload: dict[str, object]) -> None:
+            if path.name.endswith(".paired.json") and wait_returned.is_set():
+                writes_after_wait.append(dict(payload))
+            if path.name.endswith(".paired.json") and payload.get("status") == outcome:
+                final_write_entered.set()
+                final_write_continue.wait(timeout=5.0)
+                orig_write(path, payload)
+                order.append("final_write_done")
+                return
+            orig_write(path, payload)
+
+        monkeypatch.setattr(paired_series, "_write_json_atomic", _wrapped_write)
+
+        mgr = PairedSeriesManager()
+        job = mgr.start_series(
+            store,
+            folder,
+            base_revision_id=rev_base,
+            variant_revision_id=rev_var,
+            pod="precon",
+            budget_pairs=4,
+            look_every_pairs=4,
+            base_seed=2100,
+            rotate_seats=False,
+            play_override=_play,
+        )
+
+        # (a) While the final disk write is blocked, cleanup ran, but in-memory status is still running
+        assert final_write_entered.wait(timeout=5.0), "final _write_json_atomic was not reached"
+        assert pool_closed.is_set()
+        assert lock_released.is_set()
+        assert status_at_unlock == ["running"]
+        assert not job.lock_file().exists()
+        assert job.status == "running"
+        in_flight = mgr.get_series(folder, job.series_id)
+        assert in_flight is not None and in_flight["status"] == "running"
+
+        # Unblock the final write and wait for terminal status
+        final_write_continue.set()
+        finished = _wait_job(mgr, folder, job.series_id)
+        wait_returned.set()
+
+        # (b) Once _wait_job returns, close/unlock/persist are all finished; immediate edit sticks
+        assert finished["status"] == outcome
+        assert job.status == outcome
+        assert order == ["player.close", "release_lock", "final_write_done"]
+        assert not job.lock_file().exists()
+
+        disk_payload = json.loads(job.series_file().read_text(encoding="utf-8"))
+        assert disk_payload["status"] == outcome
+        tampered = dict(disk_payload)
+        tampered["status"] = "running"
+        tampered["post_wait_marker"] = "kept"
+        job.series_file().write_text(json.dumps(tampered), encoding="utf-8")
+
+        reloaded = json.loads(job.series_file().read_text(encoding="utf-8"))
+        assert reloaded["post_wait_marker"] == "kept"
+        assert reloaded["status"] == "running"
+        assert writes_after_wait == []
+    finally:
+        final_write_continue.set()
+        store.close()
+
+
+def test_paired_job_still_reaches_terminal_status_when_final_persist_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Even if the final atomic disk write raises OSError, in-memory status must not stay running."""
+    from commander_lab.models import RulesDeckInput
+
+    base_deck = RulesDeckInput(
+        deck_id="chulane-ioerr--base",
+        name="Base",
+        commander_names=(COMMANDER,),
+        mainboard=("Forest",) * 99,
+    )
+    var_deck = RulesDeckInput(
+        deck_id="chulane-ioerr--variant",
+        name="Var",
+        commander_names=(COMMANDER,),
+        mainboard=("Island",) * 99,
+    )
+    opp_decks = [
+        RulesDeckInput(
+            deck_id=f"opp-{i}",
+            name=f"Opp {i}",
+            commander_names=(COMMANDER,),
+            mainboard=("Plains",) * 99,
+        )
+        for i in range(3)
+    ]
+    paths_by_id = {
+        d.deck_id: tmp_path / f"{d.deck_id}.json" for d in [base_deck, var_deck, *opp_decks]
+    }
+
+    def _fail_play(_arm: str, _seed: int, _seat: int) -> paired_comparison.PlayedGame:
+        raise RuntimeError("play failure")
+
+    orig_write = paired_series._write_json_atomic
+
+    def _failing_final_write(path: Path, payload: dict[str, object]) -> None:
+        if path.name.endswith(".paired.json") and payload.get("status") == "failed":
+            raise OSError("simulated disk full")
+        orig_write(path, payload)
+
+    monkeypatch.setattr(paired_series, "_write_json_atomic", _failing_final_write)
+
+    job = paired_series.PairedSeriesJob(
+        series_id="paired-999999-1-ioerr",
+        data_folder=tmp_path,
+        base_ref="rev-base",
+        variant_ref="rev-var",
+        base_deck=base_deck,
+        variant_deck=var_deck,
+        opponents=opp_decks,
+        paths_by_deck_id=paths_by_id,
+        pod_name="precon",
+        seeds=[2200, 2201],
+        tested_seats=[0],
+        budget_pairs=2,
+        look_every_pairs=2,
+        threshold_pp=0.0,
+        workers=1,
+        games_per_jvm=1,
+        play_override=_fail_play,
+    )
+    with pytest.raises(OSError, match="simulated disk full"):
+        job.run()
+    assert job.status == "failed"
+    assert job.error == "play failure"
+    assert job.ended_at is not None
+    assert not job.lock_file().exists()
