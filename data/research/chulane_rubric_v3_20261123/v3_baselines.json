@@ -575,70 +575,207 @@
   }
  },
  "pilot_simulation_ohne_defekt": {
-  "modell": "Modell: 90 Nicht-Anker-Karten (51 Kreaturen, 27 Nicht-Kreatur-Spells, 12 Länder), wahrer Wert\nplus unabhängiger Raterfehler je Rater, Gesamt-SD 16, wahre ICC 0,87/0,90/0,93; keine\nRaterversätze, keine Drift; je Charge 15 der Positionen 1-19 (4 Plätze gehen an Anker),\n6 Chargen, je Rater eigene Reihenfolge.\nS5: 10 Ankerkarten x 2 Ankerzeilen, Ankerwert = wahrer Wert, Fehler wie oben.\nS7: Normal(0, sd7) mit sd7 aus der KI-Breite von s7_breite. S8 und S9 als erfüllt angenommen.",
+  "modell": "Modell: 90 Nicht-Anker-Karten (51 Kreaturen, 27 Nicht-Kreatur-Spells, 12 Länder), wahrer Wert\nplus unabhängiger Raterfehler je Rater, Gesamt-SD 16, wahre ICC 0,87/0,90/0,93. Versatz:\nRater A bewertet alle Karten um 0 / 0,1 / 0,15 / 0,2 SD strenger (gleichmäßig). Keine Drift;\nje Charge 15 der Positionen 1-19 (4 Plätze gehen an Anker), 6 Chargen, je Rater eigene\nReihenfolge. S5: 10 Ankerkarten x 2 Ankerzeilen, Ankerwert = wahrer Wert, Fehler wie oben\n(Rater A mit demselben Versatz). S7: Normal(0, sd7) mit sd7 aus der KI-Breite von s7_breite.\nS8 und S9 als erfüllt angenommen. Regeln Runde 2: Muss S1, S2, S3, S5, S6, S7. Regeln Runde 3\n(Plan): Muss im Pilot S1, S3, S5, S6; S2 Soll, S7 im Pilot nur Frühwarnung.",
   "sd7": 0.0457,
   "icc_0.87": {
-   "fehlalarm": {
-    "s1": 0.505,
-    "s2": 0.727,
-    "s3": 0.044,
-    "s3c": 0.051,
-    "s5": 0.0,
-    "s6_1_0": 0.046,
-    "s6_1_5": 0.046,
-    "s6_2_0": 0.045,
-    "s7": 0.133,
-    "gesamt": 0.786
+   "versatz_0.00_sd": {
+    "fehlalarm": {
+     "s1": 0.505,
+     "s2": 0.727,
+     "s3": 0.044,
+     "s3c": 0.051,
+     "s5": 0.0,
+     "s6": 0.044,
+     "s7": 0.133,
+     "gesamt_runde2": 0.785,
+     "gesamt_runde3": 0.545
+    },
+    "teststaerke": {
+     "s3_0_15": 0.199,
+     "s3_0_25": 0.51,
+     "s6_drift_1_5": 0.104,
+     "s6_drift_3_0": 0.356
+    }
    },
-   "teststaerke": {
-    "s3_0_15": 0.199,
-    "s3_0_25": 0.51,
-    "s6_drift_1_5": 0.114,
-    "s6_drift_3_0": 0.371
+   "versatz_0.10_sd": {
+    "fehlalarm": {
+     "s1": 0.551,
+     "s2": 0.764,
+     "s3": 0.04,
+     "s3c": 0.054,
+     "s5": 0.0,
+     "s6": 0.033,
+     "s7": 0.133,
+     "gesamt_runde2": 0.809,
+     "gesamt_runde3": 0.584
+    }
+   },
+   "versatz_0.15_sd": {
+    "fehlalarm": {
+     "s1": 0.625,
+     "s2": 0.829,
+     "s3": 0.048,
+     "s3c": 0.055,
+     "s5": 0.0,
+     "s6": 0.05,
+     "s7": 0.13,
+     "gesamt_runde2": 0.872,
+     "gesamt_runde3": 0.664
+    }
+   },
+   "versatz_0.20_sd": {
+    "fehlalarm": {
+     "s1": 0.7,
+     "s2": 0.874,
+     "s3": 0.038,
+     "s3c": 0.073,
+     "s5": 0.0,
+     "s6": 0.056,
+     "s7": 0.145,
+     "gesamt_runde2": 0.898,
+     "gesamt_runde3": 0.73
+    }
    },
    "wiederholungen": 1000
   },
   "icc_0.90": {
-   "fehlalarm": {
-    "s1": 0.07,
-    "s2": 0.174,
-    "s3": 0.04,
-    "s3c": 0.054,
-    "s5": 0.0,
-    "s6_1_0": 0.036,
-    "s6_1_5": 0.036,
-    "s6_2_0": 0.029,
-    "s7": 0.133,
-    "gesamt": 0.342
+   "versatz_0.00_sd": {
+    "fehlalarm": {
+     "s1": 0.068,
+     "s2": 0.182,
+     "s3": 0.043,
+     "s3c": 0.063,
+     "s5": 0.0,
+     "s6": 0.053,
+     "s7": 0.134,
+     "gesamt_runde2": 0.361,
+     "gesamt_runde3": 0.159
+    },
+    "teststaerke": {
+     "s3_0_15": 0.254,
+     "s3_0_25": 0.638,
+     "s6_drift_1_5": 0.141,
+     "s6_drift_3_0": 0.461
+    }
    },
-   "teststaerke": {
-    "s3_0_15": 0.238,
-    "s3_0_25": 0.64,
-    "s6_drift_1_5": 0.143,
-    "s6_drift_3_0": 0.485
+   "versatz_0.10_sd": {
+    "fehlalarm": {
+     "s1": 0.093,
+     "s2": 0.223,
+     "s3": 0.042,
+     "s3c": 0.042,
+     "s5": 0.0,
+     "s6": 0.052,
+     "s7": 0.131,
+     "gesamt_runde2": 0.383,
+     "gesamt_runde3": 0.177
+    }
+   },
+   "versatz_0.15_sd": {
+    "fehlalarm": {
+     "s1": 0.117,
+     "s2": 0.294,
+     "s3": 0.036,
+     "s3c": 0.046,
+     "s5": 0.0,
+     "s6": 0.047,
+     "s7": 0.148,
+     "gesamt_runde2": 0.45,
+     "gesamt_runde3": 0.191
+    }
+   },
+   "versatz_0.20_sd": {
+    "fehlalarm": {
+     "s1": 0.189,
+     "s2": 0.383,
+     "s3": 0.042,
+     "s3c": 0.053,
+     "s5": 0.0,
+     "s6": 0.052,
+     "s7": 0.141,
+     "gesamt_runde2": 0.518,
+     "gesamt_runde3": 0.264
+    }
    },
    "wiederholungen": 1000
   },
   "icc_0.93": {
-   "fehlalarm": {
-    "s1": 0.0,
-    "s2": 0.0,
-    "s3": 0.048,
-    "s3c": 0.055,
-    "s5": 0.0,
-    "s6_1_0": 0.047,
-    "s6_1_5": 0.046,
-    "s6_2_0": 0.02,
-    "s7": 0.13,
-    "gesamt": 0.211
+   "versatz_0.00_sd": {
+    "fehlalarm": {
+     "s1": 0.0,
+     "s2": 0.004,
+     "s3": 0.025,
+     "s3c": 0.066,
+     "s5": 0.0,
+     "s6": 0.052,
+     "s7": 0.145,
+     "gesamt_runde2": 0.217,
+     "gesamt_runde3": 0.076
+    },
+    "teststaerke": {
+     "s3_0_15": 0.348,
+     "s3_0_25": 0.805,
+     "s6_drift_1_5": 0.199,
+     "s6_drift_3_0": 0.638
+    }
    },
-   "teststaerke": {
-    "s3_0_15": 0.344,
-    "s3_0_25": 0.795,
-    "s6_drift_1_5": 0.186,
-    "s6_drift_3_0": 0.68
+   "versatz_0.10_sd": {
+    "fehlalarm": {
+     "s1": 0.0,
+     "s2": 0.003,
+     "s3": 0.053,
+     "s3c": 0.053,
+     "s5": 0.0,
+     "s6": 0.054,
+     "s7": 0.142,
+     "gesamt_runde2": 0.23,
+     "gesamt_runde3": 0.105
+    }
+   },
+   "versatz_0.15_sd": {
+    "fehlalarm": {
+     "s1": 0.002,
+     "s2": 0.009,
+     "s3": 0.047,
+     "s3c": 0.056,
+     "s5": 0.0,
+     "s6": 0.048,
+     "s7": 0.136,
+     "gesamt_runde2": 0.219,
+     "gesamt_runde3": 0.094
+    }
+   },
+   "versatz_0.20_sd": {
+    "fehlalarm": {
+     "s1": 0.003,
+     "s2": 0.031,
+     "s3": 0.044,
+     "s3c": 0.044,
+     "s5": 0.0,
+     "s6": 0.046,
+     "s7": 0.131,
+     "gesamt_runde2": 0.233,
+     "gesamt_runde3": 0.093
+    }
    },
    "wiederholungen": 1000
+  }
+ },
+ "s6_fehlalarm_20000": {
+  "icc_0.87": {
+   "fehlalarm_normal_2_394": 0.0554,
+   "fehlalarm_t_2_44": 0.0488,
+   "laeufe": 20000
+  },
+  "icc_0.90": {
+   "fehlalarm_normal_2_394": 0.0546,
+   "fehlalarm_t_2_44": 0.0476,
+   "laeufe": 20000
+  },
+  "icc_0.93": {
+   "fehlalarm_normal_2_394": 0.0508,
+   "fehlalarm_t_2_44": 0.0461,
+   "laeufe": 20000
   }
  }
 }

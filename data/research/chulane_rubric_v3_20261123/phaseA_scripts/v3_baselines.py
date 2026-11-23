@@ -591,7 +591,8 @@ def display_condition(
     return out
 
 
-Z_BONF3 = 2.394  # zweiseitig, 1 - 0,05/3 (S6, n = 90 Positionen je Rater)
+Z_BONF3 = 2.394  # zweiseitig, 1 - 0,05/3, Normalquantil (nur Vergleich)
+T_BONF3_S6 = 2.44  # S6: t-Quantil 1 - 0,05/6 bei 88 Freiheitsgraden (Cornish-Fisher-Näherung)
 T_BONF3_S3 = 2.50  # S3: 1 - 0,05/3 mit t-Näherung (Welch-df etwa 40 bei 51 gegen 27 Karten)
 
 
@@ -625,7 +626,7 @@ def s3_flags(x: np.ndarray, kinds: np.ndarray, sd_pool: float, thr: float = 0.15
     return {"s3": muss, "s3c": land}
 
 
-def s6_flag(x: np.ndarray, pos: np.ndarray, thr: float) -> bool:
+def s6_flag(x: np.ndarray, pos: np.ndarray, thr: float, crit: float = T_BONF3_S6) -> bool:
     """pos: Karten x Rater (je Rater eigene Reihenfolge)."""
     med = np.median(x, axis=1)
     for r in range(x.shape[1]):
@@ -634,20 +635,52 @@ def s6_flag(x: np.ndarray, pos: np.ndarray, thr: float) -> bool:
         slope = float((pc * (e - e.mean())).sum() / (pc**2).sum())
         resid = e - e.mean() - slope * pc
         se = float(np.sqrt((resid**2).sum() / (len(e) - 2) / (pc**2).sum()))
-        if abs(10 * slope) > thr and abs(slope) / se > Z_BONF3:
+        if abs(10 * slope) > thr and abs(slope) / se > crit:
             return True
     return False
 
 
+def _positions(rng_np: np.random.Generator) -> np.ndarray:
+    return np.column_stack(
+        [
+            np.concatenate(
+                [rng_np.choice(np.arange(1, 20), 15, replace=False) for _c in range(6)]
+            ).astype(float)
+            for _r in range(3)
+        ]
+    )
+
+
+def s6_false_alarm(rng_np: np.random.Generator, reps: int = 20000) -> dict:
+    """S6 ohne Drift, 20 000 Läufe je ICC: Normalquantil 2,394 gegen t-Quantil 2,44."""
+    out = {}
+    for icc in (0.87, 0.90, 0.93):
+        se_, sc = 16 * np.sqrt(1 - icc), 16 * np.sqrt(icc)
+        n_z = n_t = 0
+        for _ in range(reps):
+            x = rng_np.normal(35, sc, 90)[:, None] + rng_np.normal(0, se_, (90, 3))
+            pos = _positions(rng_np)
+            n_z += s6_flag(x, pos, 1.5, Z_BONF3)
+            n_t += s6_flag(x, pos, 1.5, T_BONF3_S6)
+        out[f"icc_{icc:.2f}"] = {
+            "fehlalarm_normal_2_394": round(n_z / reps, 4),
+            "fehlalarm_t_2_44": round(n_t / reps, 4),
+            "laeufe": reps,
+        }
+    return out
+
+
 def pilot_simulation(sd7: float, rng_np: np.random.Generator) -> dict:
-    """Fehlalarm des Pilots ohne jeden Defekt (und Teststärke von S3/S6), synthetisch.
+    """Fehlalarm des Pilots ohne Qualitätsdefekt, mit und ohne Raterversatz, synthetisch.
 
     Modell: 90 Nicht-Anker-Karten (51 Kreaturen, 27 Nicht-Kreatur-Spells, 12 Länder), wahrer Wert
-    plus unabhängiger Raterfehler je Rater, Gesamt-SD 16, wahre ICC 0,87/0,90/0,93; keine
-    Raterversätze, keine Drift; je Charge 15 der Positionen 1-19 (4 Plätze gehen an Anker),
-    6 Chargen, je Rater eigene Reihenfolge.
-    S5: 10 Ankerkarten x 2 Ankerzeilen, Ankerwert = wahrer Wert, Fehler wie oben.
-    S7: Normal(0, sd7) mit sd7 aus der KI-Breite von s7_breite. S8 und S9 als erfüllt angenommen.
+    plus unabhängiger Raterfehler je Rater, Gesamt-SD 16, wahre ICC 0,87/0,90/0,93. Versatz:
+    Rater A bewertet alle Karten um 0 / 0,1 / 0,15 / 0,2 SD strenger (gleichmäßig). Keine Drift;
+    je Charge 15 der Positionen 1-19 (4 Plätze gehen an Anker), 6 Chargen, je Rater eigene
+    Reihenfolge. S5: 10 Ankerkarten x 2 Ankerzeilen, Ankerwert = wahrer Wert, Fehler wie oben
+    (Rater A mit demselben Versatz). S7: Normal(0, sd7) mit sd7 aus der KI-Breite von s7_breite.
+    S8 und S9 als erfüllt angenommen. Regeln Runde 2: Muss S1, S2, S3, S5, S6, S7. Regeln Runde 3
+    (Plan): Muss im Pilot S1, S3, S5, S6; S2 Soll, S7 im Pilot nur Frühwarnung.
     """
     kinds = np.array(["K"] * 51 + ["N"] * 27 + ["L"] * 12)
     out: dict = {
@@ -658,64 +691,61 @@ def pilot_simulation(sd7: float, rng_np: np.random.Generator) -> dict:
     for icc in (0.87, 0.90, 0.93):
         se_ = 16 * np.sqrt(1 - icc)
         sc = 16 * np.sqrt(icc)
-        cnt = {
-            k: 0
-            for k in ("s1", "s2", "s3", "s3c", "s5", "s6_1_0", "s6_1_5", "s6_2_0", "s7", "gesamt")
-        }
-        power = {"s3_0_15": 0, "s3_0_25": 0, "s6_drift_1_5": 0, "s6_drift_3_0": 0}
-        for _ in range(reps):
-            t = rng_np.normal(35, sc, 90)
-            x = t[:, None] + rng_np.normal(0, se_, (90, 3))
-            sd_pool = float(x.std())
-            ok = {}
-            point = icc_k(x)
-            boots = []
-            for _b in range(200):
-                idx = rng_np.integers(0, 90, 90)
-                boots.append(icc_k(x[idx]))
-            ok["s1"] = point >= 0.87 and float(np.percentile(boots, 2.5)) >= 0.80
-            s2 = np.mean([np.abs(x[:, r] - x[:, s]).mean() for r, s in ((0, 1), (0, 2), (1, 2))])
-            ok["s2"] = s2 / sd_pool <= 0.39
-            f3 = s3_flags(x, kinds, sd_pool)
-            ok["s3"] = not f3["s3"]
-            if f3["s3c"]:
-                cnt["s3c"] += 1
-            pos = np.column_stack(
-                [
-                    np.concatenate(
-                        [rng_np.choice(np.arange(1, 20), 15, replace=False) for _c in range(6)]
-                    ).astype(float)
-                    for _r in range(3)
-                ]
-            )
-            for thr, key in ((1.0, "s6_1_0"), (1.5, "s6_1_5"), (2.0, "s6_2_0")):
-                if s6_flag(x, pos, thr):
-                    cnt[key] += 1
-            ok["s6"] = not s6_flag(x, pos, 1.5)
-            anc = rng_np.normal(0, se_, (20, 3))
-            ok["s5"] = float(np.abs(np.median(anc, axis=1)).mean()) <= 6
-            d7 = rng_np.normal(0, sd7)
-            ok["s7"] = d7 >= -0.05 and d7 - 1.96 * sd7 >= -0.15
-            for k in ("s1", "s2", "s3", "s5", "s7"):
-                if not ok[k]:
-                    cnt[k] += 1
-            if not all(ok.values()):
-                cnt["gesamt"] += 1
-            for delta, key in ((0.15, "s3_0_15"), (0.25, "s3_0_25")):
-                xx = x.copy()
-                xx[kinds == "K", 0] += delta * 16
-                if s3_flags(xx, kinds, float(xx.std()))["s3"]:
-                    power[key] += 1
-            for drift, key in ((1.5, "s6_drift_1_5"), (3.0, "s6_drift_3_0")):
-                xx = x.copy()
-                xx[:, 0] += drift * (pos[:, 0] - pos[:, 0].mean()) / 10
-                if s6_flag(xx, pos, 1.5):
-                    power[key] += 1
-        out[f"icc_{icc:.2f}"] = {
-            "fehlalarm": {k: round(v / reps, 3) for k, v in cnt.items()},
-            "teststaerke": {k: round(v / reps, 3) for k, v in power.items()},
-            "wiederholungen": reps,
-        }
+        row: dict = {}
+        for off in (0.0, 0.1, 0.15, 0.2):
+            keys = ("s1", "s2", "s3", "s3c", "s5", "s6", "s7", "gesamt_runde2", "gesamt_runde3")
+            cnt = {k: 0 for k in keys}
+            power = {"s3_0_15": 0, "s3_0_25": 0, "s6_drift_1_5": 0, "s6_drift_3_0": 0}
+            for _ in range(reps):
+                t = rng_np.normal(35, sc, 90)
+                x = t[:, None] + rng_np.normal(0, se_, (90, 3))
+                x[:, 0] -= off * 16
+                sd_pool = float(x.std())
+                ok = {}
+                point = icc_k(x)
+                boots = []
+                for _b in range(200):
+                    idx = rng_np.integers(0, 90, 90)
+                    boots.append(icc_k(x[idx]))
+                ok["s1"] = point >= 0.87 and float(np.percentile(boots, 2.5)) >= 0.80
+                pairs3 = ((0, 1), (0, 2), (1, 2))
+                s2 = np.mean([np.abs(x[:, a] - x[:, b]).mean() for a, b in pairs3])
+                ok["s2"] = s2 / sd_pool <= 0.39
+                f3 = s3_flags(x, kinds, sd_pool)
+                ok["s3"] = not f3["s3"]
+                if f3["s3c"]:
+                    cnt["s3c"] += 1
+                pos = _positions(rng_np)
+                ok["s6"] = not s6_flag(x, pos, 1.5)
+                anc = rng_np.normal(0, se_, (20, 3))
+                anc[:, 0] -= off * 16
+                ok["s5"] = float(np.abs(np.median(anc, axis=1)).mean()) <= 6
+                d7 = rng_np.normal(0, sd7)
+                ok["s7"] = d7 >= -0.05 and d7 - 1.96 * sd7 >= -0.15
+                for k in ("s1", "s2", "s3", "s5", "s6", "s7"):
+                    if not ok[k]:
+                        cnt[k] += 1
+                if not all(ok.values()):
+                    cnt["gesamt_runde2"] += 1
+                if not all(ok[k] for k in ("s1", "s3", "s5", "s6")):
+                    cnt["gesamt_runde3"] += 1
+                if off == 0.0:
+                    for delta, key in ((0.15, "s3_0_15"), (0.25, "s3_0_25")):
+                        xx = x.copy()
+                        xx[kinds == "K", 0] += delta * 16
+                        if s3_flags(xx, kinds, float(xx.std()))["s3"]:
+                            power[key] += 1
+                    for drift, key in ((1.5, "s6_drift_1_5"), (3.0, "s6_drift_3_0")):
+                        xx = x.copy()
+                        xx[:, 0] += drift * (pos[:, 0] - pos[:, 0].mean()) / 10
+                        if s6_flag(xx, pos, 1.5):
+                            power[key] += 1
+            entry: dict = {"fehlalarm": {k: round(v / reps, 3) for k, v in cnt.items()}}
+            if off == 0.0:
+                entry["teststaerke"] = {k: round(v / reps, 3) for k, v in power.items()}
+            row[f"versatz_{off:.2f}_sd"] = entry
+        row["wiederholungen"] = reps
+        out[f"icc_{icc:.2f}"] = row
     return out
 
 
@@ -760,6 +790,7 @@ def main() -> None:
         width = res["s7_breite"]["ki95_breite_gepaarte_differenz_100_zufallskarten_median"]
         sd7 = width / 3.92 * float(np.sqrt(100 / 90))
         res["pilot_simulation_ohne_defekt"] = pilot_simulation(sd7, np.random.default_rng(SEED + 3))
+    res["s6_fehlalarm_20000"] = s6_false_alarm(np.random.default_rng(SEED + 4))
     Path(a.out).write_text(json.dumps(res, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     if a.unfair_out:
         Path(a.unfair_out).write_text(
