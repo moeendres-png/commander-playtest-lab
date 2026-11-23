@@ -746,9 +746,9 @@ def test_the_local_store_refuses_the_repository(tmp_path: Path) -> None:
 
 
 # Committed data carries no price values: no price key with a figure in the tracked data,
-# source and script files. ``tests/`` holds synthetic values only and is not scanned here; the
-# real Scryfall prices in ``tests/fixtures/scryfall_default_cards_fixture.jsonl`` predate #1637
-# and are reported in the pull request for a separate decision.
+# source, script and config files, and no price values or ``purchase_uris`` in tracked
+# ``tests/fixtures/`` (the legacy Scryfall card fixture was removed in #1749). Python test
+# modules outside ``tests/fixtures/`` hold synthetic values only.
 _COMMITTED_PRICE = re.compile(
     r'"(?:eur|eur_foil|eur_cents|usd|usd_foil|tix)"\s*:\s*"?\d', re.IGNORECASE
 )
@@ -774,6 +774,41 @@ def test_no_committed_price_values_in_data_src_or_scripts() -> None:
     assert scanned > 1000
     assert offenders == []
     assert _COMMITTED_PRICE.search('{"eur": "1.75"}')  # the pattern still finds a value
+
+
+def _has_committed_fixture_price(text: str) -> bool:
+    return bool(_COMMITTED_PRICE.search(text)) or "purchase_uris" in text.casefold()
+
+
+def test_no_committed_price_values_in_tracked_fixtures() -> None:
+    tracked = subprocess.run(
+        ["git", "-C", str(ROOT), "ls-files", "-z", "tests/fixtures"],
+        capture_output=True,
+        check=True,
+    ).stdout.decode("utf-8")
+    offenders: list[str] = []
+    scanned = 0
+    scanned_gz = 0
+    for relative in filter(None, tracked.split("\0")):
+        path = ROOT / relative
+        if path.is_symlink() or not path.is_file():
+            continue
+        if path.suffix == ".gz":
+            text = gzip.decompress(path.read_bytes()).decode("utf-8", errors="replace")
+            scanned_gz += 1
+        else:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        scanned += 1
+        if _has_committed_fixture_price(text):
+            offenders.append(relative)
+    assert scanned >= 10
+    assert scanned_gz >= 1
+    assert offenders == []
+    assert _COMMITTED_PRICE.search('{"eur": "1.75"}')
+    assert _COMMITTED_PRICE.search('{"usd": "1.98"}')
+    assert _has_committed_fixture_price(
+        '{"purchase_uris": {"cardmarket": "https://example.invalid"}}'
+    )
 
 
 # Structural guard: the prices have one reader. The table names and the value fields occur only
