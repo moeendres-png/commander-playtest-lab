@@ -2427,9 +2427,9 @@ const code = [
   cut("async function adoptForeignDraft() {", 'document.addEventListener("visibilitychange"'),
 ].join("\n");
 // a small server with the contract of #1733: expected_parent must be the head (null = new)
-let postedCards, revCards, server, posts, deletes, gets, toasts, failed, rendered, branchLoads, historyShown, closed, deleteFails, onAfterPrecheck, onPost, busy, draftOf, order, boxes, midDiscard, lockedDuringPost, listNow, syncs, deleteDecks, draftReadDecks;
+let postedCards, revCards, server, posts, deletes, deleteExpected, deleteConflict, gets, toasts, failed, rendered, branchLoads, historyShown, closed, deleteFails, onAfterPrecheck, onPost, busy, draftOf, order, boxes, midDiscard, lockedDuringPost, listNow, syncs, deleteDecks, draftReadDecks;
 function resetAll() {
-  server = { main: "deck@v", variant2: "deck@w" }; posts = []; deletes = []; gets = 0; toasts = []; failed = []; rendered = 0;
+  server = { main: "deck@v", variant2: "deck@w" }; posts = []; deletes = []; deleteExpected = []; deleteConflict = false; gets = 0; toasts = []; failed = []; rendered = 0;
   branchLoads = 0; historyShown = 0; closed = 0; deleteFails = false; onAfterPrecheck = null; onPost = null; busy = false; draftOf = {}; revCards = {}; postedCards = []; order = []; boxes = {}; midDiscard = null; lockedDuringPost = null; listNow = [{ card_id: "c1", zone: "main", quantity: 1 }]; syncs = 0; deleteDecks = []; draftReadDecks = [];
 }
 resetAll();
@@ -2442,10 +2442,10 @@ const api = async (path, method, body) => {
     return answer;
   }
   if (path.startsWith("/api/revisions/")) { const rid = decodeURIComponent(path.split("/").pop()); if (revHold[rid]) await revHold[rid]; if (revFail === rid) throw httpError(503, "Speicher belegt, bitte erneut versuchen."); if (getHold) await getHold; return { cards: revCards[decodeURIComponent(path.split("/").pop())] || [], issues: [], shape: null }; }
-  const m = path.match(/branches\/([^/]+)\/draft$/);
+  const m = path.match(/branches\/([^/]+)\/draft(?:\?expected_updated_at=([^&]+))?$/);
   if (path === "/api/check") return { issues: [], shape: null, roles: {}, combos: null };
   if (m && method === "PUT") { if (putFail) throw httpError(409, "Entwurf in anderem Tab geändert"); draftPuts.push([decodeURIComponent(m[1]), body.base_revision_id]); return { updated_at: "t2" }; }
-  if (m && method === "DELETE") { deletes.push(decodeURIComponent(m[1])); order.push("delete"); deleteDecks.push(decodeURIComponent(path.split("/")[3])); if (deleteFails) throw httpError(500, "Platte voll"); await new Promise((r) => setTimeout(r, 5)); return {}; }
+  if (m && method === "DELETE") { deletes.push(decodeURIComponent(m[1])); deleteExpected.push(m[2] ? decodeURIComponent(m[2]) : null); order.push("delete"); deleteDecks.push(decodeURIComponent(path.split("/")[3])); if (deleteConflict) throw httpError(409, "Der Entwurf wurde in einem anderen Tab geändert und wird nicht verworfen."); if (deleteFails) throw httpError(500, "Platte voll"); await new Promise((r) => setTimeout(r, 5)); return {}; }
   if (m) { draftReadDecks.push(decodeURIComponent(path.split("/")[3])); return { draft: draftOf[decodeURIComponent(m[1])] || null }; }
   if (path.endsWith("/revisions") && method === "POST") {
     posts.push({ ...body, cards: undefined, deck: decodeURIComponent(path.split("/")[3]) });
@@ -2486,9 +2486,9 @@ let usedCards = [];
 let ensureCalls = []; let ensureHold = null;
 const ensureUnownedLoadedFor = async (cards) => { ensureCalls.push(cards.map((c) => c.card_id)); if (ensureHold) { const hold = ensureHold; ensureHold = null; await hold; } }; const useCards = (cards) => { usedCards.push(cards.map((c) => c.card_id)); }; const renderAll = () => {}; let syncDraftImpl = null;
 const syncDraft = async () => { syncs += 1; if (syncDraftImpl) return syncDraftImpl(); };
-const state = { deckId: "d", branch: "main", baseRevision: "deck@v", baseStale: false, changeSeq: 1, savedSeq: 0, dirty: true,
+const state = { deckId: "d", branch: "main", baseRevision: "deck@v", baseStale: false, draftConflict: false, draftUpdatedAt: "t0", changeSeq: 1, savedSeq: 0, dirty: true,
   decks: [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }] };
-const set = (o) => Object.assign(state, { baseStale: false, savedSeq: state.changeSeq, ...o });
+const set = (o) => Object.assign(state, { baseStale: false, draftConflict: false, draftUpdatedAt: "t0", savedSeq: state.changeSeq, ...o });
 eval(code + "\n" + cut("async function loadBranch(", "// The saved state of `branch` now").replace("async function loadBranch(", "async function realLoadBranch(") + "\n" + cut("async function syncDraftNow()", "// Another page"));
 (async () => {
   const out = {};
@@ -2862,6 +2862,47 @@ eval(code + "\n" + cut("async function loadBranch(", "// The saved state of `bra
   await Promise.all([discardStaleDraft(), discardStaleDraft(), discardStaleDraft()]);
   out.deleted = deletes.length;
   out.discardOrder = order;
+  // #1739: conditional DELETE .../draft sends expected_updated_at and handles 409 cleanly
+  // (a) commitRevision identical-state read-then-delete sends found.draft.updated_at; on 409 keeps draftConflict=true
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", draftUpdatedAt: "ts-old" }); sameMode = true;
+  draftOf.main = { base_revision_id: "deck@v", cards: entries(), updated_at: "2026-11-23T10:00:00.000001Z" };
+  await commitRevision("main", "");
+  out.delSameStamp = [deleteExpected.slice(), state.draftConflict];
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); sameMode = true; deleteConflict = true;
+  draftOf.main = { base_revision_id: "deck@v", cards: entries(), updated_at: "2026-11-23T10:00:00.000002Z" };
+  await commitRevision("main", "");
+  realRenderSaveState();
+  const sameConflictNodes = $("save-state").nodes;
+  const sameConflictButtons = sameConflictNodes.filter((n) => n && n.tag === "button").map((b) => b.kids[0]);
+  out.delSame409 = [deleteExpected.slice(), toasts.some((t) => t.includes("Entwurf wurde inzwischen in einem anderen Tab geändert und behalten.")), failed.length, state.draftConflict, sameConflictNodes[0].kids[0], sameConflictButtons];
+  sameMode = false;
+  // (b) discardStaleDraft sends state.draftUpdatedAt; on 409 sets draftConflict, renders conflict banner (not stale discard loop), toasts, no reload
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", baseStale: true, draftUpdatedAt: "2026-11-23T10:00:00.000003Z", draftConflict: false });
+  await discardStaleDraft();
+  out.delStaleStamp = [deleteExpected.slice(), order.slice()];
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", baseStale: true, draftUpdatedAt: "2026-11-23T10:00:00.000004Z", draftConflict: false });
+  deleteConflict = true;
+  await discardStaleDraft();
+  realRenderSaveState();
+  const staleConflictNodes = $("save-state").nodes;
+  const staleConflictButtons = staleConflictNodes.filter((n) => n && n.tag === "button").map((b) => b.kids[0]);
+  out.delStale409 = [deleteExpected.slice(), state.draftConflict, rendered >= 1, toasts.some((t) => t.includes("nicht verworfen")), order.slice(), branchLoads, failed.length, staleConflictNodes[0].kids[0], staleConflictButtons];
+  // (b2) discardStaleDraft with empty draftUpdatedAt sends NO DELETE, reloads directly
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", baseStale: true, draftUpdatedAt: "", draftConflict: false });
+  await discardStaleDraft();
+  out.delStaleEmpty = [deletes.slice(), order.slice()];
+  // (c) commitRevision (isNew) sends state.draftUpdatedAt; on 409 adds hint and keeps the new branch
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", draftUpdatedAt: "2026-11-23T10:00:00.000005Z", draftConflict: false });
+  await commitRevision("neu1739a", "");
+  out.delNewStamp = [deleteExpected.slice(), state.branch];
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", draftUpdatedAt: "2026-11-23T10:00:00.000006Z", draftConflict: false });
+  deleteConflict = true;
+  await commitRevision("neu1739b", "");
+  out.delNew409 = [deleteExpected.slice(), state.branch, toasts.some((t) => t.includes("in einem anderen Tab geändert und behalten")), toasts.some((t) => t.includes("nicht erneut speichern")), failed.length, state.draftConflict];
+  // (c2) commitRevision (isNew) with empty draftUpdatedAt sends NO DELETE on fromBranch
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", draftUpdatedAt: "", draftConflict: false });
+  await commitRevision("neu1739c", "");
+  out.delNewEmpty = [deletes.slice(), state.branch];
   process.stdout.write(JSON.stringify(out));
 })();
 """
@@ -2987,6 +3028,35 @@ def test_saving_sends_expected_parent_and_never_overwrites_a_moved_branch() -> N
     assert r["afterFail"] == [0, "Speicher belegt, bitte erneut versuchen."]
     assert r["afterReject"] == 1
     assert r["deleted"] == 1
+    # #1739: all three DELETE .../draft calls pass expected_updated_at, skip DELETE without stamp, and handle 409 cleanly
+    assert r["delSameStamp"] == [["2026-11-23T10:00:00.000001Z"], False]
+    assert r["delSame409"] == [
+        ["2026-11-23T10:00:00.000002Z"],
+        True,
+        0,
+        True,
+        "Konflikt: Entwurf in anderem Tab geändert",
+        ["Aktuellen Stand laden"],
+    ]
+    assert r["delStaleStamp"] == [
+        ["2026-11-23T10:00:00.000003Z"],
+        ["delete", "decks", "branch"],
+    ]
+    assert r["delStale409"] == [
+        ["2026-11-23T10:00:00.000004Z"],
+        True,
+        True,
+        True,
+        ["delete"],
+        0,
+        0,
+        "Konflikt: Entwurf in anderem Tab geändert",
+        ["Als neue Variante speichern", "Aktuellen Stand laden"],
+    ]
+    assert r["delStaleEmpty"] == [[], ["decks", "branch"]]
+    assert r["delNewStamp"] == [["2026-11-23T10:00:00.000005Z"], "neu1739a"]
+    assert r["delNew409"] == [["2026-11-23T10:00:00.000006Z"], "neu1739b", True, False, 0, False]
+    assert r["delNewEmpty"] == [[], "neu1739c"]
 
 
 def test_the_compile_request_never_names_a_branch() -> None:
@@ -3020,7 +3090,13 @@ def test_experiment_view_static_guards() -> None:
     assert "draft.draft.base_revision_id !== branch.revision_id" in load
     assert "state.baseStale = true" in load
     render = app[app.index("function renderSaveState()") : app.index("function changed()")]
-    assert render.index("if (state.baseStale)") < render.index("if (state.draftConflict)")
+    # #1739: draftConflict must stay visible and actionable even when baseStale is also set,
+    # while still offering "Als neue Variante speichern" when baseStale is true.
+    assert render.index("if (state.draftConflict)") < render.index("if (state.baseStale)")
+    conflict_block = render[
+        render.index("if (state.draftConflict)") : render.index("// B2b (#1658)")
+    ]
+    assert "if (state.baseStale)" in conflict_block and "openNewBranchModal()" in conflict_block
     # "Aktuellen Stand laden" reads the branches first, never the stale base again
     assert "loadDecks().then(() => loadBranch({ discardLocal: true }))" in render
     for sink in ("innerHTML", "outerHTML", "insertAdjacentHTML"):  # M14: DOM only via h()
