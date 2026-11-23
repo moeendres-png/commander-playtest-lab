@@ -353,7 +353,7 @@ const StudioUI = (() => {
         el("thead", {}, el("tr", {}, ["Schicht", "Zeilen", "Gezählt über", `Pool von ${short} abgedeckt`, "Stand", "Befehl zum Importieren"].map((label, index) => el("th", { class: index === 1 || index === 3 ? "num" : "" }, label)))),
         el("tbody", {}, rows))),
       missing.some((layer) => layer.key.startsWith("signal:")) ? el("p", { class: "note" }, "Nutzungsdaten (EDHREC, Turnierlisten, Kombos) laden: ", el("code", { class: "cmd" }, overview.signals_command)) : null,
-      tamDrive ? el("p", { class: "note" }, "Die Decks und EDHREC-Ansichten von Tam kommen aus den lokal geladenen Drive-Dateien (scripts/import_tam_drive.py), nicht aus import-all. Ohne gesetzte Umgebungsvariable COMMANDER_LAB_STUDIO_DATA (oder COMMANDER_LAB_OWNER_DATA) kommt --db \"<Datenordner>\" hinzu (der Ordner, den das Studio mit --data benutzt).") : null,
+      tamDrive ? el("p", { class: "note" }, "Die Decks und EDHREC-Ansichten von Tam kommen aus den lokal geladenen Drive-Dateien (scripts/import_tam_drive.py, aus dem Repo-Ordner mit --tam91-dir, --tam381-dir und/oder --edhrec78-dir), nicht aus import-all. Ohne gesetzte Umgebungsvariable COMMANDER_LAB_STUDIO_DATA (oder COMMANDER_LAB_OWNER_DATA) kommt --db \"<Datenordner>\" hinzu (der Ordner, den das Studio mit --data benutzt).") : null,
       el("p", { class: "note" }, `Ein Aufruf mit allen Dateien: ${overview.doc}. Unter Windows kommt vor „import-all“ die Option --data "$env:LOCALAPPDATA\\CommanderStudio".`)));
   }
 

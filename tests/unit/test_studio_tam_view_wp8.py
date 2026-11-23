@@ -44,6 +44,13 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setattr(builder_tests, "_synthetic_cards", lambda: cards)
     store = StudioStore.open(tmp_path / "studio")
     _fill(store, tmp_path)
+    source_id = str(store.connection.execute("SELECT source_id FROM card LIMIT 1").fetchone()[0])
+    store.connection.execute(
+        "INSERT INTO card_signal(commander_name, signal, card_name, value, numerator, "
+        "denominator, source_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        ("", "edhrec_global_inclusion", "Card 1", 0.42, 42, 100, source_id),
+    )
+    store.connection.commit()
     store.close()
     return TestClient(create_app(tmp_path / "studio"), headers={"x-studio": "1"})
 
@@ -88,7 +95,16 @@ def test_layers_answer_says_what_each_layer_counts(client: TestClient) -> None:
     # rows AND coverage include the decks and observations of every other commander
     assert scope["corpus"] == scope["observations"] == "all_commanders"
     # facts about cards: rows over the store, coverage over this commander's pool
-    facts = ("inventory", "scryfall", "roles", "rulings", "playgroup", "marks", "edhrec_salt")
+    facts = (
+        "inventory",
+        "scryfall",
+        "roles",
+        "rulings",
+        "playgroup",
+        "marks",
+        "edhrec_salt",
+        "signal:edhrec_global_inclusion",
+    )
     assert all(scope[key] == "card_facts" for key in facts)
     assert set(scope.values()) == {"commander", "all_commanders", "card_facts"}  # nothing unnamed
     tam = client.get("/api/layers", params={"commander": TAM_COMMANDER_NAME}).json()
@@ -123,6 +139,7 @@ const run = async (commander, tweak, options) => {
     tam_essential: await run("__TAM__", (l) => { l.layers.find((x) => x.key === "inventory").status = "MISSING"; }),
     chulane: await run("__CHU__"),
     tier_list: await run("__TAM__", null, { only: ["inventory", "scryfall", "decklists"] }),
+    old_server: await run("__TAM__", (l) => { delete l.layers.find((x) => x.key === "decklists").rows_scope; }),
   };
   console.log(JSON.stringify(out));
 })().catch((e) => { console.error(String(e && e.stack || e)); process.exit(1); });
@@ -182,7 +199,8 @@ def test_banner_is_closed_unless_nothing_to_build_with_is_there(client: TestClie
 
 
 def test_banner_counts_for_the_commander_and_names_what_is_store_wide(client: TestClient) -> None:
-    text = str(_banner(client)["tam"]["text"])
+    out = _banner(client)
+    text = str(out["tam"]["text"])
     assert "Pool und Abdeckung gezählt für Tam." in text
     assert "Gezählt für Tam." not in text  # the old sentence over store-wide figures
     assert (
@@ -201,12 +219,17 @@ def test_banner_counts_for_the_commander_and_names_what_is_store_wide(client: Te
     assert "Korpus (Decks, alle) 4 alle Commander (Zeilen und Abdeckung)" in flat
     assert "Sammlung (Bestand)" in flat and "Kartenfakten: Zeilen im Store" in flat
     assert "Quelldecks (Decklisten) 0 Tam" in flat  # bound rows: this commander only
+    # old server without rows_scope: ui.js falls back to "unbekannt"
+    old_flat = re.sub(r"\s+", " ", str(out["old_server"]["text"]))
+    assert "Quelldecks (Decklisten) 0 unbekannt" in old_flat
     # the hint for the Tam decks and the sentence why it is not import-all
     assert 'python scripts/import_tam_drive.py --tam91-dir "<Ordner>"' in text
     assert (
         'import-all --commander "Tam, the Possibility" --inventory "<Sammlung.xlsx>" --decklists'
         not in text
     )
+    assert "aus dem Repo-Ordner" in text
+    assert "--tam91-dir" in text and "--tam381-dir" in text and "--edhrec78-dir" in text
     assert "nicht aus import-all" in text
     assert (
         'COMMANDER_LAB_STUDIO_DATA (oder COMMANDER_LAB_OWNER_DATA) kommt --db "<Datenordner>"'

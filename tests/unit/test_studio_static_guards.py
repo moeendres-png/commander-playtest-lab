@@ -1954,7 +1954,8 @@ const answer = { kind: 'Richtwert', source: 'Scryfall prices.eur (lokale Bulk-Da
   ] };
 const rows = W.tamPurchaseRows(missing, answer);
 const names = (list) => list.map((r) => r.name);
-const allUnknown = W.tamPurchaseRows(missing, { snapshot: null, cards: [] });
+const allUnknown = W.tamPurchaseRows(missing, { snapshot: null, cards: missing.map((c) => ({ card_id: c.card_id, status: 'unknown' })) });
+const allAbsent = W.tamPurchaseRows(missing, { snapshot: null, cards: [] });
 const view = W.tamPurchaseView(h, answer, missing, { sort: 'price-desc', budget: '' });
 const emptyView = W.tamPurchaseView(h, { snapshot: null, cards: [] }, missing, { sort: 'name', budget: '' });
 const filteredView = W.tamPurchaseView(h, answer, missing, { sort: 'name', budget: '5' });
@@ -1978,6 +1979,7 @@ console.log(JSON.stringify({
   noFilter: W.filterTamBudget(rows, null).rows.length,
   sum: W.tamSumText(W.summarizeTamRows(rows)),
   sumUnknown: W.tamSumText(W.summarizeTamRows(allUnknown)),
+  sumAbsent: W.tamSumText(W.summarizeTamRows(allAbsent)),
   sumCentsUnknown: W.summarizeTamRows(allUnknown).sumCents,
   sumEmpty: W.tamSumText(W.summarizeTamRows([])),
   view: text(view),
@@ -2039,6 +2041,11 @@ console.log(JSON.stringify({
         "Summe (eingetragen, sonst Cardmarket-Preisführer, sonst Näherung): unbekannt · "
         "0 von 6 Karten mit eingetragenem Preis · 0 Preisführer · 0 Näherung · "
         "6 von 6 Karten ohne Preis"
+    )
+    assert result["sumAbsent"] == (
+        "Summe (eingetragen, sonst Cardmarket-Preisführer, sonst Näherung): unbekannt · "
+        "0 von 0 Karten mit eingetragenem Preis · 0 Preisführer · 0 Näherung · "
+        "0 von 0 Karten ohne Preis · 6 nicht im gespeicherten Deck (kein Preis)"
     )
     assert result["sumEmpty"] == (
         "Summe (eingetragen, sonst Cardmarket-Preisführer, sonst Näherung): unbekannt · "

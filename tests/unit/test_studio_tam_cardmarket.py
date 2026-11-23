@@ -358,6 +358,91 @@ def test_an_entry_names_all_its_filters_and_counts_only_with_a_fresh_flag() -> N
     assert "veraltet: Cardmarket DE/EX/EN+DE: 9,00 €" in view
 
 
+_ABSENT_SCRIPT = r"""
+const W = require('./wishlist.js');
+function h(tag, props, ...children) {
+  const el = { tag, props: props || {}, children: [] };
+  el.replaceChildren = (...kids) => { el.children = kids.flat(); };
+  el.children = children.flat();
+  return el;
+}
+const text = (el) => (el === null || el === undefined || el === false) ? '' : typeof el !== 'object' ? String(el) : el.children.map(text).join(' ');
+const missing = [
+  { card_id: 'p', name: 'Priced Card', missing: 1 },
+  { card_id: 'u', name: 'Unknown Card', missing: 1 },
+  { card_id: 'o', name: 'Owned Card', missing: 1 },
+  { card_id: 'a1', name: 'Unsaved Alpha', missing: 1 },
+  { card_id: 'a2', name: 'Unsaved Beta', missing: 1 },
+];
+const answer = {
+  cards: [
+    { card_id: 'p', name: 'Priced Card', status: 'value', eur_cents: 400, finish: 'nonfoil', printing: 'SYN 1' },
+    { card_id: 'u', name: 'Unknown Card', status: 'unknown' },
+    { card_id: 'o', status: 'owned' },
+  ],
+};
+const rows = W.tamPurchaseRows(missing, answer);
+const summary = W.summarizeTamRows(rows);
+const budget = W.filterTamBudget(rows, 500);
+const noBudget = W.filterTamBudget(rows, null);
+const view = text(W.tamPurchaseView(h, answer, missing, { sort: 'name', budget: '5' }));
+console.log(JSON.stringify({
+  statuses: rows.map((r) => [r.card_id, r.status]),
+  summary,
+  sumText: W.tamSumText(summary),
+  budget: {
+    ids: budget.rows.map((r) => r.card_id),
+    hiddenOver: budget.hiddenOver,
+    hiddenUnknown: budget.hiddenUnknown,
+    hiddenOwned: budget.hiddenOwned,
+    hiddenAbsent: budget.hiddenAbsent,
+    active: budget.active,
+  },
+  noBudgetHiddenAbsent: noBudget.hiddenAbsent,
+  view,
+}));
+"""
+
+
+def test_absent_cards_are_counted_apart_from_unknown_in_summary_and_budget() -> None:
+    """#1747(d): cards not in the saved deck (status 'absent') are never counted as 'ohne Preis'
+    in summarizeTamRows, tamSumText or filterTamBudget."""
+    result = _node(_ABSENT_SCRIPT)
+    assert isinstance(result, dict)
+    assert result["statuses"] == [
+        ["p", "value"],
+        ["u", "unknown"],
+        ["o", "owned"],
+        ["a1", "absent"],
+        ["a2", "absent"],
+    ]
+    summary = result["summary"]
+    assert summary["total"] == 2  # only p and u; owned and absent excluded
+    assert summary["priced"] == 1
+    assert summary["without"] == 1  # only u, NOT a1/a2
+    assert summary["owned"] == 1
+    assert summary["absent"] == 2
+    assert summary["sumCents"] == 400
+    sum_text = str(result["sumText"])
+    assert "1 von 2 Karten ohne Preis" in sum_text
+    assert "1 im Besitz (kein Preis)" in sum_text
+    assert "2 nicht im gespeicherten Deck (kein Preis)" in sum_text
+    assert result["budget"] == {
+        "ids": ["p"],
+        "hiddenOver": 0,
+        "hiddenUnknown": 1,
+        "hiddenOwned": 1,
+        "hiddenAbsent": 2,
+        "active": True,
+    }
+    assert result["noBudgetHiddenAbsent"] == 0
+    view = str(result["view"])
+    assert (
+        "Budgetfilter: 0 Karten über dem Höchstwert, 1 Karten ohne Preis, "
+        "2 nicht im gespeicherten Deck und 1 im Besitz ausgeblendet." in view
+    )
+
+
 # --- download --------------------------------------------------------------------------------
 
 
@@ -518,12 +603,12 @@ def test_a_broken_status_line_is_a_noted_failure(server: str, tmp_path: Path) ->
     assert not (tmp_path / "price_guide_1.json").exists()
 
 
-@pytest.mark.parametrize("declared", ["1000", "abc"])
+@pytest.mark.parametrize("declared", ["11", "1000", "abc", "\u00b2"])
 def test_a_cut_off_transfer_is_a_noted_failure_not_a_copy(
     server: str, tmp_path: Path, declared: str
 ) -> None:
-    """Review P3-2: a body shorter than its Content-Length (or an unreadable Content-Length)
-    is no copy to keep for 24 hours."""
+    """Review P3-2 & #1759: a body shorter than its Content-Length (even by 1 byte) or an
+    unreadable / non-ASCII Content-Length is no copy to keep for 24 hours."""
     _Handler.answers = dict(_BOTH_OK)
     _Handler.answers["/priceGuide/price_guide_1.json"] = (200, b"0123456789")
     _Handler.lengths = {"/priceGuide/price_guide_1.json": declared}
@@ -533,6 +618,38 @@ def test_a_cut_off_transfer_is_a_noted_failure_not_a_copy(
     with pytest.raises(tam_cardmarket.DownloadFailed, match="kein neuer Abruf"):
         tam_cardmarket.download(tmp_path, get=_local(server))  # type: ignore[arg-type]
     assert len(_Handler.seen) == 1
+
+
+@pytest.mark.parametrize("declared", ["\u00b2", "\u0661\u0660", "11"])
+def test_http_get_rejects_non_ascii_and_off_by_one_content_length_as_download_failed(
+    monkeypatch: pytest.MonkeyPatch, declared: str
+) -> None:
+    """#1759: non-ASCII digits (superscript 2, Arabic-Indic digits) and off-by-one Content-Length
+    raise DownloadFailed, never ValueError or silent acceptance."""
+
+    class _FakeResponse:
+        status = 200
+
+        def __init__(self) -> None:
+            self.headers = {"Content-Length": declared}
+
+        def read(self, _limit: int) -> bytes:
+            return b"0123456789"
+
+        def __enter__(self) -> _FakeResponse:
+            return self
+
+        def __exit__(self, *args: object) -> None:
+            return None
+
+    class _FakeOpener:
+        def open(self, _request: object, *, timeout: float) -> _FakeResponse:
+            assert timeout > 0
+            return _FakeResponse()
+
+    monkeypatch.setattr(tam_cardmarket, "_OPENER", _FakeOpener())
+    with pytest.raises(tam_cardmarket.DownloadFailed, match="unvollständige Übertragung"):
+        tam_cardmarket.http_get("https://example.invalid/price_guide_1.json")
 
 
 @pytest.mark.parametrize("note", ["{kaputt", '{"at": "%s", "reason": "x"}', "[1, 2]"])
