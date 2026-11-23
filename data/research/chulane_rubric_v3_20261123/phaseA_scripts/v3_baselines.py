@@ -550,6 +550,175 @@ def dry_run(
     return res
 
 
+def display_condition(
+    pairs: list[dict],
+    unfair: set[str],
+    anchor_names: set[str],
+    usage: dict,
+    rng: random.Random,
+) -> dict:
+    """Anzeige-Bedingung (Plan §6) auf alten Daten: Spearman(Variante) - Spearman(H_pooled).
+
+    Variante = Mittel von F1 und R2 unter der jeweiligen H-Definition; Messgröße Quelldeck-Zahl.
+    """
+    versions = {"V3b": v3b_set, "V3a_analog": clamp_h, "V3c": v3c_set}
+    y = np.array([usage[p["oracle_id"]]["deck_list_count"] for p in pairs], float)
+    hp = np.array([(p["F1_H"] + p["R2_H"]) / 2 for p in pairs])
+    n = len(pairs)
+    out: dict = {"schwelle": -0.10, "n": n}
+    for name, f in versions.items():
+        v = np.array([(f(p, "F1") + f(p, "R2")) / 2 for p in pairs])
+        diff = spearman(v, y) - spearman(hp, y)
+        boots = []
+        for _ in range(1000):
+            idx = [rng.randrange(n) for _ in range(n)]
+            boots.append(spearman(v[idx], y[idx]) - spearman(hp[idx], y[idx]))
+        shares = []
+        for _ in range(200):
+            draw = pilot_draw(pairs, unfair, anchor_names, rng)
+            yd = np.array([usage[p["oracle_id"]]["deck_list_count"] for p in draw], float)
+            vd = np.array([(f(p, "F1") + f(p, "R2")) / 2 for p in draw])
+            hd = np.array([(p["F1_H"] + p["R2_H"]) / 2 for p in draw])
+            shares.append(spearman(vd, yd) - spearman(hd, yd))
+        out[name] = {
+            "differenz_922": round(diff, 3),
+            "bootstrap_922_anteil_unter_minus_0_10": round(
+                sum(b < -0.10 for b in boots) / len(boots), 3
+            ),
+            "pilotfoermig_median": round(float(np.median(shares)), 3),
+            "pilotfoermig_anteil_erfuellt": round(sum(s >= -0.10 for s in shares) / len(shares), 3),
+        }
+    return out
+
+
+Z_BONF3 = 2.394  # zweiseitig, 1 - 0,05/3 (S6, n = 90 Positionen je Rater)
+T_BONF3_S3 = 2.50  # S3: 1 - 0,05/3 mit t-Näherung (Welch-df etwa 40 bei 51 gegen 27 Karten)
+
+
+def icc_k(x: np.ndarray) -> float:
+    """ICC(2,1), absolute Übereinstimmung, n Karten x k Rater."""
+    n, k = x.shape
+    gm = x.mean()
+    msr = k * ((x.mean(1) - gm) ** 2).sum() / (n - 1)
+    msc = n * ((x.mean(0) - gm) ** 2).sum() / (k - 1)
+    sse = ((x - x.mean(1, keepdims=True) - x.mean(0, keepdims=True) + gm) ** 2).sum()
+    mse = sse / ((n - 1) * (k - 1))
+    return float((msr - mse) / (msr + (k - 1) * mse + k * (msc - mse) / n))
+
+
+def s3_flags(x: np.ndarray, kinds: np.ndarray, sd_pool: float, thr: float = 0.15) -> dict:
+    """S3 (Muss: Kreatur gegen Nicht-Kreatur je Raterpaar, Bonferroni über 3) und S3c (Länder)."""
+    muss, land = False, False
+    for r, s in ((0, 1), (0, 2), (1, 2)):
+        d = x[:, r] - x[:, s]
+        groups = {k: d[kinds == k] for k in ("K", "N", "L")}
+        for a, b, is_muss in (("K", "N", True), ("K", "L", False), ("N", "L", False)):
+            ga, gb = groups[a], groups[b]
+            c = ga.mean() - gb.mean()
+            se = float(np.sqrt(ga.var(ddof=1) / len(ga) + gb.var(ddof=1) / len(gb)))
+            z = T_BONF3_S3 if is_muss else 2.75  # S3c: Bonferroni über 6 Tests, t-Näherung
+            if abs(c) / sd_pool > thr and abs(c) / se > z:
+                if is_muss:
+                    muss = True
+                else:
+                    land = True
+    return {"s3": muss, "s3c": land}
+
+
+def s6_flag(x: np.ndarray, pos: np.ndarray, thr: float) -> bool:
+    """pos: Karten x Rater (je Rater eigene Reihenfolge)."""
+    med = np.median(x, axis=1)
+    for r in range(x.shape[1]):
+        e = x[:, r] - med
+        pc = pos[:, r] - pos[:, r].mean()
+        slope = float((pc * (e - e.mean())).sum() / (pc**2).sum())
+        resid = e - e.mean() - slope * pc
+        se = float(np.sqrt((resid**2).sum() / (len(e) - 2) / (pc**2).sum()))
+        if abs(10 * slope) > thr and abs(slope) / se > Z_BONF3:
+            return True
+    return False
+
+
+def pilot_simulation(sd7: float, rng_np: np.random.Generator) -> dict:
+    """Fehlalarm des Pilots ohne jeden Defekt (und Teststärke von S3/S6), synthetisch.
+
+    Modell: 90 Nicht-Anker-Karten (51 Kreaturen, 27 Nicht-Kreatur-Spells, 12 Länder), wahrer Wert
+    plus unabhängiger Raterfehler je Rater, Gesamt-SD 16, wahre ICC 0,87/0,90/0,93; keine
+    Raterversätze, keine Drift; je Charge 15 der Positionen 1-19 (4 Plätze gehen an Anker),
+    6 Chargen, je Rater eigene Reihenfolge.
+    S5: 10 Ankerkarten x 2 Ankerzeilen, Ankerwert = wahrer Wert, Fehler wie oben.
+    S7: Normal(0, sd7) mit sd7 aus der KI-Breite von s7_breite. S8 und S9 als erfüllt angenommen.
+    """
+    kinds = np.array(["K"] * 51 + ["N"] * 27 + ["L"] * 12)
+    out: dict = {
+        "modell": pilot_simulation.__doc__.split("\n\n", 1)[1].strip(),
+        "sd7": round(sd7, 4),
+    }
+    reps = 1000
+    for icc in (0.87, 0.90, 0.93):
+        se_ = 16 * np.sqrt(1 - icc)
+        sc = 16 * np.sqrt(icc)
+        cnt = {
+            k: 0
+            for k in ("s1", "s2", "s3", "s3c", "s5", "s6_1_0", "s6_1_5", "s6_2_0", "s7", "gesamt")
+        }
+        power = {"s3_0_15": 0, "s3_0_25": 0, "s6_drift_1_5": 0, "s6_drift_3_0": 0}
+        for _ in range(reps):
+            t = rng_np.normal(35, sc, 90)
+            x = t[:, None] + rng_np.normal(0, se_, (90, 3))
+            sd_pool = float(x.std())
+            ok = {}
+            point = icc_k(x)
+            boots = []
+            for _b in range(200):
+                idx = rng_np.integers(0, 90, 90)
+                boots.append(icc_k(x[idx]))
+            ok["s1"] = point >= 0.87 and float(np.percentile(boots, 2.5)) >= 0.80
+            s2 = np.mean([np.abs(x[:, r] - x[:, s]).mean() for r, s in ((0, 1), (0, 2), (1, 2))])
+            ok["s2"] = s2 / sd_pool <= 0.39
+            f3 = s3_flags(x, kinds, sd_pool)
+            ok["s3"] = not f3["s3"]
+            if f3["s3c"]:
+                cnt["s3c"] += 1
+            pos = np.column_stack(
+                [
+                    np.concatenate(
+                        [rng_np.choice(np.arange(1, 20), 15, replace=False) for _c in range(6)]
+                    ).astype(float)
+                    for _r in range(3)
+                ]
+            )
+            for thr, key in ((1.0, "s6_1_0"), (1.5, "s6_1_5"), (2.0, "s6_2_0")):
+                if s6_flag(x, pos, thr):
+                    cnt[key] += 1
+            ok["s6"] = not s6_flag(x, pos, 1.5)
+            anc = rng_np.normal(0, se_, (20, 3))
+            ok["s5"] = float(np.abs(np.median(anc, axis=1)).mean()) <= 6
+            d7 = rng_np.normal(0, sd7)
+            ok["s7"] = d7 >= -0.05 and d7 - 1.96 * sd7 >= -0.15
+            for k in ("s1", "s2", "s3", "s5", "s7"):
+                if not ok[k]:
+                    cnt[k] += 1
+            if not all(ok.values()):
+                cnt["gesamt"] += 1
+            for delta, key in ((0.15, "s3_0_15"), (0.25, "s3_0_25")):
+                xx = x.copy()
+                xx[kinds == "K", 0] += delta * 16
+                if s3_flags(xx, kinds, float(xx.std()))["s3"]:
+                    power[key] += 1
+            for drift, key in ((1.5, "s6_drift_1_5"), (3.0, "s6_drift_3_0")):
+                xx = x.copy()
+                xx[:, 0] += drift * (pos[:, 0] - pos[:, 0].mean()) / 10
+                if s6_flag(xx, pos, 1.5):
+                    power[key] += 1
+        out[f"icc_{icc:.2f}"] = {
+            "fehlalarm": {k: round(v / reps, 3) for k, v in cnt.items()},
+            "teststaerke": {k: round(v / reps, 3) for k, v in power.items()},
+            "wiederholungen": reps,
+        }
+    return out
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--pairs", required=True)
@@ -584,6 +753,13 @@ def main() -> None:
     res["trockenlauf_pilotfoermig"] = dry_run(
         pairs, unfair, anchor_names, usage, random.Random(SEED + 1)
     )
+    if usage:
+        res["anzeige_bedingung_alt"] = display_condition(
+            pairs, unfair, anchor_names, usage, random.Random(SEED + 2)
+        )
+        width = res["s7_breite"]["ki95_breite_gepaarte_differenz_100_zufallskarten_median"]
+        sd7 = width / 3.92 * float(np.sqrt(100 / 90))
+        res["pilot_simulation_ohne_defekt"] = pilot_simulation(sd7, np.random.default_rng(SEED + 3))
     Path(a.out).write_text(json.dumps(res, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     if a.unfair_out:
         Path(a.unfair_out).write_text(

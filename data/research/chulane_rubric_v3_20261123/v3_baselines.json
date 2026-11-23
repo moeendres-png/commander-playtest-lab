@@ -551,5 +551,94 @@
    },
    "s3_beide_arten_anteil_erfuellt": 0.0
   }
+ },
+ "anzeige_bedingung_alt": {
+  "schwelle": -0.1,
+  "n": 922,
+  "V3b": {
+   "differenz_922": -0.092,
+   "bootstrap_922_anteil_unter_minus_0_10": 0.219,
+   "pilotfoermig_median": -0.133,
+   "pilotfoermig_anteil_erfuellt": 0.16
+  },
+  "V3a_analog": {
+   "differenz_922": -0.016,
+   "bootstrap_922_anteil_unter_minus_0_10": 0.0,
+   "pilotfoermig_median": -0.026,
+   "pilotfoermig_anteil_erfuellt": 1.0
+  },
+  "V3c": {
+   "differenz_922": -0.052,
+   "bootstrap_922_anteil_unter_minus_0_10": 0.0,
+   "pilotfoermig_median": -0.076,
+   "pilotfoermig_anteil_erfuellt": 0.815
+  }
+ },
+ "pilot_simulation_ohne_defekt": {
+  "modell": "Modell: 90 Nicht-Anker-Karten (51 Kreaturen, 27 Nicht-Kreatur-Spells, 12 Länder), wahrer Wert\nplus unabhängiger Raterfehler je Rater, Gesamt-SD 16, wahre ICC 0,87/0,90/0,93; keine\nRaterversätze, keine Drift; je Charge 15 der Positionen 1-19 (4 Plätze gehen an Anker),\n6 Chargen, je Rater eigene Reihenfolge.\nS5: 10 Ankerkarten x 2 Ankerzeilen, Ankerwert = wahrer Wert, Fehler wie oben.\nS7: Normal(0, sd7) mit sd7 aus der KI-Breite von s7_breite. S8 und S9 als erfüllt angenommen.",
+  "sd7": 0.0457,
+  "icc_0.87": {
+   "fehlalarm": {
+    "s1": 0.505,
+    "s2": 0.727,
+    "s3": 0.044,
+    "s3c": 0.051,
+    "s5": 0.0,
+    "s6_1_0": 0.046,
+    "s6_1_5": 0.046,
+    "s6_2_0": 0.045,
+    "s7": 0.133,
+    "gesamt": 0.786
+   },
+   "teststaerke": {
+    "s3_0_15": 0.199,
+    "s3_0_25": 0.51,
+    "s6_drift_1_5": 0.114,
+    "s6_drift_3_0": 0.371
+   },
+   "wiederholungen": 1000
+  },
+  "icc_0.90": {
+   "fehlalarm": {
+    "s1": 0.07,
+    "s2": 0.174,
+    "s3": 0.04,
+    "s3c": 0.054,
+    "s5": 0.0,
+    "s6_1_0": 0.036,
+    "s6_1_5": 0.036,
+    "s6_2_0": 0.029,
+    "s7": 0.133,
+    "gesamt": 0.342
+   },
+   "teststaerke": {
+    "s3_0_15": 0.238,
+    "s3_0_25": 0.64,
+    "s6_drift_1_5": 0.143,
+    "s6_drift_3_0": 0.485
+   },
+   "wiederholungen": 1000
+  },
+  "icc_0.93": {
+   "fehlalarm": {
+    "s1": 0.0,
+    "s2": 0.0,
+    "s3": 0.048,
+    "s3c": 0.055,
+    "s5": 0.0,
+    "s6_1_0": 0.047,
+    "s6_1_5": 0.046,
+    "s6_2_0": 0.02,
+    "s7": 0.13,
+    "gesamt": 0.211
+   },
+   "teststaerke": {
+    "s3_0_15": 0.344,
+    "s3_0_25": 0.795,
+    "s6_drift_1_5": 0.186,
+    "s6_drift_3_0": 0.68
+   },
+   "wiederholungen": 1000
+  }
  }
 }
