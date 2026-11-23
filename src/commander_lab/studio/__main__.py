@@ -1338,10 +1338,31 @@ def main(argv: list[str] | None = None) -> int:
                     time.sleep(0.5)
             except KeyboardInterrupt:
                 batch.cancel()
+                try:
+                    done = batch.worker_done.wait(60)
+                except KeyboardInterrupt:
+                    print(
+                        "warnung: Warten auf Abschluss des Simulations-Workers abgebrochen.",
+                        file=sys.stderr,
+                    )
+                    raise
+                if not done:
+                    print(
+                        "warnung: Simulations-Worker hat nach 60 s noch nicht fertig geschrieben "
+                        "oder seine Kennung freigegeben.",
+                        file=sys.stderr,
+                    )
                 raise
             # the thread still writes the series record and gives its id claim back after the status
-            batch.worker_done.wait(60)
+            done = batch.worker_done.wait(60)
             print(json.dumps(batch.to_dict(), indent=2, ensure_ascii=False))
+            if not done:
+                print(
+                    "warnung: Simulations-Worker hat nach 60 s noch nicht fertig geschrieben "
+                    "oder seine Kennung freigegeben.",
+                    file=sys.stderr,
+                )
+                return 1
             return 0 if batch.status == "completed" else 1
         finally:
             store.close()

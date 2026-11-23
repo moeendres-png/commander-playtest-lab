@@ -1791,3 +1791,158 @@ def test_simulate_cli_waits_for_the_worker_thread_before_it_returns(
     assert studio_main(_simulate_argv(tmp_path, "rev")) == 0
     assert order == ["worker finished", "printed"]
     assert json.loads(capsys.readouterr().out)["worker_done"] is True
+
+
+# --- #1737: claim cleanup on error, CLI Ctrl-C/timeout, leftover failed batch files -----------
+
+
+def test_claim_unless_used_releases_claim_immediately_when_in_use_raises(tmp_path: Path) -> None:
+    """Punkt 1 (#1737): an SQLite error during re-check must not leave an orphaned .reserve file."""
+    from commander_lab.studio import series_reservation
+
+    folder = games.games_folder(tmp_path)
+    sid = "batch-1800000000-chulane"
+
+    def broken_in_use(_series_id: str) -> bool:
+        raise sqlite3.OperationalError("database is locked")
+
+    with pytest.raises(sqlite3.OperationalError, match="database is locked"):
+        series_reservation.claim_unless_used(folder, sid, broken_in_use)
+
+    assert _reservations(tmp_path) == []
+    # Because the claim was released immediately, a subsequent caller can claim the same id
+    assert series_reservation.claim_unless_used(folder, sid, lambda _s: False) is True
+    assert _reservations(tmp_path) == [f"{sid}.reserve"]
+    series_reservation.release(folder, sid)
+    assert _reservations(tmp_path) == []
+
+
+def test_simulate_cli_waits_for_worker_done_after_keyboard_interrupt(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Punkt 2 (#1737): Ctrl-C calls cancel() and waits for worker_done before propagating."""
+    from commander_lab.studio.__main__ import main as studio_main
+
+    events: list[str] = []
+    real_sleep = time.sleep
+
+    class CancellableBatch:
+        def __init__(self) -> None:
+            self.status = "running"
+            self.worker_done = threading.Event()
+
+        def cancel(self) -> None:
+            events.append("cancel")
+
+            def _finish() -> None:
+                real_sleep(0.05)
+                self.status = "cancelled"
+                events.append("worker_done_set")
+                self.worker_done.set()
+
+            threading.Thread(target=_finish, daemon=True).start()
+
+    batch = CancellableBatch()
+    monkeypatch.setattr(SimulationBatchManager, "start_batch", lambda *_a, **_k: batch)
+
+    def _interrupt(_seconds: float) -> None:
+        raise KeyboardInterrupt()
+
+    monkeypatch.setattr(time, "sleep", _interrupt)
+
+    with pytest.raises(KeyboardInterrupt):
+        studio_main(_simulate_argv(tmp_path, "rev"))
+
+    assert events == ["cancel", "worker_done_set"]
+    assert batch.worker_done.is_set()
+    assert capsys.readouterr().err == ""
+
+
+def test_simulate_cli_handles_second_keyboard_interrupt_during_worker_wait(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Punkt 2 (#1737): a second Ctrl-C while waiting for worker_done breaks cleanly."""
+    from commander_lab.studio.__main__ import main as studio_main
+
+    cancelled: list[bool] = []
+
+    class SecondInterruptWait:
+        def wait(self, timeout: float | None = None) -> bool:
+            assert timeout == 60
+            raise KeyboardInterrupt()
+
+    class StubBatch:
+        status = "running"
+        worker_done = SecondInterruptWait()
+
+        def cancel(self) -> None:
+            cancelled.append(True)
+
+    monkeypatch.setattr(SimulationBatchManager, "start_batch", lambda *_a, **_k: StubBatch())
+    monkeypatch.setattr(time, "sleep", lambda _s: (_ for _ in ()).throw(KeyboardInterrupt()))
+
+    with pytest.raises(KeyboardInterrupt):
+        studio_main(_simulate_argv(tmp_path, "rev"))
+
+    assert cancelled == [True]
+    assert "abgebrochen" in capsys.readouterr().err
+
+
+def test_simulate_cli_warns_and_exits_nonzero_when_worker_done_times_out(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Punkt 3 (#1737): wait(60) returning False must warn on stderr and exit 1, never 0."""
+    from commander_lab.studio.__main__ import main as studio_main
+
+    seen_timeouts: list[float | None] = []
+
+    class TimedOutEvent:
+        def wait(self, timeout: float | None = None) -> bool:
+            seen_timeouts.append(timeout)
+            return False
+
+    class StuckEnd:
+        status = "completed"
+        worker_done = TimedOutEvent()
+
+        def to_dict(self) -> dict[str, object]:
+            return {"status": self.status}
+
+    monkeypatch.setattr(SimulationBatchManager, "start_batch", lambda *_a, **_k: StuckEnd())
+
+    rc = studio_main(_simulate_argv(tmp_path, "rev"))
+    captured = capsys.readouterr()
+    assert rc == 1
+    assert seen_timeouts == [60]
+    assert json.loads(captured.out) == {"status": "completed"}
+    assert "60 s" in captured.err
+
+
+def test_batch_id_in_use_detects_leftover_game_logs_and_chunk_outputs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Punkt 6 (#1737): leftover jsonl or chunk .out files of a failed series reserve the id."""
+    _freeze_second(monkeypatch)
+    base_id = "batch-1800000000-chulane"
+    gdir = games.games_folder(tmp_path)
+    leftover_log = gdir / f"batch-{base_id}-s1000.jsonl"
+    leftover_log.write_text('{"leftover": true}\n', encoding="utf-8")
+    leftover_chunk = gdir / f"{base_id}-2-chunk-s1000.out"
+    leftover_chunk.write_text("leftover chunk stderr\n", encoding="utf-8")
+
+    store = StudioStore.open(tmp_path)
+    try:
+        assert simulations_module.batch_id_in_use(store, tmp_path, base_id) is True
+        assert simulations_module.batch_id_in_use(store, tmp_path, f"{base_id}-2") is True
+        assert simulations_module.batch_id_in_use(store, tmp_path, f"{base_id}-3") is False
+
+        rev_id = _seed_test_deck(store)
+        batch = _start(SimulationBatchManager(), store, tmp_path, rev_id, 1000)
+        _wait(batch)
+        assert batch.worker_done.wait(10)
+        assert batch.batch_id == f"{base_id}-3"
+        # Leftover files of the earlier failed series are untouched
+        assert leftover_log.read_text(encoding="utf-8") == '{"leftover": true}\n'
+        assert leftover_chunk.read_text(encoding="utf-8") == "leftover chunk stderr\n"
+    finally:
+        store.close()

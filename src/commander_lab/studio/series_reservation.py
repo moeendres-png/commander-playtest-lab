@@ -55,15 +55,21 @@ def try_reserve(folder: Path, series_id: str, *, clock: Callable[[], float] = ti
 
 
 def claim_unless_used(folder: Path, series_id: str, in_use: Callable[[str], bool]) -> bool:
-    """Claim ``series_id`` and check once more that no finished series owns it (#1707).
+    """Claim ``series_id`` and check once more that no finished series owns it (#1707, #1737).
 
     A series of another process that ends between the caller's check and this claim has written
     its run row and record and released its own claim; the claim alone would then succeed on an id
-    that is taken. True only when the id is claimed and still unused.
+    that is taken. True only when the id is claimed and still unused. If ``in_use`` fails (e.g.
+    SQLite lock error), the claim is released immediately instead of lingering until reap.
     """
     if not try_reserve(folder, series_id):
         return False
-    if in_use(series_id):
+    try:
+        used = in_use(series_id)
+    except BaseException:
+        release(folder, series_id)
+        raise
+    if used:
         release(folder, series_id)
         return False
     return True
