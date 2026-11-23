@@ -2970,6 +2970,18 @@ eval(code + "\n" + cut("async function loadBranch(", "// The saved state of `bra
   await new Promise((r) => setTimeout(r, 5));
   edit(); releaseNewDeck(); await creatingEdited; await new Promise((r) => setTimeout(r, 5));
   out.newDeckAborted = [state.deckId, toasts.slice(-1)[0], toasts.some((t) => t.includes("angelegt")), failed.slice()];
+  // openNewDeckModal: superseded error (token !== loadSeq) -> honest toast, no silent drop, no plain "angelegt."
+  resetAll(); set({ deckId: "d", branch: "main", baseRevision: "deck@v", dirty: false, needsDraftPut: false });
+  state.decks = [{ deck_id: "d", branches: branches3 }];
+  const nextSupRev = `rev@d-new-${createdDeckSeq + 1}`;
+  let releaseSupDeck; revHold[nextSupRev] = new Promise((r) => { releaseSupDeck = r; }); revFail = nextSupRev;
+  openNewDeckModal();
+  const creatingSup = lastInputModal.onSubmit("Gamma");
+  await new Promise((r) => setTimeout(r, 5));
+  $("branch-select").value = "c";
+  await onBranchSelect();
+  releaseSupDeck(); await creatingSup; revFail = null;
+  out.newDeckSupersededErr = [state.deckId, state.branch, toasts.slice(), failed.slice()];
   // Punkt 3a: discardStaleDraft passes { discardLocal: true } and skips flushLocal/PUT even with unsent local edits
   resetAll(); set({ deckId: "d", branch: "main", baseRevision: "deck@b", baseStale: true, draftUpdatedAt: "t-stale", dirty: true, needsDraftPut: true });
   state.decks = [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }];
@@ -2999,6 +3011,12 @@ eval(code + "\n" + cut("async function loadBranch(", "// The saved state of `bra
   $("deck-select").value = "d2";
   await onDeckSelect();
   const conflictDeckMsg = failed.slice(-1)[0];
+  // DELETE 409 without unsent local edits (savedSeq === changeSeq): conflict banner does NOT claim switches are locked
+  resetAll(); set({ deckId: "d", branch: "main", baseRevision: "deck@v", baseStale: true, draftUpdatedAt: "2026-11-23T10:00:00.000009Z", draftConflict: false });
+  deleteConflict = true;
+  await discardStaleDraft();
+  realRenderSaveState();
+  const delete409BannerTexts = $("save-state").nodes.map((n) => (typeof n === "string" ? n : n.kids.join("")));
   // non-409 PUT failure (503) still reports UNSENT_TEXT
   resetAll(); set({ deckId: "d", branch: "test", baseRevision: "deck@t", dirty: false, needsDraftPut: false });
   state.decks = decks2; putFail = 503;
@@ -3007,7 +3025,7 @@ eval(code + "\n" + cut("async function loadBranch(", "// The saved state of `bra
   await onBranchSelect();
   const unsent503Msg = failed.slice(-1)[0];
   putFail = false; loadBranchImpl = null; syncDraftImpl = null;
-  out.conflictNotices = [put409Toast, conflictBannerTexts, conflictSwitchMsg, conflictDeckMsg, unsent503Msg];
+  out.conflictNotices = [put409Toast, conflictBannerTexts, delete409BannerTexts, conflictSwitchMsg, conflictDeckMsg, unsent503Msg];
   process.stdout.write(JSON.stringify(out));
 })();
 """
@@ -3179,11 +3197,25 @@ def test_saving_sends_expected_parent_and_never_overwrites_a_moved_branch() -> N
         False,
         [],
     ]
+    assert r["newDeckSupersededErr"] == [
+        "d",
+        "c",
+        ["Deck „Gamma“ angelegt, aber nicht geöffnet — ein anderer Wechsel hatte Vorrang."],
+        [],
+    ]
+    assert "Deck „Gamma“ angelegt." not in r["newDeckSupersededErr"][2]
     # #1745 Paket 1: Punkt 3a & 3b — kill surviving mutations on discardStaleDraft and retryLoad
     assert r["discardStaleArgs"] == [[[{"discardLocal": True}]], [], False, "deck@v", True, []]
     assert r["retryDuringCommit"] == [0, ["decks"], 1]
     # #1745 Paket 1: Punkt 4 — draft PUT 409 lock notice in banner, toast and flushLocal
-    put409_toast, banner_texts, branch_msg, deck_msg, unsent_503_msg = r["conflictNotices"]
+    (
+        put409_toast,
+        banner_texts,
+        delete409_banner_texts,
+        branch_msg,
+        deck_msg,
+        unsent_503_msg,
+    ) = r["conflictNotices"]
     assert "Entwurf in anderem Tab geändert" in put409_toast
     assert "Deck- und Variantenwechsel" in put409_toast and "Aktuellen Stand laden" in put409_toast
     assert banner_texts[0] == "Konflikt: Entwurf in anderem Tab geändert"
@@ -3191,6 +3223,9 @@ def test_saving_sends_expected_parent_and_never_overwrites_a_moved_branch() -> N
         "Deck- und Variantenwechsel" in part and "Aktuellen Stand laden" in part
         for part in banner_texts
     )
+    assert delete409_banner_texts[0] == "Konflikt: Entwurf in anderem Tab geändert"
+    assert not any("Deck- und Variantenwechsel" in part for part in delete409_banner_texts)
+    assert not any("gesperrt" in part for part in delete409_banner_texts)
     for msg in (branch_msg, deck_msg):
         assert "Entwurfs-Konflikt" in msg and "nicht als Entwurf gesichert" in msg
         assert "Deck- und Variantenwechsel" in msg and "Aktuellen Stand laden" in msg

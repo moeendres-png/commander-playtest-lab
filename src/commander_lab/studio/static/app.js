@@ -459,11 +459,10 @@ function renderSaveState() {
   // actionable even when baseStale is also set; when baseStale is set, rescue to a new variant
   // stays offered alongside "Aktuellen Stand laden".
   if (state.draftConflict) {
-    const items = [
-      h("span", { class: "pill bad" }, "Konflikt: Entwurf in anderem Tab geändert"),
-      " ",
-      h("span", { class: "muted" }, "Jeder Deck- und Variantenwechsel bleibt bis „Aktuellen Stand laden“ gesperrt."),
-    ];
+    const items = [h("span", { class: "pill bad" }, "Konflikt: Entwurf in anderem Tab geändert")];
+    if (state.savedSeq !== state.changeSeq) {
+      items.push(" ", h("span", { class: "muted" }, "Jeder Deck- und Variantenwechsel bleibt bis „Aktuellen Stand laden“ gesperrt."));
+    }
     if (state.baseStale) {
       items.push(" ", h("button", { type: "button", class: "small", onclick: () => openNewBranchModal() }, "Als neue Variante speichern"));
     }
@@ -2933,8 +2932,10 @@ function openNewDeckModal() {
       closeModal();
       try {
         await loadDecks();
-        const opened = await loadBranch({ deckId: created.deck_id, branch: "main" });
+        const target = { deckId: created.deck_id, branch: "main" };
+        const opened = await loadBranch(target);
         if (opened) toast(`Deck „${trimmed}“ angelegt.`);
+        else if (target.dropReason !== "edited") toast(`Deck „${trimmed}“ angelegt, aber nicht geöffnet — ein anderer Wechsel hatte Vorrang.`);
       } catch (error) { fail(error); }
     },
   });
@@ -3178,13 +3179,14 @@ async function loadBranch(target = {}) {
   try {
     applied = await loadBranchNow(token, deckId, branchName, seqAtStart);
   } catch (error) {
-    if (token !== loadSeq) return false; // a later load decides; this failure is not shown
+    if (token !== loadSeq) { target.dropReason = "superseded"; return false; } // a later load decides; this failure is not shown
     loadFailed = true; failedTarget = { deckId, branch: branchName };
     throw error;
   } finally {
     loadEnded(); // the editor may still be the previous variant: its changes go to its draft
   }
   if (!applied && token === loadSeq) {
+    target.dropReason = "edited";
     renderDeckSelects(); // the selects show the variant that stays open
     toast("Während des Ladens wurde die Liste geändert: nicht gewechselt, die Änderungen bleiben in der offenen Variante.");
     return false;
@@ -3193,6 +3195,7 @@ async function loadBranch(target = {}) {
     await syncDraft();
     return true;
   }
+  target.dropReason = "superseded";
   return false;
 }
 // The GETs of one load; the editor's state changes only at the end and only for the latest
