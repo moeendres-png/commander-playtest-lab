@@ -1169,9 +1169,9 @@ def pool_cards(
             item = by_card.get(str(card["card_id"]))
             if item is None:
                 if card.get("in_collection") is False:
-                    # A Zukauf card: the spread counts collection cards only. It stays under
-                    # the universe's own denominator as unknown (never the cohort figure,
-                    # never 0), so one view never mixes two denominators (#1648).
+                    # Defensive fallback if a Zukauf card was ever absent from the spread:
+                    # keep it under the universe's own denominator as unknown (never the
+                    # cohort figure, never 0), so one view never mixes two denominators (#1648).
                     card["universe"] = {
                         "matched": False,
                         "hits": None,
