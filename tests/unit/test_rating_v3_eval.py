@@ -1147,3 +1147,93 @@ def test_two_runs_are_byte_identical(lab: Lab) -> None:
         )
     assert blobs[0] == blobs[1]
     assert len(blobs[0][0]) > 1000
+
+
+# ---------------------------------------------------------------- absolute boundaries (A8)
+
+
+def test_plan_thresholds_are_the_fixed_constants() -> None:
+    fixed = {
+        "S1_POINT_MIN": 0.87, "S1_LOWER_MIN": 0.80, "S2_MAX": 0.39, "S3_SD_MAX": 0.15, "S3_CRIT": 2.50,
+        "S4_SHARE_MAX": 0.05, "S5_MAE_MAX": 6.0, "S6_SLOPE_MAX": 1.5, "S6_CRIT": 2.44, "S7_POINT_MIN": -0.05,
+        "S7_LOWER_MIN": -0.15, "S8_MAX": 0, "S9_R_MAX": 0.90, "DISPLAY_LOSS_MIN": -0.10, "CORRIDOR": 10.0,
+        "CORRIDOR_GROSS": 15.0, "FLAG_SPREAD": 15.0, "SEED_BOOT": 20261127, "DRAWS": 2000, "SEED_CLAIMS": 20261131,
+    }  # fmt: skip
+    assert {k: getattr(ev, k) for k in fixed} == fixed
+    assert ev.WEIGHTS == {"E": 0.3, "F": 0.3, "R": 0.2, "T": 0.1, "K": 0.1} and ev.N_WEIGHT == 0.2
+
+
+def test_s2_absolute_boundary() -> None:
+    # two cards, values (0, 0, x) and (100, 100, 100 - x): pooled SD and |delta| by hand
+    def rows_for(x: float) -> list[list[float]]:
+        return [[0.0, 0.0, x], [100.0, 100.0, 100.0 - x]]
+
+    r = ev.s2(rows_for(40.0))
+    # mean |delta|: A-B 0, A-C 40, B-C 40 -> 26.67; SD of (0,0,40,100,100,60) = sqrt(1700) = 41.23
+    assert r["punkte"] == pytest.approx(80 / 3) and r["sd_gepoolt"] == pytest.approx(
+        math.sqrt(1700)
+    )
+    assert r["wert"] == pytest.approx((80 / 3) / math.sqrt(1700)) and r["status"] == "verfehlt"
+    r = ev.s2(rows_for(20.0))
+    # mean |delta| 13.33; SD of (0,0,20,100,100,80) = 45.46 -> 0.293 <= 0.39
+    assert (
+        r["wert"] == pytest.approx((40 / 3) / statistics.pstdev([0, 0, 20, 100, 100, 80]))
+        and r["status"] == "erfuellt"
+    )
+    r = ev.s2(rows_for(26.0))
+    # 17.33 / SD(0,0,26,100,100,74) = 17.33 / 43.12 = 0.402 > 0.39
+    assert 0.39 < r["wert"] < 0.50 and r["status"] == "verfehlt"
+
+
+def test_s5_absolute_boundary() -> None:
+    def terms(err: float) -> list[dict[str, Any]]:
+        return [{"aggregat": 50.0 + err, "ankerwert": 50.0, "satz": "neu", "werte": {}}]
+
+    assert ev.s5(terms(6.0))["status"] == "erfuellt"  # <= 6
+    assert ev.s5(terms(7.0))["status"] == "verfehlt"
+    missing = [*terms(0.0), {"aggregat": None, "ankerwert": 50.0, "satz": "neu", "werte": {}}]
+    assert ev.s5(missing)["status"] == "unbekannt"  # a missing term is no 0
+
+
+@pytest.mark.parametrize(
+    ("point", "lower", "want"),
+    [
+        (-0.05, -0.15, "erfuellt"),
+        (-0.0501, -0.10, "verfehlt"),
+        (-0.04, -0.1501, "verfehlt"),
+        (-0.10, -0.20, "verfehlt"),
+    ],
+)
+def test_s7_absolute_boundaries(
+    monkeypatch: pytest.MonkeyPatch, point: float, lower: float, want: str
+) -> None:
+    monkeypatch.setattr(ev, "spearman_diff", lambda pairs, draws: (point, [lower, 0.1]))
+    assert ev.s7([(1.0, 1.0, 1.0)] * 5, DRAWS, None, must=True)["status"] == want
+
+
+@pytest.mark.parametrize(
+    ("point", "want"), [(-0.10, "erfuellt"), (-0.1001, "verfehlt"), (-0.15, "verfehlt")]
+)
+def test_display_condition_absolute_boundary(
+    lab: Lab, monkeypatch: pytest.MonkeyPatch, point: float, want: str
+) -> None:
+    lab.build()
+    usage = lab.root / "usage.jsonl"
+    pooled = lab.root / "pooled.jsonl"
+    usage.write_text(
+        "".join(
+            json.dumps({"oracle_id": o, "deck_list_count": 1}) + "\n" for o in sorted(lab.cards)
+        ),
+        encoding="utf-8",
+    )
+    pooled.write_text(
+        "".join(json.dumps({"oracle_id": o, "H_pooled": 1.0}) + "\n" for o in sorted(lab.cards)),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(ev, "USAGE_SHA256_PREFIX", _sha(usage)[:8])
+    monkeypatch.setattr(ev, "POOLED_SHA256", _sha(pooled))
+    monkeypatch.setattr(
+        ev, "spearman_diff", lambda pairs, draws: (point, [point - 0.1, point + 0.1])
+    )
+    res, _ = lab.eval(usage_path=usage, pooled_path=pooled)
+    assert res["kriterien"]["V3b"]["anzeige_bedingung"]["status"] == want
