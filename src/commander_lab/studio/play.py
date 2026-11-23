@@ -34,16 +34,15 @@ from commander_lab.engine.rules.failure_privacy import (
     redacted_summary,
 )
 from commander_lab.engine.rules.full_game import (
-    ExternalPilotDecisionPolicy,
     FullGameBridgeClient,
     FullGameBridgeSession,
     FullGameCancelled,
     FullGameConformanceError,
     FullGameConformanceResult,
+    FullGameDecisionPolicy,
     FullGameMatch,
     FullGamePilotBinding,
     FullGameProtocolError,
-    ProgressEntry,
     XmageFullGameRunner,
 )
 from commander_lab.engine.rules.full_game_series import FullGameSeriesResult
@@ -55,7 +54,6 @@ from commander_lab.storage import sha256_value
 from .games import (
     COHORT_UNKNOWN,
     HUMAN_PILOT_LABEL,
-    DecisionPolicy,
     GameRecorder,
     RecordingPolicy,
     cohort_fields,
@@ -269,13 +267,13 @@ class _RecordingRunner(XmageFullGameRunner):
 
     recorder: GameRecorder | None = None
 
-    def _validated_policy(  # type: ignore[override]
+    def decision_policy(
         self,
         scenario: FutureXmageScenario,
         decks: tuple[RulesDeckInput, ...],
         pilots: tuple[FullGamePilotBinding, ...],
-    ) -> DecisionPolicy:
-        policy = super()._validated_policy(scenario, decks, pilots)
+    ) -> FullGameDecisionPolicy:
+        policy = super().decision_policy(scenario, decks, pilots)
         return RecordingPolicy(policy, self._recorder_for(scenario))
 
     def _recorder_for(self, scenario: FutureXmageScenario) -> GameRecorder:
@@ -284,24 +282,8 @@ class _RecordingRunner(XmageFullGameRunner):
             raise RuntimeError("no recorder bound")
         return self.recorder
 
-    def _drive(
-        self,
-        client: FullGameBridgeClient,
-        policy: ExternalPilotDecisionPolicy,
-        *,
-        stop_after: int | None,
-        stop_at_turn: int | None = None,
-        progress: list[ProgressEntry] | None = None,
-        stop: dict[str, object] | None = None,
-    ) -> tuple[int, list[str], bool]:
-        res = super()._drive(
-            client,
-            policy,
-            stop_after=stop_after,
-            stop_at_turn=stop_at_turn,
-            progress=progress,
-            stop=stop,
-        )
+    def after_drive(self, client: FullGameBridgeClient, *, terminal: bool) -> None:
+        del terminal
         if self.recorder is not None and hasattr(client, "request"):
             try:
                 raw_log = client.request("export_event_log")
@@ -311,7 +293,6 @@ class _RecordingRunner(XmageFullGameRunner):
                         self.recorder.save_event_log(events)
             except Exception:
                 pass
-        return res
 
 
 @dataclass(frozen=True)
@@ -897,7 +878,7 @@ class InteractiveGameSession:
         self,
         bridge: FullGameBridgeSession,
         match: FullGameMatch,
-        policy: ExternalPilotDecisionPolicy,
+        policy: FullGameDecisionPolicy,
     ) -> bool:
         """Play ``match`` until the engine reports its end; True when a shutdown stopped it.
 

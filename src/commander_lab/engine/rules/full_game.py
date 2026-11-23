@@ -19,7 +19,7 @@ from collections import Counter, deque
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Literal, TextIO, TypedDict, cast
+from typing import Any, Literal, Protocol, TextIO, TypedDict, cast
 
 from pydantic import Field, model_validator
 
@@ -1222,6 +1222,12 @@ FullGameBridgeClient = _RawFullGameClient
 validate_deck_construction = _validate_deck_construction
 
 
+class FullGameDecisionPolicy(Protocol):
+    """Structural contract of a full-game decision policy (pilots or a recording wrapper)."""
+
+    def decide(self, decision: dict[str, object]) -> dict[str, object]: ...
+
+
 class XmageFullGameRunner:
     """Run one isolated 2..8-player XMage Commander game with Commander Lab pilot policy."""
 
@@ -1285,7 +1291,7 @@ class XmageFullGameRunner:
             raise FullGameConformanceError(
                 f"full-game bridge is not configured; set {XMAGE_FULL_GAME_COMMAND_ENV}"
             )
-        policy = self._validated_policy(scenario, decks, pilots)
+        policy = self.decision_policy(scenario, decks, pilots)
         audit = FullGameHiddenInformationAudit()
         self._hidden_audit = audit
 
@@ -1381,7 +1387,7 @@ class XmageFullGameRunner:
                     index = len(outcomes)
                     outcomes.append(FullGameConformanceError("game not finished"))
                     try:
-                        policy = self._validated_policy(scenario, decks, pilots)
+                        policy = self.decision_policy(scenario, decks, pilots)
                         audit = FullGameHiddenInformationAudit()
                         self._hidden_audit = audit
                         try:
@@ -1462,7 +1468,7 @@ class XmageFullGameRunner:
             raise FullGameConformanceError(
                 f"full-game bridge is not configured; set {XMAGE_FULL_GAME_COMMAND_ENV}"
             )
-        policy = self._validated_policy(scenario, decks, pilots)
+        policy = self.decision_policy(scenario, decks, pilots)
 
         client = _RawFullGameClient(
             command,
@@ -1534,9 +1540,12 @@ class XmageFullGameRunner:
         scenario: FutureXmageScenario,
         decks: tuple[RulesDeckInput, ...],
         pilots: tuple[FullGamePilotBinding, ...],
-    ) -> ExternalPilotDecisionPolicy:
+    ) -> FullGameDecisionPolicy:
         """Validate one game's inputs and return the pilots' policy for it (no engine yet)."""
         return self._validated_policy(scenario, decks, pilots)
+
+    def after_drive(self, client: FullGameBridgeClient, *, terminal: bool) -> None:
+        """Public hook called once when ``_drive`` returns normally (before result/shutdown)."""
 
     def open_session(
         self, *, client_factory: Callable[..., FullGameBridgeClient] | None = None
@@ -1665,7 +1674,7 @@ class XmageFullGameRunner:
     def _drive(
         self,
         client: _RawFullGameClient,
-        policy: ExternalPilotDecisionPolicy,
+        policy: FullGameDecisionPolicy,
         *,
         stop_after: int | None,
         stop_at_turn: int | None = None,
@@ -1704,12 +1713,14 @@ class XmageFullGameRunner:
                 if stop_at_turn is not None and type(turn) is int and turn >= stop_at_turn:
                     if stop is not None:
                         stop.update(reason="turn_boundary", turn=turn)
+                    self.after_drive(client, terminal=False)
                     return decision_count, observed, False
                 # Inspect the frame returned by the final permitted submission
                 # before applying the cap; it may already be the turn boundary.
                 if stop_after is not None and decision_count >= stop_after:
                     if stop is not None:
                         stop.update(reason="decision_limit")
+                    self.after_drive(client, terminal=False)
                     return decision_count, observed, False
                 decision_count += 1
                 if decision_count > self.max_decisions:
@@ -1745,11 +1756,21 @@ class XmageFullGameRunner:
                     {"response": response},
                 )
                 if progress is not None and not isinstance(status.get("failure"), dict):
+                    raw_selected = response.get("selected_option_ids")
                     selected, _labels = selected_fingerprints_for_response(
-                        decision, list(response.get("selected_option_ids", []))
+                        decision,
+                        [str(item) for item in raw_selected]
+                        if isinstance(raw_selected, Sequence)
+                        and not isinstance(raw_selected, str | bytes)
+                        else [],
                     )
+                    raw_ordered = response.get("ordering")
                     ordered, _ordered_labels = selected_fingerprints_for_response(
-                        decision, list(response.get("ordering", []))
+                        decision,
+                        [str(item) for item in raw_ordered]
+                        if isinstance(raw_ordered, Sequence)
+                        and not isinstance(raw_ordered, str | bytes)
+                        else [],
                     )
                     response_digest = canonical_hash(
                         {
@@ -1775,10 +1796,12 @@ class XmageFullGameRunner:
             if bool(status.get("terminal")):
                 if stop is not None:
                     stop.update(reason="terminal")
+                self.after_drive(client, terminal=True)
                 return decision_count, observed, True
             if stop_after is not None and decision_count >= stop_after:
                 if stop is not None:
                     stop.update(reason="decision_limit")
+                self.after_drive(client, terminal=False)
                 return decision_count, observed, False
             status = client.request("get_full_game_decision")
 
@@ -2108,7 +2131,7 @@ class FullGameMatch:
         self,
         session: FullGameBridgeSession,
         scenario: FutureXmageScenario,
-        policy: ExternalPilotDecisionPolicy,
+        policy: FullGameDecisionPolicy,
         provider: ProviderIdentityWire,
     ) -> None:
         self._session = session
@@ -2326,7 +2349,7 @@ class FullGameBridgeSession:
         self,
         scenario: FutureXmageScenario,
         decks: tuple[RulesDeckInput, ...],
-        policy: ExternalPilotDecisionPolicy,
+        policy: FullGameDecisionPolicy,
         *,
         human_seats: Sequence[int] = (),
         decision_timeout_seconds: int | None = None,
@@ -2385,6 +2408,7 @@ __all__ = [
     "FullGameCancelled",
     "FullGameConformanceError",
     "FullGameConformanceResult",
+    "FullGameDecisionPolicy",
     "FullGameEventPage",
     "FullGameMatch",
     "FullGamePilotBinding",

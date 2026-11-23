@@ -19,10 +19,8 @@ from pathlib import Path
 
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.full_game import (
-    ExternalPilotDecisionPolicy,
     FullGameBridgeClient,
     FullGameConformanceResult,
-    ProgressEntry,
 )
 from commander_lab.engine.rules.full_game_batch import games_per_jvm_permitted
 
@@ -48,7 +46,7 @@ class SeriesGame:
 class BatchRecordingRunner(_RecordingRunner):
     """The recording full-game runner for several games: one recorder per game.
 
-    The recorder of a game is made when its play starts (``_validated_policy`` runs at the start
+    The recorder of a game is made when its play starts (``decision_policy`` runs at the start
     of every play of a game), so a game that is started again after a neighbour's failure or a
     start-up collision begins a fresh log instead of appending to the first attempt.
     """
@@ -96,33 +94,16 @@ class BatchRecordingRunner(_RecordingRunner):
         self._current_game_id = game_id
         return recorder
 
-    def _drive(
-        self,
-        client: FullGameBridgeClient,
-        policy: ExternalPilotDecisionPolicy,
-        *,
-        stop_after: int | None,
-        stop_at_turn: int | None = None,
-        progress: list[ProgressEntry] | None = None,
-        stop: dict[str, object] | None = None,
-    ) -> tuple[int, list[str], bool]:
-        """Drive one game; tell ``on_played`` once the engine has played it to its end.
+    def after_drive(self, client: FullGameBridgeClient, *, terminal: bool) -> None:
+        """Export the event log and tell ``on_played`` once the engine has played it to its end.
 
-        The outcome of the drive is returned untouched, and a progress callback that raises
-        changes nothing about the game. A game played again (after an unclean engine end, or a
-        start-up collision) is announced once.
+        A progress callback that raises changes nothing about the game. A game played again (after
+        an unclean engine end, or a start-up collision) is announced once.
         """
-        outcome = super()._drive(
-            client,
-            policy,
-            stop_after=stop_after,
-            stop_at_turn=stop_at_turn,
-            progress=progress,
-            stop=stop,
-        )
+        super().after_drive(client, terminal=terminal)
         game_id = self._current_game_id
         if (
-            outcome[2] is True
+            terminal is True
             and game_id is not None
             and self.on_played is not None
             and game_id not in self._announced
@@ -130,7 +111,6 @@ class BatchRecordingRunner(_RecordingRunner):
             self._announced.add(game_id)
             with contextlib.suppress(Exception):
                 self.on_played(game_id)
-        return outcome
 
     def recorder_of(self, scenario_id: str) -> GameRecorder:
         """The log of a game; a game that failed before its play began still gets one."""

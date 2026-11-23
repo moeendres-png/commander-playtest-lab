@@ -428,19 +428,14 @@ def test_full_game_series_reaches_no_private_runner_name(repo_root: Path) -> Non
 #: second package of #1663 (PLAY on the public steps). May only go down.
 STUDIO_PRIVATE_RUNNER_ACCESS_CEILING = 0
 
-#: ``type: ignore`` comments in studio/play.py: 18 on main d63a6e64, the acceptance of #1663 allows
-#: at most 2; held at the value the second package reached. May only go down.
-PLAY_TYPE_IGNORE_CEILING = 1
+#: ``type: ignore`` comments in studio/play.py: 18 on main d63a6e64, 1 after #1663, 0 since #1731
+#: (``_RecordingRunner.decision_policy`` uses the public ``FullGameDecisionPolicy`` protocol).
+#: May only go down.
+PLAY_TYPE_IGNORE_CEILING = 0
 
-#: Studio overrides of private engine hooks, frozen (file, name); a new one needs a review. They
-#: are not counted as accesses (#1663, recommendation B of the first package): a subclass hook
-#: that ``run()`` itself calls. Their number (3) is a ratchet of its own; removing one means
-#: removing it here too.
-STUDIO_PRIVATE_OVERRIDES = {
-    ("play.py", "_drive"),
-    ("play.py", "_validated_policy"),
-    ("play_batch.py", "_drive"),
-}
+#: Studio overrides of private engine hooks, frozen (file, name); a new one needs a review.
+#: Reduced from 3 to 0 in #1731 (``decision_policy`` and ``after_drive`` public hooks).
+STUDIO_PRIVATE_OVERRIDES: set[tuple[str, str]] = set()
 
 
 def _studio_and_engine_files(repo_root: Path) -> tuple[list[Path], list[Path]]:
@@ -537,7 +532,7 @@ def test_every_studio_drive_override_keeps_the_runner_drive(repo_root: Path) -> 
         )
         assert _calls_super(function, "_drive"), site
         checked += 1
-    assert checked == 2
+    assert checked == 0
 
 
 def test_the_super_check_sees_a_drive_override_without_super() -> None:
