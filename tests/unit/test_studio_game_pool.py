@@ -2427,3 +2427,14 @@ def test_the_worker_reads_its_pin_from_the_one_place_the_studio_names_it(tmp_pat
     )
 
     assert game_pool.own_engine_pin(tmp_path) == canonical_xmage_engine_pin()
+
+
+@pytest.mark.parametrize("state", [{}, {"pin": None}, {"pin": ""}])
+def test_own_engine_pin_refuses_missing_or_blank_pin(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, state: dict[str, object]
+) -> None:
+    from commander_lab.studio import launch
+
+    monkeypatch.setattr(launch, "engine_state", lambda _folder: state)
+    with pytest.raises(game_pool.GamePoolError, match="kein Engine-Pin bekannt"):
+        game_pool.own_engine_pin(tmp_path)

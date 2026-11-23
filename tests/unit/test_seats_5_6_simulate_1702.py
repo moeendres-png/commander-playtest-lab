@@ -1071,6 +1071,7 @@ console.log(JSON.stringify({
   ok: g({ violation: false, unguarded: 1, finished: 2, comparable_keys: 1 }),
   zero: g({ violation: false, unguarded: 0, finished: 48, comparable_keys: 0 }),
   nocmp: g({ violation: false, unguarded: 1, finished: 2 }),
+  nocmp_null: g({ violation: false, unguarded: 1, finished: 2, comparable_keys: null }),
   none: g(null), undef: g(undefined), nofinished: g({ violation: false, unguarded: null, finished: null, comparable_keys: null }),
   violation: g({ violation: true, unguarded: null, finished: null, comparable_keys: null }),
   error: g({ error: "Journal ohne lesbares Manifest, nicht prüfbar" }),
@@ -1086,6 +1087,7 @@ console.log(JSON.stringify({
         and "vergleichbar: 0 Schlüssel" in out["zero"]["text"]
     )
     assert "vergleichbar: unbekannt viele Schlüssel" in out["nocmp"]["text"]
+    assert "vergleichbar: unbekannt viele Schlüssel" in out["nocmp_null"]["text"]
     for key in ("none", "undef", "nofinished"):
         assert out[key]["short"] == "unbekannt" and "0/0" not in out[key]["text"]
     assert out["violation"]["short"] == "DETERMINISM_VIOLATION"

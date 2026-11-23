@@ -491,8 +491,8 @@ def test_the_series_figure_carries_its_table_size_and_two_sizes_never_share_a_co
 def test_findings_name_their_table_and_holm_never_crosses_table_sizes() -> None:
     five = _finding("c5", table_hash="t5")
     six = _finding("c6", table_hash="t6", first_seed=600)
-    five.entry["table_size"] = 5
-    six.entry["table_size"] = 6
+    five.entry.update(table_size=5, table_size_check="consistent")
+    six.entry.update(table_size=6, table_size_check="consistent")
     got = _assess(five, six)
     assert got["c5"]["tisch_sitze"] == 5 and got["c6"]["tisch_sitze"] == 6
     assert got["c5"]["tisch_text"] == "Tisch mit 5 Sitzen (Zufallsbasis 1/5)"
@@ -706,12 +706,19 @@ def test_five_and_six_seat_experiments_reach_the_deck_builder_as_two_cohorts(
         sid = str(started[seats]["series_id"])
         assert by_id[sid]["table_size"] == seats
         assert befunde[sid]["tisch_sitze"] == seats
-        # the table condition is met (proven by the played games); the level is then exactly
-        # R1 when the result is evaluable (the test bridge can give zero spread: no level)
+        # the controlled bridge deterministically yields variant wins (+1.0 per pair): 6 seeds give
+        # p = 0.03125 (decided -> R1), while 5 seeds give p = 0.0625 and zero spread (no y_pp)
         assert by_id[sid]["table_size_check"] == "consistent"
         met = {c["name"]: c["erfuellt"] for c in befunde[sid]["bedingungen"]}
         assert met["Tischgröße an den gespielten Partien belegt"] is True
-        assert befunde[sid]["stufe"] == ("R1" if met["Ergebnis auswertbar"] else None)
+        if seats == 6:
+            assert met["Ergebnis auswertbar"] is True
+            assert befunde[sid]["stufe"] == "R1"
+            assert befunde[sid]["urteil"] == maturity.BETTER
+        else:
+            assert met["Ergebnis auswertbar"] is False
+            assert befunde[sid]["stufe"] is None
+            assert befunde[sid]["urteil"] == maturity.NOT_EVALUABLE
         assert f"Tisch mit {seats} Sitzen" in zahlen[f"series.{sid}.difference_pp"]["kohorte"]
         detail = client.get(
             f"/api/experiments/{started[seats]['experiment_id']}", headers=HEADERS
@@ -833,19 +840,33 @@ def test_the_history_names_a_mismatch_as_unknown() -> None:
 load('deckseries.js');
 const bare = { stufe: null, stufe_text: 'kein Reifegrad', urteil_text: 'x', n: 1, N: 1, bezug: 'Paare',
   stand: { bezug: 'aktuell', text: 'Befund' }, empfehlungsfaehig: false, empfehlungsfaehig_gruende: [], hinweise: [] };
-process.stdout.write(JSON.stringify({ v: [deckSeriesTableText(5, 'mismatch'), deckSeriesTableText(5, 'consistent'), deckSeriesTableText(null, 'unknown'),
-  deckSeriesTableText(null, 'unreadable'), deckSeriesTableText(6, 'unobserved'), deckSeriesTableText(4, 'consistent')],
-  bare: text(deckSeriesEvidence(h, bare)) }));
+const legacyItem = { series_id: 'old', base_ref: 'rev-a', variant_ref: 'rev-b', created_at: '2026-11-22T10:00:00', pod: 'precon',
+  table_size: 4, table_size_check: 'consistent', table_size_source: 'aus den gespielten Partien', status: 'completed',
+  status_text: 'abgeschlossen', counts_as_result: true, pairs_planned: 25, pairs_completed: 25, pairs_attempted: 25,
+  difference_pp: 4, difference_ci95_pp: null, decision_ci_pp: null, decision_level_pct: null, seeds: [1], tested_seats: [0],
+  seats_planned: false, bridge_jar_sha256s: [], bridge_qualification_states: [], covered_by_sealed_epoch: null,
+  pilots: [], slot_alignment_state: 'aligned', stop_reason: null };
+const legacyCells = deckSeriesCells(h, legacyItem, 'base', { open: () => {} }, new Map(), null, bare).map(text);
+const legacyDiff = text(deckSeriesDiffEvidence(h, { series: [legacyItem], reifegrad: { befunde: { old: bare } } }, 'rev-a', 'rev-b'));
+process.stdout.write(JSON.stringify({ v: [deckSeriesTableText(5, 'mismatch'), deckSeriesTableText(5, 'consistent', 'aus Plan und gespielten Partien'),
+  deckSeriesTableText(4, 'consistent', 'aus den gespielten Partien'), deckSeriesTableText(null, 'unknown'),
+  deckSeriesTableText(null, 'unreadable'), deckSeriesTableText(6, 'unobserved', 'aus den gespielten Partien'), deckSeriesTableText(4, 'consistent')],
+  bare: text(deckSeriesEvidence(h, bare)), legacyCells, legacyDiff }));
 """
     )
     assert out["v"] == [
         "Tischgröße unbekannt (Plan und gespielte Partien weichen ab)",
         "Tisch mit 5 Sitzen",
+        "Tisch mit 4 Sitzen (aus den gespielten Partien)",
         "Tischgröße unbekannt",
         "Tischgröße unbekannt (Sitzzahl der gespielten Partien nicht lesbar)",
         "Tisch mit 6 Sitzen (geplant, nicht an Partien geprüft)",
         "Tisch mit 4 Sitzen",
     ]
+    assert any(
+        "Tisch mit 4 Sitzen (aus den gespielten Partien)" in str(c) for c in out["legacyCells"]
+    )  # type: ignore[union-attr]
+    assert "Tisch mit 4 Sitzen (aus den gespielten Partien)" in str(out["legacyDiff"])
     # a finding without a table text is unknown, never four seats
     assert str(out["bare"]).endswith("Paare · Tischgröße unbekanntBefundnicht empfehlungsfähig: ")
 
@@ -911,11 +932,17 @@ def test_a_table_the_played_games_do_not_prove_gives_no_maturity_and_stays_a_pla
     good.entry.update(table_size=5, table_size_check="consistent")
     got = _assess(bad, good)
     assert got["bad"]["stufe"] is None and got["bad"]["belegt"] is False
+    assert got["bad"]["urteil"] == maturity.NOT_EVALUABLE
     assert not str(got["bad"]["urteil_text"]).startswith("belegt")
+    assert "Hinweis" not in str(got["bad"]["urteil_text"])
     reason = maturity.TABLE_CHECK_TEXT[check]
+    assert reason in str(got["bad"]["urteil_text"])
+    assert got["bad"]["holm_p"] is None and got["bad"]["effektives_p"] is None
+    assert not any("Holm-Familie" in str(n) for n in got["bad"]["hinweise"])  # type: ignore[union-attr]
     assert reason in got["bad"]["empfehlungsfaehig_gruende"]  # type: ignore[operator]
     unmet = {c["name"]: c["grund"] for c in got["bad"]["bedingungen"] if not c["erfuellt"]}  # type: ignore[attr-defined,union-attr]
     assert unmet["Tischgröße an den gespielten Partien belegt"] == reason
+    assert "Holm angewandt" in unmet
     # review round 3: the unproven member stays in the family as a placeholder (p = 1); the
     # family keeps its size, so 6:0 (p = 0.031) is withheld at Holm 2 * p > 0.05
     notes = got["good"]["hinweise"]
@@ -923,6 +950,38 @@ def test_a_table_the_played_games_do_not_prove_gives_no_maturity_and_stays_a_pla
     assert any(str(n).startswith("Holm-Familie: 2 Bestätigung(en)") for n in notes), notes
     assert "Ergebnis durch Holm zurückgehalten" in notes
     assert got["good"]["belegt"] is False and got["good"]["stufe"] == "R1"
+
+
+def test_a_mismatch_confirmation_with_12_to_0_is_not_evaluable_never_a_hint() -> None:
+    mismatch = _finding("bad12", table_hash="t5", wins=12)
+    mismatch.entry.update(table_size=None, table_size_check="mismatch")
+    got = _assess(mismatch)["bad12"]
+    assert got["stufe"] is None and got["belegt"] is False
+    assert got["urteil"] == maturity.NOT_EVALUABLE
+    assert "Hinweis" not in str(got["urteil_text"])
+    assert maturity.TABLE_CHECK_TEXT["mismatch"] in str(got["urteil_text"])
+    assert got["holm_p"] is None and got["effektives_p"] is None
+    assert not any("Holm-Familie" in str(n) for n in got["hinweise"])  # type: ignore[union-attr]
+
+
+def test_observed_table_sizes_rejects_a_pod_with_zero_pairs() -> None:
+    zero_only = {
+        "result": {
+            "pods": [{"opponents": ["o1", "o2", "o3", "o4"], "pairs": 0}],
+            "pairs_completed": 0,
+        }
+    }
+    assert paired_series.observed_table_sizes(zero_only) == ([], True)
+    mixed = {
+        "result": {
+            "pods": [
+                {"opponents": ["o1", "o2", "o3", "o4"], "pairs": 5},
+                {"opponents": ["o1", "o2", "o3", "o4", "o5"], "pairs": 0},
+            ],
+            "pairs_completed": 5,
+        }
+    }
+    assert paired_series.observed_table_sizes(mixed) == ([5], True)
 
 
 def test_a_cancelled_confirmation_without_pairs_keeps_the_family_at_two() -> None:
@@ -953,12 +1012,17 @@ def test_the_finding_table_text_never_claims_a_cohort_without_proof() -> None:
         "tisch_sitze": None,
         "tisch_text": "Tisch mit 5 Sitzen (geplant, nicht an Partien geprüft)",
     }
+    for check in (None, "unknown", "unobserved", "mismatch", "unreadable"):
+        fields = maturity.table_fields(5, check)
+        assert fields["tisch_sitze"] is None, check
+        assert "Zufallsbasis" not in str(fields["tisch_text"]), check
     assert maturity.table_fields(None, "mismatch")["tisch_text"] == (
         "Tischgröße unbekannt: Plan und gespielte Partien weichen ab"
     )
-    assert maturity.table_fields(6, "consistent")["tisch_text"] == (
-        "Tisch mit 6 Sitzen (Zufallsbasis 1/6)"
-    )
+    assert maturity.table_fields(6, "consistent") == {
+        "tisch_sitze": 6,
+        "tisch_text": "Tisch mit 6 Sitzen (Zufallsbasis 1/6)",
+    }
 
 
 def test_the_experiment_list_names_the_table_of_each_row() -> None:

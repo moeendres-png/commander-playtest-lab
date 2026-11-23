@@ -1839,6 +1839,33 @@ def test_g3_an_unreadable_guard_stays_unknown_and_never_becomes_zero_of_zero(
     assert row["paired-listed"]["determinism_guard"] is None
 
 
+def test_g3_list_series_survives_oserror_when_reading_journal(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """``_guard_of`` catches ``OSError`` from reading the journal so ``list_series`` never fails."""
+    from commander_lab.studio import paired_series
+
+    _stored_series_with_journal(tmp_path, "paired-oserr", violation=False)
+    real_open = Path.open
+
+    def unreadable_journal(self: Path, *args: object, **kwargs: object) -> object:
+        if self.name == "journal.jsonl":
+            raise PermissionError("Journal nicht lesbar")
+        return real_open(self, *args, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(Path, "open", unreadable_journal)
+    guard = paired_series._guard_of(tmp_path, "paired-oserr")
+    assert isinstance(guard, dict) and "Journal nicht lesbar" in str(guard.get("error"))
+    rows = {
+        str(r["series_id"]): r for r in paired_series.PairedSeriesManager().list_series(tmp_path)
+    }
+    assert "paired-oserr" in rows
+    listed_guard = rows["paired-oserr"]["determinism_guard"]
+    assert isinstance(listed_guard, dict) and "Journal nicht lesbar" in str(
+        listed_guard.get("error")
+    )
+
+
 @pytest.mark.parametrize("pool_switch", [None, "1"])
 def test_k5_a_real_violation_of_an_old_key_series_is_reported_as_violation_not_as_key_version(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, pool_switch: str | None

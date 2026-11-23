@@ -1521,7 +1521,7 @@ class PairedSeriesManager:
                     return False
                 if series_key_problem(target_folder, sid) is not None:
                     return False  # recorded with another game key version: start a new series
-            except (ManifestMismatch, ValueError):
+            except (ManifestMismatch, OSError, ValueError):
                 return False
             deck_dir = games_folder(target_folder) / "paired_decks" / sid
             if not list(deck_dir.glob("base-*.json")) or not list(deck_dir.glob("variant-*.json")):
@@ -1876,7 +1876,7 @@ def _guard_of(data_folder: Path, series_id: str) -> dict[str, object] | None:
     """
     try:
         return series_guard(data_folder, series_id)
-    except ManifestMismatch as error:
+    except (ManifestMismatch, OSError) as error:
         return {"error": str(error)}
     except ValueError:
         return None
