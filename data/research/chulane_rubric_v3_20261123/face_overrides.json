@@ -1,0 +1,52 @@
+{
+ "schema": "face-overrides-1",
+ "stand": "2026-11-23",
+ "zweck": "Seitenwerte, die in den Fakten v2 (Studio-View card_fact) fehlen: Power/Toughness der Rueckseiten (Plan Bewertung v3, G7). Generator v2 (Refs #1404) liest nur diese Datei und Dateien im Repo, kein Netz.",
+ "regel": "Eine Zeile je Wert mit Quelle und Datum. Die Datei data/cards/pilot_card_knowledge.json (Scryfall-Schnappschuss) fuehrt nur die Vorderseite, data/cards/xmage_card_facts.json keine Rueckseiten. Die vier Werte stehen im Repo nur im Phase-A2-Bericht (Tabelle a), der sie am 2026-11-22 aus dem oeffentlichen XMage-Quelltext gelesen hat (Sekundaerquelle). Fehlt ein Wert hier und in den Kartendaten, zeigt der Block 'UNBEKANNT'.",
+ "rows": [
+  {
+   "card": "Faithful Squire // Kaiso, Memory of Loyalty",
+   "oracle_id": "2358ffc2-6663-4ef3-b3a4-b036a4733ac6",
+   "face": 2,
+   "face_name": "Kaiso, Memory of Loyalty",
+   "field": "power_toughness",
+   "value": "3/4",
+   "source": "docs/analysis-reports/rating_v3_phaseA2_kartenblock_defekte_20261123.md, Tabelle (a)",
+   "origin": "XMage-Quelltext, Checkout @16dc17ea (Sekundaerquelle ueber den Bericht)",
+   "date": "2026-11-22"
+  },
+  {
+   "card": "Brigid, Clachan's Heart // Brigid, Doun's Mind",
+   "oracle_id": "60fc89a1-cc6f-4a32-84c3-09abf7a4a1df",
+   "face": 2,
+   "face_name": "Brigid, Doun's Mind",
+   "field": "power_toughness",
+   "value": "3/2",
+   "source": "docs/analysis-reports/rating_v3_phaseA2_kartenblock_defekte_20261123.md, Tabelle (a)",
+   "origin": "XMage-Quelltext, Checkout @16dc17ea (Sekundaerquelle ueber den Bericht)",
+   "date": "2026-11-22"
+  },
+  {
+   "card": "Thraben Sentry // Thraben Militia",
+   "oracle_id": "9636073e-e361-4d2a-92f6-5fe049e5eb23",
+   "face": 2,
+   "face_name": "Thraben Militia",
+   "field": "power_toughness",
+   "value": "5/4",
+   "source": "docs/analysis-reports/rating_v3_phaseA2_kartenblock_defekte_20261123.md, Tabelle (a)",
+   "origin": "XMage-Quelltext, Checkout @16dc17ea (Sekundaerquelle ueber den Bericht)",
+   "date": "2026-11-22"
+  },
+  {
+   "card": "Grizzled Outcasts // Krallenhorde Wantons",
+   "oracle_id": "abcfcc71-77c0-46e7-93c3-726967946b12",
+   "face": 2,
+   "face_name": "Krallenhorde Wantons",
+   "field": "power_toughness",
+   "value": "7/7",
+   "source": "docs/analysis-reports/rating_v3_phaseA2_kartenblock_defekte_20261123.md, Tabelle (a)",
+   "origin": "XMage-Quelltext, Checkout @16dc17ea (Sekundaerquelle ueber den Bericht)",
+   "date": "2026-11-22"
+  }
+ ]
+}
