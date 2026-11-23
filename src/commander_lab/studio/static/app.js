@@ -42,7 +42,7 @@ const state = {
   activePaired: null, pairedPollTimer: null, pairedHistory: [], readinessAudit: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
   subset: null, subsetNames: [], subsetWanted: null, strength: null, showTier: true, changeSeq: 0, savedSeq: 0, layers: null, diffDefault: null,
-  includeUnowned: false, superfriendsFilter: "", autoDeck: null,
+  includeUnowned: false, unownedSelection: null, superfriendsFilter: "", autoDeck: null,
   cardTrend: null, cardTrendDays: 180, cardTrendBracket: "", cardTrendSource: "edhrec", cardTrendReq: null,
   colors: new Set(), columns: new Set(["img", "name", "mana_cost", "type_line", "available", "freq", "edhrec"]),
 };
@@ -271,9 +271,28 @@ function movePreview(event) {
   const left = event.clientX + 290 > innerWidth ? event.clientX - 280 : event.clientX + 20;
   box.style.left = left + "px"; box.style.top = Math.min(event.clientY - 40, innerHeight - 380) + "px";
 }
+const UNOWNED_REASON_LABELS = {
+  corpus: "Korpus",
+  edhrec: "EDHREC",
+  planeswalker: "Planeswalker",
+  proliferate: "Proliferate",
+  in_saved_deck: "Im gespeicherten Deck",
+};
+function unownedReasonsText(card) {
+  if (!card || !Array.isArray(card.selected_by) || !card.selected_by.length) return "";
+  return card.selected_by.map((key) => UNOWNED_REASON_LABELS[key] || key).join(", ");
+}
 function wishlistBadge(card) {
   if (typeof StudioWishlist === "undefined" || !StudioWishlist.isUnowned(card)) return null;
-  return h("span", { class: "pill warn" }, "Zukauf (0 im Besitz)");
+  const reasons = unownedReasonsText(card);
+  return h(
+    "span",
+    {
+      class: "pill warn",
+      title: reasons ? `Zukauf-Auswahl: ${reasons}` : "Nicht im Besitz (Zukauf-Kandidat)",
+    },
+    reasons ? `Zukauf (0 im Besitz) · ${reasons}` : "Zukauf (0 im Besitz)"
+  );
 }
 function tile(card) {
   const count = qty(card.card_id);
@@ -2486,6 +2505,7 @@ async function openCard(card) {
     h("p", { class: "pre-line" }, card.text),
     card.roles.length ? h("p", {}, card.roles.map((role) => h("span", { class: "chip chip-static mr-1" }, roleName(role)))) : null,
     h("p", { class: "note" }, `Sammlung: ${StudioUI.num(card.owned, 0)} im Besitz, ${StudioUI.num(card.available, 0)} frei` + (card.reserved ? `, ${StudioUI.num(card.reserved, 0)} reserviert` : "") + ` · Kartendaten: ${card.fact_source === "scryfall" ? "Scryfall" : "deine Tabelle"}` + (card.edhrec_rank ? ` · EDHREC-Rang ${StudioUI.num(card.edhrec_rank, 0)}` : "") + (card.game_changer ? " · Game Changer" : "") + ` · Simulator: ${StudioUI.simStatusLabel(card.sim_status)}`),
+    unownedReasonsText(card) ? h("p", { class: "note" }, "Zukauf-Auswahl: ", card.selected_by.map((key) => h("span", { class: "chip chip-static mr-1" }, UNOWNED_REASON_LABELS[key] || key))) : null,
     allocationDetail(h, card),
     h("div", { class: "actions" },
       h("button", { type: "button", class: "primary", disabled: count >= maxCopies(card), onclick: () => { add(card); openCard(card); } }, "Ins Deck"),
@@ -2502,7 +2522,7 @@ async function openCard(card) {
     h("h3", {}, "Häufigkeit in den Quelldecks"), frequencies, h("p", { class: "note" }, "Gelb: Gruppe mit weniger als 30 Decks."),
     h("p", {}, h("a", { href: `decks.html?commander=${encodeURIComponent(COMMANDER)}&must=${encodeURIComponent(card.name)}`, class: "chip" }, "Quelldecks mit dieser Karte im Deck-Browser öffnen →")),
     trendBox,
-    card.universe && activeScope() ? h("p", { class: "note" }, `Im ${activeScope().label}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung)" : card.universe.matched ? `${StudioUI.num(card.universe.hits, 0)}/${StudioUI.num(card.universe.denominator, 0)} Decks (Verbreitung gezählt, keine Stärke)` : card.in_collection === false ? `unbekannt (${card.universe.reason})` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
+    card.universe && activeScope() ? h("p", { class: "note" }, `Im ${activeScope().label}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung)" : card.universe.matched ? `${StudioUI.num(card.universe.hits, 0)}/${StudioUI.num(card.universe.denominator, 0)} Decks (Verbreitung gezählt, keine Stärke)` : card.universe.reason === "UNIVERSE_EMPTY" ? "unbekannt (das Universum enthält keine Decks)" : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
     card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, strengthBox, understandingBox, extra);
   box.append(left, right); $("modal").hidden = false;
   if (!state.commanderIds.includes(card.card_id) && !card.basic) renderSwapBox(swapBox, card, initialSwapMode);
@@ -2757,6 +2777,54 @@ function renderSimReadiness() {
     ? "Alle Karten des Pools sind für den Simulator bereit: der Filter ändert nichts."
     : `${StudioUI.num(missing, 0)} Karten haben keine vollständigen Simulator-Kartendaten (Status laut deck_readiness).`;
 }
+function formatUnownedSelection(sel) {
+  if (!sel || typeof sel !== "object") return "";
+  const counts = sel.counts || {};
+  const parts = [];
+  for (const key of ["corpus", "edhrec", "planeswalker", "proliferate", "in_saved_deck"]) {
+    const n = counts[key] || 0;
+    if (!n) continue;
+    const label = UNOWNED_REASON_LABELS[key] || key;
+    if (key === "corpus" && sel.min_corpus_decks && sel.corpus_denominator) {
+      parts.push(`${label} ${StudioUI.num(n, 0)} (≥${StudioUI.num(sel.min_corpus_decks, 0)}/${StudioUI.num(sel.corpus_denominator, 0)})`);
+    } else if (key === "edhrec" && sel.min_edhrec_denominator) {
+      parts.push(`${label} ${StudioUI.num(n, 0)} (N≥${StudioUI.num(sel.min_edhrec_denominator, 0)})`);
+    } else {
+      parts.push(`${label} ${StudioUI.num(n, 0)}`);
+    }
+  }
+  const head = `Zukauf-Auswahl: ${StudioUI.num(sel.total || 0, 0)} Karten`;
+  return parts.length ? `${head} · ${parts.join(" · ")}` : head;
+}
+function renderUnownedSelection() {
+  const box = $("f-unowned");
+  const label = box && box.parentElement;
+  if (!label) return;
+  let info = $("unowned-selection-info");
+  if (!state.includeUnowned || !state.unownedSelection) {
+    if (info) {
+      info.textContent = "";
+      info.hidden = true;
+    }
+    return;
+  }
+  if (!info) {
+    info = h("span", { id: "unowned-selection-info", class: "muted" });
+    label.insertAdjacentElement("afterend", info);
+  }
+  const sel = state.unownedSelection;
+  const text = formatUnownedSelection(sel);
+  const tips = [];
+  if (sel.min_corpus_decks && sel.corpus_denominator) {
+    tips.push(`Korpus-Schwelle: mindestens ${StudioUI.num(sel.min_corpus_decks, 0)}/${StudioUI.num(sel.corpus_denominator, 0)} Decks (${StudioUI.num(sel.min_corpus_pct, 0)} %)`);
+  }
+  if (sel.min_edhrec_denominator) {
+    tips.push(`EDHREC: mindestens ${StudioUI.num(sel.min_edhrec_denominator, 0)} Decks`);
+  }
+  info.textContent = text;
+  info.title = tips.join(" · ");
+  info.hidden = !text;
+}
 // Every card of the pool, collection and Zukauf cards, is ready for the simulator.
 function simAllReady() {
   const info = state.simReadiness, extra = state.simReadinessUnowned;
@@ -2854,7 +2922,8 @@ function applyPool(pool) {
   state.countedUniverse = pool.counted_universe || null;
   state.simReadiness = pool.sim_readiness || null;
   state.simReadinessUnowned = pool.sim_readiness_unowned || null;
-  renderUniverseInfo(); renderBracketBar(); renderGcBandBar(); renderSimReadiness(); renderLabelFilter();
+  state.unownedSelection = state.includeUnowned && pool.unowned_selection ? pool.unowned_selection : null;
+  renderUniverseInfo(); renderBracketBar(); renderGcBandBar(); renderSimReadiness(); renderUnownedSelection(); renderLabelFilter();
 }
 // Archetype labels are the Owner's own words for ordering cards and decks: a filter and a
 // display, never a rating.

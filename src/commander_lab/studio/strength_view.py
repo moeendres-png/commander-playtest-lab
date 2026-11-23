@@ -559,14 +559,15 @@ def counted_observations(
     ambiguous.update(taken)
     by_name = {name: card_id for card_id, name in display.items()}
     unsure = {by_name[name] for names in taken.values() for name in names if name in by_name}
-    unsure |= universe_view.front_face_withheld(store, list(display))  # same as the local path
+    catalog_ids = [cid for cid in display if not cid.startswith("scryfall:")]
+    unsure |= universe_view.front_face_withheld(store, catalog_ids)  # same as the local path
     total = universe["denominator"]
     result: dict[str, Observation] = {}
     for card_id in display:
         item = observed.get(card_id)
         if item is not None and item.numerator is not None:
             result[card_id] = Observation(item.value, item.numerator, item.denominator)
-        elif card_id not in unsure:
+        elif card_id not in unsure and not card_id.startswith("scryfall:"):
             result[card_id] = Observation(0.0, 0, total)
     return result
 
@@ -613,7 +614,19 @@ def builder_counted_universe(
         return None
     for item in universe_choice.counted_universes(store, commander):
         if item["value"] == choice["counted"]:
-            claims = _claim_index(store, card_ids)
+            catalog_ids = [cid for cid in card_ids if not cid.startswith("scryfall:")]
+            extra_cards = [
+                (cid, display[cid])
+                for cid in card_ids
+                if cid.startswith("scryfall:") and cid in display
+            ]
+            claims = _claim_index(store, catalog_ids)
+            if extra_cards:
+                for card_id, extra_claims in universe_view.extra_name_claims(
+                    store, extra_cards
+                ).items():
+                    for key, claim_kind in extra_claims:
+                        claims.setdefault(key, []).append((claim_kind, card_id))
             return choice, counted_observations(store, commander, item, claims, display, {})
     return None
 

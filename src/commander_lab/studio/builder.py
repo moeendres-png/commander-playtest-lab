@@ -326,6 +326,48 @@ def _corpus_hits(store: StudioStore, commander_names: Sequence[str]) -> dict[str
     )
 
 
+def _corpus_groups(store: StudioStore, commander_names: Sequence[str]) -> dict[str, set[str]]:
+    """Deck-id sets per group (``all``, each play group, each cohort, ``tuned``) over the
+    non-duplicate source decks bound to the commander. Remembered per store state (read-only)."""
+    if not commander_names:
+        return {}
+
+    def compute() -> dict[str, set[str]]:
+        db = store.connection
+        # A commander without any bound source deck has no hits: skip the scan over the corpus
+        # (the data report asks this for every commander of the collection).
+        for name in set(commander_names):
+            if (
+                db.execute(
+                    "SELECT 1 FROM commander_binding WHERE kind = 'corpus_deck' "
+                    "AND commander_name = ? LIMIT 1",
+                    (name,),
+                ).fetchone()
+                is None
+            ):
+                return {}
+        bound, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
+        groups: dict[str, set[str]] = {ALL_DECKS: set()}
+        for row in db.execute(
+            f"SELECT d.deck_id, d.play_group FROM corpus_deck d WHERE d.duplicate_of IS NULL{bound}",
+            bound_args,
+        ):
+            groups[ALL_DECKS].add(str(row["deck_id"]))
+            groups.setdefault(str(row["play_group"]), set()).add(str(row["deck_id"]))
+        for row in db.execute(
+            "SELECT c.cohort, c.deck_id FROM corpus_cohort c JOIN corpus_deck d USING (deck_id) "
+            f"WHERE d.duplicate_of IS NULL{bound}",
+            bound_args,
+        ):
+            groups.setdefault(str(row["cohort"]), set()).add(str(row["deck_id"]))
+        tuned_ids = groups.get("bracket:4", set()) | groups.get("bracket:5", set())
+        if tuned_ids:
+            groups["tuned"] = tuned_ids
+        return groups
+
+    return cache.cached(store, ("corpus_groups", tuple(commander_names)), compute)
+
+
 def _corpus_hits_uncached(
     store: StudioStore, commander_names: Sequence[str]
 ) -> dict[str, dict[str, int]]:
@@ -334,38 +376,9 @@ def _corpus_hits_uncached(
     every spelling merged into the card it names). Groups: ``all``, each play group, each
     cohort. A card absent from the result is unknown; a card present has a real count (0
     included) in every group."""
-    db = store.connection
-    if not commander_names:
+    groups = _corpus_groups(store, commander_names)
+    if not groups:
         return {}
-    # A commander without any bound source deck has no hits: skip the scan over the corpus
-    # (the data report asks this for every commander of the collection).
-    for name in set(commander_names):
-        if (
-            db.execute(
-                "SELECT 1 FROM commander_binding WHERE kind = 'corpus_deck' "
-                "AND commander_name = ? LIMIT 1",
-                (name,),
-            ).fetchone()
-            is None
-        ):
-            return {}
-    bound, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
-    groups: dict[str, set[str]] = {ALL_DECKS: set()}
-    for row in db.execute(
-        f"SELECT d.deck_id, d.play_group FROM corpus_deck d WHERE d.duplicate_of IS NULL{bound}",
-        bound_args,
-    ):
-        groups[ALL_DECKS].add(str(row["deck_id"]))
-        groups.setdefault(str(row["play_group"]), set()).add(str(row["deck_id"]))
-    for row in db.execute(
-        "SELECT c.cohort, c.deck_id FROM corpus_cohort c JOIN corpus_deck d USING (deck_id) "
-        f"WHERE d.duplicate_of IS NULL{bound}",
-        bound_args,
-    ):
-        groups.setdefault(str(row["cohort"]), set()).add(str(row["deck_id"]))
-    tuned_ids = groups.get("bracket:4", set()) | groups.get("bracket:5", set())
-    if tuned_ids:
-        groups["tuned"] = tuned_ids
     sets = corpus_deck_sets(store, commander_names)
     return {
         card: {group: len(decks & members) for group, members in groups.items()}
@@ -668,7 +681,9 @@ def _saved_deck_card_ids(db: sqlite3.Connection, commander_ids: Sequence[str]) -
     for cards in lists.values():
         commanders = frozenset(same_card(card) for card, zone in cards if zone == "commander")
         if commanders == wanted:
-            found.update(card for card, _zone in cards)
+            for card, _zone in cards:
+                found.add(card)
+                found.add(same_card(card))
     return found
 
 
@@ -718,7 +733,6 @@ def _unowned_pool_cards(
     commander_ids: Sequence[str],
     owned_oracle_ids: set[str],
     owned_names_cf: set[str],
-    hits: dict[str, dict[str, int]],
     corpus_denominator: int,
     roles: dict[str, list[str]],
     playgroup: dict[str, sqlite3.Row],
@@ -742,9 +756,14 @@ def _unowned_pool_cards(
     from .labels import card_labels as _card_labels
 
     db = store.connection
-    hits_cf: dict[str, dict[str, int]] = {}
-    for hit_name, group_counts in hits.items():
-        hits_cf.setdefault(hit_name.casefold(), group_counts)
+    # Deduplicating casefolded union over the underlying deck-id sets: different spellings
+    # (e.g. "Rhystic Study" in deck A and "rhystic study" in deck B) combine without losing
+    # variants or double-counting a deck that lists both (#1738).
+    corpus_groups = _corpus_groups(store, commander_names)
+    sets_cf: dict[str, set[str]] = {}
+    if corpus_groups:
+        for raw_name, decks in corpus_deck_sets(store, commander_names).items():
+            sets_cf.setdefault(raw_name.casefold(), set()).update(decks)
     edhrec_by_name: dict[str, sqlite3.Row] = {}
     cohort_bound, cohort_args = bound_to("observation_cohort", "o.cohort", commander_names)
     for obs in db.execute(
@@ -789,10 +808,18 @@ def _unowned_pool_cards(
             continue
         type_line = str(row["type_line"] or "")
         oracle_text = str(row["oracle_text"] or "")
-        # The deck count the threshold reads is the one the card shows (same name matching).
-        card_hits = _first_found(hits, name, front_name)
-        if card_hits is None:
-            card_hits = _first_found(hits_cf, name_cf, front_cf)
+        # The deck count the threshold reads is the one the card shows (deduplicated case union).
+        card_decks: set[str] = set()
+        matched_corpus = False
+        for key in (name_cf, front_cf) if front_cf != name_cf else (name_cf,):
+            if key in sets_cf:
+                card_decks |= sets_cf[key]
+                matched_corpus = True
+        card_hits = (
+            {group: len(card_decks & members) for group, members in corpus_groups.items()}
+            if matched_corpus
+            else None
+        )
         widest = _first_found(edhrec_by_name, name_cf, front_cf)
         card_signals = _first_found(signals_by_name, name_cf, front_cf) or {}
         inclusion = card_signals.get("inclusion")
@@ -811,7 +838,7 @@ def _unowned_pool_cards(
             selected_by.append("planeswalker")
         if "proliferate" in oracle_text.casefold():
             selected_by.append("proliferate")
-        if card_id in saved_ids or f"scryfall:{oracle_id}" in saved_ids:
+        if card_id in saved_ids or oracle_id in saved_ids or f"scryfall:{oracle_id}" in saved_ids:
             selected_by.append("in_saved_deck")
         if not selected_by:
             continue
@@ -1052,7 +1079,6 @@ def pool_cards(
             commander_ids=commander_ids,
             owned_oracle_ids=owned_oracle_ids,
             owned_names_cf=owned_names_cf,
-            hits=hits,
             corpus_denominator=cohorts.get(ALL_DECKS, 0),
             roles=roles,
             playgroup=playgroup,
@@ -1087,20 +1113,19 @@ def pool_cards(
         # the cards): it would resolve and count a universe nobody reads.
         from . import strength_view
 
-        # Only Studio catalog cards are counted here: a Zukauf card without a catalog row
-        # (``scryfall:<oracle_id>``) is no card of the counted spread (it would raise KeyError)
-        # and stays without a count: unknown, never 0 (#1648).
-        counted_cards = [card for card in cards if not str(card["card_id"]).startswith("scryfall:")]
+        # Unowned ``scryfall:<oracle_id>`` cards are matched against stored ``card_signal``
+        # rows of the chosen ``decklist_universe:...`` too; without a stored row they stay
+        # without ``counted`` (unknown, never 0; #1738).
         found = strength_view.builder_counted_universe(
             store,
             commander_names[0],
-            [str(card["card_id"]) for card in counted_cards],
-            {str(card["card_id"]): str(card["name"]) for card in counted_cards},
+            [str(card["card_id"]) for card in cards],
+            {str(card["card_id"]): str(card["name"]) for card in cards},
             strength,
         )
         if found is not None:
             choice, observed = found
-            for card in counted_cards:
+            for card in cards:
                 count = observed.get(str(card["card_id"]))
                 if count is not None and count.numerator is not None and count.denominator:
                     card["counted"] = {
@@ -1115,6 +1140,11 @@ def pool_cards(
         from . import gc_band as gc_band_mod
         from . import universe_view
 
+        extra_cards = [
+            (str(card["card_id"]), str(card["name"]))
+            for card in cards
+            if card.get("in_collection") is False
+        ]
         if gc_band is not None:
             if gc_band not in gc_band_mod.GC_BANDS:
                 raise ValueError(
@@ -1125,17 +1155,23 @@ def pool_cards(
                 {"gc_band": [gc_band]},
                 commander_names=commander_names,
                 label=gc_band,
+                extra_cards=extra_cards or None,
             )
         else:
-            spread = universe_view.pool_spread(store, str(profile), commander_names=commander_names)
+            spread = universe_view.pool_spread(
+                store,
+                str(profile),
+                commander_names=commander_names,
+                extra_cards=extra_cards or None,
+            )
         by_card = {item["card_id"]: item for item in spread["cards"]}
         for card in cards:
             item = by_card.get(str(card["card_id"]))
             if item is None:
                 if card.get("in_collection") is False:
-                    # A Zukauf card: the spread counts collection cards only. It stays under
-                    # the universe's own denominator as unknown (never the cohort figure,
-                    # never 0), so one view never mixes two denominators (#1648).
+                    # Defensive fallback if a Zukauf card was ever absent from the spread:
+                    # keep it under the universe's own denominator as unknown (never the
+                    # cohort figure, never 0), so one view never mixes two denominators (#1648).
                     card["universe"] = {
                         "matched": False,
                         "hits": None,

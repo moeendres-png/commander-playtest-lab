@@ -170,6 +170,7 @@ KINDS: Final[Mapping[str, Kind]] = MappingProxyType(
         "cohort_sizes": Kind(seal="copy", limit="cohort_sizes"),
         "corpus_deck_ids": Kind(),
         "corpus_deck_sets": Kind(),
+        "corpus_groups": Kind(),
         "corpus_hits": Kind(),
         "data_report": Kind(seal="copy"),
         "deck_evidence_bundle": Kind(),
