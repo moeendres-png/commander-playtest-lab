@@ -28,7 +28,21 @@ from functools import lru_cache
 from pathlib import Path
 from typing import IO, Protocol
 
+from commander_lab.engine.rules.full_game_pilot.common import (
+    FULL_GAME_SHUTDOWN_ALREADY_EXITED,
+    FULL_GAME_SHUTDOWN_FORCED_KILL,
+    FULL_GAME_SHUTDOWN_UNACKED_EXIT,
+)
+
 from .store import DataClass, now_utc
+
+UNCLEAN_SHUTDOWN_DISPOSITIONS: frozenset[str] = frozenset(
+    {
+        FULL_GAME_SHUTDOWN_FORCED_KILL,
+        FULL_GAME_SHUTDOWN_UNACKED_EXIT,
+        FULL_GAME_SHUTDOWN_ALREADY_EXITED,
+    }
+)
 
 LOG_SCHEMA = "studio-game-log-1"
 GAMES_FOLDER = "games"
@@ -859,6 +873,20 @@ def delete_game(data_folder: str | Path, game_id: str) -> bool:
     return True
 
 
+def _unclean_shutdown_summary(result: object) -> tuple[bool, str | None]:
+    """Return ``(game_reached_engine_end, shutdown_disposition)`` from a closing result entry."""
+    if not isinstance(result, Mapping):
+        return False, None
+    raw_disposition = result.get("shutdown_disposition")
+    disposition = (
+        raw_disposition
+        if isinstance(raw_disposition, str) and raw_disposition in UNCLEAN_SHUTDOWN_DISPOSITIONS
+        else None
+    )
+    reached = result.get("game_reached_engine_end") is True and disposition is not None
+    return reached, disposition
+
+
 def list_games(
     data_folder: str | Path,
     *,
@@ -879,6 +907,7 @@ def list_games(
             game = read_game(data_folder, game_id, count=0, live_game_ids=live_game_ids)
         except (ValueError, KeyError, OSError, json.JSONDecodeError, EOFError):
             continue
+        reached_end, shutdown_disposition = _unclean_shutdown_summary(game["result"])
         games.append(
             {
                 "game_id": game_id,
@@ -888,6 +917,8 @@ def list_games(
                 "cohort": game["cohort"],
                 "played_seats": game["played_seats"],
                 "result": game["result"],
+                "game_reached_engine_end": reached_end,
+                "shutdown_disposition": shutdown_disposition,
             }
         )
     for path in folder.iterdir():
@@ -899,6 +930,7 @@ def list_games(
         try:
             game = read_game(data_folder, game_id, count=0)
             seen.add(game_id)
+            reached_end, shutdown_disposition = _unclean_shutdown_summary(game["result"])
             games.append(
                 {
                     "game_id": game_id,
@@ -908,6 +940,8 @@ def list_games(
                     "cohort": game["cohort"],
                     "played_seats": game["played_seats"],
                     "result": game["result"],
+                    "game_reached_engine_end": reached_end,
+                    "shutdown_disposition": shutdown_disposition,
                 }
             )
         except (ValueError, KeyError, OSError):

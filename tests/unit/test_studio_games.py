@@ -949,3 +949,50 @@ def test_the_state_routes_carry_the_cohort_of_a_recorded_game(studio_folder: Pat
             assert client.get(f"/api/play/{game_id}").json()["cohort"] == cohort
         played = client.get("/api/play/r-human").json()
         assert played["played_seats"] == [0] and played["human_seats"] == [0]
+
+
+def test_list_games_forwards_only_allowlisted_unclean_shutdown_summary(tmp_path: Path) -> None:
+    """list_games surfaces game_reached_engine_end and shutdown_disposition strictly from the
+    audited 3-item allowlist (#1734)."""
+    for game_id, closing in (
+        ("g-ok", {"status": "finished", "winner_seats": [0]}),
+        ("g-fail", {"status": "failed", "failure_class": "RuntimeError"}),
+        (
+            "g-forced",
+            {
+                "status": "failed",
+                "game_reached_engine_end": True,
+                "shutdown_disposition": "forced_kill",
+                "result_credited": False,
+                "uncredited_winner_seats": [1],
+            },
+        ),
+        (
+            "g-bogus",
+            {
+                "status": "failed",
+                "game_reached_engine_end": True,
+                "shutdown_disposition": "not_allowed",
+            },
+        ),
+    ):
+        recorder = games.GameRecorder(tmp_path, game_id, HEADER)
+        recorder.close(closing)
+
+    listed = {g["game_id"]: g for g in games.list_games(tmp_path)}
+    assert (listed["g-ok"]["game_reached_engine_end"], listed["g-ok"]["shutdown_disposition"]) == (
+        False,
+        None,
+    )
+    assert (
+        listed["g-fail"]["game_reached_engine_end"],
+        listed["g-fail"]["shutdown_disposition"],
+    ) == (False, None)
+    assert (
+        listed["g-forced"]["game_reached_engine_end"],
+        listed["g-forced"]["shutdown_disposition"],
+    ) == (True, "forced_kill")
+    assert (
+        listed["g-bogus"]["game_reached_engine_end"],
+        listed["g-bogus"]["shutdown_disposition"],
+    ) == (False, None)

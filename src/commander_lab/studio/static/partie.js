@@ -1302,6 +1302,13 @@ function renderView() {
 function endText() {
   const result = state.result || {};
   if (result.status !== "finished") {
+    if (result.game_reached_engine_end === true && result.shutdown_disposition) {
+      const base = `Partie zu Ende gespielt, Engine-Prozess endete nicht sauber (${result.shutdown_disposition}), Ergebnis nicht gewertet.`;
+      const uncredited = Array.isArray(result.uncredited_winner_seats) ? result.uncredited_winner_seats : [];
+      return uncredited.length
+        ? `${base} (Engine-Sieger, nicht gewertet: ${uncredited.map((seat) => `${seatName(seat)} (${seatLabel(seat)})`).join(", ")})`
+        : base;
+    }
     const reason = result.failure_message || result.failure_class || "abgebrochen";
     if (String(reason).includes("DECISION_TIMEOUT")) return "Die Partie wurde beendet: die Engine hat ein Entscheidungslimit gemeldet (DECISION_TIMEOUT). Im Studio gibt es kein Zeitlimit; bitte die Partie neu starten.";
     return `Die Partie wurde nicht zu Ende gespielt (${reason}).`;
@@ -1612,8 +1619,18 @@ async function refreshTitles() {
 function gameTitle(game) {
   const seats = (game.header.seats || []).map((seat) => (seat.commanders || []).join(" + ") || seat.deck_id).join(" · ");
   const cohortMark = StudioCohort.mark(game);
-  const end = game.running ? "läuft" : game.result && game.result.status === "finished" ? `Sieger ${(game.result.winner_seats || []).map(seatName).join(", ") || "keiner"}` : "abgebrochen";
-  const skipped = Number((game.result && game.result.forced_decisions_skipped) || 0);
+  const res = game.result || {};
+  const reachedEnd = Boolean(game.game_reached_engine_end || res.game_reached_engine_end);
+  const shutdownDisp = game.shutdown_disposition || res.shutdown_disposition || "";
+  const finished = res.status === "finished" || game.status === "finished";
+  const end = game.running
+    ? "läuft"
+    : finished
+      ? `Sieger ${(res.winner_seats || []).map(seatName).join(", ") || "keiner"}`
+      : reachedEnd && shutdownDisp
+        ? `nicht gewertet (${shutdownDisp})`
+        : "abgebrochen";
+  const skipped = Number(res.forced_decisions_skipped || 0);
   const skippedPart = skipped > 0 ? ` (+ ${skipped} erzwungene Pässe)` : "";
   return `${cohortMark ? `[${cohortMark.cohort === StudioCohort.PLAYED ? "Mensch" : cohortMark.text}] ` : ""}${seats} · Seed ${game.header.seed} · ${game.frames} Entscheidungen${skippedPart} · ${end}`;
 }
