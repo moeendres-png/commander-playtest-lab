@@ -120,11 +120,11 @@ POOL_REFERENCE_PART_B: dict[int, dict[str, object]] = {
 #: Assumed block correlation of the seat rotations of one seed, as in ``power_table`` (#1043).
 PLANNING_BLOCK_CORRELATION = 0.25
 PLANNING_REFERENCE_EFFECT_PP = 5.0
-#: Tables whose plan uses the base win rate 1/N of N equally strong seats (#1661, #1672): five to
-#: eight seats (1/7 = 14.3 %, 1/8 = 12.5 %). Four seats keep the engine lane's 0.63 (built on
-#: 25 % = 1/4) byte for byte; two and three seats also keep it (their 1/N lies above 25 %, a
-#: pre-existing gap not changed here).
-BASELINE_PLAN_SEATS = (5, 6, 7, 8)
+#: Tables whose plan uses the base win rate 1/N of N equally strong seats (#1661, #1672, #1757):
+#: all seat counts except four (2, 3, 5, 6, 7, 8). Four seats keep the engine lane's 0.63 (built
+#: on 25 % = 1/4) byte for byte. At two seats p = 1/2 (exact independent pair sd 0.7071, scaled
+#: pair_sd 0.7275); at three seats p = 1/3 (exact 0.6667, scaled pair_sd 0.6859).
+BASELINE_PLAN_SEATS = (2, 3, 5, 6, 7, 8)
 #: Seven and eight seats (#1672): no throughput and no wall-time ratio is measured on the Owner PC,
 #: so the duration of a series stays UNKNOWN. What exists is one game per JVM in the cloud container
 #: of the feasibility run (research branch ``research/seats-7-8-1672``, report
@@ -229,9 +229,10 @@ def observed_table_sizes(raw: Mapping[str, object]) -> ObservedTables:
 def planning_pair_sd(table_size: int) -> float:
     """The planning sd of one pair at ``table_size`` seats.
 
-    Four seats (and two and three): the engine lane's conservative 0.63, unchanged. Five and
-    six seats: the same conservative factor (0.63 / 0.612) on the exact sd of independent games
-    at the base win rate p = 1/N, ``sqrt(2 * p * (1 - p))``: 0.582 at five, 0.542 at six seats.
+    Four seats: the engine lane's conservative 0.63, unchanged. All other seat counts (two, three,
+    five to eight): the same conservative factor (0.63 / 0.612) on the exact sd of independent
+    games at the base win rate p = 1/N, ``sqrt(2 * p * (1 - p))``: 0.7275 at two, 0.6859 at
+    three, 0.582 at five, 0.5422 at six, 0.5091 at seven, 0.4812 at eight seats.
     """
     seats = int(table_size)
     if seats not in BASELINE_PLAN_SEATS:
@@ -261,8 +262,8 @@ def wilson_games_needed(win_rate: float, relative: float = WILSON_RELATIVE_PRECI
 def planning_baseline(table_size: int) -> dict[str, object]:
     """The base win rate 1/N of a table and the games a single win share needs for +-20 %.
 
-    ``applies_to_plan`` says whether the pair sd of the plan is built on it (five and six
-    seats) or the engine lane's 0.63 stays (two to four seats)."""
+    ``applies_to_plan`` says whether the pair sd of the plan is built on it (two, three, and
+    five to eight seats) or the engine lane's 0.63 stays (four seats)."""
     seats = int(table_size)
     if not MIN_SEATS <= seats <= MAX_SEATS:
         raise ValueError(f"Tischgröße muss zwischen {MIN_SEATS} und {MAX_SEATS} liegen")
@@ -320,8 +321,8 @@ def planned_detectable_difference_pp(
     ``1 + (m - 1) * 0.25`` at the upper end. A plan, not a measurement.
 
     ``table_size`` (seats at the table, never the seats per seed: without rotation that is 1)
-    names the base win rate 1/N (``baseline``); at five and six seats the pair sd is built on
-    it (``planning_pair_sd``), at two to four seats the 0.63 stays.
+    names the base win rate 1/N (``baseline``); at two, three, and five to eight seats the pair
+    sd is built on it (``planning_pair_sd``), at four seats the 0.63 stays.
     """
     pairs = max(2, int(budget_pairs))
     seats = max(1, int(seats_per_seed))
