@@ -1722,3 +1722,43 @@ def test_unowned_cards_do_not_break_the_counted_universe_of_the_collection(
     assert by_name["Counted Walker"]["in_collection"] is False
     # Zukauf card whose front face collides with an exact collection card stays unknown
     assert "counted" not in by_name[f"{owned} // Back Face"]
+
+
+def test_combo_caches_detect_same_size_same_mtime_rewrite(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """``load_spellbook_combo_cards`` and ``_cached_combo_partners`` stamp the combo file by
+    content (SHA-256 + size), so rewriting it with the exact same byte length and identical
+    ``mtime_ns`` is observed immediately (#1615)."""
+    import os
+
+    from commander_lab.studio import sources
+
+    combos_path = tmp_path / "spellbook_combos.json"
+    first = json.dumps({"combos": [{"commander": "Chulane", "cards": ["Card A", "Card B"]}]})
+    second = json.dumps({"combos": [{"commander": "Chulane", "cards": ["Card X", "Card Y"]}]})
+    assert len(first.encode("utf-8")) == len(second.encode("utf-8"))
+
+    combos_path.write_text(first, encoding="utf-8")
+    mtime_ns = combos_path.stat().st_mtime_ns
+    monkeypatch.setattr(builder, "_COMBO_PARTNERS_PATH", combos_path)
+
+    assert sources.load_spellbook_combo_cards(combos_path, commander="Chulane") == {
+        "Card A",
+        "Card B",
+    }
+    assert "card a||card b" in builder._cached_combo_partners(["Chulane, Teller of Tales"])
+
+    # Overwrite with identical byte size AND restore the exact original mtime_ns.
+    combos_path.write_text(second, encoding="utf-8")
+    os.utime(combos_path, ns=(mtime_ns, mtime_ns))
+    assert combos_path.stat().st_mtime_ns == mtime_ns
+    assert combos_path.stat().st_size == len(first.encode("utf-8"))
+
+    assert sources.load_spellbook_combo_cards(combos_path, commander="Chulane") == {
+        "Card X",
+        "Card Y",
+    }
+    partners_after = builder._cached_combo_partners(["Chulane, Teller of Tales"])
+    assert "card x||card y" in partners_after
+    assert "card a||card b" not in partners_after

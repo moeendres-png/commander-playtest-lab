@@ -2042,8 +2042,18 @@ def test_the_documented_models_describe_the_real_answers(
             seen.update(f"pool.{key}" for key in body)
             for card in body["cards"]:
                 seen.update(f"card.{key}" for key in card)
+                if card.get("edhrec") is not None and card["edhrec"]["pct"] is None:
+                    seen.add("null.edhrec.pct")
+                if (
+                    card.get("playgroup") is not None
+                    and card["playgroup"]["median_cast_turn"] is None
+                ):
+                    seen.add("null.playgroup.median_cast_turn")
         if path == "/api/deck-browser":
             seen.update(f"deck.{deck['origin']}" for deck in body["decks"])
+            for co in body["cooccurrence"]:
+                if co["card_id"] is None and co["name"] == "Unowned Secret Tech":
+                    seen.add("null.cooccurrence.card_id")
 
     big = tmp_path / "big"
     big_store = _big_store(big)
@@ -2054,6 +2064,41 @@ def test_the_documented_models_describe_the_real_answers(
         colors="G",
         type_line="Legendary Planeswalker — Zukauf",
         oracle_text="Proliferate.",
+    )
+    # NULL store rows that exercise nullable fields on EdhrecEntry and PlaygroupEntry (#1615).
+    pool_sample = big_store.connection.execute(
+        "SELECT c.card_id, c.oracle_id, c.oracle_name "
+        "FROM card_fact c JOIN inventory i USING (card_id) "
+        "WHERE c.commander_legal = 1 AND c.oracle_id IS NOT NULL "
+        "ORDER BY c.card_id LIMIT 1"
+    ).fetchone()
+    assert pool_sample is not None
+    null_card_id = str(pool_sample["card_id"])
+    null_oracle_id = str(pool_sample["oracle_id"])
+    null_card_name = str(pool_sample["oracle_name"])
+    null_source_id = str(
+        big_store.connection.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0]
+    )
+    big_store.connection.execute(
+        "INSERT OR IGNORE INTO commander_binding(kind, key, commander_name, basis) "
+        "VALUES ('observation_cohort', 'edhrec_null_test', ?, 'OWNER_DECLARED')",
+        (COMMANDER,),
+    )
+    big_store.connection.execute(
+        "INSERT INTO observation(card_id, card_name, metric, cohort, value, numerator, "
+        "denominator, data_class, source_id) "
+        "VALUES (?, ?, 'inclusion_pct', 'edhrec_null_test', NULL, NULL, 999999, "
+        "'OBSERVED_DECK', ?)",
+        (null_card_id, null_card_name, null_source_id),
+    )
+    big_store.connection.execute(
+        "INSERT OR REPLACE INTO playgroup_card_atlas("
+        "oracle_id, format_mode, card_id, card_name, slug, live_inclusion_pct, "
+        "median_cast_turn, fetch_status, insufficient_sample, source_id, "
+        "created_at, updated_at) "
+        "VALUES (?, 'multiplayer', ?, ?, 'null-turn-slug', 12.5, NULL, 'OK', 0, ?, "
+        "'2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')",
+        (null_oracle_id, null_card_id, null_card_name, null_source_id),
     )
     big_store.connection.commit()
     big_store.close()
@@ -2066,7 +2111,12 @@ def test_the_documented_models_describe_the_real_answers(
     saved = tmp_path / "saved"
     _seed_store(saved, num_source_decks=20)
     saved_client = TestClient(create_app(saved / "studio"))
-    for params in ({}, {"commander": SAVED_COMMANDER}, {"origin": "saved"}):
+    for params in (
+        {},
+        {"commander": SAVED_COMMANDER},
+        {"commander": SAVED_COMMANDER, "include_unowned": True},
+        {"origin": "saved"},
+    ):
         check(saved_client, "/api/deck-browser", params)
 
     folder = tmp_path / "counted"
@@ -2089,7 +2139,7 @@ def test_the_documented_models_describe_the_real_answers(
     audit_store.close()
     check(TestClient(create_app(audited / "studio")), "/api/corpus-audit", {})
 
-    assert n == 20
+    assert n == 21
     for variant in (
         "pool.counted_universe",
         "pool.universe",
@@ -2100,5 +2150,91 @@ def test_the_documented_models_describe_the_real_answers(
         "card.selected_by",
         "deck.saved",
         "deck.source",
+        "null.edhrec.pct",
+        "null.playgroup.median_cast_turn",
+        "null.cooccurrence.card_id",
     ):
         assert variant in seen, variant
+
+
+def test_role_origin_audit_key_order_is_independent_of_hash_seed(tmp_path: Path) -> None:
+    """``role_origin_audit`` and ``/api/roles/audit?commander=...`` emit deterministic key
+    order for ``per_role_pool_counts`` (canonical ``ROLES`` then extra roles alphabetically)
+    and ``pool_claims_by_origin`` regardless of ``PYTHONHASHSEED`` (#1615)."""
+    import subprocess
+    import sys
+
+    from commander_lab.studio.roles import (
+        ORIGIN_CROSSWALK,
+        ORIGIN_ORACLE_TEXT,
+        ORIGIN_TAGGER,
+        ROLES,
+    )
+
+    store_dir = tmp_path / "audit_det"
+    store = _big_store(store_dir, decks=5)
+    db = store.connection
+    source_id = str(db.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0])
+    # Assign several extra roles outside ROLES onto the same legal pool card so set iteration
+    # order would depend on PYTHONHASHSEED if not sorted.
+    pool_oracle = str(
+        db.execute(
+            "SELECT c.oracle_id FROM card_fact c JOIN inventory i USING (card_id) "
+            "WHERE c.commander_legal = 1 AND c.oracle_id IS NOT NULL "
+            "ORDER BY c.card_id LIMIT 1"
+        ).fetchone()[0]
+    )
+    extra_roles = ("wipe", "draw", "zz_extra", "aa_extra", "mm_extra")
+    for role in extra_roles:
+        db.execute(
+            "INSERT OR IGNORE INTO card_role(oracle_id, role, source_id) VALUES (?, ?, ?)",
+            (pool_oracle, role, source_id),
+        )
+    for origin, role in (
+        (ORIGIN_TAGGER, "ramp"),
+        (ORIGIN_ORACLE_TEXT, "ramp"),
+        (ORIGIN_CROSSWALK, "removal"),
+    ):
+        db.execute(
+            "INSERT INTO card_role_claim(oracle_id, role, role_origin, scope_key, source_id) "
+            "VALUES (?, ?, ?, 'test', ?)",
+            (pool_oracle, role, origin, source_id),
+        )
+    db.commit()
+    store.close()
+
+    probe = (
+        "import json, sys; "
+        "from pathlib import Path; "
+        "from commander_lab.studio.store import StudioStore; "
+        "from commander_lab.studio.roles import role_origin_audit; "
+        "s = StudioStore.open(Path(sys.argv[1])); "
+        "res = role_origin_audit(s, commander=sys.argv[2]); "
+        "s.close(); "
+        "print(json.dumps({"
+        "'per_role_keys': list(res['per_role_pool_counts'].keys()), "
+        "'origin_keys': list(res['pool_claims_by_origin'].keys()), "
+        "'json': json.dumps(res)"
+        "}))"
+    )
+    outputs = []
+    for seed in ("1", "42"):
+        env = dict(os.environ, PYTHONHASHSEED=seed)
+        completed = subprocess.run(
+            [sys.executable, "-c", probe, str(store_dir / "studio"), COMMANDER],
+            check=True,
+            capture_output=True,
+            text=True,
+            env=env,
+        )
+        outputs.append(json.loads(completed.stdout))
+
+    assert outputs[0] == outputs[1]
+    per_role_keys = outputs[0]["per_role_keys"]
+    assert per_role_keys[: len(ROLES)] == list(ROLES)
+    tail = per_role_keys[len(ROLES) :]
+    assert tail == sorted(tail)
+    assert set(extra_roles) <= set(tail)
+    origin_keys = outputs[0]["origin_keys"]
+    assert origin_keys == sorted(origin_keys)
+    assert len(origin_keys) >= 3

@@ -26,6 +26,7 @@ from commander_lab.deck_readiness import (
 )
 
 from . import cache
+from .answer_cache import ContentStamp, content_stamp
 from .decks import RevisionCard, color_set, list_rows
 from .german_names import load_german_names
 from .store import BINDING_KINDS, StudioStore, ensure_scryfall_cards, now_utc
@@ -1257,22 +1258,17 @@ _COMBO_PARTNERS_PATH = (
     Path(__file__).resolve().parents[3] / "data" / "meta" / "spellbook_combos.json"
 )
 _combo_partners_lock = threading.Lock()
-_combo_partners: dict[tuple[tuple[str, ...], int, int], frozenset[str]] = {}
+_combo_partners: dict[tuple[tuple[str, ...], ContentStamp], frozenset[str]] = {}
 
 
 def _cached_combo_partners(commander_names: Sequence[str]) -> frozenset[str]:
     """Pure file-based Spellbook combo partners for ``commander_names`` (no SQL queries).
 
     The combo file is large (parsing it takes about half a second), so the result is kept per
-    commander list for as long as the file keeps its modification time and size."""
+    commander list for as long as the file keeps its content stamp (size and SHA-256, #1615)."""
     from .sources import load_spellbook_combo_partners
 
-    try:
-        found = _COMBO_PARTNERS_PATH.stat()
-        file_state = (found.st_mtime_ns, found.st_size)
-    except OSError:
-        file_state = (-1, -1)
-    key = (tuple(commander_names), *file_state)
+    key = (tuple(commander_names), content_stamp(_COMBO_PARTNERS_PATH))
     with _combo_partners_lock:
         if key in _combo_partners:
             return _combo_partners[key]

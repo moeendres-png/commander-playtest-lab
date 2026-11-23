@@ -819,7 +819,8 @@ def role_origin_audit(store: StudioStore, commander: str | None = None) -> dict[
         for card_row in db.execute(
             "SELECT c.card_id, c.oracle_id, c.color_identity "
             "FROM card_fact c JOIN inventory i USING (card_id) "
-            "WHERE c.commander_legal = 1"
+            "WHERE c.commander_legal = 1 "
+            "ORDER BY c.card_id"
         ):
             if not color_set(card_row["color_identity"]) <= identity:
                 continue
@@ -832,12 +833,17 @@ def role_origin_audit(store: StudioStore, commander: str | None = None) -> dict[
             card_roles = roles_by_oracle.get(oid, set())
             if card_roles:
                 pool_tagged += 1
-                for r in card_roles:
+                for r in sorted(card_roles):
                     per_role_pool_counts[r] = per_role_pool_counts.get(r, 0) + 1
         pool_untagged = pool_total - pool_tagged
+        extra_roles = sorted(set(per_role_pool_counts) - set(ROLES))
+        per_role_pool_counts = {role: per_role_pool_counts[role] for role in ROLES} | {
+            role: per_role_pool_counts[role] for role in extra_roles
+        }
 
         for oracle_id, role, origin in db.execute(
-            "SELECT oracle_id, role, role_origin FROM card_role_claim"
+            "SELECT oracle_id, role, role_origin FROM card_role_claim "
+            "ORDER BY role_origin, oracle_id, role"
         ):
             oid = str(oracle_id)
             if oid not in pool_oracle_ids:
@@ -849,6 +855,7 @@ def role_origin_audit(store: StudioStore, commander: str | None = None) -> dict[
                 pool_tagger_by_role.setdefault(r, set()).add(oid)
             elif orig == ORIGIN_ORACLE_TEXT:
                 pool_oracle_by_role.setdefault(r, set()).add(oid)
+        pool_claims_by_origin = dict(sorted(pool_claims_by_origin.items()))
 
     rows: list[dict[str, object]] = []
     for role in ROLES:
