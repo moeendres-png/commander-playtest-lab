@@ -1426,8 +1426,13 @@ BATCH_ID_ATTEMPTS = 1000
 
 
 def batch_id_in_use(store: StudioStore, data_folder: Path, batch_id: str) -> bool:
-    """True when a saved series already owns ``batch_id``: its record file or its run row (#1707)."""
-    if (games_folder(data_folder) / f"{batch_id}.series.json").exists():
+    """True when a saved or failed series already owns ``batch_id`` (#1707, #1737)."""
+    gdir = games_folder(data_folder)
+    if (gdir / f"{batch_id}.series.json").exists():
+        return True
+    if gdir.is_dir() and (
+        any(gdir.glob(f"batch-{batch_id}-s*.jsonl*")) or any(gdir.glob(f"{batch_id}-chunk-s*.out"))
+    ):
         return True
     row = store.connection.execute(
         "SELECT 1 FROM simulation_run WHERE run_id = ?", (f"batch-{batch_id}",)

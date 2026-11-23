@@ -280,3 +280,69 @@ def test_restore_rejects_corrupt_db_missing_db_and_nonempty_target(tmp_path: Pat
     with pytest.raises(FileNotFoundError, match="Datenbank fehlt"):
         restore_backup(backup_dir, missing_db_dir, repo_root=fake_repo)
     assert not missing_db_dir.exists()
+
+
+def test_backup_skips_reserve_files_and_tolerates_vanishing_transient_files(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Punkt 4 (#1737): *.reserve files are excluded and vanishing transient files do not fail."""
+    import shutil
+
+    from commander_lab.studio import backup as backup_module
+
+    data_dir = tmp_path / "studio_data"
+    backup_root = tmp_path / "backups"
+    fake_repo = tmp_path / "repo"
+    fake_repo.mkdir()
+    _seed_store(data_dir)
+
+    games_dir = data_dir / "games"
+    paired_sub = games_dir / "paired_decks" / "paired-1"
+    paired_sub.mkdir(parents=True)
+    (games_dir / "keep.jsonl").write_text('{"ok": 1}\n', encoding="utf-8")
+    (games_dir / "batch-1.reserve").write_text('{"pid": 1}\n', encoding="utf-8")
+    (paired_sub / "nested.reserve").write_text('{"pid": 2}\n', encoding="utf-8")
+    lock_file = paired_sub / "running.lock"
+    lock_file.write_text('{"pid": 3}\n', encoding="utf-8")
+
+    real_copy2 = shutil.copy2
+    copied_names: list[str] = []
+
+    def flaky_copy2(src: object, dst: object, *args: object, **kwargs: object) -> object:
+        src_path = Path(str(src))
+        copied_names.append(src_path.name)
+        if src_path.name == "running.lock":
+            src_path.unlink(missing_ok=True)
+            raise FileNotFoundError(str(src_path))
+        return real_copy2(src, dst, *args, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(backup_module.shutil, "copy2", flaky_copy2)
+
+    manifest = create_backup(data_dir, backup_root, repo_root=fake_repo)
+    backup_dir = Path(str(manifest["backup_dir"]))
+    assert backup_dir.is_dir()
+    paths = {entry["path"] for entry in manifest["files"]}  # type: ignore[union-attr]
+    assert "games/keep.jsonl" in paths
+    assert "games/batch-1.reserve" not in paths
+    assert "games/paired_decks/paired-1/nested.reserve" not in paths
+    assert "games/paired_decks/paired-1/running.lock" not in paths
+    assert "batch-1.reserve" not in copied_names
+    assert "nested.reserve" not in copied_names
+    assert "running.lock" in copied_names
+    assert backup_module._is_transient_game_file(Path("x.reserve")) is True
+    assert backup_module._is_transient_game_file(Path("running.lock")) is True
+    assert backup_module._is_transient_game_file(Path("keep.jsonl")) is False
+
+    # Also prove: a .reserve file vanishing right at copy2 is still safely ignored if reached,
+    # whereas a real data file vanishing at copy2 fails closed and cleans up the partial backup.
+    def real_file_vanishes(src: object, dst: object, *args: object, **kwargs: object) -> object:
+        src_path = Path(str(src))
+        if src_path.name == "keep.jsonl":
+            raise FileNotFoundError(str(src_path))
+        return real_copy2(src, dst, *args, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(backup_module.shutil, "copy2", real_file_vanishes)
+    before_dirs = set(backup_root.iterdir())
+    with pytest.raises(FileNotFoundError):
+        create_backup(data_dir, backup_root, repo_root=fake_repo)
+    assert set(backup_root.iterdir()) == before_dirs

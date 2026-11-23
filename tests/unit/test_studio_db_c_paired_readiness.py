@@ -2459,3 +2459,233 @@ def test_paired_job_still_reaches_terminal_status_when_final_persist_fails(
     assert job.error == "play failure"
     assert job.ended_at is not None
     assert not job.lock_file().exists()
+
+
+def test_two_paired_managers_in_same_second_get_distinct_ids_and_release_claims(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Punkt 5 (#1737): two managers starting identical inputs in one second never collide."""
+    from commander_lab.studio import games, series_reservation
+
+    store, folder = _make_store(tmp_path)
+    gate = threading.Event()
+    first_entered = threading.Event()
+    try:
+        cards = [
+            RevisionCard("cid-chulane", 1, "commander"),
+            RevisionCard("cid-sol-ring", 1, "main"),
+            RevisionCard("cid-forest", 98, "main"),
+        ]
+        rev_base = create_revision(
+            store, deck_id="chulane-collide", name="C", branch="main", cards=cards
+        )
+        rev_var = create_revision(
+            store,
+            deck_id="chulane-collide",
+            name="C",
+            branch="variant",
+            cards=[cards[0], RevisionCard("cid-signet", 1, "main"), cards[2]],
+        )
+        monkeypatch.setattr(paired_series, "_preflight_snapshot_cards", lambda *_a, **_k: None)
+        monkeypatch.setattr(paired_series.time, "time", lambda: 1_800_000_000.0)
+
+        def _make_play(*, block_first: bool) -> paired_comparison.PairPlayer:
+            def _play(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+                if block_first:
+                    first_entered.set()
+                    gate.wait(timeout=5.0)
+                did = "chulane-collide--base" if arm == "base" else "chulane-collide--variant"
+                return {
+                    "exposure": _mock_exposure(  # type: ignore[typeddict-item]
+                        f"{arm}-{seed}-{seat}",
+                        seed=seed,
+                        seat=seat,
+                        tested_deck_id=did,
+                        won=(arm == "variant"),
+                    ),
+                    "failure_class": None,
+                }
+
+            return _play
+
+        mgr1 = PairedSeriesManager()
+        mgr2 = PairedSeriesManager()
+        job1 = mgr1.start_series(
+            store,
+            folder,
+            base_revision_id=rev_base,
+            variant_revision_id=rev_var,
+            pod="precon",
+            budget_pairs=2,
+            look_every_pairs=2,
+            base_seed=3000,
+            rotate_seats=False,
+            play_override=_make_play(block_first=True),
+        )
+        assert first_entered.wait(timeout=5.0)
+        gdir = games.games_folder(folder)
+        assert (gdir / f"{job1.series_id}{series_reservation.RESERVATION_SUFFIX}").is_file()
+
+        # Second separate manager (simulating a second process) in the exact same frozen second
+        job2 = mgr2.start_series(
+            store,
+            folder,
+            base_revision_id=rev_base,
+            variant_revision_id=rev_var,
+            pod="precon",
+            budget_pairs=2,
+            look_every_pairs=2,
+            base_seed=3000,
+            rotate_seats=False,
+            play_override=_make_play(block_first=False),
+        )
+        assert job1.series_id != job2.series_id
+
+        # Let both finish and verify neither overwrote the other's record or snapshots
+        gate.set()
+        done1 = _wait_job(mgr1, folder, job1.series_id)
+        done2 = _wait_job(mgr2, folder, job2.series_id)
+        assert done1["status"] == "completed"
+        assert done2["status"] == "completed"
+        assert job1.series_file().is_file()
+        assert job2.series_file().is_file()
+        assert json.loads(job1.series_file().read_text(encoding="utf-8"))["series_id"] == (
+            job1.series_id
+        )
+        assert json.loads(job2.series_file().read_text(encoding="utf-8"))["series_id"] == (
+            job2.series_id
+        )
+        assert list((gdir / "paired_decks" / job1.series_id).glob("base-*.json"))
+        assert list((gdir / "paired_decks" / job2.series_id).glob("base-*.json"))
+        assert sorted(p.name for p in gdir.glob(f"*{series_reservation.RESERVATION_SUFFIX}")) == []
+
+        # A third manager in the same second AFTER claims were released still avoids disk ids
+        mgr3 = PairedSeriesManager()
+        job3 = mgr3.start_series(
+            store,
+            folder,
+            base_revision_id=rev_base,
+            variant_revision_id=rev_var,
+            pod="precon",
+            budget_pairs=2,
+            look_every_pairs=2,
+            base_seed=3000,
+            rotate_seats=False,
+            play_override=_make_play(block_first=False),
+        )
+        assert job3.series_id not in {job1.series_id, job2.series_id}
+        done3 = _wait_job(mgr3, folder, job3.series_id)
+        assert done3["status"] == "completed"
+        assert sorted(p.name for p in gdir.glob(f"*{series_reservation.RESERVATION_SUFFIX}")) == []
+    finally:
+        gate.set()
+        store.close()
+
+
+def test_paired_start_series_releases_claim_on_startup_failure_and_handles_mkdir_race(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Punkt 5 (#1737): startup error releases claim; FileExistsError on deck_dir retries safely."""
+    from commander_lab.studio import games, series_reservation
+
+    store, folder = _make_store(tmp_path)
+    try:
+        cards = [
+            RevisionCard("cid-chulane", 1, "commander"),
+            RevisionCard("cid-sol-ring", 1, "main"),
+            RevisionCard("cid-forest", 98, "main"),
+        ]
+        rev_base = create_revision(
+            store, deck_id="chulane-race", name="C", branch="main", cards=cards
+        )
+        rev_var = create_revision(
+            store,
+            deck_id="chulane-race",
+            name="C",
+            branch="variant",
+            cards=[cards[0], RevisionCard("cid-signet", 1, "main"), cards[2]],
+        )
+        monkeypatch.setattr(paired_series, "_preflight_snapshot_cards", lambda *_a, **_k: None)
+        monkeypatch.setattr(paired_series.time, "time", lambda: 1_800_000_000.0)
+        gdir = games.games_folder(folder)
+
+        def _play(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+            did = "chulane-race--base" if arm == "base" else "chulane-race--variant"
+            return {
+                "exposure": _mock_exposure(  # type: ignore[typeddict-item]
+                    f"{arm}-{seed}-{seat}",
+                    seed=seed,
+                    seat=seat,
+                    tested_deck_id=did,
+                    won=(arm == "variant"),
+                ),
+                "failure_class": None,
+            }
+
+        # (a) Failure during thread.start() must release reservation and clean up job entry
+        orig_start = threading.Thread.start
+
+        def _boom_start(_self: threading.Thread) -> None:
+            raise RuntimeError("cannot start thread")
+
+        monkeypatch.setattr(threading.Thread, "start", _boom_start)
+        mgr_fail = PairedSeriesManager()
+        with pytest.raises(RuntimeError, match="cannot start thread"):
+            mgr_fail.start_series(
+                store,
+                folder,
+                base_revision_id=rev_base,
+                variant_revision_id=rev_var,
+                pod="precon",
+                budget_pairs=2,
+                look_every_pairs=2,
+                base_seed=3100,
+                rotate_seats=False,
+                play_override=_play,
+            )
+        assert mgr_fail._jobs == {}
+        assert sorted(p.name for p in gdir.glob(f"*{series_reservation.RESERVATION_SUFFIX}")) == []
+        monkeypatch.setattr(threading.Thread, "start", orig_start)
+
+        # (b) Exclusive deck_dir creation: if another process creates seq=1 dir in the race window,
+        # start_series releases seq=1's claim, preserves the pre-existing snapshot, and picks seq=2.
+        expected_digest1 = hashlib.sha256(f"{rev_base}|{rev_var}|3100|1".encode()).hexdigest()[:8]
+        first_id = f"paired-1800000000-1-{expected_digest1}"
+        first_dir = gdir / "paired_decks" / first_id
+        sentinel = first_dir / "keep-me.json"
+        orig_mkdir = Path.mkdir
+        raced = False
+
+        def _racy_mkdir(
+            self: Path, mode: int = 0o777, parents: bool = False, exist_ok: bool = False
+        ) -> None:
+            nonlocal raced
+            if self == first_dir and not exist_ok and not raced:
+                raced = True
+                orig_mkdir(self, mode=mode, parents=True, exist_ok=True)
+                sentinel.write_text('{"existing": true}\n', encoding="utf-8")
+                raise FileExistsError(str(self))
+            orig_mkdir(self, mode=mode, parents=parents, exist_ok=exist_ok)
+
+        monkeypatch.setattr(Path, "mkdir", _racy_mkdir)
+        mgr_race = PairedSeriesManager()
+        job = mgr_race.start_series(
+            store,
+            folder,
+            base_revision_id=rev_base,
+            variant_revision_id=rev_var,
+            pod="precon",
+            budget_pairs=2,
+            look_every_pairs=2,
+            base_seed=3100,
+            rotate_seats=False,
+            play_override=_play,
+        )
+        assert raced is True
+        assert job.series_id != first_id
+        assert sentinel.read_text(encoding="utf-8") == '{"existing": true}\n'
+        done = _wait_job(mgr_race, folder, job.series_id)
+        assert done["status"] == "completed"
+        assert sorted(p.name for p in gdir.glob(f"*{series_reservation.RESERVATION_SUFFIX}")) == []
+    finally:
+        store.close()
