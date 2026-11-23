@@ -8,13 +8,16 @@ environment (``JAVA_TOOL_OPTIONS``, ``JDK_JAVA_OPTIONS``, ``_JAVA_OPTIONS``) and
 options of the worker command before ``-jar`` (``-javaagent``, any other ``-D``, ...). The option
 texts can carry any ``-D`` property or agent and can name machine paths, so each enters the key
 only as a SHA-256 (environment variables: of the whitespace-normalised text, one digest per
-variable; the command: of the remaining options in their order, one digest) and the text itself is
-never stored: not in the key, the task, the manifest or the journal (AGENTS.md section 12). The
+variable; the command: ``jvm_command_options_digest`` hashes only the remaining option arguments
+after the launcher word and before ``-jar`` in their order, one digest — not the path or major
+version of the Java binary itself, e.g. ``/opt/jdk-17/bin/java`` vs. ``java``) and the text itself
+is never stored: not in the key, the task, the manifest or the journal (AGENTS.md section 12). The
 command's options are closed against a list of performance-only options
 (``game_pool.PERFORMANCE_ONLY_JVM_OPTIONS``: heap, stack, collector, AppCDS, logging); an option not
 on it counts (fail-closed). It does not cover what lies outside the process's own configuration
-(the content of a ``JDK_JAVA_OPTIONS`` ``@argfile``, files an agent reads) and it deliberately
-excludes the performance-only options and ``-Dcommanderlab.fullGame.gamesPerJvm`` (below). The
+(the Java binary itself, the content of a ``JDK_JAVA_OPTIONS`` ``@argfile``, files an agent reads)
+and it deliberately excludes the performance-only options and
+``-Dcommanderlab.fullGame.gamesPerJvm`` (below). The
 event log is not part of it (its order is not stable, #1589). Two games with the same key must
 have the same transcript; the determinism guard ends a series whose journal shows one key with
 two transcript hashes (``DETERMINISM_VIOLATION``).
@@ -537,7 +540,8 @@ def _read_stored_manifest(path: Path, series_id: str) -> dict[str, object]:
     A start without hard links creates the file and writes it in two steps, so a second start can
     see it empty. That is a race, not a broken series: wait and read again, at most
     ``MANIFEST_READ_ATTEMPTS`` reads. The file is never touched here. A file still unreadable
-    after that was left by a first start that aborted; the text says so and does not claim more.
+    after that was left by a first start that aborted or is still writing; the text says so and
+    does not claim more.
     """
     last_error: ValueError | None = None
     for attempt in range(MANIFEST_READ_ATTEMPTS):
@@ -554,7 +558,7 @@ def _read_stored_manifest(path: Path, series_id: str) -> dict[str, object]:
     raise ManifestMismatch(
         f"Manifest der Serie {series_id} ist nach {MANIFEST_READ_ATTEMPTS} Leseversuchen "
         f"({MANIFEST_READ_ATTEMPTS * MANIFEST_READ_WAIT_SECONDS:.0f} s) noch leer oder "
-        "unvollständig: ein früherer Start brach beim Anlegen ab. Die Datei wird nie "
+        "unvollständig: ein früherer Start brach ab oder schreibt noch. Die Datei wird nie "
         "überschrieben; die Serie ist so nicht fortsetzbar, der Ordner ist zu prüfen"
     ) from last_error
 

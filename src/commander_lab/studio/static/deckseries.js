@@ -29,12 +29,18 @@ function deckSeriesVerdictText(befund) {
 // The table of a series or finding (#1661): 4-, 5- and 6-seat results are separate cohorts, so
 // every row names the seat count; an unknown size stays "Tischgröße unbekannt", never 4.
 // A plan whose seat count the played games contradict ("mismatch") or cannot show ("unreadable")
-// is unknown; a size no played pair has checked yet ("unobserved") is named as planned only.
-function deckSeriesTableText(size, check) {
+// is unknown; a size no played pair has checked yet ("unobserved") is named as planned only;
+// a legacy series checked only from its played games (no plan) names that source explicitly.
+function deckSeriesTableText(size, check, source) {
   if (check === "mismatch") return "Tischgröße unbekannt (Plan und gespielte Partien weichen ab)";
   if (check === "unreadable") return "Tischgröße unbekannt (Sitzzahl der gespielten Partien nicht lesbar)";
   if (!Number.isInteger(size) || size < 2) return "Tischgröße unbekannt";
-  return `Tisch mit ${StudioUI.num(size, 0)} Sitzen${check === "unobserved" ? " (geplant, nicht an Partien geprüft)" : ""}`;
+  const suffix = check === "unobserved"
+    ? " (geplant, nicht an Partien geprüft)"
+    : source === "aus den gespielten Partien"
+      ? " (aus den gespielten Partien)"
+      : "";
+  return `Tisch mit ${StudioUI.num(size, 0)} Sitzen${suffix}`;
 }
 
 function deckSeriesEvidence(h, befund) {
@@ -100,7 +106,7 @@ function deckSeriesCells(h, item, role, deps, labels, zahlen, befund) {
     h("td", {}, figures),
     h("td", {}, h("span", { class: `pill ${DECK_SERIES_STATUS_CLASS[item.status] || "warn"}` }, item.status_text),
       item.stop_reason && !/^(DECIDED_|BUDGET_EXHAUSTED)/.test(item.stop_reason) ? h("div", { class: "muted" }, item.stop_reason) : null),
-    h("td", {}, h("div", {}, `Seeds: ${seeds}`), h("div", {}, deckSeriesTableText(item.table_size, item.table_size_check)), h("div", {}, `Sitze${item.seats_planned ? " (geplant)" : ""}: ${seats}`),
+    h("td", {}, h("div", {}, `Seeds: ${seeds}`), h("div", {}, deckSeriesTableText(item.table_size, item.table_size_check, item.table_size_source)), h("div", {}, `Sitze${item.seats_planned ? " (geplant)" : ""}: ${seats}`),
       h("div", { class: "muted" }, `Bridge-JAR: ${sha} · Qualifizierung: ${qual}${item.covered_by_sealed_epoch === null ? "" : item.covered_by_sealed_epoch ? " · versiegelt" : " · nicht versiegelt"}`),
       h("div", { class: "muted" }, `Piloten: ${item.pilots.length ? item.pilots.join(", ") : "unbekannt"}`),
       h("div", { class: "muted" }, DECK_SERIES_ALIGNMENT_TEXT[item.slot_alignment_state] || "Ausrichtung unbekannt")),
@@ -182,7 +188,7 @@ function deckSeriesDiffEvidence(h, data, baseRev, targetRev) {
   const incomplete = data.truncated || data.scan_truncated ? " (ältere Serien nicht geprüft)" : "";
   if (!found.length) return h("div", { id: "diff-evidence" }, title, note, h("p", { class: "muted" }, `kein Befund: keine gespeicherte Serie für genau diese beiden Stände${incomplete} (unbekannt, nicht 0).`));
   return h("div", { id: "diff-evidence" }, title, note, ...found.map((item) => h("div", { class: "diff-evidence-series" },
-    h("p", { class: "muted" }, `Serie vom ${deckSeriesDate(item.created_at)} · Tisch ${item.pod || "unbekannt"} · ${deckSeriesTableText(item.table_size, item.table_size_check)}: A = ${side(item.base_ref)}, B = ${side(item.variant_ref)}`),
+    h("p", { class: "muted" }, `Serie vom ${deckSeriesDate(item.created_at)} · Tisch ${item.pod || "unbekannt"} · ${deckSeriesTableText(item.table_size, item.table_size_check, item.table_size_source)}: A = ${side(item.base_ref)}, B = ${side(item.variant_ref)}`),
     h("p", { class: "muted" }, "Stand-Bezug des Befunds darunter: gemessen an main bzw. dessen direktem Vorgänger, unabhängig davon, welcher Stand geöffnet ist."),
     deckSeriesEvidence(h, befunde[item.series_id]))));
 }

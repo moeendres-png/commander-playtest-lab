@@ -486,12 +486,16 @@ def _one(
     sid, entry, res = finding.series_id, finding.entry, finding.result
     exp = entry.get("experiment")
     exp_view: Mapping[str, object] = exp if isinstance(exp, dict) else {}
+    table_check = entry.get("table_size_check")
+    table_proven = not table_unproven(entry)
     holm_entry = corrected.get(sid)
-    shown = holm_entry[0] if holm_entry else bases.get(sid)
-    y_pp = _float(res.get("detectable_difference_pp"))
+    shown = None if not table_proven else (holm_entry[0] if holm_entry else bases.get(sid))
+    y_pp = _float(res.get("detectable_difference_pp")) if table_proven else None
     verdict, verdict_text = verdict_of(shown, _float(entry.get("difference_pp")), y_pp)
     counted = bool(entry.get("counts_as_result"))
-    if shown is None and counted and directions_conflict(res):
+    if not table_proven and counted:
+        verdict_text = f"nicht auswertbar ({TABLE_CHECK_TEXT.get(str(table_check), 'Tischgröße nicht belegt')})"
+    elif shown is None and counted and directions_conflict(res):
         verdict_text = (
             "nicht auswertbar (Mittelwert und Vorzeichentest zeigen in verschiedene Richtungen)"
         )
@@ -537,8 +541,6 @@ def _one(
     check = proofs.get(sid, NO_CHECKS)
     shas = entry.get("bridge_jar_sha256s")
     jar_list = [s for s in shas if isinstance(s, str)] if isinstance(shas, list) else []
-    table_check = entry.get("table_size_check")
-    table_proven = not table_unproven(entry)
     conditions = [
         _condition(R0, "Serie zählt als Ergebnis", counted, "Serie zählt nicht als Ergebnis"),
         # #1661 review: a plan the played games contradict, cannot show or have not yet shown
@@ -688,10 +690,10 @@ def table_unproven(entry: Mapping[str, object]) -> bool:
 
 def table_fields(value: object, check: object = None) -> dict[str, object]:
     """The table of a finding (#1661): its seat count and a text naming it with the base win
-    rate 1/N; an unknown size stays "Tischgröße unbekannt", never 4. A size the played games
-    have not checked yet is named as planned, with no cohort claim; a mismatch or an unreadable
-    table names why it is unknown. The Holm family follows the ``table_hash``, which holds the
-    seat count."""
+    rate 1/N only when ``check == "consistent"``; an unknown or unproven size stays without a
+    cohort claim, never 4. A size the played games have not checked yet is named as planned, with
+    no cohort claim; a mismatch or an unreadable table names why it is unknown. The Holm family
+    follows the ``table_hash``, which holds the seat count."""
     size = _int(value)
     if check in ("mismatch", "unreadable"):
         return {"tisch_sitze": None, "tisch_text": TABLE_CHECK_TEXT[str(check)]}
@@ -701,6 +703,11 @@ def table_fields(value: object, check: object = None) -> dict[str, object]:
         return {
             "tisch_sitze": None,
             "tisch_text": f"Tisch mit {size} Sitzen (geplant, nicht an Partien geprüft)",
+        }
+    if check != "consistent":
+        return {
+            "tisch_sitze": None,
+            "tisch_text": TABLE_CHECK_TEXT.get(str(check), "Tischgröße unbekannt"),
         }
     return {
         "tisch_sitze": size,
