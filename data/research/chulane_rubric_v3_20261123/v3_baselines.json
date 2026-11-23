@@ -1,0 +1,324 @@
+{
+ "quelle": "A1 pairs.jsonl (F1 gegen R2, 922 Karten); G1 audit/independent_rater_ratings.jsonl; A2",
+ "seed": 20261123,
+ "uebereinstimmung_F1_R2": {
+  "H_frei": {
+   "n": 922,
+   "sd_F1": 18.78,
+   "sd_R2": 20.31,
+   "sd_gepoolt": 19.7,
+   "mittel_F1": 30.72,
+   "mittel_R2": 25.99,
+   "icc21": 0.818,
+   "icc21_ki95": [
+    0.793,
+    0.839
+   ],
+   "mittel_d": -4.73,
+   "mittel_abs_d": 9.16,
+   "mittel_abs_d_durch_sd": 0.465,
+   "n_abs_d_ge15": 266,
+   "versatz_je_kartenart": {
+    "kreatur": {
+     "n": 478,
+     "mittel_d": -7.53,
+     "in_sd": -0.382
+    },
+    "nicht_kreatur_spell": {
+     "n": 379,
+     "mittel_d": -2.49,
+     "in_sd": -0.127
+    },
+    "land": {
+     "n": 65,
+     "mittel_d": 2.85,
+     "in_sd": 0.144
+    }
+   }
+  },
+  "M5": {
+   "n": 922,
+   "sd_F1": 13.23,
+   "sd_R2": 14.43,
+   "sd_gepoolt": 13.84,
+   "mittel_F1": 36.19,
+   "mittel_R2": 35.84,
+   "icc21": 0.864,
+   "icc21_ki95": [
+    0.846,
+    0.881
+   ],
+   "mittel_d": -0.35,
+   "mittel_abs_d": 5.53,
+   "mittel_abs_d_durch_sd": 0.4,
+   "n_abs_d_ge15": 42,
+   "versatz_je_kartenart": {
+    "kreatur": {
+     "n": 478,
+     "mittel_d": -1.83,
+     "in_sd": -0.132
+    },
+    "nicht_kreatur_spell": {
+     "n": 379,
+     "mittel_d": 1.16,
+     "in_sd": 0.084
+    },
+    "land": {
+     "n": 65,
+     "mittel_d": 1.66,
+     "in_sd": 0.12
+    }
+   }
+  },
+  "v3b_formel_N_gleich_100_minus_D": {
+   "n": 922,
+   "sd_F1": 14.2,
+   "sd_R2": 15.33,
+   "sd_gepoolt": 14.78,
+   "mittel_F1": 29.21,
+   "mittel_R2": 29.71,
+   "icc21": 0.868,
+   "icc21_ki95": [
+    0.851,
+    0.884
+   ],
+   "mittel_d": 0.5,
+   "mittel_abs_d": 5.85,
+   "mittel_abs_d_durch_sd": 0.396,
+   "n_abs_d_ge15": 60,
+   "versatz_je_kartenart": {
+    "kreatur": {
+     "n": 478,
+     "mittel_d": -0.93,
+     "in_sd": -0.063
+    },
+    "nicht_kreatur_spell": {
+     "n": 379,
+     "mittel_d": 2.06,
+     "in_sd": 0.139
+    },
+    "land": {
+     "n": 65,
+     "mittel_d": 1.94,
+     "in_sd": 0.131
+    }
+   }
+  },
+  "v3b_gesetzte_gewichte_N_gleich_100_minus_D": {
+   "n": 922,
+   "sd_F1": 15.28,
+   "sd_R2": 16.61,
+   "sd_gepoolt": 15.96,
+   "mittel_F1": 33.5,
+   "mittel_R2": 33.88,
+   "icc21": 0.868,
+   "icc21_ki95": [
+    0.851,
+    0.884
+   ],
+   "mittel_d": 0.39,
+   "mittel_abs_d": 6.36,
+   "mittel_abs_d_durch_sd": 0.399,
+   "n_abs_d_ge15": 70,
+   "versatz_je_kartenart": {
+    "kreatur": {
+     "n": 478,
+     "mittel_d": -1.17,
+     "in_sd": -0.073
+    },
+    "nicht_kreatur_spell": {
+     "n": 379,
+     "mittel_d": 2.02,
+     "in_sd": 0.127
+    },
+    "land": {
+     "n": 65,
+     "mittel_d": 2.26,
+     "in_sd": 0.142
+    }
+   }
+  }
+ },
+ "H_gegen_kriterien": {
+  "F1": {
+   "n": 922,
+   "mittlere_luecke_H_minus_M5": -5.47,
+   "n_abs_luecke_gt10": 297,
+   "n_abs_luecke_gt15": 64
+  },
+  "R2": {
+   "n": 922,
+   "mittlere_luecke_H_minus_M5": -9.85,
+   "n_abs_luecke_gt10": 572,
+   "n_abs_luecke_gt15": 254
+  }
+ },
+ "kriterien_korrelation": {
+  "F1": {
+   "max_r": 0.673,
+   "paar": "FK"
+  },
+  "R2": {
+   "max_r": 0.752,
+   "paar": "ER"
+  }
+ },
+ "anker_kandidaten": {
+  "stufe1_F1_R2_G1_hoechstens_5_auseinander": {
+   "E": {
+    "30": [
+     "Hydro-Channeler",
+     "Tel-Jilad Defiance"
+    ],
+    "40": [
+     "Tethermage's Advantage"
+    ],
+    "50": [
+     "Relic of Legends",
+     "Steel Hellkite"
+    ],
+    "60": [
+     "Cloudblazer",
+     "Flitterwing Nuisance",
+     "Fumigate"
+    ],
+    "70": [
+     "Faerie Mastermind",
+     "Simic Signet"
+    ]
+   },
+   "F": {
+    "30": [],
+    "40": [
+     "Firdoch Core",
+     "Hydro-Channeler",
+     "Potioner's Trove",
+     "Preordain",
+     "Ulvenwald Mysteries"
+    ],
+    "50": [
+     "Simic Signet",
+     "Stave Off"
+    ],
+    "60": [],
+    "70": [
+     "Omni-Changeling"
+    ]
+   },
+   "T": {
+    "30": [
+     "Arachnus Spinner",
+     "Nadir Kraken",
+     "Wilt-Leaf Liege"
+    ],
+    "40": [],
+    "50": [
+     "Arrest",
+     "Gideon Jura"
+    ],
+    "60": [],
+    "70": []
+   },
+   "R": {
+    "30": [
+     "Sleep"
+    ],
+    "40": [
+     "Runeclaw Bear"
+    ],
+    "50": [],
+    "60": [
+     "Nadir Kraken"
+    ],
+    "70": [
+     "Potioner's Trove",
+     "Relic of Legends",
+     "Wolfbriar Elemental"
+    ]
+   },
+   "K": {
+    "30": [
+     "Relic of Legends"
+    ],
+    "40": [
+     "Flitterwing Nuisance"
+    ],
+    "50": [
+     "Borderland Ranger",
+     "Faerie Mastermind",
+     "Omni-Changeling",
+     "Serene Sleuth",
+     "Ulvenwald Mysteries"
+    ],
+    "60": [],
+    "70": []
+   }
+  },
+  "stufe2_F1_gleich_R2_gleich_Stufe_anzahl": {
+   "E": {
+    "30": 19,
+    "40": 13,
+    "50": 18,
+    "60": 9,
+    "70": 8
+   },
+   "F": {
+    "30": 21,
+    "40": 42,
+    "50": 12,
+    "60": 5,
+    "70": 5
+   },
+   "T": {
+    "30": 9,
+    "40": 10,
+    "50": 22,
+    "60": 1,
+    "70": 0
+   },
+   "R": {
+    "30": 7,
+    "40": 19,
+    "50": 19,
+    "60": 10,
+    "70": 8
+   },
+   "K": {
+    "30": 13,
+    "40": 4,
+    "50": 17,
+    "60": 2,
+    "70": 0
+   }
+  },
+  "hinweis": "nur Spells, ohne bisherige Ankerkarten; Stufe 2 greift nur für leere Zellen von Stufe 1"
+ },
+ "pilot_schichten": {
+  "N": 922,
+  "n_abs_d_ge15": 266,
+  "n_abs_d_lt5": 190,
+  "n_laender": 65,
+  "n_ankerkarten_v2": 46,
+  "n_kaum_fair": 60,
+  "nicht_anker": {
+   "n_abs_d_ge15": 254,
+   "n_abs_d_lt5_ohne_land": 150,
+   "n_laender": 52,
+   "n_kaum_fair": 59
+  }
+ },
+ "s7_breite": {
+  "n_alle": 922,
+  "spearman_R2_H_frei_alle": 0.673,
+  "spearman_F1_H_frei_alle": 0.504,
+  "spearman_R2_M5_alle": 0.599,
+  "spearman_F1_M5_alle": 0.463,
+  "spearman_R2_v3b_formel_N_gleich_100_minus_D_alle": 0.558,
+  "spearman_F1_v3b_formel_N_gleich_100_minus_D_alle": 0.434,
+  "spearman_R2_v3b_gesetzte_gewichte_N_gleich_100_minus_D_alle": 0.575,
+  "spearman_F1_v3b_gesetzte_gewichte_N_gleich_100_minus_D_alle": 0.436,
+  "ki95_breite_spearman_100_zufallskarten_median": 0.226,
+  "ki95_breite_gepaarte_differenz_100_zufallskarten_median": 0.158,
+  "wiederholungen": "50 Teilmengen x 500 Bootstrap-Ziehungen"
+ }
+}

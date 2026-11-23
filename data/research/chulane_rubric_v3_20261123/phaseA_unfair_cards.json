@@ -1,0 +1,433 @@
+{
+ "quelle": "A2 a2_summary.py unfair_ids",
+ "n": 60,
+ "karten": [
+  {
+   "oracle_id": "0056fc91-4398-471c-b561-7ff99750ac8a",
+   "card": "Escape Tunnel",
+   "defektklassen": [
+    "land_fakten"
+   ]
+  },
+  {
+   "oracle_id": "08a0e845-9ef9-4de1-b9fe-4530357346ca",
+   "card": "Biblioplex Tomekeeper",
+   "defektklassen": [
+    "mechanik"
+   ]
+  },
+  {
+   "oracle_id": "096a878e-cff0-430a-90b5-031ecb9bfe1b",
+   "card": "Tam, Mindful First-Year",
+   "defektklassen": [
+    "hybrid_castability"
+   ]
+  },
+  {
+   "oracle_id": "0b7393aa-d563-45bc-9946-8e7d1729d498",
+   "card": "Mountain Valley",
+   "defektklassen": [
+    "land_fakten"
+   ]
+  },
+  {
+   "oracle_id": "0c85b8f7-0bd0-4680-9ec5-d4b110460a54",
+   "card": "Fabled Passage",
+   "defektklassen": [
+    "land_fakten"
+   ]
+  },
+  {
+   "oracle_id": "0f30f32f-3c4c-4f73-8b2a-82045a40bda9",
+   "card": "Killer Service",
+   "defektklassen": [
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "1bd3e453-aa21-4ee6-95c2-d6d920ee8e7a",
+   "card": "Terramorphic Expanse",
+   "defektklassen": [
+    "land_fakten"
+   ]
+  },
+  {
+   "oracle_id": "22b7975c-37a5-4895-b209-bdeeec0c6aea",
+   "card": "Judge's Familiar",
+   "defektklassen": [
+    "hybrid_castability"
+   ]
+  },
+  {
+   "oracle_id": "234a734b-ba28-4f1b-9d01-3c3e7d516590",
+   "card": "An Offer You Can't Refuse",
+   "defektklassen": [
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "2358ffc2-6663-4ef3-b3a4-b036a4733ac6",
+   "card": "Faithful Squire // Kaiso, Memory of Loyalty",
+   "defektklassen": [
+    "mechanik",
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "2441696b-a9ba-4813-ba2e-e71f85281d05",
+   "card": "Wilt-Leaf Liege",
+   "defektklassen": [
+    "hybrid_castability"
+   ]
+  },
+  {
+   "oracle_id": "247cc471-fed5-41e3-8b6a-a10bbc129b36",
+   "card": "Paradox Surveyor",
+   "defektklassen": [
+    "hybrid_castability"
+   ]
+  },
+  {
+   "oracle_id": "2549bc57-9ffb-4053-9f10-f2a5f792b845",
+   "card": "Myriad Landscape",
+   "defektklassen": [
+    "land_fakten"
+   ]
+  },
+  {
+   "oracle_id": "2ac2b815-2d72-48e6-b43a-18884a74bf95",
+   "card": "Skycoach Waypoint",
+   "defektklassen": [
+    "mechanik"
+   ]
+  },
+  {
+   "oracle_id": "2d961997-4f5f-4ce2-b062-11411147e2f7",
+   "card": "Sun-Spider, Nimble Webber",
+   "defektklassen": [
+    "hybrid_castability"
+   ]
+  },
+  {
+   "oracle_id": "377d9245-9a70-4e35-9ed1-308565fc1acc",
+   "card": "Scepter of Empires",
+   "defektklassen": [
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "3b23e4f8-882d-4cce-9b61-171ae2cc3a18",
+   "card": "Web-Warriors",
+   "defektklassen": [
+    "hybrid_castability"
+   ]
+  },
+  {
+   "oracle_id": "49c0aac5-d650-4ada-a194-3bf77f104bc1",
+   "card": "Ransom Note",
+   "defektklassen": [
+    "mechanik"
+   ]
+  },
+  {
+   "oracle_id": "5548ff43-e5f6-4a63-8562-a2b1de06d6f5",
+   "card": "Riveteers Overlook",
+   "defektklassen": [
+    "land_fakten"
+   ]
+  },
+  {
+   "oracle_id": "58b0c737-0a84-4f9a-b3b7-300c5de43874",
+   "card": "Studious First-Year // Rampant Growth",
+   "defektklassen": [
+    "mechanik"
+   ]
+  },
+  {
+   "oracle_id": "5b2c6b44-99b3-496d-93ca-d5211222038f",
+   "card": "Graf Mole",
+   "defektklassen": [
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "5dedd5a9-bc5d-47bb-9ae1-7d683843d041",
+   "card": "Tezzeret, Betrayer of Flesh",
+   "defektklassen": [
+    "mechanik",
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "60fc89a1-cc6f-4a32-84c3-09abf7a4a1df",
+   "card": "Brigid, Clachan's Heart // Brigid, Doun's Mind",
+   "defektklassen": [
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "610adb2b-9d52-4b70-92d1-0c7adeb93552",
+   "card": "Bant Sureblade",
+   "defektklassen": [
+    "hybrid_castability"
+   ]
+  },
+  {
+   "oracle_id": "63eed1f5-442f-433d-989c-397b88543162",
+   "card": "Wary Farmer",
+   "defektklassen": [
+    "hybrid_castability"
+   ]
+  },
+  {
+   "oracle_id": "63f67baa-3f37-41b8-9ee6-3c37f828917d",
+   "card": "Prudent Fateseer // Peer Review",
+   "defektklassen": [
+    "hybrid_castability",
+    "mechanik"
+   ]
+  },
+  {
+   "oracle_id": "65424bea-fd53-4f85-9757-0b91a6d40ba4",
+   "card": "Cabaretti Courtyard",
+   "defektklassen": [
+    "land_fakten"
+   ]
+  },
+  {
+   "oracle_id": "655ee0db-1913-464f-bd06-072c6bf446bd",
+   "card": "Dirgur Focusmage // Braingeyser",
+   "defektklassen": [
+    "mechanik"
+   ]
+  },
+  {
+   "oracle_id": "666b34b5-a0c2-43e3-befd-7c3979313682",
+   "card": "Infinite Coursework",
+   "defektklassen": [
+    "mechanik"
+   ]
+  },
+  {
+   "oracle_id": "6a7f3e1f-6798-4644-b64c-7765f81f0938",
+   "card": "Vibrant Cityscape",
+   "defektklassen": [
+    "land_fakten"
+   ]
+  },
+  {
+   "oracle_id": "6d44c87b-8945-4c39-b034-7690cf483992",
+   "card": "Mary Jane Watson",
+   "defektklassen": [
+    "hybrid_castability"
+   ]
+  },
+  {
+   "oracle_id": "702e871d-90d8-4468-8f69-5ae42af2c9d3",
+   "card": "Tam, Observant Sequencer // Deep Sight",
+   "defektklassen": [
+    "mechanik"
+   ]
+  },
+  {
+   "oracle_id": "7340dbcb-4b26-4038-be8c-a89e76294221",
+   "card": "Gideon Jura",
+   "defektklassen": [
+    "mechanik",
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "743f4488-fef1-4f4d-b745-d2de92423e00",
+   "card": "Grixis Panorama",
+   "defektklassen": [
+    "land_fakten"
+   ]
+  },
+  {
+   "oracle_id": "7500b7dc-588d-46bd-acc5-885dcd464668",
+   "card": "Tam's Resistance",
+   "defektklassen": [
+    "hybrid_castability"
+   ]
+  },
+  {
+   "oracle_id": "7737ccdc-49f2-463e-8ffd-43ab98d11f45",
+   "card": "Emergency Phytomedic // Seed Suture",
+   "defektklassen": [
+    "hybrid_castability",
+    "mechanik"
+   ]
+  },
+  {
+   "oracle_id": "8709b5b1-ef9e-45b2-bf4f-ef4c4d613dcd",
+   "card": "Rocky Tar Pit",
+   "defektklassen": [
+    "land_fakten"
+   ]
+  },
+  {
+   "oracle_id": "8a83ecee-092b-456c-803f-a9aaa17c4da9",
+   "card": "Exploration Broodship",
+   "defektklassen": [
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "8fea91ee-5849-4c46-8198-fd383d9a55e8",
+   "card": "Arachnus Spinner",
+   "defektklassen": [
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "90d2e092-6eb8-4d13-bdad-19e7325a8b36",
+   "card": "Steel of the Godhead",
+   "defektklassen": [
+    "hybrid_castability"
+   ]
+  },
+  {
+   "oracle_id": "930035c6-cde7-40ac-98ef-0840812037db",
+   "card": "Chitinous Graspling",
+   "defektklassen": [
+    "hybrid_castability"
+   ]
+  },
+  {
+   "oracle_id": "93953926-a644-49bb-9b5a-4c8f19114c7e",
+   "card": "Demolition Field",
+   "defektklassen": [
+    "land_fakten"
+   ]
+  },
+  {
+   "oracle_id": "9464ddf2-4bcb-44f6-b945-89a132544de6",
+   "card": "Maestros Theater",
+   "defektklassen": [
+    "land_fakten"
+   ]
+  },
+  {
+   "oracle_id": "9636073e-e361-4d2a-92f6-5fe049e5eb23",
+   "card": "Thraben Sentry // Thraben Militia",
+   "defektklassen": [
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "98950aaf-d0b8-420b-9e6a-c7d07d0f8588",
+   "card": "Soul Seizer // Ghastly Haunting",
+   "defektklassen": [
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "9e4db334-4698-4986-820f-1daf1bffda83",
+   "card": "Angel's Herald",
+   "defektklassen": [
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "a75445d3-1303-4bb5-89ad-26ea93fecd48",
+   "card": "Evolving Wilds",
+   "defektklassen": [
+    "land_fakten"
+   ]
+  },
+  {
+   "oracle_id": "ab26fbe2-e808-48b9-8d0d-3fbb6c3d554f",
+   "card": "Narset, Parter of Veils",
+   "defektklassen": [
+    "mechanik",
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "abcfcc71-77c0-46e7-93c3-726967946b12",
+   "card": "Grizzled Outcasts // Krallenhorde Wantons",
+   "defektklassen": [
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "b2187f45-80ae-4ac4-9f83-5eb7a00978e2",
+   "card": "Sorcerous Spyglass",
+   "defektklassen": [
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "b8ca5877-ac9e-4b15-8c23-c70f61b01895",
+   "card": "Dryad Militant",
+   "defektklassen": [
+    "hybrid_castability"
+   ]
+  },
+  {
+   "oracle_id": "c7b044c3-3cfa-407e-bf20-2875e8e04b7b",
+   "card": "Brazen Borrower // Petty Theft",
+   "defektklassen": [
+    "mechanik"
+   ]
+  },
+  {
+   "oracle_id": "d709f396-021f-49eb-adb5-374aa790eaae",
+   "card": "Merrow Skyswimmer",
+   "defektklassen": [
+    "hybrid_castability"
+   ]
+  },
+  {
+   "oracle_id": "d9a10971-f32b-4978-952d-fed0a5bc9e36",
+   "card": "Krosan Verge",
+   "defektklassen": [
+    "land_fakten"
+   ]
+  },
+  {
+   "oracle_id": "df5e4100-8c83-42d6-af96-1a1ec84a9210",
+   "card": "Spellbook Seeker // Careful Study",
+   "defektklassen": [
+    "mechanik"
+   ]
+  },
+  {
+   "oracle_id": "e6227840-6e3e-48c7-b4a4-42cfd8f14b68",
+   "card": "Eclipsed Kithkin",
+   "defektklassen": [
+    "hybrid_castability"
+   ]
+  },
+  {
+   "oracle_id": "eab0d8b9-c66f-402f-b259-f46f15cefd78",
+   "card": "Elspeth, Knight-Errant",
+   "defektklassen": [
+    "mechanik",
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "eaf8027a-017a-4471-ae7b-a372fd8e0ff3",
+   "card": "Sophia, Dogged Detective",
+   "defektklassen": [
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "f36d1d8b-8303-44a9-ab56-531931641ea2",
+   "card": "Academy Manufactor",
+   "defektklassen": [
+    "seiten_spezialtypen_verweise"
+   ]
+  },
+  {
+   "oracle_id": "f39f33ac-074d-442d-ae4c-1d694ee315f3",
+   "card": "Jund Panorama",
+   "defektklassen": [
+    "land_fakten"
+   ]
+  }
+ ]
+}
