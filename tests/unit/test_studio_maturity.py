@@ -842,9 +842,18 @@ def test_the_diff_names_the_opened_state_the_table_and_the_main_reference() -> N
         "Serie vom 2026-11-20 10:00 · Tisch pod-2 · Tischgröße unbekannt: A = Vergleichsbasis, B = geöffneter Stand",
         "Serie vom 2026-11-20 10:00 · Tisch unbekannt · Tischgröße unbekannt: A = geöffneter Stand, B = Vergleichsbasis",
     ]
+    expected_other_evidence = (
+        "kein Reifegrad (Beleg fehlt)"
+        "Ergebnis (simuliert): nicht auswertbar (keine Auswertungsbasis) · "
+        "n/N 4 / 4 Paare (abgeschlossen / geplant) · Tischgröße unbekannt"
+        "Befund zu einem anderen Stand (nicht der aktuelle)"
+        "nicht empfehlungsfähig: Reifegrad unter R2"
+    )
     for item in series:
         assert item["texts"][1] == REFERENCE_LINE
+        assert "n/N 4 / 4 Paare (abgeschlossen / geplant)" in item["texts"][2]
         assert "Befund zu einem anderen Stand (nicht der aktuelle)" in item["texts"][2]
+        assert item["texts"][2] == expected_other_evidence
     assert "der geöffnete Stand ist nicht gespeichert" in r["allTexts"][1]  # type: ignore[index]
 
 
@@ -861,12 +870,28 @@ def test_the_reference_line_is_neutral_when_the_opened_state_is_main() -> None:
         "Serie vom 2026-11-20 10:00 · Tisch pod-1 · Tischgröße unbekannt: A = Vergleichsbasis, B = geöffneter Stand"
     )
     assert texts[1] == REFERENCE_LINE
+    expected_main_evidence = (
+        "kein Reifegrad (Beleg fehlt)"
+        "Ergebnis (simuliert): nicht auswertbar (keine Auswertungsbasis) · "
+        "n/N 4 / 4 Paare (abgeschlossen / geplant) · Tischgröße unbekannt"
+        "Befund zum aktuellen Stand"
+        "nicht empfehlungsfähig: Reifegrad unter R2"
+    )
+    assert "n/N 4 / 4 Paare (abgeschlossen / geplant)" in texts[2]
     assert "Befund zum aktuellen Stand" in texts[2]
-    # non-main case: the very same line, next to a finding of another state
+    assert texts[2] == expected_main_evidence
+    # non-main case: the very same line, next to a finding of another state with exact n/N
     for item in r["series"]:  # type: ignore[union-attr]
         assert item["texts"][1] == REFERENCE_LINE
+        assert "n/N 4 / 4 Paare (abgeschlossen / geplant)" in item["texts"][2]
+        assert "Befund zu einem anderen Stand (nicht der aktuelle)" in item["texts"][2]
     for line in (REFERENCE_LINE, texts[1]):
         assert "nicht auf den geöffneten" not in line and "bezogen auf den geöffneten" not in line
+        assert (
+            "aktuellen Stand" not in line
+            and "belegt" not in line
+            and "empfehlungsfähig" not in line
+        )
         assert "unabhängig davon, welcher Stand geöffnet ist" in line
 
 

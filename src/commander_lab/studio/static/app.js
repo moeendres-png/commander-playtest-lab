@@ -459,7 +459,11 @@ function renderSaveState() {
   // actionable even when baseStale is also set; when baseStale is set, rescue to a new variant
   // stays offered alongside "Aktuellen Stand laden".
   if (state.draftConflict) {
-    const items = [h("span", { class: "pill bad" }, "Konflikt: Entwurf in anderem Tab geändert")];
+    const items = [
+      h("span", { class: "pill bad" }, "Konflikt: Entwurf in anderem Tab geändert"),
+      " ",
+      h("span", { class: "muted" }, "Jeder Deck- und Variantenwechsel bleibt bis „Aktuellen Stand laden“ gesperrt."),
+    ];
     if (state.baseStale) {
       items.push(" ", h("button", { type: "button", class: "small", onclick: () => openNewBranchModal() }, "Als neue Variante speichern"));
     }
@@ -531,7 +535,7 @@ async function syncDraftNow() {
     if (error && error.status === 409) {
       state.draftConflict = true;
       renderSaveState();
-      toast(StudioUI.germanError(error), "error");
+      toast(`${StudioUI.germanError(error)} — jeder Deck- und Variantenwechsel bleibt bis „Aktuellen Stand laden“ gesperrt.`, "error");
       return;
     }
     fail(error);
@@ -2928,8 +2932,9 @@ function openNewDeckModal() {
       const created = await api("/api/decks", "POST", { name: trimmed.slice(0, 80), commander_card_ids: state.commanderIds });
       closeModal();
       try {
-        await loadDecks(); await loadBranch({ deckId: created.deck_id, branch: "main" });
-        toast(`Deck „${trimmed}“ angelegt.`);
+        await loadDecks();
+        const opened = await loadBranch({ deckId: created.deck_id, branch: "main" });
+        if (opened) toast(`Deck „${trimmed}“ angelegt.`);
       } catch (error) { fail(error); }
     },
   });
@@ -3097,6 +3102,8 @@ let loadSeq = 0;
 let loadFailed = false;
 let failedTarget = null; // what the failed load wanted to open; "Erneut laden" tries it again
 const UNSENT_TEXT = "Ungesicherte Änderungen konnten nicht als Entwurf gesichert werden: nichts gewechselt, damit sie nicht verloren gehen.";
+const DEFERRED_TEXT = "Ladevorgang läuft noch — Änderungen werden direkt danach als Entwurf gesichert; nichts gewechselt.";
+const CONFLICT_SWITCH_TEXT = "Entwurfs-Konflikt: Änderungen wurden nicht als Entwurf gesichert. Jeder Deck- und Variantenwechsel bleibt bis „Aktuellen Stand laden“ gesperrt.";
 // "Erneut laden": first the open variant's changes are saved as its draft, then the load that
 // failed is tried again; with changes that cannot be saved nothing is reloaded.
 async function retryLoad() {
@@ -3108,8 +3115,14 @@ async function retryLoad() {
 // throws (nothing switched) when they cannot be saved.
 async function flushLocal() {
   if (!state.deckId || state.savedSeq === state.changeSeq) return;
+  if (branchLoading > 0) {
+    throw Object.assign(new Error("unsent"), { detail: state.draftConflict ? CONFLICT_SWITCH_TEXT : DEFERRED_TEXT });
+  }
   await syncDraft();
-  if (state.savedSeq !== state.changeSeq) throw Object.assign(new Error("unsent"), { detail: UNSENT_TEXT });
+  if (state.savedSeq !== state.changeSeq) {
+    const detail = state.draftConflict ? CONFLICT_SWITCH_TEXT : branchLoading > 0 ? DEFERRED_TEXT : UNSENT_TEXT;
+    throw Object.assign(new Error("unsent"), { detail });
+  }
 }
 // A load ended: when no load runs any more, changes made meanwhile (their draft save was held
 // back) are saved now, as the draft of the variant that is open.
@@ -3149,6 +3162,7 @@ async function onBranchSelect() {
   }
 }
 // Loads `target` (default: the open deck and variant); throws when a GET fails.
+// Returns true when `target` was applied, false when dropped (local edit or newer load).
 async function loadBranch(target = {}) {
   // the open variant's unsent changes are saved as its draft before anything is replaced;
   // only a click that gives the local list up on purpose skips this
@@ -3164,7 +3178,7 @@ async function loadBranch(target = {}) {
   try {
     applied = await loadBranchNow(token, deckId, branchName, seqAtStart);
   } catch (error) {
-    if (token !== loadSeq) return; // a later load decides; this failure is not shown
+    if (token !== loadSeq) return false; // a later load decides; this failure is not shown
     loadFailed = true; failedTarget = { deckId, branch: branchName };
     throw error;
   } finally {
@@ -3173,9 +3187,13 @@ async function loadBranch(target = {}) {
   if (!applied && token === loadSeq) {
     renderDeckSelects(); // the selects show the variant that stays open
     toast("Während des Ladens wurde die Liste geändert: nicht gewechselt, die Änderungen bleiben in der offenen Variante.");
-    return;
+    return false;
   }
-  if (applied && token === loadSeq) await syncDraft();
+  if (applied && token === loadSeq) {
+    await syncDraft();
+    return true;
+  }
+  return false;
 }
 // The GETs of one load; the editor's state changes only at the end and only for the latest
 // load. Returns whether this load was applied.
