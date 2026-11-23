@@ -227,6 +227,7 @@ def test_a_missing_audit_file_is_not_available_never_zero_doubts(
     doubt = field["pruefer_zweifel"]
     assert doubt["verfuegbar"] is False and "nicht gefunden" in doubt["grund"]
     assert doubt["n_markiert"] is None and doubt["n_zugeordnet"] is None
+    assert doubt["n_unter_rauschgate"] is None
     assert doubt["karten"] == {} and doubt["pruefbasis"]["n"] == 230
     assert field["zahlen"] and not any(
         "bezweifelt" in note for f in field["zahlen"] for note in f["hinweise"]

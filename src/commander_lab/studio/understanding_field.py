@@ -487,7 +487,9 @@ def _doubt_short(flag: card_understanding.AuditFlag) -> str:
     if flag["kind"] == "Begründung faktisch falsch":
         return "Prüfer-Modell: Begründung faktisch falsch"
     if doubt_below_gate(flag):
-        return f"Prüfer-Spanne innerhalb der Streuung (unter {NOISE_GATE} Punkten) {DOUBT_RUN}"
+        return (
+            f"Prüfer-Modell: Spanne innerhalb der Streuung (unter {NOISE_GATE} Punkten) {DOUBT_RUN}"
+        )
     return f"Prüfer-Modell bezweifelt H: {flag['kind'].removeprefix('H ')} {DOUBT_RUN}"
 
 

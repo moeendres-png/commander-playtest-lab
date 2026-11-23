@@ -9,6 +9,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import math
+import statistics
 import sys
 from pathlib import Path
 from types import ModuleType
@@ -17,6 +18,14 @@ from typing import Any
 import pytest
 
 SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "analysis" / "second_run_compare.py"
+V3_BASELINES = (
+    Path(__file__).resolve().parents[2]
+    / "data"
+    / "research"
+    / "chulane_rubric_v3_20261123"
+    / "phaseA_scripts"
+    / "v3_baselines.py"
+)
 
 
 def _load() -> ModuleType:
@@ -362,3 +371,301 @@ def test_end_to_end_on_a_tiny_run(tmp_path: Path) -> None:
     assert r["file_gap_primary"] == pytest.approx(10.0) and "A6" in r["stops"]
     # no hand verdicts -> K unknown; no keyword hits -> L green
     assert r["grades"]["K"] == "unbekannt" and r["grades"]["L"] == "gruen"
+
+
+# ---------- phaseA_scripts/v3_baselines.py (Refs #1768) ----------
+
+
+class _MiniArray:
+    """Minimal 1D/2D array shim used only when numpy is absent from the test venv."""
+
+    def __init__(self, data: list[object]) -> None:
+        self._data = data
+        self._is2d = bool(data) and isinstance(data[0], list)
+
+    @property
+    def shape(self) -> tuple[int, ...]:
+        if self._is2d:
+            first = self._data[0]
+            return (len(self._data), len(first) if isinstance(first, list) else 0)
+        return (len(self._data),)
+
+    def __len__(self) -> int:
+        return len(self._data)
+
+    def astype(self, typ: type) -> _MiniArray:
+        if self._is2d:
+            return _MiniArray([[typ(v) for v in row] for row in self._data])  # type: ignore[union-attr]
+        return _MiniArray([typ(v) for v in self._data])
+
+    def copy(self) -> _MiniArray:
+        if self._is2d:
+            return _MiniArray([list(row) for row in self._data])  # type: ignore[arg-type]
+        return _MiniArray(list(self._data))
+
+    def _broadcast_op(self, other: object, fn: object) -> _MiniArray:
+        op = fn  # type: ignore[assignment]
+        if isinstance(other, (int, float)):
+            if self._is2d:
+                return _MiniArray([[op(v, other) for v in row] for row in self._data])  # type: ignore[union-attr]
+            return _MiniArray([op(v, other) for v in self._data])
+        if isinstance(other, _MiniArray):
+            if not self._is2d and not other._is2d:
+                return _MiniArray([op(a, b) for a, b in zip(self._data, other._data, strict=True)])
+            if self._is2d and other._is2d:
+                sr, sc = self.shape
+                or_, oc = other.shape
+                rows = max(sr, or_)
+                cols = max(sc, oc)
+                return _MiniArray(
+                    [
+                        [
+                            op(
+                                self._data[r % sr][c % sc],  # type: ignore[index]
+                                other._data[r % or_][c % oc],  # type: ignore[index]
+                            )
+                            for c in range(cols)
+                        ]
+                        for r in range(rows)
+                    ]
+                )
+        raise TypeError(f"unsupported operand types: _MiniArray and {type(other)}")
+
+    def __add__(self, other: object) -> _MiniArray:
+        return self._broadcast_op(other, lambda a, b: a + b)
+
+    def __radd__(self, other: object) -> _MiniArray:
+        return self._broadcast_op(other, lambda a, b: b + a)
+
+    def __sub__(self, other: object) -> _MiniArray:
+        return self._broadcast_op(other, lambda a, b: a - b)
+
+    def __rsub__(self, other: object) -> _MiniArray:
+        return self._broadcast_op(other, lambda a, b: b - a)
+
+    def __mul__(self, other: object) -> _MiniArray:
+        return self._broadcast_op(other, lambda a, b: a * b)
+
+    def __rmul__(self, other: object) -> _MiniArray:
+        return self._broadcast_op(other, lambda a, b: b * a)
+
+    def __pow__(self, other: object) -> _MiniArray:
+        return self._broadcast_op(other, lambda a, b: a**b)
+
+    def __eq__(self, other: object) -> object:
+        if isinstance(other, (str, int, float)) and not self._is2d:
+            return _MiniArray([v == other for v in self._data])
+        return NotImplemented
+
+    def __getitem__(self, key: object) -> object:
+        if isinstance(key, tuple) and len(key) == 2 and self._is2d:
+            r, c = key
+            if isinstance(r, slice) and isinstance(c, int):
+                return _MiniArray([row[c] for row in self._data[r]])  # type: ignore[index]
+            if isinstance(r, int) and isinstance(c, int):
+                return self._data[r][c]  # type: ignore[index]
+            if isinstance(r, _MiniArray) and isinstance(c, int):
+                return _MiniArray(
+                    [
+                        row[c]  # type: ignore[index]
+                        for row, keep in zip(self._data, r._data, strict=True)
+                        if keep
+                    ]
+                )
+        if isinstance(key, _MiniArray) and not self._is2d:
+            if key._data and isinstance(key._data[0], bool):
+                return _MiniArray(
+                    [v for v, keep in zip(self._data, key._data, strict=True) if keep]
+                )
+            return _MiniArray([self._data[int(i)] for i in key._data])  # type: ignore[arg-type]
+        if isinstance(key, slice):
+            return _MiniArray(self._data[key])
+        if isinstance(key, int):
+            return self._data[key]
+        raise TypeError(f"unsupported index {key!r}")
+
+    def __setitem__(self, key: object, value: object) -> None:
+        if isinstance(key, tuple) and len(key) == 2 and self._is2d:
+            r, c = key
+            if isinstance(r, _MiniArray) and isinstance(c, int):
+                vals = value._data if isinstance(value, _MiniArray) else None
+                vi = 0
+                for row, keep in zip(self._data, r._data, strict=True):
+                    if keep:
+                        row[c] = vals[vi] if vals is not None else value  # type: ignore[index]
+                        vi += 1
+                return
+        if isinstance(key, _MiniArray) and not self._is2d:
+            if isinstance(value, _MiniArray):
+                for idx, v in zip(key._data, value._data, strict=True):
+                    self._data[int(idx)] = v  # type: ignore[arg-type]
+            else:
+                for idx in key._data:
+                    self._data[int(idx)] = value  # type: ignore[arg-type]
+            return
+        raise TypeError(f"unsupported item assignment {key!r}")
+
+    def sum(self) -> float:
+        if self._is2d:
+            return float(sum(float(v) for row in self._data for v in row))  # type: ignore[union-attr]
+        return float(sum(float(v) for v in self._data))  # type: ignore[arg-type]
+
+    def mean(self, axis: int | None = None, keepdims: bool = False) -> object:
+        if axis is None:
+            if self._is2d:
+                flat = [float(v) for row in self._data for v in row]  # type: ignore[union-attr]
+                return sum(flat) / len(flat)
+            return sum(float(v) for v in self._data) / len(self._data)  # type: ignore[arg-type]
+        if axis == 1:
+            means = [sum(float(v) for v in row) / len(row) for row in self._data]  # type: ignore[union-attr]
+            return _MiniArray([[m] for m in means]) if keepdims else _MiniArray(means)
+        if axis == 0:
+            n, k = self.shape
+            means = [sum(float(self._data[r][c]) for r in range(n)) / n for c in range(k)]  # type: ignore[index]
+            return _MiniArray([means]) if keepdims else _MiniArray(means)
+        raise ValueError(f"unsupported axis {axis}")
+
+    def var(self, ddof: int = 0) -> float:
+        vals = [float(v) for v in self._data]  # type: ignore[arg-type]
+        m = sum(vals) / len(vals)
+        return sum((v - m) ** 2 for v in vals) / (len(vals) - ddof)
+
+
+def _mini_numpy() -> ModuleType:
+    mod = ModuleType("numpy")
+
+    def _to_list(x: object) -> list[object]:
+        if isinstance(x, _MiniArray):
+            return x.copy()._data
+        return list(x)  # type: ignore[call-overload]
+
+    def array(data: object, dtype: type | None = None) -> _MiniArray:
+        arr = _MiniArray(_to_list(data))
+        return arr.astype(dtype) if dtype is not None else arr
+
+    def column_stack(cols: list[object]) -> _MiniArray:
+        lists = [_to_list(c) for c in cols]
+        n = len(lists[0])
+        return _MiniArray([[col[i] for col in lists] for i in range(n)])
+
+    def argsort(v: _MiniArray, kind: str = "mergesort") -> _MiniArray:
+        _ = kind
+        return _MiniArray(sorted(range(len(v)), key=lambda i: v._data[i]))  # type: ignore[arg-type,return-value]
+
+    def empty(n: int) -> _MiniArray:
+        return _MiniArray([0.0] * n)
+
+    def arange(start: float, stop: float | None = None, dtype: type | None = None) -> _MiniArray:
+        if stop is None:
+            vals: list[object] = list(range(int(start)))
+        else:
+            vals = [float(i) for i in range(int(start), int(stop))]
+        arr = _MiniArray(vals)
+        return arr.astype(dtype) if dtype is not None else arr
+
+    def full(n: int, value: float) -> _MiniArray:
+        return _MiniArray([value] * n)
+
+    def tile(a: _MiniArray, reps: int) -> _MiniArray:
+        return _MiniArray(a._data * reps)
+
+    def corrcoef(a: _MiniArray, b: _MiniArray) -> _MiniArray:
+        xs = [float(v) for v in a._data]  # type: ignore[arg-type]
+        ys = [float(v) for v in b._data]  # type: ignore[arg-type]
+        mx, my = sum(xs) / len(xs), sum(ys) / len(ys)
+        num = sum((x - mx) * (y - my) for x, y in zip(xs, ys, strict=True))
+        den = math.sqrt(sum((x - mx) ** 2 for x in xs) * sum((y - my) ** 2 for y in ys))
+        r = num / den
+        return _MiniArray([[1.0, r], [r, 1.0]])
+
+    def median(x: _MiniArray, axis: int = 1) -> _MiniArray:
+        if axis != 1 or not x._is2d:
+            raise ValueError("only axis=1 on 2D arrays is supported")
+        return _MiniArray([float(statistics.median(row)) for row in x._data])  # type: ignore[arg-type]
+
+    mod.array = array  # type: ignore[attr-defined]
+    mod.asarray = array  # type: ignore[attr-defined]
+    mod.column_stack = column_stack  # type: ignore[attr-defined]
+    mod.argsort = argsort  # type: ignore[attr-defined]
+    mod.empty = empty  # type: ignore[attr-defined]
+    mod.arange = arange  # type: ignore[attr-defined]
+    mod.full = full  # type: ignore[attr-defined]
+    mod.tile = tile  # type: ignore[attr-defined]
+    mod.corrcoef = corrcoef  # type: ignore[attr-defined]
+    mod.median = median  # type: ignore[attr-defined]
+    mod.sqrt = math.sqrt  # type: ignore[attr-defined]
+    return mod
+
+
+def _load_v3_baselines() -> tuple[ModuleType, ModuleType]:
+    try:
+        import numpy as np  # type: ignore[import-not-found]
+    except ModuleNotFoundError:
+        np = _mini_numpy()
+    injected = "numpy" not in sys.modules
+    if injected:
+        sys.modules["numpy"] = np
+    try:
+        spec = importlib.util.spec_from_file_location("v3_baselines", V3_BASELINES)
+        assert spec is not None and spec.loader is not None
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["v3_baselines"] = module
+        spec.loader.exec_module(module)
+    finally:
+        if injected:
+            sys.modules.pop("numpy", None)
+    return module, np
+
+
+def test_v3_baselines_icc21_spearman_and_icc_k_by_hand() -> None:
+    v3, np = _load_v3_baselines()
+    a = np.array([0.0, 10.0, 20.0])
+    b = np.array([10.0, 20.0, 30.0])
+    assert v3.icc21(a, a) == pytest.approx(1.0)
+    # MSR = 200, MSC = 150, MSE = 0 -> ICC(2,1) = 200 / (200 + 2*150/3) = 2/3
+    assert v3.icc21(a, b) == pytest.approx(2 / 3)
+    assert v3.icc_k(np.column_stack([a, b])) == pytest.approx(2 / 3)
+    # 3 raters [[0,0,10],[10,10,20],[20,20,30]]: MSR = 300, MSC = 100, MSE = 0 -> 300 / 400 = 0.75
+    x3 = np.array([[0.0, 0.0, 10.0], [10.0, 10.0, 20.0], [20.0, 20.0, 30.0]])
+    assert v3.icc_k(x3) == pytest.approx(0.75)
+    assert v3.spearman(np.array([1, 2, 3, 4]), np.array([10, 20, 30, 40])) == pytest.approx(1.0)
+    assert v3.spearman(np.array([1, 2, 3, 4]), np.array([40, 30, 20, 10])) == pytest.approx(-1.0)
+    # ties: ranks [0, 1, 2] vs [0.5, 0.5, 2.0] -> sqrt(3) / 2
+    assert v3.spearman(np.array([1, 2, 3]), np.array([5, 5, 9])) == pytest.approx(math.sqrt(3) / 2)
+
+
+def test_v3_baselines_s3_flags_s6_flag_and_clamp_h() -> None:
+    v3, np = _load_v3_baselines()
+    # s3_flags: 15 cards (5 K, 5 N, 5 L), small within-group variance so SE > 0
+    kinds = np.array(["K"] * 5 + ["N"] * 5 + ["L"] * 5)
+    base = np.tile(np.array([20.0, 30.0, 40.0, 50.0, 60.0]), 3)
+    noise = np.array([0.5, -0.5, 0.5, -0.5, 0.0] * 3)
+    x_clean = np.column_stack([base + noise, base, base])
+    assert v3.s3_flags(x_clean, kinds, sd_pool=15.0) == {"s3": False, "s3c": False}
+    # Shift only L on rater 0 by +12 -> S3c triggers, S3 (K vs N) stays False
+    x_land = x_clean.copy()
+    x_land[kinds == "L", 0] = x_land[kinds == "L", 0] + 12.0
+    assert v3.s3_flags(x_land, kinds, sd_pool=15.0) == {"s3": False, "s3c": True}
+    # Shift K on rater 0 by +12 -> S3 (K vs N) and S3c (K vs L) both trigger
+    x_creature = x_clean.copy()
+    x_creature[kinds == "K", 0] = x_creature[kinds == "K", 0] + 12.0
+    assert v3.s3_flags(x_creature, kinds, sd_pool=15.0) == {"s3": True, "s3c": True}
+
+    # s6_flag: 10 cards, positions 1..10; symmetric orthogonal noise -> slope 0 -> False
+    pos = np.column_stack([np.arange(1.0, 11.0)] * 3)
+    # e symmetric around midpoint 5.5 -> sum((p - 5.5) * e) = 0 exactly, SE > 0
+    sym_noise = np.array([1.0, -1.0, 1.0, -1.0, 0.0, 0.0, -1.0, 1.0, -1.0, 1.0])
+    x_no_drift = np.column_stack([50.0 + sym_noise, np.full(10, 50.0), np.full(10, 50.0)])
+    assert v3.s6_flag(x_no_drift, pos, thr=1.5) is False
+    # Linear drift +0.5 per position on rater 0 (10 * slope = 5.0 > 1.5, tiny noise) -> True
+    x_drift = np.column_stack(
+        [50.0 + 0.5 * pos[:, 0] + 0.05 * sym_noise, np.full(10, 50.0), np.full(10, 50.0)]
+    )
+    assert v3.s6_flag(x_drift, pos, thr=1.5) is True
+
+    # clamp_h: ref = 0.3*60 + 0.3*60 + 0.2*50 + 0.1*50 + 0.1*50 - 0.2*(100 - 80) = 52.0
+    row = {"F1_E": 60, "F1_F": 60, "F1_R": 50, "F1_T": 50, "F1_K": 50, "F1_D": 80}
+    assert v3.v3b_set(row, "F1") == pytest.approx(52.0)
+    assert v3.clamp_h(row | {"F1_H": 55}, "F1") == pytest.approx(55.0)
+    assert v3.clamp_h(row | {"F1_H": 80}, "F1") == pytest.approx(62.0)
+    assert v3.clamp_h(row | {"F1_H": 20}, "F1") == pytest.approx(42.0)

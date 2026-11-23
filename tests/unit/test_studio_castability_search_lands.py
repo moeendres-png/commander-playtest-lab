@@ -16,6 +16,7 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+import time
 from fractions import Fraction
 from itertools import combinations
 from math import comb
@@ -742,3 +743,120 @@ def test_castability_display_shows_unknown_never_zero_for_missing_values() -> No
     shown = _render(result)
     table = shown["castability"] or ""
     assert table.count("unbekannt") == 26
+
+
+def _reference_joint(
+    groups: list[tuple[frozenset[str], int]],
+    nonland: int,
+    draws: int,
+    min_lands: int,
+    need: dict[str, int],
+) -> tuple[int, int, int]:
+    """Unpruned reference Hall-condition DP on the raw land groups."""
+    colours = sorted(need)
+    masks = range(1, 1 << len(colours))
+    caps = tuple(sum(need[c] for bit, c in enumerate(colours) if mask >> bit & 1) for mask in masks)
+    states: dict[tuple[int, tuple[int, ...]], int] = {(0, tuple(0 for _ in caps)): 1}
+    for produced, size in groups:
+        nxt: dict[tuple[int, tuple[int, ...]], int] = {}
+        own = sum(1 << bit for bit, c in enumerate(colours) if c in produced)
+        hits = tuple(1 if own & mask else 0 for mask in masks)
+        for (lands, got), ways in states.items():
+            for take in range(0, min(size, draws - lands) + 1):
+                key = (
+                    lands + take,
+                    tuple(
+                        min(cap, g + take * h) for cap, g, h in zip(caps, got, hits, strict=True)
+                    ),
+                )
+                nxt[key] = nxt.get(key, 0) + ways * comb(size, take)
+        states = nxt
+    total = comb(sum(size for _, size in groups) + nonland, draws)
+    with_lands = 0
+    with_both = 0
+    for (lands, got), ways in states.items():
+        rest = draws - lands
+        if rest < 0 or rest > nonland:
+            continue
+        count = ways * comb(nonland, rest)
+        if lands >= min_lands:
+            with_lands += count
+            if got == caps:
+                with_both += count
+    return total, with_lands, with_both
+
+
+def test_joint_matches_reference_and_worst_case_five_colour_is_fast() -> None:
+    """Projected/pruned ``_joint`` is integer-identical to the raw DP and fast in the 5-colour
+    worst case (27 land groups, 7 coloured symbols, 5 colours; Refs #1751)."""
+    small_cases = [
+        # duplicate projections + zero-colour lands + always-satisfied mask
+        (
+            [
+                (frozenset({"W", "R"}), 2),
+                (frozenset({"W", "B"}), 3),
+                (frozenset({"U"}), 2),
+                (frozenset({"R", "G"}), 2),
+                (frozenset(), 3),
+            ],
+            8,
+            6,
+            3,
+            {"W": 1, "U": 1},
+        ),
+        # all masks always satisfied when min_lands=5 (only 2 non-W lands in 7 total)
+        (
+            [(frozenset({"W"}), 5), (frozenset({"U"}), 2)],
+            5,
+            6,
+            5,
+            {"W": 3},
+        ),
+        # 5-colour small deck with 7 symbols
+        (
+            [
+                (frozenset({"W"}), 2),
+                (frozenset({"U"}), 2),
+                (frozenset({"B", "R"}), 2),
+                (frozenset({"G", "W"}), 2),
+                (frozenset("WUBRG"), 2),
+                (frozenset(), 2),
+            ],
+            8,
+            10,
+            7,
+            {"W": 2, "U": 2, "B": 1, "R": 1, "G": 1},
+        ),
+        # impossible: too few sources for one colour
+        (
+            [(frozenset({"W"}), 1), (frozenset({"U"}), 4), (frozenset(), 2)],
+            10,
+            8,
+            4,
+            {"W": 2, "U": 1},
+        ),
+    ]
+    for groups, nonland, draws, min_lands, need in small_cases:
+        castability._joint_cached.cache_clear()
+        assert castability._joint(groups, nonland, draws, min_lands, need) == _reference_joint(
+            groups, nonland, draws, min_lands, need
+        )
+
+    # Worst case: 27 distinct land groups (5 mono, 10 dual, 10 tri, 1 five-colour, 1 colourless),
+    # 7 coloured pips across all 5 colours, turn 7 (14 draws, 63 nonlands)
+    worst_groups = (
+        [(frozenset({c}), 2) for c in "WUBRG"]
+        + [(frozenset(p), 1) for p in combinations("WUBRG", 2)]
+        + [(frozenset(t), 1) for t in combinations("WUBRG", 3)]
+        + [(frozenset("WUBRG"), 3), (frozenset(), 3)]
+    )
+    assert len(worst_groups) == 27
+    worst_need = {"W": 2, "U": 2, "B": 1, "R": 1, "G": 1}
+    castability._joint_cached.cache_clear()
+    t0 = time.perf_counter()
+    result = castability.colour_probability(worst_groups, 63, worst_need, 7)
+    elapsed = time.perf_counter() - t0
+    assert elapsed < 0.5, f"worst-case colour_probability took {elapsed:.3f}s (limit 0.5s)"
+    assert result["p_land_drops"] == 0.1977
+    assert result["p_colours_given_lands"] == 0.517
+    assert result["p_on_curve"] == 0.1022

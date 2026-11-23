@@ -360,6 +360,32 @@ def test_freeze_guard_refuses_unlisted_changed_or_missing_outputs(tmp_path: Path
         ev.freeze_guard(tmp_path, {"rr2_output_1.jsonl": [good], "rr2_output_2.jsonl": [good]})
     with pytest.raises(ev.RefusedError, match="no wave-2 output"):
         ev.freeze_guard(tmp_path, {"rr2_output_1.jsonl": [good], "other.jsonl": [good]})
+    (tmp_path / "rr2_output_9.jsonl").write_text("extra\n", encoding="utf-8")
+    with pytest.raises(ev.RefusedError, match=r"rr2_output_9\.jsonl"):
+        ev.freeze_guard(tmp_path, {"rr2_output_1.jsonl": [good]})
+
+
+def test_eval_cli_refuses_unlisted_output_file_in_rater_dir(lab: Lab) -> None:
+    """An extra rr2_output_*.jsonl file (such as rr2_output_9.jsonl) in rater_dir must fail
+    freeze_guard and exit with rc != 0 (Refs #1765)."""
+    lab.build()
+    (lab.rater / "rr2_output_9.jsonl").write_text("extra\n", encoding="utf-8")
+    with pytest.raises(ev.RefusedError, match=r"rr2_output_9\.jsonl"):
+        lab.hits()
+    rc = ev.main(
+        [
+            "hits",
+            "--manifest",
+            str(lab.root / "manifest.json"),
+            "--rater-dir",
+            str(lab.rater),
+            "--checksums",
+            str(lab.root / "checksums.txt"),
+            "--out",
+            str(lab.root / "hits.json"),
+        ]
+    )
+    assert rc != 0
 
 
 def test_parse_checksums_reads_sha256sum_format() -> None:

@@ -52,6 +52,7 @@ import re
 from collections import Counter
 from collections.abc import Iterable, Mapping, Sequence
 from fractions import Fraction
+from functools import lru_cache
 from math import comb
 
 SCHEMA = "studio-castability-1"
@@ -582,6 +583,126 @@ def land_count_table(library: int, deck_lands: int) -> dict[str, object]:
     }
 
 
+@lru_cache(maxsize=4096)
+def _joint_cached(
+    coloured: tuple[tuple[int, int], ...],
+    zero_lands: int,
+    nonland: int,
+    draws: int,
+    min_lands: int,
+    need_counts: tuple[int, ...],
+) -> tuple[int, int, int]:
+    coloured_total = sum(size for _, size in coloured)
+    total_lands = coloured_total + zero_lands
+    total = comb(total_lands + nonland, draws)
+    min_l = max(0, min_lands, draws - nonland)
+    max_l = min(total_lands, draws)
+    if draws < 0 or min_l > max_l:
+        return total, 0, 0
+    with_lands = sum(
+        comb(total_lands, lands) * comb(nonland, draws - lands) for lands in range(min_l, max_l + 1)
+    )
+    if not need_counts:
+        return total, with_lands, with_lands
+    n_col = len(need_counts)
+    active_masks: list[int] = []
+    active_caps: list[int] = []
+    for mask in range(1, 1 << n_col):
+        cap = sum(need_counts[bit] for bit in range(n_col) if mask >> bit & 1)
+        sources = sum(size for own, size in coloured if own & mask)
+        if sources < cap or cap > draws:
+            return total, with_lands, 0
+        if total_lands - sources <= min_lands - cap:
+            continue
+        active_masks.append(mask)
+        active_caps.append(cap)
+    if not active_masks:
+        return total, with_lands, with_lands
+
+    caps = tuple(active_caps)
+    n_masks = len(active_masks)
+    min_l_col = max(0, min_lands - zero_lands, draws - nonland - zero_lands)
+    max_l_col = min(coloured_total, draws)
+    if min_l_col > max_l_col:
+        return total, with_lands, 0
+
+    ordered = tuple(sorted(coloured, key=lambda item: (-item[0].bit_count(), -item[1], item[0])))
+    g_count = len(ordered)
+    rem_lands_after = [0] * g_count
+    rem_hits_after: list[tuple[int, ...]] = [(0,) * n_masks] * g_count
+    acc_lands = 0
+    acc_hits = [0] * n_masks
+    for idx in range(g_count - 1, -1, -1):
+        rem_lands_after[idx] = acc_lands
+        rem_hits_after[idx] = tuple(acc_hits)
+        own, size = ordered[idx]
+        acc_lands += size
+        for m_idx, mask in enumerate(active_masks):
+            if own & mask:
+                acc_hits[m_idx] += size
+
+    states: dict[tuple[int, tuple[int, ...]], int] = {(0, (0,) * n_masks): 1}
+    for idx, (own, size) in enumerate(ordered):
+        nxt: dict[tuple[int, tuple[int, ...]], int] = {}
+        hit_indices = tuple(m_idx for m_idx, mask in enumerate(active_masks) if own & mask)
+        miss_indices = tuple(m_idx for m_idx, mask in enumerate(active_masks) if not (own & mask))
+        rem_l = rem_lands_after[idx]
+        rem_h = rem_hits_after[idx]
+        combs = [comb(size, t) for t in range(size + 1)]
+        for (lands, got), ways in states.items():
+            feasible = True
+            for m_idx in miss_indices:
+                if got[m_idx] + rem_h[m_idx] < caps[m_idx]:
+                    feasible = False
+                    break
+            if not feasible:
+                continue
+            min_take = max(0, min_l_col - rem_l - lands)
+            for m_idx in hit_indices:
+                need_take = caps[m_idx] - rem_h[m_idx] - got[m_idx]
+                if need_take > min_take:
+                    min_take = need_take
+            max_take = min(size, max_l_col - lands)
+            if min_take > max_take:
+                continue
+            if got == caps:
+                for take in range(min_take, max_take + 1):
+                    key = (lands + take, caps)
+                    nxt[key] = nxt.get(key, 0) + ways * combs[take]
+            else:
+                for take in range(min_take, max_take + 1):
+                    if take == 0:
+                        new_got = got
+                    else:
+                        updated = list(got)
+                        for m_idx in hit_indices:
+                            val = updated[m_idx] + take
+                            updated[m_idx] = caps[m_idx] if val >= caps[m_idx] else val
+                        new_got = tuple(updated)
+                    key = (lands + take, new_got)
+                    nxt[key] = nxt.get(key, 0) + ways * combs[take]
+        states = nxt
+        if not states:
+            return total, with_lands, 0
+
+    with_both = 0
+    zero_weight: dict[int, int] = {}
+    for (lands, got), ways in states.items():
+        if got != caps:
+            continue
+        weight = zero_weight.get(lands)
+        if weight is None:
+            z_lo = max(0, min_lands - lands, draws - lands - nonland)
+            z_hi = min(zero_lands, draws - lands)
+            weight = sum(
+                comb(zero_lands, z) * comb(nonland, draws - lands - z)
+                for z in range(z_lo, z_hi + 1)
+            )
+            zero_weight[lands] = weight
+        with_both += ways * weight
+    return total, with_lands, with_both
+
+
 def _joint(
     groups: Sequence[tuple[frozenset[str], int]],
     nonland: int,
@@ -596,44 +717,21 @@ def _joint(
 
     Such an assignment exists exactly when Hall's condition holds: for every non-empty set
     ``S`` of needed colours, the drawn lands producing at least one colour of ``S`` number at
-    least the symbols of ``S``. Dynamic programme over the land groups (lands with the same
-    produced colours): the state is the number of lands drawn and, per colour set ``S``, those
-    lands capped at the symbols of ``S``. With one needed colour this is the plain count of
-    its sources; a dual land is one land and pays one symbol, never one of each colour. The
-    generic part is paid by the other lands, since at least ``min_lands`` (= mana value) lands
-    are drawn.
+    least the symbols of ``S``. Dynamic programme over the land groups projected onto the needed
+    colours (groups with identical colour bitmask merge by Vandermonde's identity; zero-colour
+    lands are folded in directly via ``comb``).
     """
-    colours = sorted(need)
-    masks = range(1, 1 << len(colours))
-    caps = tuple(sum(need[c] for bit, c in enumerate(colours) if mask >> bit & 1) for mask in masks)
-    states: dict[tuple[int, tuple[int, ...]], int] = {(0, tuple(0 for _ in caps)): 1}
+    colours = [c for c in sorted(need) if need[c] > 0]
+    projected: dict[int, int] = {}
     for produced, size in groups:
-        nxt: dict[tuple[int, tuple[int, ...]], int] = {}
-        own = sum(1 << bit for bit, c in enumerate(colours) if c in produced)
-        hits = tuple(1 if own & mask else 0 for mask in masks)
-        for (lands, got), ways in states.items():
-            for take in range(0, min(size, draws - lands) + 1):
-                key = (
-                    lands + take,
-                    tuple(
-                        min(cap, g + take * h) for cap, g, h in zip(caps, got, hits, strict=True)
-                    ),
-                )
-                nxt[key] = nxt.get(key, 0) + ways * comb(size, take)
-        states = nxt
-    total = comb(sum(size for _, size in groups) + nonland, draws)
-    with_lands = 0
-    with_both = 0
-    for (lands, got), ways in states.items():
-        rest = draws - lands
-        if rest < 0 or rest > nonland:
+        if size <= 0:
             continue
-        count = ways * comb(nonland, rest)
-        if lands >= min_lands:
-            with_lands += count
-            if got == caps:
-                with_both += count
-    return total, with_lands, with_both
+        own = sum(1 << bit for bit, c in enumerate(colours) if c in produced)
+        projected[own] = projected.get(own, 0) + size
+    zero_lands = projected.pop(0, 0)
+    coloured = tuple(sorted(projected.items()))
+    need_counts = tuple(need[c] for c in colours)
+    return _joint_cached(coloured, zero_lands, nonland, draws, min_lands, need_counts)
 
 
 def _share(numerator: int, denominator: int) -> float | None:
