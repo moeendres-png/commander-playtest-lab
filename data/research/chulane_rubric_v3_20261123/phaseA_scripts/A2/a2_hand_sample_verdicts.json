@@ -1,0 +1,16 @@
+{
+ "method": "40 cards drawn by a2_inventory.py (random.Random(20261122).sample over the 922 oracle_ids, sorted); blocks in A2_hand_sample.txt; each block read by hand against its own Oracle text (castability present for spells, peer arithmetic and plausibility, roles, pattern hits, land facts).",
+ "castability_missing_for_spell": 0,
+ "peer_numbers_implausible": 0,
+ "peer_arithmetic_wrong": 0,
+ "hard_errors": [
+  {"n": 10, "card": "Grizzled Outcasts // Krallenhorde Wantons", "finding": "back face 7/7 not in the block; only ruling shown is a pointer to an article (no content)"},
+  {"n": 39, "card": "Cabaretti Courtyard", "finding": "Land facts say 'makes no of the deck's colours | fetches a land: no' although the text fetches a basic Forest or Plains; pattern land_onto_battlefield_effect not hit (only etb_own)"}
+ ],
+ "soft_findings": [
+  {"n": [13, 26, 36, 39], "cards": ["Simic Growth Chamber", "Divine Favor", "Stasis Snare", "Cabaretti Courtyard"], "finding": "etb_own hit on a non-creature (land/Aura/enchantment): Chulane's bounce cannot replay it; hint correct as text, misleading as synergy"},
+  {"n": [14, 19, 20, 25, 27, 28, 38], "cards": ["Circuitous Route", "Culling Dais", "Glorious Decay", "Consider", "Viridian Revel", "Azorius Signet", "Cultivate"], "finding": "noncreature_draw_or_ramp evidence is 'roles by text: ...' (a role label, not a card line); acceptable per patterns_spec, but not checkable as a quote"},
+  {"n": [7], "cards": ["Cryotheory Adept"], "finding": "role combat_trick doubtful (prowess body); roles are labelled as fallible"}
+ ],
+ "ok": "remaining 30 cards: no visible defect"
+}

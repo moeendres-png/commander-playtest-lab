@@ -1,0 +1,781 @@
+{
+ "quelle": "A1 pairs.jsonl (F1 gegen R2, 922 Karten); G1 audit/independent_rater_ratings.jsonl; A2",
+ "seed": 20261123,
+ "uebereinstimmung_F1_R2": {
+  "H_frei": {
+   "n": 922,
+   "sd_F1": 18.78,
+   "sd_R2": 20.31,
+   "sd_gepoolt": 19.7,
+   "mittel_F1": 30.72,
+   "mittel_R2": 25.99,
+   "icc21": 0.818,
+   "icc21_ki95": [
+    0.793,
+    0.839
+   ],
+   "mittel_d": -4.73,
+   "mittel_abs_d": 9.16,
+   "mittel_abs_d_durch_sd": 0.465,
+   "n_abs_d_ge15": 266,
+   "versatz_je_kartenart": {
+    "kreatur": {
+     "n": 478,
+     "mittel_d": -7.53,
+     "in_sd": -0.382
+    },
+    "nicht_kreatur_spell": {
+     "n": 379,
+     "mittel_d": -2.49,
+     "in_sd": -0.127
+    },
+    "land": {
+     "n": 65,
+     "mittel_d": 2.85,
+     "in_sd": 0.144
+    }
+   }
+  },
+  "M5": {
+   "n": 922,
+   "sd_F1": 13.23,
+   "sd_R2": 14.43,
+   "sd_gepoolt": 13.84,
+   "mittel_F1": 36.19,
+   "mittel_R2": 35.84,
+   "icc21": 0.864,
+   "icc21_ki95": [
+    0.846,
+    0.881
+   ],
+   "mittel_d": -0.35,
+   "mittel_abs_d": 5.53,
+   "mittel_abs_d_durch_sd": 0.4,
+   "n_abs_d_ge15": 42,
+   "versatz_je_kartenart": {
+    "kreatur": {
+     "n": 478,
+     "mittel_d": -1.83,
+     "in_sd": -0.132
+    },
+    "nicht_kreatur_spell": {
+     "n": 379,
+     "mittel_d": 1.16,
+     "in_sd": 0.084
+    },
+    "land": {
+     "n": 65,
+     "mittel_d": 1.66,
+     "in_sd": 0.12
+    }
+   }
+  },
+  "v3b_formel_N_gleich_100_minus_D": {
+   "n": 922,
+   "sd_F1": 14.2,
+   "sd_R2": 15.33,
+   "sd_gepoolt": 14.78,
+   "mittel_F1": 29.21,
+   "mittel_R2": 29.71,
+   "icc21": 0.868,
+   "icc21_ki95": [
+    0.851,
+    0.884
+   ],
+   "mittel_d": 0.5,
+   "mittel_abs_d": 5.85,
+   "mittel_abs_d_durch_sd": 0.396,
+   "n_abs_d_ge15": 60,
+   "versatz_je_kartenart": {
+    "kreatur": {
+     "n": 478,
+     "mittel_d": -0.93,
+     "in_sd": -0.063
+    },
+    "nicht_kreatur_spell": {
+     "n": 379,
+     "mittel_d": 2.06,
+     "in_sd": 0.139
+    },
+    "land": {
+     "n": 65,
+     "mittel_d": 1.94,
+     "in_sd": 0.131
+    }
+   }
+  },
+  "v3b_gesetzte_gewichte_N_gleich_100_minus_D": {
+   "n": 922,
+   "sd_F1": 15.28,
+   "sd_R2": 16.61,
+   "sd_gepoolt": 15.96,
+   "mittel_F1": 33.5,
+   "mittel_R2": 33.88,
+   "icc21": 0.868,
+   "icc21_ki95": [
+    0.851,
+    0.884
+   ],
+   "mittel_d": 0.39,
+   "mittel_abs_d": 6.36,
+   "mittel_abs_d_durch_sd": 0.399,
+   "n_abs_d_ge15": 70,
+   "versatz_je_kartenart": {
+    "kreatur": {
+     "n": 478,
+     "mittel_d": -1.17,
+     "in_sd": -0.073
+    },
+    "nicht_kreatur_spell": {
+     "n": 379,
+     "mittel_d": 2.02,
+     "in_sd": 0.127
+    },
+    "land": {
+     "n": 65,
+     "mittel_d": 2.26,
+     "in_sd": 0.142
+    }
+   }
+  },
+  "v3c_gesetzte_gewichte_ohne_N": {
+   "n": 922,
+   "sd_F1": 14.2,
+   "sd_R2": 15.63,
+   "sd_gepoolt": 14.93,
+   "mittel_F1": 40.49,
+   "mittel_R2": 40.01,
+   "icc21": 0.864,
+   "icc21_ki95": [
+    0.845,
+    0.88
+   ],
+   "mittel_d": -0.48,
+   "mittel_abs_d": 6.05,
+   "mittel_abs_d_durch_sd": 0.405,
+   "n_abs_d_ge15": 58,
+   "versatz_je_kartenart": {
+    "kreatur": {
+     "n": 478,
+     "mittel_d": -2.07,
+     "in_sd": -0.139
+    },
+    "nicht_kreatur_spell": {
+     "n": 379,
+     "mittel_d": 1.12,
+     "in_sd": 0.075
+    },
+    "land": {
+     "n": 65,
+     "mittel_d": 1.96,
+     "in_sd": 0.131
+    }
+   }
+  }
+ },
+ "H_gegen_kriterien": {
+  "F1": {
+   "n": 922,
+   "mittlere_luecke_H_minus_M5": -5.47,
+   "n_abs_luecke_gt10": 297,
+   "n_abs_luecke_gt15": 64
+  },
+  "R2": {
+   "n": 922,
+   "mittlere_luecke_H_minus_M5": -9.85,
+   "n_abs_luecke_gt10": 572,
+   "n_abs_luecke_gt15": 254
+  }
+ },
+ "kriterien_korrelation": {
+  "F1": {
+   "max_r": 0.673,
+   "paar": "FK"
+  },
+  "R2": {
+   "max_r": 0.752,
+   "paar": "ER"
+  }
+ },
+ "anker_kandidaten": {
+  "stufe1_F1_R2_G1_hoechstens_5_auseinander": {
+   "E": {
+    "30": [
+     "Hydro-Channeler",
+     "Tel-Jilad Defiance"
+    ],
+    "40": [
+     "Tethermage's Advantage"
+    ],
+    "50": [
+     "Relic of Legends",
+     "Steel Hellkite"
+    ],
+    "60": [
+     "Cloudblazer",
+     "Flitterwing Nuisance",
+     "Fumigate"
+    ],
+    "70": [
+     "Faerie Mastermind",
+     "Simic Signet"
+    ]
+   },
+   "F": {
+    "30": [],
+    "40": [
+     "Firdoch Core",
+     "Hydro-Channeler",
+     "Potioner's Trove",
+     "Preordain",
+     "Ulvenwald Mysteries"
+    ],
+    "50": [
+     "Simic Signet",
+     "Stave Off"
+    ],
+    "60": [],
+    "70": [
+     "Omni-Changeling"
+    ]
+   },
+   "T": {
+    "30": [
+     "Arachnus Spinner",
+     "Nadir Kraken",
+     "Wilt-Leaf Liege"
+    ],
+    "40": [],
+    "50": [
+     "Arrest",
+     "Gideon Jura"
+    ],
+    "60": [],
+    "70": []
+   },
+   "R": {
+    "30": [
+     "Sleep"
+    ],
+    "40": [
+     "Runeclaw Bear"
+    ],
+    "50": [],
+    "60": [
+     "Nadir Kraken"
+    ],
+    "70": [
+     "Potioner's Trove",
+     "Relic of Legends",
+     "Wolfbriar Elemental"
+    ]
+   },
+   "K": {
+    "30": [
+     "Relic of Legends"
+    ],
+    "40": [
+     "Flitterwing Nuisance"
+    ],
+    "50": [
+     "Borderland Ranger",
+     "Faerie Mastermind",
+     "Omni-Changeling",
+     "Serene Sleuth",
+     "Ulvenwald Mysteries"
+    ],
+    "60": [],
+    "70": []
+   }
+  },
+  "stufe2_F1_gleich_R2_gleich_Stufe_anzahl": {
+   "E": {
+    "30": 19,
+    "40": 13,
+    "50": 18,
+    "60": 9,
+    "70": 8
+   },
+   "F": {
+    "30": 21,
+    "40": 42,
+    "50": 12,
+    "60": 5,
+    "70": 5
+   },
+   "T": {
+    "30": 9,
+    "40": 10,
+    "50": 22,
+    "60": 1,
+    "70": 0
+   },
+   "R": {
+    "30": 7,
+    "40": 19,
+    "50": 19,
+    "60": 10,
+    "70": 8
+   },
+   "K": {
+    "30": 13,
+    "40": 4,
+    "50": 17,
+    "60": 2,
+    "70": 0
+   }
+  },
+  "hinweis": "nur Spells, ohne bisherige Ankerkarten; Stufe 2 greift nur für leere Zellen von Stufe 1",
+  "N_mittelstufen": {
+   "stufe1": {
+    "30": [
+     "Cat Collector",
+     "Fleetfoot Panther",
+     "Lonis, Cryptozoologist",
+     "Teferi's Ageless Insight"
+    ],
+    "40": [
+     "Steel Hellkite"
+    ],
+    "60": [],
+    "70": []
+   },
+   "stufe2_anzahl": {
+    "30": 10,
+    "40": 5,
+    "60": 1,
+    "70": 0
+   }
+  }
+ },
+ "pilot_schichten": {
+  "N": 922,
+  "n_abs_d_ge15": 266,
+  "n_abs_d_lt5": 190,
+  "n_laender": 65,
+  "n_ankerkarten_v2": 46,
+  "n_kaum_fair": 60,
+  "nicht_anker": {
+   "n_abs_d_ge15": 254,
+   "n_abs_d_lt5_ohne_land": 150,
+   "n_laender": 52,
+   "n_kaum_fair": 59
+  }
+ },
+ "s7_breite": {
+  "n_alle": 922,
+  "spearman_R2_H_frei_alle": 0.673,
+  "spearman_F1_H_frei_alle": 0.504,
+  "spearman_R2_M5_alle": 0.599,
+  "spearman_F1_M5_alle": 0.463,
+  "spearman_R2_v3b_formel_N_gleich_100_minus_D_alle": 0.558,
+  "spearman_F1_v3b_formel_N_gleich_100_minus_D_alle": 0.434,
+  "spearman_R2_v3b_gesetzte_gewichte_N_gleich_100_minus_D_alle": 0.575,
+  "spearman_F1_v3b_gesetzte_gewichte_N_gleich_100_minus_D_alle": 0.436,
+  "spearman_R2_v3c_gesetzte_gewichte_ohne_N_alle": 0.619,
+  "spearman_F1_v3c_gesetzte_gewichte_ohne_N_alle": 0.466,
+  "ki95_breite_spearman_100_zufallskarten_median": 0.238,
+  "ki95_breite_gepaarte_differenz_100_zufallskarten_median": 0.17,
+  "wiederholungen": "50 Teilmengen x 500 Bootstrap-Ziehungen"
+ },
+ "gewichte_offenlegung": {
+  "gleich_0.2": {
+   "icc21": 0.868,
+   "mittel_abs_d_durch_sd": 0.396,
+   "sd_gepoolt": 14.78,
+   "spearman_R2_quelldecks": 0.558,
+   "spearman_F1_quelldecks": 0.434
+  },
+  "gesetzt_0.3_0.3_0.2_0.1_0.1": {
+   "icc21": 0.868,
+   "mittel_abs_d_durch_sd": 0.399,
+   "sd_gepoolt": 15.96,
+   "spearman_R2_quelldecks": 0.575,
+   "spearman_F1_quelldecks": 0.436
+  },
+  "ER_betont_0.3_0.3_0.3_0.05_0.05": {
+   "icc21": 0.866,
+   "mittel_abs_d_durch_sd": 0.402,
+   "sd_gepoolt": 16.59,
+   "spearman_R2_quelldecks": 0.576,
+   "spearman_F1_quelldecks": 0.427
+  },
+  "mitte_0.25_0.25_0.25_0.125_0.125": {
+   "icc21": 0.867,
+   "mittel_abs_d_durch_sd": 0.4,
+   "sd_gepoolt": 15.54,
+   "spearman_R2_quelldecks": 0.572,
+   "spearman_F1_quelldecks": 0.435
+  },
+  "gesetzt_ohne_N_V3c": {
+   "icc21": 0.864,
+   "mittel_abs_d_durch_sd": 0.405,
+   "sd_gepoolt": 14.93,
+   "spearman_R2_quelldecks": 0.619,
+   "spearman_F1_quelldecks": 0.466
+  }
+ },
+ "anker_mae_alt_kriterienzeilen": {
+  "F1": {
+   "v1_fixed": {
+    "n_zeilen": 36,
+    "mae": 6.25
+   },
+   "uebrige": {
+    "n_zeilen": 51,
+    "mae": 0.98
+   }
+  },
+  "R2": {
+   "v1_fixed": {
+    "n_zeilen": 36,
+    "mae": 4.58
+   },
+   "uebrige": {
+    "n_zeilen": 51,
+    "mae": 8.63
+   }
+  },
+  "nur_in_H_tabelle": [
+   "Avacyn's Pilgrim",
+   "Cryptic Caves",
+   "Negate",
+   "Reality Shift",
+   "Tatyova, Benthic Druid",
+   "Temple of Plenty"
+  ],
+  "hinweis": "R2 sah nie die eigene Ankerzeile; F1 sah sie bei den 'uebrige'-Zeilen (A1 2.6)"
+ },
+ "trockenlauf_pilotfoermig": {
+  "ziehungen": 200,
+  "hinweis": "Punktwerte je Ziehung; Anteil = Ziehungen, die die Schwelle erfüllen",
+  "v3b_gesetzt": {
+   "s1_icc": {
+    "median": 0.827,
+    "p05_p95": [
+     0.781,
+     0.867
+    ],
+    "anteil_erfuellt": 0.045
+   },
+   "s2": {
+    "median": 0.463,
+    "p05_p95": [
+     0.409,
+     0.528
+    ],
+    "anteil_erfuellt": 0.01
+   },
+   "s3_kreatur": {
+    "median": 0.238,
+    "p05_p95": [
+     0.143,
+     0.318
+    ],
+    "anteil_erfuellt": 0.06
+   },
+   "s3_nicht_kreatur": {
+    "median": 0.138,
+    "p05_p95": [
+     0.011,
+     0.337
+    ],
+    "anteil_erfuellt": 0.56
+   },
+   "s3_diff_max": {
+    "median": 0.428,
+    "p05_p95": [
+     0.261,
+     0.591
+    ],
+    "anteil_erfuellt": 0.0
+   },
+   "s7": {
+    "median": -0.138,
+    "p05_p95": [
+     -0.186,
+     -0.079
+    ],
+    "anteil_erfuellt": 0.0
+   },
+   "s3_beide_arten_anteil_erfuellt": 0.03
+  },
+  "v3a_analog_geklemmtes_H": {
+   "s1_icc": {
+    "median": 0.737,
+    "p05_p95": [
+     0.68,
+     0.786
+    ],
+    "anteil_erfuellt": 0.0
+   },
+   "s2": {
+    "median": 0.534,
+    "p05_p95": [
+     0.475,
+     0.589
+    ],
+    "anteil_erfuellt": 0.0
+   },
+   "s3_kreatur": {
+    "median": 0.517,
+    "p05_p95": [
+     0.409,
+     0.613
+    ],
+    "anteil_erfuellt": 0.0
+   },
+   "s3_nicht_kreatur": {
+    "median": 0.09,
+    "p05_p95": [
+     0.006,
+     0.236
+    ],
+    "anteil_erfuellt": 0.705
+   },
+   "s3_diff_max": {
+    "median": 0.672,
+    "p05_p95": [
+     0.503,
+     0.873
+    ],
+    "anteil_erfuellt": 0.0
+   },
+   "s7": {
+    "median": -0.028,
+    "p05_p95": [
+     -0.042,
+     -0.008
+    ],
+    "anteil_erfuellt": 0.995
+   },
+   "s3_beide_arten_anteil_erfuellt": 0.0
+  }
+ },
+ "anzeige_bedingung_alt": {
+  "schwelle": -0.1,
+  "n": 922,
+  "V3b": {
+   "differenz_922": -0.092,
+   "bootstrap_922_anteil_unter_minus_0_10": 0.219,
+   "pilotfoermig_median": -0.133,
+   "pilotfoermig_anteil_erfuellt": 0.16
+  },
+  "V3a_analog": {
+   "differenz_922": -0.016,
+   "bootstrap_922_anteil_unter_minus_0_10": 0.0,
+   "pilotfoermig_median": -0.026,
+   "pilotfoermig_anteil_erfuellt": 1.0
+  },
+  "V3c": {
+   "differenz_922": -0.052,
+   "bootstrap_922_anteil_unter_minus_0_10": 0.0,
+   "pilotfoermig_median": -0.076,
+   "pilotfoermig_anteil_erfuellt": 0.815
+  }
+ },
+ "pilot_simulation_ohne_defekt": {
+  "modell": "Modell: 90 Nicht-Anker-Karten (51 Kreaturen, 27 Nicht-Kreatur-Spells, 12 Länder), wahrer Wert\nplus unabhängiger Raterfehler je Rater, Gesamt-SD 16, wahre ICC 0,87/0,90/0,93. Versatz:\nRater A bewertet alle Karten um 0 / 0,1 / 0,15 / 0,2 SD strenger (gleichmäßig). Keine Drift;\nje Charge 15 der Positionen 1-19 (4 Plätze gehen an Anker), 6 Chargen, je Rater eigene\nReihenfolge. S5: 10 Ankerkarten x 2 Ankerzeilen, Ankerwert = wahrer Wert, Fehler wie oben\n(Rater A mit demselben Versatz). S7: Normal(0, sd7) mit sd7 aus der KI-Breite von s7_breite.\nS8 und S9 als erfüllt angenommen. Regeln Runde 2: Muss S1, S2, S3, S5, S6, S7. Regeln Runde 3\n(Plan): Muss im Pilot S1, S3, S5, S6; S2 Soll, S7 im Pilot nur Frühwarnung.",
+  "sd7": 0.0457,
+  "icc_0.87": {
+   "versatz_0.00_sd": {
+    "fehlalarm": {
+     "s1": 0.505,
+     "s2": 0.727,
+     "s3": 0.044,
+     "s3c": 0.051,
+     "s5": 0.0,
+     "s6": 0.044,
+     "s7": 0.133,
+     "gesamt_runde2": 0.785,
+     "gesamt_runde3": 0.545
+    },
+    "teststaerke": {
+     "s3_0_15": 0.199,
+     "s3_0_25": 0.51,
+     "s6_drift_1_5": 0.104,
+     "s6_drift_3_0": 0.356
+    }
+   },
+   "versatz_0.10_sd": {
+    "fehlalarm": {
+     "s1": 0.551,
+     "s2": 0.764,
+     "s3": 0.04,
+     "s3c": 0.054,
+     "s5": 0.0,
+     "s6": 0.033,
+     "s7": 0.133,
+     "gesamt_runde2": 0.809,
+     "gesamt_runde3": 0.584
+    }
+   },
+   "versatz_0.15_sd": {
+    "fehlalarm": {
+     "s1": 0.625,
+     "s2": 0.829,
+     "s3": 0.048,
+     "s3c": 0.055,
+     "s5": 0.0,
+     "s6": 0.05,
+     "s7": 0.13,
+     "gesamt_runde2": 0.872,
+     "gesamt_runde3": 0.664
+    }
+   },
+   "versatz_0.20_sd": {
+    "fehlalarm": {
+     "s1": 0.7,
+     "s2": 0.874,
+     "s3": 0.038,
+     "s3c": 0.073,
+     "s5": 0.0,
+     "s6": 0.056,
+     "s7": 0.145,
+     "gesamt_runde2": 0.898,
+     "gesamt_runde3": 0.73
+    }
+   },
+   "wiederholungen": 1000
+  },
+  "icc_0.90": {
+   "versatz_0.00_sd": {
+    "fehlalarm": {
+     "s1": 0.068,
+     "s2": 0.182,
+     "s3": 0.043,
+     "s3c": 0.063,
+     "s5": 0.0,
+     "s6": 0.053,
+     "s7": 0.134,
+     "gesamt_runde2": 0.361,
+     "gesamt_runde3": 0.159
+    },
+    "teststaerke": {
+     "s3_0_15": 0.254,
+     "s3_0_25": 0.638,
+     "s6_drift_1_5": 0.141,
+     "s6_drift_3_0": 0.461
+    }
+   },
+   "versatz_0.10_sd": {
+    "fehlalarm": {
+     "s1": 0.093,
+     "s2": 0.223,
+     "s3": 0.042,
+     "s3c": 0.042,
+     "s5": 0.0,
+     "s6": 0.052,
+     "s7": 0.131,
+     "gesamt_runde2": 0.383,
+     "gesamt_runde3": 0.177
+    }
+   },
+   "versatz_0.15_sd": {
+    "fehlalarm": {
+     "s1": 0.117,
+     "s2": 0.294,
+     "s3": 0.036,
+     "s3c": 0.046,
+     "s5": 0.0,
+     "s6": 0.047,
+     "s7": 0.148,
+     "gesamt_runde2": 0.45,
+     "gesamt_runde3": 0.191
+    }
+   },
+   "versatz_0.20_sd": {
+    "fehlalarm": {
+     "s1": 0.189,
+     "s2": 0.383,
+     "s3": 0.042,
+     "s3c": 0.053,
+     "s5": 0.0,
+     "s6": 0.052,
+     "s7": 0.141,
+     "gesamt_runde2": 0.518,
+     "gesamt_runde3": 0.264
+    }
+   },
+   "wiederholungen": 1000
+  },
+  "icc_0.93": {
+   "versatz_0.00_sd": {
+    "fehlalarm": {
+     "s1": 0.0,
+     "s2": 0.004,
+     "s3": 0.025,
+     "s3c": 0.066,
+     "s5": 0.0,
+     "s6": 0.052,
+     "s7": 0.145,
+     "gesamt_runde2": 0.217,
+     "gesamt_runde3": 0.076
+    },
+    "teststaerke": {
+     "s3_0_15": 0.348,
+     "s3_0_25": 0.805,
+     "s6_drift_1_5": 0.199,
+     "s6_drift_3_0": 0.638
+    }
+   },
+   "versatz_0.10_sd": {
+    "fehlalarm": {
+     "s1": 0.0,
+     "s2": 0.003,
+     "s3": 0.053,
+     "s3c": 0.053,
+     "s5": 0.0,
+     "s6": 0.054,
+     "s7": 0.142,
+     "gesamt_runde2": 0.23,
+     "gesamt_runde3": 0.105
+    }
+   },
+   "versatz_0.15_sd": {
+    "fehlalarm": {
+     "s1": 0.002,
+     "s2": 0.009,
+     "s3": 0.047,
+     "s3c": 0.056,
+     "s5": 0.0,
+     "s6": 0.048,
+     "s7": 0.136,
+     "gesamt_runde2": 0.219,
+     "gesamt_runde3": 0.094
+    }
+   },
+   "versatz_0.20_sd": {
+    "fehlalarm": {
+     "s1": 0.003,
+     "s2": 0.031,
+     "s3": 0.044,
+     "s3c": 0.044,
+     "s5": 0.0,
+     "s6": 0.046,
+     "s7": 0.131,
+     "gesamt_runde2": 0.233,
+     "gesamt_runde3": 0.093
+    }
+   },
+   "wiederholungen": 1000
+  }
+ },
+ "s6_fehlalarm_20000": {
+  "icc_0.87": {
+   "fehlalarm_normal_2_394": 0.0554,
+   "fehlalarm_t_2_44": 0.0488,
+   "laeufe": 20000
+  },
+  "icc_0.90": {
+   "fehlalarm_normal_2_394": 0.0546,
+   "fehlalarm_t_2_44": 0.0476,
+   "laeufe": 20000
+  },
+  "icc_0.93": {
+   "fehlalarm_normal_2_394": 0.0508,
+   "fehlalarm_t_2_44": 0.0461,
+   "laeufe": 20000
+  }
+ }
+}
