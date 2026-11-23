@@ -20,6 +20,8 @@ from commander_lab.studio import (
     create_revision,
     importers,
     roles,
+    universe,
+    universe_view,
 )
 from commander_lab.studio.decks import (
     export_text,
@@ -1376,6 +1378,8 @@ def test_unowned_card_is_listed_once_when_catalog_cards_share_an_oracle_id(
 def test_unowned_card_in_a_counted_scope_is_unknown_over_the_scope_denominator(
     studio: StudioStore,
 ) -> None:
+    """When a gc_band scope has MARKING_MISSING (denominator 0), an unowned card stays
+    unknown (hits=None, share=None, never 0) with the scope's own denominator (#1738)."""
     _insert_scryfall(
         studio, oracle_id="o-scope", name="Scope Walker", colors="G",
         type_line="Legendary Planeswalker — Scope",
@@ -1383,19 +1387,131 @@ def test_unowned_card_in_a_counted_scope_is_unknown_over_the_scope_denominator(
     studio.connection.commit()
     band = builder.pool_cards(studio, [COMMANDER], gc_band=GC_BAND_0, include_unowned=True)
     card = _unowned(band)["Scope Walker"]
-    universe = card["universe"]
-    assert universe["matched"] is False  # type: ignore[index]
-    assert universe["hits"] is None  # type: ignore[index]
-    assert universe["share"] is None  # type: ignore[index]
-    assert "level" not in universe  # type: ignore[operator]  # no level letter since Q1-b5 (#1680)
-    assert universe["denominator"] == band["universe"]["denominator"]  # type: ignore[index]
-    assert universe["reason"] == builder.UNOWNED_NOT_COUNTED  # type: ignore[index]
-    # collection cards keep their counted rows; the default pool never carries this entry
+    u = card["universe"]
+    assert u["matched"] is False  # type: ignore[index]
+    assert u["hits"] is None  # type: ignore[index]
+    assert u["share"] is None  # type: ignore[index]
+    assert "level" not in u  # type: ignore[operator]  # no level letter since Q1-b5 (#1680)
+    assert u["denominator"] == band["universe"]["denominator"] == 0  # type: ignore[index]
+    assert u["reason"] == universe_view.UNIVERSE_EMPTY  # type: ignore[index]
+    assert u["filter_card"] is False  # type: ignore[index]
+    # collection cards keep their counted rows; the default pool never carries unowned markers
     plain = builder.pool_cards(studio, [COMMANDER], gc_band=GC_BAND_0)
     assert all(
         c.get("universe", {}).get("reason") != builder.UNOWNED_NOT_COUNTED  # type: ignore[union-attr]
         for c in plain["cards"]  # type: ignore[union-attr]
     )
+
+
+def test_unowned_cards_receive_real_universe_counts_in_profile_and_gc_band(
+    studio: StudioStore,
+) -> None:
+    """Unowned scryfall: cards are counted over the exact same filtered universe decks as
+    collection cards, with casefolding, front-face resolution and ambiguity protection (#1738)."""
+    _insert_scryfall(
+        studio, oracle_id="o-scope-hit", name="Scope Walker", colors="G",
+        type_line="Legendary Planeswalker — Scope",
+    )  # fmt: skip
+    _insert_scryfall(
+        studio, oracle_id="o-dfc", name="Unique Front // Hidden Back", colors="U",
+        type_line="Legendary Planeswalker — DFC",
+    )  # fmt: skip
+    _insert_scryfall(
+        studio, oracle_id="o-ambig", name="Forest // Ambivalent Back", colors="G",
+        type_line="Legendary Planeswalker — Ambiguous",
+    )  # fmt: skip
+    _insert_scryfall(
+        studio, oracle_id="o-absent", name="Absent Walker", colors="W",
+        type_line="Legendary Planeswalker — Absent",
+    )  # fmt: skip
+    # Put Scope Walker in d1 with different case, Unique Front in d2 by its front face only.
+    _corpus_card(studio, "d1", "scope walker", "")
+    _corpus_card(studio, "d2", "Unique Front", "")
+    # Mark all Scryfall cards with a known game_changer value (0, except one unused card = 1)
+    # and set the DFC front_name so d1 and d2 resolve cleanly into gc_band:0
+    # (d3 has "Unknown Card", so d3 stays gc_band:unknown -> gc_band:0 denominator == 2).
+    studio.connection.execute(
+        "UPDATE scryfall_card SET front_name = 'Unique Front' WHERE oracle_id = 'o-dfc'"
+    )
+    studio.connection.execute("UPDATE scryfall_card SET game_changer = 0")
+    studio.connection.execute(
+        "UPDATE scryfall_card SET game_changer = 1 WHERE name = 'Red Outsider'"
+    )
+    studio.connection.commit()
+
+    # 1. Profile universe over all 3 bound decks (d1, d2, d3)
+    universe.save_profile(studio, "all_bound", {"commanders": [COMMANDER], "min_universe": 1})
+    prof = builder.pool_cards(studio, [COMMANDER], profile="all_bound", include_unowned=True)
+    assert prof["universe"]["denominator"] == 3  # type: ignore[index]
+    unowned_prof = _unowned(prof)
+    walker = unowned_prof["Scope Walker"]["universe"]
+    assert walker["matched"] is True  # type: ignore[index]
+    assert walker["hits"] == 1  # type: ignore[index]
+    assert walker["denominator"] == 3  # type: ignore[index]
+    assert walker["share"] == pytest.approx(1 / 3)  # type: ignore[index]
+    assert walker["filter_card"] is False  # type: ignore[index]
+    assert walker["reason"] != builder.UNOWNED_NOT_COUNTED  # type: ignore[index]
+    dfc = unowned_prof["Unique Front // Hidden Back"]["universe"]
+    assert dfc["matched"] is True  # type: ignore[index]
+    assert dfc["hits"] == 1  # type: ignore[index]
+    assert dfc["denominator"] == 3  # type: ignore[index]
+    assert dfc["share"] == pytest.approx(1 / 3)  # type: ignore[index]
+    # Ambiguous front face ("Forest" is an exact collection card in d1 & d2): never steals
+    # Forest's decks and never reports 0.
+    ambig = unowned_prof["Forest // Ambivalent Back"]["universe"]
+    assert ambig["matched"] is False  # type: ignore[index]
+    assert ambig["hits"] is None  # type: ignore[index]
+    assert ambig["share"] is None  # type: ignore[index]
+    # Card absent from all universe decks stays unknown (hits=None, never 0).
+    absent = unowned_prof["Absent Walker"]["universe"]
+    assert absent["matched"] is False  # type: ignore[index]
+    assert absent["hits"] is None  # type: ignore[index]
+    assert absent["share"] is None  # type: ignore[index]
+    assert absent["reason"] == universe_view.NAME_NOT_FOUND  # type: ignore[index]
+
+    # 2. Game-Changer-Band universe (gc_band:0 has d1 & d2 -> denominator 2)
+    band = builder.pool_cards(studio, [COMMANDER], gc_band=GC_BAND_0, include_unowned=True)
+    assert band["universe"]["denominator"] == 2  # type: ignore[index]
+    band_walker = _unowned(band)["Scope Walker"]["universe"]
+    assert band_walker["matched"] is True  # type: ignore[index]
+    assert band_walker["hits"] == 1  # type: ignore[index]
+    assert band_walker["denominator"] == 2  # type: ignore[index]
+    assert band_walker["share"] == pytest.approx(0.5)  # type: ignore[index]
+    assert band_walker["filter_card"] is False  # type: ignore[index]
+
+    # 3. Direct universe_view.pool_spread(..., extra_cards=...) keeps ambiguous_front_face flag
+    direct = universe_view.pool_spread(
+        studio,
+        "all_bound",
+        commander_names=[COMMANDER],
+        extra_cards=[("scryfall:o-ambig", "Forest // Ambivalent Back")],
+    )
+    direct_by_id = {c["card_id"]: c for c in direct["cards"]}
+    assert direct_by_id["scryfall:o-ambig"]["matched"] is False
+    assert direct_by_id["scryfall:o-ambig"]["hits"] is None
+    assert direct_by_id["scryfall:o-ambig"].get("ambiguous_front_face") is True
+
+
+def test_unowned_corpus_case_variants_union_decks_without_loss_or_double_count(
+    studio: StudioStore, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Case variants of an unowned card across corpus decks merge by deck-id union:
+    deck d1 with both 'Case Card' and 'case card' plus deck d2 with 'case card' counts
+    as exactly 2 decks — never 1 (setdefault/exact shadow) and never 3 (naive sum) (#1738)."""
+    _insert_scryfall(studio, oracle_id="o-case", name="Case Card", colors="U", type_line="Instant")
+    _corpus_card(studio, "d1", "Case Card", "")
+    _corpus_card(studio, "d1", "case card", "")
+    _corpus_card(studio, "d2", "case card", "")
+    studio.connection.commit()
+    total = builder.cohort_sizes(studio, [COMMANDER])[builder.ALL_DECKS]
+    assert total == 3
+    # 50 % of 3 decks needs >= 2 decks (1*100 < 50*3, 2*100 >= 50*3): proves the threshold
+    # itself sees the merged count 2 rather than 1.
+    monkeypatch.setattr(builder, "UNOWNED_MIN_CORPUS_PCT", 50)
+    pool = builder.pool_cards(studio, [COMMANDER], include_unowned=True)
+    card = _unowned(pool)["Case Card"]
+    assert card["selected_by"] == ["corpus"]
+    assert card["decks"][builder.ALL_DECKS] == 2  # type: ignore[index]
 
 
 def test_saved_deck_criterion_is_bound_to_the_commander_and_ignores_history(
@@ -1427,15 +1543,146 @@ def test_saved_deck_criterion_is_bound_to_the_commander_and_ignores_history(
     assert len(_unowned(after)) == len(_unowned(before))
 
 
+def test_saved_deck_card_ids_draft_inheritance_partners_and_oracle_equivalence(
+    studio: StudioStore,
+) -> None:
+    """Closes #1669 test gaps (#1738):
+    (a) a deck_draft with an empty commander zone inherits its branch head's commander;
+    (b) empty commander_ids and strict partner subsets (commanders < wanted / wanted < commanders)
+        are excluded;
+    (c) scryfall:<oracle_id> equivalence works in both commander directions AND when a second
+        materialized catalog id of the same oracle_id sits in the maindeck."""
+    db = studio.connection
+    cmd_row = db.execute(
+        "SELECT card_id, oracle_id FROM card WHERE oracle_name = ?", (COMMANDER,)
+    ).fetchone()
+    cmd_id, cmd_oid = str(cmd_row["card_id"]), str(cmd_row["oracle_id"])
+    partner_id = "card:project:0101"
+
+    for oid, name in (
+        ("o-draft-inherit", "Draft Inherit Pick"),
+        ("o-partner-pick", "Partner Only Pick"),
+        ("o-cmd-scry", "Scryfall Cmd Pick"),
+        ("o-mat-pick", "Materialized Pick"),
+    ):
+        _insert_scryfall(studio, oracle_id=oid, name=name, colors="G", type_line="Instant")
+    # Two catalog rows for the same oracle_id (no inventory): MIN(card_id) picks card:mat:a,
+    # while the saved deck references card:mat:b.
+    for cid in ("card:mat:a", "card:mat:b"):
+        db.execute(
+            "INSERT INTO card(card_id, oracle_name, oracle_id, color_identity, type_line, "
+            "is_basic_land, commander_legal, source_id) VALUES (?, 'Materialized Pick', "
+            "'o-mat-pick', 'G', 'Instant', 0, 1, ?)",
+            (cid, _source_id(studio)),
+        )
+    db.commit()
+
+    # (a) Draft with empty commander zone inherits branch head commander
+    head = create_revision(studio, deck_id="draft-inh", name="Draft Inh", cards=_deck())
+    builder.write_draft(
+        studio,
+        "draft-inh",
+        "main",
+        [RevisionCard("scryfall:o-draft-inherit", 1, "main")],
+        head,
+    )
+    saved_single = builder._saved_deck_card_ids(db, [cmd_id])
+    assert "scryfall:o-draft-inherit" in saved_single
+
+    # (b) Empty commander_ids returns empty set; partner subsets excluded
+    assert builder._saved_deck_card_ids(db, []) == set()
+    partner_cards = [
+        RevisionCard(cmd_id, 1, "commander"),
+        RevisionCard(partner_id, 1, "commander"),
+        RevisionCard("scryfall:o-partner-pick", 1, "main"),
+    ]
+    create_revision(studio, deck_id="partner-deck", name="Partner", cards=partner_cards)
+    # wanted < commanders: single-commander query must NOT include partner deck's pick
+    assert "scryfall:o-partner-pick" not in builder._saved_deck_card_ids(db, [cmd_id])
+    # commanders < wanted: partner query must NOT include single-commander deck's pick
+    saved_partner = builder._saved_deck_card_ids(db, [cmd_id, partner_id])
+    assert "scryfall:o-partner-pick" in saved_partner
+    assert "scryfall:o-draft-inherit" not in saved_partner
+
+    # (c1) Commander equivalence: catalog id in deck vs scryfall:<oid> in query
+    assert "scryfall:o-draft-inherit" in builder._saved_deck_card_ids(db, [f"scryfall:{cmd_oid}"])
+
+    # (c2) Commander equivalence: scryfall:<oid> in deck vs catalog id in query
+    create_revision(
+        studio,
+        deck_id="scry-cmd",
+        name="Scry Cmd",
+        cards=[
+            RevisionCard(f"scryfall:{cmd_oid}", 1, "commander"),
+            RevisionCard("scryfall:o-cmd-scry", 1, "main"),
+        ],
+    )
+    assert "scryfall:o-cmd-scry" in builder._saved_deck_card_ids(db, [cmd_id])
+
+    # (c3) Second materialized catalog id of the same oracle_id in maindeck -> still selected
+    create_revision(
+        studio,
+        deck_id="mat-deck",
+        name="Mat Deck",
+        cards=[*_deck(), RevisionCard("card:mat:b", 1, "main")],
+    )
+    pool = builder.pool_cards(studio, [COMMANDER], include_unowned=True)
+    unowned = _unowned(pool)
+    assert unowned["Draft Inherit Pick"]["selected_by"] == ["in_saved_deck"]
+    assert unowned["Scryfall Cmd Pick"]["selected_by"] == ["in_saved_deck"]
+    assert "Partner Only Pick" not in unowned
+    assert unowned["Materialized Pick"]["card_id"] == "card:mat:a"
+    assert unowned["Materialized Pick"]["selected_by"] == ["in_saved_deck"]
+
+
+def test_deck_filter_api_with_unowned_card_is_honest(studio: StudioStore) -> None:
+    """/api/deck-filter ('Teilmenge') fails closed with HTTP 422 when filtering by an unowned
+    card outside the collection pool, and returns honest subset counts for collection cards
+    even when unowned cards are present in the store and corpus (#1738, #1669)."""
+    _insert_scryfall(
+        studio, oracle_id="o-df-unowned", name="Unowned Filter Card", colors="G",
+        type_line="Legendary Planeswalker — Filter",
+    )  # fmt: skip
+    _corpus_card(studio, "d1", "Unowned Filter Card", "o-df-unowned")
+    studio.connection.commit()
+
+    assert studio.path is not None
+    folder = studio.path.parent
+    studio.close()
+
+    with TestClient(create_app(folder)) as client:
+        r_unowned = client.get(
+            "/api/deck-filter",
+            params={"commander": COMMANDER, "card": "Unowned Filter Card"},
+        )
+        assert r_unowned.status_code == 422
+        assert "Unowned Filter Card" in r_unowned.json()["detail"]
+
+        r_owned = client.get(
+            "/api/deck-filter",
+            params={"commander": COMMANDER, "card": "Forest"},
+        )
+        assert r_owned.status_code == 200
+        body = r_owned.json()
+        assert body["decks"] == 2
+        assert body["of"] == 3
+        assert all(not str(c["card_id"]).startswith("scryfall:") for c in body["cards"])
+
+
 def test_unowned_cards_do_not_break_the_counted_universe_of_the_collection(
     studio: StudioStore,
 ) -> None:
-    """A counted deck-list universe is stored for the commander: its counts are read for the
-    Studio cards only. A Zukauf card (``scryfall:<oracle_id>``, no catalog row) used to raise a
-    KeyError there (#1648, finding 4 of the #1669 review)."""
+    """In a counted deck-list universe (``decklist_universe:...``), collection cards get their
+    count (or counted zero), while unowned ``scryfall:`` cards get their real ``counted`` entry
+    when present in ``card_signal`` and stay absent (unknown, never 0) when absent or
+    front-face-ambiguous (#1648, #1738)."""
     _insert_scryfall(
         studio, oracle_id="o-cu", name="Counted Walker", colors="G",
         type_line="Legendary Planeswalker — Counted",
+    )  # fmt: skip
+    _insert_scryfall(
+        studio, oracle_id="o-cu-hit", name="Counted Unowned Walker", colors="U",
+        type_line="Legendary Planeswalker — CountedHit",
     )  # fmt: skip
     owned = str(
         studio.connection.execute(
@@ -1443,16 +1690,35 @@ def test_unowned_cards_do_not_break_the_counted_universe_of_the_collection(
             (COMMANDER,),
         ).fetchone()[0]
     )
+    _insert_scryfall(
+        studio, oracle_id="o-cu-ambig", name=f"{owned} // Back Face", colors="G",
+        type_line="Legendary Planeswalker — Ambiguous",
+    )  # fmt: skip
     studio.connection.execute(
         "INSERT INTO card_signal(commander_name, signal, card_name, value, numerator, "
         "denominator, source_id) VALUES (?, 'decklist_universe:edhrec:3', ?, 0.4, 40, 100, ?)",
         (COMMANDER, owned, _source_id(studio)),
+    )
+    # Different case in card_signal still matches the unowned scryfall: card cleanly.
+    studio.connection.execute(
+        "INSERT INTO card_signal(commander_name, signal, card_name, value, numerator, "
+        "denominator, source_id) VALUES (?, 'decklist_universe:edhrec:3', ?, 0.25, 25, 100, ?)",
+        (COMMANDER, "counted unowned walker", _source_id(studio)),
     )
     studio.connection.commit()
     pool = builder.pool_cards(studio, [COMMANDER], include_unowned=True)
     assert pool["counted_universe"]["counted"] == "counted:edhrec:3"  # type: ignore[index]
     by_name = {str(c["name"]): c for c in pool["cards"]}  # type: ignore[union-attr]
     assert by_name[owned]["counted"] == {"hits": 40, "denominator": 100, "share": 0.4}
-    # the Zukauf card has no count in that universe: unknown (no entry), never 0
+    # Zukauf card WITH a stored card_signal row receives its real count
+    assert by_name["Counted Unowned Walker"]["in_collection"] is False
+    assert by_name["Counted Unowned Walker"]["counted"] == {
+        "hits": 25,
+        "denominator": 100,
+        "share": 0.25,
+    }
+    # Zukauf card WITHOUT a stored card_signal row stays unknown (no entry), never 0
     assert "counted" not in by_name["Counted Walker"]
     assert by_name["Counted Walker"]["in_collection"] is False
+    # Zukauf card whose front face collides with an exact collection card stays unknown
+    assert "counted" not in by_name[f"{owned} // Back Face"]

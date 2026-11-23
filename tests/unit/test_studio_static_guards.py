@@ -1849,6 +1849,57 @@ console.log(JSON.stringify({
     ]
     assert "const cards = draft.draft ? draft.draft.cards : revision.cards;" in load
     assert load.index("await ensureUnownedLoadedFor(cards)") < load.index("useCards(")
+    # #1738: app.js stores pool.unowned_selection and shows selected_by with German labels,
+    # strictly via h() / textContent (no innerHTML).
+    assert "innerHTML" not in app_js
+    assert "state.unownedSelection = state.includeUnowned && pool.unowned_selection" in app_js
+    for key, label in (
+        ("corpus", "Korpus"),
+        ("edhrec", "EDHREC"),
+        ("planeswalker", "Planeswalker"),
+        ("proliferate", "Proliferate"),
+        ("in_saved_deck", "Im gespeicherten Deck"),
+    ):
+        assert f'{key}: "{label}"' in app_js
+    assert "unownedReasonsText(card)" in app_js
+    assert "renderUnownedSelection();" in app_js
+    assert 'h("p", { class: "note" }, "Zukauf-Auswahl: "' in app_js
+
+    sel_script = f"""
+const fs = require('fs');
+const src = fs.readFileSync({json.dumps(str(STATIC / "app.js"))}, 'utf8');
+const StudioUI = {{ num: (n) => String(n) }};
+const labelsBlock = src.slice(src.indexOf('const UNOWNED_REASON_LABELS = {{'), src.indexOf('function unownedReasonsText('));
+const grab = (name) => {{
+  const start = src.indexOf('function ' + name + '(');
+  if (start < 0) throw new Error('missing ' + name);
+  let depth = 0, i = src.indexOf('{{', start);
+  for (; i < src.length; i += 1) {{ if (src[i] === '{{') depth += 1; else if (src[i] === '}}' && --depth === 0) break; }}
+  return src.slice(start, i + 1);
+}};
+eval(labelsBlock + '\\n' + grab('unownedReasonsText') + '\\n' + grab('formatUnownedSelection'));
+console.log(JSON.stringify({{
+  reasons: unownedReasonsText({{ selected_by: ['corpus', 'in_saved_deck'] }}),
+  emptyReasons: unownedReasonsText({{ selected_by: [] }}),
+  summary: formatUnownedSelection({{
+    total: 7,
+    min_corpus_pct: 2,
+    corpus_denominator: 80,
+    min_corpus_decks: 2,
+    min_edhrec_denominator: 30,
+    counts: {{ corpus: 3, edhrec: 2, planeswalker: 1, proliferate: 0, in_saved_deck: 1 }},
+  }}),
+}}));
+"""
+    sel_result = _node_json(sel_script)
+    assert sel_result == {
+        "reasons": "Korpus, Im gespeicherten Deck",
+        "emptyReasons": "",
+        "summary": (
+            "Zukauf-Auswahl: 7 Karten · Korpus 3 (≥2/80) · EDHREC 2 (N≥30) "
+            "· Planeswalker 1 · Im gespeicherten Deck 1"
+        ),
+    }
 
 
 # ---- #1662: the pill and the list of single games say what a game is -------------------------
