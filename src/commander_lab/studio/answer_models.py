@@ -12,6 +12,9 @@ Each model follows the builder that fills the answer (``builder.pool_cards``,
 shape is dynamic (the keys of a cohort map, the rows of a layer that differ per kind) the field
 is an object map, never an invented set of fields. ``extra="forbid"`` makes a test that
 validates a real answer against its model fail on a key the model does not name.
+
+Optional variant fields declared with ``| None = None`` are omitted from the JSON in inactive
+variants and are never sent as ``null``; round-trip checks serialize with ``exclude_unset=True``.
 """
 
 from __future__ import annotations
@@ -20,6 +23,12 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class _Shape(BaseModel):
+    """Base shape for documented route answers.
+
+    Variant fields (``| None = None``) are absent in inactive variants, never serialized as
+    ``null`` (``exclude_unset=True``).
+    """
+
     model_config = ConfigDict(extra="forbid")
 
 
