@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 from commander_lab.studio import (
     RevisionCard,
     StudioStore,
+    builder,
     catalog,
     create_revision,
     import_all,
@@ -303,6 +304,149 @@ def test_draft_optimistic_concurrency_returns_409_on_stale_write(tmp_path: Path)
         headers=HEADERS,
     )
     assert r_ok.status_code == 200
+
+
+def test_draft_delete_expected_updated_at_concurrency_1739(tmp_path: Path) -> None:
+    """#1739: conditional DELETE .../draft with expected_updated_at refuses stale deletes with 409
+    and preserves the newer draft, while remaining backwards-compatible and idempotent."""
+    data_dir = tmp_path / "studio"
+    store = _seed_store(tmp_path)
+    rev1 = _create_test_deck(store)
+    store.close()
+
+    client = TestClient(create_app(data_dir))
+    base_url = "/api/decks/test-deck/branches/main/draft"
+
+    # 1. Legacy client without expected_updated_at -> 200 and deletes
+    r_put0 = client.put(
+        base_url,
+        json={
+            "cards": [{"card_id": COMMANDER_ID, "quantity": 1, "zone": "commander"}],
+            "base_revision_id": rev1,
+        },
+        headers=HEADERS,
+    )
+    assert r_put0.status_code == 200
+    r_del_legacy = client.delete(base_url, headers=HEADERS)
+    assert r_del_legacy.status_code == 200 and r_del_legacy.json() == {"dropped": True}
+    assert client.get(base_url).json()["draft"] is None
+
+    # 2. Idempotent DELETE with expected_updated_at when no draft exists -> 200
+    r_del_missing = client.delete(
+        base_url,
+        params={"expected_updated_at": "2026-11-23T00:00:00.000000Z"},
+        headers=HEADERS,
+    )
+    assert r_del_missing.status_code == 200 and r_del_missing.json() == {"dropped": True}
+
+    # 3. Stale expected_updated_at after concurrent POST /draft/card -> 409, draft preserved
+    r_put1 = client.put(
+        base_url,
+        json={
+            "cards": [{"card_id": COMMANDER_ID, "quantity": 1, "zone": "commander"}],
+            "base_revision_id": rev1,
+        },
+        headers=HEADERS,
+    )
+    assert r_put1.status_code == 200
+    ts1 = r_put1.json()["updated_at"]
+
+    r_card = client.post(
+        f"{base_url}/card",
+        json={"card_id": "card:test:0104", "delta": 1},
+        headers=HEADERS,
+    )
+    assert r_card.status_code == 200
+    after_card = client.get(base_url).json()["draft"]
+    assert after_card is not None and after_card["updated_at"] > ts1
+
+    r_stale_card = client.delete(
+        base_url,
+        params={"expected_updated_at": ts1},
+        headers=HEADERS,
+    )
+    assert r_stale_card.status_code == 409
+    assert "Entwurf" in r_stale_card.json()["detail"]
+    still_there = client.get(base_url).json()["draft"]
+    assert still_there == after_card
+
+    # 4. Stale expected_updated_at after concurrent PUT -> 409, draft preserved
+    ts2 = after_card["updated_at"]
+    r_put2 = client.put(
+        base_url,
+        json={
+            "cards": [
+                {"card_id": COMMANDER_ID, "quantity": 1, "zone": "commander"},
+                {"card_id": "card:test:0105", "quantity": 1, "zone": "main"},
+            ],
+            "base_revision_id": rev1,
+            "expected_updated_at": ts2,
+            "expected_base_revision_id": rev1,
+            "check_conflict": True,
+        },
+        headers=HEADERS,
+    )
+    assert r_put2.status_code == 200
+    ts3 = r_put2.json()["updated_at"]
+    assert ts3 > ts2
+    after_put = client.get(base_url).json()["draft"]
+    assert after_put is not None and after_put["updated_at"] == ts3
+
+    r_stale_put = client.delete(
+        base_url,
+        params={"expected_updated_at": ts2},
+        headers=HEADERS,
+    )
+    assert r_stale_put.status_code == 409
+    assert client.get(base_url).json()["draft"] == after_put
+
+    # 5. Matching expected_updated_at -> 200 and deletes
+    r_del_ok = client.delete(
+        base_url,
+        params={"expected_updated_at": ts3},
+        headers=HEADERS,
+    )
+    assert r_del_ok.status_code == 200 and r_del_ok.json() == {"dropped": True}
+    assert client.get(base_url).json()["draft"] is None
+
+    # 6. Direct builder.drop_draft: respects keep_based_on with matching expected_updated_at
+    #    and raises DraftConflict with stale expected_updated_at without deleting.
+    store2 = StudioStore.open(data_dir)
+    try:
+        stamp = builder.write_draft(
+            store2,
+            "test-deck",
+            "main",
+            [RevisionCard(COMMANDER_ID, 1, "commander")],
+            rev1,
+        )
+        with pytest.raises(builder.DraftConflict):
+            builder.drop_draft(
+                store2,
+                "test-deck",
+                "main",
+                expected_updated_at="1999-01-01T00:00:00.000000Z",
+            )
+        assert builder.read_draft(store2, "test-deck", "main") is not None
+
+        builder.drop_draft(
+            store2,
+            "test-deck",
+            "main",
+            keep_based_on=rev1,
+            expected_updated_at=stamp,
+        )
+        assert builder.read_draft(store2, "test-deck", "main") is not None
+
+        builder.drop_draft(
+            store2,
+            "test-deck",
+            "main",
+            expected_updated_at=stamp,
+        )
+        assert builder.read_draft(store2, "test-deck", "main") is None
+    finally:
+        store2.close()
 
 
 def test_slash_in_branch_and_profile_names_supported_end_to_end(tmp_path: Path) -> None:

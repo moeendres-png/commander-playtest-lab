@@ -3052,13 +3052,27 @@ function useCards(cards) {
   if (dropped) toast(`${StudioUI.num(dropped, 0)} von ${StudioUI.num(mainEntries, 0)} Karten sind nicht im Pool (Sammlung oder Zukauf-Auswahl) und wurden nicht übernommen.`);
 }
 let discardingStaleDraft = false;
+function draftDeleteUrl(deckId, branch, expectedUpdatedAt) {
+  const base = `/api/decks/${encodeURIComponent(deckId)}/branches/${encodeURIComponent(branch)}/draft`;
+  return expectedUpdatedAt ? `${base}?expected_updated_at=${encodeURIComponent(expectedUpdatedAt)}` : base;
+}
 async function discardStaleDraft() {
   if (discardingStaleDraft) return; // one DELETE per click series
   if (committing) { toast("Speichern läuft schon, bitte warten."); return; } // the save decides first
   if (loadRefused("verworfen")) return;
   discardingStaleDraft = true;
   try {
-    await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "DELETE");
+    try {
+      await api(draftDeleteUrl(state.deckId, state.branch, state.draftUpdatedAt), "DELETE");
+    } catch (error) {
+      if (error && error.status === 409) {
+        state.draftConflict = true;
+        renderSaveState();
+        toast(StudioUI.germanError(error), "error");
+        return;
+      }
+      throw error;
+    }
     await loadDecks();
     await loadBranch({ discardLocal: true }); // discarding the draft is the point of this click
   } finally {
@@ -3228,6 +3242,7 @@ async function commitRevision(branch = state.branch, note = "") {
   const deckId = state.deckId;
   const fromBranch = state.branch;
   const base = state.baseRevision;
+  const fromDraftUpdatedAt = state.draftUpdatedAt;
   const isNew = branch !== fromBranch;
   const cards = entries(); // the list of the click, before the first await
   const stillHere = () => state.deckId === deckId && state.branch === fromBranch;
@@ -3273,11 +3288,15 @@ async function commitRevision(branch = state.branch, note = "") {
     const hints = [];
     if (result.hinweis) hints.push(result.hinweis);
     if (isNew) {
-      // the work moved to the new variant; the old draft goes, and a failure is only named
+      // the work moved to the new variant; the old draft goes unless another tab updated it (#1739)
       try {
-        await api(`/api/decks/${encodeURIComponent(deckId)}/branches/${encodeURIComponent(fromBranch)}/draft`, "DELETE");
+        await api(draftDeleteUrl(deckId, fromBranch, fromDraftUpdatedAt), "DELETE");
       } catch (error) {
-        hints.push(`Der alte Entwurf in „${fromBranch}“ konnte nicht verworfen werden (${StudioUI.germanError(error)}); bitte dort verwerfen, nicht erneut speichern.`);
+        if (error && error.status === 409) {
+          hints.push(`Der Entwurf in „${fromBranch}“ wurde inzwischen in einem anderen Tab geändert und behalten.`);
+        } else {
+          hints.push(`Der alte Entwurf in „${fromBranch}“ konnte nicht verworfen werden (${StudioUI.germanError(error)}); bitte dort verwerfen, nicht erneut speichern.`);
+        }
       }
     } else if (already || result.revision_id === base) {
       // the same content as the head: the server keeps a draft on that head (#1733), and after
@@ -3286,10 +3305,14 @@ async function commitRevision(branch = state.branch, note = "") {
       try {
         const found = await api(`/api/decks/${encodeURIComponent(deckId)}/branches/${encodeURIComponent(branch)}/draft`);
         if (found.draft && found.draft.base_revision_id === base && cardsKey(found.draft.cards) === cardsKey(cards)) {
-          await api(`/api/decks/${encodeURIComponent(deckId)}/branches/${encodeURIComponent(branch)}/draft`, "DELETE");
+          await api(draftDeleteUrl(deckId, branch, found.draft.updated_at), "DELETE");
         }
       } catch (error) {
-        hints.push(`Der unveränderte Entwurf konnte nicht verworfen werden (${StudioUI.germanError(error)}).`);
+        if (error && error.status === 409) {
+          hints.push("Entwurf wurde inzwischen in einem anderen Tab geändert und behalten.");
+        } else {
+          hints.push(`Der unveränderte Entwurf konnte nicht verworfen werden (${StudioUI.germanError(error)}).`);
+        }
       }
     }
     const where = ` in Variante „${branch}“`;

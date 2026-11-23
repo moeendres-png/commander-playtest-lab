@@ -2051,13 +2051,22 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
 
     @app.delete("/api/decks/{deck_id}/branches/{branch:path}/draft")
     def delete_draft(
-        deck_id: str, branch: str = PathParam(min_length=1, max_length=60)
+        deck_id: str,
+        branch: str = PathParam(min_length=1, max_length=60),
+        expected_updated_at: str | None = None,
     ) -> dict[str, object]:
         store = open_store()
         try:
             with cache.write(store, _DECKS):
-                builder.drop_draft(store, deck_id, branch)
+                builder.drop_draft(
+                    store,
+                    deck_id,
+                    branch,
+                    expected_updated_at=expected_updated_at or None,
+                )
             return {"dropped": True}
+        except builder.DraftConflict as error:
+            raise HTTPException(409, str(error)) from error
         finally:
             store.close()
 

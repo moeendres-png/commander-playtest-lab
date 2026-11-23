@@ -2379,20 +2379,57 @@ def set_favorite(store: StudioStore, card_id: str, favorite: bool) -> dict[str, 
     }
 
 
+def _delete_draft_row(
+    db: sqlite3.Connection, deck_id: str, branch: str, keep_based_on: str | None
+) -> None:
+    if keep_based_on is None:
+        db.execute("DELETE FROM deck_draft WHERE deck_id = ? AND branch = ?", (deck_id, branch))
+    else:
+        db.execute(
+            "DELETE FROM deck_draft WHERE deck_id = ? AND branch = ? "
+            "AND (base_revision_id IS NULL OR base_revision_id != ?)",
+            (deck_id, branch, keep_based_on),
+        )
+
+
 def drop_draft(
-    store: StudioStore, deck_id: str, branch: str, *, keep_based_on: str | None = None
+    store: StudioStore,
+    deck_id: str,
+    branch: str,
+    *,
+    keep_based_on: str | None = None,
+    expected_updated_at: str | None = None,
 ) -> None:
     """Drop the draft of ``branch``. With ``keep_based_on``, a draft whose base is that revision
-    stays: it was started on the state just saved and is newer than the save (#1727)."""
-    with store.connection as db:
-        if keep_based_on is None:
-            db.execute("DELETE FROM deck_draft WHERE deck_id = ? AND branch = ?", (deck_id, branch))
-        else:
-            db.execute(
-                "DELETE FROM deck_draft WHERE deck_id = ? AND branch = ? "
-                "AND (base_revision_id IS NULL OR base_revision_id != ?)",
-                (deck_id, branch, keep_based_on),
-            )
+    stays: it was started on the state just saved and is newer than the save (#1727). With
+    ``expected_updated_at``, refuse to delete a newer draft with ``DraftConflict`` inside the
+    same write transaction (#1739)."""
+    db = store.connection
+    if expected_updated_at is None:
+        with db:
+            _delete_draft_row(db, deck_id, branch, keep_based_on)
+        return
+    own_tx = not db.in_transaction
+    if own_tx:
+        db.execute("BEGIN IMMEDIATE")
+    try:
+        row = db.execute(
+            "SELECT updated_at FROM deck_draft WHERE deck_id = ? AND branch = ?",
+            (deck_id, branch),
+        ).fetchone()
+        if row is not None:
+            if str(row["updated_at"]) != expected_updated_at:
+                raise DraftConflict(
+                    "Der Entwurf wurde in einem anderen Tab oder auf einer anderen Seite "
+                    "geändert und wird nicht verworfen. Lade den aktuellen Stand."
+                )
+            _delete_draft_row(db, deck_id, branch, keep_based_on)
+    except BaseException:
+        if own_tx:
+            db.rollback()
+        raise
+    if own_tx:
+        db.commit()
 
 
 def set_mark(
