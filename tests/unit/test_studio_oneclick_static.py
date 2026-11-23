@@ -63,12 +63,21 @@ def test_the_cmd_file_pauses_on_error_and_has_crlf_on_checkout() -> None:
     text = CMD.read_text(encoding="utf-8")
     assert "pause" in text and "ExecutionPolicy Bypass" in text and "-File" in text
     body = [
-        ln.strip() for ln in text.splitlines() if ln.strip() and not ln.lower().startswith("rem")
+        ln.strip()
+        for ln in text.splitlines()
+        if ln.strip() and not ln.strip().lower().startswith("rem")
     ]
     # one parenthesised block that ends with exit /b: a pull during the run cannot shift lines
-    assert body[:3] == ["@echo off", "setlocal", "("] and body[-2:] == ["exit /b", ")"]
-    # negative exit codes count as errors too ("if errorlevel 1" alone misses them)
-    assert "if errorlevel 1 set" in text and "if not errorlevel 0 set" in text
+    assert body[:3] == ["@echo off", "setlocal", "("] and body[-2:] == ["exit /b 0", ")"]
+    ps = next(i for i, ln in enumerate(body) if ln.startswith("powershell "))
+    # the flag is cleared before powershell: a SET after it would reset ERRORLEVEL to 0
+    assert body.index('set "STUDIO_FEHLER="') < ps
+    # nothing between powershell and the errorlevel tests; negative codes are caught too
+    assert body[ps + 1 : ps + 3] == [
+        'if errorlevel 1 set "STUDIO_FEHLER=1"',
+        'if not errorlevel 0 set "STUDIO_FEHLER=1"',
+    ]
+    assert "exit /b 1" in body[ps + 3 :]
     attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
     assert re.search(r"^\*\.cmd\s+text\s+eol=crlf\s*$", attributes, re.MULTILINE)
 
