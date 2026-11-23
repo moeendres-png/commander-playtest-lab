@@ -121,11 +121,17 @@ def v3b_set(p: dict, run: str) -> float:
     )
 
 
+def v3c_set(p: dict, run: str) -> float:
+    """Sensitivität V3c: gesetzte Gewichte ohne N-Abzug."""
+    return min(100.0, max(0.0, sum(w * p[f"{run}_{c}"] for c, w in W_V3.items())))
+
+
 VERSIONS = {
     "H_frei": lambda p, run: float(p[f"{run}_H"]),
     "M5": m5,
     "v3b_formel_N_gleich_100_minus_D": v3b,
     "v3b_gesetzte_gewichte_N_gleich_100_minus_D": v3b_set,
+    "v3c_gesetzte_gewichte_ohne_N": v3c_set,
 }
 
 
@@ -228,6 +234,35 @@ def anchor_candidates(pairs: list[dict], g1: list[dict], anchor_names: set[str])
             c: {str(lv): n for lv, n in d.items()} for c, d in pair_eq.items()
         },
         "hinweis": "nur Spells, ohne bisherige Ankerkarten; Stufe 2 greift nur für leere Zellen von Stufe 1",
+        "N_mittelstufen": n_anchor_candidates(pairs, g1, anchor_names),
+    }
+
+
+def n_anchor_candidates(pairs: list[dict], g1: list[dict], anchor_names: set[str]) -> dict:
+    """Kandidaten für N-Anker 30/40/60/70: N = 100 - D, nur Spells mit H_pooled >= 28 (Plan I2)."""
+    levels = (30, 40, 60, 70)
+    by_id = {p["oracle_id"]: p for p in pairs}
+
+    def ok(p: dict) -> bool:
+        return (
+            p["card"] not in anchor_names and not p["is_land"] and (p["F1_H"] + p["R2_H"]) / 2 >= 28
+        )
+
+    triple: dict[int, list[str]] = {lv: [] for lv in levels}
+    for g in g1:
+        p = by_id.get(g["oracle_id"])
+        if p is None or not ok(p):
+            continue
+        v = sorted([100 - p["F1_D"], 100 - p["R2_D"], 100 - g["scores"]["D"]])
+        if v[2] - v[0] <= 5 and v[1] in levels:
+            triple[v[1]].append(p["card"])
+    pair_eq = {lv: 0 for lv in levels}
+    for p in pairs:
+        if ok(p) and p["F1_D"] == p["R2_D"] and 100 - p["F1_D"] in levels:
+            pair_eq[100 - p["F1_D"]] += 1
+    return {
+        "stufe1": {str(lv): sorted(v) for lv, v in triple.items()},
+        "stufe2_anzahl": {str(lv): n for lv, n in pair_eq.items()},
     }
 
 
@@ -335,6 +370,18 @@ def weight_probe(pairs: list[dict], usage: dict | None) -> dict:
             row["spearman_R2_quelldecks"] = round(spearman(b, y), 3)
             row["spearman_F1_quelldecks"] = round(spearman(a, y), 3)
         out[name] = row
+    a = np.array([v3c_set(p, "F1") for p in pairs])
+    b = np.array([v3c_set(p, "R2") for p in pairs])
+    sd = float(np.std(np.concatenate([a, b])))
+    row = {
+        "icc21": round(icc21(a, b), 3),
+        "mittel_abs_d_durch_sd": round(float(np.abs(b - a).mean()) / sd, 3),
+        "sd_gepoolt": round(sd, 2),
+    }
+    if y is not None:
+        row["spearman_R2_quelldecks"] = round(spearman(b, y), 3)
+        row["spearman_F1_quelldecks"] = round(spearman(a, y), 3)
+    out["gesetzt_ohne_N_V3c"] = row
     return out
 
 
@@ -418,6 +465,9 @@ def dry_run(
     """Pilotförmige Ziehungen aus alten Daten: F1/R2 als zwei Rater unter V3b bzw. V3a-Analogon.
 
     Orientierung für die Schwellen S1, S2, S3, S7 (Plan §3); zwei statt drei Rater, alte Kriterien.
+    s3_kreatur/s3_nicht_kreatur: gleichmäßiger Versatz je Art (S3b, nur berichtet);
+    s3_diff_max: größter differenzieller Versatz zwischen Kreatur, Nicht-Kreatur und Land (S3, Punkt);
+    s7: Differenz gegen H_pooled (Anzeige-Bedingung, Plan §6).
     """
     versions = {"v3b_gesetzt": v3b_set, "v3a_analog_geklemmtes_H": clamp_h}
     res: dict = {
@@ -425,7 +475,14 @@ def dry_run(
         "hinweis": "Punktwerte je Ziehung; Anteil = Ziehungen, die die Schwelle erfüllen",
     }
     stats: dict = {
-        v: {"s1_icc": [], "s2": [], "s3_kreatur": [], "s3_nicht_kreatur": [], "s7": []}
+        v: {
+            "s1_icc": [],
+            "s2": [],
+            "s3_kreatur": [],
+            "s3_nicht_kreatur": [],
+            "s3_diff_max": [],
+            "s7": [],
+        }
         for v in versions
     }
     for _ in range(200):
@@ -454,13 +511,19 @@ def dry_run(
             )
             st["s3_kreatur"].append(abs(float(cre.mean())) / sd)
             st["s3_nicht_kreatur"].append(abs(float(non.mean())) / sd)
+            lnd = np.array([x for p, x in zip(draw, d, strict=False) if p["is_land"]])
+            means = [float(cre.mean()), float(non.mean()), float(lnd.mean())]
+            st["s3_diff_max"].append(
+                max(abs(means[i] - means[j]) for i in range(3) for j in range(i + 1, 3)) / sd
+            )
             if y is not None:
                 st["s7"].append(spearman((a + b) / 2, y) - spearman(h_pool_old, y))
     thresholds = {
         "s1_icc": (">=", 0.87),
-        "s2": ("<=", 0.35),
+        "s2": ("<=", 0.39),
         "s3_kreatur": ("<=", 0.15),
         "s3_nicht_kreatur": ("<=", 0.15),
+        "s3_diff_max": ("<=", 0.15),
         "s7": (">=", -0.05),
     }
     for v, st in stats.items():

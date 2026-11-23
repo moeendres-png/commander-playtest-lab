@@ -137,6 +137,40 @@
      "in_sd": 0.142
     }
    }
+  },
+  "v3c_gesetzte_gewichte_ohne_N": {
+   "n": 922,
+   "sd_F1": 14.2,
+   "sd_R2": 15.63,
+   "sd_gepoolt": 14.93,
+   "mittel_F1": 40.49,
+   "mittel_R2": 40.01,
+   "icc21": 0.864,
+   "icc21_ki95": [
+    0.845,
+    0.88
+   ],
+   "mittel_d": -0.48,
+   "mittel_abs_d": 6.05,
+   "mittel_abs_d_durch_sd": 0.405,
+   "n_abs_d_ge15": 58,
+   "versatz_je_kartenart": {
+    "kreatur": {
+     "n": 478,
+     "mittel_d": -2.07,
+     "in_sd": -0.139
+    },
+    "nicht_kreatur_spell": {
+     "n": 379,
+     "mittel_d": 1.12,
+     "in_sd": 0.075
+    },
+    "land": {
+     "n": 65,
+     "mittel_d": 1.96,
+     "in_sd": 0.131
+    }
+   }
   }
  },
  "H_gegen_kriterien": {
@@ -291,7 +325,28 @@
     "70": 0
    }
   },
-  "hinweis": "nur Spells, ohne bisherige Ankerkarten; Stufe 2 greift nur für leere Zellen von Stufe 1"
+  "hinweis": "nur Spells, ohne bisherige Ankerkarten; Stufe 2 greift nur für leere Zellen von Stufe 1",
+  "N_mittelstufen": {
+   "stufe1": {
+    "30": [
+     "Cat Collector",
+     "Fleetfoot Panther",
+     "Lonis, Cryptozoologist",
+     "Teferi's Ageless Insight"
+    ],
+    "40": [
+     "Steel Hellkite"
+    ],
+    "60": [],
+    "70": []
+   },
+   "stufe2_anzahl": {
+    "30": 10,
+    "40": 5,
+    "60": 1,
+    "70": 0
+   }
+  }
  },
  "pilot_schichten": {
   "N": 922,
@@ -317,8 +372,10 @@
   "spearman_F1_v3b_formel_N_gleich_100_minus_D_alle": 0.434,
   "spearman_R2_v3b_gesetzte_gewichte_N_gleich_100_minus_D_alle": 0.575,
   "spearman_F1_v3b_gesetzte_gewichte_N_gleich_100_minus_D_alle": 0.436,
-  "ki95_breite_spearman_100_zufallskarten_median": 0.226,
-  "ki95_breite_gepaarte_differenz_100_zufallskarten_median": 0.158,
+  "spearman_R2_v3c_gesetzte_gewichte_ohne_N_alle": 0.619,
+  "spearman_F1_v3c_gesetzte_gewichte_ohne_N_alle": 0.466,
+  "ki95_breite_spearman_100_zufallskarten_median": 0.238,
+  "ki95_breite_gepaarte_differenz_100_zufallskarten_median": 0.17,
   "wiederholungen": "50 Teilmengen x 500 Bootstrap-Ziehungen"
  },
  "gewichte_offenlegung": {
@@ -349,6 +406,13 @@
    "sd_gepoolt": 15.54,
    "spearman_R2_quelldecks": 0.572,
    "spearman_F1_quelldecks": 0.435
+  },
+  "gesetzt_ohne_N_V3c": {
+   "icc21": 0.864,
+   "mittel_abs_d_durch_sd": 0.405,
+   "sd_gepoolt": 14.93,
+   "spearman_R2_quelldecks": 0.619,
+   "spearman_F1_quelldecks": 0.466
   }
  },
  "anker_mae_alt_kriterienzeilen": {
@@ -400,7 +464,7 @@
      0.409,
      0.528
     ],
-    "anteil_erfuellt": 0.0
+    "anteil_erfuellt": 0.01
    },
    "s3_kreatur": {
     "median": 0.238,
@@ -417,6 +481,14 @@
      0.337
     ],
     "anteil_erfuellt": 0.56
+   },
+   "s3_diff_max": {
+    "median": 0.428,
+    "p05_p95": [
+     0.261,
+     0.591
+    ],
+    "anteil_erfuellt": 0.0
    },
    "s7": {
     "median": -0.138,
@@ -460,6 +532,14 @@
      0.236
     ],
     "anteil_erfuellt": 0.705
+   },
+   "s3_diff_max": {
+    "median": 0.672,
+    "p05_p95": [
+     0.503,
+     0.873
+    ],
+    "anteil_erfuellt": 0.0
    },
    "s7": {
     "median": -0.028,
