@@ -299,6 +299,194 @@ def unfair_list(a2_dir: Path, pairs: list[dict]) -> tuple[set[str], list[dict]]:
     return ids, rows
 
 
+WEIGHT_PROBES = {
+    "gleich_0.2": {"E": 0.2, "F": 0.2, "T": 0.2, "R": 0.2, "K": 0.2},
+    "gesetzt_0.3_0.3_0.2_0.1_0.1": W_V3,
+    "ER_betont_0.3_0.3_0.3_0.05_0.05": {"E": 0.3, "F": 0.3, "R": 0.3, "T": 0.05, "K": 0.05},
+    "mitte_0.25_0.25_0.25_0.125_0.125": {"E": 0.25, "F": 0.25, "R": 0.25, "T": 0.125, "K": 0.125},
+}
+
+
+def weighted(p: dict, run: str, w: dict) -> float:
+    return min(
+        100.0,
+        max(0.0, sum(x * p[f"{run}_{c}"] for c, x in w.items()) - 0.2 * (100 - p[f"{run}_D"])),
+    )
+
+
+def weight_probe(pairs: list[dict], usage: dict | None) -> dict:
+    """Alle vier vor der Festlegung angesehenen Gewichtungen (Offenlegung, Plan I2)."""
+    out = {}
+    y = (
+        np.array([usage[p["oracle_id"]]["deck_list_count"] for p in pairs], float)
+        if usage
+        else None
+    )
+    for name, w in WEIGHT_PROBES.items():
+        a = np.array([weighted(p, "F1", w) for p in pairs])
+        b = np.array([weighted(p, "R2", w) for p in pairs])
+        sd = float(np.std(np.concatenate([a, b])))
+        row = {
+            "icc21": round(icc21(a, b), 3),
+            "mittel_abs_d_durch_sd": round(float(np.abs(b - a).mean()) / sd, 3),
+            "sd_gepoolt": round(sd, 2),
+        }
+        if y is not None:
+            row["spearman_R2_quelldecks"] = round(spearman(b, y), 3)
+            row["spearman_F1_quelldecks"] = round(spearman(a, y), 3)
+        out[name] = row
+    return out
+
+
+def anchor_old(pairs: list[dict], anchors: dict) -> dict:
+    """Alte Anker-MAE nur auf Kriterienzeilen E, F, T, R, K (ohne H und D), je Lauf (zu S5)."""
+    by_name = {p["card"]: p for p in pairs}
+    res: dict = {}
+    for run in ("F1", "R2"):
+        errs = {"v1_fixed": [], "uebrige": []}
+        for kind in ("spell", "land"):
+            for c in CRIT5:
+                for row in anchors.get(kind, {}).get(c, []):
+                    p = by_name.get(row["card"])
+                    if p is None:
+                        continue
+                    grp = "v1_fixed" if row["kind"] == "v1_fixed" else "uebrige"
+                    errs[grp].append(abs(p[f"{run}_{c}"] - row["value"]))
+        res[run] = {
+            g: {"n_zeilen": len(v), "mae": round(float(np.mean(v)), 2)}
+            for g, v in errs.items()
+            if v
+        }
+    crit_cards = {
+        row["card"]
+        for kind in ("spell", "land")
+        for c in ("E", "F", "T", "R", "K", "D")
+        for row in anchors.get(kind, {}).get(c, [])
+    }
+    h_cards = {
+        row["card"] for kind in ("spell", "land") for row in anchors.get(kind, {}).get("H", [])
+    }
+    res["nur_in_H_tabelle"] = sorted(h_cards - crit_cards)
+    res["hinweis"] = (
+        "R2 sah nie die eigene Ankerzeile; F1 sah sie bei den 'uebrige'-Zeilen (A1 2.6)"
+    )
+    return res
+
+
+def pilot_draw(
+    pairs: list[dict], unfair: set[str], anchor_names: set[str], rng: random.Random
+) -> list[dict]:
+    pool = sorted((p for p in pairs if p["card"] not in anchor_names), key=lambda p: p["oracle_id"])
+    taken: set[str] = set()
+
+    def take(cands: list[dict], n: int) -> list[dict]:
+        cands = [p for p in cands if p["oracle_id"] not in taken]
+        got = rng.sample(cands, min(n, len(cands)))
+        taken.update(p["oracle_id"] for p in got)
+        return got
+
+    out = take([p for p in pool if p["oracle_id"] in unfair], 10)
+    hard = [p for p in pool if abs(p["d_H"]) >= 15]
+    role = take(
+        [p for p in hard if p["primary_role"] in ("token_production", "counters", "tapper")], 8
+    )
+    big = take([p for p in hard if p["is_creature"] and p["mv_group"] in ("6", "7+")], 8)
+    cre = take([p for p in hard if p["is_creature"]], 16)
+    non = take([p for p in hard if not p["is_creature"] and not p["is_land"]], 8)
+    got_hard = role + big + cre + non
+    got_hard += take(hard, 40 - len(got_hard))
+    ctrl = [p for p in pool if abs(p["d_H"]) < 5 and not p["is_land"]]
+    out += got_hard
+    out += take([p for p in ctrl if p["is_creature"]], 15)
+    out += take([p for p in ctrl if not p["is_creature"]], 15)
+    out += take([p for p in pool if p["is_land"]], 10)
+    return out
+
+
+def clamp_h(p: dict, run: str) -> float:
+    ref = v3b_set(p, run)
+    return min(ref + 10, max(ref - 10, float(p[f"{run}_H"])))
+
+
+def dry_run(
+    pairs: list[dict],
+    unfair: set[str],
+    anchor_names: set[str],
+    usage: dict | None,
+    rng: random.Random,
+) -> dict:
+    """Pilotförmige Ziehungen aus alten Daten: F1/R2 als zwei Rater unter V3b bzw. V3a-Analogon.
+
+    Orientierung für die Schwellen S1, S2, S3, S7 (Plan §3); zwei statt drei Rater, alte Kriterien.
+    """
+    versions = {"v3b_gesetzt": v3b_set, "v3a_analog_geklemmtes_H": clamp_h}
+    res: dict = {
+        "ziehungen": 200,
+        "hinweis": "Punktwerte je Ziehung; Anteil = Ziehungen, die die Schwelle erfüllen",
+    }
+    stats: dict = {
+        v: {"s1_icc": [], "s2": [], "s3_kreatur": [], "s3_nicht_kreatur": [], "s7": []}
+        for v in versions
+    }
+    for _ in range(200):
+        draw = pilot_draw(pairs, unfair, anchor_names, rng)
+        h_pool_old = np.array([(p["F1_H"] + p["R2_H"]) / 2 for p in draw])
+        y = (
+            np.array([usage[p["oracle_id"]]["deck_list_count"] for p in draw], float)
+            if usage
+            else None
+        )
+        for v, f in versions.items():
+            a = np.array([f(p, "F1") for p in draw])
+            b = np.array([f(p, "R2") for p in draw])
+            sd = float(np.std(np.concatenate([a, b])))
+            d = b - a
+            st = stats[v]
+            st["s1_icc"].append(icc21(a, b))
+            st["s2"].append(float(np.abs(d).mean()) / sd)
+            cre = np.array([x for p, x in zip(draw, d, strict=False) if p["is_creature"]])
+            non = np.array(
+                [
+                    x
+                    for p, x in zip(draw, d, strict=False)
+                    if not p["is_creature"] and not p["is_land"]
+                ]
+            )
+            st["s3_kreatur"].append(abs(float(cre.mean())) / sd)
+            st["s3_nicht_kreatur"].append(abs(float(non.mean())) / sd)
+            if y is not None:
+                st["s7"].append(spearman((a + b) / 2, y) - spearman(h_pool_old, y))
+    thresholds = {
+        "s1_icc": (">=", 0.87),
+        "s2": ("<=", 0.35),
+        "s3_kreatur": ("<=", 0.15),
+        "s3_nicht_kreatur": ("<=", 0.15),
+        "s7": (">=", -0.05),
+    }
+    for v, st in stats.items():
+        row = {}
+        for k, vals in st.items():
+            if not vals:
+                continue
+            op, thr = thresholds[k]
+            ok = [x >= thr if op == ">=" else x <= thr for x in vals]
+            row[k] = {
+                "median": round(float(np.median(vals)), 3),
+                "p05_p95": [
+                    round(float(np.percentile(vals, 5)), 3),
+                    round(float(np.percentile(vals, 95)), 3),
+                ],
+                "anteil_erfuellt": round(sum(ok) / len(ok), 3),
+            }
+        both = [
+            a <= 0.15 and b <= 0.15
+            for a, b in zip(st["s3_kreatur"], st["s3_nicht_kreatur"], strict=False)
+        ]
+        row["s3_beide_arten_anteil_erfuellt"] = round(sum(both) / len(both), 3)
+        res[v] = row
+    return res
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--pairs", required=True)
@@ -323,8 +511,16 @@ def main() -> None:
         "anker_kandidaten": anchor_candidates(pairs, g1, anchor_names),
         "pilot_schichten": pilot_pools(pairs, unfair, anchor_names),
     }
+    usage = None
     if a.usage:
         res["s7_breite"] = s7_width(pairs, Path(a.usage), rng)
+        usage = {r["oracle_id"]: r for r in jl(Path(a.usage))}
+    anchors = json.loads((rub / "anchors.json").read_text(encoding="utf-8"))
+    res["gewichte_offenlegung"] = weight_probe(pairs, usage)
+    res["anker_mae_alt_kriterienzeilen"] = anchor_old(pairs, anchors)
+    res["trockenlauf_pilotfoermig"] = dry_run(
+        pairs, unfair, anchor_names, usage, random.Random(SEED + 1)
+    )
     Path(a.out).write_text(json.dumps(res, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     if a.unfair_out:
         Path(a.unfair_out).write_text(

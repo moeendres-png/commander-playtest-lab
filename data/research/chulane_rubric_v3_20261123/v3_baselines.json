@@ -320,5 +320,156 @@
   "ki95_breite_spearman_100_zufallskarten_median": 0.226,
   "ki95_breite_gepaarte_differenz_100_zufallskarten_median": 0.158,
   "wiederholungen": "50 Teilmengen x 500 Bootstrap-Ziehungen"
+ },
+ "gewichte_offenlegung": {
+  "gleich_0.2": {
+   "icc21": 0.868,
+   "mittel_abs_d_durch_sd": 0.396,
+   "sd_gepoolt": 14.78,
+   "spearman_R2_quelldecks": 0.558,
+   "spearman_F1_quelldecks": 0.434
+  },
+  "gesetzt_0.3_0.3_0.2_0.1_0.1": {
+   "icc21": 0.868,
+   "mittel_abs_d_durch_sd": 0.399,
+   "sd_gepoolt": 15.96,
+   "spearman_R2_quelldecks": 0.575,
+   "spearman_F1_quelldecks": 0.436
+  },
+  "ER_betont_0.3_0.3_0.3_0.05_0.05": {
+   "icc21": 0.866,
+   "mittel_abs_d_durch_sd": 0.402,
+   "sd_gepoolt": 16.59,
+   "spearman_R2_quelldecks": 0.576,
+   "spearman_F1_quelldecks": 0.427
+  },
+  "mitte_0.25_0.25_0.25_0.125_0.125": {
+   "icc21": 0.867,
+   "mittel_abs_d_durch_sd": 0.4,
+   "sd_gepoolt": 15.54,
+   "spearman_R2_quelldecks": 0.572,
+   "spearman_F1_quelldecks": 0.435
+  }
+ },
+ "anker_mae_alt_kriterienzeilen": {
+  "F1": {
+   "v1_fixed": {
+    "n_zeilen": 36,
+    "mae": 6.25
+   },
+   "uebrige": {
+    "n_zeilen": 51,
+    "mae": 0.98
+   }
+  },
+  "R2": {
+   "v1_fixed": {
+    "n_zeilen": 36,
+    "mae": 4.58
+   },
+   "uebrige": {
+    "n_zeilen": 51,
+    "mae": 8.63
+   }
+  },
+  "nur_in_H_tabelle": [
+   "Avacyn's Pilgrim",
+   "Cryptic Caves",
+   "Negate",
+   "Reality Shift",
+   "Tatyova, Benthic Druid",
+   "Temple of Plenty"
+  ],
+  "hinweis": "R2 sah nie die eigene Ankerzeile; F1 sah sie bei den 'uebrige'-Zeilen (A1 2.6)"
+ },
+ "trockenlauf_pilotfoermig": {
+  "ziehungen": 200,
+  "hinweis": "Punktwerte je Ziehung; Anteil = Ziehungen, die die Schwelle erfüllen",
+  "v3b_gesetzt": {
+   "s1_icc": {
+    "median": 0.827,
+    "p05_p95": [
+     0.781,
+     0.867
+    ],
+    "anteil_erfuellt": 0.045
+   },
+   "s2": {
+    "median": 0.463,
+    "p05_p95": [
+     0.409,
+     0.528
+    ],
+    "anteil_erfuellt": 0.0
+   },
+   "s3_kreatur": {
+    "median": 0.238,
+    "p05_p95": [
+     0.143,
+     0.318
+    ],
+    "anteil_erfuellt": 0.06
+   },
+   "s3_nicht_kreatur": {
+    "median": 0.138,
+    "p05_p95": [
+     0.011,
+     0.337
+    ],
+    "anteil_erfuellt": 0.56
+   },
+   "s7": {
+    "median": -0.138,
+    "p05_p95": [
+     -0.186,
+     -0.079
+    ],
+    "anteil_erfuellt": 0.0
+   },
+   "s3_beide_arten_anteil_erfuellt": 0.03
+  },
+  "v3a_analog_geklemmtes_H": {
+   "s1_icc": {
+    "median": 0.737,
+    "p05_p95": [
+     0.68,
+     0.786
+    ],
+    "anteil_erfuellt": 0.0
+   },
+   "s2": {
+    "median": 0.534,
+    "p05_p95": [
+     0.475,
+     0.589
+    ],
+    "anteil_erfuellt": 0.0
+   },
+   "s3_kreatur": {
+    "median": 0.517,
+    "p05_p95": [
+     0.409,
+     0.613
+    ],
+    "anteil_erfuellt": 0.0
+   },
+   "s3_nicht_kreatur": {
+    "median": 0.09,
+    "p05_p95": [
+     0.006,
+     0.236
+    ],
+    "anteil_erfuellt": 0.705
+   },
+   "s7": {
+    "median": -0.028,
+    "p05_p95": [
+     -0.042,
+     -0.008
+    ],
+    "anteil_erfuellt": 0.995
+   },
+   "s3_beide_arten_anteil_erfuellt": 0.0
+  }
  }
 }

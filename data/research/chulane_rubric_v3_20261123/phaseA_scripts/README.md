@@ -19,7 +19,7 @@ Ergebnisdateien eine Ebene höher (unten).
 | `A2/a2_uncertainty.py` | Rater-Meldungen mit Zuversicht low/medium, Tags nach Ursache |
 | `A2/a2_summary.py` | Gruppen, Scores, Gesamtzahlen; Liste „kaum fair bewertbar“ (`unfair_ids`) |
 | `A2/a2_hand_sample_verdicts.json` | Handurteile zur Stichprobe (von Hand geschrieben, Eingabe) |
-| `v3_baselines.py` | Vergleichswerte des Plans aus alten Daten (Formel-Bezugsgrößen, alte Werte zu S4/S9, Konsens-Anker-Kandidaten, Pilot-Schichten, KI-Breite zu S7) |
+| `v3_baselines.py` | Vergleichswerte des Plans aus alten Daten (Formel-Bezugsgrößen, alte Werte zu S4/S5/S9, Offenlegung der vier angesehenen Gewichtungen, Konsens-Anker-Kandidaten, Pilot-Schichten, KI-Breite zu S7, pilotförmiger Trockenlauf der Schwellen S1/S2/S3/S7) |
 | `../v3_baselines.json` | Ausgabe von `v3_baselines.py` (nur Kennzahlen und Kartennamen) |
 | `../phaseA_unfair_cards.json` | die 60 Karten „kaum fair bewertbar“ (oracle_id, Name, Defektklassen), damit die Pilot-Schicht ohne XMage-Checkout reproduzierbar ist |
 
