@@ -122,15 +122,28 @@ def test_the_shipped_lock_is_read_from_the_module_and_refuses_what_it_does_not_r
 
 def test_the_pair_sd_follows_the_base_win_rate_at_five_and_six_and_stays_at_four() -> None:
     assert paired_series.planning_pair_sd(4) == 0.63
-    assert paired_series.planning_pair_sd(2) == paired_series.planning_pair_sd(3) == 0.63
-    # 0.63 / sqrt(2 * 1/4 * 3/4) * sqrt(2 * p * (1 - p)), hand-computed
+    # 0.63 / sqrt(2 * 1/4 * 3/4) * sqrt(2 * p * (1 - p)), hand-computed (#1661, #1757)
+    assert paired_series.planning_pair_sd(2) == 0.7275
+    assert paired_series.planning_pair_sd(3) == 0.6859
     assert paired_series.planning_pair_sd(5) == 0.582
     assert paired_series.planning_pair_sd(6) == 0.5422
-    assert paired_series.planning_pair_sd(6) < paired_series.planning_pair_sd(5) < 0.63
+    assert (
+        paired_series.planning_pair_sd(6)
+        < paired_series.planning_pair_sd(5)
+        < 0.63
+        < paired_series.planning_pair_sd(3)
+        < paired_series.planning_pair_sd(2)
+    )
 
 
 @pytest.mark.parametrize(
-    ("seats", "pct", "half", "games"), [(5, 20.0, 4.0, 383), (6, 16.7, 3.33, 480)]
+    ("seats", "pct", "half", "games"),
+    [
+        (2, 50.0, 10.0, 93),
+        (3, 33.3, 6.67, 189),
+        (5, 20.0, 4.0, 383),
+        (6, 16.7, 3.33, 480),
+    ],
 )
 def test_the_wilson_games_give_plus_minus_twenty_percent_of_one_over_n(
     seats: int, pct: float, half: float, games: int
@@ -143,8 +156,9 @@ def test_the_wilson_games_give_plus_minus_twenty_percent_of_one_over_n(
     # the fewest games: the independent Wilson half width holds at n and not at n - 1
     assert _independent_wilson_half_width(p, games) <= 0.2 * p
     assert _independent_wilson_half_width(p, games - 1) > 0.2 * p
-    # close to the normal approximation 1.96^2 * p(1-p) / (0.2 p)^2 (384.2 at 5, 480.2 at 6)
-    assert abs(games - 1.96**2 * p * (1 - p) / (0.2 * p) ** 2) < 3
+    # close to the normal approximation 1.96^2 * p(1-p) / (0.2 p)^2
+    # (96.04 at 2, 192.08 at 3, 384.16 at 5, 480.20 at 6; Wilson shrinks slightly vs normal)
+    assert abs(games - 1.96**2 * p * (1 - p) / (0.2 * p) ** 2) < 4
     assert f"Zufallsbasis 1/{seats}" in str(base["basis"])
 
 
@@ -179,6 +193,70 @@ def test_the_plan_at_five_and_six_seats_is_built_on_one_over_n(seats: int, sd: f
     # the table size never comes from the seats per seed: one tested seat, still 1/N
     fixed = paired_series.planned_detectable_difference_pp(10, 1, seats)
     assert fixed["assumptions"]["pair_sd"] == sd  # type: ignore[index]
+
+
+@pytest.mark.parametrize(
+    ("seats", "sd", "exact", "exact_3d", "pct", "half", "games"),
+    [
+        (2, 0.7275, 0.7071, "0.707", 50.0, 10.0, 93),
+        (3, 0.6859, 0.6667, "0.667", 33.3, 6.67, 189),
+    ],
+)
+def test_the_plan_and_api_at_two_and_three_seats_use_one_over_n_and_keep_duration_unknown(
+    lab: dict[str, object],  # noqa: F811
+    seats: int,
+    sd: float,
+    exact: float,
+    exact_3d: str,
+    pct: float,
+    half: float,
+    games: int,
+) -> None:
+    pairs = 20
+    plan = paired_series.planned_detectable_difference_pp(pairs, seats, seats)
+    four = paired_series.planned_detectable_difference_pp(pairs, seats, 4)
+    seeds = math.ceil(pairs / seats)
+    t95, t80 = difference_quantiles(seeds - 1)
+    expected = (t95 + t80) * sd / math.sqrt(pairs) * 100
+    assert plan["detectable_pp_low"] == round(expected, 1)
+    # 1/2 and 1/3 have larger variance than 1/4: larger detectable diff and more pairs needed
+    assert float(str(plan["detectable_pp_low"])) > float(str(four["detectable_pp_low"]))
+    assert float(str(plan["detectable_pp_high"])) > float(str(four["detectable_pp_high"]))
+    assert int(str(plan["pairs_needed_low"])) > int(str(four["pairs_needed_low"]))
+    assert int(str(plan["pairs_needed_high"])) > int(str(four["pairs_needed_high"]))
+    assumptions = plan["assumptions"]
+    assert isinstance(assumptions, dict)
+    assert assumptions["pair_sd"] == sd
+    assert assumptions["pair_sd_independent_exact"] == exact
+    assert assumptions["pair_sd_win_rate_pct"] == pct
+    assert f"1/{seats}" in str(assumptions["pair_sd_basis"])
+    assert exact_3d in str(assumptions["pair_sd_basis"])
+    baseline = plan["baseline"]
+    assert isinstance(baseline, dict)
+    assert baseline["applies_to_plan"] is True
+    assert baseline["win_rate_pct"] == pct
+    assert baseline["half_width_pp"] == half
+    assert baseline["games_needed_wilson"] == games
+    # fixed single seat still uses table_size 1/N
+    fixed = paired_series.planned_detectable_difference_pp(10, 1, seats)
+    assert fixed["assumptions"]["pair_sd"] == sd  # type: ignore[index]
+    # HTTP endpoint GET /api/simulations/paired-plan
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    resp = client.get(
+        f"/api/simulations/paired-plan?budget_pairs={pairs}&table_size={seats}",
+        headers=HEADERS,
+    )
+    assert resp.status_code == 200, resp.text
+    api_plan = resp.json()
+    assert api_plan["assumptions"]["pair_sd"] == sd
+    assert api_plan["assumptions"]["pair_sd_independent_exact"] == exact
+    assert api_plan["baseline"]["applies_to_plan"] is True
+    assert api_plan["baseline"]["games_needed_wilson"] == games
+    assert api_plan["detectable_pp_low"] == plan["detectable_pp_low"]
+    assert api_plan["pairs_needed_low"] == plan["pairs_needed_low"]
+    effort = api_plan["table"]["effort"]
+    assert effort["duration_known"] is False and effort["duration_kind"] == "unknown"
 
 
 # -- duration: a rough orientation from table A, never a floor; 2/3 stay UNKNOWN -----------
@@ -536,6 +614,51 @@ def test_the_plan_dialog_names_one_over_n_and_the_wilson_games(
     assert est.startswith("Dauer: grobe Orientierung ~") and "weder Untergrenze" in est
     assert "6 Worker, 8 Partien je JVM" in est and "schneller als dieser Wert" in est
     assert "mindestens" not in est and "n = 10/10" in est
+
+
+@pytest.mark.parametrize(
+    ("seats", "games", "half", "pct", "sd_de", "exact_de"),
+    [
+        (2, "93", "10", "50", "0,73", "0,707"),
+        (3, "189", "6,67", "33,3", "0,69", "0,667"),
+    ],
+)
+def test_the_plan_dialog_at_two_and_three_seats_names_one_over_n_and_unknown_duration(
+    seats: int, games: str, half: str, pct: str, sd_de: str, exact_de: str
+) -> None:
+    plan = json.dumps(paired_series.table_plan(seats, seats * seats))
+    four = json.dumps(paired_series.table_plan(4, 40))
+    out = _run_node(
+        _UI
+        + "load('paired.js');\n"
+        + f"const plan = {plan}; const four = {four};\n"
+        + f"""process.stdout.write(JSON.stringify({{
+  ref: planPairedReference(plan),
+  lines: planPairedLines(plan, 0),
+  four: planPairedLines(four, 0),
+  est: estimatePairedText({seats * seats}, 3, {seats}),
+}}));
+"""
+    )
+    ref = str(out["ref"])
+    lines, four_lines = out["lines"], out["four"]
+    assert isinstance(lines, list) and isinstance(four_lines, list)
+    expected_ref = (
+        f"Referenz: Zufallsbasis 1/{seats} = {pct} % bei {seats} gleich starken Plätzen; ein "
+        f"einzelner Siegrate-Anteil braucht {games} Partien für ±{half} pp (±20 % relativ"
+    )
+    assert expected_ref in ref
+    assert expected_ref in lines[1]
+    assert "bei 25 % rund 800 Partien" not in ref
+    assert "bei 25 % rund 800 Partien" not in lines[1]
+    assert "25 %" not in lines[1] and "25 %" not in lines[2]
+    assert f"Paar-Streuung {sd_de}" in lines[2]
+    assert f"exakt {exact_de}" in lines[2]
+    assert f"{pct} % Siegrate = Zufallsbasis 1/{seats}" in lines[2]
+    assert "rund 800 Partien für ±3 pp" in four_lines[1]  # four seats: unchanged
+    est = str(out["est"])
+    assert est.startswith("Dauer: unbekannt (UNKNOWN).")
+    assert f"Tisch mit {seats} Sitzen ist kein Durchsatz gemessen (n = 0 Partien)" in est
 
 
 # -- end to end: a five- and a six-seat experiment of one deck, behind the lifted lock --------

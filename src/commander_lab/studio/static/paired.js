@@ -124,9 +124,9 @@ function estimatePairedText(budgetPairs, workers = 4, tableSeats = PAIRED_MEASUR
 // The pre-run plan comes from the backend (paired_series.planned_detectable_difference_pp via
 // GET /api/simulations/paired-plan): one computation, with the Student-t quantiles at
 // (seeds - 1) degrees of freedom that the evaluation uses. This only formats it.
-// The reference sentence of the plan (#1661): at five and six seats the server's base win rate 1/N
-// and the games a single win share needs for +-20 % (Wilson); at two to four seats the long-standing
-// reference at 25 %. Nothing is computed here.
+// The reference sentence of the plan (#1661, #1757): at two, three, and five to eight seats the
+// server's base win rate 1/N and the games a single win share needs for +-20 % (Wilson); at four
+// seats the long-standing reference at 25 %. Nothing is computed here.
 function planPairedReference(plan) {
   const b = plan.baseline;
   if (!b || !b.applies_to_plan) return "Referenz: ein einzelner Siegrate-Anteil braucht bei 25 % rund 800 Partien für ±3 pp.";
