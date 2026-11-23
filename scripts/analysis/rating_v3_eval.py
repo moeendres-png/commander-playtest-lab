@@ -704,12 +704,16 @@ def _int_value(v: Any) -> TypeGuard[int]:
 
 
 def parse_output(lines: Sequence[str], order: Sequence[str]) -> dict[str, Any]:
-    """Assemble the one-value lines per card by position (module docstring)."""
+    """Assemble the one-value lines per card (module docstring): a card line opens the card named
+    by its ``oracle_id``; the criterion lines after it belong to that card. A card line with an
+    unknown or repeated ``oracle_id`` opens no card: it and its lines are kept as lines without a
+    card (scanned by ``hits``, never aggregated), so one broken card never shifts the others."""
     cards: list[dict[str, Any]] = [
         {"oracle_id": o, "pos": i, "card_row": None, "lines": [], "raw": []}
         for i, o in enumerate(order, 1)
     ]
-    cur = -1
+    index = {o: i for i, o in enumerate(order)}
+    cur: int | None = None
     orphans: list[str] = []
     extra_cards = 0
     for line in lines:
@@ -721,15 +725,17 @@ def parse_output(lines: Sequence[str], order: Sequence[str]) -> dict[str, Any]:
             obj = None
         is_card = isinstance(obj, dict) and "criterion" not in obj
         if is_card:
-            cur += 1
-            if cur >= len(cards):
+            i = index.get(str(obj.get("oracle_id")))
+            if i is None or cards[i]["card_row"] is not None:
+                cur = None
                 extra_cards += 1
                 orphans.append(line)
                 continue
+            cur = i
             cards[cur]["card_row"] = obj
             cards[cur]["raw"].append(line)
             continue
-        if 0 <= cur < len(cards):
+        if cur is not None:
             cards[cur]["lines"].append(obj)
             cards[cur]["raw"].append(line)
         else:
@@ -971,12 +977,16 @@ def claim_sample(
     card over all raters, ``random.Random(20261131)``; mixed; blind to the rater."""
     rng = random.Random(SEED_CLAIMS)
     used: set[str] = set()
+    first: dict[str, int] = {}
+    for ch in man["chargen"]:
+        for o in ch["karten"]:
+            first.setdefault(str(o), int(ch["k"]))
     items: list[tuple[str, int, str, int]] = []
     for r in RATERS:
         cand = []
         for k in sorted(data[r]):
             for c in data[r][k]["cards"]:
-                if c["valid"] and c["oracle_id"] not in used:
+                if c["valid"] and c["oracle_id"] not in used and first[c["oracle_id"]] == k:
                     cand.append(
                         (f"{k}|{c['oracle_id']}", (c["card_row"] or {}).get("rule_claims") or [])
                     )
@@ -1100,11 +1110,13 @@ def run_log_view(log: Mapping[str, Any] | None, man: Mapping[str, Any], rater_di
 
 
 def path_inside(path: str, folder: str) -> bool:
-    """True when ``path`` (absolute, or relative to ``folder``) lies inside ``folder``; the
-    comparison uses a trailing separator, so ``/x/A_1`` does not contain ``/x/A_10``."""
-    base = posixpath.normpath(folder.replace("\\", "/"))
-    p = path.replace("\\", "/")
-    full = posixpath.normpath(p if p.startswith("/") else posixpath.join(base, p))
+    """True when the absolute POSIX ``path`` lies inside ``folder``. A path that is not absolute
+    (relative, ``~``, a drive letter) counts as outside (stricter reading). The comparison uses a
+    trailing separator, so ``/x/A_1`` does not contain ``/x/A_10``."""
+    if not path.startswith("/") or not folder.startswith("/"):
+        return False
+    base = posixpath.normpath(folder)
+    full = posixpath.normpath(path)
     return full == base or full.startswith(base.rstrip("/") + "/")
 
 
@@ -1125,6 +1137,8 @@ def scan_tool_calls(tool_calls: Any, man: Mapping[str, Any], frozen: Mapping[str
             by_inst.setdefault(str(c.get("instanz", "")), []).append(
                 (str(c.get("werkzeug", "")), str(c.get("pfad", "")))
             )
+    known = {inst(r, ch["k"]) for ch in man["chargen"] for r in RATERS}
+    out["unbekannte_instanzen"] = sorted(set(by_inst) - known)
     for ch in man["chargen"]:
         for r in RATERS:
             key = inst(r, ch["k"])
@@ -1140,10 +1154,12 @@ def scan_tool_calls(tool_calls: Any, man: Mapping[str, Any], frozen: Mapping[str
                 for t, p in by_inst.get(key, [])
                 if t not in ALLOWED_TOOLS or not path_inside(p, folder)
             ]  # fmt: skip
+            # an instance without any recorded call cannot be shown blind: not scanned (S8 unknown)
+            n_calls = len(by_inst.get(key, []))
             out["instanzen"][key] = {
-                "gescannt": True,
+                "gescannt": n_calls > 0,
                 "verstoesse": bad,
-                "n_aufrufe": len(by_inst.get(key, [])),
+                "n_aufrufe": n_calls,
             }
     return out
 
@@ -1256,6 +1272,7 @@ def analyse(
     usage_path: Path | None = None, old_runs_path: Path | None = None, pooled_path: Path | None = None,
     claim_verdicts: Any = None, adjudication_key_bytes: bytes | None = None,
     adjudication_verdicts: Any = None, draws: int | None = None,
+    input_files_sha256: Mapping[str, str] | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:  # fmt: skip
     """Stage 2. ``draws`` is only for tests; the command line always uses the plan's 2000."""
     draws = DRAWS if draws is None else draws
@@ -1372,6 +1389,7 @@ def analyse(
     # a missing transcript or an unscanned instance leaves S8 unknown (never 0)
     s8_known = (
         scan["vorhanden"]
+        and not scan["unbekannte_instanzen"]
         and all(v["gescannt"] for v in scan["instanzen"].values())
         and not any(x["transkript_fehlt"] for x in a2.values())
     )
@@ -1605,7 +1623,9 @@ def analyse(
         "checksummen_sha256": sha256_file(checksums_path), "hits_sha256": sha256_bytes(hits_bytes),
         "klassifikation_sha256": sha256_bytes(classification_bytes),
         "klassifikation_kommentar": str(classification.get("github_kommentar")),
-        "laufprotokoll_sha256": sha256_bytes(json.dumps(run_log, sort_keys=True).encode()) if run_log else UNKNOWN,
+        # SHA-256 of the given files as read from disk (the run log hash equals the one posted in #1404)
+        "eingabedateien_sha256": {k: v for k, v in sorted((input_files_sha256 or {}).items())},
+        "laufprotokoll_sha256": (input_files_sha256 or {}).get("run_log", UNKNOWN),
         "usage_sha256": usage_sha or UNKNOWN, "alte_laeufe_sha256": old_sha or UNKNOWN,
         "pooled_sha256": pooled_sha or UNKNOWN,
     }  # fmt: skip
@@ -1942,6 +1962,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             print(f"{len(items)} Karten mit Rater-Abstand >= 15 auf H_v3b")
             return 0
+        given = {
+            "run_log": a.run_log, "tool_calls": a.tool_calls, "final_replies": a.final_replies,
+            "claim_verdicts": a.claim_verdicts, "adjudication_key": a.adjudication_key,
+            "adjudication_verdicts": a.adjudication_verdicts,
+        }  # fmt: skip
+        file_hashes = {k: sha256_file(v) for k, v in given.items() if v is not None}
         result, h_rows = analyse(
             manifest_path=a.manifest, inputs_dir=a.inputs_dir, rater_dir=a.rater_dir, checksums_path=a.checksums,
             hits_file_bytes=a.hits.read_bytes(), classification_bytes=a.classification.read_bytes(),
@@ -1951,6 +1977,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             claim_verdicts=_json_or_none(a.claim_verdicts),
             adjudication_key_bytes=a.adjudication_key.read_bytes() if a.adjudication_key else None,
             adjudication_verdicts=_json_or_none(a.adjudication_verdicts),
+            input_files_sha256=file_hashes,
         )  # fmt: skip
     except RefusedError as exc:
         print(f"VERWEIGERT: {exc}", file=sys.stderr)

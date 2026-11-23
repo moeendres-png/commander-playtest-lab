@@ -833,11 +833,15 @@ def test_missing_transcript_invalidates_the_chunk_and_missing_scan_is_unknown(la
     assert res2["kriterien"]["V3b"]["S8"]["werkzeug_verstoesse"] == 0
 
 
-def test_path_check_uses_a_trailing_separator() -> None:
+def test_path_check_uses_a_trailing_separator_and_needs_absolute_paths() -> None:
     assert ev.path_inside("/x/A_1/guide.md", "/x/A_1")
+    assert ev.path_inside("/x/A_1/sub/../guide.md", "/x/A_1")
     assert not ev.path_inside("/x/A_10/guide.md", "/x/A_1")
-    assert not ev.path_inside("../A_2/out.jsonl", "/x/A_1")
-    assert ev.path_inside("sub/../guide.md", "/x/A_1")
+    assert not ev.path_inside("/x/A_1/../A_2/out.jsonl", "/x/A_1")
+    # not absolute: relative, home or drive letter paths count as outside (stricter reading)
+    assert not ev.path_inside("guide.md", "/x/A_1")
+    assert not ev.path_inside("~/guide.md", "/x/A_1")
+    assert not ev.path_inside("C:\\x\\A_1\\guide.md", "/x/A_1")
 
 
 def test_a3_without_run_log_and_a10_label(lab: Lab) -> None:
@@ -1035,8 +1039,16 @@ def test_repeat_freeze_needs_prior_violations_in_the_run_log(lab: Lab) -> None:
 
 def _spread_card(lab: Lab) -> str:
     o = "n10"
-    lab.values[("A", o, 1)] = {**lab.values[("A", o, 1)], "E": 100, "F": 100, "R": 100}
-    lab.values[("C", o, 1)] = {**lab.values[("C", o, 1)], "E": 0, "F": 0, "R": 0}
+    t = lab.true[o]
+    # A rates E, F, R 15 higher, C 15 lower: spread on H_v3b = 0.8 * 30 = 24 >= 15
+    lab.values[("A", o, 1)] = {
+        **lab.values[("A", o, 1)],
+        **{c: clip5(t[c] + 15) for c in ("E", "F", "R")},
+    }
+    lab.values[("C", o, 1)] = {
+        **lab.values[("C", o, 1)],
+        **{c: clip5(t[c] - 15) for c in ("E", "F", "R")},
+    }
     return o
 
 
@@ -1237,3 +1249,140 @@ def test_display_condition_absolute_boundary(
     )
     res, _ = lab.eval(usage_path=usage, pooled_path=pooled)
     assert res["kriterien"]["V3b"]["anzeige_bedingung"]["status"] == want
+
+
+# ---------------------------------------------------------------- card assembly, claims, S8 gaps
+
+
+def test_a_skipped_or_repeated_card_does_not_shift_the_others(lab: Lab) -> None:
+    def skip_third(lines: list[str]) -> list[str]:
+        return lines[:16] + lines[24:]  # card 3 (lines 16..23) missing
+
+    def repeat_first(lines: list[str]) -> list[str]:
+        return lines[:8] + lines[:8] + lines[8:]  # card 1 twice
+
+    lab.line_hook[("A", 1)] = skip_third
+    lab.line_hook[("B", 2)] = repeat_first
+    lab.build()
+    res, _ = lab.eval()
+    assert res["chargen"]["A:1"]["V_gueltig"] == [18, 19]
+    assert res["chargen"]["A:1"]["nicht_gueltig"] == {"3": ["missing"]}
+    assert res["chargen"]["B:2"]["V_gueltig"] == [19, 19]
+    assert (
+        res["chargen"]["B:2"]["zusatzkarten"] == 1
+        and res["chargen"]["B:2"]["zeilen_ohne_karte"] == 8
+    )
+
+
+def test_claims_use_only_the_counting_placement(lab: Lab) -> None:
+    for r, o, k in list(lab.values):
+        if not o.startswith("a"):
+            lab.card_extra[(r, o, k)] = {"rule_claims": []}
+    lab.build()
+    _, key_b = ev.run_claims(lab.manifest, lab.inputs, lab.rater, lab.sums)
+    key = json.loads(key_b)["schluessel"]
+    oids = [k["oracle_id"] for k in key]
+    # 10 anchor cards with 24 placements: at most one claim per card, so 10 claims, all from A
+    assert len(oids) == 10 and len(set(oids)) == 10
+    assert {k["rater"] for k in key} == {"A"}
+
+
+def test_s8_unknown_without_calls_or_with_unknown_instances(lab: Lab) -> None:
+    lab.build()
+    tc = lab.tool_calls()
+    tc["aufrufe"] = [c for c in tc["aufrufe"] if c["instanz"] != "C:4"]
+    res, _ = lab.eval(tool_calls=tc)
+    assert res["transkript_scan"]["instanzen"]["C:4"]["gescannt"] is False
+    assert res["kriterien"]["V3b"]["S8"]["status"] == "unbekannt"
+    tc2 = lab.tool_calls()
+    tc2["aufrufe"].append({"instanz": "D:1", "werkzeug": "Read", "pfad": "/scratch/raters/D_1/x"})
+    res2, _ = lab.eval(tool_calls=tc2)
+    assert res2["transkript_scan"]["unbekannte_instanzen"] == ["D:1"]
+    assert res2["kriterien"]["V3b"]["S8"]["status"] == "unbekannt"
+
+
+def test_full_run_cli_round_trip_to_a_proposal(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    lab = Lab(tmp_path, monkeypatch, phase="vollauf")
+    o_spread = _spread_card(lab)
+    lab.build()
+    out = tmp_path / "out"
+    out.mkdir()
+    usage, old, pooled = out / "usage.jsonl", out / "pairs.jsonl", out / "pooled.jsonl"
+    usage.write_text("".join(json.dumps({"oracle_id": o, "deck_list_count": lab.true[o]["E"] + lab.true[o]["F"]}) + "\n"
+                             for o in sorted(lab.cards)), encoding="utf-8")  # fmt: skip
+    rows = []
+    for o in sorted(lab.cards):
+        t = lab.true[o]
+        row: dict[str, Any] = {"oracle_id": o}
+        for run in ("F1", "R2"):
+            row.update({f"{run}_{c}": t[c] for c in ("E", "F", "T", "R", "K")})
+            row[f"{run}_D"] = 100 - t["N"]
+            row[f"{run}_H"] = round(ev.h_ref({c: float(x) for c, x in t.items()}))
+        rows.append(row)
+    old.write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
+    pooled.write_text("".join(json.dumps({"oracle_id": o, "H_pooled": ev.h_ref({c: float(x) for c, x in lab.true[o].items()})}) + "\n"
+                              for o in sorted(lab.cards)), encoding="utf-8")  # fmt: skip
+    monkeypatch.setattr(ev, "USAGE_SHA256_PREFIX", _sha(usage)[:8])
+    monkeypatch.setattr(ev, "OLD_RUNS_SHA256_PREFIX", _sha(old)[:8])
+    monkeypatch.setattr(ev, "POOLED_SHA256", _sha(pooled))
+    monkeypatch.setattr(ev, "DRAWS", 200)
+    data, _ = lab.hits()
+    (out / "hits.json").write_bytes(data)
+    cb = lab.classification()
+    (out / "cls.json").write_bytes(cb)
+    (out / "replies.json").write_text(json.dumps(lab.replies), encoding="utf-8")
+    (out / "log.json").write_text(json.dumps(lab.run_log()), encoding="utf-8")
+    (out / "tools.json").write_text(json.dumps(lab.tool_calls()), encoding="utf-8")
+    base = ["--manifest", str(lab.manifest), "--inputs-dir", str(lab.inputs), "--rater-dir", str(lab.rater),
+            "--checksums", str(lab.sums), "--final-replies", str(out / "replies.json"), "--hits", str(out / "hits.json"),
+            "--classification", str(out / "cls.json"), "--classification-sha256", hashlib.sha256(cb).hexdigest()]  # fmt: skip
+    assert (
+        ev.main(
+            [
+                "adjudicate",
+                *base,
+                "--out",
+                str(out / "adj.json"),
+                "--key-out",
+                str(out / "adjk.json"),
+            ]
+        )
+        == 0
+    )
+    key = json.loads((out / "adjk.json").read_text(encoding="utf-8"))["schluessel"]
+    nr_a = next(nr for nr, r in key[o_spread].items() if r == "A")
+    (out / "adjv.json").write_text(
+        json.dumps({o_spread: {nr_a: {"objektiver_fehler": True, "zitat": "draw a card"}}}),
+        encoding="utf-8",
+    )
+    assert ev.main(["claims", "--manifest", str(lab.manifest), "--inputs-dir", str(lab.inputs), "--rater-dir", str(lab.rater),
+                    "--checksums", str(lab.sums), "--out", str(out / "c.json"), "--key-out", str(out / "ck.json")]) == 0  # fmt: skip
+    ckey = json.loads((out / "ck.json").read_text(encoding="utf-8"))["schluessel"]
+    (out / "cv.json").write_text(
+        json.dumps({str(k["nr"]): "korrekt" for k in ckey}), encoding="utf-8"
+    )
+    rc = ev.main(["eval", *base, "--run-log", str(out / "log.json"), "--tool-calls", str(out / "tools.json"),
+                  "--usage", str(usage), "--old-runs", str(old), "--pooled", str(pooled),
+                  "--claim-verdicts", str(out / "cv.json"), "--adjudication-key", str(out / "adjk.json"),
+                  "--adjudication-verdicts", str(out / "adjv.json"), "--out", str(out / "r.json"),
+                  "--report", str(out / "r.md"), "--h-out", str(out / "h.jsonl"), "--sums-out", str(out / "S")])  # fmt: skip
+    assert rc == 0
+    res = json.loads((out / "r.json").read_text(encoding="utf-8"))
+    assert res["entscheidung"]["vorschlag"] == "V3b", res["entscheidung"]
+    assert "Vorschlag V3b" in (out / "r.md").read_text(encoding="utf-8")
+    assert res["herkunft"]["laufprotokoll_sha256"] == _sha(out / "log.json")
+    assert set(res["herkunft"]["eingabedateien_sha256"]) == {
+        "run_log",
+        "tool_calls",
+        "final_replies",
+        "claim_verdicts",
+        "adjudication_key",
+        "adjudication_verdicts",
+    }
+    assert res["regelclaims"]["A"]["stufe"] == "gruen" and res["adjudikation"]["angewendet"] is True
+    h = [json.loads(x) for x in (out / "h.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert "adjudiziert" in next(x for x in h if x["oracle_id"] == o_spread)["marken"]
+    sums = (out / "S").read_text(encoding="utf-8").splitlines()
+    assert sums == [f"{_sha(out / n)}  {n}" for n in ("r.json", "r.md", "h.jsonl")]
