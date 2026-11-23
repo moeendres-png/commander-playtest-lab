@@ -7,6 +7,7 @@ import copy
 import gzip
 import itertools
 import json
+import os
 import re
 import threading
 import time
@@ -667,6 +668,237 @@ def test_interactive_session_routes_redaction_validation_speed_and_concede(
         assert deleted.status_code == 200
         assert deleted.json()["deleted"] is True
         assert client.get("/api/play/interactive-1").status_code == 404
+    finally:
+        app.state.play_manager.shutdown_all()
+
+
+def test_play_route_redacts_disk_log_without_closing_result_and_stale_abgebrochen(
+    tmp_path: Path,
+) -> None:
+    """GET /api/play/{id} reading a disk log (not in play_manager._sessions) without a closing
+    result must keep AI hands and private picks hidden — even after STALE_SECONDS triggers the
+    synthesized ``abgebrochen`` result — until a real closing entry is written (#1732)."""
+    decks = (
+        _make_deck("own", "Chulane, Teller of Tales"),
+        _make_deck("opp", "Kinnan, Bonder Prodigy"),
+    )
+    game_id = "g-crash-1732"
+    prep = play.prepare_game(
+        decks, seed=17, game_id=game_id, human_seats=[0], decision_timeout_seconds=0
+    )
+    recorder = games.GameRecorder(tmp_path, game_id, prep.header)
+    app = create_app(tmp_path)
+    client = TestClient(app, headers={"X-Studio": "1"})
+    try:
+        frame = games.frame_of(
+            1,
+            {
+                "seat": 1,
+                "decision_class": "choose_object",
+                "prompt": "Choose a card from hand",
+                "legal_options": [
+                    {
+                        "option_id": "opt-secret",
+                        "label": "Secret AI Tutored Card",
+                        "metadata": {"zone": "hand"},
+                    }
+                ],
+                "pilot_state": _pilot_state(
+                    seat=1, turn=2, active_player_id="p1", secret_opp_card="Secret AI Hand Card"
+                ),
+            },
+            {"selected_option_ids": ["opt-secret"]},
+        )
+        players = frame["players"]
+        assert isinstance(players, list)
+        players[0]["hand_cards"] = [{"name": "Forest"}, {"name": "Llanowar Elves"}]
+        players[1]["hand_cards"] = [{"name": "Secret AI Hand Cards Entry"}]
+        assert frame["private_selection"] is True
+        assert frame["chosen"] == ["Secret AI Tutored Card"]
+        assert frame["targets"] == ["Secret AI Tutored Card"]
+        recorder._write(frame)
+        recorder.frames += 1
+
+        assert app.state.play_manager.get(game_id) is None
+
+        # Fresh unclosed disk log: running, hands_revealed=False, AI secrets redacted.
+        fresh_resp = client.get(f"/api/play/{game_id}")
+        assert fresh_resp.status_code == 200
+        fresh = fresh_resp.json()
+        assert fresh["running"] is True
+        assert fresh["result"] is None
+        assert fresh["hands_revealed"] is False
+        assert fresh["human_seats"] == [0]
+        fresh_blob = json.dumps(fresh)
+        for secret in (
+            "Secret AI Hand Card",
+            "Secret AI Hand Cards Entry",
+            "Secret AI Tutored Card",
+        ):
+            assert secret not in fresh_blob
+        f0 = fresh["frames"][0]
+        assert f0["private_selection"] is True
+        assert f0["chosen"] == []
+        assert "targets" not in f0
+        assert f0["players"][0]["hand"] == ["Forest", "Llanowar Elves"]
+        assert "hand" not in f0["players"][1]
+        assert "hand_cards" not in f0["players"][1]
+
+        # Stale unclosed disk log (> STALE_SECONDS): synthesized ``abgebrochen``, running=False,
+        # yet hands_revealed stays False and all AI secrets remain redacted.
+        stale_time = time.time() - (games.STALE_SECONDS + 300.0)
+        os.utime(recorder.path, (stale_time, stale_time))
+        stale_resp = client.get(f"/api/play/{game_id}")
+        assert stale_resp.status_code == 200
+        stale = stale_resp.json()
+        assert stale["running"] is False
+        assert stale["result"]["failure_class"] == "abgebrochen"
+        assert stale["hands_revealed"] is False
+        stale_blob = json.dumps(stale)
+        for secret in (
+            "Secret AI Hand Card",
+            "Secret AI Hand Cards Entry",
+            "Secret AI Tutored Card",
+        ):
+            assert secret not in stale_blob
+        sf0 = stale["frames"][0]
+        assert sf0["private_selection"] is True
+        assert sf0["chosen"] == []
+        assert "targets" not in sf0
+        assert sf0["players"][0]["hand"] == ["Forest", "Llanowar Elves"]
+        assert "hand" not in sf0["players"][1]
+        assert "hand_cards" not in sf0["players"][1]
+
+        # Owner decision 2026-11-17: once a real closing entry is written, hands and private
+        # selections are revealed.
+        recorder.close(
+            {
+                "status": "finished",
+                "winner_seats": [0],
+                "decision_count": 1,
+                "engine_version": "test",
+            }
+        )
+        done_resp = client.get(f"/api/play/{game_id}")
+        assert done_resp.status_code == 200
+        done = done_resp.json()
+        assert done["running"] is False
+        assert done["result"]["status"] == "finished"
+        assert done["hands_revealed"] is True
+        df0 = done["frames"][0]
+        assert df0["players"][1]["hand"] == ["Secret AI Hand Card", "Island"]
+        assert df0["players"][1]["hand_cards"] == [{"name": "Secret AI Hand Cards Entry"}]
+        assert df0["chosen"] == ["Secret AI Tutored Card"]
+        assert df0["targets"] == ["Secret AI Tutored Card"]
+    finally:
+        recorder.discard()
+        app.state.play_manager.shutdown_all()
+
+
+def test_play_manager_snapshot_redacts_unrevealed_frames_defense_in_depth(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Defense-in-depth against omitting ``redact_frame_for_human_seats`` in
+    ``InteractivePlayManager.snapshot`` (mutation O3, #1732): even if ``read_game`` returns
+    unredacted frames with ``hands_revealed=False``, ``snapshot`` and ``GET /api/play/{id}``
+    must redact AI hands and private picks themselves."""
+    revealed_flag = False
+
+    def fake_read_game(
+        _data_folder: str | Path,
+        _game_id: str,
+        *,
+        start: int = 0,
+        count: int = 200,
+    ) -> dict[str, object]:
+        return {
+            "header": {
+                "kind": "header",
+                "schema": games.LOG_SCHEMA,
+                "game_id": _game_id,
+                "human_seats": [0],
+                "decision_timeout_seconds": 0,
+            },
+            "frames": [
+                {
+                    "kind": "frame",
+                    "n": 1,
+                    "seat": 1,
+                    "decision_class": "choose_object",
+                    "private_selection": True,
+                    "chosen": ["Secret Defense Pick"],
+                    "targets": ["Secret Defense Pick"],
+                    "players": [
+                        {
+                            "seat": 0,
+                            "life": 40,
+                            "hand": ["Forest", "Llanowar Elves"],
+                            "hand_cards": [{"name": "Forest"}, {"name": "Llanowar Elves"}],
+                        },
+                        {
+                            "seat": 1,
+                            "life": 40,
+                            "hand": ["Secret Defense Hand", "Island"],
+                            "hand_cards": [{"name": "Secret Defense HandCards"}],
+                        },
+                    ],
+                }
+            ],
+            "start": start,
+            "total": 1,
+            "running": False,
+            "hands_revealed": revealed_flag,
+            "cohort": games.COHORT_PLAYED,
+            "played_seats": [0],
+            "table_size": 2,
+            "result": {
+                "kind": "result",
+                "status": "failed",
+                "failure_class": "abgebrochen",
+                "failure_message": "abgebrochen",
+            },
+        }
+
+    monkeypatch.setattr(games, "read_game", fake_read_game)
+
+    manager = play.InteractivePlayManager()
+    direct_snap = manager.snapshot(tmp_path, "g-defense-1732")
+
+    app = create_app(tmp_path)
+    client = TestClient(app, headers={"X-Studio": "1"})
+    try:
+        route_resp = client.get("/api/play/g-defense-1732")
+        assert route_resp.status_code == 200
+        route_snap = route_resp.json()
+
+        for snap in (direct_snap, route_snap):
+            assert snap["running"] is False
+            assert snap["hands_revealed"] is False
+            assert snap["result"]["failure_class"] == "abgebrochen"
+            blob = json.dumps(snap)
+            for secret in (
+                "Secret Defense Hand",
+                "Secret Defense HandCards",
+                "Secret Defense Pick",
+            ):
+                assert secret not in blob
+            frame = snap["frames"][0]
+            assert frame["private_selection"] is True
+            assert frame["chosen"] == []
+            assert "targets" not in frame
+            assert frame["players"][0]["hand"] == ["Forest", "Llanowar Elves"]
+            assert "hand" not in frame["players"][1]
+            assert "hand_cards" not in frame["players"][1]
+
+        # Negative control: once hands_revealed is True, snapshot preserves AI hand & pick.
+        revealed_flag = True
+        revealed_snap = manager.snapshot(tmp_path, "g-defense-1732")
+        assert revealed_snap["hands_revealed"] is True
+        rf0 = revealed_snap["frames"][0]
+        assert rf0["players"][1]["hand"] == ["Secret Defense Hand", "Island"]
+        assert rf0["players"][1]["hand_cards"] == [{"name": "Secret Defense HandCards"}]
+        assert rf0["chosen"] == ["Secret Defense Pick"]
+        assert rf0["targets"] == ["Secret Defense Pick"]
     finally:
         app.state.play_manager.shutdown_all()
 
