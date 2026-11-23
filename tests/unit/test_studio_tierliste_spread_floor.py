@@ -25,8 +25,12 @@ RESEARCH = ROOT / "data" / "research" / "chulane_rubric_v2_20261118"
 SECOND_RUN = RESEARCH / "second_run_20261122"
 REPORT = ROOT / "docs" / "analysis-reports" / "rating_second_run_20261122.md"
 
-# a shown spread: "±8", "± 10", "-15/+8" (the upper side of an asymmetric band)
-_SHOWN_SPREAD = re.compile(r"±\s*(\d+(?:,\d+)?)|/\+(\d+(?:,\d+)?)")
+# a shown spread: "±8", "± 10", "-15/+8" (the upper side of an asymmetric band), or textual
+# approximations such as "etwa 5", "rund 5", "ca. 5"
+_SHOWN_SPREAD = re.compile(
+    r"±\s*(\d+(?:,\d+)?)|/\+(\d+(?:,\d+)?)|\b(?:etwa|rund|ca\.)\s*(\d+(?:,\d+)?)",
+    re.IGNORECASE,
+)
 
 
 def _jsonl(path: Path) -> list[dict[str, object]]:
@@ -34,7 +38,7 @@ def _jsonl(path: Path) -> list[dict[str, object]]:
 
 
 def _shown_spreads(text: str) -> list[float]:
-    return [float((a or b).replace(",", ".")) for a, b in _SHOWN_SPREAD.findall(text)]
+    return [float((a or b or c).replace(",", ".")) for a, b, c in _SHOWN_SPREAD.findall(text)]
 
 
 def _second_run_spread() -> tuple[int, int, float]:
@@ -89,7 +93,13 @@ def test_no_shown_spread_of_the_field_is_below_the_floor() -> None:
         shown += [band["kurz"], band["text"]]
     found = [value for text in shown for value in _shown_spreads(text)]
     assert found and min(found) >= floor, shown
-    assert _shown_spreads("±5 und \u221215/+5") == [5.0, 5.0]  # the pattern sees the old marks
+    assert _shown_spreads("±5, \u221215/+5, etwa 5, rund 6 und ca. 7,5") == [
+        5.0,
+        5.0,
+        5.0,
+        6.0,
+        7.5,
+    ]  # the pattern sees the old marks and textual approximations
 
 
 def test_the_rendered_tier_list_never_names_less_than_the_floor() -> None:
@@ -102,7 +112,7 @@ const cards = values.map((v) => item('C' + v, 'S', 50));
 const field = (extra) => ({verfuegbar: true, grund: null, name: 'Kartenverständnis (Modellurteil)', kriterium: 'H', n_bewertet: 21, n_gesamt: 21,
   herkunft: {version: 'v2.1'}, zahlen: values.map((v) => figure('C' + v, v)), streuung: SPREAD, rauschgate: GATE, abdeckung: {},
   regelclaim_befunde: {karten: {}}, pruefer_zweifel: {verfuegbar: true, n_markiert: 2, n_zugeordnet: 2, n_im_pool: 2, rauschgate: 8, n_unter_rauschgate: 1,
-    karten: {C50: {art: 'H zu niedrig', spanne: [55, 60], kurz: 'Prüfer-Spanne innerhalb der Streuung (unter 8 Punkten)', text: 't', grund: 'g', unter_rauschgate: true},
+    karten: {C50: {art: 'H zu niedrig', spanne: [55, 60], kurz: 'Prüfer-Modell: Spanne innerhalb der Streuung (unter 8 Punkten) (zu H aus Lauf 1)', text: 't', grund: 'g', unter_rauschgate: true},
       C70: {art: 'H zu hoch', spanne: [30, 45], kurz: 'Prüfer-Modell bezweifelt H: zu hoch', text: 't', grund: 'g', unter_rauschgate: false}}},
   laender_skala: null, ...extra});
 const allTitles = (n, out = []) => { if (n && typeof n === 'object') { if (n.props && n.props.title) out.push(n.props.title); n.kids.forEach((k) => allTitles(k, out)); } return out; };
@@ -121,7 +131,14 @@ console.log(JSON.stringify(out));
     result = _node_json(script)
     assert isinstance(result, dict)
     floor = understanding_field.SPREAD_FLOOR
-    shown = [*result["cells"], *result["titles"], result["hint"], *result["hintTitles"]]
+    # Strip the raw historical source citations ("Drift-Test: ...") from tooltips before checking
+    # that no shown spread or band names less than the floor (matching the card window test below).
+    shown = [
+        *result["cells"],
+        *(t.split(" · Drift-Test:", 1)[0] for t in result["titles"]),
+        result["hint"],
+        *(t.split(" · Drift-Test:", 1)[0] for t in result["hintTitles"]),
+    ]
     found = [value for text in shown for value in _shown_spreads(text)]
     assert len(found) >= 21 and min(found) >= floor
     assert all("±8" in cell or "±10" in cell or "/+8" in cell for cell in result["cells"])
@@ -151,7 +168,7 @@ def test_the_card_window_never_names_less_than_the_floor() -> None:
         "pruefer_zweifel": {
             "art": "H zu niedrig",
             "spanne": [55, 60],
-            "kurz": "Prüfer-Spanne innerhalb der Streuung (unter 8 Punkten)",
+            "kurz": "Prüfer-Modell: Spanne innerhalb der Streuung (unter 8 Punkten) (zu H aus Lauf 1)",
             "text": "t",
             "grund": "g",
             "unter_rauschgate": True,
@@ -203,8 +220,8 @@ def test_an_h_doubt_inside_the_noise_gate_is_no_warning_mark() -> None:
     ) is None and not understanding_field.doubt_below_gate(reason)
     assert understanding_field.doubt_distance(_flag("H zu hoch", 70, None, None)) is None
     entry = understanding_field._doubt_entry(near)
-    assert entry["unter_rauschgate"] is True and entry["kurz"].startswith(
-        "Prüfer-Spanne innerhalb der Streuung"
+    assert entry["unter_rauschgate"] is True and entry["kurz"] == (
+        "Prüfer-Modell: Spanne innerhalb der Streuung (unter 8 Punkten) (zu H aus Lauf 1)"
     )
     assert "bezweifelt" not in str(entry["kurz"])
     assert (

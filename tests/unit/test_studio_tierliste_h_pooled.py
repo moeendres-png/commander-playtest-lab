@@ -191,6 +191,31 @@ def test_the_audit_doubts_stay_on_run_1_and_their_overlap_with_the_mean_is_count
     h_labels = [label for label in labels if "Begründung" not in label]
     assert len(h_labels) == 33 and all(label.endswith("(zu H aus Lauf 1)") for label in h_labels)
     assert "Bei 18 von 33 H-Zweifeln" in REGISTER.read_text(encoding="utf-8")
+    # Synthetic check for both H-doubt branches (above and below the noise gate)
+    below_gate: card_understanding.AuditFlag = {
+        "card": "Near",
+        "rater_H": 50.0,
+        "proposed_H_low": 55.0,
+        "proposed_H_high": 60.0,
+        "kind": "H zu niedrig",
+        "reason": "synthetisch",
+        "sample": "synth",
+    }
+    above_gate: card_understanding.AuditFlag = {
+        "card": "Far",
+        "rater_H": 50.0,
+        "proposed_H_low": 60.0,
+        "proposed_H_high": 70.0,
+        "kind": "H zu niedrig",
+        "reason": "synthetisch",
+        "sample": "synth",
+    }
+    below_entry = understanding_field._doubt_entry(below_gate)
+    above_entry = understanding_field._doubt_entry(above_gate)
+    assert below_entry["unter_rauschgate"] is True
+    assert str(below_entry["kurz"]).endswith(understanding_field.DOUBT_RUN)
+    assert above_entry["unter_rauschgate"] is False
+    assert str(above_entry["kurz"]).endswith(understanding_field.DOUBT_RUN)
 
 
 def test_k1_is_never_read() -> None:
@@ -316,11 +341,15 @@ def _pooled_line(oracle_id: str, h_f1: float, h_r2: float | None) -> dict[str, o
     ("change", "message"),
     [
         ({"H_pooled": 50.0}, "not the mean"),
+        ({"H_pooled": 41.0}, "2.5-point grid"),
+        ({"H_F1": 42.5, "H_R2": 52.5, "H_pooled": 47.5, "marken": []}, "5-point grid"),
+        ({"H_R2": 42.5, "H_pooled": 42.5, "marken": []}, "5-point grid"),
         ({"marken": []}, "abweichung_ge15"),
         ({"marken": ["abweichung_ge15", "abweichung_ge30"]}, "abweichung_ge30"),
         ({"n_bewertungen": 3}, "1 or 2"),
         ({"H_R2": 120.0}, "0..100"),
         ({"quelle_R2": ""}, "quelle_R2"),
+        ({"quelle_R2": "welle2:8"}, "welle2:8"),
         ({"extra": 1}, "unknown pooled fields"),
     ],
 )
@@ -336,6 +365,22 @@ def test_a_pooled_line_that_disagrees_with_its_raw_values_is_refused(
         card_understanding.parse_pooled_row(single | {"H_R2": 50.0})
     with pytest.raises(card_understanding.UnderstandingDataError, match="H_pooled = H_F1"):
         card_understanding.parse_pooled_row(single | {"H_pooled": 45.0})
+
+
+def test_load_pooled_rejects_retest_batch_and_off_grid_values_synthetically(tmp_path: Path) -> None:
+    """Synthetic guard independent of the committed file's digest pin: retest batch welle2:8 and
+    off-grid H values fail load_pooled."""
+    retest_file = tmp_path / "retest.jsonl"
+    retest_row = _pooled_line("o-R", 50, 60) | {"quelle_R2": "welle2:8"}
+    retest_file.write_text(json.dumps(retest_row) + "\n", encoding="utf-8")
+    with pytest.raises(card_understanding.UnderstandingDataError, match="welle2:8"):
+        card_understanding.load_pooled(retest_file)
+
+    off_grid_file = tmp_path / "off_grid.jsonl"
+    off_grid_row = _pooled_line("o-G", 42.5, 52.5)
+    off_grid_file.write_text(json.dumps(off_grid_row) + "\n", encoding="utf-8")
+    with pytest.raises(card_understanding.UnderstandingDataError, match="5-point grid"):
+        card_understanding.load_pooled(off_grid_file)
 
 
 def test_a_removed_pooled_file_changes_the_remembered_strength_answer(
@@ -459,7 +504,7 @@ console.log(JSON.stringify(out));
     assert "Mittel der zwei Bewertungen nicht verfügbar: Datei fehlt" in fb
     assert not result["fallback"]["mark"]
     for view in result.values():
-        assert min(_shown_spreads(view["text"])) >= 8
+        assert min(_shown_spreads(view["text"].split("Drift-Test:", 1)[0])) >= 8
 
 
 # ---------- the tier list cell and head line ----------
