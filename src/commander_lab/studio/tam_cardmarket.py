@@ -176,11 +176,15 @@ def http_get(url: str) -> bytes:
     if len(body) > MAX_BYTES:
         raise DownloadFailed(f"Datei zu groß: {url}")
     # a cut-off transfer is no copy to keep for 24 hours (no header: not checkable)
-    if declared is not None and (not declared.strip().isdigit() or int(declared) != len(body)):
-        raise DownloadFailed(
-            f"unvollständige Übertragung von {url}: {len(body)} Bytes statt "
-            f"Content-Length {declared.strip()!r}; Abruf gestoppt"
-        )
+    if declared is not None:
+        declared_clean = declared.strip()
+        if not (declared_clean.isascii() and declared_clean.isdecimal()) or int(
+            declared_clean
+        ) != len(body):
+            raise DownloadFailed(
+                f"unvollständige Übertragung von {url}: {len(body)} Bytes statt "
+                f"Content-Length {declared_clean!r}; Abruf gestoppt"
+            )
     return body
 
 

@@ -427,9 +427,10 @@ _FLAG = {
 _FROM_REPO_LAYERS = frozenset({"corpus", "observations", "playgroup"})
 
 
-# The layers the TAM Drive files fill, with the folder option of ``scripts/import_tam_drive.py``:
-# the decks (TAM_91, TAM_CHANDRA_381) and the EDHREC-78 views. ``import-all --decklists`` reads a
-# different deck-list format and cannot load them (#1404 WP-8).
+# The layers the TAM Drive files fill, with the folder options of ``scripts/import_tam_drive.py``
+# (run from the repo folder: ``--tam91-dir`` for TAM_91, ``--tam381-dir`` for TAM_CHANDRA_381, and
+# ``--edhrec78-dir`` for the EDHREC-78 views). ``import-all --decklists`` reads a different
+# deck-list format and cannot load them (#1404 WP-8).
 _TAM_DRIVE_FLAG = {
     "decklists": "--tam91-dir",
     "corpus": "--tam91-dir",
@@ -439,7 +440,8 @@ _TAM_DRIVE_FLAG = {
 
 def import_command(layer_key: str, commander: str) -> str:
     """The exact call that fills one layer (angle brackets: your path): ``import-all``, or for
-    the TAM Drive layers of Tam ``scripts/import_tam_drive.py``."""
+    the TAM Drive layers of Tam ``scripts/import_tam_drive.py`` (from the repo folder; supports
+    ``--tam91-dir``, ``--tam381-dir`` and ``--edhrec78-dir``)."""
     if commander == TAM_COMMANDER_NAME and layer_key in _TAM_DRIVE_FLAG:
         return f'python scripts/import_tam_drive.py {_TAM_DRIVE_FLAG[layer_key]} "<Ordner>"'
     if layer_key in _FROM_REPO_LAYERS:

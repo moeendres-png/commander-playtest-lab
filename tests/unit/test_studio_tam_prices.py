@@ -156,7 +156,23 @@ def test_future_dates_and_conflicting_dates_are_refused(tmp_path: Path) -> None:
     named = _bulk(tmp_path / "default-cards-20261120093012.json", SYNTHETIC)
     with pytest.raises(ValueError, match="conflict"):
         tam_prices.import_scryfall_prices(store, named, bulk_date="2026-11-19")
+    # #1747(b): exact future-window boundary (today + 1 day allowed, today + 2 days refused)
+    fixed_today = datetime(2026, 11, 20, tzinfo=UTC).date()
+    assert (
+        tam_prices._valid_date((fixed_today + timedelta(days=1)).isoformat(), today=fixed_today)
+        == "2026-11-21"
+    )
+    with pytest.raises(ValueError, match="future"):
+        tam_prices._valid_date((fixed_today + timedelta(days=2)).isoformat(), today=fixed_today)
+    utc_today = datetime.now(UTC).date()
+    tomorrow = (utc_today + timedelta(days=1)).isoformat()
+    day_after_tomorrow = (utc_today + timedelta(days=2)).isoformat()
+    with pytest.raises(ValueError, match="future"):
+        tam_prices.import_scryfall_prices(store, plain, bulk_date=day_after_tomorrow)
     assert _rows(store, "tam_price_snapshot") == 0
+    accepted = tam_prices.import_scryfall_prices(store, plain, bulk_date=tomorrow)
+    assert accepted["bulk_date"] == tomorrow
+    assert _rows(store, "tam_price_snapshot") == 1
     store.close()
 
 
@@ -641,6 +657,22 @@ def test_no_answer_holds_a_price_field_or_value(tmp_path: Path) -> None:
 
 
 _SWEEP_SKIP = ("/engine", "/games", "/play", "/img", "/table", "/outcomes", "/tam/")
+# GET routes that legitimately return non-200 in the sweep because their specific resource or
+# required extra query parameter is not seeded (never silently skipped: exact status checked).
+_SWEEP_EXPECTED_NON_200: dict[str, int] = {
+    "/api/cards/{card_id}/evidence": 404,
+    "/api/strength/snapshot": 404,
+    "/api/strength/profiles/{name:path}": 404,
+    "/api/universe/profiles/{name:path}/summary": 404,
+    "/api/universe/spread": 422,
+    "/api/cards/{card_id}/universe": 422,
+    "/api/cards/{card_id}/cooccurrence": 422,
+    "/api/simulations/batch/{batch_id}": 404,
+    "/api/simulations/paired-plan": 422,
+    "/api/simulations/paired/{series_id}": 404,
+    "/api/experiments/{experiment_id}": 422,
+    "/api/deck-browser/{item_id:path}": 404,
+}
 
 
 def test_every_route_that_answers_holds_no_price(tmp_path: Path) -> None:
@@ -655,6 +687,7 @@ def test_every_route_that_answers_holds_no_price(tmp_path: Path) -> None:
     app = create_app(tmp_path / "studio")
     client = TestClient(app, headers=HEADER)
     walkers = [f"scryfall:{oracle_id}" for oracle_id, _name in WALKERS]
+    walker_names = [name for _oracle_id, name in WALKERS]
     decks = {
         TAM_COMMANDER_NAME: (
             "card:leak:tam",
@@ -671,8 +704,13 @@ def test_every_route_that_answers_holds_no_price(tmp_path: Path) -> None:
     scanned: list[str] = []
     hits: list[tuple[str, str]] = []
 
-    def scan(label: str, response: httpx.Response) -> None:
-        if response.status_code != 200:
+    def scan(label: str, response: httpx.Response, *, expected_status: int = 200) -> None:
+        assert response.status_code == expected_status, (
+            label,
+            response.status_code,
+            response.text[:200],
+        )
+        if expected_status != 200:
             return
         scanned.append(label)
         low = response.text.casefold()
@@ -691,27 +729,33 @@ def test_every_route_that_answers_holds_no_price(tmp_path: Path) -> None:
             if any(part in path for part in _SWEEP_SKIP):
                 continue
             url = re.sub(r"\{(\w+)(?::\w+)?\}", lambda m, f=fill: f.get(m.group(1), "x"), path)
+            expected = _SWEEP_EXPECTED_NON_200.get(path, 200)
             for params in ({"commander": who}, {"commander": who, "include_unowned": True}):
-                scan(f"GET {path} {who} {len(params)}", client.get(url, params=params))
+                scan(
+                    f"GET {path} {who} {len(params)}",
+                    client.get(url, params=params),
+                    expected_status=expected,
+                )
         cards = [_entry(commander_id, "commander"), *[_entry(c) for c in [*walkers, "rem-low"]]]
         plan = {"commander": who, "cards": cards}
         for path, body in (
             ("/api/build-list", plan), ("/api/sample-hand", {"cards": cards}),
-            ("/api/tokens", {"cards": cards}), ("/api/diff", {"cards": cards, "commander": who}),
+            ("/api/tokens", {"cards": cards}),
+            ("/api/diff", {"cards": cards, "base_revision_id": revision}),
             ("/api/cut-lab", {"cards": cards}),
-            ("/api/cut-lab/what-if", {"cards": cards, "cut": ["rem-low"]}),
+            ("/api/cut-lab/what-if", {"cards": cards, "cut": "rem-low", "add": "rem-mid"}),
             ("/api/deck-doctor", plan), ("/api/upgrade-path", plan), ("/api/packages", plan),
             ("/api/build-plan", plan), ("/api/deck-evidence", plan), ("/api/land-advisor", plan),
             ("/api/castability", {"cards": cards}), ("/api/deck-facts", {"cards": cards}),
-            ("/api/check", {"cards": cards}), ("/api/public-cards", {"card_ids": walkers}),
+            ("/api/check", {"cards": cards}), ("/api/public-cards", {"names": walker_names}),
             ("/api/swap", {"commander": who, "deck_card_ids": [commander_id, *walkers, "rem-low"],
                            "card_id": walkers[0], "mode": "replace", "cohort": "all"}),
             ("/api/strength", {"commander": who}),
             ("/api/card-duel", {"commander": who, "card_a": walkers[0], "card_b": walkers[1]}),
-            (f"/api/cards/{walkers[0]}/alternatives", {"commander": [who], "in_deck": [commander_id]}),
+            ("/api/cards/rem-high/alternatives", {"commander": [who], "in_deck": [commander_id]}),
         ):  # fmt: skip
             scan(f"POST {path} {who}", client.post(path, json=body))
-    assert len(scanned) >= 150, len(scanned)
+    assert len(scanned) == 196, len(scanned)
     assert hits == []
 
 
