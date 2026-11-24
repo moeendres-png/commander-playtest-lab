@@ -40,9 +40,6 @@ from commander_lab.engine.rules.full_game_comparison import (
 )
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
 from commander_lab.models import RulesDeckInput
-from commander_lab.qualification.current_boundary.bridge_launcher import (
-    canonical_xmage_engine_pin,
-)
 
 from . import builder, decks, launch, paired_comparison, series_reservation, strength_view
 from .card_outcomes import pilot_identity, wilson_unrounded
@@ -73,7 +70,11 @@ from .series_record import (
     series_key_problem,
     series_violation,
 )
-from .simulations import build_validity_block, compute_seat_curve
+from .simulations import (
+    build_validity_block,
+    canonical_xmage_engine_pin,
+    compute_seat_curve,
+)
 from .store import StudioStore, now_utc
 from .strength import StrengthSettings
 
