@@ -2104,3 +2104,213 @@ def test_unclean_shutdown_played_game_is_never_counted_as_finished_or_exposure(
     assert table["played_cohort"]["games"] == 1
     assert table["played_cohort"]["games_finished"] == 0
     assert table["games_total"] == 0 and table["games_skipped"] == 1
+
+
+# --- S1 (#1660): fail-closed foreign log and DETERMINISM_VIOLATION exclusion ------------------
+
+
+def _write_series_manifest(
+    folder: Path, series_id: str, game_ids: list[str], *, key: str = "k" * 64
+) -> Path:
+    folder.mkdir(parents=True, exist_ok=True)
+    manifest = {
+        "schema": "studio-series-manifest-1",
+        "series_id": series_id,
+        "table_hash": None,
+        "table": None,
+        "game_key_schema": "studio-game-key-2",
+        "games": [{"task_id": gid, "game_id": gid, "game_key": key} for gid in game_ids],
+    }
+    path = folder / "manifest.json"
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+    return path
+
+
+def _write_journal_lines(folder: Path, entries: list[dict[str, object]]) -> Path:
+    path = folder / "journal.jsonl"
+    path.write_text("".join(json.dumps(e) + "\n" for e in entries), encoding="utf-8")
+    return path
+
+
+def test_load_exposures_series_dir_excludes_foreign_logs_and_counts_them(tmp_path: Path) -> None:
+    """When games_dir itself has a manifest.json, non-member logs (by filename or header game_id)
+    are excluded fail-closed and counted in skipped_foreign."""
+    _write_series_manifest(tmp_path, "s-dir", ["g-ok", "g-spoof"])
+    _write_log(tmp_path, "g-ok", _simple_frames(["Sol Ring"]))
+    _write_log(tmp_path, "g-foreign", _simple_frames(["Sol Ring"]))
+    # Filename matches manifest member, but header game_id is foreign
+    _write_log(
+        tmp_path,
+        "g-spoof",
+        _simple_frames(["Sol Ring"]),
+        header_extra={"game_id": "foreign-header-id"},
+    )
+    report = load_exposures(tmp_path)
+    assert [e["game_id"] for e in report["exposures"]] == ["g-ok"]
+    assert report["skipped_foreign"] == 2
+    assert report["skipped_determinism_violation"] == 0
+
+
+def test_load_exposures_series_dir_with_violation_or_corrupt_manifest_fails_closed(
+    tmp_path: Path,
+) -> None:
+    """A series directory with DETERMINISM_VIOLATION or corrupt manifest yields no exposures."""
+    key = "a" * 64
+    viol_dir = tmp_path / "violated"
+    _write_series_manifest(viol_dir, "s-viol", ["g1", "g2"], key=key)
+    _write_journal_lines(
+        viol_dir,
+        [
+            {
+                "game_id": "g1",
+                "game_key": key,
+                "status": "finished",
+                "semantic_transcript_sha256": "1" * 64,
+            },
+            {
+                "game_id": "g2",
+                "game_key": key,
+                "status": "finished",
+                "semantic_transcript_sha256": "2" * 64,
+            },
+        ],
+    )
+    _write_log(viol_dir, "g1", _simple_frames(["Sol Ring"]))
+    _write_log(viol_dir, "g2", _simple_frames(["Sol Ring"]))
+    _write_log(viol_dir, "g-stranger", _simple_frames(["Sol Ring"]))
+    report = load_exposures(viol_dir)
+    assert report["exposures"] == []
+    assert report["skipped_determinism_violation"] == 2
+    assert report["skipped_foreign"] == 1
+
+    corrupt_dir = tmp_path / "corrupt"
+    corrupt_dir.mkdir()
+    (corrupt_dir / "manifest.json").write_text("{broken json", encoding="utf-8")
+    _write_log(corrupt_dir, "c1", _simple_frames(["Sol Ring"]))
+    _write_log(corrupt_dir, "c2", _simple_frames(["Sol Ring"]))
+    corrupt_report = load_exposures(corrupt_dir)
+    assert corrupt_report["exposures"] == []
+    assert corrupt_report["skipped_determinism_violation"] == 2
+
+
+def test_load_exposures_excludes_violated_and_corrupt_journal_series_under_series_subdir(
+    tmp_path: Path,
+) -> None:
+    """In a games folder with series/, games of violated or corrupt-journal series are excluded
+    while clean series and standalone logs remain."""
+    key_ok = "b" * 64
+    key_bad = "c" * 64
+    _write_series_manifest(tmp_path / "series" / "s-good", "s-good", ["g-good"], key=key_ok)
+    _write_journal_lines(
+        tmp_path / "series" / "s-good",
+        [
+            {
+                "game_id": "g-good",
+                "game_key": key_ok,
+                "status": "finished",
+                "semantic_transcript_sha256": "9" * 64,
+            }
+        ],
+    )
+    _write_series_manifest(
+        tmp_path / "series" / "s-bad", "s-bad", ["g-bad-1", "g-bad-2"], key=key_bad
+    )
+    _write_journal_lines(
+        tmp_path / "series" / "s-bad",
+        [
+            {
+                "game_id": "g-bad-1",
+                "game_key": key_bad,
+                "status": "finished",
+                "semantic_transcript_sha256": "1" * 64,
+            },
+            {
+                "game_id": "g-bad-2",
+                "game_key": key_bad,
+                "status": "finished",
+                "semantic_transcript_sha256": "2" * 64,
+            },
+        ],
+    )
+    _write_series_manifest(tmp_path / "series" / "s-corrupt-j", "s-corrupt-j", ["g-cj"])
+    (tmp_path / "series" / "s-corrupt-j" / "journal.jsonl").write_text(
+        "{not json\n", encoding="utf-8"
+    )
+    for gid in ("g-good", "g-bad-1", "g-bad-2", "g-cj", "g-standalone"):
+        _write_log(tmp_path, gid, _simple_frames(["Sol Ring"]))
+    report = load_exposures(tmp_path)
+    assert sorted(e["game_id"] for e in report["exposures"]) == ["g-good", "g-standalone"]
+    assert report["skipped_determinism_violation"] == 3
+    assert report["skipped_foreign"] == 0
+
+
+def test_load_exposures_corrupt_manifest_in_series_subdir_fails_closed(tmp_path: Path) -> None:
+    """When any series/<id>/manifest.json is corrupt, its member game_ids are unknown, so all
+    logs in games_dir are excluded fail-closed."""
+    broken = tmp_path / "series" / "s-broken"
+    broken.mkdir(parents=True)
+    (broken / "manifest.json").write_text("{corrupt", encoding="utf-8")
+    _write_log(tmp_path, "g-any", _simple_frames(["Sol Ring"]))
+    report = load_exposures(tmp_path)
+    assert report["exposures"] == []
+    assert report["skipped_determinism_violation"] == 1
+
+
+def test_load_exposures_keeps_resumed_series_with_cutoff_journal_line(tmp_path: Path) -> None:
+    """P2-1 regression (#1660): a cancelled+resumed series whose journal has a cut-off line
+    followed by valid admitted entries (and no DETERMINISM_VIOLATION) stays valid; a completely
+    corrupt journal with zero admitted entries is still excluded fail-closed."""
+    from commander_lab.studio import series_record
+
+    key = "e" * 64
+    resumed_dir = tmp_path / "series" / "s-resumed"
+    _write_series_manifest(resumed_dir, "s-resumed", ["g-res-1"], key=key)
+    # Cut-off multi-byte line terminated by \n on resume, followed by valid admitted entry
+    valid_line = json.dumps(
+        {
+            "game_id": "g-res-1",
+            "game_key": key,
+            "status": "finished",
+            "semantic_transcript_sha256": "7" * 64,
+        }
+    ).encode("utf-8")
+    (resumed_dir / "journal.jsonl").write_bytes(
+        b'{"game_id":"g-res-1","msg":"\xc3\n' + valid_line + b"\n"
+    )
+    audit = series_record.audit_series_folder(resumed_dir)
+    assert audit.violated is False and audit.members == frozenset({"g-res-1"})
+
+    corrupt_dir = tmp_path / "series" / "s-corrupt"
+    _write_series_manifest(corrupt_dir, "s-corrupt", ["g-cor-1"], key=key)
+    (corrupt_dir / "journal.jsonl").write_text("not json\n", encoding="utf-8")
+    assert series_record.audit_series_folder(corrupt_dir).violated is True
+
+    _write_log(tmp_path, "g-res-1", _simple_frames(["Sol Ring"]))
+    _write_log(tmp_path, "g-cor-1", _simple_frames(["Sol Ring"]))
+    report = load_exposures(tmp_path)
+    assert [e["game_id"] for e in report["exposures"]] == ["g-res-1"]
+    assert report["skipped_determinism_violation"] == 1
+
+
+def test_load_exposures_journal_without_manifest_and_broken_series_symlink_fail_closed(
+    tmp_path: Path,
+) -> None:
+    """P2-2 & P3 regressions (#1660): journal.jsonl without manifest.json in games_dir itself,
+    and a broken symlink under games_dir/series/, both fail closed."""
+    no_manifest = tmp_path / "no_manifest"
+    no_manifest.mkdir()
+    (no_manifest / "journal.jsonl").write_text('{"game_id":"g1"}\n', encoding="utf-8")
+    _write_log(no_manifest, "g1", _simple_frames(["Sol Ring"]))
+    report = load_exposures(no_manifest)
+    assert report["exposures"] == []
+    assert report["skipped_determinism_violation"] == 1
+    assert report["skipped_unreadable"] == 0
+    assert report["skipped_foreign"] == 0
+
+    broken_link_dir = tmp_path / "broken_symlink"
+    (broken_link_dir / "series").mkdir(parents=True)
+    (broken_link_dir / "series" / "s-dangling").symlink_to(broken_link_dir / "does-not-exist")
+    _write_log(broken_link_dir, "g2", _simple_frames(["Sol Ring"]))
+    sym_report = load_exposures(broken_link_dir)
+    assert sym_report["exposures"] == []
+    assert sym_report["skipped_determinism_violation"] == 1

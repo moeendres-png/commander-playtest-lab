@@ -61,6 +61,7 @@ from typing import Literal, NamedTuple, NotRequired, TypedDict, cast
 
 from commander_lab.bridge_qualification import BRIDGE_AHEAD, BRIDGE_ALIGNED
 
+from . import series_record
 from .games import COHORT_PLAYED, COHORT_SIMULATED, COHORT_UNKNOWN, LOG_SCHEMA, game_cohort
 from .simulations import wilson_score_interval
 
@@ -262,6 +263,11 @@ class LoadReport(TypedDict):
     played_games: int
     cohort_unknown_with_deck: dict[str, int]
     cohort_unknown_games: int
+    # #1660 (S1): logs excluded fail-closed because a series manifest does not name them
+    # (foreign logs) or because their series has a DETERMINISM_VIOLATION or unreadable/corrupt
+    # manifest/journal.
+    skipped_foreign: int
+    skipped_determinism_violation: int
 
 
 class PlayedCohort(TypedDict):
@@ -706,17 +712,70 @@ def game_exposures(log_path: str | Path) -> GameExposure | None:
 def load_exposures(games_dir: str | Path) -> LoadReport:
     """Every usable game in a games folder, plus which logs were skipped and for which decks.
 
-    Reads the folder as it is: every log in it, whoever wrote it. The series journal and the pool
-    (``series_record``) count only games their manifest names, and ignore a foreign log; that rule
-    does not apply here, on purpose (decision of #1660, S1 Rest). This is the evaluation of a
-    folder of games (``compare_logs``, the card tables), not the record of one series: the games
-    of a series are in this folder too and a log of another origin in it is a game that was
-    played, with the deck ids and seeds its header names.
+    Fail-closed series filtering (S1, #1660):
+    - When ``games_dir`` itself contains a ``manifest.json`` (series directory), only logs whose
+      ``game_id`` is listed in the manifest are admitted; any other log is ignored and counted in
+      ``skipped_foreign``. If that manifest is corrupt/unreadable or its ``journal.jsonl`` shows a
+      ``DETERMINISM_VIOLATION`` (or is corrupt/unreadable), all games of the series are excluded
+      fail-closed and counted in ``skipped_determinism_violation``.
+    - When ``games_dir / "series"`` exists, every series subdirectory containing ``manifest.json``
+      or ``journal.jsonl`` is audited via :func:`series_record.audit_series_folder`. Member
+      ``game_id``s of any series with a ``DETERMINISM_VIOLATION`` or corrupt/unreadable journal
+      are excluded from ``exposures`` and counted in ``skipped_determinism_violation``. If any
+      series manifest itself is corrupt/unreadable (so its member ``game_id``s are unknown), all
+      logs in ``games_dir`` are excluded fail-closed in ``skipped_determinism_violation``.
     """
     folder = Path(games_dir)
+    allowed_members: frozenset[str] | None = None
+    excluded_game_ids: set[str] = set()
+    exclude_all = False
+    is_series_dir = False
+    if folder.is_dir():
+        manifest_entry = folder / "manifest.json"
+        journal_entry = folder / "journal.jsonl"
+        if (
+            manifest_entry.exists()
+            or manifest_entry.is_symlink()
+            or journal_entry.exists()
+            or journal_entry.is_symlink()
+        ):
+            is_series_dir = True
+            audit = series_record.audit_series_folder(folder)
+            if audit.violated:
+                if audit.members is None:
+                    exclude_all = True
+                else:
+                    allowed_members = audit.members
+                    excluded_game_ids.update(audit.members)
+            else:
+                allowed_members = audit.members
+        series_root = folder / "series"
+        if series_root.is_dir():
+            for child in sorted(series_root.iterdir()):
+                if child.is_symlink() and not child.is_dir():
+                    exclude_all = True
+                    continue
+                if not child.is_dir():
+                    continue
+                has_manifest = (child / "manifest.json").exists() or (
+                    child / "manifest.json"
+                ).is_symlink()
+                has_journal = (child / "journal.jsonl").exists() or (
+                    child / "journal.jsonl"
+                ).is_symlink()
+                if not has_manifest and not has_journal:
+                    continue
+                audit = series_record.audit_series_folder(child)
+                if audit.violated:
+                    if audit.members is None:
+                        exclude_all = True
+                    else:
+                        excluded_game_ids.update(audit.members)
     paths: dict[str, Path] = {}
     if folder.is_dir():
         for path in sorted(folder.iterdir()):
+            if is_series_dir and path.name == "journal.jsonl":
+                continue
             if path.name.endswith((".jsonl.gz", ".jsonl")):
                 key = path.name.split(".jsonl", 1)[0]
                 if key not in paths or path.suffix == ".gz":
@@ -727,8 +786,22 @@ def load_exposures(games_dir: str | Path) -> LoadReport:
     skipped_ids: list[str] = []
     seen_games: set[str] = set()
     duplicates = 0
+    skipped_foreign = 0
+    skipped_determinism_violation = 0
     ordered = sorted(paths.items())
-    cold = [path for _, path in ordered if path.suffix == ".gz" and not _is_cached(path)]
+    to_read: list[tuple[str, Path]] = []
+    for key, path in ordered:
+        if exclude_all:
+            skipped_determinism_violation += 1
+            continue
+        if allowed_members is not None and key not in allowed_members:
+            skipped_foreign += 1
+            continue
+        if key in excluded_game_ids:
+            skipped_determinism_violation += 1
+            continue
+        to_read.append((key, path))
+    cold = [path for _, path in to_read if path.suffix == ".gz" and not _is_cached(path)]
     warmed: dict[Path, Read] = {}
     pool_fallback = False
     if len(cold) >= PARALLEL_MIN_LOGS:
@@ -744,8 +817,20 @@ def load_exposures(games_dir: str | Path) -> LoadReport:
     # game id -> (deck ids, ended) per cohort counted apart; one game under several file names
     # counts once, as an ended game when any of its logs ended (#1662).
     apart: dict[str, dict[str, tuple[set[str], bool]]] = {COHORT_PLAYED: {}, COHORT_UNKNOWN: {}}
-    for key, path in ordered:
+    for key, path in to_read:
         exposure, deck_ids, cohort, ident = warmed[path] if path in warmed else _read(path)
+        header_gid = (
+            exposure["game_id"]
+            if exposure is not None
+            else (ident[0] if ident is not None else None)
+        )
+        if header_gid is not None:
+            if allowed_members is not None and header_gid not in allowed_members:
+                skipped_foreign += 1
+                continue
+            if header_gid in excluded_game_ids:
+                skipped_determinism_violation += 1
+                continue
         # A game with a human seat, or of unreadable cohort, is counted apart and never as a
         # simulated game, a skipped game or an unreadable one (#1662). A log without a readable
         # header names no deck and stays an unreadable skipped log as before.
@@ -780,6 +865,8 @@ def load_exposures(games_dir: str | Path) -> LoadReport:
         "played_games": len(apart[COHORT_PLAYED]),
         "cohort_unknown_with_deck": _per_deck(apart[COHORT_UNKNOWN].values()),
         "cohort_unknown_games": len(apart[COHORT_UNKNOWN]),
+        "skipped_foreign": skipped_foreign,
+        "skipped_determinism_violation": skipped_determinism_violation,
     }
 
 

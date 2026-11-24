@@ -15,6 +15,7 @@ Hard invariants:
 from __future__ import annotations
 
 import contextlib
+import copy
 import hashlib
 import json
 import math
@@ -844,10 +845,19 @@ class PairedSeriesJob:
         created_at: str | None = None,
         preloaded_games: dict[tuple[str, int, int], paired_comparison.PlayedGame] | None = None,
         experiment: Mapping[str, object] | None = None,
+        table: Mapping[str, object] | None = None,
+        table_hash: str | None = None,
     ) -> None:
         self.series_id = series_id
         #: The experiment this series plays (B2, #1658): id, plan SHA and table hash.
         self.experiment = dict(experiment) if experiment is not None else None
+        #: Optional canonical table spec and its hash (S1, #1660), forwarded to pool tasks/manifest.
+        self.table: dict[str, object] | None = (
+            copy.deepcopy(dict(table)) if table is not None else None
+        )
+        self.table_hash: str | None = (
+            str(table_hash).strip() or None if table_hash is not None else None
+        )
         self.data_folder = data_folder
         self.base_ref = base_ref
         self.variant_ref = variant_ref
@@ -1073,6 +1083,8 @@ class PairedSeriesJob:
                 "bridge_qualification": self.bridge_qualification,
                 "covered_by_sealed_epoch": covered,
                 "experiment": self.experiment,
+                "table": self.table,
+                "table_hash": self.table_hash,
                 "result": res,
             }
 
@@ -1120,6 +1132,8 @@ class PairedSeriesJob:
                 preloaded=self.preloaded_games,
                 on_game_result=self._append_game_result,
                 on_game_played=self.mark_game_played,
+                table=self.table,
+                table_hash=self.table_hash,
             )
 
             final_status = "failed"
@@ -1254,6 +1268,8 @@ class PairedSeriesManager:
         allow_unreleased_seats: bool = False,
         experiment: Mapping[str, object] | None = None,
         table_size: int | None = None,
+        table: Mapping[str, object] | None = None,
+        table_hash: str | None = None,
     ) -> PairedSeriesJob:
         """Start a paired series. ``table_size`` (seats, 2 to 6) sizes a pod preset's table:
         the preset's first ``table_size - 1`` opponents sit down, and the series records them
@@ -1428,6 +1444,8 @@ class PairedSeriesManager:
                 player_count=table_size,
                 opponent_ids=opponent_ids,
                 experiment=experiment,
+                table=table,
+                table_hash=table_hash,
             )
             job.reserved_in = claims
             job.persist()
@@ -1828,6 +1846,16 @@ class PairedSeriesManager:
                 created_at=str(raw.get("created_at")) if raw.get("created_at") else None,
                 preloaded_games=preloaded,
                 experiment=raw_exp if isinstance(raw_exp := raw.get("experiment"), dict) else None,
+                table=(
+                    copy.deepcopy(raw_tbl)
+                    if isinstance(raw_tbl := raw.get("table"), dict)
+                    else None
+                ),
+                table_hash=(
+                    raw_th.strip() or None
+                    if isinstance(raw_th := raw.get("table_hash"), str)
+                    else None
+                ),
             )
             job.persist()
             job._write_lock()

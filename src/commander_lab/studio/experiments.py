@@ -431,6 +431,8 @@ def start_experiment(
                     "plan_sha": sha,
                     "table_hash": resolved["table_hash"],
                 },
+                table=resolved["table"],
+                table_hash=resolved["table_hash"],
             )
         )
     except Exception:
