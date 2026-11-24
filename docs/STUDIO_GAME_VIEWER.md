@@ -90,18 +90,20 @@ Studio unterbrochen" instead of retrying silently.
 
 ## Fast start and skipped AI passes in PLAY
 
-A game started with "Neue Partie" (and an interactive game from the CLI) starts the bridge with the
-same fast options as a series (`launch.fast_bridge_command`): serial GC, the AppCDS archive
-`<jar>.jsa` only if it exists next to the jar (`python -m commander_lab.studio build-appcds --jar <jar>`;
-`doctor` reports `appcds_archive`), and `-Dcommanderlab.fullGame.skipForcedDecisions=true`. A collector
-named in the environment command stays; the pass skipping is switched off with
-`-Dcommanderlab.fullGame.skipForcedDecisions=false` in that command.
+A game started with "Neue Partie" (`POST /api/games`, `InteractivePlayManager.start_game`) starts
+the bridge with the same fast options as a series (`launch.fast_bridge_command`): serial GC, the
+AppCDS archive `<jar>.jsa` only if it exists next to the jar
+(`python -m commander_lab.studio build-appcds --jar <jar>`; `doctor` reports `appcds_archive`), and
+`-Dcommanderlab.fullGame.skipForcedDecisions=true`. A collector named in the environment command
+stays; the pass skipping is switched off with `-Dcommanderlab.fullGame.skipForcedDecisions=false` in
+that command. Single-game CLI `play` (`play_recorded_game`) stays on the plain engine command.
 
 What the skipping does and does not do (`XmageFullGameDecisionController.shouldSkipForced`): the
 engine answers a forced priority pass of an AI seat itself, without a round trip to Python and
 without the AI pause. A human seat is never skipped, so the human gets every decision of their
-own. The skipped passes are not frames of the game log: the closing entry counts them in
-`forced_decisions_skipped` (`None` when unknown, never 0), and for each game
+own. The skipped passes are not frames of the game log: the live snapshot reports them in
+`forced_passes_answered_by_engine` (`None` when unknown, never 0), the closing entry records them in
+`forced_decisions_skipped` (integer, 0 when none or absent), and for each finished game
 `frames + forced_decisions_skipped = decision_count`. For the Owner acceptance
 (`docs/STUDIO_ABNAHME_PROTOKOLL.md`): AK-3 (classes of the human's answers) and AK-6 (decisions of
 the human per game) count the human's decisions and are not affected; a replay shows no frame for a

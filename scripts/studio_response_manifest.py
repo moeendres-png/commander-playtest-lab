@@ -885,7 +885,9 @@ def run_click_timing(
     before = template_fingerprint(context.template)
     started = time.perf_counter()
     warm: dict[str, float] = {}
+    baseline_ok: dict[str, bool] = {}
     after: dict[str, list[float]] = {key: [] for key in CLICK_ROUTES}
+    probe_ok: dict[str, list[bool]] = {key: [] for key in CLICK_ROUTES}
     same: dict[str, list[bool]] = {key: [] for key in CLICK_ROUTES}
     writes: list[dict[str, object]] = []
     try:
@@ -908,7 +910,8 @@ def run_click_timing(
                 call(server.base, request)
             baseline: dict[str, str] = {}
             for key, probe in probes.items():
-                _status, body, ms = call(server.base, probe)
+                warm_status, body, ms = call(server.base, probe)
+                baseline_ok[key] = warm_status == 200
                 baseline[key] = hashlib.sha256(body).hexdigest()
                 warm[key] = round(ms, 1)
             database = data / DATABASE
@@ -920,13 +923,19 @@ def run_click_timing(
                     "PUT", f"/api/cards/{_q(cards[index])}/favorite", {"favorite": index % 2 == 0}
                 )
                 status, _body, _ms = call(server.base, click)
-                moved = _change_counter(database) != counter
+                after_counter = _change_counter(database)
+                moved = (
+                    counter is not None and after_counter is not None and after_counter != counter
+                )
                 writes.append({"key": click.key, "status": status, "write_effective": moved})
                 for key, probe in probes.items():
                     probe_status, body, ms = call(server.base, probe)
                     after[key].append(round(ms, 1))
+                    probe_ok[key].append(probe_status == 200)
                     same[key].append(
-                        probe_status == 200 and hashlib.sha256(body).hexdigest() == baseline[key]
+                        baseline_ok[key]
+                        and probe_status == 200
+                        and hashlib.sha256(body).hexdigest() == baseline[key]
                     )
                     print(f"click {index + 1}/{clicks} {key}: {ms:.0f} ms", flush=True)
             server.check_store()
@@ -940,6 +949,7 @@ def run_click_timing(
             "after_click_ms": after[key],
             "n": len(after[key]),
             "median_ms": round(statistics.median(after[key]), 1),
+            "all_200": baseline_ok[key] and all(probe_ok[key]),
             "answer_bytes_unchanged": all(same[key]),
         }
         for key in CLICK_ROUTES
@@ -954,7 +964,10 @@ def run_click_timing(
             "clicks": clicks,
         },
         "inputs": inputs.record(),
-        "ok": all(w["status"] == 200 and w["write_effective"] for w in writes),
+        "ok": (
+            all(w["status"] == 200 and w["write_effective"] for w in writes)
+            and all(bool(row["all_200"]) for row in routes.values())
+        ),
         "writes": writes,
         "routes": routes,
     }
