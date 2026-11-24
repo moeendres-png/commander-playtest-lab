@@ -1090,6 +1090,14 @@ class PairedSeriesJob:
 
     def run(self) -> None:
         try:
+            withdraw_block = _experiment_withdraw_block(self.data_folder, self.experiment)
+            if withdraw_block is not None:
+                with self._lock:
+                    self.status = "cancelled"
+                    self.error = withdraw_block
+                    self.ended_at = now_utc()
+                self.persist()
+                return
             self._write_lock()
             self._ensure_progress_newline()
             with self._lock:
@@ -1203,6 +1211,24 @@ class PairedSeriesJob:
 
 
 PAIRED_ID_ATTEMPTS = 1000
+_EXPERIMENT_ID_RE = re.compile(r"^exp-[A-Za-z0-9_-]{1,90}$")
+
+
+def _experiment_withdraw_block(target_folder: Path | None, experiment: object) -> str | None:
+    """Fail-closed check whether an experiment-linked series was withdrawn (Owner 5a, #1658)."""
+    if experiment is None:
+        return None
+    if not isinstance(experiment, dict):
+        return "ungültige Experiment-Verknüpfung (nicht fortsetzbar)"
+    exp_id = experiment.get("experiment_id")
+    if not isinstance(exp_id, str) or not _EXPERIMENT_ID_RE.fullmatch(exp_id):
+        return "ungültige Experiment-ID (nicht fortsetzbar)"
+    if target_folder is None:
+        return "Datenordner fehlt für Experiment-Prüfung (nicht fortsetzbar)"
+    withdraw_path = games_folder(target_folder) / "experiments" / exp_id / "withdraw.json"
+    if withdraw_path.exists() or withdraw_path.is_symlink():
+        return f"Experiment {exp_id} wurde zurückgezogen (nicht fortsetzbar)"
+    return None
 
 
 def _paired_id_in_use(claims: Path, series_id: str) -> bool:
@@ -1532,6 +1558,10 @@ class PairedSeriesManager:
             or DETERMINISM_VIOLATION in err
         ):
             return False
+        if raw.get("experiment") is not None and (
+            _experiment_withdraw_block(target_folder, raw.get("experiment")) is not None
+        ):
+            return False
         if target_folder is not None and isinstance(raw.get("series_id"), str):
             sid = str(raw["series_id"])
             try:
@@ -1644,6 +1674,9 @@ class PairedSeriesManager:
             if key_problem is not None:
                 # an older key version is no violation and never mixed with new games
                 raise ValueError(f"{key_problem} (nicht fortsetzbar)")
+            withdraw_block = _experiment_withdraw_block(target_folder, raw.get("experiment"))
+            if withdraw_block is not None:
+                raise ValueError(withdraw_block)
 
             base_files = sorted(deck_dir.glob("base-*.json"))
             variant_files = sorted(deck_dir.glob("variant-*.json"))

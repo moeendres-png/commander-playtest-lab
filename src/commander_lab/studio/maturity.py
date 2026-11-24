@@ -421,6 +421,8 @@ def assess(
         exp = finding.entry.get("experiment")
         if not isinstance(exp, dict) or exp.get("purpose") != "confirmation":
             continue
+        if exp.get("status") == "withdrawn":
+            continue
         if not exp.get("table_hash"):
             continue
         key = (str(finding.entry.get("base_ref")), str(exp.get("table_hash")))
@@ -453,7 +455,9 @@ def assess(
     used = list(explorations)
     for finding in findings:
         exp = finding.entry.get("experiment")
-        if isinstance(exp, dict) and exp.get("purpose") == "confirmation":
+        if isinstance(exp, dict) and (
+            exp.get("purpose") == "confirmation" or exp.get("status") == "withdrawn"
+        ):
             continue
         used.extend((seed, seed) for seed in _played_seeds(finding))
     out: dict[str, object] = {}
@@ -751,7 +755,8 @@ def _explorations(db: sqlite3.Connection, deck_id: str) -> list[tuple[int, int]]
         (int(r[0]), int(r[1]))
         for r in db.execute(
             "SELECT first_seed, last_seed FROM experiment WHERE deck_id = ? AND purpose = "
-            "'exploration' AND first_seed IS NOT NULL AND last_seed IS NOT NULL",
+            "'exploration' AND COALESCE(status, 'active') != 'withdrawn' "
+            "AND first_seed IS NOT NULL AND last_seed IS NOT NULL",
             (deck_id,),
         )
     ]

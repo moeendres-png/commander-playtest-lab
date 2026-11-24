@@ -708,9 +708,22 @@ function renderPairedComparisonSection(body, deps) {
   const tok = deps.token();
   loadPairedOptions(deps).then((opts) => {
     if (!deps.isCurrent(tok) || !opts.length) return;
-    const defaultVar = (curRev && opts.some((o) => o.ref === curRev)) ? curRev : opts[0].ref;
-    const defaultBase = (opts.find((o) => o.ref.startsWith("repo:")) || opts.find((o) => o.ref !== defaultVar) || opts[0]).ref;
-    baseSelect.replaceChildren(...opts.map((o) => h("option", { value: o.ref, selected: o.ref === defaultBase }, o.label)));
-    varSelect.replaceChildren(...opts.map((o) => h("option", { value: o.ref, selected: o.ref === defaultVar }, o.label)));
+    const preset = deps.pairedPreset ? deps.pairedPreset() : null;
+    if (preset && deps.clearPairedPreset) deps.clearPairedPreset();
+    const list = opts.slice();
+    if (preset && preset.baseRef && !list.some((o) => o.ref === preset.baseRef)) {
+      list.push({ ref: preset.baseRef, label: `Stand ${preset.baseRef.slice(0, 20)}` });
+    }
+    if (preset && preset.variantRef && !list.some((o) => o.ref === preset.variantRef)) {
+      list.push({ ref: preset.variantRef, label: `Stand ${preset.variantRef.slice(0, 20)}` });
+    }
+    const defaultVar = (preset && preset.variantRef && list.some((o) => o.ref === preset.variantRef))
+      ? preset.variantRef
+      : ((curRev && list.some((o) => o.ref === curRev)) ? curRev : list[0].ref);
+    const defaultBase = (preset && preset.baseRef && list.some((o) => o.ref === preset.baseRef))
+      ? preset.baseRef
+      : (list.find((o) => o.ref.startsWith("repo:")) || list.find((o) => o.ref !== defaultVar) || list[0]).ref;
+    baseSelect.replaceChildren(...list.map((o) => h("option", { value: o.ref, selected: o.ref === defaultBase }, o.label)));
+    varSelect.replaceChildren(...list.map((o) => h("option", { value: o.ref, selected: o.ref === defaultVar }, o.label)));
   }).catch(() => {});
 }

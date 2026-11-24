@@ -427,6 +427,12 @@ class DecisionBody(BaseModel):
     note: str = Field(default="", max_length=1000)
 
 
+class WithdrawBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    note: str = Field(default="", max_length=1000)
+
+
 class ReadinessAuditBody(BaseModel):
     commander: str | list[str]
     cards: list[CardEntry] | None = None
@@ -1572,6 +1578,26 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         except experiments.DecisionRefused as error:
+            raise HTTPException(409, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/experiments/{experiment_id}/withdraw")
+    def withdraw_experiment(
+        experiment_id: str, body: WithdrawBody | None = None
+    ) -> dict[str, object]:
+        """Withdraw an unplayed experiment plan (Owner 5a, #1658): releases seeds and
+        excludes it from Holm families while keeping the plan visible in the history."""
+        store = open_store()
+        try:
+            note = "" if body is None else body.note
+            with cache.write(store, _EXPERIMENTS):
+                return experiments.withdraw_experiment(store, games_home(), experiment_id, note)
+        except KeyError as error:
+            raise HTTPException(404, "unknown experiment") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except experiments.WithdrawRefused as error:
             raise HTTPException(409, str(error)) from error
         finally:
             store.close()

@@ -30,7 +30,7 @@ from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Final, Literal, cast
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from . import paired_comparison, paired_series
 from .deck_series import (
@@ -40,6 +40,8 @@ from .deck_series import (
     experiments_folder,
     plan_sha,
     read_series_file,
+    row_status,
+    withdraw_blocked_reasons,
 )
 from .games import games_folder
 from .launch import _precons, engine_state
@@ -51,6 +53,7 @@ from .table_spec import TableSpec, table_hash
 SCHEMA_PLAN: Final = "studio-experiment-plan-1"
 SCHEMA_RECORD = "studio-experiment-record-1"
 SCHEMA_DECISION = "studio-experiment-decision-1"
+SCHEMA_WITHDRAW: Final = "studio-experiment-withdraw-1"
 DATA_CLASS = "SIMULATED_RESULT"
 LEGACY_QUESTION = "Alt-Serie ohne Plan (vor #1658)"
 MAX_FILE_BYTES = 2_000_000
@@ -89,6 +92,17 @@ class ExperimentPlan(BaseModel):
     first_seed: int = Field(ge=0, le=2_000_000_000)
     stop_rule: Literal["obf_looks"] = "obf_looks"
 
+    @model_validator(mode="after")
+    def _check_variants(self) -> ExperimentPlan:
+        seen: set[str] = set()
+        for arm in self.variants:
+            if arm.revision_id in seen:
+                raise ValueError(f"Variante {arm.revision_id!r} darf nicht doppelt vorkommen")
+            seen.add(arm.revision_id)
+            if arm.revision_id == self.base.revision_id:
+                raise ValueError("Basis und Variante müssen zwei verschiedene Stände sein")
+        return self
+
 
 class SeedOverlap(ValueError):
     """A confirmation would run on seeds an exploration of the same deck already used."""
@@ -96,6 +110,10 @@ class SeedOverlap(ValueError):
 
 class DecisionRefused(RuntimeError):
     """The decision cannot be recorded (already decided, legacy series, foreign deck)."""
+
+
+class WithdrawRefused(RuntimeError):
+    """The experiment plan cannot be withdrawn (already played, running, decided, or family active)."""
 
 
 def validate_experiment_id(experiment_id: str) -> str:
@@ -147,21 +165,31 @@ def resolve_plan(store: StudioStore, plan: ExperimentPlan) -> dict[str, object]:
     """The resolved plan: arms with deck hashes, the table with hashes and pilot fingerprint,
     seeds and tested seats, ``table_hash``; deterministic for the same plan and store."""
     plan.table.ensure_runnable()
-    if len(plan.variants) != 1:
-        raise ValueError(
-            "mehrere Varianten in einem Experiment sind modelliert, aber noch nicht umgesetzt "
-            "(heute genau eine Variante je Serie)"
-        )
     arms: list[dict[str, object]] = []
-    for role, ref in (("base", plan.base), ("variant", plan.variants[0])):
+    base_found = _revision_deck(store, plan.base.revision_id)
+    if base_found is None:
+        raise KeyError(plan.base.revision_id)
+    if base_found[0] != plan.deck_id:
+        raise ValueError(f"{plan.base.revision_id} ist kein Stand des Decks {plan.deck_id}")
+    arms.append({"role": "base", "revision_id": plan.base.revision_id, "deck_hash": base_found[1]})
+    seen_variants: set[str] = set()
+    for ref in plan.variants:
+        if ref.revision_id in seen_variants:
+            raise ValueError(f"Variante {ref.revision_id!r} darf nicht doppelt vorkommen")
+        seen_variants.add(ref.revision_id)
+        if ref.revision_id == plan.base.revision_id:
+            raise ValueError("Basis und Variante müssen zwei verschiedene Stände sein")
         found = _revision_deck(store, ref.revision_id)
         if found is None:
             raise KeyError(ref.revision_id)
         if found[0] != plan.deck_id:
             raise ValueError(f"{ref.revision_id} ist kein Stand des Decks {plan.deck_id}")
-        arms.append({"role": role, "revision_id": ref.revision_id, "deck_hash": found[1]})
-    if arms[0]["revision_id"] == arms[1]["revision_id"]:
-        raise ValueError("Basis und Variante müssen zwei verschiedene Stände sein")
+        arms.append({"role": "variant", "revision_id": ref.revision_id, "deck_hash": found[1]})
+    if len(plan.variants) != 1:
+        raise ValueError(
+            "mehrere Varianten in einem Experiment sind modelliert, aber noch nicht umgesetzt "
+            "(heute genau eine Variante je Serie)"
+        )
     tested = plan.table.tested_seats()
     count = -(-plan.budget_pairs // len(tested))
     table = {
@@ -196,7 +224,8 @@ def check_seed_register(
         return
     row = store.connection.execute(
         "SELECT experiment_id, first_seed, last_seed FROM experiment WHERE deck_id = ? "
-        "AND purpose = 'exploration' AND first_seed IS NOT NULL AND last_seed IS NOT NULL "
+        "AND purpose = 'exploration' AND COALESCE(status, 'active') != 'withdrawn' "
+        "AND first_seed IS NOT NULL AND last_seed IS NOT NULL "
         "AND first_seed <= ? AND last_seed >= ? ORDER BY first_seed LIMIT 1",
         (deck_id, last, first),
     ).fetchone()
@@ -215,12 +244,12 @@ def _insert(
     db.execute(
         "INSERT INTO experiment(experiment_id, deck_id, question, question_kind, purpose, "
         "base_revision_id, plan_sha, table_hash, first_seed, last_seed, series_id, engine_pin, "
-        "bridge_jar_sha256, bridge_state, pilot_fingerprint, decision, decision_at, "
+        "bridge_jar_sha256, bridge_state, pilot_fingerprint, decision, status, decision_at, "
         "decision_note, decision_tested, decision_previous_revision_id, created_at) "
         "VALUES (:experiment_id, :deck_id, "
         ":question, :question_kind, :purpose, :base_revision_id, :plan_sha, :table_hash, "
         ":first_seed, :last_seed, :series_id, :engine_pin, :bridge_jar_sha256, :bridge_state, "
-        ":pilot_fingerprint, :decision, :decision_at, :decision_note, :decision_tested, "
+        ":pilot_fingerprint, :decision, :status, :decision_at, :decision_note, :decision_tested, "
         ":decision_previous_revision_id, "
         ":created_at)",
         {
@@ -233,6 +262,7 @@ def _insert(
             "bridge_state": None,
             "pilot_fingerprint": None,
             "decision": "open",
+            "status": "active",
             "decision_at": None,
             "decision_note": None,
             "decision_tested": None,
@@ -417,12 +447,23 @@ def start_experiment(
                 )
         shutil.rmtree(folder, ignore_errors=True)
         raise
-    _write_json(folder / "run.json", {"experiment_id": experiment_id, "series_id": job.series_id})
     with store.connection:
-        store.connection.execute(
-            "UPDATE experiment SET series_id = ?, bridge_jar_sha256 = ? WHERE experiment_id = ?",
+        updated = store.connection.execute(
+            "UPDATE experiment SET series_id = ?, bridge_jar_sha256 = ? "
+            "WHERE experiment_id = ? AND COALESCE(status, 'active') = 'active'",
             (job.series_id, job.bridge_jar_sha256, experiment_id),
-        )
+        ).rowcount
+        if updated != 1:
+            with contextlib.suppress(Exception):
+                paired_series.paired_series_manager.cancel_series(job.series_id)
+            if hasattr(job, "cancel") and callable(job.cancel):
+                with contextlib.suppress(Exception):
+                    job.cancel()
+            raise WithdrawRefused(
+                f"Experiment {experiment_id} wurde während des Starts zurückgezogen oder geändert; "
+                "Serie wurde abgebrochen"
+            )
+    _write_json(folder / "run.json", {"experiment_id": experiment_id, "series_id": job.series_id})
     return {
         "experiment_id": experiment_id,
         "plan_sha": sha,
@@ -453,6 +494,8 @@ def decide(
         raise KeyError(experiment_id)
     if row["plan_sha"] is None:
         raise DecisionRefused("eine Alt-Serie ohne Plan kann nicht übernommen werden")
+    if row_status(row) == "withdrawn":
+        raise DecisionRefused("ein zurückgezogener Plan kann nicht entschieden werden")
     if row["decision"] != "open":
         raise DecisionRefused(f"Experiment ist bereits entschieden ({row['decision']})")
     if row["variant_revision_id"] is None:
@@ -468,7 +511,7 @@ def decide(
             f"main steht nicht mehr auf der Basis des Experiments ({row['base_revision_id']}), "
             f"sondern auf {previous}; nichts wurde überschrieben"
         )
-    entry = entry_for_experiment(data_folder, row)
+    entry = entry_for_experiment(data_folder, row, store=store)
     tested = bool(entry["counts_as_result"])
     decided_at = now_utc()
     payload: dict[str, object] = {
@@ -487,7 +530,8 @@ def decide(
         changed = db.execute(
             "UPDATE experiment SET decision = ?, decision_at = ?, decision_note = ?, "
             "decision_tested = ?, decision_previous_revision_id = ? "
-            "WHERE experiment_id = ? AND decision = 'open'",
+            "WHERE experiment_id = ? AND decision = 'open' "
+            "AND COALESCE(status, 'active') = 'active'",
             (
                 decision,
                 decided_at,
@@ -573,6 +617,48 @@ def undo_decision(
                     "main steht nicht mehr auf der übernommenen Variante; nichts zurückgesetzt"
                 )
         _write_json(folder / "decision.json", payload)
+    return payload
+
+
+def withdraw_experiment(
+    store: StudioStore,
+    data_folder: str | Path,
+    experiment_id: str,
+    note: str = "",
+) -> dict[str, object]:
+    """Withdraw an unplayed experiment plan (Owner 5a, #1658), strictly fail-closed.
+
+    Writes ``withdraw.json`` atomically alongside ``plan.json`` and sets ``status='withdrawn'``
+    conditionally so seeds are released and the plan is excluded from Holm families while
+    remaining visible in the history. The caller declares the write (``cache.write``)."""
+    validate_experiment_id(experiment_id)
+    db = store.connection
+    row = db.execute(f"{EXPERIMENT_SELECT} WHERE e.experiment_id = ?", (experiment_id,)).fetchone()
+    if row is None:
+        raise KeyError(experiment_id)
+    reasons = withdraw_blocked_reasons(store, data_folder, row)
+    if reasons:
+        raise WithdrawRefused("; ".join(reasons))
+    withdrawn_at = now_utc()
+    payload: dict[str, object] = {
+        "schema": SCHEMA_WITHDRAW,
+        "experiment_id": experiment_id,
+        "plan_sha": str(row["plan_sha"]),
+        "status": "withdrawn",
+        "withdrawn_at": withdrawn_at,
+        "note": note,
+    }
+    folder = experiments_folder(data_folder) / experiment_id
+    with db:
+        changed = db.execute(
+            "UPDATE experiment SET status = 'withdrawn' "
+            "WHERE experiment_id = ? AND decision = 'open' "
+            "AND COALESCE(status, 'active') = 'active'",
+            (experiment_id,),
+        ).rowcount
+        if changed != 1:
+            raise WithdrawRefused("Experiment wurde inzwischen geändert; nichts zurückgezogen")
+        _write_json(folder / "withdraw.json", payload)
     return payload
 
 
@@ -665,6 +751,15 @@ def _rebuild(store: StudioStore, data_folder: str | Path) -> dict[str, int]:
             row["decision_note"] = decision.get("note")
             row["decision_tested"] = int(bool(decision.get("tested")))
             row["decision_previous_revision_id"] = decision.get("previous_revision_id")
+        withdraw = _read_json(plan_file.parent / "withdraw.json") or {}
+        if (
+            withdraw.get("schema") == SCHEMA_WITHDRAW
+            and withdraw.get("status") == "withdrawn"
+            and withdraw.get("experiment_id") == row["experiment_id"]
+            and withdraw.get("plan_sha") == row["plan_sha"]
+            and row.get("decision", "open") == "open"
+        ):
+            row["status"] = "withdrawn"
         rows.append((row, arms))
         counts["experiments"] += 1
     games = games_folder(data_path)

@@ -166,10 +166,50 @@ def test_table_spec_checks_seats_opponents_and_modes(monkeypatch: pytest.MonkeyP
         TableSpec(seats=3, opponents=[opp[0], opp[0]])
     with pytest.raises(ValidationError):
         TableSpec.model_validate({"seats": 4, "opponents": opp, "seed_step": 4})
-    for mode in ("rotation", "draw"):
-        modelled = TableSpec(seats=4, opponents=opp, opponent_mode=mode)
+    rotation_spec = TableSpec(seats=4, opponent_mode="rotation", opponent_tables=[opp])
+    draw_spec = TableSpec(seats=4, opponent_mode="draw", draw_pool=opp, draw_seed=7)
+    for modelled in (rotation_spec, draw_spec):
         with pytest.raises(ValueError, match="noch nicht umgesetzt"):
             modelled.ensure_runnable()
+    # fixed refuses conflicting fields of other modes
+    with pytest.raises(ValidationError, match="erlaubt keine Angaben"):
+        TableSpec(seats=4, opponents=opp, opponent_tables=[opp])
+    with pytest.raises(ValidationError, match="erlaubt keine Angaben"):
+        TableSpec(seats=4, opponents=opp, draw_pool=opp)
+    with pytest.raises(ValidationError, match="erlaubt keine Angaben"):
+        TableSpec(seats=4, opponents=opp, draw_seed=1)
+    # rotation validations
+    with pytest.raises(ValidationError, match="erlaubt keine Angaben"):
+        TableSpec(seats=4, opponent_mode="rotation", opponents=opp, opponent_tables=[opp])
+    with pytest.raises(ValidationError, match="erlaubt keine Angaben"):
+        TableSpec(seats=4, opponent_mode="rotation", opponent_tables=[opp], draw_pool=opp)
+    with pytest.raises(ValidationError, match="erlaubt keine Angaben"):
+        TableSpec(seats=4, opponent_mode="rotation", opponent_tables=[opp], draw_seed=1)
+    with pytest.raises(ValidationError, match="mindestens einen Tisch"):
+        TableSpec(seats=4, opponent_mode="rotation", opponent_tables=[])
+    with pytest.raises(ValidationError, match="braucht 3 Gegner"):
+        TableSpec(seats=4, opponent_mode="rotation", opponent_tables=[opp[:2]])
+    with pytest.raises(ValidationError, match="leere Gegner-Kennung"):
+        TableSpec(seats=4, opponent_mode="rotation", opponent_tables=[[opp[0], " ", opp[2]]])
+    with pytest.raises(ValidationError, match="nicht doppelt"):
+        TableSpec(seats=4, opponent_mode="rotation", opponent_tables=[[opp[0], opp[0], opp[2]]])
+    # draw validations
+    with pytest.raises(ValidationError, match="erlaubt keine Angaben"):
+        TableSpec(seats=4, opponent_mode="draw", opponents=opp, draw_pool=opp, draw_seed=1)
+    with pytest.raises(ValidationError, match="erlaubt keine Angaben"):
+        TableSpec(seats=4, opponent_mode="draw", opponent_tables=[opp], draw_pool=opp, draw_seed=1)
+    with pytest.raises(ValidationError, match="nicht-leeren draw_pool"):
+        TableSpec(seats=4, opponent_mode="draw", draw_pool=[], draw_seed=1)
+    with pytest.raises(ValidationError, match="mindestens 3 Gegner"):
+        TableSpec(seats=4, opponent_mode="draw", draw_pool=opp[:2], draw_seed=1)
+    with pytest.raises(ValidationError, match="leere Gegner-Kennung"):
+        TableSpec(seats=4, opponent_mode="draw", draw_pool=[opp[0], "", opp[2]], draw_seed=1)
+    with pytest.raises(ValidationError, match="nicht doppelt"):
+        TableSpec(seats=4, opponent_mode="draw", draw_pool=[opp[0], opp[0], opp[2]], draw_seed=1)
+    with pytest.raises(ValidationError, match="ganzzahligen draw_seed"):
+        TableSpec(seats=4, opponent_mode="draw", draw_pool=opp)
+    with pytest.raises(ValidationError, match="Wahrheitswert"):
+        TableSpec(seats=4, opponent_mode="draw", draw_pool=opp, draw_seed=True)
 
 
 # -- experiments over web and CLI (fake engine) ----------------------------------------------
@@ -1374,3 +1414,539 @@ def test_rebuild_holds_the_write_lock_while_it_reads_the_files(lab: dict[str, ob
     assert not errors, errors
     assert started["experiment_id"] not in {r["experiment_id"] for r in _index_rows(folder)}
     assert client.post("/api/experiments/rebuild-index", headers=HEADERS).status_code == 200
+
+
+# -- B2-Rest (#1658): 422 variant validations and Owner 5a withdraw_experiment ---------------
+
+
+def test_experiment_plan_and_resolve_plan_validate_all_variants(lab: dict[str, object]) -> None:
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    # Duplicate revision_ids in variants -> 422
+    dup = _plan(
+        revs,
+        variants=[{"revision_id": revs["variant"]}, {"revision_id": revs["variant"]}],
+    )
+    res_dup = client.post("/api/experiments", headers=HEADERS, json={"plan": dup})
+    assert res_dup.status_code == 422
+    assert "doppelt" in res_dup.text
+    # Variant equal to base -> 422
+    same = _plan(revs, variants=[{"revision_id": revs["base"]}])
+    res_same = client.post("/api/experiments", headers=HEADERS, json={"plan": same})
+    assert res_same.status_code == 422
+    assert "zwei verschiedene Stände" in res_same.text
+    # Second variant unknown -> 404 (checked before len(variants) != 1)
+    unknown_second = _plan(
+        revs,
+        variants=[{"revision_id": revs["variant"]}, {"revision_id": "rev-does-not-exist"}],
+    )
+    res_unk = client.post("/api/experiments", headers=HEADERS, json={"plan": unknown_second})
+    assert res_unk.status_code == 404
+    # Second variant belongs to foreign deck -> 422
+    foreign_second = _plan(
+        revs,
+        variants=[{"revision_id": revs["variant"]}, {"revision_id": revs["other"]}],
+    )
+    res_foreign = client.post("/api/experiments", headers=HEADERS, json={"plan": foreign_second})
+    assert res_foreign.status_code == 422
+    assert "kein Stand des Decks" in res_foreign.text
+    # Two valid distinct variants of the same deck -> 422 (multi-variant not runnable yet)
+    two_valid = _plan(
+        revs,
+        variants=[{"revision_id": revs["variant"]}, {"revision_id": revs["variant2"]}],
+    )
+    res_multi = client.post("/api/experiments", headers=HEADERS, json={"plan": two_valid})
+    assert res_multi.status_code == 422
+    assert "mehrere Varianten" in res_multi.text
+
+
+def _make_unplayed_experiment(
+    lab: dict[str, object],
+    *,
+    purpose: str = "exploration",
+    first_seed: int = 500,
+    variant_key: str = "variant",
+    opponents: list[str] | None = None,
+) -> dict[str, object]:
+    """Create an indexed experiment with an intact plan.json and a pending (0 games) .paired.json."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    folder = Path(str(lab["folder"]))
+    plan_dict = _plan(
+        revs,
+        purpose=purpose,
+        first_seed=first_seed,
+        variants=[{"revision_id": revs[variant_key]}],
+    )
+    if opponents is not None:
+        plan_dict["table"]["opponents"] = opponents
+    plan = experiments.ExperimentPlan.model_validate(plan_dict)
+
+    def cancelled_unplayed_starter(settings: dict[str, object]) -> paired_series.PairedSeriesJob:
+        series_id = f"paired-unplayed-{first_seed}-{variant_key}"
+        series_path = folder / "games" / f"{series_id}.paired.json"
+        series_path.parent.mkdir(parents=True, exist_ok=True)
+        series_path.write_text(
+            json.dumps(
+                {
+                    "schema": SCHEMA_PAIRED_JOB,
+                    "series_id": series_id,
+                    "status": "cancelled",
+                    "base_ref": settings["base_revision_id"],
+                    "variant_ref": settings["variant_revision_id"],
+                    "budget_pairs": settings["budget_pairs"],
+                    "pairs_attempted": 0,
+                    "games_played": 0,
+                    "result": None,
+                    "created_at": "2026-11-24T00:00:00Z",
+                    "experiment": settings["experiment"],
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        class _StubJob:
+            def __init__(self, sid: str) -> None:
+                self.series_id = sid
+                self.bridge_jar_sha256 = None
+
+        return _StubJob(series_id)  # type: ignore[return-value]
+
+    store = StudioStore.open(folder)
+    try:
+        return experiments.start_experiment(
+            store, folder, plan, start_series=cancelled_unplayed_starter
+        )
+    finally:
+        store.close()
+
+
+def test_store_adds_experiment_status_column_without_schema_bump(tmp_path: Path) -> None:
+    """An existing schema-21 store without experiment.status gets the column on open."""
+    from commander_lab.studio.store import SCHEMA_VERSION
+
+    assert SCHEMA_VERSION == 21
+    store = StudioStore.open(tmp_path)
+    try:
+        # Simulate a pre-Owner-5a schema-21 table without ``status``
+        with store.connection:
+            store.connection.execute("DROP TABLE experiment_arm")
+            store.connection.execute("DROP TABLE experiment")
+            store.connection.execute(
+                "CREATE TABLE experiment ("
+                "experiment_id TEXT PRIMARY KEY, deck_id TEXT NOT NULL, question TEXT NOT NULL, "
+                "question_kind TEXT, purpose TEXT NOT NULL, base_revision_id TEXT NOT NULL, "
+                "plan_sha TEXT, table_hash TEXT, first_seed INTEGER, last_seed INTEGER, "
+                "series_id TEXT, engine_pin TEXT, bridge_jar_sha256 TEXT, bridge_state TEXT, "
+                "pilot_fingerprint TEXT, decision TEXT NOT NULL DEFAULT 'open' "
+                "CHECK (decision IN ('open', 'adopted', 'rejected')), "
+                "decision_at TEXT, decision_note TEXT, decision_tested INTEGER, "
+                "decision_previous_revision_id TEXT, created_at TEXT NOT NULL)"
+            )
+            store.connection.execute(
+                "INSERT INTO experiment(experiment_id, deck_id, question, purpose, "
+                "base_revision_id, created_at) VALUES ('exp-old-1', 'd', 'q', 'exploration', "
+                "'r1', '2026-11-20T00:00:00Z')"
+            )
+    finally:
+        store.close()
+
+    reopened = StudioStore.open(tmp_path)
+    try:
+        cols = {
+            str(r["name"]) for r in reopened.connection.execute("PRAGMA table_info(experiment)")
+        }
+        assert "status" in cols
+        row = reopened.connection.execute(
+            "SELECT status FROM experiment WHERE experiment_id = 'exp-old-1'"
+        ).fetchone()
+        assert row is not None and row["status"] == "active"
+        ver = reopened.connection.execute(
+            "SELECT value FROM meta WHERE key = 'schema_version'"
+        ).fetchone()
+        assert ver is not None and int(ver["value"]) == 21
+    finally:
+        reopened.close()
+
+
+def test_withdraw_unplayed_exploration_releases_seeds_and_survives_rebuild(
+    lab: dict[str, object],
+) -> None:
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    folder = Path(str(lab["folder"]))
+
+    created = _make_unplayed_experiment(lab, purpose="exploration", first_seed=600)
+    exp_id = str(created["experiment_id"])
+
+    # Before withdrawal: withdrawable is True, and confirmation on same seeds is blocked
+    detail = _detail(lab, exp_id)
+    assert detail["status"] == "active"
+    assert detail["status_text"] == "aktiv"
+    assert detail["withdrawable"] is True
+    assert detail["withdraw_blocked_reasons"] == []
+    assert detail["experiment"]["status"] == "active"
+    assert detail["experiment"]["withdrawable"] is True
+
+    overlap = client.post(
+        "/api/experiments",
+        headers=HEADERS,
+        json={"plan": _plan(revs, purpose="confirmation", first_seed=600)},
+    )
+    assert overlap.status_code == 422 and "überschneidet" in overlap.json()["detail"]
+
+    # Withdraw via POST /api/experiments/{id}/withdraw
+    res = client.post(
+        f"/api/experiments/{exp_id}/withdraw",
+        headers=HEADERS,
+        json={"note": "falscher Gegner-Tisch"},
+    )
+    assert res.status_code == 200, res.text
+    body = res.json()
+    assert body["status"] == "withdrawn"
+    assert body["experiment_id"] == exp_id
+    assert body["note"] == "falscher Gegner-Tisch"
+
+    withdraw_file = folder / "games" / "experiments" / exp_id / "withdraw.json"
+    assert withdraw_file.is_file()
+    w_data = json.loads(withdraw_file.read_text(encoding="utf-8"))
+    assert w_data["schema"] == experiments.SCHEMA_WITHDRAW
+    assert w_data["plan_sha"] == created["plan_sha"]
+
+    # Still visible in detail and deck series list, no longer withdrawable, cannot decide
+    after = _detail(lab, exp_id)
+    assert after["status"] == "withdrawn"
+    assert after["status_text"] == "zurückgezogen"
+    assert after["withdrawable"] is False
+    assert after["withdraw_blocked_reasons"]
+    history = _history(lab)
+    listed = [s for s in history["series"] if s["series_id"] == created["series_id"]]
+    assert len(listed) == 1
+    assert listed[0]["experiment"]["status"] == "withdrawn"
+
+    # Second withdraw -> 409; decide on withdrawn -> 409
+    assert client.post(f"/api/experiments/{exp_id}/withdraw", headers=HEADERS).status_code == 409
+    assert (
+        client.post(
+            f"/api/experiments/{exp_id}/decision",
+            headers=HEADERS,
+            json={"decision": "rejected"},
+        ).status_code
+        == 409
+    )
+
+    # Rebuild index restores status='withdrawn' from withdraw.json
+    assert client.post("/api/experiments/rebuild-index", headers=HEADERS).status_code == 200
+    rebuilt = _detail(lab, exp_id)
+    assert rebuilt["status"] == "withdrawn"
+    assert rebuilt["withdrawable"] is False
+
+    # Seeds are now released: confirmation on seed 600 succeeds!
+    conf = _start(lab, _plan(revs, purpose="confirmation", first_seed=600))
+    assert conf["experiment_id"]
+
+    # Unknown -> 404, invalid ID -> 422
+    assert (
+        client.post("/api/experiments/exp-1-1-unknown/withdraw", headers=HEADERS).status_code == 404
+    )
+    assert client.post("/api/experiments/not-valid/withdraw", headers=HEADERS).status_code == 422
+
+
+def test_withdraw_refuses_played_running_corrupt_decided_legacy_and_family_activity(
+    lab: dict[str, object],
+) -> None:
+    import os
+
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    folder = Path(str(lab["folder"]))
+
+    # 1. Played experiment (has result) -> refused
+    played = _start(lab, _plan(revs, first_seed=700))
+    assert _detail(lab, played["experiment_id"])["withdrawable"] is False
+    assert (
+        client.post(
+            f"/api/experiments/{played['experiment_id']}/withdraw", headers=HEADERS
+        ).status_code
+        == 409
+    )
+
+    # 2. Legacy series -> refused (422 for non-exp id in validate_experiment_id, detail says False)
+    _legacy_series(folder, "paired-9-1-leg9", revs["base"], revs["variant"], "2026-01-01")
+    assert client.post("/api/experiments/rebuild-index", headers=HEADERS).status_code == 200
+    assert _detail(lab, "paired-9-1-leg9")["withdrawable"] is False
+
+    # 3. Decided unplayed experiment -> refused
+    dec = _make_unplayed_experiment(lab, purpose="exploration", first_seed=710)
+    assert (
+        client.post(
+            f"/api/experiments/{dec['experiment_id']}/decision",
+            headers=HEADERS,
+            json={"decision": "rejected"},
+        ).status_code
+        == 200
+    )
+    assert _detail(lab, str(dec["experiment_id"]))["withdrawable"] is False
+    assert (
+        client.post(
+            f"/api/experiments/{dec['experiment_id']}/withdraw", headers=HEADERS
+        ).status_code
+        == 409
+    )
+
+    # 4. Active running.lock -> refused
+    locked = _make_unplayed_experiment(lab, purpose="exploration", first_seed=720)
+    lock_path = folder / "games" / "paired_decks" / str(locked["series_id"]) / "running.lock"
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    lock_path.write_text(json.dumps({"pid": os.getpid()}), encoding="utf-8")
+    assert _detail(lab, str(locked["experiment_id"]))["withdrawable"] is False
+    assert (
+        client.post(
+            f"/api/experiments/{locked['experiment_id']}/withdraw", headers=HEADERS
+        ).status_code
+        == 409
+    )
+
+    # 5. Non-empty progress.jsonl -> refused
+    prog = _make_unplayed_experiment(lab, purpose="exploration", first_seed=730)
+    prog_path = folder / "games" / "paired_decks" / str(prog["series_id"]) / "progress.jsonl"
+    prog_path.parent.mkdir(parents=True, exist_ok=True)
+    prog_path.write_text('{"arm":"base"}\n', encoding="utf-8")
+    assert _detail(lab, str(prog["experiment_id"]))["withdrawable"] is False
+    assert (
+        client.post(
+            f"/api/experiments/{prog['experiment_id']}/withdraw", headers=HEADERS
+        ).status_code
+        == 409
+    )
+
+    # 6. Non-empty journal.jsonl -> refused
+    jrn = _make_unplayed_experiment(lab, purpose="exploration", first_seed=740)
+    jrn_path = folder / "games" / "series" / str(jrn["series_id"]) / "journal.jsonl"
+    jrn_path.parent.mkdir(parents=True, exist_ok=True)
+    jrn_path.write_text('{"game_id":"g1"}\n', encoding="utf-8")
+    assert _detail(lab, str(jrn["experiment_id"]))["withdrawable"] is False
+    assert (
+        client.post(
+            f"/api/experiments/{jrn['experiment_id']}/withdraw", headers=HEADERS
+        ).status_code
+        == 409
+    )
+
+    # 7. Corrupt .paired.json -> refused (fail-closed)
+    corrupt = _make_unplayed_experiment(lab, purpose="exploration", first_seed=750)
+    (folder / "games" / f"{corrupt['series_id']}.paired.json").write_text(
+        "{not valid json", encoding="utf-8"
+    )
+    assert _detail(lab, str(corrupt["experiment_id"]))["withdrawable"] is False
+    assert (
+        client.post(
+            f"/api/experiments/{corrupt['experiment_id']}/withdraw", headers=HEADERS
+        ).status_code
+        == 409
+    )
+
+    # 8. Tampered plan.json (_plan_state != "intact") -> refused
+    tampered = _make_unplayed_experiment(lab, purpose="exploration", first_seed=760)
+    plan_file = folder / "games" / "experiments" / str(tampered["experiment_id"]) / "plan.json"
+    plan_file.write_text('{"schema": "broken"}', encoding="utf-8")
+    assert _detail(lab, str(tampered["experiment_id"]))["withdrawable"] is False
+    assert (
+        client.post(
+            f"/api/experiments/{tampered['experiment_id']}/withdraw", headers=HEADERS
+        ).status_code
+        == 409
+    )
+
+    # 9. Confirmation without table_hash -> refused (fail-closed)
+    no_th = _make_unplayed_experiment(lab, purpose="confirmation", first_seed=800)
+    store = StudioStore.open(folder)
+    try:
+        with store.connection:
+            store.connection.execute(
+                "UPDATE experiment SET table_hash = NULL WHERE experiment_id = ?",
+                (no_th["experiment_id"],),
+            )
+    finally:
+        store.close()
+    assert _detail(lab, str(no_th["experiment_id"]))["withdrawable"] is False
+    res_no_th = client.post(f"/api/experiments/{no_th['experiment_id']}/withdraw", headers=HEADERS)
+    assert res_no_th.status_code == 409 and "table_hash" in res_no_th.json()["detail"]
+
+    # 10. Confirmation Holm family check: sibling has looks_used > 0 -> refused!
+    conf_a = _make_unplayed_experiment(
+        lab, purpose="confirmation", first_seed=810, variant_key="variant"
+    )
+    conf_b = _make_unplayed_experiment(
+        lab, purpose="confirmation", first_seed=820, variant_key="variant2"
+    )
+    # Both unplayed: conf_a is withdrawable right now
+    assert _detail(lab, str(conf_a["experiment_id"]))["withdrawable"] is True
+    # Now sibling conf_b gets a look (looks_used = 1 in its .paired.json result)
+    sib_path = folder / "games" / f"{conf_b['series_id']}.paired.json"
+    sib_raw = json.loads(sib_path.read_text(encoding="utf-8"))
+    sib_raw["result"] = {"looks_used": 1, "pairs_completed": 2}
+    sib_path.write_text(json.dumps(sib_raw), encoding="utf-8")
+    detail_a = _detail(lab, str(conf_a["experiment_id"]))
+    assert detail_a["withdrawable"] is False
+    assert any("Holm-Familienmitglied" in r for r in detail_a["withdraw_blocked_reasons"])
+    res_fam = client.post(f"/api/experiments/{conf_a['experiment_id']}/withdraw", headers=HEADERS)
+    assert res_fam.status_code == 409 and "Holm-Familienmitglied" in res_fam.json()["detail"]
+
+
+def test_withdraw_blocks_resume_pending_live_job_malformed_looks_and_start_race(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """PR #1788 review regressions (P1-1, P1-2, P2-1, P3-1)."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    folder = Path(str(lab["folder"]))
+
+    # P1-1: withdrawn plan cannot be resumed (_is_disk_resumable == False, resume_series raises)
+    w_exp = _make_unplayed_experiment(lab, purpose="exploration", first_seed=900)
+    w_sid = str(w_exp["series_id"])
+    w_path = folder / "games" / f"{w_sid}.paired.json"
+    # Populate fields _is_disk_resumable requires so only withdraw.json makes it False
+    deck_dir = folder / "games" / "paired_decks" / w_sid
+    deck_dir.mkdir(parents=True, exist_ok=True)
+    (deck_dir / "base-a.json").write_text("{}", encoding="utf-8")
+    (deck_dir / "variant-b.json").write_text("{}", encoding="utf-8")
+    raw = json.loads(w_path.read_text(encoding="utf-8"))
+    raw.update(
+        {
+            "opponent_deck_ids": ["opp1", "opp2", "opp3"],
+            "seed_plan": {"first_seed": 900, "seeds_planned": 4},
+            "tested_seats": [0, 1, 2, 3],
+            "threshold_pp": 5.0,
+        }
+    )
+    w_path.write_text(json.dumps(raw), encoding="utf-8")
+    assert paired_series.PairedSeriesManager._is_disk_resumable(raw, folder) is True
+
+    assert (
+        client.post(
+            f"/api/experiments/{w_exp['experiment_id']}/withdraw", headers=HEADERS
+        ).status_code
+        == 200
+    )
+    assert paired_series.PairedSeriesManager._is_disk_resumable(raw, folder) is False
+    with pytest.raises(ValueError, match="zurückgezogen"):
+        paired_series.paired_series_manager.resume_series(folder, w_sid)
+    # Corrupt withdraw.json still blocks fail-closed
+    (folder / "games" / "experiments" / str(w_exp["experiment_id"]) / "withdraw.json").write_text(
+        "{corrupt", encoding="utf-8"
+    )
+    assert paired_series.PairedSeriesManager._is_disk_resumable(raw, folder) is False
+    # Malformed experiment payload blocks fail-closed
+    assert (
+        paired_series.PairedSeriesManager._is_disk_resumable({**raw, "experiment": "bad"}, folder)
+        is False
+    )
+
+    # P1-2a: status == "pending" in .paired.json blocks withdrawal
+    pend = _make_unplayed_experiment(lab, purpose="exploration", first_seed=910)
+    pend_path = folder / "games" / f"{pend['series_id']}.paired.json"
+    pend_raw = json.loads(pend_path.read_text(encoding="utf-8"))
+    pend_raw["status"] = "pending"
+    pend_path.write_text(json.dumps(pend_raw), encoding="utf-8")
+    assert _detail(lab, str(pend["experiment_id"]))["withdrawable"] is False
+    assert (
+        client.post(
+            f"/api/experiments/{pend['experiment_id']}/withdraw", headers=HEADERS
+        ).status_code
+        == 409
+    )
+
+    # P1-2b: live in-process job in paired_series_manager blocks withdrawal
+    live_exp = _make_unplayed_experiment(lab, purpose="exploration", first_seed=920)
+    live_sid = str(live_exp["series_id"])
+
+    class _LiveStub:
+        status = "pending"
+
+    monkeypatch.setattr(
+        paired_series.paired_series_manager,
+        "get_job",
+        lambda sid: _LiveStub() if sid == live_sid else None,
+    )
+    assert _detail(lab, str(live_exp["experiment_id"]))["withdrawable"] is False
+    assert (
+        client.post(
+            f"/api/experiments/{live_exp['experiment_id']}/withdraw", headers=HEADERS
+        ).status_code
+        == 409
+    )
+    monkeypatch.undo()
+
+    # P1-2c: race window in start_experiment (withdrawn before post-start UPDATE) cancels job
+    cancelled_jobs: list[str] = []
+
+    class _CancelJob:
+        def __init__(self, sid: str) -> None:
+            self.series_id = sid
+            self.bridge_jar_sha256 = None
+
+        def cancel(self) -> None:
+            cancelled_jobs.append(self.series_id)
+
+    plan_race = experiments.ExperimentPlan.model_validate(_plan(revs, first_seed=930))
+
+    def racing_starter(settings: dict[str, object]) -> paired_series.PairedSeriesJob:
+        exp_meta = settings["experiment"]
+        assert isinstance(exp_meta, dict)
+        eid = str(exp_meta["experiment_id"])
+        # Another request withdraws the freshly inserted row before start_series returns
+        other_store = StudioStore.open(folder)
+        try:
+            experiments.withdraw_experiment(other_store, folder, eid, note="race")
+        finally:
+            other_store.close()
+        return _CancelJob("paired-race-930")  # type: ignore[return-value]
+
+    store = StudioStore.open(folder)
+    try:
+        with pytest.raises(experiments.WithdrawRefused, match="während des Starts"):
+            experiments.start_experiment(store, folder, plan_race, start_series=racing_starter)
+    finally:
+        store.close()
+    assert cancelled_jobs == ["paired-race-930"]
+
+    # P2-1: malformed looks_used in .paired.json (string or bool) blocks withdrawal fail-closed
+    for bad_looks, seed in (("corrupt", 940), (True, 950)):
+        mal = _make_unplayed_experiment(lab, purpose="exploration", first_seed=seed)
+        mal_path = folder / "games" / f"{mal['series_id']}.paired.json"
+        mal_raw = json.loads(mal_path.read_text(encoding="utf-8"))
+        mal_raw["looks_used"] = bad_looks
+        mal_path.write_text(json.dumps(mal_raw), encoding="utf-8")
+        assert _detail(lab, str(mal["experiment_id"]))["withdrawable"] is False
+        assert (
+            client.post(
+                f"/api/experiments/{mal['experiment_id']}/withdraw", headers=HEADERS
+            ).status_code
+            == 409
+        )
+
+    # P3-1: rebuild_index requires withdraw.json status == "withdrawn"
+    bad_w = _make_unplayed_experiment(lab, purpose="exploration", first_seed=960)
+    bad_w_file = folder / "games" / "experiments" / str(bad_w["experiment_id"]) / "withdraw.json"
+    bad_w_file.write_text(
+        json.dumps(
+            {
+                "schema": experiments.SCHEMA_WITHDRAW,
+                "experiment_id": bad_w["experiment_id"],
+                "plan_sha": bad_w["plan_sha"],
+                "status": "active",
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert client.post("/api/experiments/rebuild-index", headers=HEADERS).status_code == 200
+    assert _detail(lab, str(bad_w["experiment_id"]))["status"] == "active"

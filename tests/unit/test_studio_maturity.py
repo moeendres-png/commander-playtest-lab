@@ -1005,3 +1005,53 @@ def test_evidence_row_static_guards() -> None:
     assert "befund.belegt === true" in verdict_fn  # the verdict reads belegt, not urteil alone
     assert "deckSeriesVerdictText(befund)" in row and "befund.urteil_text" not in row
     assert "R2" not in row and "R3" not in row
+
+
+def test_withdrawn_plans_are_excluded_from_holm_and_explorations(tmp_path: Path) -> None:
+    """Owner 5a (#1658): a withdrawn confirmation does not inflate the Holm family of active
+    confirmations, and a withdrawn exploration does not block fresh seeds."""
+    active_conf = _finding("s-active", wins=6, first_seed=500, alpha=0.05)
+    withdrawn_conf = _finding("s-withdrawn", wins=0, first_seed=600, counts=False, alpha=None)
+    withdrawn_exp = dict(withdrawn_conf.entry["experiment"])  # type: ignore[arg-type]
+    withdrawn_exp["status"] = "withdrawn"
+    withdrawn_entry = {**withdrawn_conf.entry, "experiment": withdrawn_exp}
+    withdrawn_finding = replace(withdrawn_conf, entry=withdrawn_entry)
+
+    # Compare against an active (non-withdrawn) unplayed confirmation in the same family
+    unplayed_active = _finding("s-unplayed", wins=0, first_seed=600, counts=False, alpha=None)
+
+    res_with_withdrawn = m.assess(
+        [active_conf, withdrawn_finding],
+        explorations=[],
+        hashes={"rev-main": "h1", "rev-var": "h2"},
+        current=CUR,
+    )
+    res_with_active = m.assess(
+        [active_conf, unplayed_active],
+        explorations=[],
+        hashes={"rev-main": "h1", "rev-var": "h2"},
+        current=CUR,
+    )
+    bef_withdrawn = res_with_withdrawn["befunde"]["s-active"]  # type: ignore[index]
+    bef_active = res_with_active["befunde"]["s-active"]  # type: ignore[index]
+    # 6 wins -> p = 2 * 0.5**6 = 0.03125 < 0.05; with m=1 (withdrawn excluded) -> belegt_besser!
+    assert bef_withdrawn["stufe"] == m.R1
+    assert bef_withdrawn["urteil"] == m.BETTER
+    assert any("1 Bestätigung(en)" in note for note in bef_withdrawn["hinweise"])
+    # With m=2 (active sibling) -> Holm adjusted p = 0.0625 >= 0.05 -> withheld!
+    assert bef_active["urteil"] == m.NO_DIFFERENCE
+    assert any("2 Bestätigung(en)" in note for note in bef_active["hinweise"])
+
+    # _explorations excludes withdrawn explorations from the store
+    store = StudioStore.open(tmp_path)
+    try:
+        with store.connection:
+            store.connection.execute(
+                "INSERT INTO experiment(experiment_id, deck_id, question, purpose, "
+                "base_revision_id, first_seed, last_seed, status, created_at) "
+                "VALUES ('exp-w1', 'd1', 'q', 'exploration', 'r1', 100, 110, 'withdrawn', '2026'), "
+                "('exp-a1', 'd1', 'q', 'exploration', 'r1', 200, 210, 'active', '2026')"
+            )
+        assert m._explorations(store.connection, "d1") == [(200, 210)]
+    finally:
+        store.close()
