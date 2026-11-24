@@ -279,6 +279,32 @@ def compute_seat_curve(
     }
 
 
+def _normalize_omission_by_kind(raw: object) -> dict[str, dict[str, object]] | None:
+    if not isinstance(raw, Mapping):
+        return None
+    out: dict[str, dict[str, object]] = {}
+    for kind_name, raw_entry in raw.items():
+        if not isinstance(kind_name, str) or not isinstance(raw_entry, Mapping):
+            return None
+        om = raw_entry.get("omissions")
+        opp = raw_entry.get("opportunities")
+        if not (type(om) is int and type(opp) is int and opp >= 0 and 0 <= om <= opp):
+            return None
+        cleaned: dict[str, object] = {
+            "omissions": om,
+            "opportunities": opp,
+            "rate": round(om / opp, 4) if opp > 0 else None,
+            "display": f"{om}/{opp}" if opp > 0 else "unbekannt",
+        }
+        turn_limit = raw_entry.get("turn_limit")
+        if turn_limit is not None:
+            if type(turn_limit) is not int or turn_limit < 1:
+                return None
+            cleaned["turn_limit"] = turn_limit
+        out[kind_name] = cleaned
+    return out or None
+
+
 def _normalize_pilot_omissions(
     pilot_omissions: Mapping[str, object] | None,
 ) -> dict[str, object]:
@@ -306,6 +332,9 @@ def _normalize_pilot_omissions(
             "rate": round(om / opp, 4),
             "display": f"{om}/{opp}",
         }
+        series_by_kind = _normalize_omission_by_kind(raw_series.get("by_kind"))
+        if series_by_kind is not None:
+            series_entry["by_kind"] = series_by_kind
 
     raw_seats = pilot_omissions.get("by_seat")
     seats_out: list[dict[str, object]] | None = None
@@ -328,26 +357,38 @@ def _normalize_pilot_omissions(
                 and 0 <= om <= opp
             ):
                 return unknown
-            parsed_seats.append(
-                {
-                    "seat": seat,
-                    "omissions": om,
-                    "opportunities": opp,
-                    "rate": round(om / opp, 4),
-                    "display": f"{om}/{opp}",
-                }
-            )
+            seat_entry: dict[str, object] = {
+                "seat": seat,
+                "omissions": om,
+                "opportunities": opp,
+                "rate": round(om / opp, 4),
+                "display": f"{om}/{opp}",
+            }
+            seat_by_kind = _normalize_omission_by_kind(entry.get("by_kind"))
+            if seat_by_kind is not None:
+                seat_entry["by_kind"] = seat_by_kind
+            parsed_seats.append(seat_entry)
         if parsed_seats:
             seats_out = parsed_seats
 
     if series_entry is None and seats_out is None:
         return unknown
-    return {
+    out: dict[str, object] = {
         "status": "measured",
         "series": series_entry,
         "by_seat": seats_out,
         "display": str(series_entry["display"]) if series_entry is not None else "gemessen",
     }
+    for meta_key, min_val in (
+        ("commander_turn_limit", 1),
+        ("games_audited", 0),
+        ("games_requested", 0),
+        ("total_decisions", 0),
+    ):
+        meta_val = pilot_omissions.get(meta_key)
+        if type(meta_val) is int and meta_val >= min_val:
+            out[meta_key] = meta_val
+    return out
 
 
 def build_validity_block(
@@ -1334,6 +1375,7 @@ class BatchSimulation:
         bridge_jar_sha256: str | None = None,
         qualification: Mapping[str, object] | None = None,
         opponent_ids: Sequence[str] | None = None,
+        record_pilot_audit: bool = False,
     ) -> None:
         self.batch_id = batch_id
         #: The opponents as asked for (None: the pod preset), so a resume plays the same table
@@ -1348,6 +1390,7 @@ class BatchSimulation:
         self.game_executor = game_executor
         self.chunk_runner = chunk_runner
         self.engine = engine
+        self.record_pilot_audit = bool(record_pilot_audit)
         self.workers, requested = checked_series_settings(workers, games_per_jvm)
         # a launcher that cannot play several games per process (not java) says so here
         self.games_per_jvm = engine.games_per_jvm if engine is not None else requested
@@ -1406,12 +1449,19 @@ class BatchSimulation:
         return None
 
     def _aggregate_games(self, games: Sequence[GameSummary]) -> dict[str, object]:
+        omissions: Mapping[str, object] | None = None
+        if self.record_pilot_audit:
+            from .pilot_audit import aggregate_series_omissions
+
+            finished_ids = [g.game_id for g in games if g.status == "finished"]
+            omissions = aggregate_series_omissions(self.data_folder, finished_ids)
         return aggregate_batch_results(
             games,
             table_size=self._resolved_table_size(),
             pilot_fingerprint=self.pilot_fingerprint,
             pod_name=self.pod_name,
             engine_version=canonical_xmage_engine_pin(),
+            pilot_omissions=omissions,
         )
 
     def game_id_of(self, seed: int) -> str:
@@ -1430,6 +1480,7 @@ class BatchSimulation:
             "engine_command": list(engine.command) if engine is not None else [],
             "bridge_jar_sha256": self.bridge_jar_sha256,
             "bridge_qualification_state": self.bridge_qualification.get("status"),
+            "record_pilot_audit": self.record_pilot_audit,
         }
 
     def cancel(self) -> None:
@@ -1526,6 +1577,7 @@ class BatchSimulation:
                 "bridge_jar_sha256": self.bridge_jar_sha256,
                 "bridge_qualification": dict(self.bridge_qualification),
                 "covered_by_sealed_epoch": covered,
+                "record_pilot_audit": self.record_pilot_audit,
                 "execution": self.execution(),
                 "validity_block": validity_block,
                 "consistency_table": consistency_table,
@@ -1609,6 +1661,9 @@ class BatchSimulation:
         exec_info = raw.get("execution", {})
         saved_workers = exec_info.get("workers")
         saved_batch = exec_info.get("games_per_jvm")
+        saved_audit = bool(
+            exec_info.get("record_pilot_audit", raw.get("record_pilot_audit", False))
+        )
         saved_sha = exec_info.get("bridge_jar_sha256") or raw.get("bridge_jar_sha256")
         resolved_sha = (
             bridge_jar_sha256
@@ -1639,6 +1694,7 @@ class BatchSimulation:
             initial_games=completed_games,
             bridge_jar_sha256=resolved_sha,
             qualification=resolved_qual,
+            record_pilot_audit=saved_audit,
         )
 
     def run_worker(
@@ -1865,6 +1921,8 @@ class BatchSimulation:
         if self.workers > 1:
             # parallel bridge JVMs would collide on the shared card database (#739)
             cmd.append("--private-card-repository")
+        if self.record_pilot_audit:
+            cmd.append("--record-pilot-audit")
         env = dict(os.environ)
         if self.engine is not None:
             env[ENGINE_COMMAND_ENV] = command_text(self.engine.command)
@@ -2041,6 +2099,7 @@ class SimulationBatchManager:
         games_per_jvm: int | None = None,
         chunk_runner: ChunkRunner | None = None,
         allow_unreleased_seats: bool = False,
+        record_pilot_audit: bool = False,
     ) -> BatchSimulation:
         """Prepare and start a new batch simulation in a background thread.
 
@@ -2125,6 +2184,7 @@ class SimulationBatchManager:
                     chunk_runner=chunk_runner,
                     bridge_jar_sha256=jar_sha,
                     qualification=qual,
+                    record_pilot_audit=record_pilot_audit,
                 )
             except BaseException:
                 series_reservation.release(claims, batch_id)  # no series, no claim

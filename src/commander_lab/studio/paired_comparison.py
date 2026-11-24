@@ -512,6 +512,7 @@ def _summarize(
     exposures: Sequence[GameExposure],
     allow_mixed: bool,
     series: bool,
+    audit_data_folder: Path | str | None = None,
 ) -> tuple[PairedComparison, Answer | None]:
     """The comparison result over ``pairs`` and the decision at level ``alpha``.
 
@@ -614,12 +615,17 @@ def _summarize(
         if provenance["engine_commit"]
         else canonical_xmage_engine_pin()
     )
+    omissions: Mapping[str, object] | None = None
+    if audit_data_folder is not None and pair_games:
+        from .pilot_audit import aggregate_series_omissions
+
+        omissions = aggregate_series_omissions(audit_data_folder, sorted(pair_games))
     validity_block = build_validity_block(
         seat_curve=seat_curve,
         pilot_fingerprint=fp_value,
         pods=pods_labels or None,
         engine_version=engine_ver,
-        pilot_omissions=None,
+        pilot_omissions=omissions,
     )
     seeds_completed = sorted({pair["seed"] for pair in pairs})
     base_wins = sum(pair["base_credit"] for pair in pairs)
@@ -825,6 +831,7 @@ def run_comparison_series(
     allow_mixed: bool = False,
     play: PairPlayer,
     execution: Mapping[str, object] | None = None,
+    audit_data_folder: Path | str | None = None,
 ) -> PairedComparison:
     """Play a paired series that stops by itself once the question is answered.
 
@@ -949,6 +956,7 @@ def run_comparison_series(
         exposures=exposures,
         allow_mixed=allow_mixed,
         series=True,
+        audit_data_folder=audit_data_folder,
     )
     result["pairs_censored"] = censored
     result["games_failed_base"] = failed["base"]
@@ -1132,6 +1140,7 @@ def parallel_window_player(
     pool: GamePool | None = None,
     table: Mapping[str, object] | None = None,
     table_hash: str | None = None,
+    record_pilot_audit: bool = False,
 ) -> WindowPlayer:
     """Execute each O'Brien-Fleming look window in parallel without changing sequential outcomes.
 
@@ -1172,8 +1181,12 @@ def parallel_window_player(
     contenders = {"base": base_deck, "variant": variant_deck}
     used_workers = max(1, int(workers))
     used_batch = max(1, int(games_per_jvm))
-    use_pool = play_single is None and (
-        pool is not None or (series_pool if series_pool is not None else series_pool_enabled())
+    use_pool = (
+        play_single is None
+        and not record_pilot_audit
+        and (
+            pool is not None or (series_pool if series_pool is not None else series_pool_enabled())
+        )
     )
     if use_pool and pool is None:
         # Pre-flight (#1661): the pool of this series needs the wall-clock limit of its seat count;
@@ -1416,6 +1429,7 @@ def parallel_window_player(
                 private_card_repository=(used_workers > 1),
                 on_game=_on_game,
                 on_played=_on_played,
+                record_pilot_audit=record_pilot_audit,
             )
             results: list[tuple[tuple[str, int, int], PlayedGame]] = []
             for w_seed, summary in zip(chunk_seeds, summaries, strict=True):

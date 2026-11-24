@@ -1532,6 +1532,7 @@ def test_estimate_series_duration_scales_with_workers_and_api_validates_parallel
             "games_per_jvm": 6,
             "serial_gc": False,
             "appcds": False,
+            "record_pilot_audit": False,
         }
         finished = _wait_job(mgr, folder, job.series_id)
         assert finished["status"] == "completed"
