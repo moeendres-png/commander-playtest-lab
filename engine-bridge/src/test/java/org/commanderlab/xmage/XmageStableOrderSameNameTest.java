@@ -1,5 +1,6 @@
 package org.commanderlab.xmage;
 
+import mage.cards.Card;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
 import org.junit.jupiter.api.Test;
@@ -64,10 +65,43 @@ class XmageStableOrderSameNameTest {
                 "same timestamp: the native id still never decides the order");
     }
 
+    @Test
+    void sameNamedExiledCardsAreOrderedByExileOrderNotByNativeId() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        for (int index = 0; index < 2; index++) {
+            objects.add(new XmageNativeStateRestoration.RequestedObject(
+                    "obj:exile-P1-" + index + "-Plains", "Plains", "P1", "P1",
+                    mage.constants.Zone.EXILED, false));
+        }
+        XmageActualCardCorpusTest.Started started =
+                XmageActualCardCorpusTest.start("stable-order-exiled-same-name", 4, objects);
+        Game game = started.session().restorationGame();
+        List<Card> exiledPlains = new ArrayList<>();
+        for (Card card : game.getExile().getAllCards(game)) {
+            if ("Plains".equals(card.getName())) {
+                exiledPlains.add(card);
+            }
+        }
+        assertEquals(2, exiledPlains.size(), "both Plains are in exile");
+        UUID first = exiledPlains.get(0).getId();
+        UUID second = exiledPlains.get(1).getId();
+
+        assertEquals(XmageStableOrder.objectKey(first, game), XmageStableOrder.objectKey(second, game),
+                "objectKey ties on two same-owner same-name exiled cards with equal ZCC");
+        assertNotEquals(XmageStableOrder.contentKey(first, game), XmageStableOrder.contentKey(second, game),
+                "contentKey tells the two exiled Plains apart without the native id");
+        assertEquals(sortedUuids(game, first, second, false), sortedUuids(game, first, second, true),
+                "the native id never decides the order of exiled cards");
+    }
+
     /** The F-36 order, with the final native-id tie-break forward or reversed. */
     private static List<UUID> sortedIds(Game game, Permanent first, Permanent second, boolean reversedIds) {
+        return sortedUuids(game, first.getId(), second.getId(), reversedIds);
+    }
+
+    private static List<UUID> sortedUuids(Game game, UUID first, UUID second, boolean reversedIds) {
         Comparator<UUID> ids = Comparator.comparing(UUID::toString);
-        List<UUID> out = new ArrayList<>(List.of(second.getId(), first.getId()));
+        List<UUID> out = new ArrayList<>(List.of(second, first));
         out.sort(Comparator.comparing((UUID id) -> XmageStableOrder.objectKey(id, game))
                 .thenComparing(id -> XmageStableOrder.contentKey(id, game))
                 .thenComparing(reversedIds ? ids.reversed() : ids));
