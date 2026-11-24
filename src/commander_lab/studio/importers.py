@@ -1255,6 +1255,11 @@ def _import_one_simulation_file(
             continue
         c_name = str(entry["card"])
         c_id = store.card_id_by_oracle_or_name(None, c_name)
+        raw_q = entry.get("first_cast_round_quartiles")
+        q_map = raw_q if isinstance(raw_q, dict) else {}
+        raw_reached = entry.get("first_cast_round_games_reached")
+        raw_not_reached = entry.get("first_cast_round_games_not_reached")
+        raw_basis = entry.get("first_cast_round_basis")
         card_rows.append(
             (
                 run_id,
@@ -1267,16 +1272,24 @@ def _import_one_simulation_file(
                 int(entry.get("offered_castable") or 0),
                 int(entry.get("cast") or 0),
                 _real(entry.get("mean_first_cast_round")),
+                int(raw_reached) if isinstance(raw_reached, int) else None,
+                int(raw_not_reached) if isinstance(raw_not_reached, int) else None,
+                q_map.get("q1") if isinstance(q_map.get("q1"), int) else None,
+                q_map.get("median") if isinstance(q_map.get("median"), int) else None,
+                q_map.get("q3") if isinstance(q_map.get("q3"), int) else None,
+                str(raw_basis) if isinstance(raw_basis, str) and raw_basis else None,
             )
         )
+    raw_fp = summary.get("pilot_fingerprint")
+    pilot_fingerprint = str(raw_fp).strip() if isinstance(raw_fp, str) and raw_fp.strip() else None
     with store.connection as db:
         db.execute("DELETE FROM simulation_card WHERE run_id = ?", (run_id,))
         db.execute(
             "INSERT OR REPLACE INTO simulation_run(run_id, deck_id, pod, engine_pin, "
-            "bridge_jar_sha256, bridge_qualification_state, "
+            "bridge_jar_sha256, bridge_qualification_state, pilot_fingerprint, "
             "pilot_policy, seeds, games_planned, games_completed, games_failed, "
             "wins_fractional, win_rate, mean_rounds, hand_dwell_status, source_id) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 run_id,
                 deck_id,
@@ -1284,6 +1297,7 @@ def _import_one_simulation_file(
                 engine_pin,
                 bridge_jar_sha256,
                 bridge_qualification_state,
+                pilot_fingerprint,
                 pilot_policy,
                 json.dumps(plan.get("seeds") or []),
                 games_planned,
@@ -1299,7 +1313,10 @@ def _import_one_simulation_file(
         db.executemany(
             "INSERT INTO simulation_card(run_id, card_id, card_name, games_completed, "
             "games_offered, games_cast_after_offer, games_rotted, offered_castable, "
-            "cast_count, mean_first_cast_round) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "cast_count, mean_first_cast_round, first_cast_round_games_reached, "
+            "first_cast_round_games_not_reached, first_cast_round_q1, "
+            "first_cast_round_median, first_cast_round_q3, first_cast_round_basis) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             card_rows,
         )
     return {

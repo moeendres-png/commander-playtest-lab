@@ -2689,3 +2689,118 @@ def test_paired_start_series_releases_claim_on_startup_failure_and_handles_mkdir
         assert sorted(p.name for p in gdir.glob(f"*{series_reservation.RESERVATION_SUFFIX}")) == []
     finally:
         store.close()
+
+
+def test_paired_comparison_and_deck_series_include_validity_block_and_consistency_table(
+    tmp_path: Path,
+) -> None:
+    """#1527: paired series results and deck_series entries carry validity_block (seat curve
+    with 95% Wilson CI + Playgroup 4-seat ref + unknown pilot_omissions + fixed statement)
+    and 3-class consistency_table."""
+    from commander_lab.studio import deck_series as deck_series_mod
+    from commander_lab.studio.simulations import wilson_score_interval
+
+    store, folder = _make_store(tmp_path)
+    try:
+        rev_base = create_revision(
+            store,
+            deck_id="chulane-vb",
+            name="Chulane VB",
+            branch="main",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-sol-ring", 1, "main"),
+                RevisionCard("cid-llanowar", 1, "main"),
+                RevisionCard("cid-forest", 97, "main"),
+            ],
+        )
+        rev_var = create_revision(
+            store,
+            deck_id="chulane-vb",
+            name="Chulane VB",
+            branch="variant",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-sol-ring", 1, "main"),
+                RevisionCard("cid-signet", 1, "main"),
+                RevisionCard("cid-forest", 97, "main"),
+            ],
+        )
+
+        def _play(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+            did = "chulane-vb--base" if arm == "base" else "chulane-vb--variant"
+            exp = _mock_exposure(
+                f"{arm}-{seed}-{seat}",
+                seed=seed,
+                seat=seat,
+                tested_deck_id=did,
+                won=(arm == "variant"),
+            )
+            exp["pilot_fingerprint"] = "fp-paired-test-1527"
+            exp["table_size"] = 4
+            return {"exposure": exp, "failure_class": None}  # type: ignore[typeddict-item]
+
+        mgr = PairedSeriesManager()
+        job = mgr.start_series(
+            store,
+            folder,
+            base_revision_id=rev_base,
+            variant_revision_id=rev_var,
+            pod="precon",
+            budget_pairs=8,
+            look_every_pairs=4,
+            base_seed=4000,
+            rotate_seats=True,
+            play_override=_play,
+        )
+        done = _wait_job(mgr, folder, job.series_id)
+        assert done["status"] == "completed"
+        res = done["result"]
+        assert isinstance(res, dict)
+
+        vb = res["validity_block"]
+        assert isinstance(vb, dict)
+        assert vb["data_class"] == "SIMULATED_RESULT"
+        assert vb["pilot_fingerprint"] == "fp-paired-test-1527"
+        assert vb["pilot_omissions"]["status"] == "unbekannt"
+        assert vb["pilot_omissions"]["series"] is None
+        assert vb["pilot_omissions"]["by_seat"] is None
+        assert vb["validity_statement"].startswith(
+            "Gilt für diese Piloten (Fingerabdruck: fp-paired-test-1527), diese Pods ("
+        )
+        assert vb["validity_statement"].endswith("; keine Aussage über menschliches Spiel.")
+
+        sc = vb["seat_curve"]
+        assert sc["table_size"] == 4
+        assert sc["reference_comparable"] is True
+        assert sc["reference"]["n"] == 300240
+        assert len(sc["seats"]) == 4
+        for seat_row in sc["seats"]:
+            expected_ci = list(
+                wilson_score_interval(seat_row["wins"], seat_row["games"], confidence=0.95)
+            )
+            assert seat_row["ci95"] == expected_ci
+            assert seat_row["reference_win_rate_pct"] is not None
+
+        ct = res["consistency_table"]
+        assert [c["key"] for c in ct["origin_classes"]] == [
+            "exact_calculated",
+            "engine_pilot_independent",
+            "engine_pilot_dependent",
+        ]
+        assert len(ct["by_origin_class"]["exact_calculated"]) >= 1
+        assert len(ct["by_origin_class"]["engine_pilot_independent"]) >= 1
+        assert len(ct["by_origin_class"]["engine_pilot_dependent"]) >= 1
+
+        # deck_series exposes validity_block & consistency_table for stored series
+        ds = deck_series_mod.deck_series(
+            folder, [rev_base, rev_var], store=store, deck_id="chulane-vb"
+        )
+        assert len(ds["series"]) == 1
+        entry = ds["series"][0]
+        assert isinstance(entry["validity_block"], dict)
+        assert entry["validity_block"]["data_class"] == "SIMULATED_RESULT"
+        assert entry["validity_block"]["pilot_omissions"]["status"] == "unbekannt"
+        assert isinstance(entry["consistency_table"], dict)
+    finally:
+        store.close()

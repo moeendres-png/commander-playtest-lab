@@ -1797,15 +1797,36 @@ function renderSimulations(body) {
     const inDeckCards = (run.cards || []).filter((c) => !c.card_id || qty(c.card_id) > 0 || state.commanderIds.includes(c.card_id));
     if (!inDeckCards.length) continue;
     const cTable = h("div", { class: "table-wrap" }, h("table", {},
-      h("thead", {}, h("tr", {}, h("th", {}, "Karte"), h("th", { class: "num" }, "Spiele angeboten"), h("th", { class: "num" }, "Spiele gewirkt"), h("th", { class: "num" }, "ungespielt geblieben"), h("th", { class: "num" }, "Ø 1. Runde"))),
+      h("thead", {}, h("tr", {}, h("th", {}, "Karte"), h("th", { class: "num" }, "Spiele angeboten"), h("th", { class: "num" }, "Spiele gewirkt"), h("th", { class: "num" }, "ungespielt geblieben"), h("th", { class: "num" }, "1. Wirk-Runde (zensiert, n/N)"))),
       h("tbody", {}, inDeckCards.slice(0, 25).map((c) => h("tr", {},
         h("td", { class: "name", onclick: () => { const card = c.card_id ? state.byId.get(c.card_id) : null; if (card) openCard(card); } }, c.card_name),
         h("td", { class: "num" }, `${StudioUI.num(c.games_offered, 0)}/${StudioUI.num(c.games_completed, 0)}`),
         h("td", { class: "num" }, `${StudioUI.num(c.games_cast_after_offer, 0)}/${StudioUI.num(c.games_offered, 0)}`),
         h("td", { class: "num" }, StudioUI.num(c.games_rotted, 0)),
-        h("td", { class: "num" }, c.mean_first_cast_round === null ? "–" : StudioUI.num(c.mean_first_cast_round, 1)))))));
+        h("td", { class: "num" }, formatCensoredFirstCastRound(c)))))));
     body.append(h("h3", {}, `Karten-Angebote im Pod „${run.pod}“ (${StudioUI.num(run.games_completed, 0)} Spiele)`), cTable);
   }
+}
+function formatCensoredFirstCastRound(c) {
+  if (!c) return "unbekannt";
+  const reached = c.first_cast_round_games_reached;
+  const total = c.games_completed;
+  if (reached !== null && reached !== undefined && total !== null && total !== undefined) {
+    const notReached = c.first_cast_round_games_not_reached !== null && c.first_cast_round_games_not_reached !== undefined
+      ? c.first_cast_round_games_not_reached
+      : Math.max(0, total - reached);
+    const q = c.first_cast_round_quartiles || {
+      q1: c.first_cast_round_q1,
+      median: c.first_cast_round_median,
+      q3: c.first_cast_round_q3,
+    };
+    const fmtQ = (val) => (val !== null && val !== undefined ? `Runde ${StudioUI.num(val, 0)}` : "nicht erreicht");
+    return `Med: ${fmtQ(q.median)} (Q1: ${fmtQ(q.q1)}, Q3: ${fmtQ(q.q3)}; ${StudioUI.num(reached, 0)}/${StudioUI.num(total, 0)} erreicht, ${StudioUI.num(notReached, 0)} nicht erreicht)`;
+  }
+  if (c.mean_first_cast_round !== null && c.mean_first_cast_round !== undefined) {
+    return `Altbestand (nur erreichte, n/N unbekannt): Ø Runde ${StudioUI.num(c.mean_first_cast_round, 1)}`;
+  }
+  return "unbekannt";
 }
 // the reservation of a row of runs without a stored opponent set (#1688; builder.unknown_opponents_caveat)
 function unknownOpponentsCaveat(runs) {
@@ -2614,13 +2635,13 @@ async function openCard(card) {
     if (detail.simulations && detail.simulations.length) {
       parts.push(h("h3", {}, "Simulationsergebnisse"),
         h("div", { class: "table-wrap" }, h("table", {},
-          h("thead", {}, h("tr", {}, h("th", {}, "Pod (Pin)"), h("th", { class: "num" }, "Spiele angeboten"), h("th", { class: "num" }, "Spiele gewirkt"), h("th", { class: "num" }, "ungespielt"), h("th", { class: "num" }, "Ø 1. Runde"), h("th", {}, "Handverweildauer"))),
+          h("thead", {}, h("tr", {}, h("th", {}, "Pod (Pin)"), h("th", { class: "num" }, "Spiele angeboten"), h("th", { class: "num" }, "Spiele gewirkt"), h("th", { class: "num" }, "ungespielt"), h("th", { class: "num" }, "1. Wirk-Runde (zensiert, n/N)"), h("th", {}, "Handverweildauer"))),
           h("tbody", {}, detail.simulations.map((s) => h("tr", {},
             h("td", {}, `${s.pod} (${s.engine_pin})`),
             h("td", { class: "num" }, `${StudioUI.num(s.games_offered, 0)}/${StudioUI.num(s.games_completed, 0)}`),
             h("td", { class: "num" }, `${StudioUI.num(s.games_cast_after_offer, 0)}/${StudioUI.num(s.games_offered, 0)}`),
             h("td", { class: "num" }, StudioUI.num(s.games_rotted, 0)),
-            h("td", { class: "num" }, s.mean_first_cast_round === null ? "unbekannt" : StudioUI.num(s.mean_first_cast_round, 1)),
+            h("td", { class: "num" }, formatCensoredFirstCastRound(s)),
             h("td", { class: "muted" }, s.hand_dwell_status === "UNKNOWN" ? "unbekannt (nicht gemessen)" : s.hand_dwell_status)))))));
     }
     const rows = detail.observations.filter((row) => row.metric === "inclusion_pct");

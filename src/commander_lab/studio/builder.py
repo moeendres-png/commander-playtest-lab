@@ -1519,10 +1519,13 @@ def card_simulations(
         raise KeyError(card_id)
     bound, bound_args = bound_to("simulation_run", "r.run_id", commander_names)
     rows = db.execute(
-        "SELECT r.run_id, r.pod, r.opponent_set_hash, r.table_size, r.engine_pin, "
-        "r.bridge_jar_sha256, r.bridge_qualification_state, r.pilot_policy, r.hand_dwell_status, "
-        "sc.games_completed, sc.games_offered, sc.games_cast_after_offer, sc.games_rotted, "
-        "sc.offered_castable, sc.cast_count, sc.mean_first_cast_round "
+        "SELECT r.run_id, r.pod, r.opponent_set_hash, r.table_size, r.pilot_fingerprint, "
+        "r.engine_pin, r.bridge_jar_sha256, r.bridge_qualification_state, r.pilot_policy, "
+        "r.hand_dwell_status, sc.games_completed, sc.games_offered, sc.games_cast_after_offer, "
+        "sc.games_rotted, sc.offered_castable, sc.cast_count, sc.mean_first_cast_round, "
+        "sc.first_cast_round_games_reached, sc.first_cast_round_games_not_reached, "
+        "sc.first_cast_round_q1, sc.first_cast_round_median, sc.first_cast_round_q3, "
+        "sc.first_cast_round_basis "
         "FROM simulation_card sc JOIN simulation_run r USING (run_id) "
         f"WHERE (sc.card_id = ? OR sc.card_name IN (?, ?)){bound} ORDER BY r.pod",
         (card_id, target["oracle_name"], target["engine_name"], *bound_args),
@@ -1530,6 +1533,18 @@ def card_simulations(
     return [
         {
             **dict(item),
+            "first_cast_round_quartiles": (
+                {
+                    "q1": item["first_cast_round_q1"],
+                    "median": item["first_cast_round_median"],
+                    "q3": item["first_cast_round_q3"],
+                }
+                if item["first_cast_round_games_reached"] is not None
+                or item["first_cast_round_q1"] is not None
+                or item["first_cast_round_median"] is not None
+                or item["first_cast_round_q3"] is not None
+                else None
+            ),
             "bridge_qualification_state": (item["bridge_qualification_state"] or "UNKNOWN"),
             "covered_by_sealed_epoch": (
                 item["bridge_qualification_state"] == "ALIGNED_WITH_SEALED_EPOCH"
@@ -1549,18 +1564,36 @@ def list_simulations(store: StudioStore, commander_names: Sequence[str]) -> list
     bound, bound_args = bound_to("simulation_run", "r.run_id", commander_names)
     for run in db.execute(
         "SELECT r.run_id, r.deck_id, r.pod, r.opponent_ids, r.opponent_set_hash, r.table_size, "
-        "r.engine_pin, r.bridge_jar_sha256, r.bridge_qualification_state, r.pilot_policy, r.seeds, "
-        "r.games_planned, r.games_completed, r.games_failed, r.wins_fractional, r.win_rate, "
-        f"r.mean_rounds, r.hand_dwell_status FROM simulation_run r WHERE 1{bound} "
+        "r.pilot_fingerprint, r.engine_pin, r.bridge_jar_sha256, r.bridge_qualification_state, "
+        "r.pilot_policy, r.seeds, r.games_planned, r.games_completed, r.games_failed, "
+        f"r.wins_fractional, r.win_rate, r.mean_rounds, r.hand_dwell_status "
+        f"FROM simulation_run r WHERE 1{bound} "
         "ORDER BY r.pod, r.run_id",
         bound_args,
     ):
         cards = [
-            dict(row)
+            {
+                **dict(row),
+                "first_cast_round_quartiles": (
+                    {
+                        "q1": row["first_cast_round_q1"],
+                        "median": row["first_cast_round_median"],
+                        "q3": row["first_cast_round_q3"],
+                    }
+                    if row["first_cast_round_games_reached"] is not None
+                    or row["first_cast_round_q1"] is not None
+                    or row["first_cast_round_median"] is not None
+                    or row["first_cast_round_q3"] is not None
+                    else None
+                ),
+            }
             for row in db.execute(
                 "SELECT card_id, card_name, games_completed, games_offered, "
                 "games_cast_after_offer, games_rotted, offered_castable, cast_count, "
-                "mean_first_cast_round FROM simulation_card WHERE run_id = ? "
+                "mean_first_cast_round, first_cast_round_games_reached, "
+                "first_cast_round_games_not_reached, first_cast_round_q1, "
+                "first_cast_round_median, first_cast_round_q3, first_cast_round_basis "
+                "FROM simulation_card WHERE run_id = ? "
                 "ORDER BY games_offered DESC, card_name ASC",
                 (run["run_id"],),
             )

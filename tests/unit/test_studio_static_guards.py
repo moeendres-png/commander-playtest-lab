@@ -3425,3 +3425,51 @@ def test_experiment_view_static_guards() -> None:
         < js.index('"POST"')
         < js.index('"Ja, übernehmen" : "Ja, verwerfen"')
     )
+
+
+def test_simulate_validity_block_and_censored_round_ui_guards() -> None:
+    """#1527: UI renders censored first-cast rounds (no unlabelled 'Ø 1. Runde' or dash fallback),
+    validity_block (seat curve with 95% Wilson CI, Playgroup ref, pilot omissions, validity
+    statement) and 3-class consistency table without forbidden sinks or client R1-R3 logic."""
+    app_js = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert '"Ø 1. Runde"' not in app_js
+    assert "function formatCensoredFirstCastRound(" in app_js
+    assert "formatCensoredFirstCastRound(c)" in app_js
+    assert "formatCensoredFirstCastRound(s)" in app_js
+    assert '"nicht erreicht"' in app_js
+
+    paired_js = (STATIC / "paired.js").read_text(encoding="utf-8")
+    vb_fn = paired_js[
+        paired_js.index("function renderValidityBlock(") : paired_js.index(
+            "function renderPairedMonitor("
+        )
+    ]
+    for required in (
+        "95 %-Wilson-CI",
+        "Playgroup-Referenz (4 Sitze)",
+        "nur für 4 Sitze",
+        "Pilot-Auslassungen",
+        "Gültigkeitsblock (SIMULATED_RESULT)",
+        "Konsistenztabelle (3 Herkunftsklassen)",
+    ):
+        assert required in vb_fn, required
+    for forbidden in ("innerHTML", "outerHTML", "style:", ".toFixed(", ".toPrecision("):
+        assert forbidden not in vb_fn, forbidden
+    assert not re.search(r"\bR[123]\b", vb_fn)
+
+    deckseries_js = (STATIC / "deckseries.js").read_text(encoding="utf-8")
+    ds_fn = deckseries_js[
+        deckseries_js.index("function deckSeriesValidityBlock(") : deckseries_js.index(
+            "function deckSeriesCells("
+        )
+    ]
+    for required in (
+        "validity_statement",
+        "Pilot-Auslassungen",
+        "Sitzkurve (95 %-Wilson-CI)",
+        "Konsistenz (3 Klassen)",
+    ):
+        assert required in ds_fn, required
+    for forbidden in ("innerHTML", "outerHTML", "style:", ".toFixed(", ".toPrecision("):
+        assert forbidden not in ds_fn, forbidden
+    assert not re.search(r"\bR[123]\b", ds_fn)

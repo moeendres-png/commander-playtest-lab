@@ -39,6 +39,9 @@ from commander_lab.engine.rules.full_game_comparison import (
 )
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
 from commander_lab.models import RulesDeckInput
+from commander_lab.qualification.current_boundary.bridge_launcher import (
+    canonical_xmage_engine_pin,
+)
 
 from . import builder, decks, launch, paired_comparison, series_reservation, strength_view
 from .card_outcomes import pilot_identity, wilson_unrounded
@@ -69,6 +72,7 @@ from .series_record import (
     series_key_problem,
     series_violation,
 )
+from .simulations import build_validity_block, compute_seat_curve
 from .store import StudioStore, now_utc
 from .strength import StrengthSettings
 
@@ -1038,6 +1042,25 @@ class PairedSeriesJob:
                 )
             )
             covered = bool(res.get("covered_by_sealed_epoch")) if res is not None else False
+            validity_block = (
+                res.get("validity_block")
+                if isinstance(res, dict) and isinstance(res.get("validity_block"), dict)
+                else build_validity_block(
+                    seat_curve=compute_seat_curve(
+                        [],
+                        table_size=1 + len(self.opponents) if self.opponents else None,
+                    ),
+                    pilot_fingerprint=header_pilot_fingerprint(),
+                    pods=self.pod_name,
+                    engine_version=canonical_xmage_engine_pin(),
+                    pilot_omissions=None,
+                )
+            )
+            consistency_table = (
+                res.get("consistency_table")
+                if isinstance(res, dict) and isinstance(res.get("consistency_table"), dict)
+                else None
+            )
             return {
                 "schema": SCHEMA_PAIRED_JOB,
                 "series_id": self.series_id,
@@ -1073,6 +1096,8 @@ class PairedSeriesJob:
                 "bridge_qualification": self.bridge_qualification,
                 "covered_by_sealed_epoch": covered,
                 "experiment": self.experiment,
+                "validity_block": validity_block,
+                "consistency_table": consistency_table,
                 "result": res,
             }
 

@@ -24,6 +24,7 @@ from pathlib import Path
 from .games import games_folder
 from .launch import MAX_SEATS, MIN_SEATS
 from .paired_series import SCHEMA_PAIRED_JOB, observed_table_sizes, validate_series_id
+from .simulations import build_validity_block, compute_seat_curve
 from .store import StudioStore
 from .table_spec import sha256_of
 
@@ -222,6 +223,37 @@ def _entry(raw: Mapping[str, object], status: str) -> dict[str, object]:
         alignment_state = "not_congruent"
     else:
         alignment_state = "aligned"
+    resolved_table_size = series_table_size(raw)
+    raw_vb = (
+        res.get("validity_block")
+        if isinstance(res.get("validity_block"), dict)
+        else raw.get("validity_block")
+    )
+    if isinstance(raw_vb, dict):
+        validity_block: dict[str, object] = dict(raw_vb)
+    else:
+        raw_pod = raw.get("pod")
+        pod_str = raw_pod if isinstance(raw_pod, str) and raw_pod.strip() else None
+        raw_commits = _str_list(res.get("engine_commits"))
+        raw_pin = res.get("engine_pin")
+        engine_ver = (
+            ", ".join(raw_commits)
+            if raw_commits
+            else (str(raw_pin) if isinstance(raw_pin, str) and raw_pin.strip() else None)
+        )
+        validity_block = build_validity_block(
+            seat_curve=compute_seat_curve([], table_size=resolved_table_size),
+            pilot_fingerprint=None,
+            pods=pod_str,
+            engine_version=engine_ver,
+            pilot_omissions=None,
+        )
+    raw_ct = (
+        res.get("consistency_table")
+        if isinstance(res.get("consistency_table"), dict)
+        else raw.get("consistency_table")
+    )
+    consistency_table: dict[str, object] | None = dict(raw_ct) if isinstance(raw_ct, dict) else None
     return {
         "series_id": str(raw["series_id"]),
         "created_at": raw.get("created_at") if isinstance(raw.get("created_at"), str) else None,
@@ -244,7 +276,7 @@ def _entry(raw: Mapping[str, object], status: str) -> dict[str, object]:
         "tested_seats": seats,
         "seats_planned": not counts,
         # 4-, 5- and 6-seat series are separate cohorts (base win rate 1/N); None = unknown
-        "table_size": series_table_size(raw),
+        "table_size": resolved_table_size,
         "table_size_check": series_table_check(raw)[1],
         "table_size_source": series_table_source(raw),
         "pilots": _str_list(res.get("pilots")),
@@ -254,6 +286,8 @@ def _entry(raw: Mapping[str, object], status: str) -> dict[str, object]:
         "error": raw.get("error") if isinstance(raw.get("error"), str) else None,
         "slot_alignment": alignment,
         "slot_alignment_state": alignment_state,
+        "validity_block": validity_block,
+        "consistency_table": consistency_table,
     }
 
 
