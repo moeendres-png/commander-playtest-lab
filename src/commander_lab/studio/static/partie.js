@@ -22,7 +22,7 @@ const SPEEDS = [[2000, "langsam"], [1000, "1 pro Sekunde"], [500, "2 pro Sekunde
 const POOL_COLORS = { white: "Weiß", blue: "Blau", black: "Schwarz", red: "Rot", green: "Grün", colorless: "Farblos" };
 const OPTION_TYPES = { pass_priority: "Passen", play_land: "Land spielen", cast_spell: "Zauber wirken", activated_ability: "Fähigkeit aktivieren", mana_ability: "Mana-Fähigkeit", special_action: "Sonderaktion", target: "Ziel", choose_object: "Objekt wählen", attacker: "Angreifer", blocker: "Blocker", mode: "Modus", choice: "Auswahl", mana_payment: "Mana", trigger_order: "Auslöser", yes: "Ja", no: "Nein" };
 
-const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
+const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
 
 const $ = (id) => document.getElementById(id);
 function h(tag, props, ...children) {
@@ -1281,7 +1281,10 @@ function renderView() {
 
   $("position").value = String(state.index);
   const phase = frame.phase ? (STEPS[frame.step] || PHASES[frame.phase] || frame.phase) : "Spielbeginn";
-  const skippedCount = Number((state.result && state.result.forced_decisions_skipped) || 0);
+  const resultSkipped = state.result && state.result.forced_decisions_skipped;
+  const skippedCount = (typeof resultSkipped === "number" && Number.isFinite(resultSkipped) && resultSkipped >= 0)
+    ? resultSkipped
+    : (typeof state.forcedPasses === "number" && Number.isFinite(state.forcedPasses) && state.forcedPasses >= 0 ? state.forcedPasses : 0);
   const skippedSuffix = skippedCount > 0 ? ` (+ ${skippedCount} erzwungene Pässe)` : "";
   const decisionPosText = atLiveTail
     ? `Entscheidung ${frame.n} (Live)`
@@ -1497,6 +1500,12 @@ async function loadMoreOnce(hold, prefetched) {
     state.result = page.result;
     state.running = page.running;
     state.revision = state.interactive ? StudioFollow.parseRevision(page) : null;
+    const rawForced = page.forced_passes_answered_by_engine;
+    if (typeof rawForced === "number" && Number.isFinite(rawForced) && rawForced >= 0) {
+      state.forcedPasses = rawForced;
+    } else if (rawForced === null || !state.interactive) {
+      state.forcedPasses = null;
+    }
     if (state.interactive) {
       state.humanSeats = Array.isArray(page.human_seats) ? page.human_seats : [];
       adoptPendingDecision(page.pending_decision || null);
@@ -1527,7 +1536,7 @@ async function openGame(gameId) {
   restoreAiDelayOnLeave(state.gameId);
   const listed = state.games.find((entry) => entry.game_id === gameId);
   const listedInteractive = Boolean(listed && listed.header && Array.isArray(listed.header.human_seats) && listed.header.human_seats.length);
-  Object.assign(state, { gameId, cohortRecord: null, frames: [], lines: [], index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, autoPassAttempt: null, pollFailures: 0, revision: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
+  Object.assign(state, { gameId, cohortRecord: null, frames: [], lines: [], index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, pollFailures: 0, revision: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
   ffStatus(""); showConnectionLost(0, ""); renderCohortPill();
   $("log").textContent = ""; $("table").textContent = ""; delete $("table").dataset.banner;
   await loadMore();
@@ -1782,6 +1791,7 @@ async function listGames(wanted) {
     state.interactive = false;
     state.pendingDecision = null;
     state.canConcede = false;
+    state.forcedPasses = null;
     state.frames = [];
     state.lines = [];
     state.ownCombat = StudioPlayP1a.emptyCombatLedger();

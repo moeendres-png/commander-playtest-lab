@@ -3478,3 +3478,30 @@ def test_simulate_validity_block_and_censored_round_ui_guards() -> None:
     for forbidden in ("innerHTML", "outerHTML", "style:", ".toFixed(", ".toPrecision("):
         assert forbidden not in ds_fn, forbidden
     assert not re.search(r"\bR[123]\b", ds_fn)
+
+
+def test_builder_strength_summary_and_lazy_card_detail_guards() -> None:
+    """#1565: Builder requests detail='summary' for the list, lazily fetches full single-card
+    details on modal open with stale-modal guards, and leaves tierliste.js on full responses."""
+    app_js = (STATIC / "app.js").read_text(encoding="utf-8")
+    block = app_js[
+        app_js.index("async function showStrengthBreakdown(") : app_js.index(
+            "async function loadCardTrend("
+        )
+    ]
+    for required in (
+        'detail: "summary"',
+        'detail: "full", card_id: card.card_id',
+        "!Array.isArray(st.components)",
+        "strengthRef.map.set(card.card_id, fullCard)",
+        "!into.isConnected",
+        "state.modalCardId !== card.card_id",
+        "state.strength !== strengthRef",
+    ):
+        assert required in block, required
+    for forbidden in ("innerHTML", "outerHTML", "style:", ".toFixed(", ".toPrecision("):
+        assert forbidden not in block, forbidden
+    assert not re.search(r"\bR[123]\b", block)
+
+    tierliste_js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    assert 'detail: "summary"' not in tierliste_js
