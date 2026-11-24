@@ -50,11 +50,18 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           if [ "$EVENT_NAME" = pull_request ]; then
-            git fetch --no-tags --depth=1 origin "$BASE_SHA"
+            AUTH_HEADER="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w 0)"
+            GIT_CONFIG_COUNT=1 \
+              GIT_CONFIG_KEY_0="http.https://github.com/.extraheader" \
+              GIT_CONFIG_VALUE_0="$AUTH_HEADER" \
+              git fetch --no-tags --depth=1 origin "$BASE_SHA"
+            unset AUTH_HEADER
           fi
+          unset GH_TOKEN
           python3 scripts/ci_change_scope.py --event "$EVENT_NAME" --base "$BASE_SHA" --github-output "$GITHUB_OUTPUT"
 
   lint:
