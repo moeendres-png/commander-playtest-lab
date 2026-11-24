@@ -30,6 +30,7 @@
   "tests/unit/test_rating_full_second_run_results.py",
   "tests/unit/test_rating_second_run_full_eval.py",
   "tests/unit/test_rating_second_run_full_inputs.py",
+  "tests/unit/test_rating_v3_generator.py",
   "tests/unit/test_release_workflow_contract.py",
   "tests/unit/test_repository_tree_guard.py",
   "tests/unit/test_required_test_ownership.py",
