@@ -553,7 +553,7 @@ def _parser() -> argparse.ArgumentParser:
     backup_cmd.add_argument("--json", action="store_true", help="print backup manifest as JSON")
     export_state_cmd = commands.add_parser(
         "export-state",
-        help="write the user state (decks, revisions, marks, profiles) as studio-user-state-1",
+        help="write the user state (decks, revisions, marks, profiles, TAM prices) as studio-user-state-2",
     )
     export_state_cmd.add_argument(
         "--to", help="file or folder (outside the repository); default: <data>/state-exports/"
@@ -563,7 +563,7 @@ def _parser() -> argparse.ArgumentParser:
     )
     export_state_cmd.add_argument("--json", action="store_true", help="print the header as JSON")
     import_state_cmd = commands.add_parser(
-        "import-state", help="read a studio-user-state-1 file into a fresh data folder"
+        "import-state", help="read a studio-user-state-1/2 file into a fresh data folder"
     )
     import_state_cmd.add_argument("file")
     import_state_cmd.add_argument(
