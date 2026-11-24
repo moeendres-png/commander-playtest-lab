@@ -182,6 +182,7 @@ die Zahl nicht abbildbarer Karten); Windows (siehe 5); Größe der Datei am Owne
 
 ## 7. Versionierung
 
-`studio-user-state-1` ist eine eigene Version neben dem Schema des Stores (E-A6). Ändert sich das
-Format, steigt die Zahl und der Rundlauf wird gegen Fixtures jeder früheren Version gefahren. Kein
-`SCHEMA_VERSION`-Bump in K-2a.
+`studio-user-state-2` ist eine eigene Version neben dem Schema des Stores (E-A6), mit
+Abwärtskompatibilität für `studio-user-state-1`-Importe. Ändert sich das Format, steigt die Zahl
+und der Rundlauf wird gegen Fixtures jeder früheren Version gefahren. Kein `SCHEMA_VERSION`-Bump
+in K-2a2.

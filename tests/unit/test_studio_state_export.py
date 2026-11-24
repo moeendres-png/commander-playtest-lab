@@ -896,4 +896,57 @@ def test_studio_user_state_v1_backward_compat_and_v2_tam_prices(tmp_path: Path) 
     )
     with pytest.raises(StateFileError, match="tam_cardmarket_price"):
         verify_state_file(bad_v1_path)
+    dst_bad_v1 = StudioStore.open(tmp_path / "dst_bad_v1")
+    try:
+        with pytest.raises(StateFileError, match="tam_cardmarket_price"):
+            import_state(dst_bad_v1, bad_v1_path)
+    finally:
+        dst_bad_v1.close()
+
+    # Fail-closed: a v2 envelope missing tam_cardmarket_price is refused on verify and import
+    bad_v2_path = tmp_path / "bad_v2_missing_tam.json.gz"
+    state_export._write_gzip(
+        bad_v2_path,
+        {
+            "format": state_export.FORMAT,
+            "source_schema_version": 21,
+            "created_at": "2026-11-20T10:00:00Z",
+            "content_sha256": v1_sha,
+            "content": v1_content,
+        },
+    )
+    with pytest.raises(StateFileError, match="tam_cardmarket_price"):
+        verify_state_file(bad_v2_path)
+    dst_bad_v2 = StudioStore.open(tmp_path / "dst_bad_v2")
+    try:
+        with pytest.raises(StateFileError, match="tam_cardmarket_price"):
+            import_state(dst_bad_v2, bad_v2_path)
+    finally:
+        dst_bad_v2.close()
+
+    # Fail-closed: a v1 envelope missing a required v1 table is refused on verify and import
+    v1_missing_tables = {k: v for k, v in v1_content["tables"].items() if k != "deck"}
+    bad_v1_missing_content = {
+        "tables": v1_missing_tables,
+        "not_in_schema": list(state_export.NOT_IN_SCHEMA),
+    }
+    bad_v1_missing_path = tmp_path / "bad_v1_missing_deck.json.gz"
+    state_export._write_gzip(
+        bad_v1_missing_path,
+        {
+            "format": state_export.FORMAT_V1,
+            "source_schema_version": 21,
+            "created_at": "2026-11-20T10:00:00Z",
+            "content_sha256": state_export.content_sha256(bad_v1_missing_content),
+            "content": bad_v1_missing_content,
+        },
+    )
+    with pytest.raises(StateFileError, match="deck"):
+        verify_state_file(bad_v1_missing_path)
+    dst_bad_v1_missing = StudioStore.open(tmp_path / "dst_bad_v1_missing")
+    try:
+        with pytest.raises(StateFileError, match="deck"):
+            import_state(dst_bad_v1_missing, bad_v1_missing_path)
+    finally:
+        dst_bad_v1_missing.close()
     src.close()

@@ -1,16 +1,18 @@
-"""Export and import of the Studio user state, format ``studio-user-state-1`` (#1668, K-2a).
+"""Export and import of the Studio user state, format ``studio-user-state-2`` (#1668, #1703 K-2a2).
 
 The file is a gzip-compressed JSON envelope::
 
-    {"format": "studio-user-state-1", "source_schema_version": 21, "created_at": "...",
+    {"format": "studio-user-state-2", "source_schema_version": 21, "created_at": "...",
      "content_sha256": "<hex>", "content": {"tables": {...}, "not_in_schema": [...]}}
 
 ``content`` holds the user tables of the store (decks, revisions with their cards, branches,
-drafts, labels, primers, modules, marks, profiles) as rows, every card reference written as
-``card_id`` plus ``oracle_id`` plus ``name``. ``content_sha256`` is the SHA-256 of the canonical
-JSON of ``content`` alone, so the creation time does not change it. Import tables (the card
-catalogue, corpus, observations, ...) are never part of it. A card that is referenced but has no
-``oracle_id`` stops the export with the list; nothing is guessed. The specification is
+drafts, labels, primers, modules, marks, profiles, manual TAM prices) as rows, every card reference
+written as ``card_id`` plus ``oracle_id`` plus ``name`` (``tam_cardmarket_price`` is keyed directly
+by ``oracle_id``). Import accepts both ``studio-user-state-1`` and ``studio-user-state-2``.
+``content_sha256`` is the SHA-256 of the canonical JSON of ``content`` alone, so the creation time
+does not change it. Import tables (the card catalogue, corpus, observations, imported price
+snapshots/guides, ...) are never part of it. A card that is referenced but has no ``oracle_id``
+stops the export with the list; nothing is guessed. The specification is
 ``docs/STUDIO_STATE_EXPORT_FORMAT.md``.
 """
 
@@ -448,14 +450,21 @@ def read_state(path: Path, *, verify: bool = True) -> StateFile:
     return state
 
 
+def _validate_table_keys(tables: dict[str, object], allowed_names: frozenset[str]) -> None:
+    unknown = sorted(set(tables) - allowed_names)
+    if unknown:
+        raise StateFileError(f"Tabellen ohne Ziel in diesem Schema: {unknown}")
+    missing = sorted(allowed_names - set(tables))
+    if missing:
+        raise StateFileError(f"Pflichttabellen fehlen in dieser Export-Datei: {missing}")
+
+
 def verify_state_file(path: Path) -> dict[str, object]:
     """The ``--verify`` report: SHA checked, rows per table, nothing written."""
     state = read_state(path)
     allowed_names = frozenset(table.name for table in _tables_for_format(state.format))
     tables = _as_dict(state.content.get("tables"), "content.tables")
-    unknown = sorted(set(tables) - allowed_names)
-    if unknown:
-        raise StateFileError(f"Tabellen ohne Ziel in diesem Schema: {unknown}")
+    _validate_table_keys(tables, allowed_names)
     return {
         "format": state.format,
         "content_sha256": state.declared_sha256,
@@ -543,9 +552,7 @@ def import_state(store: StudioStore, path: Path) -> dict[str, object]:
     tables_spec = _tables_for_format(state.format)
     allowed_names = frozenset(table.name for table in tables_spec)
     tables = _as_dict(state.content.get("tables"), "content.tables")
-    unknown = sorted(set(tables) - allowed_names)
-    if unknown:
-        raise StateFileError(f"Tabellen ohne Ziel in diesem Schema: {unknown}")
+    _validate_table_keys(tables, allowed_names)
     db = store.connection
     present = {name: n for name, n in _user_row_counts(db).items() if n}
     if present:
