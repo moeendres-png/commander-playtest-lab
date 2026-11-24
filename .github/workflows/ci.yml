@@ -156,6 +156,7 @@ jobs:
             dist/
             artifacts/quality/
           if-no-files-found: warn
+          retention-days: 3
 
   tests:
     # B5 (#486): tests/qualification is owned by the required infrastructure context
@@ -208,6 +209,7 @@ jobs:
           name: ci-evidence-tests-${{ matrix.index }}
           path: artifacts/quality/
           if-no-files-found: warn
+          retention-days: 3
 
   packaging-1:
     # Two runners share the packaging work (#1570): each builds the wheel and runs the
@@ -304,6 +306,7 @@ jobs:
             dist/
             artifacts/quality/
           if-no-files-found: warn
+          retention-days: 3
 
   packaging-2:
     # The second half of the packaging work; see packaging-1.
@@ -393,6 +396,7 @@ jobs:
             dist/
             artifacts/quality/
           if-no-files-found: warn
+          retention-days: 3
 
   quality:
     # The required context. It is green only when every job it needs ended `success`; the only
@@ -512,6 +516,7 @@ jobs:
           name: security-evidence
           path: artifacts/security/
           if-no-files-found: warn
+          retention-days: 3
 
   security-secret-scan:
     # B10 (#491), #1571: runs the pinned gitleaks rule set and red controls on its
@@ -536,6 +541,7 @@ jobs:
           name: security-secret-scan-evidence
           path: artifacts/security/
           if-no-files-found: warn
+          retention-days: 3
 
   security:
     # The required context. It is green only when `changes`, `security-audit` and

@@ -5,6 +5,12 @@ on:
     branches:
       - main
       - "release/**"
+    paths:
+      - "pyproject.toml"
+      - ".github/workflows/release-artifacts.yml"
+      - "engine-bridge/**"
+      - "config/rules_engines.json"
+      - ".github/actions/pinned-xmage-engine/**"
   pull_request:
     paths:
       - "pyproject.toml"
@@ -73,14 +79,17 @@ jobs:
         run: |
           set -euo pipefail
           version='${{ steps.meta.outputs.version }}'
-          git archive --format=zip --output="release/commander-playtest-lab-${version}-source.zip" "$GITHUB_SHA"
-          git bundle create "release/commander-playtest-lab-${version}.bundle" HEAD --branches --tags
+          roundtrip_dir="$RUNNER_TEMP/release-roundtrip"
+          rm -rf "$roundtrip_dir"
+          mkdir -p "$roundtrip_dir"
+          git archive --format=zip --output="$roundtrip_dir/commander-playtest-lab-${version}-source.zip" "$GITHUB_SHA"
+          git bundle create "$roundtrip_dir/commander-playtest-lab-${version}.bundle" HEAD --branches --tags
           repo_dir="$RUNNER_TEMP/commander-playtest-lab-repository"
           rm -rf "$repo_dir"
           git clone --local --no-hardlinks "$GITHUB_WORKSPACE" "$repo_dir"
           git -C "$repo_dir" checkout --detach "$GITHUB_SHA"
           test "$(git -C "$repo_dir" rev-parse HEAD)" = "$GITHUB_SHA"
-          (cd "$RUNNER_TEMP" && zip -qr "$GITHUB_WORKSPACE/release/commander-playtest-lab-${version}-repository.zip" commander-playtest-lab-repository)
+          (cd "$RUNNER_TEMP" && zip -qr "$roundtrip_dir/commander-playtest-lab-${version}-repository.zip" commander-playtest-lab-repository)
       - name: Write current release status and evidence boundary
         env:
           VERSION: ${{ steps.meta.outputs.version }}
@@ -281,13 +290,14 @@ jobs:
         run: |
           set -euo pipefail
           version='${{ steps.meta.outputs.version }}'
-          unzip -tq "release/commander-playtest-lab-${version}-source.zip"
-          unzip -tq "release/commander-playtest-lab-${version}-repository.zip"
-          git bundle verify "release/commander-playtest-lab-${version}.bundle"
+          roundtrip_dir="$RUNNER_TEMP/release-roundtrip"
+          unzip -tq "$roundtrip_dir/commander-playtest-lab-${version}-source.zip"
+          unzip -tq "$roundtrip_dir/commander-playtest-lab-${version}-repository.zip"
+          git bundle verify "$roundtrip_dir/commander-playtest-lab-${version}.bundle"
           verify_dir="$RUNNER_TEMP/repository-roundtrip"
           rm -rf "$verify_dir"
           mkdir -p "$verify_dir"
-          unzip -q "release/commander-playtest-lab-${version}-repository.zip" -d "$verify_dir"
+          unzip -q "$roundtrip_dir/commander-playtest-lab-${version}-repository.zip" -d "$verify_dir"
           restored="$verify_dir/commander-playtest-lab-repository"
           test "$(git -C "$restored" rev-parse HEAD)" = "$GITHUB_SHA"
           git -C "$restored" fsck --full
@@ -331,4 +341,4 @@ jobs:
           name: commander-playtest-lab-release-${{ steps.meta.outputs.version }}-${{ github.sha }}
           path: release/
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 7

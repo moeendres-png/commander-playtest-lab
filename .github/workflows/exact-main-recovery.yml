@@ -51,11 +51,12 @@ jobs:
           )"
           short="${commit:0:12}"
           inner="recovery/inner"
-          rm -rf recovery
-          mkdir -p "$inner"
+          verify_blobs="$RUNNER_TEMP/recovery-verify"
+          rm -rf recovery "$verify_blobs"
+          mkdir -p "$inner" "$verify_blobs"
           python -m build --wheel --outdir "$inner"
-          git archive --format=tar.gz --output="$inner/source-${commit}.tar.gz" "$commit"
-          git bundle create "$inner/repository-${commit}.bundle" HEAD --branches --tags
+          git archive --format=tar.gz --output="$verify_blobs/source-${commit}.tar.gz" "$commit"
+          git bundle create "$verify_blobs/repository-${commit}.bundle" HEAD --branches --tags
           cp -R artifacts/architecture "$inner/architecture-artifacts"
           cp -R artifacts/xmage-full-game "$inner/xmage-full-game-contracts"
           cp ARCHITECTURE_MIGRATION_REPORT.md "$inner/ARCHITECTURE_MIGRATION_REPORT.md"
@@ -72,7 +73,7 @@ jobs:
             --focused-test "pytest -q tests/test_candidate_lossless_handoff.py tests/unit/test_xmage_full_game.py"
           verify="$RUNNER_TEMP/recovery-bundle-clone"
           rm -rf "$verify"
-          git clone "$inner/repository-${commit}.bundle" "$verify"
+          git clone "$verify_blobs/repository-${commit}.bundle" "$verify"
           test "$(git -C "$verify" rev-parse HEAD)" = "$commit"
           test "$(git -C "$verify" rev-parse HEAD^{tree})" = "$tree"
           restored_version="$(python - <<PY
@@ -107,4 +108,4 @@ jobs:
             recovery/*.tar.gz
             recovery/*.sha256
           if-no-files-found: error
-          retention-days: 90
+          retention-days: 3

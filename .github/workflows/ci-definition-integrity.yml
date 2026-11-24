@@ -78,7 +78,7 @@ jobs:
           name: ci-definition-integrity-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
           path: artifacts/ci-definition-integrity/CI_DEFINITION_INTEGRITY.json
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 3
       - name: Surface shadow classification
         if: always()
         shell: bash
