@@ -21,11 +21,15 @@ from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.full_game import (
     FullGameBridgeClient,
     FullGameConformanceResult,
+    FullGameDecisionPolicy,
+    FullGamePilotBinding,
 )
 from commander_lab.engine.rules.full_game_batch import games_per_jvm_permitted
+from commander_lab.models import RulesDeckInput
 
 from .games import SERIES_GZIP_COMPRESSLEVEL, GameRecorder
 from .launch import bridge_jar_sha256, engine_command
+from .pilot_audit import PilotAuditPolicy, PilotAuditRecorder
 from .play import (
     _RecordingRunner,
     close_recorded_game,
@@ -60,6 +64,7 @@ class BatchRecordingRunner(_RecordingRunner):
         max_decisions: int = 50_000,
         request_timeout_seconds: float = 120.0,
         private_card_repository: bool = False,
+        record_pilot_audit: bool = False,
     ) -> None:
         super().__init__(
             command=command,
@@ -70,12 +75,67 @@ class BatchRecordingRunner(_RecordingRunner):
         self._data_folder = data_folder
         self._headers = headers
         self._recorders: dict[str, GameRecorder] = {}
+        self._record_pilot_audit = bool(record_pilot_audit)
+        self._audit_recorders: dict[str, PilotAuditRecorder] = {}
         #: Called with the log id of a game once the engine has played it to its end, while
         #: the chunk's other games are still to come. A progress signal only: the log is closed
         #: and the result built after the engine process ends (see ``play_recorded_games``).
         self.on_played: Callable[[str], None] | None = None
         self._current_game_id: str | None = None
         self._announced: set[str] = set()
+
+    def enable_pilot_audit(self, enabled: bool = True) -> None:
+        """Enable or disable opt-in pilot request audit recording for subsequent games (#1524)."""
+        self._record_pilot_audit = bool(enabled)
+
+    def _begin_audit_game(self, scenario_id: str) -> PilotAuditRecorder:
+        previous = self._audit_recorders.pop(scenario_id, None)
+        if previous is not None:
+            previous.discard()
+        game_id, header = self._headers[scenario_id]
+        recorder = PilotAuditRecorder(
+            self._data_folder,
+            game_id,
+            header,
+            gzip_compresslevel=SERIES_GZIP_COMPRESSLEVEL,
+        )
+        self._audit_recorders[scenario_id] = recorder
+        return recorder
+
+    def decision_policy(
+        self,
+        scenario: FutureXmageScenario,
+        decks: tuple[RulesDeckInput, ...],
+        pilots: tuple[FullGamePilotBinding, ...],
+    ) -> FullGameDecisionPolicy:
+        policy = super().decision_policy(scenario, decks, pilots)
+        if not self._record_pilot_audit:
+            return policy
+        audit = self._begin_audit_game(scenario.scenario_id)
+        return PilotAuditPolicy(policy, audit)
+
+    def close_audit_game(
+        self,
+        scenario_id: str,
+        outcome: FullGameConformanceResult | Exception,
+    ) -> dict[str, object] | None:
+        """Close and compress the opt-in audit log for ``scenario_id`` if one was started."""
+        audit = self._audit_recorders.pop(scenario_id, None)
+        if audit is None:
+            return None
+        if isinstance(outcome, Exception):
+            _, summary = audit.close(
+                status="failed",
+                failure_class=type(outcome).__name__,
+            )
+            return summary
+        _, summary = audit.close(
+            status="finished",
+            winner_seats=outcome.winner_seats,
+            decision_count=outcome.decision_count,
+            semantic_transcript_sha256=outcome.semantic_transcript_sha256,
+        )
+        return summary
 
     def begin_game(self, scenario_id: str) -> GameRecorder:
         previous = self._recorders.pop(scenario_id, None)
@@ -158,6 +218,7 @@ def play_recorded_games(
     on_game: Callable[[dict[str, object]], None] | None = None,
     on_played: Callable[[str], None] | None = None,
     runner_factory: RunnerFactory = _real_runner,
+    record_pilot_audit: bool = False,
 ) -> list[dict[str, object]]:
     """Play ``games`` (seed and log id each) on the configured engine, several per JVM.
 
@@ -196,11 +257,14 @@ def play_recorded_games(
             max_decisions=max_decisions,
             request_timeout_seconds=request_timeout_seconds,
             private_card_repository=private_card_repository,
+            record_pilot_audit=record_pilot_audit,
         )
     else:
         runner = runner_factory(
             data_folder, headers, max_decisions, request_timeout_seconds, private_card_repository
         )
+        if record_pilot_audit and hasattr(runner, "enable_pilot_audit"):
+            runner.enable_pilot_audit(True)
     if runner.command != cmd:
         sha = bridge_jar_sha256(data_folder, runner.command)
         for item in prepared:
@@ -224,6 +288,8 @@ def play_recorded_games(
             outcomes = [error] * len(piece)
         for item, outcome in zip(piece, outcomes, strict=True):
             summary = close_recorded_game(runner.recorder_of(item.scenario.scenario_id), outcome)
+            if record_pilot_audit and hasattr(runner, "close_audit_game"):
+                runner.close_audit_game(item.scenario.scenario_id, outcome)
             summaries.append(summary)
             if on_game is not None:
                 on_game(summary)

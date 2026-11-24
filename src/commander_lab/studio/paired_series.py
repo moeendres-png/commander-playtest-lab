@@ -852,6 +852,7 @@ class PairedSeriesJob:
         experiment: Mapping[str, object] | None = None,
         table: Mapping[str, object] | None = None,
         table_hash: str | None = None,
+        record_pilot_audit: bool = False,
     ) -> None:
         self.series_id = series_id
         #: The experiment this series plays (B2, #1658): id, plan SHA and table hash.
@@ -863,6 +864,7 @@ class PairedSeriesJob:
         self.table_hash: str | None = (
             str(table_hash).strip() or None if table_hash is not None else None
         )
+        self.record_pilot_audit = bool(record_pilot_audit)
         self.data_folder = data_folder
         self.base_ref = base_ref
         self.variant_ref = variant_ref
@@ -1033,6 +1035,7 @@ class PairedSeriesJob:
             "games_per_jvm": self.games_per_jvm,
             "serial_gc": engine.serial_gc if engine is not None else False,
             "appcds": engine.appcds if engine is not None else False,
+            "record_pilot_audit": self.record_pilot_audit,
         }
 
     def to_dict(self) -> dict[str, object]:
@@ -1160,6 +1163,7 @@ class PairedSeriesJob:
                 on_game_played=self.mark_game_played,
                 table=self.table,
                 table_hash=self.table_hash,
+                record_pilot_audit=self.record_pilot_audit,
             )
 
             final_status = "failed"
@@ -1179,6 +1183,7 @@ class PairedSeriesJob:
                     threshold_pp=self.threshold_pp,
                     significance_level=self.significance_level,
                     play=player,
+                    audit_data_folder=self.data_folder if self.record_pilot_audit else None,
                     execution={
                         "series_id": self.series_id,
                         "command": "studio web paired-series",
@@ -1296,6 +1301,7 @@ class PairedSeriesManager:
         table_size: int | None = None,
         table: Mapping[str, object] | None = None,
         table_hash: str | None = None,
+        record_pilot_audit: bool = False,
     ) -> PairedSeriesJob:
         """Start a paired series. ``table_size`` (seats, 2 to 6) sizes a pod preset's table:
         the preset's first ``table_size - 1`` opponents sit down, and the series records them
@@ -1472,6 +1478,7 @@ class PairedSeriesManager:
                 experiment=experiment,
                 table=table,
                 table_hash=table_hash,
+                record_pilot_audit=record_pilot_audit,
             )
             job.reserved_in = claims
             job.persist()
@@ -1926,6 +1933,7 @@ class PairedSeriesManager:
                     if isinstance(raw_th := raw.get("table_hash"), str)
                     else None
                 ),
+                record_pilot_audit=bool(exec_meta.get("record_pilot_audit", False)),
             )
             job.persist()
             job._write_lock()

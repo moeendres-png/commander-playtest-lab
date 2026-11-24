@@ -2278,3 +2278,436 @@ def test_legacy_batch_series_json_gets_fallback_validity_block_via_api(tmp_path:
     # Starting player won both games (seed 1000 -> start 0, winner 0; seed 1001 -> start 1, winner 1)
     assert vb["seat_curve"]["seats"][0]["n_of_N"] == "2/2"
     assert body["summary"]["validity_block"]["data_class"] == "SIMULATED_RESULT"
+
+
+def _audit_priority_decision(
+    *,
+    decision_id: str,
+    seat: int,
+    turn: int,
+    options: list[dict[str, object]],
+    command_zone: list[dict[str, object]] | None = None,
+    active_player_id: str | None = None,
+) -> dict[str, object]:
+    actor_id = f"p{seat}"
+    return {
+        "decision_id": decision_id,
+        "decision_class": "priority",
+        "seat": seat,
+        "actor_id": actor_id,
+        "prompt": "Play spells and abilities",
+        "minimum_selections": 1,
+        "maximum_selections": 1,
+        "legal_options": options,
+        "pilot_state": {
+            "seat": seat,
+            "actor_id": actor_id,
+            "active_player_id": active_player_id if active_player_id is not None else actor_id,
+            "turn_number": turn,
+            "phase": "precombat_main",
+            "step": "precombat_main",
+            "xmage_key": "secret-ephemeral-engine-key-123",
+            "players": [
+                {
+                    "player_id": actor_id,
+                    "is_actor": True,
+                    "command": command_zone or [],
+                }
+            ],
+        },
+    }
+
+
+def test_pilot_audit_recorder_redacts_keys_and_isolates_from_play_routes(tmp_path: Path) -> None:
+    """#1524 + AGENTS.md §5: audit logs stay outside games/, redact xmage_key, refuse human
+    seats fail-closed, and are never exposed by PLAY routes (/api/games*, /api/play*)."""
+    from commander_lab.studio import pilot_audit
+
+    # 1. Fail-closed refusal on human seats / PLAYED_GAME / malformed cohort
+    for bad_header in [
+        {
+            "data_class": "PLAYED_GAME",
+            "human_seats": [0],
+            "seats": [{"seat": 1, "pilot": "Mensch"}],
+        },
+        {
+            "data_class": "SIMULATED_RESULT",
+            "human_seats": [0],
+            "seats": [{"seat": 1, "pilot": "AI"}],
+        },
+        {"data_class": "SIMULATED_RESULT", "seats": [{"seat": 1, "pilot": "Mensch"}]},
+        {"data_class": "SIMULATED_RESULT", "seats": [{"seat": 1, "is_human": True}]},
+        {"data_class": "UNKNOWN", "seats": [{"seat": 1, "pilot": "AI"}]},
+    ]:
+        with pytest.raises(ValueError):
+            pilot_audit.PilotAuditRecorder(tmp_path, "audit-bad-1", bad_header)
+    assert not pilot_audit.pilot_audit_folder(tmp_path, create=False).exists()
+
+    # 2. Valid SIMULATED_RESULT recording + transparent PilotAuditPolicy + xmage_key redaction
+    sim_header: dict[str, object] = {
+        "data_class": "SIMULATED_RESULT",
+        "seed": 1001,
+        "pilot_fingerprint": "f" * 64,
+        "seats": [{"seat": 1, "pilot": "AI"}, {"seat": 2, "pilot": "AI"}],
+    }
+    recorder = pilot_audit.PilotAuditRecorder(tmp_path, "audit-sim-1", sim_header)
+    sent_response: dict[str, object] = {
+        "decision_id": "d-1",
+        "actor_id": "p0",
+        "selected_option_ids": ["opt-pass"],
+    }
+
+    class _EchoPolicy:
+        def decide(self, decision: dict[str, object]) -> dict[str, object]:
+            return sent_response
+
+    decision = _audit_priority_decision(
+        decision_id="d-1",
+        seat=0,
+        turn=1,
+        options=[
+            {
+                "option_id": "opt-land",
+                "option_type": "activated_ability",
+                "label": "Play Forest",
+                "metadata": {"ability_type": "play_land", "xmage_key": "raw-key-xyz"},
+            },
+            {"option_id": "opt-pass", "option_type": "pass", "label": "Pass priority"},
+        ],
+    )
+    wrapped = pilot_audit.PilotAuditPolicy(_EchoPolicy(), recorder)
+    returned = wrapped.decide(decision)
+    assert returned is sent_response
+    # Input dict must not be mutated
+    assert decision["pilot_state"]["xmage_key"] == "secret-ephemeral-engine-key-123"
+    final_path, summary = recorder.close(
+        status="finished",
+        winner_seats=[0],
+        decision_count=1,
+        semantic_transcript_sha256="a" * 64,
+    )
+    assert final_path.is_file()
+    assert final_path.parent == tmp_path / "pilot_audit"
+    assert final_path.name == "audit-sim-1.audit.jsonl.gz"
+    assert summary["series"]["display"] == "1/1"
+
+    entries = list(pilot_audit.read_audit_entries(final_path))
+    assert [e["kind"] for e in entries] == ["header", "decision", "end"]
+    rec_decision = entries[1]
+    assert rec_decision["pilot_state"]["xmage_key"] == pilot_audit.REDACTED_ENGINE_KEY
+    assert (
+        rec_decision["legal_options"][0]["metadata"]["xmage_key"] == pilot_audit.REDACTED_ENGINE_KEY
+    )
+
+    # 3. PLAY routes and games.list_games never expose pilot_audit files or fields
+    game_rec = games.GameRecorder(tmp_path, "audit-sim-1", sim_header)
+    game_rec.close({"status": "finished", "winner_seats": [0]})
+    listed = games.list_games(tmp_path)
+    assert [row["game_id"] for row in listed] == ["audit-sim-1"]
+    client = TestClient(create_app(tmp_path))
+    r_list = client.get("/api/games")
+    assert r_list.status_code == 200
+    assert "pilot_audit" not in r_list.text
+    assert "opt-land" not in r_list.text
+    r_game = client.get("/api/games/audit-sim-1")
+    assert r_game.status_code == 200
+    assert "pilot_audit" not in r_game.text
+    assert "opt-land" not in r_game.text
+    r_play = client.get("/api/play/audit-sim-1")
+    assert r_play.status_code in {200, 404}
+    assert "pilot_audit" not in r_play.text
+    assert "opt-land" not in r_play.text
+
+
+def test_pilot_audit_omission_counter_land_and_commander_rules(tmp_path: Path) -> None:
+    """#1524 (Owner E3): objective land_play and cast_commander omission counting (n/N),
+    handling same-turn spell-before-land, cancelled mana payments, turn-T cutoff, 1-based seats,
+    and missing audit files."""
+    from commander_lab.studio import pilot_audit
+
+    counter = pilot_audit.OmissionCounter(commander_turn_limit=4)
+    cmd_obj = [{"object_id": "cmd-1", "name": "Chulane, Teller of Tales"}]
+
+    # Seat 0, Turn 1: offered land, casts a spell first, then plays land later in same turn -> 0/1
+    d1 = _audit_priority_decision(
+        decision_id="d1",
+        seat=0,
+        turn=1,
+        options=[
+            {"option_id": "land1", "option_type": "play_land", "label": "Play Forest"},
+            {"option_id": "spell1", "option_type": "cast_spell", "label": "Cast Sol Ring"},
+        ],
+    )
+    counter.observe(d1, {"decision_id": "d1", "selected_option_ids": ["spell1"]})
+    d2 = _audit_priority_decision(
+        decision_id="d2",
+        seat=0,
+        turn=1,
+        options=[{"option_id": "land1", "option_type": "play_land", "label": "Play Forest"}],
+    )
+    counter.observe(d2, {"decision_id": "d2", "selected_option_ids": ["land1"]})
+
+    # Seat 0, Turn 2: offered land and NEVER plays it -> 1/2 land omissions for seat 1
+    d3 = _audit_priority_decision(
+        decision_id="d3",
+        seat=0,
+        turn=2,
+        options=[
+            {"option_id": "land2", "option_type": "play_land", "label": "Play Island"},
+            {"option_id": "pass", "option_type": "pass", "label": "Pass"},
+        ],
+    )
+    counter.observe(d3, {"decision_id": "d3", "selected_option_ids": ["pass"]})
+
+    # Seat 0, Turn 3: commander offered and chosen, THEN mana payment CANCELLED -> still omitted (1/1)!
+    d4 = _audit_priority_decision(
+        decision_id="d4",
+        seat=0,
+        turn=3,
+        command_zone=cmd_obj,
+        options=[
+            {
+                "option_id": "cast-cmd",
+                "option_type": "activated_ability",
+                "label": "Cast Chulane",
+                "metadata": {
+                    "ability_type": "spell",
+                    "source_object_id": "cmd-1",
+                    "source_name": "Chulane, Teller of Tales",
+                },
+            },
+            {"option_id": "pass", "option_type": "pass", "label": "Pass"},
+        ],
+    )
+    counter.observe(d4, {"decision_id": "d4", "selected_option_ids": ["cast-cmd"]})
+    counter.observe(
+        {
+            "decision_id": "d5",
+            "decision_class": "mana_payment",
+            "seat": 0,
+            "legal_options": [{"option_id": "cancel", "option_type": "cancel_mana_payment"}],
+            "pilot_state": {"seat": 0, "turn_number": 3},
+        },
+        {"decision_id": "d5", "selected_option_ids": ["cancel"]},
+    )
+
+    # Seat 1, Turn 4 (own turn 1 <= T=4): commander offered and cast cleanly -> 0/1
+    d6 = _audit_priority_decision(
+        decision_id="d6",
+        seat=1,
+        turn=4,
+        command_zone=[{"object_id": "cmd-2", "name": "Hakbal of the Surging Soul"}],
+        options=[
+            {
+                "option_id": "cast-hakbal",
+                "option_type": "activated_ability",
+                "label": "Cast Hakbal",
+                "metadata": {
+                    "ability_type": "spell",
+                    "source_object_id": "cmd-2",
+                    "source_name": "Hakbal of the Surging Soul",
+                },
+            },
+        ],
+    )
+    counter.observe(d6, {"decision_id": "d6", "selected_option_ids": ["cast-hakbal"]})
+
+    # Seat 2, own turns 1..5: commander offered ONLY on own turn 5 (> T=4) -> NOT in denominator!
+    for own_t in range(1, 6):
+        opts: list[dict[str, object]] = [{"option_id": "pass", "option_type": "pass"}]
+        if own_t == 5:
+            opts.append({"option_id": "cmd-late", "option_type": "cast_commander", "label": "Late"})
+        counter.observe(
+            _audit_priority_decision(
+                decision_id=f"s2-t{own_t}",
+                seat=2,
+                turn=own_t * 4,
+                options=opts,
+            ),
+            {"decision_id": f"s2-t{own_t}", "selected_option_ids": ["pass"]},
+        )
+
+    summary = counter.summary()
+    # Seat 1 (seat_0=0): land 1/2 + cmd 1/1 = 2/3; Seat 2 (seat_0=1): cmd 0/1; Seat 3 has 0 opp -> omitted
+    assert summary["series"]["display"] == "2/4"
+    assert summary["series"]["by_kind"]["land_play"]["display"] == "1/2"
+    assert summary["series"]["by_kind"]["cast_commander"]["display"] == "1/2"
+    assert [row["seat"] for row in summary["by_seat"]] == [1, 2]
+    assert summary["by_seat"][0]["display"] == "2/3"
+    assert summary["by_seat"][1]["display"] == "0/1"
+
+    # Normalized via _normalize_pilot_omissions stays valid & preserves by_kind
+    norm = simulations_module._normalize_pilot_omissions(summary)
+    assert norm["status"] == "measured"
+    assert norm["display"] == "2/4"
+    assert norm["series"]["by_kind"]["land_play"]["display"] == "1/2"
+    assert norm["by_seat"][0]["by_kind"]["cast_commander"]["display"] == "1/1"
+
+    # Missing audit files -> None -> "unbekannt" (never 0/0)
+    assert pilot_audit.aggregate_series_omissions(tmp_path, ["missing-game-1"]) is None
+
+
+def test_batch_and_paired_opt_in_pilot_audit_integration(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """#1524: opt-in record_pilot_audit defaults to False, forwards --record-pilot-audit when
+    enabled, populates validity_block.pilot_omissions in batch & paired series, and survives
+    from_saved_series."""
+    from commander_lab.studio import paired_comparison, pilot_audit
+
+    sim_header: dict[str, object] = {
+        "data_class": "SIMULATED_RESULT",
+        "seed": 1000,
+        "seats": [{"seat": 1, "pilot": "AI"}, {"seat": 2, "pilot": "AI"}],
+    }
+    rec = pilot_audit.PilotAuditRecorder(tmp_path, "batch-b1524-s1000", sim_header)
+    rec.record(
+        _audit_priority_decision(
+            decision_id="d1",
+            seat=0,
+            turn=1,
+            options=[
+                {"option_id": "land", "option_type": "play_land", "label": "Play Forest"},
+                {"option_id": "pass", "option_type": "pass", "label": "Pass"},
+            ],
+        ),
+        {"decision_id": "d1", "selected_option_ids": ["pass"]},
+    )
+    rec.close(status="finished", winner_seats=[0], decision_count=1)
+
+    finished_summary = simulations_module.GameSummary(
+        game_id="batch-b1524-s1000",
+        seed=1000,
+        status="finished",
+        winner_seats=[0],
+        decision_count=1,
+        rounds=5,
+        candidate_won=True,
+    )
+
+    # Default OFF: pilot_omissions remains "unbekannt" even if an audit file exists on disk
+    batch_off = simulations_module.BatchSimulation(
+        batch_id="b1524",
+        data_folder=tmp_path,
+        deck_id="chulane",
+        revision_id="rev-1",
+        pod_name="precon",
+        opponent_paths=[],
+        opponent_ids=["opp-a", "opp-b", "opp-c"],
+        seeds=[1000],
+        initial_games=[finished_summary],
+    )
+    assert batch_off.record_pilot_audit is False
+    assert batch_off.to_dict()["validity_block"]["pilot_omissions"]["status"] == "unbekannt"
+
+    # Opt-in ON: populates validity_block.pilot_omissions and preserves flag on from_saved_series
+    batch_on = simulations_module.BatchSimulation(
+        batch_id="b1524",
+        data_folder=tmp_path,
+        deck_id="chulane",
+        revision_id="rev-1",
+        pod_name="precon",
+        opponent_paths=[],
+        opponent_ids=["opp-a", "opp-b", "opp-c"],
+        seeds=[1000],
+        initial_games=[finished_summary],
+        record_pilot_audit=True,
+    )
+    batch_on._write_record()
+    d_on = batch_on.to_dict()
+    assert d_on["record_pilot_audit"] is True
+    assert d_on["execution"]["record_pilot_audit"] is True
+    om = d_on["validity_block"]["pilot_omissions"]
+    assert om["status"] == "measured"
+    assert om["display"] == "1/1"
+    assert om["games_audited"] == 1
+    assert om["by_seat"][0]["seat"] == 1
+
+    restored = simulations_module.BatchSimulation.from_saved_series(
+        tmp_path, "b1524", opponent_paths=[tmp_path / "o1.json"]
+    )
+    assert restored.record_pilot_audit is True
+
+    # Verify _process_chunk passes --record-pilot-audit ONLY when record_pilot_audit=True
+    seen_cmds: list[list[str]] = []
+
+    class _FakeProc:
+        def __init__(self, cmd: list[str], **_kwargs: object) -> None:
+            seen_cmds.append(list(cmd))
+            self.stdout = iter([])
+
+        def wait(self, timeout: float | None = None) -> int:
+            return 0
+
+        def poll(self) -> int:
+            return 0
+
+    monkeypatch.setattr(simulations_module.subprocess, "Popen", _FakeProc)
+    list(batch_off._process_chunk([1000], tmp_path / "own.json"))
+    list(batch_on._process_chunk([1000], tmp_path / "own.json"))
+    assert "--record-pilot-audit" not in seen_cmds[0]
+    assert "--record-pilot-audit" in seen_cmds[1]
+
+    # Paired comparison _summarize aggregates pilot_omissions when audit_data_folder is given
+    base_exp: paired_comparison.GameExposure = {
+        "game_id": "batch-b1524-s1000",
+        "seed": 1000,
+        "engine_commit": "abc",
+        "bridge_jar_sha256": "e" * 64,
+        "bridge_qualification_state": "BRIDGE_AHEAD_OF_QUALIFICATION",
+        "covered_by_sealed_epoch": False,
+        "pilot": "GenericCommanderPilot",
+        "pilot_fingerprint": "f" * 64,
+        "decision_policy": "xmage-full-game-policy-1.0.0",
+        "seats": [
+            {"seat": 0, "deck_id": "base", "win_credit": 1.0},
+            {"seat": 1, "deck_id": "opp1", "win_credit": 0.0},
+        ],
+    }
+    var_exp: paired_comparison.GameExposure = {
+        **base_exp,
+        "game_id": "paired-var-s1000",
+        "seats": [
+            {"seat": 0, "deck_id": "variant", "win_credit": 0.0},
+            {"seat": 1, "deck_id": "opp1", "win_credit": 1.0},
+        ],
+    }
+    pair: paired_comparison.PairRecord = {
+        "seed": 1000,
+        "seat": 0,
+        "opponents": ["opp1"],
+        "base_game_id": "batch-b1524-s1000",
+        "variant_game_id": "paired-var-s1000",
+        "base_credit": 1.0,
+        "variant_credit": 0.0,
+        "difference": -1.0,
+    }
+    res_no_audit, _ = paired_comparison._summarize(
+        [pair],
+        base_deck_id="base",
+        variant_deck_id="variant",
+        threshold_pp=0.0,
+        significance_level=0.05,
+        alpha=0.05,
+        exposures=[base_exp, var_exp],
+        allow_mixed=False,
+        series=True,
+    )
+    assert res_no_audit["validity_block"]["pilot_omissions"]["status"] == "unbekannt"
+    res_with_audit, _ = paired_comparison._summarize(
+        [pair],
+        base_deck_id="base",
+        variant_deck_id="variant",
+        threshold_pp=0.0,
+        significance_level=0.05,
+        alpha=0.05,
+        exposures=[base_exp, var_exp],
+        allow_mixed=False,
+        series=True,
+        audit_data_folder=tmp_path,
+    )
+    p_om = res_with_audit["validity_block"]["pilot_omissions"]
+    assert p_om["status"] == "measured"
+    assert p_om["display"] == "1/1"
+    assert p_om["games_audited"] == 1
+    assert p_om["games_requested"] == 2
