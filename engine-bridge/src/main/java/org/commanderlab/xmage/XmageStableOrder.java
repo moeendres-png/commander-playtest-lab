@@ -4,6 +4,7 @@ import mage.abilities.Ability;
 import mage.cards.Card;
 import mage.constants.Zone;
 import mage.counters.Counter;
+import mage.game.ExileZone;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
 import mage.game.stack.StackObject;
@@ -78,16 +79,44 @@ final class XmageStableOrder {
     }
 
     /**
-     * #735: what still tells apart two permanents that {@link #objectKey} cannot (same name,
-     * controller, zone-change counter, P/T, tapped state and damage; typically tokens): their
-     * timestamp order, counters, rule texts and battlefield order. Without it such permanents
-     * fell back to the native UUID, so "the first Spirit Token" was a different token in each
-     * replay. It is compared only after the existing key (and, for abilities, after the rule
-     * text), so it orders only ties that were random before. Non-permanents get "".
+     * #735 / #1692: what still tells apart two objects that {@link #objectKey} cannot.
+     * For permanents (same name, controller, zone-change counter, P/T, tapped state and damage;
+     * typically tokens): timestamp order, counters, rule texts and battlefield order.
+     * For exiled cards (same owner, name and zone-change counter; e.g. two exiled Plains):
+     * exile-zone identity and insertion order in that {@link ExileZone} ({@code LinkedHashSet}).
+     * Compared only after {@link #objectKey} (and, for abilities, after the rule text), so it
+     * orders only ties that fell back to native UUIDs before. Other non-permanents get "".
      */
     static String contentKey(UUID id, Game game) {
         Permanent permanent = game.getPermanent(id);
-        return permanent == null ? "" : permanentContent(permanent, game);
+        if (permanent != null) {
+            return permanentContent(permanent, game);
+        }
+        Card card = game.getCard(id);
+        if (card != null && game.getState().getZone(id) == Zone.EXILED) {
+            return exiledCardContent(id, game);
+        }
+        return "";
+    }
+
+    static String exiledCardContent(UUID id, Game game) {
+        ExileZone permanentExile = game.getExile().getPermanentExile();
+        if (permanentExile != null && permanentExile.contains(id)) {
+            int position = new ArrayList<>(permanentExile).indexOf(id);
+            return "0|" + padded(position);
+        }
+        String best = null;
+        for (ExileZone zone : game.getExile().getExileZones()) {
+            if (zone != null && zone.contains(id)) {
+                int position = new ArrayList<>(zone).indexOf(id);
+                String name = zone.getName() == null ? "" : zone.getName();
+                String candidate = "1|" + name + "|" + padded(position);
+                if (best == null || candidate.compareTo(best) < 0) {
+                    best = candidate;
+                }
+            }
+        }
+        return best == null ? "" : best;
     }
 
     static String permanentContent(Permanent permanent, Game game) {
