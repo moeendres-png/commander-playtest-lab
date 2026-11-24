@@ -747,3 +747,508 @@ def test_compare_handles_unavailable_cpu_time_without_reporting_zero(
     out = capsys.readouterr().out
     assert "wall 5.0 -> 5.0 s" in out
     assert "cpu  nicht verfügbar" in out
+
+
+# --- paired-series identity check (scripts/check_studio_series_identity.py, Refs #1521) -------
+
+
+def _identity_module():
+    spec = importlib.util.spec_from_file_location(
+        "check_studio_series_identity", ROOT / "scripts/check_studio_series_identity.py"
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _fp_row(
+    game_id: str,
+    *,
+    status: str = "finished",
+    semantic: str | None = "h1",
+    winners: list[int] | None = None,
+    decisions: int | None = 42,
+) -> dict[str, object]:
+    return {
+        "game_id": game_id,
+        "status": status,
+        "semantic": semantic,
+        "winners": [1] if winners is None else winners,
+        "decisions": decisions,
+        "failure": None,
+    }
+
+
+def _paired_cli_fixtures(tmp_path: Path) -> tuple[Path, Path, Path, Path, Path]:
+    jar = tmp_path / "bridge.jar"
+    jar.write_bytes(b"jar")
+    base_deck = tmp_path / "base.json"
+    base_deck.write_text("{}", encoding="utf-8")
+    variant_deck = tmp_path / "variant.json"
+    variant_deck.write_text("{}", encoding="utf-8")
+    work = tmp_path / "work"
+    out = tmp_path / "report.json"
+    return jar, base_deck, variant_deck, work, out
+
+
+def _patch_paired_players(
+    monkeypatch: pytest.MonkeyPatch,
+    identity: object,
+    *,
+    alone_by_arm: dict[str, dict[int, dict[str, object]]],
+    paired_rows: dict[tuple[str, int], dict[str, object]],
+) -> None:
+    def fake_play_alone(
+        data: Path,
+        deck: Path,
+        opponents: list[Path],
+        seeds: list[int],
+        env: dict[str, str],
+    ) -> dict[int, dict[str, object]]:
+        arm = data.name
+        return dict(alone_by_arm[arm])
+
+    def fake_play_paired_series(
+        data: Path,
+        base_deck_path: Path,
+        variant_deck_path: Path,
+        opponents: list[Path],
+        seeds: list[int],
+        workers: int,
+        games_per_jvm: int,
+    ) -> tuple[dict[tuple[str, int], dict[str, object]], dict[str, object]]:
+        return dict(paired_rows), {
+            "series_id": "identity-paired",
+            "workers": workers,
+            "games_per_jvm": games_per_jvm,
+            "pool": None,
+        }
+
+    monkeypatch.setattr(identity, "play_alone", fake_play_alone)
+    monkeypatch.setattr(identity, "play_paired_series", fake_play_paired_series)
+
+
+def test_paired_identity_passes_when_all_games_match(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    identity = _identity_module()
+    jar, base_deck, variant_deck, work, out = _paired_cli_fixtures(tmp_path)
+    seeds = [1, 2, 3]
+    alone_by_arm = {
+        arm: {
+            seed: _fp_row(
+                f"a-{arm}-{seed}",
+                semantic=f"hash-{arm}-{seed}",
+                winners=[1 if arm == "base" else 2],
+                decisions=50 + seed,
+            )
+            for seed in seeds
+        }
+        for arm in ("base", "variant")
+    }
+    paired_rows = {
+        (arm, seed): _fp_row(
+            f"b-{arm}-{seed}",
+            semantic=f"hash-{arm}-{seed}",
+            winners=[1 if arm == "base" else 2],
+            decisions=50 + seed,
+        )
+        for arm in ("base", "variant")
+        for seed in seeds
+    }
+    _patch_paired_players(monkeypatch, identity, alone_by_arm=alone_by_arm, paired_rows=paired_rows)
+
+    rc = identity.main(
+        [
+            "--mode",
+            "paired",
+            "--jar",
+            str(jar),
+            "--deck",
+            str(base_deck),
+            "--variant-deck",
+            str(variant_deck),
+            "--seeds",
+            "1-3",
+            "--workers",
+            "2",
+            "--games-per-jvm",
+            "3",
+            "--work",
+            str(work),
+            "--out",
+            str(out),
+        ]
+    )
+    assert rc == 0
+    stdout = capsys.readouterr().out
+    assert "6 identisch von 6" in stdout
+    assert "IDENTITY PASS" in stdout
+    report = json.loads(out.read_text(encoding="utf-8"))
+    assert report["mode"] == "paired"
+    assert report["status"] == "PASS"
+    assert report["passed"] is True
+    assert report["summary"] == "6 identisch von 6"
+    assert report["identical"] == 6
+    assert report["total"] == 6
+    assert report["mismatches"] == []
+
+
+def test_paired_identity_fails_on_single_semantic_hash_mismatch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    identity = _identity_module()
+    jar, base_deck, variant_deck, work, out = _paired_cli_fixtures(tmp_path)
+    seeds = [1, 2]
+    alone_by_arm = {
+        arm: {seed: _fp_row(f"a-{arm}-{seed}", semantic=f"h-{arm}-{seed}") for seed in seeds}
+        for arm in ("base", "variant")
+    }
+    paired_rows = {
+        (arm, seed): _fp_row(f"b-{arm}-{seed}", semantic=f"h-{arm}-{seed}")
+        for arm in ("base", "variant")
+        for seed in seeds
+    }
+    paired_rows[("variant", 2)] = _fp_row("b-variant-2", semantic="DIFFERENT-HASH")
+    _patch_paired_players(monkeypatch, identity, alone_by_arm=alone_by_arm, paired_rows=paired_rows)
+
+    rc = identity.main(
+        [
+            "--mode",
+            "paired",
+            "--jar",
+            str(jar),
+            "--deck",
+            str(base_deck),
+            "--variant-deck",
+            str(variant_deck),
+            "--seeds",
+            "1-2",
+            "--work",
+            str(work),
+            "--out",
+            str(out),
+        ]
+    )
+    assert rc == 1
+    stdout = capsys.readouterr().out
+    assert "3 identisch von 4" in stdout
+    assert "semantic_hash_mismatch" in stdout
+    assert "IDENTITY FAIL" in stdout
+    report = json.loads(out.read_text(encoding="utf-8"))
+    assert report["status"] == "FAIL"
+    assert report["passed"] is False
+    assert len(report["mismatches"]) == 1
+    assert report["mismatches"][0]["arm"] == "variant"
+    assert report["mismatches"][0]["seed"] == 2
+    assert "semantic_hash_mismatch" in report["mismatches"][0]["reasons"]
+
+
+@pytest.mark.parametrize(
+    ("field", "mutated_value", "expected_reason"),
+    [
+        ("winners", [3], "winner_seat_mismatch"),
+        ("decisions", 999, "decision_count_mismatch"),
+    ],
+)
+def test_paired_identity_fails_on_winner_or_decision_count_mismatch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    field: str,
+    mutated_value: object,
+    expected_reason: str,
+) -> None:
+    identity = _identity_module()
+    jar, base_deck, variant_deck, work, out = _paired_cli_fixtures(tmp_path)
+    seeds = [1, 2]
+    alone_by_arm = {
+        arm: {seed: _fp_row(f"a-{arm}-{seed}", semantic=f"h-{arm}-{seed}") for seed in seeds}
+        for arm in ("base", "variant")
+    }
+    paired_rows = {
+        (arm, seed): _fp_row(f"b-{arm}-{seed}", semantic=f"h-{arm}-{seed}")
+        for arm in ("base", "variant")
+        for seed in seeds
+    }
+    paired_rows[("base", 1)][field] = mutated_value
+    _patch_paired_players(monkeypatch, identity, alone_by_arm=alone_by_arm, paired_rows=paired_rows)
+
+    rc = identity.main(
+        [
+            "--mode",
+            "paired",
+            "--jar",
+            str(jar),
+            "--deck",
+            str(base_deck),
+            "--variant-deck",
+            str(variant_deck),
+            "--seeds",
+            "1-2",
+            "--work",
+            str(work),
+            "--out",
+            str(out),
+        ]
+    )
+    assert rc == 1
+    stdout = capsys.readouterr().out
+    assert "3 identisch von 4" in stdout
+    assert expected_reason in stdout
+    assert "IDENTITY FAIL" in stdout
+    report = json.loads(out.read_text(encoding="utf-8"))
+    assert report["status"] == "FAIL"
+    assert report["passed"] is False
+    assert expected_reason in report["mismatches"][0]["reasons"]
+
+
+@pytest.mark.parametrize("missing_side", ["paired", "alone"])
+def test_paired_identity_fails_when_a_game_is_missing_on_either_side(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    missing_side: str,
+) -> None:
+    identity = _identity_module()
+    jar, base_deck, variant_deck, work, out = _paired_cli_fixtures(tmp_path)
+    seeds = [1, 2]
+    alone_by_arm = {
+        arm: {seed: _fp_row(f"a-{arm}-{seed}", semantic=f"h-{arm}-{seed}") for seed in seeds}
+        for arm in ("base", "variant")
+    }
+    paired_rows = {
+        (arm, seed): _fp_row(f"b-{arm}-{seed}", semantic=f"h-{arm}-{seed}")
+        for arm in ("base", "variant")
+        for seed in seeds
+    }
+    if missing_side == "paired":
+        del paired_rows[("variant", 1)]
+        expected_reason = "missing_paired"
+    else:
+        del alone_by_arm["base"][2]
+        expected_reason = "missing_alone"
+
+    _patch_paired_players(monkeypatch, identity, alone_by_arm=alone_by_arm, paired_rows=paired_rows)
+
+    rc = identity.main(
+        [
+            "--mode",
+            "paired",
+            "--jar",
+            str(jar),
+            "--deck",
+            str(base_deck),
+            "--variant-deck",
+            str(variant_deck),
+            "--seeds",
+            "1-2",
+            "--work",
+            str(work),
+            "--out",
+            str(out),
+        ]
+    )
+    assert rc == 1
+    stdout = capsys.readouterr().out
+    assert "3 identisch von 4" in stdout
+    assert expected_reason in stdout
+    assert "IDENTITY FAIL" in stdout
+    report = json.loads(out.read_text(encoding="utf-8"))
+    assert report["status"] == "FAIL"
+    assert report["passed"] is False
+
+
+def test_paired_identity_empty_seeds_fails_closed() -> None:
+    identity = _identity_module()
+    res = identity.compare_paired_identity([], {}, {})
+    assert res["passed"] is False
+    assert res["status"] == "FAIL"
+    assert res["summary"] == "0 identisch von 0"
+
+
+def test_paired_identity_missing_jar_reports_not_run_never_pass(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    identity = _identity_module()
+    _, base_deck, variant_deck, work, out = _paired_cli_fixtures(tmp_path)
+    missing_jar = tmp_path / "does_not_exist.jar"
+
+    rc = identity.main(
+        [
+            "--mode",
+            "paired",
+            "--jar",
+            str(missing_jar),
+            "--deck",
+            str(base_deck),
+            "--variant-deck",
+            str(variant_deck),
+            "--seeds",
+            "1-2",
+            "--work",
+            str(work),
+            "--out",
+            str(out),
+        ]
+    )
+    assert rc != 0
+    stdout = capsys.readouterr().out
+    assert "NOT_RUN" in stdout
+    assert "PASS" not in stdout
+    report = json.loads(out.read_text(encoding="utf-8"))
+    assert report["status"] == "NOT_RUN"
+    assert report["passed"] is False
+    assert report["mode"] == "paired"
+
+
+def test_paired_identity_requires_existing_variant_deck(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    identity = _identity_module()
+    jar, base_deck, _, work, _ = _paired_cli_fixtures(tmp_path)
+
+    rc_missing = identity.main(
+        ["--mode", "paired", "--jar", str(jar), "--deck", str(base_deck), "--work", str(work)]
+    )
+    assert rc_missing != 0
+    assert "--variant-deck" in capsys.readouterr().err
+
+    rc_not_found = identity.main(
+        [
+            "--mode",
+            "paired",
+            "--jar",
+            str(jar),
+            "--deck",
+            str(base_deck),
+            "--variant-deck",
+            str(tmp_path / "missing_variant.json"),
+            "--work",
+            str(work),
+        ]
+    )
+    assert rc_not_found != 0
+    assert "variant deck not found" in capsys.readouterr().err
+
+
+def test_play_paired_series_drives_parallel_window_player_and_closes_pool(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    identity = _identity_module()
+    calls: list[tuple[str, int, int]] = []
+    captured: dict[str, object] = {}
+    closed = {"called": False}
+
+    class FakeDeck:
+        def __init__(self, deck_id: str) -> None:
+            self.deck_id = deck_id
+
+        def model_copy(self, *, update: dict[str, str]) -> FakeDeck:
+            return FakeDeck(update["deck_id"])
+
+    class FakeEngine:
+        games_per_jvm = 3
+        command = ("java", "-jar", "bridge.jar", "full-game")
+
+    class FakeWindowPlayer:
+        def __call__(self, arm: str, seed: int, seat: int) -> dict[str, object]:
+            calls.append((arm, seed, seat))
+            return {"game_id": f"identity-paired-{arm}-s{seed}-t{seat}"}
+
+        def pool_summary(self) -> dict[str, object]:
+            return {"games_played": len(calls)}
+
+        def close(self) -> None:
+            closed["called"] = True
+
+    def fake_parallel_window_player(data: Path, **kwargs: object) -> FakeWindowPlayer:
+        captured["data"] = data
+        captured.update(kwargs)
+        return FakeWindowPlayer()
+
+    monkeypatch.setattr(identity, "series_engine", lambda _data, _gpj: FakeEngine())
+    monkeypatch.setattr(
+        identity,
+        "load_rules_deck_snapshot",
+        lambda path: FakeDeck(
+            "same-id" if path.name in ("base.json", "variant.json") else path.stem
+        ),
+    )
+    monkeypatch.setattr(
+        identity.paired_comparison, "parallel_window_player", fake_parallel_window_player
+    )
+    monkeypatch.setattr(
+        identity,
+        "_fingerprint",
+        lambda _data, game_id: _fp_row(game_id, semantic=f"sem-{game_id}"),
+    )
+
+    rows, execution = identity.play_paired_series(
+        tmp_path / "b",
+        tmp_path / "base.json",
+        tmp_path / "variant.json",
+        [tmp_path / "opp1.json", tmp_path / "opp2.json", tmp_path / "opp3.json"],
+        [10, 11],
+        workers=2,
+        games_per_jvm=3,
+    )
+    assert closed["called"] is True
+    assert captured["workers"] == 2
+    assert captured["games_per_jvm"] == 3
+    assert captured["tested_seats"] == [0]
+    assert captured["budget_pairs"] == 2
+    assert captured["look_every_pairs"] == 2
+    assert calls == [("base", 10, 0), ("variant", 10, 0), ("base", 11, 0), ("variant", 11, 0)]
+    assert set(rows.keys()) == {("base", 10), ("variant", 10), ("base", 11), ("variant", 11)}
+    assert rows[("variant", 11)]["game_id"] == "identity-paired-variant-s11-t0"
+    assert execution["pool"] == {"games_played": 4}
+
+
+def test_paired_identity_reports_unavailable_cpu_without_resource_module(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    identity = _identity_module()
+    monkeypatch.setattr(identity, "resource", None)
+    jar, base_deck, variant_deck, work, out = _paired_cli_fixtures(tmp_path)
+    alone_by_arm = {
+        arm: {1: _fp_row(f"a-{arm}-1", semantic=f"h-{arm}-1")} for arm in ("base", "variant")
+    }
+    paired_rows = {
+        (arm, 1): _fp_row(f"b-{arm}-1", semantic=f"h-{arm}-1") for arm in ("base", "variant")
+    }
+    _patch_paired_players(monkeypatch, identity, alone_by_arm=alone_by_arm, paired_rows=paired_rows)
+
+    rc = identity.main(
+        [
+            "--mode",
+            "paired",
+            "--jar",
+            str(jar),
+            "--deck",
+            str(base_deck),
+            "--variant-deck",
+            str(variant_deck),
+            "--seeds",
+            "1",
+            "--work",
+            str(work),
+            "--out",
+            str(out),
+        ]
+    )
+    assert rc == 0
+    stdout = capsys.readouterr().out
+    assert "cpu nicht verfügbar" in stdout
+    report = json.loads(out.read_text(encoding="utf-8"))
+    assert report["cpu_s"] == {"a": None, "b": None}
