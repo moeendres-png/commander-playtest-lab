@@ -14,7 +14,7 @@ import json
 import re
 import sqlite3
 import threading
-from collections.abc import AsyncIterator, Awaitable, Callable, Iterable
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterable, Mapping
 from contextlib import asynccontextmanager
 from dataclasses import asdict
 from datetime import UTC, datetime
@@ -25,7 +25,7 @@ from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi import Path as PathParam
 from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, ConfigDict, Field, StrictInt
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, model_validator
 
 from . import (
     allocation,
@@ -372,6 +372,7 @@ class BatchSimulationBody(BaseModel):
     style: float | None = Field(default=None, ge=0.0, le=1.0)
     workers: int | None = Field(default=None, ge=MIN_WORKERS, le=MAX_WORKERS)
     games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
+    record_pilot_audit: bool = False
 
 
 class PairedSeriesBody(BaseModel):
@@ -395,6 +396,7 @@ class PairedSeriesBody(BaseModel):
     )
     workers: int | None = Field(default=None, ge=MIN_WORKERS, le=MAX_WORKERS)
     games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
+    record_pilot_audit: bool = False
 
 
 #: What the card evaluation says when games without a pilot fingerprint name two pilot versions
@@ -424,6 +426,12 @@ class DecisionBody(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     decision: Literal["adopted", "rejected"]
+    note: str = Field(default="", max_length=1000)
+
+
+class WithdrawBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     note: str = Field(default="", max_length=1000)
 
 
@@ -494,13 +502,29 @@ class UniverseBody(BaseModel):
 
 
 class StrengthBody(BaseModel):
-    """Compute the strength index of one commander's pool; at most one settings source."""
+    """Compute the strength index of one commander's pool; at most one settings source.
+
+    ``detail="summary"`` returns only the lightweight builder list fields per card without
+    component breakdowns or top-level diagnostics. ``card_id`` (only with ``detail="full"``)
+    projects the cached answer down to that single card (empty ``cards`` list if absent).
+    """
 
     model_config = ConfigDict(extra="forbid")
     commander: str = Field(min_length=1, max_length=200)
     preset: str | None = Field(default=None, max_length=80)
     profile: str | None = Field(default=None, max_length=80)
     settings: dict[str, object] | None = None
+    detail: Literal["full", "summary"] = "full"
+    card_id: str | None = Field(default=None, max_length=120)
+
+    @model_validator(mode="after")
+    def _validate_projection(self) -> StrengthBody:
+        if self.card_id is not None:
+            if not self.card_id.strip():
+                raise ValueError("card_id must not be empty or whitespace-only")
+            if self.detail == "summary":
+                raise ValueError("detail='summary' cannot be combined with card_id")
+        return self
 
 
 class StrengthProfileBody(BaseModel):
@@ -573,6 +597,76 @@ def data_report_cached(store: StudioStore) -> dict[str, object]:
     return report
 
 
+_STRENGTH_SUMMARY_CARD_KEYS: tuple[str, ...] = (
+    "card_id",
+    "name",
+    "tier",
+    "index",
+    "present",
+    "is_land",
+)
+
+
+def _project_strength_summary(
+    answer: Mapping[str, object],
+    *,
+    preset: str | None,
+    profile: str | None,
+) -> dict[str, object]:
+    """Slim projection of a cached strength answer for the Builder list (#1565).
+
+    Every included card figure is copied verbatim from the full answer; no components,
+    chulane_textfit, role_ranks, tier_alternatives or heavy top-level blocks are emitted.
+    """
+    raw_cards = answer.get("cards")
+    cards = [
+        {key: card[key] for key in _STRENGTH_SUMMARY_CARD_KEYS if key in card}
+        for card in (raw_cards if isinstance(raw_cards, list) else [])
+        if isinstance(card, Mapping)
+    ]
+    return {
+        "schema": answer.get("schema"),
+        "data_class": answer.get("data_class"),
+        "commander": answer.get("commander"),
+        "preset": preset,
+        "profile": profile,
+        "detail": "summary",
+        "card_count": len(cards),
+        "cards": cards,
+    }
+
+
+def _project_strength_card(
+    answer: Mapping[str, object],
+    *,
+    card_id: str,
+    preset: str | None,
+    profile: str | None,
+) -> dict[str, object]:
+    """Single-card full projection of a cached strength answer (#1565).
+
+    Returns only the requested card (complete with components, coverage, confidence,
+    borderline and role_ranks) or an empty ``cards`` list when ``card_id`` is absent.
+    """
+    raw_cards = answer.get("cards")
+    matched = [
+        card
+        for card in (raw_cards if isinstance(raw_cards, list) else [])
+        if isinstance(card, Mapping) and card.get("card_id") == card_id
+    ]
+    return {
+        "schema": answer.get("schema"),
+        "data_class": answer.get("data_class"),
+        "commander": answer.get("commander"),
+        "preset": preset,
+        "profile": profile,
+        "detail": "full",
+        "card_id": card_id,
+        "card_count": len(matched),
+        "cards": matched,
+    }
+
+
 def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]:
     """The strength index answer of ``/api/strength``, remembered per store state and request
     (the resolved settings are part of the key; errors are not kept). Also what the start-up
@@ -620,6 +714,12 @@ def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]
         json.dumps(asdict(settings), sort_keys=True, default=str),
     )
     answer = cache.cached(store, ("strength", *key), compute)
+    if body.detail == "summary":
+        return _project_strength_summary(answer, preset=body.preset, profile=body.profile)
+    if body.card_id is not None:
+        return _project_strength_card(
+            answer, card_id=body.card_id, preset=body.preset, profile=body.profile
+        )
     # Additive: the rubric v2 field "Kartenverständnis (Modellurteil)" (Q1-b3, #1678, E5), only
     # for Chulane. Added after the snapshot and the remembered answer, so neither of them
     # changes (``with_understanding`` copies the answer); the stamps of the data, audit and pooled
@@ -1395,6 +1495,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 style=body.style,
                 workers=body.workers,
                 games_per_jvm=body.games_per_jvm,
+                record_pilot_audit=body.record_pilot_audit,
             )
             return {
                 "batch_id": batch.batch_id,
@@ -1425,7 +1526,53 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             except ValueError:
                 raise HTTPException(422, "corrupt series record") from None
             if isinstance(payload, dict):
-                return cast(dict[str, object], payload)
+                from .simulations import build_validity_block, compute_seat_curve
+
+                result_payload = cast(dict[str, object], payload)
+                raw_summary = result_payload.get("summary")
+                summary_dict = raw_summary if isinstance(raw_summary, dict) else None
+                raw_vb = (
+                    summary_dict.get("validity_block")
+                    if summary_dict is not None
+                    and isinstance(summary_dict.get("validity_block"), dict)
+                    else result_payload.get("validity_block")
+                )
+                if isinstance(raw_vb, dict):
+                    vb: dict[str, object] = dict(raw_vb)
+                else:
+                    raw_opp_ids = result_payload.get("opponent_ids")
+                    table_size = (
+                        1 + len(raw_opp_ids)
+                        if isinstance(raw_opp_ids, list) and raw_opp_ids
+                        else None
+                    )
+                    raw_games = result_payload.get("games")
+                    finished_games = (
+                        [
+                            g
+                            for g in raw_games
+                            if isinstance(g, dict) and g.get("status") == "finished"
+                        ]
+                        if isinstance(raw_games, list)
+                        else []
+                    )
+                    raw_fp = result_payload.get("pilot_fingerprint")
+                    fp = raw_fp if isinstance(raw_fp, str) and raw_fp.strip() else None
+                    raw_pod = result_payload.get("pod")
+                    pod = raw_pod if isinstance(raw_pod, str) and raw_pod.strip() else None
+                    vb = build_validity_block(
+                        seat_curve=compute_seat_curve(finished_games, table_size=table_size),
+                        pilot_fingerprint=fp,
+                        pods=pod,
+                        engine_version=None,
+                        pilot_omissions=None,
+                    )
+                result_payload["validity_block"] = vb
+                if summary_dict is not None and not isinstance(
+                    summary_dict.get("validity_block"), dict
+                ):
+                    result_payload["summary"] = {**summary_dict, "validity_block": vb}
+                return result_payload
         raise HTTPException(404, "unknown batch")
 
     @app.post("/api/simulations/batch/{batch_id}/resume")
@@ -1490,6 +1637,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 significance_level=body.significance_level,
                 workers=body.workers,
                 games_per_jvm=body.games_per_jvm,
+                record_pilot_audit=body.record_pilot_audit,
             )
             return job.to_dict()
         except KeyError as error:
@@ -1572,6 +1720,26 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         except experiments.DecisionRefused as error:
+            raise HTTPException(409, str(error)) from error
+        finally:
+            store.close()
+
+    @app.post("/api/experiments/{experiment_id}/withdraw")
+    def withdraw_experiment(
+        experiment_id: str, body: WithdrawBody | None = None
+    ) -> dict[str, object]:
+        """Withdraw an unplayed experiment plan (Owner 5a, #1658): releases seeds and
+        excludes it from Holm families while keeping the plan visible in the history."""
+        store = open_store()
+        try:
+            note = "" if body is None else body.note
+            with cache.write(store, _EXPERIMENTS):
+                return experiments.withdraw_experiment(store, games_home(), experiment_id, note)
+        except KeyError as error:
+            raise HTTPException(404, "unknown experiment") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except experiments.WithdrawRefused as error:
             raise HTTPException(409, str(error)) from error
         finally:
             store.close()
@@ -2051,13 +2219,22 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
 
     @app.delete("/api/decks/{deck_id}/branches/{branch:path}/draft")
     def delete_draft(
-        deck_id: str, branch: str = PathParam(min_length=1, max_length=60)
+        deck_id: str,
+        branch: str = PathParam(min_length=1, max_length=60),
+        expected_updated_at: str | None = None,
     ) -> dict[str, object]:
         store = open_store()
         try:
             with cache.write(store, _DECKS):
-                builder.drop_draft(store, deck_id, branch)
+                builder.drop_draft(
+                    store,
+                    deck_id,
+                    branch,
+                    expected_updated_at=expected_updated_at,
+                )
             return {"dropped": True}
+        except builder.DraftConflict as error:
+            raise HTTPException(409, str(error)) from error
         finally:
             store.close()
 

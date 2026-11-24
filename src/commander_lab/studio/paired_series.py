@@ -15,11 +15,13 @@ Hard invariants:
 from __future__ import annotations
 
 import contextlib
+import copy
 import hashlib
 import json
 import math
 import os
 import re
+import shutil
 import sys
 import threading
 import time
@@ -39,7 +41,7 @@ from commander_lab.engine.rules.full_game_comparison import (
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
 from commander_lab.models import RulesDeckInput
 
-from . import builder, decks, launch, paired_comparison, strength_view
+from . import builder, decks, launch, paired_comparison, series_reservation, strength_view
 from .card_outcomes import pilot_identity, wilson_unrounded
 from .decks import RevisionCard, lab_snapshot, list_rows, resolve_repo_baseline_cards
 from .games import games_folder
@@ -67,6 +69,11 @@ from .series_record import (
     series_guard,
     series_key_problem,
     series_violation,
+)
+from .simulations import (
+    build_validity_block,
+    canonical_xmage_engine_pin,
+    compute_seat_curve,
 )
 from .store import StudioStore, now_utc
 from .strength import StrengthSettings
@@ -120,11 +127,11 @@ POOL_REFERENCE_PART_B: dict[int, dict[str, object]] = {
 #: Assumed block correlation of the seat rotations of one seed, as in ``power_table`` (#1043).
 PLANNING_BLOCK_CORRELATION = 0.25
 PLANNING_REFERENCE_EFFECT_PP = 5.0
-#: Tables whose plan uses the base win rate 1/N of N equally strong seats (#1661, #1672): five to
-#: eight seats (1/7 = 14.3 %, 1/8 = 12.5 %). Four seats keep the engine lane's 0.63 (built on
-#: 25 % = 1/4) byte for byte; two and three seats also keep it (their 1/N lies above 25 %, a
-#: pre-existing gap not changed here).
-BASELINE_PLAN_SEATS = (5, 6, 7, 8)
+#: Tables whose plan uses the base win rate 1/N of N equally strong seats (#1661, #1672, #1757):
+#: all seat counts except four (2, 3, 5, 6, 7, 8). Four seats keep the engine lane's 0.63 (built
+#: on 25 % = 1/4) byte for byte. At two seats p = 1/2 (exact independent pair sd 0.7071, scaled
+#: pair_sd 0.7275); at three seats p = 1/3 (exact 0.6667, scaled pair_sd 0.6859).
+BASELINE_PLAN_SEATS = (2, 3, 5, 6, 7, 8)
 #: Seven and eight seats (#1672): no throughput and no wall-time ratio is measured on the Owner PC,
 #: so the duration of a series stays UNKNOWN. What exists is one game per JVM in the cloud container
 #: of the feasibility run (research branch ``research/seats-7-8-1672``, report
@@ -229,9 +236,10 @@ def observed_table_sizes(raw: Mapping[str, object]) -> ObservedTables:
 def planning_pair_sd(table_size: int) -> float:
     """The planning sd of one pair at ``table_size`` seats.
 
-    Four seats (and two and three): the engine lane's conservative 0.63, unchanged. Five and
-    six seats: the same conservative factor (0.63 / 0.612) on the exact sd of independent games
-    at the base win rate p = 1/N, ``sqrt(2 * p * (1 - p))``: 0.582 at five, 0.542 at six seats.
+    Four seats: the engine lane's conservative 0.63, unchanged. All other seat counts (two, three,
+    five to eight): the same conservative factor (0.63 / 0.612) on the exact sd of independent
+    games at the base win rate p = 1/N, ``sqrt(2 * p * (1 - p))``: 0.7275 at two, 0.6859 at
+    three, 0.582 at five, 0.5422 at six, 0.5091 at seven, 0.4812 at eight seats.
     """
     seats = int(table_size)
     if seats not in BASELINE_PLAN_SEATS:
@@ -261,8 +269,8 @@ def wilson_games_needed(win_rate: float, relative: float = WILSON_RELATIVE_PRECI
 def planning_baseline(table_size: int) -> dict[str, object]:
     """The base win rate 1/N of a table and the games a single win share needs for +-20 %.
 
-    ``applies_to_plan`` says whether the pair sd of the plan is built on it (five and six
-    seats) or the engine lane's 0.63 stays (two to four seats)."""
+    ``applies_to_plan`` says whether the pair sd of the plan is built on it (two, three, and
+    five to eight seats) or the engine lane's 0.63 stays (four seats)."""
     seats = int(table_size)
     if not MIN_SEATS <= seats <= MAX_SEATS:
         raise ValueError(f"Tischgröße muss zwischen {MIN_SEATS} und {MAX_SEATS} liegen")
@@ -320,8 +328,8 @@ def planned_detectable_difference_pp(
     ``1 + (m - 1) * 0.25`` at the upper end. A plan, not a measurement.
 
     ``table_size`` (seats at the table, never the seats per seed: without rotation that is 1)
-    names the base win rate 1/N (``baseline``); at five and six seats the pair sd is built on
-    it (``planning_pair_sd``), at two to four seats the 0.63 stays.
+    names the base win rate 1/N (``baseline``); at two, three, and five to eight seats the pair
+    sd is built on it (``planning_pair_sd``), at four seats the 0.63 stays.
     """
     pairs = max(2, int(budget_pairs))
     seats = max(1, int(seats_per_seed))
@@ -842,10 +850,21 @@ class PairedSeriesJob:
         created_at: str | None = None,
         preloaded_games: dict[tuple[str, int, int], paired_comparison.PlayedGame] | None = None,
         experiment: Mapping[str, object] | None = None,
+        table: Mapping[str, object] | None = None,
+        table_hash: str | None = None,
+        record_pilot_audit: bool = False,
     ) -> None:
         self.series_id = series_id
         #: The experiment this series plays (B2, #1658): id, plan SHA and table hash.
         self.experiment = dict(experiment) if experiment is not None else None
+        #: Optional canonical table spec and its hash (S1, #1660), forwarded to pool tasks/manifest.
+        self.table: dict[str, object] | None = (
+            copy.deepcopy(dict(table)) if table is not None else None
+        )
+        self.table_hash: str | None = (
+            str(table_hash).strip() or None if table_hash is not None else None
+        )
+        self.record_pilot_audit = bool(record_pilot_audit)
         self.data_folder = data_folder
         self.base_ref = base_ref
         self.variant_ref = variant_ref
@@ -925,6 +944,14 @@ class PairedSeriesJob:
         self._lock = threading.Lock()
         self._persist_lock = threading.Lock()
         self._progress_lock = threading.Lock()
+        #: The games folder that holds this series' id reservation (None: no process-wide claim)
+        self.reserved_in: Path | None = None
+
+    def release_reservation(self) -> None:
+        """Give the id claim of ``start_series`` back (#1737); safe to call twice."""
+        folder, self.reserved_in = self.reserved_in, None
+        if folder is not None:
+            series_reservation.release(folder, self.series_id)
 
     def series_file(self) -> Path:
         return games_folder(self.data_folder) / f"{self.series_id}.paired.json"
@@ -1008,6 +1035,7 @@ class PairedSeriesJob:
             "games_per_jvm": self.games_per_jvm,
             "serial_gc": engine.serial_gc if engine is not None else False,
             "appcds": engine.appcds if engine is not None else False,
+            "record_pilot_audit": self.record_pilot_audit,
         }
 
     def to_dict(self) -> dict[str, object]:
@@ -1028,6 +1056,25 @@ class PairedSeriesJob:
                 )
             )
             covered = bool(res.get("covered_by_sealed_epoch")) if res is not None else False
+            validity_block = (
+                res.get("validity_block")
+                if isinstance(res, dict) and isinstance(res.get("validity_block"), dict)
+                else build_validity_block(
+                    seat_curve=compute_seat_curve(
+                        [],
+                        table_size=1 + len(self.opponents) if self.opponents else None,
+                    ),
+                    pilot_fingerprint=header_pilot_fingerprint(),
+                    pods=self.pod_name,
+                    engine_version=canonical_xmage_engine_pin(),
+                    pilot_omissions=None,
+                )
+            )
+            consistency_table = (
+                res.get("consistency_table")
+                if isinstance(res, dict) and isinstance(res.get("consistency_table"), dict)
+                else None
+            )
             return {
                 "schema": SCHEMA_PAIRED_JOB,
                 "series_id": self.series_id,
@@ -1063,94 +1110,163 @@ class PairedSeriesJob:
                 "bridge_qualification": self.bridge_qualification,
                 "covered_by_sealed_epoch": covered,
                 "experiment": self.experiment,
+                "validity_block": validity_block,
+                "consistency_table": consistency_table,
+                "table": self.table,
+                "table_hash": self.table_hash,
                 "result": res,
             }
 
     def run(self) -> None:
-        self._write_lock()
-        self._ensure_progress_newline()
-        with self._lock:
-            self.status = "running"
-            self.started_at = now_utc()
-            self.error = None
-        self.persist()
-
-        def _on_pair_done(count: int) -> None:
+        try:
+            withdraw_block = _experiment_withdraw_block(self.data_folder, self.experiment)
+            if withdraw_block is not None:
+                with self._lock:
+                    self.status = "cancelled"
+                    self.error = withdraw_block
+                    self.ended_at = now_utc()
+                self.persist()
+                return
+            self._write_lock()
+            self._ensure_progress_newline()
             with self._lock:
-                self.pairs_attempted = max(self.pairs_attempted, count)
+                self.status = "running"
+                self.started_at = now_utc()
+                self.error = None
             self.persist()
 
-        player = paired_comparison.parallel_window_player(
-            self.data_folder,
-            series_id=self.series_id,
-            base_deck=self.base_deck,
-            variant_deck=self.variant_deck,
-            opponents=self.opponents,
-            paths_by_deck_id=self.paths_by_deck_id,
-            seeds=self.seeds,
-            tested_seats=self.tested_seats,
-            budget_pairs=self.budget_pairs,
-            look_every_pairs=self.look_every_pairs,
-            workers=self.workers,
-            games_per_jvm=self.games_per_jvm,
-            command=self.engine.command if self.engine is not None else None,
-            play_single=self.play_override,
-            is_cancelled=self.is_cancelled,
-            on_pair_done=_on_pair_done,
-            cancel_error_factory=lambda: SeriesCancelledError("Serie vom Benutzer abgebrochen"),
-            preloaded=self.preloaded_games,
-            on_game_result=self._append_game_result,
-            on_game_played=self.mark_game_played,
-        )
+            def _on_pair_done(count: int) -> None:
+                with self._lock:
+                    self.pairs_attempted = max(self.pairs_attempted, count)
+                self.persist()
 
-        try:
-            result = paired_comparison.run_comparison_series(
-                base_deck_id=self.base_deck.deck_id,
-                variant_deck_id=self.variant_deck.deck_id,
+            player = paired_comparison.parallel_window_player(
+                self.data_folder,
+                series_id=self.series_id,
+                base_deck=self.base_deck,
+                variant_deck=self.variant_deck,
+                opponents=self.opponents,
+                paths_by_deck_id=self.paths_by_deck_id,
                 seeds=self.seeds,
                 tested_seats=self.tested_seats,
                 budget_pairs=self.budget_pairs,
                 look_every_pairs=self.look_every_pairs,
-                threshold_pp=self.threshold_pp,
-                significance_level=self.significance_level,
-                play=player,
-                execution={
-                    "series_id": self.series_id,
-                    "command": "studio web paired-series",
-                    "base_ref": self.base_ref,
-                    "variant_ref": self.variant_ref,
-                    "pod": self.pod_name,
-                    "rotate_seats": len(self.tested_seats) > 1,
-                    "look_every_pairs": self.look_every_pairs,
-                    "budget_pairs": self.budget_pairs,
-                    "games_dir": str(games_folder(self.data_folder)),
-                    "slot_alignment": self.slot_alignment,
-                    "seed_plan": self.seed_plan,
-                    **self.execution_metadata(),
-                },
+                workers=self.workers,
+                games_per_jvm=self.games_per_jvm,
+                command=self.engine.command if self.engine is not None else None,
+                play_single=self.play_override,
+                is_cancelled=self.is_cancelled,
+                on_pair_done=_on_pair_done,
+                cancel_error_factory=lambda: SeriesCancelledError("Serie vom Benutzer abgebrochen"),
+                preloaded=self.preloaded_games,
+                on_game_result=self._append_game_result,
+                on_game_played=self.mark_game_played,
+                table=self.table,
+                table_hash=self.table_hash,
+                record_pilot_audit=self.record_pilot_audit,
             )
-            pool_summary = player.pool_summary()
-            if pool_summary is not None:
-                result["execution"] = {**result["execution"], "pool": pool_summary}
-            with self._lock:
-                self.result = result
-                self.pairs_attempted = int(result.get("pairs_played") or self.pairs_attempted)
-                self.status = "completed"
-                self.ended_at = now_utc()
-        except SeriesCancelledError as exc:
-            with self._lock:
-                self.status = "cancelled"
-                self.error = str(exc)
-                self.ended_at = now_utc()
-        except Exception as exc:
-            with self._lock:
-                self.status = "failed"
-                self.error = str(exc)
-                self.ended_at = now_utc()
+
+            final_status = "failed"
+            final_result: paired_comparison.PairedComparison | None = None
+            final_pairs_attempted: int | None = None
+            final_error: str | None = None
+            final_ended_at: str | None = None
+
+            try:
+                result = paired_comparison.run_comparison_series(
+                    base_deck_id=self.base_deck.deck_id,
+                    variant_deck_id=self.variant_deck.deck_id,
+                    seeds=self.seeds,
+                    tested_seats=self.tested_seats,
+                    budget_pairs=self.budget_pairs,
+                    look_every_pairs=self.look_every_pairs,
+                    threshold_pp=self.threshold_pp,
+                    significance_level=self.significance_level,
+                    play=player,
+                    audit_data_folder=self.data_folder if self.record_pilot_audit else None,
+                    execution={
+                        "series_id": self.series_id,
+                        "command": "studio web paired-series",
+                        "base_ref": self.base_ref,
+                        "variant_ref": self.variant_ref,
+                        "pod": self.pod_name,
+                        "rotate_seats": len(self.tested_seats) > 1,
+                        "look_every_pairs": self.look_every_pairs,
+                        "budget_pairs": self.budget_pairs,
+                        "games_dir": str(games_folder(self.data_folder)),
+                        "slot_alignment": self.slot_alignment,
+                        "seed_plan": self.seed_plan,
+                        **self.execution_metadata(),
+                    },
+                )
+                pool_summary = player.pool_summary()
+                if pool_summary is not None:
+                    result["execution"] = {**result["execution"], "pool": pool_summary}
+                final_result = result
+                pairs_played = result.get("pairs_played")
+                final_pairs_attempted = int(pairs_played) if pairs_played else None
+                final_status = "completed"
+                final_ended_at = now_utc()
+            except SeriesCancelledError as exc:
+                final_status = "cancelled"
+                final_error = str(exc)
+                final_ended_at = now_utc()
+            except Exception as exc:
+                final_status = "failed"
+                final_error = str(exc)
+                final_ended_at = now_utc()
+            finally:
+                try:
+                    player.close()  # the worker processes and their bridge JVMs end with the series
+                finally:
+                    self._release_lock()
+                    with self._persist_lock:
+                        with self._lock:
+                            if final_result is not None:
+                                self.result = final_result
+                            if final_pairs_attempted is not None:
+                                self.pairs_attempted = final_pairs_attempted
+                            if final_error is not None:
+                                self.error = final_error
+                            self.ended_at = final_ended_at or now_utc()
+                        payload = self.to_dict()
+                        payload["status"] = final_status
+                        try:
+                            _write_json_atomic(self.series_file(), payload)
+                        finally:
+                            self.release_reservation()
+                            with self._lock:
+                                self.status = final_status
         finally:
-            player.close()  # the worker processes and their bridge JVMs end with the series
-            self._release_lock()
-            self.persist()
+            self.release_reservation()
+
+
+PAIRED_ID_ATTEMPTS = 1000
+_EXPERIMENT_ID_RE = re.compile(r"^exp-[A-Za-z0-9_-]{1,90}$")
+
+
+def _experiment_withdraw_block(target_folder: Path | None, experiment: object) -> str | None:
+    """Fail-closed check whether an experiment-linked series was withdrawn (Owner 5a, #1658)."""
+    if experiment is None:
+        return None
+    if not isinstance(experiment, dict):
+        return "ungültige Experiment-Verknüpfung (nicht fortsetzbar)"
+    exp_id = experiment.get("experiment_id")
+    if not isinstance(exp_id, str) or not _EXPERIMENT_ID_RE.fullmatch(exp_id):
+        return "ungültige Experiment-ID (nicht fortsetzbar)"
+    if target_folder is None:
+        return "Datenordner fehlt für Experiment-Prüfung (nicht fortsetzbar)"
+    withdraw_path = games_folder(target_folder) / "experiments" / exp_id / "withdraw.json"
+    if withdraw_path.exists() or withdraw_path.is_symlink():
+        return f"Experiment {exp_id} wurde zurückgezogen (nicht fortsetzbar)"
+    return None
+
+
+def _paired_id_in_use(claims: Path, series_id: str) -> bool:
+    """True when a paired series already owns ``series_id`` on disk (#1737)."""
+    return (claims / f"{series_id}.paired.json").exists() or (
+        claims / "paired_decks" / series_id
+    ).exists()
 
 
 class PairedSeriesManager:
@@ -1183,6 +1299,9 @@ class PairedSeriesManager:
         allow_unreleased_seats: bool = False,
         experiment: Mapping[str, object] | None = None,
         table_size: int | None = None,
+        table: Mapping[str, object] | None = None,
+        table_hash: str | None = None,
+        record_pilot_audit: bool = False,
     ) -> PairedSeriesJob:
         """Start a paired series. ``table_size`` (seats, 2 to 6) sizes a pod preset's table:
         the preset's first ``table_size - 1`` opponents sit down, and the series records them
@@ -1244,91 +1363,145 @@ class PairedSeriesManager:
                 pod, opponent_ids, allow_unreleased_seats=allow_unreleased_seats
             )
 
+        claims = games_folder(data_path)
+        series_id: str | None = None
+        deck_dir: Path | None = None
         with self._lock:
-            self._seq += 1
-            seq = self._seq
-        digest = hashlib.sha256(
-            f"{base_revision_id}|{variant_revision_id}|{base_seed}|{seq}".encode()
-        ).hexdigest()[:8]
-        series_id = f"paired-{int(time.time())}-{seq}-{digest}"
-        deck_dir = games_folder(data_path) / "paired_decks" / series_id
-        base_path = _snapshot_file(deck_dir, "base", base_revision_id, base_snap)
-        variant_path = _snapshot_file(deck_dir, "variant", variant_revision_id, variant_snap)
+            series_reservation.reap_stale(claims)
+            second = int(time.time())
+            for _ in range(PAIRED_ID_ATTEMPTS):
+                self._seq += 1
+                seq = self._seq
+                digest = hashlib.sha256(
+                    f"{base_revision_id}|{variant_revision_id}|{base_seed}|{seq}".encode()
+                ).hexdigest()[:8]
+                candidate = f"paired-{second}-{seq}-{digest}"
+                if candidate in self._jobs or _paired_id_in_use(claims, candidate):
+                    continue
+                if not series_reservation.claim_unless_used(
+                    claims, candidate, lambda sid: _paired_id_in_use(claims, sid)
+                ):
+                    continue
+                candidate_dir = claims / "paired_decks" / candidate
+                try:
+                    candidate_dir.mkdir(parents=True, exist_ok=False)
+                except FileExistsError:
+                    series_reservation.release(claims, candidate)
+                    continue
+                except BaseException:
+                    series_reservation.release(claims, candidate)
+                    raise
+                series_id = candidate
+                deck_dir = candidate_dir
+                break
+        if series_id is None or deck_dir is None:
+            raise RuntimeError(
+                f"Keine freie Serien-Kennung für paired-{second}-* nach {PAIRED_ID_ATTEMPTS} "
+                "Versuchen; keine Serie gestartet und nichts überschrieben"
+            )
 
-        base_deck = load_rules_deck_snapshot(base_path)
-        variant_deck = load_rules_deck_snapshot(variant_path)
-        if base_deck.deck_id == variant_deck.deck_id:
-            # Paired exposures match on RulesDeckInput.deck_id; distinguish base vs variant cleanly
-            base_snap["deck_id"] = f"{base_deck.deck_id}--base"
-            variant_snap["deck_id"] = f"{variant_deck.deck_id}--variant"
+        job: PairedSeriesJob | None = None
+        registered = False
+        persisted = False
+        try:
             base_path = _snapshot_file(deck_dir, "base", base_revision_id, base_snap)
             variant_path = _snapshot_file(deck_dir, "variant", variant_revision_id, variant_snap)
+
             base_deck = load_rules_deck_snapshot(base_path)
             variant_deck = load_rules_deck_snapshot(variant_path)
-        variant_deck, alignment = _align_variant_file(
-            base_deck, variant_deck, variant_snap, variant_path
-        )
-        opp_paths = _table_opponent_paths(
-            store,
-            deck_dir,
-            pod,
-            opponent_ids,
-            {base_deck.deck_id, variant_deck.deck_id},
-            allow_unreleased_seats=allow_unreleased_seats,
-        )
-        opponents = [load_rules_deck_snapshot(p) for p in opp_paths]
+            if base_deck.deck_id == variant_deck.deck_id:
+                # Paired exposures match on RulesDeckInput.deck_id; distinguish base vs variant cleanly
+                base_snap["deck_id"] = f"{base_deck.deck_id}--base"
+                variant_snap["deck_id"] = f"{variant_deck.deck_id}--variant"
+                base_path = _snapshot_file(deck_dir, "base", base_revision_id, base_snap)
+                variant_path = _snapshot_file(
+                    deck_dir, "variant", variant_revision_id, variant_snap
+                )
+                base_deck = load_rules_deck_snapshot(base_path)
+                variant_deck = load_rules_deck_snapshot(variant_path)
+            variant_deck, alignment = _align_variant_file(
+                base_deck, variant_deck, variant_snap, variant_path
+            )
+            opp_paths = _table_opponent_paths(
+                store,
+                deck_dir,
+                pod,
+                opponent_ids,
+                {base_deck.deck_id, variant_deck.deck_id},
+                allow_unreleased_seats=allow_unreleased_seats,
+            )
+            opponents = [load_rules_deck_snapshot(p) for p in opp_paths]
 
-        paths_by_deck_id: dict[str, Path] = {
-            base_deck.deck_id: base_path,
-            variant_deck.deck_id: variant_path,
-        }
-        for deck, path in zip(opponents, opp_paths, strict=True):
-            paths_by_deck_id[deck.deck_id] = path
+            paths_by_deck_id: dict[str, Path] = {
+                base_deck.deck_id: base_path,
+                variant_deck.deck_id: variant_path,
+            }
+            for deck, path in zip(opponents, opp_paths, strict=True):
+                paths_by_deck_id[deck.deck_id] = path
 
-        table_size = 1 + len(opponents)
-        rotation = rotation_plan(
-            table_size, budget_pairs, rotate_seats=rotate_seats, first_seed=int(base_seed)
-        )
-        tested_seats = [int(seat) for seat in cast(list[int], rotation["tested_seats"])]
-        seeds = [int(base_seed) + i for i in range(cast(int, rotation["seeds_planned"]))]
+            table_size = 1 + len(opponents)
+            rotation = rotation_plan(
+                table_size, budget_pairs, rotate_seats=rotate_seats, first_seed=int(base_seed)
+            )
+            tested_seats = [int(seat) for seat in cast(list[int], rotation["tested_seats"])]
+            seeds = [int(base_seed) + i for i in range(cast(int, rotation["seeds_planned"]))]
 
-        jar_sha = (
-            command_bridge_jar_sha256(data_path, engine.command) if engine is not None else None
-        )
-        job = PairedSeriesJob(
-            series_id=series_id,
-            data_folder=data_path,
-            base_ref=base_revision_id,
-            variant_ref=variant_revision_id,
-            base_deck=base_deck,
-            variant_deck=variant_deck,
-            opponents=opponents,
-            paths_by_deck_id=paths_by_deck_id,
-            pod_name=pod,
-            seeds=seeds,
-            tested_seats=tested_seats,
-            budget_pairs=budget_pairs,
-            look_every_pairs=look_every_pairs,
-            threshold_pp=threshold_pp,
-            significance_level=significance_level,
-            play_override=play_override,
-            workers=used_workers,
-            games_per_jvm=used_batch,
-            engine=engine,
-            bridge_sha=jar_sha,
-            qualification=bridge_qualification(),
-            slot_alignment=alignment,
-            purpose=purpose,
-            player_count=table_size,
-            opponent_ids=opponent_ids,
-            experiment=experiment,
-        )
-        job.persist()
-        with self._lock:
-            self._jobs[series_id] = job
+            jar_sha = (
+                command_bridge_jar_sha256(data_path, engine.command) if engine is not None else None
+            )
+            job = PairedSeriesJob(
+                series_id=series_id,
+                data_folder=data_path,
+                base_ref=base_revision_id,
+                variant_ref=variant_revision_id,
+                base_deck=base_deck,
+                variant_deck=variant_deck,
+                opponents=opponents,
+                paths_by_deck_id=paths_by_deck_id,
+                pod_name=pod,
+                seeds=seeds,
+                tested_seats=tested_seats,
+                budget_pairs=budget_pairs,
+                look_every_pairs=look_every_pairs,
+                threshold_pp=threshold_pp,
+                significance_level=significance_level,
+                play_override=play_override,
+                workers=used_workers,
+                games_per_jvm=used_batch,
+                engine=engine,
+                bridge_sha=jar_sha,
+                qualification=bridge_qualification(),
+                slot_alignment=alignment,
+                purpose=purpose,
+                player_count=table_size,
+                opponent_ids=opponent_ids,
+                experiment=experiment,
+                table=table,
+                table_hash=table_hash,
+                record_pilot_audit=record_pilot_audit,
+            )
+            job.reserved_in = claims
+            job.persist()
+            persisted = True
+            with self._lock:
+                self._jobs[series_id] = job
+                registered = True
 
-        thread = threading.Thread(target=job.run, daemon=True)
-        thread.start()
+            thread = threading.Thread(target=job.run, daemon=True)
+            thread.start()
+        except BaseException:
+            if registered:
+                with self._lock:
+                    self._jobs.pop(series_id, None)
+            if persisted and job is not None:
+                with contextlib.suppress(OSError):
+                    job.series_file().unlink(missing_ok=True)
+            shutil.rmtree(deck_dir, ignore_errors=True)
+            if job is not None:
+                job.release_reservation()
+            else:
+                series_reservation.release(claims, series_id)
+            raise
         return job
 
     @staticmethod
@@ -1418,6 +1591,10 @@ class PairedSeriesManager:
             or DETERMINISM_VIOLATION in err
         ):
             return False
+        if raw.get("experiment") is not None and (
+            _experiment_withdraw_block(target_folder, raw.get("experiment")) is not None
+        ):
+            return False
         if target_folder is not None and isinstance(raw.get("series_id"), str):
             sid = str(raw["series_id"])
             try:
@@ -1425,7 +1602,7 @@ class PairedSeriesManager:
                     return False
                 if series_key_problem(target_folder, sid) is not None:
                     return False  # recorded with another game key version: start a new series
-            except (ManifestMismatch, ValueError):
+            except (ManifestMismatch, OSError, ValueError):
                 return False
             deck_dir = games_folder(target_folder) / "paired_decks" / sid
             if not list(deck_dir.glob("base-*.json")) or not list(deck_dir.glob("variant-*.json")):
@@ -1456,6 +1633,50 @@ class PairedSeriesManager:
             out["resumable"] = cls._is_disk_resumable(out, target_folder)
         else:
             out["resumable"] = False
+
+        res = out.get("result")
+        res_dict = res if isinstance(res, dict) else None
+        raw_vb = (
+            res_dict.get("validity_block")
+            if res_dict is not None and isinstance(res_dict.get("validity_block"), dict)
+            else out.get("validity_block")
+        )
+        if isinstance(raw_vb, dict):
+            vb: dict[str, object] = dict(raw_vb)
+        else:
+            opp_deck_ids = out.get("opponent_deck_ids")
+            opp_ids = out.get("opponent_ids")
+            if isinstance(opp_deck_ids, list) and opp_deck_ids:
+                table_size: int | None = 1 + len(opp_deck_ids)
+            elif isinstance(opp_ids, list) and opp_ids:
+                table_size = 1 + len(opp_ids)
+            else:
+                table_size = None
+            raw_pod = out.get("pod")
+            pod_str = raw_pod if isinstance(raw_pod, str) and raw_pod.strip() else None
+            engine_ver: str | None = None
+            if res_dict is not None:
+                raw_commits = res_dict.get("engine_commits")
+                if isinstance(raw_commits, list):
+                    cleaned = [
+                        str(c).strip() for c in raw_commits if c is not None and str(c).strip()
+                    ]
+                    if cleaned:
+                        engine_ver = ", ".join(cleaned)
+                if engine_ver is None:
+                    raw_pin = res_dict.get("engine_pin")
+                    if isinstance(raw_pin, str) and raw_pin.strip():
+                        engine_ver = raw_pin.strip()
+            vb = build_validity_block(
+                seat_curve=compute_seat_curve([], table_size=table_size),
+                pilot_fingerprint=None,
+                pods=pod_str,
+                engine_version=engine_ver,
+                pilot_omissions=None,
+            )
+        out["validity_block"] = vb
+        if res_dict is not None and not isinstance(res_dict.get("validity_block"), dict):
+            out["result"] = {**res_dict, "validity_block": vb}
         return out
 
     @staticmethod
@@ -1530,6 +1751,9 @@ class PairedSeriesManager:
             if key_problem is not None:
                 # an older key version is no violation and never mixed with new games
                 raise ValueError(f"{key_problem} (nicht fortsetzbar)")
+            withdraw_block = _experiment_withdraw_block(target_folder, raw.get("experiment"))
+            if withdraw_block is not None:
+                raise ValueError(withdraw_block)
 
             base_files = sorted(deck_dir.glob("base-*.json"))
             variant_files = sorted(deck_dir.glob("variant-*.json"))
@@ -1699,6 +1923,17 @@ class PairedSeriesManager:
                 created_at=str(raw.get("created_at")) if raw.get("created_at") else None,
                 preloaded_games=preloaded,
                 experiment=raw_exp if isinstance(raw_exp := raw.get("experiment"), dict) else None,
+                table=(
+                    copy.deepcopy(raw_tbl)
+                    if isinstance(raw_tbl := raw.get("table"), dict)
+                    else None
+                ),
+                table_hash=(
+                    raw_th.strip() or None
+                    if isinstance(raw_th := raw.get("table_hash"), str)
+                    else None
+                ),
+                record_pilot_audit=bool(exec_meta.get("record_pilot_audit", False)),
             )
             job.persist()
             job._write_lock()
@@ -1780,7 +2015,7 @@ def _guard_of(data_folder: Path, series_id: str) -> dict[str, object] | None:
     """
     try:
         return series_guard(data_folder, series_id)
-    except ManifestMismatch as error:
+    except (ManifestMismatch, OSError) as error:
         return {"error": str(error)}
     except ValueError:
         return None

@@ -460,10 +460,14 @@ class PooledRow(TypedDict):
     quelle_r2: str | None
 
 
-def _score(raw: dict[str, object], key: str) -> float:
+def _score(raw: dict[str, object], key: str, *, half_step: int = 10) -> float:
     number = _number(raw.get(key))
     if number is None or not 0.0 <= number <= 100.0:
         raise UnderstandingDataError(f"{key} must be a number in 0..100")
+    doubled = number * 2.0
+    if not math.isclose(doubled, round(doubled), abs_tol=1e-9) or round(doubled) % half_step:
+        step = half_step / 2.0
+        raise UnderstandingDataError(f"{key} must lie on the {step:g}-point grid")
     return number
 
 
@@ -480,8 +484,8 @@ def parse_pooled_row(raw: object) -> PooledRow:
     missing = [key for key in _POOLED_REQUIRED if key not in raw]
     if missing:
         raise UnderstandingDataError(f"missing pooled fields {missing}")
-    h_f1 = _score(raw, "H_F1")
-    h_pooled = _score(raw, "H_pooled")
+    h_f1 = _score(raw, "H_F1", half_step=10)
+    h_pooled = _score(raw, "H_pooled", half_step=5)
     count = raw["n_bewertungen"]
     if isinstance(count, bool) or count not in (1, 2):
         raise UnderstandingDataError("n_bewertungen must be 1 or 2")
@@ -491,10 +495,12 @@ def parse_pooled_row(raw: object) -> PooledRow:
     reason = raw["grund_nur_erstbewertung"]
     source = raw["quelle_R2"]
     if count == 2:
-        second = _score(raw, "H_R2")
+        second = _score(raw, "H_R2", half_step=10)
         h_r2: float | None = second
         if not isinstance(source, str) or not source.strip():
             raise UnderstandingDataError("quelle_R2 must name the second rating")
+        if source.strip() == "welle2:8":
+            raise UnderstandingDataError("retest batch welle2:8 must not enter pooled ratings")
         if reason is not None or "nur_erstbewertung" in marks:
             raise UnderstandingDataError("two ratings carry no reason for a single rating")
         if not math.isclose(h_pooled, (h_f1 + second) / 2.0, abs_tol=1e-9):

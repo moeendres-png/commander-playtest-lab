@@ -8,13 +8,16 @@ environment (``JAVA_TOOL_OPTIONS``, ``JDK_JAVA_OPTIONS``, ``_JAVA_OPTIONS``) and
 options of the worker command before ``-jar`` (``-javaagent``, any other ``-D``, ...). The option
 texts can carry any ``-D`` property or agent and can name machine paths, so each enters the key
 only as a SHA-256 (environment variables: of the whitespace-normalised text, one digest per
-variable; the command: of the remaining options in their order, one digest) and the text itself is
-never stored: not in the key, the task, the manifest or the journal (AGENTS.md section 12). The
+variable; the command: ``jvm_command_options_digest`` hashes only the remaining option arguments
+after the launcher word and before ``-jar`` in their order, one digest — not the path or major
+version of the Java binary itself, e.g. ``/opt/jdk-17/bin/java`` vs. ``java``) and the text itself
+is never stored: not in the key, the task, the manifest or the journal (AGENTS.md section 12). The
 command's options are closed against a list of performance-only options
 (``game_pool.PERFORMANCE_ONLY_JVM_OPTIONS``: heap, stack, collector, AppCDS, logging); an option not
 on it counts (fail-closed). It does not cover what lies outside the process's own configuration
-(the content of a ``JDK_JAVA_OPTIONS`` ``@argfile``, files an agent reads) and it deliberately
-excludes the performance-only options and ``-Dcommanderlab.fullGame.gamesPerJvm`` (below). The
+(the Java binary itself, the content of a ``JDK_JAVA_OPTIONS`` ``@argfile``, files an agent reads)
+and it deliberately excludes the performance-only options and
+``-Dcommanderlab.fullGame.gamesPerJvm`` (below). The
 event log is not part of it (its order is not stable, #1589). Two games with the same key must
 have the same transcript; the determinism guard ends a series whose journal shows one key with
 two transcript hashes (``DETERMINISM_VIOLATION``).
@@ -433,6 +436,63 @@ class SeriesRecord:
                 os.fsync(handle.fileno())
 
 
+@dataclass(frozen=True)
+class SeriesFolderAudit:
+    """Fail-closed inspection result of one series directory (S1, #1660).
+
+    ``members`` holds the manifest's ``game_id`` set when ``manifest.json`` is valid, or ``None``
+    when the manifest is missing, corrupt or unreadable. ``violated`` is True when the journal
+    shows a ``DETERMINISM_VIOLATION`` or when ``manifest.json`` / ``journal.jsonl`` is unreadable
+    or corrupt.
+    """
+
+    members: frozenset[str] | None
+    violated: bool
+
+
+def audit_series_folder(folder: Path) -> SeriesFolderAudit:
+    """Inspect a series folder (``manifest.json`` and optional ``journal.jsonl``) fail-closed.
+
+    A manifest is valid only as a JSON object whose ``games`` field is a list of objects each
+    naming a non-empty string ``game_id``. When ``journal.jsonl`` is present, it is read through
+    :class:`SeriesRecord`: a ``DeterminismViolation``, an I/O error or a non-empty journal with
+    zero admitted entries and ignored/corrupt lines marks the series as violated. A series
+    resumed after a cut-off line that still has valid admitted entries and no violation stays
+    valid, matching :func:`series_violation` and :func:`series_guard`.
+    """
+    manifest_path = folder / "manifest.json"
+    try:
+        stored = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return SeriesFolderAudit(members=None, violated=True)
+    if not isinstance(stored, dict):
+        return SeriesFolderAudit(members=None, violated=True)
+    games_raw = stored.get("games")
+    if not isinstance(games_raw, list):
+        return SeriesFolderAudit(members=None, violated=True)
+    members: set[str] = set()
+    for entry in games_raw:
+        if not isinstance(entry, dict):
+            return SeriesFolderAudit(members=None, violated=True)
+        gid = entry.get("game_id")
+        if not isinstance(gid, str) or not gid:
+            return SeriesFolderAudit(members=None, violated=True)
+        members.add(gid)
+    member_set = frozenset(members)
+    record = SeriesRecord(folder, stored)
+    journal_path = record.journal_path
+    if journal_path.exists() or journal_path.is_symlink():
+        if not journal_path.is_file():
+            return SeriesFolderAudit(members=member_set, violated=True)
+        try:
+            record._read_journal()
+        except (DeterminismViolation, OSError):
+            return SeriesFolderAudit(members=member_set, violated=True)
+        if not record._entries and record.ignored_lines > 0:
+            return SeriesFolderAudit(members=member_set, violated=True)
+    return SeriesFolderAudit(members=member_set, violated=False)
+
+
 def series_violation(data_folder: str | Path, series_id: str) -> DeterminismViolation | None:
     """The violation the stored journal of a series shows, whichever path played it.
 
@@ -537,7 +597,8 @@ def _read_stored_manifest(path: Path, series_id: str) -> dict[str, object]:
     A start without hard links creates the file and writes it in two steps, so a second start can
     see it empty. That is a race, not a broken series: wait and read again, at most
     ``MANIFEST_READ_ATTEMPTS`` reads. The file is never touched here. A file still unreadable
-    after that was left by a first start that aborted; the text says so and does not claim more.
+    after that was left by a first start that aborted or is still writing; the text says so and
+    does not claim more.
     """
     last_error: ValueError | None = None
     for attempt in range(MANIFEST_READ_ATTEMPTS):
@@ -554,7 +615,7 @@ def _read_stored_manifest(path: Path, series_id: str) -> dict[str, object]:
     raise ManifestMismatch(
         f"Manifest der Serie {series_id} ist nach {MANIFEST_READ_ATTEMPTS} Leseversuchen "
         f"({MANIFEST_READ_ATTEMPTS * MANIFEST_READ_WAIT_SECONDS:.0f} s) noch leer oder "
-        "unvollständig: ein früherer Start brach beim Anlegen ab. Die Datei wird nie "
+        "unvollständig: ein früherer Start brach ab oder schreibt noch. Die Datei wird nie "
         "überschrieben; die Serie ist so nicht fortsetzbar, der Ordner ist zu prüfen"
     ) from last_error
 
@@ -596,7 +657,9 @@ __all__ = [
     "DeterminismViolation",
     "KeyVersionMismatch",
     "ManifestMismatch",
+    "SeriesFolderAudit",
     "SeriesRecord",
+    "audit_series_folder",
     "file_sha256",
     "game_key",
     "series_folder",

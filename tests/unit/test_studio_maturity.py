@@ -842,9 +842,18 @@ def test_the_diff_names_the_opened_state_the_table_and_the_main_reference() -> N
         "Serie vom 2026-11-20 10:00 · Tisch pod-2 · Tischgröße unbekannt: A = Vergleichsbasis, B = geöffneter Stand",
         "Serie vom 2026-11-20 10:00 · Tisch unbekannt · Tischgröße unbekannt: A = geöffneter Stand, B = Vergleichsbasis",
     ]
+    expected_other_evidence = (
+        "kein Reifegrad (Beleg fehlt)"
+        "Ergebnis (simuliert): nicht auswertbar (keine Auswertungsbasis) · "
+        "n/N 4 / 4 Paare (abgeschlossen / geplant) · Tischgröße unbekannt"
+        "Befund zu einem anderen Stand (nicht der aktuelle)"
+        "nicht empfehlungsfähig: Reifegrad unter R2"
+    )
     for item in series:
         assert item["texts"][1] == REFERENCE_LINE
+        assert "n/N 4 / 4 Paare (abgeschlossen / geplant)" in item["texts"][2]
         assert "Befund zu einem anderen Stand (nicht der aktuelle)" in item["texts"][2]
+        assert item["texts"][2] == expected_other_evidence
     assert "der geöffnete Stand ist nicht gespeichert" in r["allTexts"][1]  # type: ignore[index]
 
 
@@ -861,12 +870,28 @@ def test_the_reference_line_is_neutral_when_the_opened_state_is_main() -> None:
         "Serie vom 2026-11-20 10:00 · Tisch pod-1 · Tischgröße unbekannt: A = Vergleichsbasis, B = geöffneter Stand"
     )
     assert texts[1] == REFERENCE_LINE
+    expected_main_evidence = (
+        "kein Reifegrad (Beleg fehlt)"
+        "Ergebnis (simuliert): nicht auswertbar (keine Auswertungsbasis) · "
+        "n/N 4 / 4 Paare (abgeschlossen / geplant) · Tischgröße unbekannt"
+        "Befund zum aktuellen Stand"
+        "nicht empfehlungsfähig: Reifegrad unter R2"
+    )
+    assert "n/N 4 / 4 Paare (abgeschlossen / geplant)" in texts[2]
     assert "Befund zum aktuellen Stand" in texts[2]
-    # non-main case: the very same line, next to a finding of another state
+    assert texts[2] == expected_main_evidence
+    # non-main case: the very same line, next to a finding of another state with exact n/N
     for item in r["series"]:  # type: ignore[union-attr]
         assert item["texts"][1] == REFERENCE_LINE
+        assert "n/N 4 / 4 Paare (abgeschlossen / geplant)" in item["texts"][2]
+        assert "Befund zu einem anderen Stand (nicht der aktuelle)" in item["texts"][2]
     for line in (REFERENCE_LINE, texts[1]):
         assert "nicht auf den geöffneten" not in line and "bezogen auf den geöffneten" not in line
+        assert (
+            "aktuellen Stand" not in line
+            and "belegt" not in line
+            and "empfehlungsfähig" not in line
+        )
         assert "unabhängig davon, welcher Stand geöffnet ist" in line
 
 
@@ -980,3 +1005,92 @@ def test_evidence_row_static_guards() -> None:
     assert "befund.belegt === true" in verdict_fn  # the verdict reads belegt, not urteil alone
     assert "deckSeriesVerdictText(befund)" in row and "befund.urteil_text" not in row
     assert "R2" not in row and "R3" not in row
+
+
+def test_validity_block_omissions_unknown_never_zero_and_deck_series_legacy_fallback() -> None:
+    """#1527: missing pilot_omissions is always 'unbekannt'/None (never 0) and legacy series
+    records without validity_block still receive one from deck_series._entry."""
+    from commander_lab.studio.deck_series import _entry
+    from commander_lab.studio.simulations import build_validity_block, compute_seat_curve
+
+    sc = compute_seat_curve(
+        [{"winner_seats": [0], "seed": 0}, {"winner_seats": [1], "seed": 1}],
+        table_size=4,
+    )
+    vb_none = build_validity_block(seat_curve=sc, pilot_omissions=None)
+    assert vb_none["pilot_omissions"]["status"] == "unbekannt"
+    assert vb_none["pilot_omissions"]["series"] is None
+    assert vb_none["pilot_omissions"]["by_seat"] is None
+    assert vb_none["pilot_omissions"]["display"] == "unbekannt"
+
+    vb_empty = build_validity_block(seat_curve=sc, pilot_omissions={})
+    assert vb_empty["pilot_omissions"]["status"] == "unbekannt"
+    assert vb_empty["pilot_omissions"]["series"] is None
+
+    legacy = _entry(
+        {
+            "series_id": "legacy-1527",
+            "base_ref": "chulane@a",
+            "variant_ref": "chulane@b",
+            "pod": "precon",
+            "status": "completed",
+            "result": {"pairs_completed": 4, "tested_seats": [0, 1, 2, 3]},
+        },
+        "completed",
+    )
+    assert isinstance(legacy["validity_block"], dict)
+    assert legacy["validity_block"]["data_class"] == "SIMULATED_RESULT"
+    assert legacy["validity_block"]["pilot_omissions"]["status"] == "unbekannt"
+    assert "keine Aussage über menschliches Spiel." in str(
+        legacy["validity_block"]["validity_statement"]
+    )
+
+
+def test_withdrawn_plans_are_excluded_from_holm_and_explorations(tmp_path: Path) -> None:
+    """Owner 5a (#1658): a withdrawn confirmation does not inflate the Holm family of active
+    confirmations, and a withdrawn exploration does not block fresh seeds."""
+    active_conf = _finding("s-active", wins=6, first_seed=500, alpha=0.05)
+    withdrawn_conf = _finding("s-withdrawn", wins=0, first_seed=600, counts=False, alpha=None)
+    withdrawn_exp = dict(withdrawn_conf.entry["experiment"])  # type: ignore[arg-type]
+    withdrawn_exp["status"] = "withdrawn"
+    withdrawn_entry = {**withdrawn_conf.entry, "experiment": withdrawn_exp}
+    withdrawn_finding = replace(withdrawn_conf, entry=withdrawn_entry)
+
+    # Compare against an active (non-withdrawn) unplayed confirmation in the same family
+    unplayed_active = _finding("s-unplayed", wins=0, first_seed=600, counts=False, alpha=None)
+
+    res_with_withdrawn = m.assess(
+        [active_conf, withdrawn_finding],
+        explorations=[],
+        hashes={"rev-main": "h1", "rev-var": "h2"},
+        current=CUR,
+    )
+    res_with_active = m.assess(
+        [active_conf, unplayed_active],
+        explorations=[],
+        hashes={"rev-main": "h1", "rev-var": "h2"},
+        current=CUR,
+    )
+    bef_withdrawn = res_with_withdrawn["befunde"]["s-active"]  # type: ignore[index]
+    bef_active = res_with_active["befunde"]["s-active"]  # type: ignore[index]
+    # 6 wins -> p = 2 * 0.5**6 = 0.03125 < 0.05; with m=1 (withdrawn excluded) -> belegt_besser!
+    assert bef_withdrawn["stufe"] == m.R1
+    assert bef_withdrawn["urteil"] == m.BETTER
+    assert any("1 Bestätigung(en)" in note for note in bef_withdrawn["hinweise"])
+    # With m=2 (active sibling) -> Holm adjusted p = 0.0625 >= 0.05 -> withheld!
+    assert bef_active["urteil"] == m.NO_DIFFERENCE
+    assert any("2 Bestätigung(en)" in note for note in bef_active["hinweise"])
+
+    # _explorations excludes withdrawn explorations from the store
+    store = StudioStore.open(tmp_path)
+    try:
+        with store.connection:
+            store.connection.execute(
+                "INSERT INTO experiment(experiment_id, deck_id, question, purpose, "
+                "base_revision_id, first_seed, last_seed, status, created_at) "
+                "VALUES ('exp-w1', 'd1', 'q', 'exploration', 'r1', 100, 110, 'withdrawn', '2026'), "
+                "('exp-a1', 'd1', 'q', 'exploration', 'r1', 200, 210, 'active', '2026')"
+            )
+        assert m._explorations(store.connection, "d1") == [(200, 210)]
+    finally:
+        store.close()

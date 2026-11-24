@@ -372,6 +372,11 @@ def _parser() -> argparse.ArgumentParser:
     chunk.add_argument("--max-decisions", type=int, default=50_000)
     chunk.add_argument("--style", type=float, default=None)
     chunk.add_argument("--private-card-repository", action="store_true")
+    chunk.add_argument(
+        "--record-pilot-audit",
+        action="store_true",
+        help="opt-in: record pilot decision requests and count objective omissions (SIMULATED_RESULT only)",
+    )
     pool_worker = commands.add_parser(
         "pool-worker",
         help="worker of a series game pool: one long-lived rules-engine process, JSON lines on "
@@ -408,6 +413,11 @@ def _parser() -> argparse.ArgumentParser:
         default=None,
         help=f"games one engine process plays, {MIN_GAMES_PER_JVM} to {MAX_GAMES_PER_JVM} "
         f"(default: {DEFAULT_GAMES_PER_JVM})",
+    )
+    sim.add_argument(
+        "--record-pilot-audit",
+        action="store_true",
+        help="opt-in: record pilot decision requests and count objective omissions (SIMULATED_RESULT only)",
     )
     experiment = commands.add_parser(
         "experiment",
@@ -495,6 +505,11 @@ def _parser() -> argparse.ArgumentParser:
         type=int,
         default=None,
         help=f"games per JVM, {MIN_GAMES_PER_JVM} to {MAX_GAMES_PER_JVM} (default: {DEFAULT_GAMES_PER_JVM})",
+    )
+    compare.add_argument(
+        "--record-pilot-audit",
+        action="store_true",
+        help="opt-in: record pilot decision requests and count objective omissions (SIMULATED_RESULT only)",
     )
     commands.add_parser("status")
     doctor_cmd = commands.add_parser(
@@ -712,8 +727,9 @@ def _compare_decks(args: argparse.Namespace) -> int:
             claimed_in = games_folder(folder)
         paths_by_deck_id = dict(zip(deck_ids, paths, strict=True))
         engine = series_engine(folder, used_batch)
+        record_audit = bool(getattr(args, "record_pilot_audit", False))
         play: paired_comparison.PairPlayer
-        if engine is not None and (used_workers > 1 or engine.games_per_jvm > 1):
+        if engine is not None and (used_workers > 1 or engine.games_per_jvm > 1 or record_audit):
             play = paired_comparison.parallel_window_player(
                 folder,
                 series_id=series_id,
@@ -728,6 +744,7 @@ def _compare_decks(args: argparse.Namespace) -> int:
                 workers=used_workers,
                 games_per_jvm=engine.games_per_jvm,
                 command=engine.command,
+                record_pilot_audit=record_audit,
             )
         else:
             play = paired_comparison.recorded_game_player(
@@ -749,6 +766,7 @@ def _compare_decks(args: argparse.Namespace) -> int:
                 threshold_pp=args.threshold_pp,
                 allow_mixed=args.allow_mixed,
                 play=play,
+                audit_data_folder=folder if record_audit else None,
                 execution={
                     "series_id": series_id,
                     "command": "studio compare-decks",
@@ -758,6 +776,7 @@ def _compare_decks(args: argparse.Namespace) -> int:
                     "workers": used_workers,
                     "games_per_jvm": engine.games_per_jvm if engine is not None else used_batch,
                     "games_dir": str(games_folder(folder)),
+                    "record_pilot_audit": record_audit,
                 },
             )
         finally:
@@ -862,6 +881,7 @@ def _play_batch(args: argparse.Namespace) -> int:
         private_card_repository=args.private_card_repository,
         on_game=_report,
         on_played=_report_played,
+        record_pilot_audit=bool(getattr(args, "record_pilot_audit", False)),
     )
     return 0 if all(item["status"] == "finished" for item in summaries) else 1
 
@@ -1329,6 +1349,7 @@ def main(argv: list[str] | None = None) -> int:
                         style=args.style,
                         workers=args.workers,
                         games_per_jvm=args.games_per_jvm,
+                        record_pilot_audit=bool(getattr(args, "record_pilot_audit", False)),
                     )
                 except BatchIdsExhausted as error:
                     print(f"error: {_ids_exhausted_text(error)}", file=sys.stderr)
@@ -1338,10 +1359,31 @@ def main(argv: list[str] | None = None) -> int:
                     time.sleep(0.5)
             except KeyboardInterrupt:
                 batch.cancel()
+                try:
+                    done = batch.worker_done.wait(60)
+                except KeyboardInterrupt:
+                    print(
+                        "warnung: Warten auf Abschluss des Simulations-Workers abgebrochen.",
+                        file=sys.stderr,
+                    )
+                    raise
+                if not done:
+                    print(
+                        "warnung: Simulations-Worker hat nach 60 s noch nicht fertig geschrieben "
+                        "oder seine Kennung freigegeben.",
+                        file=sys.stderr,
+                    )
                 raise
             # the thread still writes the series record and gives its id claim back after the status
-            batch.worker_done.wait(60)
+            done = batch.worker_done.wait(60)
             print(json.dumps(batch.to_dict(), indent=2, ensure_ascii=False))
+            if not done:
+                print(
+                    "warnung: Simulations-Worker hat nach 60 s noch nicht fertig geschrieben "
+                    "oder seine Kennung freigegeben.",
+                    file=sys.stderr,
+                )
+                return 1
             return 0 if batch.status == "completed" else 1
         finally:
             store.close()

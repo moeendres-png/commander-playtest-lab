@@ -278,6 +278,9 @@ class _Context:
     excluded_no_date: int
     excluded_by_card_filter: int
     entries: dict[str, _Entry]
+    taken: Counter[str]
+    by_key: dict[str, list[str]]
+    claimed_keys: frozenset[str]
 
 
 def _build_context(
@@ -333,7 +336,62 @@ def _build_context(
         excluded_no_date=excluded_no_date(store, universe["spec"]),
         excluded_by_card_filter=excluded_by_card_filter(store, universe["spec"]),
         entries=entries,
+        taken=taken,
+        by_key=by_key,
+        claimed_keys=frozenset(claimed_keys),
     )
+
+
+def _extra_entries(context: _Context, extra_cards: Sequence[tuple[str, str]]) -> list[_Entry]:
+    """Raw spread entries for cards outside ``card_fact`` (e.g. unowned ``scryfall:``
+    Zukauf cards), counted over the same universe deck set with the exact same casefolding,
+    front-face resolution and ambiguity protection as collection cards."""
+    seen: set[str] = set()
+    extra_rows: list[CardRow] = []
+    for card_id, name in extra_cards:
+        cid = str(card_id)
+        if cid in context.entries or cid in seen:
+            continue
+        seen.add(cid)
+        oracle_id = cid.removeprefix("scryfall:") if cid.startswith("scryfall:") else ""
+        extra_rows.append((cid, str(name), str(name), oracle_id))
+    if not extra_rows:
+        return []
+    taken = Counter(context.taken)
+    for _, oracle_name, engine_name, _ in extra_rows:
+        for nm in {oracle_name.casefold(), engine_name.casefold()}:
+            taken[nm] += 1
+    decks_by_name = context.universe["decks_by_name"]
+    decks_by_oracle = context.universe["decks_by_oracle"]
+    by_key = context.by_key
+    claimed_keys = set(context.claimed_keys)
+    keys_by_card: list[tuple[CardRow, list[str], bool]] = []
+    for card in extra_rows:
+        keys, ambiguous = _name_keys(card, taken)
+        keys_by_card.append((card, keys, ambiguous))
+        claimed_keys.update(keys)
+    result: list[_Entry] = []
+    for card, keys, ambiguous in keys_by_card:
+        raw_hits: dict[str, set[str]] = {}
+        for key in keys:
+            for raw in by_key.get(key, []):
+                raw_hits.setdefault(raw, set()).update(decks_by_name[raw])
+        oracle_id = card[3]
+        if oracle_id:
+            for raw, decks in decks_by_oracle.get(oracle_id, {}).items():
+                if raw.casefold() not in claimed_keys:
+                    raw_hits.setdefault(raw, set()).update(decks)
+        union: set[str] = set()
+        for decks in raw_hits.values():
+            union |= decks
+        spellings: list[Spelling] = sorted(
+            ({"name": raw, "hits": len(decks)} for raw, decks in raw_hits.items()),
+            key=lambda item: (-item["hits"], item["name"]),
+        )
+        result.append(
+            _Entry(card[0], card[1], keys, ambiguous, frozenset(union), spellings if union else [])
+        )
+    return result
 
 
 def _context(
@@ -421,13 +479,40 @@ def name_claims(store: StudioStore, card_ids: Sequence[str]) -> dict[str, list[t
     return claims
 
 
+def extra_name_claims(
+    store: StudioStore, extra_cards: Sequence[tuple[str, str]]
+) -> dict[str, list[tuple[str, int]]]:
+    """Casefolded name claims for cards outside ``card_fact`` (e.g. unowned ``scryfall:``
+    Zukauf cards), using the same front-face ambiguity rule as ``name_claims``."""
+    if not extra_cards:
+        return {}
+    rows = _all_card_rows(store)
+    taken = _taken_names(rows)
+    for _card_id, name in extra_cards:
+        taken[str(name).casefold()] += 1
+    claims: dict[str, list[tuple[str, int]]] = {}
+    for card_id, name in extra_cards:
+        cid, card_name = str(card_id), str(name)
+        keys, _ambiguous = _name_keys((cid, card_name, card_name, ""), taken)
+        oracle = card_name.casefold()
+        claims[cid] = [
+            (key, NAME_CLASS_ORACLE if key == oracle else NAME_CLASS_FRONT_FACE) for key in keys
+        ]
+    return claims
+
+
 def front_face_withheld(store: StudioStore, card_ids: Sequence[str]) -> set[str]:
     """The given cards whose front face was withheld because another Studio card has that exact
     name: a source row under that name cannot be told apart, so the card's count is unknown
-    (the same flag the local-deck spread carries as ``ambiguous_front_face``)."""
+    (the same flag the local-deck spread carries as ``ambiguous_front_face``). Non-catalog
+    ``scryfall:`` ids are ignored (they are never in ``card_fact``)."""
     rows = _all_card_rows(store)
+    by_id = {row[0] for row in rows}
+    catalog_ids = [
+        cid for cid in card_ids if not (str(cid).startswith("scryfall:") and cid not in by_id)
+    ]
     taken = _taken_names(rows)
-    return {card[0] for card in _chosen(rows, card_ids) if _name_keys(card, taken)[1]}
+    return {card[0] for card in _chosen(rows, catalog_ids) if _name_keys(card, taken)[1]}
 
 
 def _spread_all(
@@ -436,6 +521,7 @@ def _spread_all(
     card_ids: Sequence[str] | None,
     commander_names: Sequence[str] | None,
     spec: UniverseSpec | None = None,
+    extra_cards: Sequence[tuple[str, str]] | None = None,
 ) -> tuple[UniverseDecks, list[tuple[CardSpread, set[str], list[str]]], TierParams]:
     context = _context(store, profile, spec, commander_names)
     params = _params_for(store, profile, context.universe["spec"])
@@ -447,6 +533,17 @@ def _spread_all(
             if card_id not in context.entries:
                 raise KeyError(card_id)
             chosen.append(context.entries[card_id])
+    if extra_cards:
+        chosen_ids = {entry.card_id for entry in chosen}
+        extra_by_id = {entry.card_id: entry for entry in _extra_entries(context, extra_cards)}
+        for card_id, _name in extra_cards:
+            cid = str(card_id)
+            if cid in chosen_ids:
+                continue
+            entry = context.entries.get(cid) or extra_by_id.get(cid)
+            if entry is not None:
+                chosen.append(entry)
+                chosen_ids.add(cid)
     entries = [
         (_spread_of(entry, context, params), set(entry.decks), entry.keys) for entry in chosen
     ]
@@ -459,13 +556,18 @@ def pool_spread(
     card_ids: Sequence[str] | None = None,
     *,
     commander_names: Sequence[str] | None,
+    extra_cards: Sequence[tuple[str, str]] | None = None,
 ) -> PoolSpread:
     """Counted spread of Studio cards (all, or the given ids) in one profile's universe.
 
     A card's hits are the distinct universe decks listing at least one of its name keys
-    (casefolded) in a counted section. Raises KeyError for an unknown profile or card id."""
+    (casefolded) in a counted section. ``extra_cards`` optionally adds ``(card_id, name)``
+    pairs outside ``card_fact`` (e.g. unowned ``scryfall:`` cards) over the same universe.
+    Raises KeyError for an unknown profile or card id."""
     context = _context(store, profile, None, commander_names)
-    universe, entries, params = _spread_all(store, profile, card_ids, commander_names)
+    universe, entries, params = _spread_all(
+        store, profile, card_ids, commander_names, extra_cards=extra_cards
+    )
     excluded_cards = context.excluded_by_card_filter
     return {
         "universe": {
@@ -512,10 +614,14 @@ def pool_spread_for_spec(
     *,
     commander_names: Sequence[str] | None,
     label: str = "",
+    extra_cards: Sequence[tuple[str, str]] | None = None,
 ) -> PoolSpread:
-    """Counted spread of Studio cards over a free spec (e.g. a derived ``gc_band``)."""
+    """Counted spread of Studio cards over a free spec (e.g. a derived ``gc_band``).
+    ``extra_cards`` optionally adds ``(card_id, name)`` pairs outside ``card_fact``."""
     context = _context(store, None, spec, commander_names)
-    universe, entries, params = _spread_all(store, None, card_ids, commander_names, spec)
+    universe, entries, params = _spread_all(
+        store, None, card_ids, commander_names, spec, extra_cards=extra_cards
+    )
     excluded_cards = context.excluded_by_card_filter
     return {
         "universe": {

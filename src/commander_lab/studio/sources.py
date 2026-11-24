@@ -8,14 +8,13 @@ evidence layers, licensing terms, rate limits, bias characteristics, and coverag
 from __future__ import annotations
 
 import json
-import os
-import stat
 import threading
 from collections.abc import Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Literal, TypedDict
 
+from .answer_cache import ContentStamp, content_stamp
 from .builder import ALL_DECKS, pool_cards
 from .store import StudioStore, now_utc
 
@@ -821,7 +820,7 @@ def write_source_inventory_json(path: str | Path, *, status: SourceStatus | None
 
 _COMBO_CARDS_MAX = 16
 _combo_cards_lock = threading.Lock()
-_combo_cards: dict[tuple[str, int, int, str], frozenset[str]] = {}
+_combo_cards: dict[tuple[ContentStamp, str], frozenset[str]] = {}
 
 
 def load_spellbook_combo_cards(
@@ -830,18 +829,18 @@ def load_spellbook_combo_cards(
     """Load the set of card names participating in verified combos listed for ``commander``
     (matched against the combo's ``commander`` field; another commander's combos never count).
 
-    Read once per state of the file (path, size, modification time) and commander (#1563): the
-    file is parsed again only when it changed. The caller gets its own set."""
+    Read once per state of the file (path, size, SHA-256 of the content) and commander
+    (#1563, #1615): the file is parsed again whenever its content changed, including same-size
+    rewrites within one clock tick. The caller gets its own set."""
     if not commander:
         return set()
     target_path = Path(combos_path) if combos_path else Path("data/meta/spellbook_combos.json")
-    try:
-        found = os.stat(target_path)
-    except OSError:
+    if not target_path.is_file():
         return set()
-    if not stat.S_ISREG(found.st_mode):
+    stamp = content_stamp(target_path.resolve())
+    if stamp[1] is None:
         return set()
-    key = (str(target_path.resolve()), found.st_size, found.st_mtime_ns, commander)
+    key = (stamp, commander)
     with _combo_cards_lock:
         known = _combo_cards.get(key)
     if known is not None:

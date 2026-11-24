@@ -7,6 +7,7 @@ import copy
 import gzip
 import itertools
 import json
+import os
 import re
 import threading
 import time
@@ -667,6 +668,237 @@ def test_interactive_session_routes_redaction_validation_speed_and_concede(
         assert deleted.status_code == 200
         assert deleted.json()["deleted"] is True
         assert client.get("/api/play/interactive-1").status_code == 404
+    finally:
+        app.state.play_manager.shutdown_all()
+
+
+def test_play_route_redacts_disk_log_without_closing_result_and_stale_abgebrochen(
+    tmp_path: Path,
+) -> None:
+    """GET /api/play/{id} reading a disk log (not in play_manager._sessions) without a closing
+    result must keep AI hands and private picks hidden — even after STALE_SECONDS triggers the
+    synthesized ``abgebrochen`` result — until a real closing entry is written (#1732)."""
+    decks = (
+        _make_deck("own", "Chulane, Teller of Tales"),
+        _make_deck("opp", "Kinnan, Bonder Prodigy"),
+    )
+    game_id = "g-crash-1732"
+    prep = play.prepare_game(
+        decks, seed=17, game_id=game_id, human_seats=[0], decision_timeout_seconds=0
+    )
+    recorder = games.GameRecorder(tmp_path, game_id, prep.header)
+    app = create_app(tmp_path)
+    client = TestClient(app, headers={"X-Studio": "1"})
+    try:
+        frame = games.frame_of(
+            1,
+            {
+                "seat": 1,
+                "decision_class": "choose_object",
+                "prompt": "Choose a card from hand",
+                "legal_options": [
+                    {
+                        "option_id": "opt-secret",
+                        "label": "Secret AI Tutored Card",
+                        "metadata": {"zone": "hand"},
+                    }
+                ],
+                "pilot_state": _pilot_state(
+                    seat=1, turn=2, active_player_id="p1", secret_opp_card="Secret AI Hand Card"
+                ),
+            },
+            {"selected_option_ids": ["opt-secret"]},
+        )
+        players = frame["players"]
+        assert isinstance(players, list)
+        players[0]["hand_cards"] = [{"name": "Forest"}, {"name": "Llanowar Elves"}]
+        players[1]["hand_cards"] = [{"name": "Secret AI Hand Cards Entry"}]
+        assert frame["private_selection"] is True
+        assert frame["chosen"] == ["Secret AI Tutored Card"]
+        assert frame["targets"] == ["Secret AI Tutored Card"]
+        recorder._write(frame)
+        recorder.frames += 1
+
+        assert app.state.play_manager.get(game_id) is None
+
+        # Fresh unclosed disk log: running, hands_revealed=False, AI secrets redacted.
+        fresh_resp = client.get(f"/api/play/{game_id}")
+        assert fresh_resp.status_code == 200
+        fresh = fresh_resp.json()
+        assert fresh["running"] is True
+        assert fresh["result"] is None
+        assert fresh["hands_revealed"] is False
+        assert fresh["human_seats"] == [0]
+        fresh_blob = json.dumps(fresh)
+        for secret in (
+            "Secret AI Hand Card",
+            "Secret AI Hand Cards Entry",
+            "Secret AI Tutored Card",
+        ):
+            assert secret not in fresh_blob
+        f0 = fresh["frames"][0]
+        assert f0["private_selection"] is True
+        assert f0["chosen"] == []
+        assert "targets" not in f0
+        assert f0["players"][0]["hand"] == ["Forest", "Llanowar Elves"]
+        assert "hand" not in f0["players"][1]
+        assert "hand_cards" not in f0["players"][1]
+
+        # Stale unclosed disk log (> STALE_SECONDS): synthesized ``abgebrochen``, running=False,
+        # yet hands_revealed stays False and all AI secrets remain redacted.
+        stale_time = time.time() - (games.STALE_SECONDS + 300.0)
+        os.utime(recorder.path, (stale_time, stale_time))
+        stale_resp = client.get(f"/api/play/{game_id}")
+        assert stale_resp.status_code == 200
+        stale = stale_resp.json()
+        assert stale["running"] is False
+        assert stale["result"]["failure_class"] == "abgebrochen"
+        assert stale["hands_revealed"] is False
+        stale_blob = json.dumps(stale)
+        for secret in (
+            "Secret AI Hand Card",
+            "Secret AI Hand Cards Entry",
+            "Secret AI Tutored Card",
+        ):
+            assert secret not in stale_blob
+        sf0 = stale["frames"][0]
+        assert sf0["private_selection"] is True
+        assert sf0["chosen"] == []
+        assert "targets" not in sf0
+        assert sf0["players"][0]["hand"] == ["Forest", "Llanowar Elves"]
+        assert "hand" not in sf0["players"][1]
+        assert "hand_cards" not in sf0["players"][1]
+
+        # Owner decision 2026-11-17: once a real closing entry is written, hands and private
+        # selections are revealed.
+        recorder.close(
+            {
+                "status": "finished",
+                "winner_seats": [0],
+                "decision_count": 1,
+                "engine_version": "test",
+            }
+        )
+        done_resp = client.get(f"/api/play/{game_id}")
+        assert done_resp.status_code == 200
+        done = done_resp.json()
+        assert done["running"] is False
+        assert done["result"]["status"] == "finished"
+        assert done["hands_revealed"] is True
+        df0 = done["frames"][0]
+        assert df0["players"][1]["hand"] == ["Secret AI Hand Card", "Island"]
+        assert df0["players"][1]["hand_cards"] == [{"name": "Secret AI Hand Cards Entry"}]
+        assert df0["chosen"] == ["Secret AI Tutored Card"]
+        assert df0["targets"] == ["Secret AI Tutored Card"]
+    finally:
+        recorder.discard()
+        app.state.play_manager.shutdown_all()
+
+
+def test_play_manager_snapshot_redacts_unrevealed_frames_defense_in_depth(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Defense-in-depth against omitting ``redact_frame_for_human_seats`` in
+    ``InteractivePlayManager.snapshot`` (mutation O3, #1732): even if ``read_game`` returns
+    unredacted frames with ``hands_revealed=False``, ``snapshot`` and ``GET /api/play/{id}``
+    must redact AI hands and private picks themselves."""
+    revealed_flag = False
+
+    def fake_read_game(
+        _data_folder: str | Path,
+        _game_id: str,
+        *,
+        start: int = 0,
+        count: int = 200,
+    ) -> dict[str, object]:
+        return {
+            "header": {
+                "kind": "header",
+                "schema": games.LOG_SCHEMA,
+                "game_id": _game_id,
+                "human_seats": [0],
+                "decision_timeout_seconds": 0,
+            },
+            "frames": [
+                {
+                    "kind": "frame",
+                    "n": 1,
+                    "seat": 1,
+                    "decision_class": "choose_object",
+                    "private_selection": True,
+                    "chosen": ["Secret Defense Pick"],
+                    "targets": ["Secret Defense Pick"],
+                    "players": [
+                        {
+                            "seat": 0,
+                            "life": 40,
+                            "hand": ["Forest", "Llanowar Elves"],
+                            "hand_cards": [{"name": "Forest"}, {"name": "Llanowar Elves"}],
+                        },
+                        {
+                            "seat": 1,
+                            "life": 40,
+                            "hand": ["Secret Defense Hand", "Island"],
+                            "hand_cards": [{"name": "Secret Defense HandCards"}],
+                        },
+                    ],
+                }
+            ],
+            "start": start,
+            "total": 1,
+            "running": False,
+            "hands_revealed": revealed_flag,
+            "cohort": games.COHORT_PLAYED,
+            "played_seats": [0],
+            "table_size": 2,
+            "result": {
+                "kind": "result",
+                "status": "failed",
+                "failure_class": "abgebrochen",
+                "failure_message": "abgebrochen",
+            },
+        }
+
+    monkeypatch.setattr(games, "read_game", fake_read_game)
+
+    manager = play.InteractivePlayManager()
+    direct_snap = manager.snapshot(tmp_path, "g-defense-1732")
+
+    app = create_app(tmp_path)
+    client = TestClient(app, headers={"X-Studio": "1"})
+    try:
+        route_resp = client.get("/api/play/g-defense-1732")
+        assert route_resp.status_code == 200
+        route_snap = route_resp.json()
+
+        for snap in (direct_snap, route_snap):
+            assert snap["running"] is False
+            assert snap["hands_revealed"] is False
+            assert snap["result"]["failure_class"] == "abgebrochen"
+            blob = json.dumps(snap)
+            for secret in (
+                "Secret Defense Hand",
+                "Secret Defense HandCards",
+                "Secret Defense Pick",
+            ):
+                assert secret not in blob
+            frame = snap["frames"][0]
+            assert frame["private_selection"] is True
+            assert frame["chosen"] == []
+            assert "targets" not in frame
+            assert frame["players"][0]["hand"] == ["Forest", "Llanowar Elves"]
+            assert "hand" not in frame["players"][1]
+            assert "hand_cards" not in frame["players"][1]
+
+        # Negative control: once hands_revealed is True, snapshot preserves AI hand & pick.
+        revealed_flag = True
+        revealed_snap = manager.snapshot(tmp_path, "g-defense-1732")
+        assert revealed_snap["hands_revealed"] is True
+        rf0 = revealed_snap["frames"][0]
+        assert rf0["players"][1]["hand"] == ["Secret Defense Hand", "Island"]
+        assert rf0["players"][1]["hand_cards"] == [{"name": "Secret Defense HandCards"}]
+        assert rf0["chosen"] == ["Secret Defense Pick"]
+        assert rf0["targets"] == ["Secret Defense Pick"]
     finally:
         app.state.play_manager.shutdown_all()
 
@@ -2079,7 +2311,8 @@ def test_the_result_rests_on_how_the_bridge_process_really_ended(
     tmp_path: Path, disposition: str, status: str
 ) -> None:
     """A game the engine played to its end counts as finished only after a graceful bridge
-    shutdown; any other observed process end makes it failed (fail closed, #1663)."""
+    shutdown; any other observed process end makes it failed (fail closed, #1663) while keeping
+    uncredited end-of-game context for the PLAY UI (#1734)."""
     fake = _SeedEchoEndingClient(disposition)
     game_id = f"end-{disposition}"
     app, client = _start_fake_session(tmp_path, game_id, fake, ai_delay_ms=0)
@@ -2093,9 +2326,94 @@ def test_the_result_rests_on_how_the_bridge_process_really_ended(
             assert answered.status_code == 200, answered.text
         final = _wait_finished(client, game_id)
         assert "get_full_game_result" in fake.requests and fake.closes == 1
-        assert final["result"]["status"] == status, final["result"]  # type: ignore[index]
+        result = final["result"]
+        assert isinstance(result, dict)
+        assert result["status"] == status, result
+        listed = {g["game_id"]: g for g in games.list_games(tmp_path)}
+        assert game_id in listed
+        if disposition == "graceful_shutdown":
+            assert "winner_seats" in result
+            assert "game_reached_engine_end" not in result
+            assert "result_credited" not in result
+            assert listed[game_id]["game_reached_engine_end"] is False
+            assert listed[game_id]["shutdown_disposition"] is None
+            persisted = games.read_game(tmp_path, game_id)["result"]
+            assert isinstance(persisted, dict)
+            assert "semantic_transcript_sha256" in persisted
+            assert "game_reached_engine_end" not in persisted
+        else:
+            assert result["game_reached_engine_end"] is True
+            assert result["shutdown_disposition"] == disposition
+            assert result["result_credited"] is False
+            assert result["uncredited_winner_seats"] == [1]
+            assert result["uncredited_decision_count"] == fake.decision_count
+            assert "winner_seats" not in result
+            assert "decision_count" not in result
+            assert "semantic_transcript_sha256" not in result
+            assert listed[game_id]["game_reached_engine_end"] is True
+            assert listed[game_id]["shutdown_disposition"] == disposition
+            persisted = games.read_game(tmp_path, game_id)["result"]
+            assert isinstance(persisted, dict)
+            assert persisted["status"] == "failed"
+            assert persisted["game_reached_engine_end"] is True
+            assert persisted["shutdown_disposition"] == disposition
+            assert persisted["result_credited"] is False
+            assert persisted["uncredited_winner_seats"] == [1]
+            assert "winner_seats" not in persisted
+            assert "semantic_transcript_sha256" not in persisted
     finally:
         app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def test_abort_before_engine_end_never_sets_unclean_shutdown_fields(tmp_path: Path) -> None:
+    """Stopping a game before the engine reaches game end (no raw_result) leaves
+    game_reached_engine_end unset; unknown dispositions are rejected fail-closed (#1734)."""
+    fake = _SeedEchoEndingClient("forced_kill")
+    game_id = "abort-midgame"
+    app, client = _start_fake_session(tmp_path, game_id, fake, ai_delay_ms=0)
+    try:
+        _wait_for_pending(client, game_id, "dec-h-1")
+        session = app.state.play_manager.get(game_id)  # type: ignore[attr-defined]
+        assert session is not None
+        session.shutdown()
+        final = _wait_finished(client, game_id)
+        result = final["result"]
+        assert isinstance(result, dict)
+        assert result["status"] == "failed"
+        assert "get_full_game_result" not in fake.requests
+        assert "game_reached_engine_end" not in result
+        assert "shutdown_disposition" not in result
+        assert "result_credited" not in result
+        assert "uncredited_winner_seats" not in result
+        listed = {g["game_id"]: g for g in games.list_games(tmp_path)}
+        assert listed[game_id]["game_reached_engine_end"] is False
+        assert listed[game_id]["shutdown_disposition"] is None
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+    # close_recorded_game also rejects any disposition outside the audited 3-item allowlist
+    decks = (
+        _make_deck("own", "Chulane, Teller of Tales"),
+        _make_deck("opp", "Kinnan, Bonder Prodigy"),
+    )
+    prep = play.prepare_game(
+        decks, seed=9, game_id="bad-disp", human_seats=[0], decision_timeout_seconds=0
+    )
+    recorder = games.GameRecorder(tmp_path, "bad-disp", prep.header)
+    closed = play.close_recorded_game(
+        recorder,
+        RuntimeError("unexpected"),
+        unclean_shutdown_context={
+            "game_reached_engine_end": True,
+            "shutdown_disposition": "not_in_allowlist",
+            "uncredited_winner_seats": [0],
+            "uncredited_decision_count": 5,
+        },
+    )
+    assert closed["status"] == "failed"
+    assert "game_reached_engine_end" not in closed
+    assert "shutdown_disposition" not in closed
+    assert "uncredited_winner_seats" not in closed
 
 
 class _SpyLeakClient(_FakeInteractiveClient):
@@ -4334,8 +4652,11 @@ def test_post_decision_that_ends_the_game_reveals_only_with_the_closing_result(
         # never before. The answer follows the same rule as the GET.
         revealed = state["running"] is False and state["result"] is not None
         assert state["hands_revealed"] is revealed
-        if not revealed:
-            assert _FakeInteractiveClient.SECRET_CARD not in json.dumps(last)
+        # No branch on the timing of the closing result (#1578, P3 of the review of #1655): the
+        # POST asked for all frames (``start`` 0), so the AI hand is in the answer exactly when
+        # the answer says the hands are revealed, and never otherwise, whichever side of the
+        # game end this answer falls on.
+        assert (_FakeInteractiveClient.SECRET_CARD in json.dumps(last)) is revealed
         assert state["pending_decision"] is None
         done = _wait_finished(client, "post-end")
         assert done["hands_revealed"] is True
@@ -4435,7 +4756,8 @@ async function run(opts) {{
     (text) => calls.toasts.push(text), () => {{}}, (i) => {{ state.index = i; fns.render(); }},
     () => {{ calls.follows += 1; calls.followWhileSending.push(state.submitting); }},
     () => {{ calls.renders += 1; if (opts.onRender) opts.onRender(state, fns); }},
-    (next) => {{ state.pendingDecision = next; }}, async () => {{}}, () => {{}}, () => {{}}, () => {{}},
+    (next) => {{ state.pendingDecision = next; }}, async () => {{}}, () => {{}},
+    () => {{ state.frames = []; }}, () => {{}},
     () => {{}}, () => {{}}, {{now: () => 0}}, C);
   return {{state, calls, fns, pill}};
 }}
@@ -4507,6 +4829,59 @@ def test_page_answer_takes_the_state_from_the_post_and_asks_again_only_when_unus
     refused = out["refused"]
     assert refused["requests"] == [post, plain] and refused["follows"] == 1
     assert refused["toasts"] == 1
+
+
+def test_page_uses_the_answer_state_once_even_when_the_first_page_is_asked_again() -> None:
+    """#1578 (P3 of the review of #1655):
+    1. When an answer ends the game while the page watched it (``hands_revealed`` flips to true),
+       ``resetFrames()`` empties ``state.frames`` and the loop reloads from ``start=0`` from the
+       server.
+    2. ``ready = null`` in ``loadMoreOnce``: when the loop re-iterates with the *same*
+       ``requestedStart`` (e.g. ``hasHumans && !state.interactive`` flips ``state.interactive``
+       and continues before updating ``state.frames`` or ``state.revision``), the second pass must
+       still ask the server rather than reusing ``ready`` a second time."""
+    script = (
+        _SUBMIT_PRELUDE
+        + """
+(async () => {
+  const ended = (state, start) => parked(state, start, {hands_revealed: true, running: false,
+    result: {status: 'finished'}, pending_decision: null, revision: 7});
+  const revealPage = await run({
+    reply: (body, state) => ({accepted: true, state: ended(state, body.start)}),
+    get: (path, state) => Object.assign(ended(state, 0), {frames: [frame(1), frame(2), frame(3)]})});
+  await revealPage.fns.submitHumanChoice(
+    {decision_id: 'd1', selected_option_ids: ['pass-d1'], ordering: []}, {});
+
+  // Genuine same-start re-iteration: state.interactive starts false, prefetched carries
+  // interactive=true with start=2 (matching state.frames.length). Line 1481 flips
+  // state.interactive=true and continues without changing frames.length or revision;
+  // without `ready = null`, iteration 2 would reuse `ready` instead of calling GET.
+  const sameStartPage = await run({
+    reply: () => { throw new Error('unexpected POST'); },
+    get: (path, state) => parked(state, state.frames.length)});
+  sameStartPage.state.interactive = false;
+  const prefetched = parked(sameStartPage.state, 2);
+  await sameStartPage.fns.loadMoreOnce(false, prefetched);
+
+  console.log(JSON.stringify({
+    revealRequests: revealPage.calls.requests.map((r) => r.method + ' ' + r.path),
+    handsRevealed: revealPage.state.handsRevealed,
+    revealRevision: revealPage.state.revision,
+    sameStartRequests: sameStartPage.calls.requests.map((r) => r.method + ' ' + r.path),
+    sameStartInteractive: sameStartPage.state.interactive,
+  }));
+})();
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    assert out["revealRequests"] == [
+        "POST /api/play/g/decision",
+        "GET /api/play/g?start=0&count=1000",
+    ]
+    assert out["handsRevealed"] is True and out["revealRevision"] == 7
+    assert out["sameStartRequests"] == ["GET /api/play/g?start=2&count=1000"]
+    assert out["sameStartInteractive"] is True
 
 
 def test_follow_tick_draws_only_when_the_view_changed() -> None:
@@ -4866,3 +5241,149 @@ def test_the_game_info_line_names_the_origin_from_the_same_cohort_as_the_pill() 
         assert out[name]["pill"] == "Herkunft unbekannt, nicht als Simulation gewertet", name
     assert "KI: KI-Pilot 1" in out["sim"]["info"] and "Mensch gegen KI" not in out["sim"]["info"]
     assert out["sim"]["pill"] == "simuliert (KI auf allen Plätzen)"
+
+
+def test_partie_adopts_live_forced_passes_and_resets_on_game_switch() -> None:
+    """#1591: loadMoreOnce adopts forced_passes_answered_by_engine from live GET and prefetched
+    POST snapshots, ignores malformed values, and openGame/listGames reset forcedPasses."""
+    script = (
+        _SUBMIT_PRELUDE
+        + """
+(async () => {
+  const responses = [
+    parked({}, 2, {forced_passes_answered_by_engine: null, frames: [], total: 2}),
+    parked({}, 2, {forced_passes_answered_by_engine: 7, frames: [], total: 2}),
+    parked({}, 2, {forced_passes_answered_by_engine: -3, frames: [], total: 2}),
+    parked({}, 2, {forced_passes_answered_by_engine: '7', frames: [], total: 2}),
+    parked({}, 2, {forced_passes_answered_by_engine: true, frames: [], total: 2}),
+    parked({}, 2, {forced_passes_answered_by_engine: null, frames: [], total: 2}),
+  ];
+  let idx = 0;
+  const page = await run({
+    reply: () => ({accepted: true}),
+    get: () => responses[idx++],
+  });
+  page.state.forcedPasses = null;
+  await page.fns.loadMoreOnce(false);
+  const afterNull = page.state.forcedPasses;
+  await page.fns.loadMoreOnce(false);
+  const afterSeven = page.state.forcedPasses;
+  // prefetched snapshot from POST /decision carries an updated live count
+  await page.fns.loadMoreOnce(false, parked(page.state, 2, {
+    revision: 7, forced_passes_answered_by_engine: 11, frames: [], total: 2,
+  }));
+  const afterPrefetched = page.state.forcedPasses;
+  // malformed values must not overwrite a valid count
+  await page.fns.loadMoreOnce(false);
+  const afterNeg = page.state.forcedPasses;
+  await page.fns.loadMoreOnce(false);
+  const afterStr = page.state.forcedPasses;
+  await page.fns.loadMoreOnce(false);
+  const afterBool = page.state.forcedPasses;
+  // explicit null resets back to unknown
+  await page.fns.loadMoreOnce(false);
+  const afterResetNull = page.state.forcedPasses;
+  console.log(JSON.stringify({
+    afterNull, afterSeven, afterPrefetched, afterNeg, afterStr, afterBool, afterResetNull,
+  }));
+})();
+"""
+    )
+    out = _node_json(script)
+    assert out == {
+        "afterNull": None,
+        "afterSeven": 7,
+        "afterPrefetched": 11,
+        "afterNeg": 11,
+        "afterStr": 11,
+        "afterBool": 11,
+        "afterResetNull": None,
+    }
+
+    reset_script = (
+        _OPEN_PRELUDE
+        + """
+(async () => {
+  const switching = page({});
+  switching.state.games = [AI_GAME, HUMAN_GAME];
+  switching.state.forcedPasses = 9;
+  let atLoad = 'unset';
+  switching.setLoad(() => { atLoad = switching.state.forcedPasses; });
+  await switching.fns.openGame('me-1');
+
+  const empty = page({api: async () => []});
+  empty.state.forcedPasses = 9;
+  await empty.fns.listGames(null);
+  console.log(JSON.stringify({atLoad, afterSwitch: switching.state.forcedPasses, afterEmpty: empty.state.forcedPasses}));
+})();
+"""
+    )
+    reset_out = _node_json(reset_script)
+    assert reset_out == {"atLoad": None, "afterSwitch": None, "afterEmpty": None}
+
+
+def test_partie_render_view_shows_live_and_finished_forced_passes() -> None:
+    """#1591: renderView shows (+ N erzwungene Pässe) in #where while running from
+    state.forcedPasses, prefers result.forced_decisions_skipped when finished, and hides 0/null."""
+    script = f"""
+const SRC = require('fs').readFileSync({json.dumps((STATIC / "partie.js").as_posix())}, 'utf8');
+const grab = (name) => {{
+  const start = SRC.indexOf('function ' + name + '(');
+  if (start < 0) throw new Error('missing ' + name);
+  let depth = 0, i = SRC.indexOf('{{', start);
+  for (; i < SRC.length; i += 1) {{ if (SRC[i] === '{{') depth += 1; else if (SRC[i] === '}}' && --depth === 0) break; }}
+  return SRC.slice(start, i + 1);
+}};
+function renderCase(overrides) {{
+  const els = {{}};
+  const el = (id) => (els[id] = els[id] || {{
+    id, textContent: '', value: '', hidden: id === 'modal', dataset: {{}}, children: [],
+    append(...kids) {{ this.children.push(...kids); }},
+  }});
+  const frame = {{
+    n: 4, turn: 2, phase: 'precombat_main', step: 'precombat_main', seat: 0, active_seat: 0,
+    decision_class: 'priority', prompt: 'Priority', options: 2,
+    players: [{{seat: 0, life: 40, hand: []}}],
+  }};
+  const state = Object.assign({{
+    interactive: true, running: true, pendingDecision: null, index: 0, frames: [frame],
+    seatKeys: [], humanSeats: [0], handsRevealed: false, result: null, forcedPasses: null,
+    ff: {{on: false}}, click: null, clickActive: false, submitting: false,
+  }}, overrides);
+  const make = new Function(
+    'state', '$', 'h', 'STEPS', 'PHASES', 'CLASSES', 'document',
+    'renderBridgeBanner', 'endFastForward', 'renderHumanDecision', 'renderReplayControls',
+    'pilotStateToFrame', 'endText', 'seatPanel', 'seatName', 'seatLabel', 'answer',
+    'renderOwnCombat', 'renderStackRail', 'cardTile', 'showZone', 'drawBlockLinks', 'lineFor',
+    grab('renderView') + '; return renderView;'
+  );
+  const renderView = make(
+    state, el, (tag, props, ...kids) => ({{tag, props, kids}}),
+    {{precombat_main: 'Hauptphase 1'}}, {{precombat_main: 'Hauptphase 1'}}, {{priority: 'Aktion'}},
+    {{querySelectorAll: () => []}},
+    () => {{}}, () => {{}}, () => {{}}, () => {{}}, () => frame, () => 'Ende', () => ({{}}),
+    (s) => 'Sitz ' + (s + 1), () => 'Deck', () => 'passt', () => {{}}, () => {{}}, () => ({{}}),
+    () => {{}}, () => {{}}, () => null
+  );
+  renderView();
+  return el('where').textContent;
+}}
+console.log(JSON.stringify({{
+  liveCount: renderCase({{running: true, result: null, forcedPasses: 7}}),
+  liveNull: renderCase({{running: true, result: null, forcedPasses: null}}),
+  liveZero: renderCase({{running: true, result: null, forcedPasses: 0}}),
+  finishedPrefersResult: renderCase({{running: false, result: {{status: 'finished', forced_decisions_skipped: 14}}, forcedPasses: 12}}),
+  finishedZeroResult: renderCase({{running: false, result: {{status: 'finished', forced_decisions_skipped: 0}}, forcedPasses: 5}}),
+  finishedFallback: renderCase({{running: false, result: {{status: 'finished'}}, forcedPasses: 5}}),
+}}));
+"""
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    assert "(+ 7 erzwungene Pässe)" in out["liveCount"]
+    assert "(Partie läuft noch)" in out["liveCount"]
+    assert "erzwungene Pässe" not in out["liveNull"]
+    assert "erzwungene Pässe" not in out["liveZero"]
+    assert "(+ 14 erzwungene Pässe)" in out["finishedPrefersResult"]
+    assert "12" not in out["finishedPrefersResult"]
+    assert "erzwungene Pässe" not in out["finishedZeroResult"]
+    assert "(+ 5 erzwungene Pässe)" in out["finishedFallback"]

@@ -86,7 +86,7 @@ function experimentListTable(h, data, onOpen) {
       h("td", {}, experimentEntryTable(entry)),
       h("td", { class: "num" }, experimentPairs(entry)),
       h("td", {}, entry.status_text),
-      h("td", {}, exp ? exp.decision_text : "keine Entscheidung (Alt-Serie)"),
+      h("td", {}, exp ? (exp.status === "withdrawn" ? (exp.status_text || "zurückgezogen") : exp.decision_text) : "keine Entscheidung (Alt-Serie)"),
       h("td", {}, h("button", { type: "button", class: "small", onclick: () => onOpen(key) }, "Ansehen")));
   });
   return h("div", { class: "table-wrap" }, h("table", {},
@@ -238,15 +238,32 @@ async function experimentCheckDraft(detail, deps, lines, done) {
 function experimentDecision(h, detail, labels, deps) {
   const exp = detail.experiment;
   if (!exp) return h("div", {}, h("h4", {}, "Entscheidung"), h("p", { class: "muted" }, "Alt-Serie ohne Plan: keine Entscheidung möglich."));
+  if (exp.status === "withdrawn" || detail.status === "withdrawn") {
+    return h("div", {}, h("h4", {}, "Entscheidung"),
+      h("p", { class: "muted" }, "Plan zurückgezogen: Seeds freigegeben, nicht Teil der Holm-Familie."));
+  }
   if (exp.decision !== "open") {
     return h("div", {}, h("h4", {}, "Entscheidung"),
       h("p", {}, `${exp.decision_text} am ${experimentDate(exp.decision_at)}`),
       exp.decision_note ? h("p", { class: "muted" }, `Notiz: ${exp.decision_note}`) : null);
   }
+  const canWithdraw = detail.withdrawable === true;
+  const withdrawReasons = Array.isArray(detail.withdraw_blocked_reasons) ? detail.withdraw_blocked_reasons : [];
   const box = h("div", {});
-  const showChoice = () => box.replaceChildren(h("div", { class: "actions" },
-    h("button", { type: "button", onclick: () => confirmPanel("adopted") }, "Übernehmen …"),
-    h("button", { type: "button", onclick: () => confirmPanel("rejected") }, "Verwerfen …")));
+  const showChoice = () => {
+    const controls = [
+      h("button", { type: "button", onclick: () => confirmPanel("adopted") }, "Übernehmen …"),
+      h("button", { type: "button", onclick: () => confirmPanel("rejected") }, "Verwerfen …"),
+    ];
+    if (canWithdraw) {
+      controls.push(h("button", { type: "button", onclick: () => withdrawPanel() }, "Plan zurückziehen …"));
+    }
+    const items = [h("div", { class: "actions" }, ...controls)];
+    if (!canWithdraw && withdrawReasons.length) {
+      items.push(h("p", { class: "muted" }, `Plan zurückziehen gesperrt: ${withdrawReasons.join("; ")}`));
+    }
+    box.replaceChildren(...items);
+  };
   function confirmPanel(decision) {
     const note = h("textarea", { name: "experiment-decision-note", rows: 2, "aria-label": "Notiz zur Entscheidung (darf leer sein)", placeholder: "Notiz (darf leer sein)" });
     const status = h("p", { class: "muted", role: "status" });
@@ -287,6 +304,46 @@ function experimentDecision(h, detail, labels, deps) {
       status));
     if (decision === "adopted") return experimentCheckDraft(detail, deps, lines, (ok) => { blocked = !ok; yes.disabled = !ok; });
     return null;
+  }
+  function withdrawPanel() {
+    const note = h("textarea", { name: "experiment-withdraw-note", rows: 2, "aria-label": "Notiz zum Zurückziehen (darf leer sein)", placeholder: "Notiz (darf leer sein)" });
+    const status = h("p", { class: "muted", role: "status" });
+    const lines = h("ul", {}, [
+      "Der Plan wird als zurückgezogen markiert und bleibt im Verlauf sichtbar.",
+      "Freigegebene Seeds dürfen für neue Bestätigungen verwendet werden.",
+      "Der Plan zählt nicht mehr zur Holm-Familie.",
+    ].map((line) => h("li", {}, line)));
+    let sending = false;
+    const cancel = h("button", { type: "button", onclick: () => { if (!sending) showChoice(); } }, "Abbrechen");
+    const yesWithdraw = h("button", {
+      type: "button",
+      onclick: async () => {
+        if (sending) return;
+        sending = true;
+        yesWithdraw.disabled = true;
+        cancel.disabled = true;
+        try {
+          await deps.api(`/api/experiments/${encodeURIComponent(detail.experiment_id)}/withdraw`, "POST", { note: note.value || "" });
+        } catch (error) {
+          sending = false;
+          yesWithdraw.disabled = false;
+          cancel.disabled = false;
+          status.replaceChildren(StudioUI.germanError(error));
+          return;
+        }
+        try {
+          await deps.onDecided("withdrawn");
+        } catch (error) {
+          status.replaceChildren(`Plan zurückgezogen, Ansicht nicht neu geladen: ${StudioUI.germanError(error)}`);
+        }
+      },
+    }, "Ja, Plan zurückziehen");
+    box.replaceChildren(h("div", { class: "note", role: "group", "aria-label": "Plan zurückziehen bestätigen" },
+      h("b", {}, "Plan zurückziehen?"),
+      lines,
+      note,
+      h("div", { class: "actions" }, yesWithdraw, cancel),
+      status));
   }
   showChoice();
   return h("div", {}, h("h4", {}, "Entscheidung"), h("p", { class: "muted" }, "offen: nichts wird automatisch übernommen oder verworfen."), box);

@@ -3542,3 +3542,82 @@ def test_the_weight_per_source_family_covers_every_component_exactly_once() -> N
     ] == 1.0
     none = StrengthSettings(weights={name: 0.0 for name in strength.COMPONENTS})
     assert all(f["share_of_total"] == 0.0 for f in strength.weight_families(none))
+
+
+def test_strength_summary_and_single_card_projection_1565(client: TestClient) -> None:
+    """#1565: POST /api/strength supports detail='summary' and single-card card_id projections
+    without altering the byte-identical full default response."""
+    default_resp = client.post("/api/strength", json={"commander": COMMANDER}, headers=HEADER)
+    explicit_full_resp = client.post(
+        "/api/strength", json={"commander": COMMANDER, "detail": "full"}, headers=HEADER
+    )
+    assert default_resp.status_code == 200
+    assert explicit_full_resp.status_code == 200
+    assert default_resp.content == explicit_full_resp.content
+    full = default_resp.json()
+    assert full["cards"]
+
+    summary_resp = client.post(
+        "/api/strength", json={"commander": COMMANDER, "detail": "summary"}, headers=HEADER
+    )
+    assert summary_resp.status_code == 200
+    summary = summary_resp.json()
+    assert summary["detail"] == "summary"
+    assert summary["commander"] == full["commander"]
+    assert summary["card_count"] == len(full["cards"]) == len(summary["cards"])
+    for heavy_top in (
+        "kartenverstaendnis",
+        "shrinkage",
+        "stability",
+        "weight_families",
+        "role_totals",
+        "ambiguous_names",
+    ):
+        assert heavy_top not in summary, heavy_top
+
+    allowed_card_keys = {"card_id", "name", "tier", "index", "present", "is_land"}
+    for full_card, sum_card in zip(full["cards"], summary["cards"], strict=True):
+        assert set(sum_card.keys()) == allowed_card_keys
+        for key in allowed_card_keys:
+            assert sum_card[key] == full_card[key], (full_card["card_id"], key)
+        for forbidden in ("components", "chulane_textfit", "role_ranks", "tier_alternatives"):
+            assert forbidden not in sum_card
+    assert len(summary_resp.content) < len(default_resp.content)
+
+    # Single-card full detail projection
+    target = full["cards"][0]
+    card_resp = client.post(
+        "/api/strength",
+        json={"commander": COMMANDER, "detail": "full", "card_id": target["card_id"]},
+        headers=HEADER,
+    )
+    assert card_resp.status_code == 200
+    card_payload = card_resp.json()
+    assert card_payload["detail"] == "full"
+    assert card_payload["card_id"] == target["card_id"]
+    assert card_payload["card_count"] == 1
+    assert len(card_payload["cards"]) == 1
+    assert card_payload["cards"][0] == target
+    assert "kartenverstaendnis" not in card_payload
+    assert len(card_resp.content) < len(default_resp.content)
+
+    # Unknown card_id returns 200 with empty cards list
+    missing_resp = client.post(
+        "/api/strength",
+        json={"commander": COMMANDER, "detail": "full", "card_id": "nonexistent-card-id"},
+        headers=HEADER,
+    )
+    assert missing_resp.status_code == 200
+    missing_payload = missing_resp.json()
+    assert missing_payload["card_count"] == 0
+    assert missing_payload["cards"] == []
+
+    # 422 validation errors: contradictory detail+card_id, empty/whitespace card_id, invalid detail
+    for bad_body in (
+        {"commander": COMMANDER, "detail": "summary", "card_id": target["card_id"]},
+        {"commander": COMMANDER, "card_id": ""},
+        {"commander": COMMANDER, "card_id": "   "},
+        {"commander": COMMANDER, "detail": "compact"},
+    ):
+        bad = client.post("/api/strength", json=bad_body, headers=HEADER)
+        assert bad.status_code == 422, bad_body

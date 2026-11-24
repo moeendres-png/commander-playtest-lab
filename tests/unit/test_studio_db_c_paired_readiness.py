@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import threading
 import time
 from pathlib import Path
 from typing import cast
@@ -1531,6 +1532,7 @@ def test_estimate_series_duration_scales_with_workers_and_api_validates_parallel
             "games_per_jvm": 6,
             "serial_gc": False,
             "appcds": False,
+            "record_pilot_audit": False,
         }
         finished = _wait_job(mgr, folder, job.series_id)
         assert finished["status"] == "completed"
@@ -2246,3 +2248,702 @@ def test_a_paired_series_ends_its_worker_pool_and_records_what_the_pool_did(
         assert _Pool.closed == 1
     finally:
         store.close()
+
+
+@pytest.mark.parametrize("outcome", ["completed", "failed", "cancelled"])
+def test_paired_job_publishes_terminal_status_only_after_close_unlock_and_persist(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, outcome: str
+) -> None:
+    """Terminal status must only become visible after player.close(), lock release and disk write
+    complete (Refs #1767, #1745)."""
+    store, folder = _make_store(tmp_path)
+    final_write_entered = threading.Event()
+    final_write_continue = threading.Event()
+    pool_closed = threading.Event()
+    lock_released = threading.Event()
+    wait_returned = threading.Event()
+    order: list[str] = []
+    writes_after_wait: list[dict[str, object]] = []
+
+    try:
+        cards = [
+            RevisionCard("cid-chulane", 1, "commander"),
+            RevisionCard("cid-sol-ring", 1, "main"),
+            RevisionCard("cid-forest", 98, "main"),
+        ]
+        rev_base = create_revision(
+            store, deck_id="chulane-order", name="C", branch="main", cards=cards
+        )
+        rev_var = create_revision(
+            store,
+            deck_id="chulane-order",
+            name="C",
+            branch="variant",
+            cards=[cards[0], RevisionCard("cid-signet", 1, "main"), cards[2]],
+        )
+        monkeypatch.setattr(paired_series, "_preflight_snapshot_cards", lambda *_a, **_k: None)
+
+        def _play(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+            if outcome == "failed":
+                raise RuntimeError("boom during play")
+            if outcome == "cancelled":
+                raise paired_series.SeriesCancelledError("cancelled during play")
+            did = "chulane-order--base" if arm == "base" else "chulane-order--variant"
+            return {
+                "exposure": _mock_exposure(  # type: ignore[typeddict-item]
+                    f"{arm}-{seed}-{seat}",
+                    seed=seed,
+                    seat=seat,
+                    tested_deck_id=did,
+                    won=(arm == "variant"),
+                ),
+                "failure_class": None,
+            }
+
+        class _TrackingPool:
+            def summary(self) -> dict[str, object]:
+                return {"executor": "studio-game-pool-1", "games_finished": 0}
+
+            def close(self) -> None:
+                order.append("player.close")
+                pool_closed.set()
+
+        pool = _TrackingPool()
+        monkeypatch.setattr(
+            paired_comparison,
+            "parallel_window_player",
+            lambda *_a, **_k: paired_comparison.WindowPlayer(_play, [pool]),  # type: ignore[list-item]
+        )
+
+        orig_release_lock = paired_series.PairedSeriesJob._release_lock
+        status_at_unlock: list[str] = []
+
+        def _wrapped_release_lock(self: paired_series.PairedSeriesJob) -> None:
+            status_at_unlock.append(self.status)
+            orig_release_lock(self)
+            order.append("release_lock")
+            lock_released.set()
+
+        monkeypatch.setattr(paired_series.PairedSeriesJob, "_release_lock", _wrapped_release_lock)
+
+        orig_write = paired_series._write_json_atomic
+
+        def _wrapped_write(path: Path, payload: dict[str, object]) -> None:
+            if path.name.endswith(".paired.json") and wait_returned.is_set():
+                writes_after_wait.append(dict(payload))
+            if path.name.endswith(".paired.json") and payload.get("status") == outcome:
+                final_write_entered.set()
+                final_write_continue.wait(timeout=5.0)
+                orig_write(path, payload)
+                order.append("final_write_done")
+                return
+            orig_write(path, payload)
+
+        monkeypatch.setattr(paired_series, "_write_json_atomic", _wrapped_write)
+
+        mgr = PairedSeriesManager()
+        job = mgr.start_series(
+            store,
+            folder,
+            base_revision_id=rev_base,
+            variant_revision_id=rev_var,
+            pod="precon",
+            budget_pairs=4,
+            look_every_pairs=4,
+            base_seed=2100,
+            rotate_seats=False,
+            play_override=_play,
+        )
+
+        # (a) While the final disk write is blocked, cleanup ran, but in-memory status is still running
+        assert final_write_entered.wait(timeout=5.0), "final _write_json_atomic was not reached"
+        assert pool_closed.is_set()
+        assert lock_released.is_set()
+        assert status_at_unlock == ["running"]
+        assert not job.lock_file().exists()
+        assert job.status == "running"
+        in_flight = mgr.get_series(folder, job.series_id)
+        assert in_flight is not None and in_flight["status"] == "running"
+
+        # Unblock the final write and wait for terminal status
+        final_write_continue.set()
+        finished = _wait_job(mgr, folder, job.series_id)
+        wait_returned.set()
+
+        # (b) Once _wait_job returns, close/unlock/persist are all finished; immediate edit sticks
+        assert finished["status"] == outcome
+        assert job.status == outcome
+        assert order == ["player.close", "release_lock", "final_write_done"]
+        assert not job.lock_file().exists()
+
+        disk_payload = json.loads(job.series_file().read_text(encoding="utf-8"))
+        assert disk_payload["status"] == outcome
+        tampered = dict(disk_payload)
+        tampered["status"] = "running"
+        tampered["post_wait_marker"] = "kept"
+        job.series_file().write_text(json.dumps(tampered), encoding="utf-8")
+
+        reloaded = json.loads(job.series_file().read_text(encoding="utf-8"))
+        assert reloaded["post_wait_marker"] == "kept"
+        assert reloaded["status"] == "running"
+        assert writes_after_wait == []
+    finally:
+        final_write_continue.set()
+        store.close()
+
+
+def test_paired_job_still_reaches_terminal_status_when_final_persist_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Even if the final atomic disk write raises OSError, in-memory status must not stay running."""
+    from commander_lab.models import RulesDeckInput
+
+    base_deck = RulesDeckInput(
+        deck_id="chulane-ioerr--base",
+        name="Base",
+        commander_names=(COMMANDER,),
+        mainboard=("Forest",) * 99,
+    )
+    var_deck = RulesDeckInput(
+        deck_id="chulane-ioerr--variant",
+        name="Var",
+        commander_names=(COMMANDER,),
+        mainboard=("Island",) * 99,
+    )
+    opp_decks = [
+        RulesDeckInput(
+            deck_id=f"opp-{i}",
+            name=f"Opp {i}",
+            commander_names=(COMMANDER,),
+            mainboard=("Plains",) * 99,
+        )
+        for i in range(3)
+    ]
+    paths_by_id = {
+        d.deck_id: tmp_path / f"{d.deck_id}.json" for d in [base_deck, var_deck, *opp_decks]
+    }
+
+    def _fail_play(_arm: str, _seed: int, _seat: int) -> paired_comparison.PlayedGame:
+        raise RuntimeError("play failure")
+
+    orig_write = paired_series._write_json_atomic
+
+    def _failing_final_write(path: Path, payload: dict[str, object]) -> None:
+        if path.name.endswith(".paired.json") and payload.get("status") == "failed":
+            raise OSError("simulated disk full")
+        orig_write(path, payload)
+
+    monkeypatch.setattr(paired_series, "_write_json_atomic", _failing_final_write)
+
+    job = paired_series.PairedSeriesJob(
+        series_id="paired-999999-1-ioerr",
+        data_folder=tmp_path,
+        base_ref="rev-base",
+        variant_ref="rev-var",
+        base_deck=base_deck,
+        variant_deck=var_deck,
+        opponents=opp_decks,
+        paths_by_deck_id=paths_by_id,
+        pod_name="precon",
+        seeds=[2200, 2201],
+        tested_seats=[0],
+        budget_pairs=2,
+        look_every_pairs=2,
+        threshold_pp=0.0,
+        workers=1,
+        games_per_jvm=1,
+        play_override=_fail_play,
+    )
+    with pytest.raises(OSError, match="simulated disk full"):
+        job.run()
+    assert job.status == "failed"
+    assert job.error == "play failure"
+    assert job.ended_at is not None
+    assert not job.lock_file().exists()
+
+
+def test_two_paired_managers_in_same_second_get_distinct_ids_and_release_claims(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Punkt 5 (#1737): two managers starting identical inputs in one second never collide."""
+    from commander_lab.studio import games, series_reservation
+
+    store, folder = _make_store(tmp_path)
+    gate = threading.Event()
+    first_entered = threading.Event()
+    try:
+        cards = [
+            RevisionCard("cid-chulane", 1, "commander"),
+            RevisionCard("cid-sol-ring", 1, "main"),
+            RevisionCard("cid-forest", 98, "main"),
+        ]
+        rev_base = create_revision(
+            store, deck_id="chulane-collide", name="C", branch="main", cards=cards
+        )
+        rev_var = create_revision(
+            store,
+            deck_id="chulane-collide",
+            name="C",
+            branch="variant",
+            cards=[cards[0], RevisionCard("cid-signet", 1, "main"), cards[2]],
+        )
+        monkeypatch.setattr(paired_series, "_preflight_snapshot_cards", lambda *_a, **_k: None)
+        monkeypatch.setattr(paired_series.time, "time", lambda: 1_800_000_000.0)
+
+        def _make_play(*, block_first: bool) -> paired_comparison.PairPlayer:
+            def _play(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+                if block_first:
+                    first_entered.set()
+                    gate.wait(timeout=5.0)
+                did = "chulane-collide--base" if arm == "base" else "chulane-collide--variant"
+                return {
+                    "exposure": _mock_exposure(  # type: ignore[typeddict-item]
+                        f"{arm}-{seed}-{seat}",
+                        seed=seed,
+                        seat=seat,
+                        tested_deck_id=did,
+                        won=(arm == "variant"),
+                    ),
+                    "failure_class": None,
+                }
+
+            return _play
+
+        mgr1 = PairedSeriesManager()
+        mgr2 = PairedSeriesManager()
+        job1 = mgr1.start_series(
+            store,
+            folder,
+            base_revision_id=rev_base,
+            variant_revision_id=rev_var,
+            pod="precon",
+            budget_pairs=2,
+            look_every_pairs=2,
+            base_seed=3000,
+            rotate_seats=False,
+            play_override=_make_play(block_first=True),
+        )
+        assert first_entered.wait(timeout=5.0)
+        gdir = games.games_folder(folder)
+        assert (gdir / f"{job1.series_id}{series_reservation.RESERVATION_SUFFIX}").is_file()
+
+        # Second separate manager (simulating a second process) in the exact same frozen second
+        job2 = mgr2.start_series(
+            store,
+            folder,
+            base_revision_id=rev_base,
+            variant_revision_id=rev_var,
+            pod="precon",
+            budget_pairs=2,
+            look_every_pairs=2,
+            base_seed=3000,
+            rotate_seats=False,
+            play_override=_make_play(block_first=False),
+        )
+        assert job1.series_id != job2.series_id
+
+        # Let both finish and verify neither overwrote the other's record or snapshots
+        gate.set()
+        done1 = _wait_job(mgr1, folder, job1.series_id)
+        done2 = _wait_job(mgr2, folder, job2.series_id)
+        assert done1["status"] == "completed"
+        assert done2["status"] == "completed"
+        assert job1.series_file().is_file()
+        assert job2.series_file().is_file()
+        assert json.loads(job1.series_file().read_text(encoding="utf-8"))["series_id"] == (
+            job1.series_id
+        )
+        assert json.loads(job2.series_file().read_text(encoding="utf-8"))["series_id"] == (
+            job2.series_id
+        )
+        assert list((gdir / "paired_decks" / job1.series_id).glob("base-*.json"))
+        assert list((gdir / "paired_decks" / job2.series_id).glob("base-*.json"))
+        assert sorted(p.name for p in gdir.glob(f"*{series_reservation.RESERVATION_SUFFIX}")) == []
+
+        # A third manager in the same second AFTER claims were released still avoids disk ids
+        mgr3 = PairedSeriesManager()
+        job3 = mgr3.start_series(
+            store,
+            folder,
+            base_revision_id=rev_base,
+            variant_revision_id=rev_var,
+            pod="precon",
+            budget_pairs=2,
+            look_every_pairs=2,
+            base_seed=3000,
+            rotate_seats=False,
+            play_override=_make_play(block_first=False),
+        )
+        assert job3.series_id not in {job1.series_id, job2.series_id}
+        done3 = _wait_job(mgr3, folder, job3.series_id)
+        assert done3["status"] == "completed"
+        assert sorted(p.name for p in gdir.glob(f"*{series_reservation.RESERVATION_SUFFIX}")) == []
+    finally:
+        gate.set()
+        store.close()
+
+
+def test_paired_start_series_releases_claim_on_startup_failure_and_handles_mkdir_race(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Punkt 5 (#1737): startup error releases claim; FileExistsError on deck_dir retries safely."""
+    from commander_lab.studio import games, series_reservation
+
+    store, folder = _make_store(tmp_path)
+    try:
+        cards = [
+            RevisionCard("cid-chulane", 1, "commander"),
+            RevisionCard("cid-sol-ring", 1, "main"),
+            RevisionCard("cid-forest", 98, "main"),
+        ]
+        rev_base = create_revision(
+            store, deck_id="chulane-race", name="C", branch="main", cards=cards
+        )
+        rev_var = create_revision(
+            store,
+            deck_id="chulane-race",
+            name="C",
+            branch="variant",
+            cards=[cards[0], RevisionCard("cid-signet", 1, "main"), cards[2]],
+        )
+        monkeypatch.setattr(paired_series, "_preflight_snapshot_cards", lambda *_a, **_k: None)
+        monkeypatch.setattr(paired_series.time, "time", lambda: 1_800_000_000.0)
+        gdir = games.games_folder(folder)
+
+        def _play(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+            did = "chulane-race--base" if arm == "base" else "chulane-race--variant"
+            return {
+                "exposure": _mock_exposure(  # type: ignore[typeddict-item]
+                    f"{arm}-{seed}-{seat}",
+                    seed=seed,
+                    seat=seat,
+                    tested_deck_id=did,
+                    won=(arm == "variant"),
+                ),
+                "failure_class": None,
+            }
+
+        # (a) Failure during thread.start() must release reservation and clean up job entry
+        orig_start = threading.Thread.start
+
+        def _boom_start(_self: threading.Thread) -> None:
+            raise RuntimeError("cannot start thread")
+
+        monkeypatch.setattr(threading.Thread, "start", _boom_start)
+        mgr_fail = PairedSeriesManager()
+        with pytest.raises(RuntimeError, match="cannot start thread"):
+            mgr_fail.start_series(
+                store,
+                folder,
+                base_revision_id=rev_base,
+                variant_revision_id=rev_var,
+                pod="precon",
+                budget_pairs=2,
+                look_every_pairs=2,
+                base_seed=3100,
+                rotate_seats=False,
+                play_override=_play,
+            )
+        assert mgr_fail._jobs == {}
+        assert sorted(p.name for p in gdir.glob(f"*{series_reservation.RESERVATION_SUFFIX}")) == []
+        monkeypatch.setattr(threading.Thread, "start", orig_start)
+
+        # (b) Exclusive deck_dir creation: if another process creates seq=1 dir in the race window,
+        # start_series releases seq=1's claim, preserves the pre-existing snapshot, and picks seq=2.
+        expected_digest1 = hashlib.sha256(f"{rev_base}|{rev_var}|3100|1".encode()).hexdigest()[:8]
+        first_id = f"paired-1800000000-1-{expected_digest1}"
+        first_dir = gdir / "paired_decks" / first_id
+        sentinel = first_dir / "keep-me.json"
+        orig_mkdir = Path.mkdir
+        raced = False
+
+        def _racy_mkdir(
+            self: Path, mode: int = 0o777, parents: bool = False, exist_ok: bool = False
+        ) -> None:
+            nonlocal raced
+            if self == first_dir and not exist_ok and not raced:
+                raced = True
+                orig_mkdir(self, mode=mode, parents=True, exist_ok=True)
+                sentinel.write_text('{"existing": true}\n', encoding="utf-8")
+                raise FileExistsError(str(self))
+            orig_mkdir(self, mode=mode, parents=parents, exist_ok=exist_ok)
+
+        monkeypatch.setattr(Path, "mkdir", _racy_mkdir)
+        mgr_race = PairedSeriesManager()
+        job = mgr_race.start_series(
+            store,
+            folder,
+            base_revision_id=rev_base,
+            variant_revision_id=rev_var,
+            pod="precon",
+            budget_pairs=2,
+            look_every_pairs=2,
+            base_seed=3100,
+            rotate_seats=False,
+            play_override=_play,
+        )
+        assert raced is True
+        assert job.series_id != first_id
+        assert sentinel.read_text(encoding="utf-8") == '{"existing": true}\n'
+        done = _wait_job(mgr_race, folder, job.series_id)
+        assert done["status"] == "completed"
+        assert sorted(p.name for p in gdir.glob(f"*{series_reservation.RESERVATION_SUFFIX}")) == []
+    finally:
+        store.close()
+
+
+def test_paired_comparison_and_deck_series_include_validity_block_and_consistency_table(
+    tmp_path: Path,
+) -> None:
+    """#1527: paired series results and deck_series entries carry validity_block (seat curve
+    with 95% Wilson CI + Playgroup 4-seat ref + unknown pilot_omissions + fixed statement)
+    and 3-class consistency_table."""
+    from commander_lab.studio import deck_series as deck_series_mod
+    from commander_lab.studio.simulations import wilson_score_interval
+
+    store, folder = _make_store(tmp_path)
+    try:
+        rev_base = create_revision(
+            store,
+            deck_id="chulane-vb",
+            name="Chulane VB",
+            branch="main",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-sol-ring", 1, "main"),
+                RevisionCard("cid-llanowar", 1, "main"),
+                RevisionCard("cid-forest", 97, "main"),
+            ],
+        )
+        rev_var = create_revision(
+            store,
+            deck_id="chulane-vb",
+            name="Chulane VB",
+            branch="variant",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-sol-ring", 1, "main"),
+                RevisionCard("cid-signet", 1, "main"),
+                RevisionCard("cid-forest", 97, "main"),
+            ],
+        )
+
+        def _play(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+            did = "chulane-vb--base" if arm == "base" else "chulane-vb--variant"
+            exp = _mock_exposure(
+                f"{arm}-{seed}-{seat}",
+                seed=seed,
+                seat=seat,
+                tested_deck_id=did,
+                won=(arm == "variant"),
+            )
+            exp["pilot_fingerprint"] = "fp-paired-test-1527"
+            exp["table_size"] = 4
+            return {"exposure": exp, "failure_class": None}  # type: ignore[typeddict-item]
+
+        mgr = PairedSeriesManager()
+        job = mgr.start_series(
+            store,
+            folder,
+            base_revision_id=rev_base,
+            variant_revision_id=rev_var,
+            pod="precon",
+            budget_pairs=8,
+            look_every_pairs=4,
+            base_seed=4000,
+            rotate_seats=True,
+            play_override=_play,
+        )
+        done = _wait_job(mgr, folder, job.series_id)
+        assert done["status"] == "completed"
+        res = done["result"]
+        assert isinstance(res, dict)
+
+        vb = res["validity_block"]
+        assert isinstance(vb, dict)
+        assert vb["data_class"] == "SIMULATED_RESULT"
+        assert vb["pilot_fingerprint"] == "fp-paired-test-1527"
+        assert vb["pilot_omissions"]["status"] == "unbekannt"
+        assert vb["pilot_omissions"]["series"] is None
+        assert vb["pilot_omissions"]["by_seat"] is None
+        assert vb["validity_statement"].startswith(
+            "Gilt für diese Piloten (Fingerabdruck: fp-paired-test-1527), diese Pods ("
+        )
+        assert vb["validity_statement"].endswith("; keine Aussage über menschliches Spiel.")
+
+        sc = vb["seat_curve"]
+        assert sc["table_size"] == 4
+        assert sc["reference_comparable"] is True
+        assert sc["reference"]["n"] == 300240
+        assert len(sc["seats"]) == 4
+        for seat_row in sc["seats"]:
+            expected_ci = list(
+                wilson_score_interval(seat_row["wins"], seat_row["games"], confidence=0.95)
+            )
+            assert seat_row["ci95"] == expected_ci
+            assert seat_row["reference_win_rate_pct"] is not None
+
+        ct = res["consistency_table"]
+        assert [c["key"] for c in ct["origin_classes"]] == [
+            "exact_calculated",
+            "engine_pilot_independent",
+            "engine_pilot_dependent",
+        ]
+        assert len(ct["by_origin_class"]["exact_calculated"]) >= 1
+        assert len(ct["by_origin_class"]["engine_pilot_independent"]) >= 1
+        assert len(ct["by_origin_class"]["engine_pilot_dependent"]) >= 1
+
+        # deck_series exposes validity_block & consistency_table for stored series
+        ds = deck_series_mod.deck_series(
+            folder, [rev_base, rev_var], store=store, deck_id="chulane-vb"
+        )
+        assert len(ds["series"]) == 1
+        entry = ds["series"][0]
+        assert isinstance(entry["validity_block"], dict)
+        assert entry["validity_block"]["data_class"] == "SIMULATED_RESULT"
+        assert entry["validity_block"]["pilot_omissions"]["status"] == "unbekannt"
+        assert isinstance(entry["consistency_table"], dict)
+    finally:
+        store.close()
+
+
+def test_paired_seat_curve_turn_order_legacy_disk_fallback_and_compare_logs_failures(
+    tmp_path: Path,
+) -> None:
+    """P1-1, P2-2, P2-3 (#1527):
+    - paired_comparison aggregates seat curve by turn-order position (winner - seed % 4) % 4
+    - PairedSeriesManager.get_series()/list_series() attach fallback validity_block to legacy files
+    - compare_logs() rebuilds consistency_table after recording failed base/variant games.
+    """
+    from commander_lab.studio.games import games_folder
+
+    # P1-1: paired series where starting player (seed % 4) always wins -> Seat 1 = 100 %
+    exposures = []
+    for seed in range(1000, 1004):
+        start_seat = seed % 4
+        for arm, did in (("base", "deck-a"), ("variant", "deck-b")):
+            exp = _mock_exposure(
+                f"{arm}-{seed}",
+                seed=seed,
+                seat=0,
+                tested_deck_id=did,
+                won=(start_seat == 0),
+            )
+            exp["table_size"] = 4
+            exp["winner_seats"] = [start_seat]
+            exposures.append(exp)
+    pairs, _, _, _ = paired_comparison.pair_exposures(
+        exposures,  # type: ignore[arg-type]
+        base_deck_id="deck-a",
+        variant_deck_id="deck-b",
+    )
+    res, _ = paired_comparison._summarize(
+        pairs,
+        base_deck_id="deck-a",
+        variant_deck_id="deck-b",
+        threshold_pp=0.0,
+        significance_level=0.05,
+        alpha=0.05,
+        exposures=exposures,  # type: ignore[arg-type]
+        allow_mixed=False,
+        series=False,
+    )
+    sc_seats = res["validity_block"]["seat_curve"]["seats"]
+    assert [s["n_of_N"] for s in sc_seats] == ["8/8", "0/8", "0/8", "0/8"]
+    assert [s["win_rate_pct"] for s in sc_seats] == [100.0, 0.0, 0.0, 0.0]
+
+    # P2-2: legacy .paired.json without validity_block on disk
+    gdir = games_folder(tmp_path)
+    gdir.mkdir(parents=True, exist_ok=True)
+    legacy_paired = {
+        "schema": "studio-paired-series-job-1",
+        "series_id": "paired-legacy-1527",
+        "status": "completed",
+        "base_ref": "chulane@a",
+        "variant_ref": "chulane@b",
+        "pod": "precon",
+        "opponent_ids": ["o1", "o2", "o3"],
+        "result": {"pairs_completed": 4, "engine_pin": "xmage-test-pin"},
+    }
+    (gdir / "paired-legacy-1527.paired.json").write_text(
+        json.dumps(legacy_paired), encoding="utf-8"
+    )
+    mgr = PairedSeriesManager()
+    got = mgr.get_series(tmp_path, "paired-legacy-1527")
+    assert got is not None
+    assert got["validity_block"]["data_class"] == "SIMULATED_RESULT"
+    assert got["validity_block"]["pilot_omissions"]["status"] == "unbekannt"
+    assert got["validity_block"]["seat_curve"]["table_size"] == 4
+    assert got["result"]["validity_block"]["data_class"] == "SIMULATED_RESULT"
+    listed = mgr.list_series(tmp_path)
+    assert any(
+        item["series_id"] == "paired-legacy-1527"
+        and item["validity_block"]["data_class"] == "SIMULATED_RESULT"
+        for item in listed
+    )
+
+    # P2-3: compare_logs() with a failed base game reflects Fehler A: 1 in consistency_table
+    logs_dir = tmp_path / "compare_logs_case"
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    for seed in (10, 11):
+        for arm, did in (("base", "deck-a"), ("variant", "deck-b")):
+            header = {
+                "kind": "header",
+                "schema": "studio-game-log-1",
+                "game_id": f"{arm}-{seed}",
+                "seed": seed,
+                "cohort": "simulated",
+                "engine_commit": "eng-1",
+                "pilot_fingerprint": "fp-1",
+                "seats": [
+                    {"seat": 0, "deck_id": did, "pilot": "ai"},
+                    {"seat": 1, "deck_id": "opp-1", "pilot": "ai"},
+                    {"seat": 2, "deck_id": "opp-2", "pilot": "ai"},
+                    {"seat": 3, "deck_id": "opp-3", "pilot": "ai"},
+                ],
+            }
+            result_line = {
+                "kind": "result",
+                "status": "finished",
+                "winner_seats": [0 if arm == "variant" else 1],
+            }
+            (logs_dir / f"{arm}-{seed}.jsonl").write_text(
+                json.dumps(header) + "\n" + json.dumps(result_line) + "\n",
+                encoding="utf-8",
+            )
+    # Add one failed base game
+    failed_header = {
+        "kind": "header",
+        "schema": "studio-game-log-1",
+        "game_id": "base-failed-99",
+        "seed": 99,
+        "cohort": "simulated",
+        "engine_commit": "eng-1",
+        "pilot_fingerprint": "fp-1",
+        "seats": [
+            {"seat": 0, "deck_id": "deck-a", "pilot": "ai"},
+            {"seat": 1, "deck_id": "opp-1", "pilot": "ai"},
+            {"seat": 2, "deck_id": "opp-2", "pilot": "ai"},
+            {"seat": 3, "deck_id": "opp-3", "pilot": "ai"},
+        ],
+    }
+    failed_result = {"kind": "result", "status": "failed", "failure_class": "Timeout"}
+    (logs_dir / "base-failed-99.jsonl").write_text(
+        json.dumps(failed_header) + "\n" + json.dumps(failed_result) + "\n",
+        encoding="utf-8",
+    )
+    compared = paired_comparison.compare_logs(
+        logs_dir, base_deck_id="deck-a", variant_deck_id="deck-b"
+    )
+    assert compared["games_failed_base"] == 1
+    pair_row = next(
+        r
+        for r in compared["consistency_table"]["rows"]
+        if r["metric_id"] == "pairs_completed_vs_censored"
+    )
+    assert "Fehler A: 1" in str(pair_row["display"])
+    # P3: integer win count formatted as "2/2", not "2.0/2"
+    var_row = next(
+        r for r in compared["consistency_table"]["rows"] if r["metric_id"] == "variant_win_rate"
+    )
+    assert var_row["n_of_N"] == "2/2"

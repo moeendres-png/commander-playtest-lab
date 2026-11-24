@@ -386,6 +386,7 @@ CREATE TABLE IF NOT EXISTS experiment (
     bridge_state TEXT,
     pilot_fingerprint TEXT,
     decision TEXT NOT NULL DEFAULT 'open' CHECK (decision IN ('open', 'adopted', 'rejected')),
+    status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'withdrawn')),
     decision_at TEXT,
     decision_note TEXT,
     decision_tested INTEGER,
@@ -905,6 +906,18 @@ SIMULATION_RUN_TABLE_COLUMNS = (
     ("opponent_ids", "TEXT"),
     ("opponent_set_hash", "TEXT"),
     ("table_size", "INTEGER"),
+    ("pilot_fingerprint", "TEXT"),
+)
+
+# Censored time-to-event columns on simulation_card (#1527): nullable, added on every open
+# without bumping SCHEMA_VERSION (21). Rows written before stay NULL ("unbekannt", never 0).
+SIMULATION_CARD_CENSORED_COLUMNS = (
+    ("first_cast_round_games_reached", "INTEGER"),
+    ("first_cast_round_games_not_reached", "INTEGER"),
+    ("first_cast_round_q1", "INTEGER"),
+    ("first_cast_round_median", "INTEGER"),
+    ("first_cast_round_q3", "INTEGER"),
+    ("first_cast_round_basis", "TEXT"),
 )
 
 
@@ -924,6 +937,21 @@ def _ensure_tam_price_columns(connection: sqlite3.Connection) -> None:
                     raise
 
 
+def _ensure_experiment_status_column(connection: sqlite3.Connection) -> None:
+    """Additive ``status`` column on ``experiment`` for Owner 5a plan withdrawal (#1658);
+    no schema bump (schema 22 is reserved for K-2, E15 Q9)."""
+    columns = {str(row["name"]) for row in connection.execute("PRAGMA table_info(experiment)")}
+    if "status" not in columns:
+        try:
+            connection.execute(
+                "ALTER TABLE experiment ADD COLUMN status TEXT NOT NULL DEFAULT 'active' "
+                "CHECK (status IN ('active', 'withdrawn'))"
+            )
+        except sqlite3.OperationalError as error:
+            if "duplicate column" not in str(error).lower():
+                raise
+
+
 def _ensure_simulation_run_state_columns(connection: sqlite3.Connection) -> None:
     columns = {str(row["name"]) for row in connection.execute("PRAGMA table_info(simulation_run)")}
     wanted = [(column, "TEXT") for column in SIMULATION_RUN_STATE_COLUMNS]
@@ -933,6 +961,17 @@ def _ensure_simulation_run_state_columns(connection: sqlite3.Connection) -> None
                 connection.execute(f"ALTER TABLE simulation_run ADD COLUMN {column} {sql_type}")
             except sqlite3.OperationalError as error:
                 # another process opening the same store added it between PRAGMA and ALTER
+                if "duplicate column" not in str(error).lower():
+                    raise
+
+
+def _ensure_simulation_card_censored_columns(connection: sqlite3.Connection) -> None:
+    columns = {str(row["name"]) for row in connection.execute("PRAGMA table_info(simulation_card)")}
+    for column, sql_type in SIMULATION_CARD_CENSORED_COLUMNS:
+        if column not in columns:
+            try:
+                connection.execute(f"ALTER TABLE simulation_card ADD COLUMN {column} {sql_type}")
+            except sqlite3.OperationalError as error:
                 if "duplicate column" not in str(error).lower():
                     raise
 
@@ -1012,7 +1051,9 @@ class StudioStore:
                 "UPDATE meta SET value = ? WHERE key = 'schema_version'", (str(SCHEMA_VERSION),)
             )
         _ensure_simulation_run_state_columns(connection)
+        _ensure_simulation_card_censored_columns(connection)
         _ensure_tam_price_columns(connection)
+        _ensure_experiment_status_column(connection)
         connection.commit()
         return connection
 

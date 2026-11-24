@@ -1791,3 +1791,945 @@ def test_simulate_cli_waits_for_the_worker_thread_before_it_returns(
     assert studio_main(_simulate_argv(tmp_path, "rev")) == 0
     assert order == ["worker finished", "printed"]
     assert json.loads(capsys.readouterr().out)["worker_done"] is True
+
+
+# --- #1737: claim cleanup on error, CLI Ctrl-C/timeout, leftover failed batch files -----------
+
+
+def test_claim_unless_used_releases_claim_immediately_when_in_use_raises(tmp_path: Path) -> None:
+    """Punkt 1 (#1737): an SQLite error during re-check must not leave an orphaned .reserve file."""
+    from commander_lab.studio import series_reservation
+
+    folder = games.games_folder(tmp_path)
+    sid = "batch-1800000000-chulane"
+
+    def broken_in_use(_series_id: str) -> bool:
+        raise sqlite3.OperationalError("database is locked")
+
+    with pytest.raises(sqlite3.OperationalError, match="database is locked"):
+        series_reservation.claim_unless_used(folder, sid, broken_in_use)
+
+    assert _reservations(tmp_path) == []
+    # Because the claim was released immediately, a subsequent caller can claim the same id
+    assert series_reservation.claim_unless_used(folder, sid, lambda _s: False) is True
+    assert _reservations(tmp_path) == [f"{sid}.reserve"]
+    series_reservation.release(folder, sid)
+    assert _reservations(tmp_path) == []
+
+
+def test_simulate_cli_waits_for_worker_done_after_keyboard_interrupt(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Punkt 2 (#1737): Ctrl-C calls cancel() and waits for worker_done before propagating."""
+    from commander_lab.studio.__main__ import main as studio_main
+
+    events: list[str] = []
+    real_sleep = time.sleep
+
+    class CancellableBatch:
+        def __init__(self) -> None:
+            self.status = "running"
+            self.worker_done = threading.Event()
+
+        def cancel(self) -> None:
+            events.append("cancel")
+
+            def _finish() -> None:
+                real_sleep(0.05)
+                self.status = "cancelled"
+                events.append("worker_done_set")
+                self.worker_done.set()
+
+            threading.Thread(target=_finish, daemon=True).start()
+
+    batch = CancellableBatch()
+    monkeypatch.setattr(SimulationBatchManager, "start_batch", lambda *_a, **_k: batch)
+
+    def _interrupt(_seconds: float) -> None:
+        raise KeyboardInterrupt()
+
+    monkeypatch.setattr(time, "sleep", _interrupt)
+
+    with pytest.raises(KeyboardInterrupt):
+        studio_main(_simulate_argv(tmp_path, "rev"))
+
+    assert events == ["cancel", "worker_done_set"]
+    assert batch.worker_done.is_set()
+    assert capsys.readouterr().err == ""
+
+
+def test_simulate_cli_handles_second_keyboard_interrupt_during_worker_wait(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Punkt 2 (#1737): a second Ctrl-C while waiting for worker_done breaks cleanly."""
+    from commander_lab.studio.__main__ import main as studio_main
+
+    cancelled: list[bool] = []
+
+    class SecondInterruptWait:
+        def wait(self, timeout: float | None = None) -> bool:
+            assert timeout == 60
+            raise KeyboardInterrupt()
+
+    class StubBatch:
+        status = "running"
+        worker_done = SecondInterruptWait()
+
+        def cancel(self) -> None:
+            cancelled.append(True)
+
+    monkeypatch.setattr(SimulationBatchManager, "start_batch", lambda *_a, **_k: StubBatch())
+    monkeypatch.setattr(time, "sleep", lambda _s: (_ for _ in ()).throw(KeyboardInterrupt()))
+
+    with pytest.raises(KeyboardInterrupt):
+        studio_main(_simulate_argv(tmp_path, "rev"))
+
+    assert cancelled == [True]
+    assert "abgebrochen" in capsys.readouterr().err
+
+
+def test_simulate_cli_warns_and_exits_nonzero_when_worker_done_times_out(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Punkt 3 (#1737): wait(60) returning False must warn on stderr and exit 1, never 0."""
+    from commander_lab.studio.__main__ import main as studio_main
+
+    seen_timeouts: list[float | None] = []
+
+    class TimedOutEvent:
+        def wait(self, timeout: float | None = None) -> bool:
+            seen_timeouts.append(timeout)
+            return False
+
+    class StuckEnd:
+        status = "completed"
+        worker_done = TimedOutEvent()
+
+        def to_dict(self) -> dict[str, object]:
+            return {"status": self.status}
+
+    monkeypatch.setattr(SimulationBatchManager, "start_batch", lambda *_a, **_k: StuckEnd())
+
+    rc = studio_main(_simulate_argv(tmp_path, "rev"))
+    captured = capsys.readouterr()
+    assert rc == 1
+    assert seen_timeouts == [60]
+    assert json.loads(captured.out) == {"status": "completed"}
+    assert "60 s" in captured.err
+
+
+def test_batch_id_in_use_detects_leftover_game_logs_and_chunk_outputs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Punkt 6 (#1737): leftover jsonl or chunk .out files of a failed series reserve the id."""
+    _freeze_second(monkeypatch)
+    base_id = "batch-1800000000-chulane"
+    gdir = games.games_folder(tmp_path)
+    leftover_log = gdir / f"batch-{base_id}-s1000.jsonl"
+    leftover_log.write_text('{"leftover": true}\n', encoding="utf-8")
+    leftover_chunk = gdir / f"{base_id}-2-chunk-s1000.out"
+    leftover_chunk.write_text("leftover chunk stderr\n", encoding="utf-8")
+
+    store = StudioStore.open(tmp_path)
+    try:
+        assert simulations_module.batch_id_in_use(store, tmp_path, base_id) is True
+        assert simulations_module.batch_id_in_use(store, tmp_path, f"{base_id}-2") is True
+        assert simulations_module.batch_id_in_use(store, tmp_path, f"{base_id}-3") is False
+
+        rev_id = _seed_test_deck(store)
+        batch = _start(SimulationBatchManager(), store, tmp_path, rev_id, 1000)
+        _wait(batch)
+        assert batch.worker_done.wait(10)
+        assert batch.batch_id == f"{base_id}-3"
+        # Leftover files of the earlier failed series are untouched
+        assert leftover_log.read_text(encoding="utf-8") == '{"leftover": true}\n'
+        assert leftover_chunk.read_text(encoding="utf-8") == "leftover chunk stderr\n"
+    finally:
+        store.close()
+
+
+def test_playgroup_seat_curve_reference_constant_and_table_size_gate() -> None:
+    """#1527: Playgroup 4-seat reference constant (no network) and Wilson CI per seat."""
+    ref = simulations_module.PLAYGROUP_SEAT_CURVE_REFERENCE
+    assert ref["source"] == "Playgroup"
+    assert ref["as_of"] == "2026-11-16"
+    assert ref["n"] == 300240
+    assert ref["table_size"] == 4
+    assert ref["seats"] == [
+        {"seat": 1, "win_rate_pct": 29.1},
+        {"seat": 2, "win_rate_pct": 25.7},
+        {"seat": 3, "win_rate_pct": 23.6},
+        {"seat": 4, "win_rate_pct": 21.5},
+    ]
+    caveats = str(ref["caveats"]).casefold()
+    for word in ("casual", "selbstangabe", "randomisiert", "unentschieden"):
+        assert word in caveats
+
+    # 4-seat curve (all starting_player_seat=0 via seed=0): Wilson CI + Playgroup 4-seat ref
+    games_4 = [{"winner_seats": ws, "seed": 0} for ws in ([0], [0], [1], [2], [3], [0], [1], [0])]
+    curve_4 = simulations_module.compute_seat_curve(games_4, table_size=4)
+    assert curve_4["reference_comparable"] is True
+    assert curve_4["table_size"] == 4
+    assert curve_4["games_completed"] == 8
+    assert curve_4["games_without_starting_seat"] == 0
+    seats_4 = curve_4["seats"]
+    assert isinstance(seats_4, list) and len(seats_4) == 4
+    assert seats_4[0]["seat"] == 1
+    assert seats_4[0]["wins"] == 4.0
+    assert seats_4[0]["games"] == 8
+    assert seats_4[0]["n_of_N"] == "4/8"
+    assert seats_4[0]["ci95"] == list(wilson_score_interval(4.0, 8, confidence=0.95))
+    assert seats_4[0]["reference_win_rate_pct"] == 29.1
+    assert seats_4[3]["reference_win_rate_pct"] == 21.5
+
+    # P1-1 Probe 1: consecutive seeds 1000..1003, starting player (seed % 4) wins 4/4 ->
+    # Seat 1 MUST be 4/4 (100.0 %), Seats 2-4 MUST be 0/4 (0.0 %), never 25/25/25/25 %.
+    probe1_games = [{"winner_seats": [seed % 4], "seed": seed} for seed in range(1000, 1004)]
+    probe1 = simulations_module.compute_seat_curve(probe1_games, table_size=4)
+    assert [s["n_of_N"] for s in probe1["seats"]] == ["4/4", "0/4", "0/4", "0/4"]
+    assert [s["win_rate_pct"] for s in probe1["seats"]] == [100.0, 0.0, 0.0, 0.0]
+
+    # P1-1 Probe 2: batch with consecutive seeds 1000..1003 where raw slot 0 wins 4/4 ->
+    # turn-order seats MUST be 1/4 (25.0 %) each, never Seat 1 = 100 %.
+    probe2_summaries = [
+        GameSummary(
+            game_id=f"p2-{seed}",
+            seed=seed,
+            status="finished",
+            winner_seats=[0],
+            rounds=8,
+            candidate_won=True,
+            table_size=4,
+        )
+        for seed in range(1000, 1004)
+    ]
+    probe2_batch = aggregate_batch_results(probe2_summaries, table_size=4)
+    probe2_seats = probe2_batch["validity_block"]["seat_curve"]["seats"]
+    assert [s["n_of_N"] for s in probe2_seats] == ["1/4", "1/4", "1/4", "1/4"]
+    assert [s["win_rate_pct"] for s in probe2_seats] == [25.0, 25.0, 25.0, 25.0]
+
+    # Fail-closed when neither starting_player_seat nor integer seed is present
+    unmapped = simulations_module.compute_seat_curve(
+        [{"winner_seats": [0], "seed": None}], table_size=4
+    )
+    assert unmapped["games_completed"] == 0
+    assert unmapped["games_without_starting_seat"] == 1
+    assert all(s["n_of_N"] == "unbekannt" and s["win_rate"] is None for s in unmapped["seats"])
+
+    # 5-seat curve: reference NOT comparable, no fabricated reference values
+    curve_5 = simulations_module.compute_seat_curve(games_4, table_size=5)
+    assert curve_5["reference_comparable"] is False
+    seats_5 = curve_5["seats"]
+    assert isinstance(seats_5, list) and len(seats_5) == 5
+    assert all(s["reference_win_rate_pct"] is None for s in seats_5)
+    assert "4 Sitze" in str(curve_5["reference_note"])
+    assert "5 Sitze" in str(curve_5["reference_note"])
+
+    # Unknown table size: no fabricated seats, not comparable
+    curve_unknown = simulations_module.compute_seat_curve(games_4, table_size=None)
+    assert curve_unknown["reference_comparable"] is False
+    assert curve_unknown["seats"] == []
+
+    # P2-4 strict validation: bools, omissions > opportunities, seat < 1, pods=[None]
+    for bad_om in (
+        {"series": {"omissions": True, "opportunities": 10}},
+        {"series": {"omissions": 1, "opportunities": True}},
+        {"series": {"omissions": 11, "opportunities": 10}},
+        {"by_seat": [{"seat": 0, "omissions": 1, "opportunities": 5}]},
+        {"by_seat": [{"seat": True, "omissions": 1, "opportunities": 5}]},
+        {"by_seat": [{"seat": 1, "omissions": 6, "opportunities": 5}]},
+    ):
+        vb_bad = simulations_module.build_validity_block(
+            seat_curve=curve_4,
+            pods=[None],
+            pilot_omissions=bad_om,
+        )
+        assert vb_bad["pilot_omissions"]["status"] == "unbekannt"
+        assert vb_bad["pilot_omissions"]["series"] is None
+        assert vb_bad["pilot_omissions"]["by_seat"] is None
+        assert vb_bad["pods"] == "unbekannt"
+        assert "None" not in str(vb_bad["validity_statement"])
+
+    # P3: empty batch (planned_count == 0) renders rounds_to_finish as "unbekannt"
+    empty_summary = aggregate_batch_results([])
+    rounds_row = next(
+        r
+        for r in empty_summary["consistency_table"]["rows"]
+        if r["metric_id"] == "rounds_to_finish"
+    )
+    assert rounds_row["display"] == "unbekannt"
+
+
+def test_batch_validity_block_consistency_table_and_censored_persistence(tmp_path: Path) -> None:
+    """#1527: validity_block, 3-class consistency_table, real pilot_fingerprint and censored
+    simulation_card persistence through store/builder without bumping SCHEMA_VERSION (21)."""
+    from commander_lab.studio import builder
+    from commander_lab.studio import store as store_module
+
+    assert store_module.SCHEMA_VERSION == 21
+
+    g1 = GameSummary(
+        game_id="b-1",
+        seed=1,
+        status="finished",
+        winner_seats=[0],
+        rounds=8,
+        candidate_won=True,
+        table_size=4,
+        pilot_fingerprint="fp-abc123",
+        observed_cards={
+            "Sol Ring": {"offered": True, "cast": True, "cast_count": 1, "first_cast_round": 1},
+            "Arcane Signet": {
+                "offered": True,
+                "cast": False,
+                "cast_count": 0,
+                "first_cast_round": None,
+            },
+        },
+    )
+    g2 = GameSummary(
+        game_id="b-2",
+        seed=2,
+        status="finished",
+        winner_seats=[1],
+        rounds=10,
+        candidate_won=False,
+        table_size=4,
+        pilot_fingerprint="fp-abc123",
+        observed_cards={
+            "Sol Ring": {"offered": True, "cast": True, "cast_count": 1, "first_cast_round": 3},
+            "Arcane Signet": {
+                "offered": True,
+                "cast": True,
+                "cast_count": 1,
+                "first_cast_round": 2,
+            },
+        },
+    )
+    g3 = GameSummary(
+        game_id="b-3",
+        seed=3,
+        status="finished",
+        winner_seats=[2],
+        rounds=9,
+        candidate_won=False,
+        table_size=4,
+        pilot_fingerprint="fp-abc123",
+        observed_cards={
+            "Sol Ring": {
+                "offered": False,
+                "cast": False,
+                "cast_count": 0,
+                "first_cast_round": None,
+            },
+            "Arcane Signet": {
+                "offered": False,
+                "cast": False,
+                "cast_count": 0,
+                "first_cast_round": None,
+            },
+        },
+    )
+    g4 = GameSummary(
+        game_id="b-4",
+        seed=4,
+        status="failed",
+        failure_class="Timeout",
+    )
+
+    summary = aggregate_batch_results(
+        [g1, g2, g3, g4],
+        pod_name="precon",
+        engine_version="xmage-pin-test",
+    )
+    vb = summary["validity_block"]
+    assert isinstance(vb, dict)
+    assert vb["data_class"] == "SIMULATED_RESULT"
+    assert vb["pilot_fingerprint"] == "fp-abc123"
+    assert vb["pods"] == "precon"
+    assert vb["engine_version"] == "xmage-pin-test"
+    assert vb["validity_statement"] == (
+        "Gilt für diese Piloten (Fingerabdruck: fp-abc123), "
+        "diese Pods (precon), "
+        "diese Engine-Version (xmage-pin-test); "
+        "keine Aussage über menschliches Spiel."
+    )
+    # Missing pilot_omissions is ALWAYS "unbekannt" / None, NEVER 0
+    om = vb["pilot_omissions"]
+    assert isinstance(om, dict)
+    assert om["status"] == "unbekannt"
+    assert om["series"] is None
+    assert om["by_seat"] is None
+    assert om["display"] == "unbekannt"
+
+    # Measured pilot_omissions when audit data is provided
+    vb_measured = simulations_module.build_validity_block(
+        seat_curve=vb["seat_curve"],
+        pilot_fingerprint="fp-abc123",
+        pods="precon",
+        engine_version="xmage-pin-test",
+        pilot_omissions={
+            "series": {"omissions": 2, "opportunities": 10},
+            "by_seat": [{"seat": 1, "omissions": 2, "opportunities": 10}],
+        },
+    )
+    assert vb_measured["pilot_omissions"]["status"] == "measured"
+    assert vb_measured["pilot_omissions"]["display"] == "2/10"
+
+    # 3-origin-class consistency table
+    ct = summary["consistency_table"]
+    assert isinstance(ct, dict)
+    assert [c["key"] for c in ct["origin_classes"]] == [
+        "exact_calculated",
+        "engine_pilot_independent",
+        "engine_pilot_dependent",
+    ]
+    by_cls = ct["by_origin_class"]
+    assert len(by_cls["exact_calculated"]) >= 1
+    assert len(by_cls["engine_pilot_independent"]) >= 1
+    assert len(by_cls["engine_pilot_dependent"]) >= 1
+    tte_rows = [r for r in ct["rows"] if r.get("is_time_to_event")]
+    assert len(tte_rows) >= 1
+    assert tte_rows[0]["not_reached_label"] == "nicht erreicht"
+    assert tte_rows[0]["not_reached"] == 1
+
+    # Persist through store + read back via builder.list_simulations and builder.card_simulations
+    store = StudioStore.open(tmp_path)
+    try:
+        rev_id = _seed_test_deck(store)
+        batch = BatchSimulation(
+            batch_id="censored-persist-1",
+            data_folder=tmp_path,
+            deck_id="chulane",
+            revision_id=rev_id,
+            pod_name="precon",
+            opponent_paths=[],
+            seeds=[1, 2, 3, 4],
+            initial_games=[g1, g2, g3, g4],
+        )
+        assert batch.pilot_fingerprint is not None and len(batch.pilot_fingerprint) == 64
+        batch_dict = batch.to_dict()
+        assert batch_dict["pilot_fingerprint"] == batch.pilot_fingerprint
+        assert isinstance(batch_dict["validity_block"], dict)
+
+        run_id = simulations_module.save_batch_to_store(store, batch, summary)
+        runs = builder.list_simulations(store, ["Chulane, Teller of Tales"])
+        matching = [r for r in runs if r["run_id"] == run_id]
+        assert len(matching) == 1
+        assert matching[0]["pilot_fingerprint"] == "fp-abc123"
+        by_card = {c["card_name"]: c for c in matching[0]["cards"]}
+        assert by_card["Sol Ring"]["first_cast_round_games_reached"] == 2
+        assert by_card["Sol Ring"]["first_cast_round_games_not_reached"] == 1
+        assert by_card["Sol Ring"]["first_cast_round_quartiles"] == {
+            "q1": 1,
+            "median": 3,
+            "q3": None,
+        }
+        assert by_card["Arcane Signet"]["first_cast_round_games_reached"] == 1
+        assert by_card["Arcane Signet"]["first_cast_round_games_not_reached"] == 2
+        assert by_card["Arcane Signet"]["first_cast_round_quartiles"] == {
+            "q1": 2,
+            "median": None,
+            "q3": None,
+        }
+
+        # Verify card_simulations also returns the persisted censored columns
+        card_sims = builder.card_simulations(store, "c_sol_ring", ["Chulane, Teller of Tales"])
+        assert len(card_sims) == 1
+        assert card_sims[0]["first_cast_round_games_reached"] == 2
+        assert card_sims[0]["first_cast_round_games_not_reached"] == 1
+        assert card_sims[0]["first_cast_round_quartiles"] == {"q1": 1, "median": 3, "q3": None}
+    finally:
+        store.close()
+
+
+def test_legacy_batch_series_json_gets_fallback_validity_block_via_api(tmp_path: Path) -> None:
+    """P2-2 (#1527): legacy {batch_id}.series.json without validity_block gets a fail-closed
+    validity_block when read via GET /api/simulations/batch/{batch_id}."""
+    store = StudioStore.open(tmp_path)
+    store.close()
+    gdir = games.games_folder(tmp_path)
+    gdir.mkdir(parents=True, exist_ok=True)
+    legacy_record = {
+        "batch_id": "legacy-batch-1527",
+        "deck_id": "chulane",
+        "pod": "precon",
+        "opponent_ids": ["opp-a", "opp-b", "opp-c"],
+        "status": "completed",
+        "games": [
+            {"game_id": "g0", "seed": 1000, "status": "finished", "winner_seats": [0]},
+            {"game_id": "g1", "seed": 1001, "status": "finished", "winner_seats": [1]},
+        ],
+        "summary": {"games_completed": 2, "games_planned": 2},
+    }
+    (gdir / "legacy-batch-1527.series.json").write_text(json.dumps(legacy_record), encoding="utf-8")
+    client = TestClient(create_app(tmp_path))
+    resp = client.get("/api/simulations/batch/legacy-batch-1527")
+    assert resp.status_code == 200
+    body = resp.json()
+    vb = body["validity_block"]
+    assert vb["data_class"] == "SIMULATED_RESULT"
+    assert vb["pilot_omissions"]["status"] == "unbekannt"
+    assert vb["pilot_omissions"]["series"] is None
+    assert vb["pilot_fingerprint"] == "unbekannt"
+    assert vb["pods"] == "precon"
+    assert vb["seat_curve"]["table_size"] == 4
+    assert vb["seat_curve"]["reference_comparable"] is True
+    # Starting player won both games (seed 1000 -> start 0, winner 0; seed 1001 -> start 1, winner 1)
+    assert vb["seat_curve"]["seats"][0]["n_of_N"] == "2/2"
+    assert body["summary"]["validity_block"]["data_class"] == "SIMULATED_RESULT"
+
+
+def _audit_priority_decision(
+    *,
+    decision_id: str,
+    seat: int,
+    turn: int,
+    options: list[dict[str, object]],
+    command_zone: list[dict[str, object]] | None = None,
+    active_player_id: str | None = None,
+) -> dict[str, object]:
+    actor_id = f"p{seat}"
+    return {
+        "decision_id": decision_id,
+        "decision_class": "priority",
+        "seat": seat,
+        "actor_id": actor_id,
+        "prompt": "Play spells and abilities",
+        "minimum_selections": 1,
+        "maximum_selections": 1,
+        "legal_options": options,
+        "pilot_state": {
+            "seat": seat,
+            "actor_id": actor_id,
+            "active_player_id": active_player_id if active_player_id is not None else actor_id,
+            "turn_number": turn,
+            "phase": "precombat_main",
+            "step": "precombat_main",
+            "xmage_key": "secret-ephemeral-engine-key-123",
+            "players": [
+                {
+                    "player_id": actor_id,
+                    "is_actor": True,
+                    "command": command_zone or [],
+                }
+            ],
+        },
+    }
+
+
+def test_pilot_audit_recorder_redacts_keys_and_isolates_from_play_routes(tmp_path: Path) -> None:
+    """#1524 + AGENTS.md §5: audit logs stay outside games/, redact xmage_key, refuse human
+    seats fail-closed, and are never exposed by PLAY routes (/api/games*, /api/play*)."""
+    from commander_lab.studio import pilot_audit
+
+    # 1. Fail-closed refusal on human seats / PLAYED_GAME / malformed cohort
+    for bad_header in [
+        {
+            "data_class": "PLAYED_GAME",
+            "human_seats": [0],
+            "seats": [{"seat": 1, "pilot": "Mensch"}],
+        },
+        {
+            "data_class": "SIMULATED_RESULT",
+            "human_seats": [0],
+            "seats": [{"seat": 1, "pilot": "AI"}],
+        },
+        {"data_class": "SIMULATED_RESULT", "seats": [{"seat": 1, "pilot": "Mensch"}]},
+        {"data_class": "SIMULATED_RESULT", "seats": [{"seat": 1, "is_human": True}]},
+        {"data_class": "UNKNOWN", "seats": [{"seat": 1, "pilot": "AI"}]},
+        {},
+        {"seed": 1, "seats": [{"seat": 1, "pilot": "AI"}]},
+    ]:
+        with pytest.raises(ValueError):
+            pilot_audit.PilotAuditRecorder(tmp_path, "audit-bad-1", bad_header)
+    assert not pilot_audit.pilot_audit_folder(tmp_path, create=False).exists()
+
+    # 2. Valid SIMULATED_RESULT recording + transparent PilotAuditPolicy + xmage_key redaction
+    sim_header: dict[str, object] = {
+        "data_class": "SIMULATED_RESULT",
+        "seed": 1001,
+        "pilot_fingerprint": "f" * 64,
+        "seats": [{"seat": 1, "pilot": "AI"}, {"seat": 2, "pilot": "AI"}],
+    }
+    recorder = pilot_audit.PilotAuditRecorder(tmp_path, "audit-sim-1", sim_header)
+    sent_response: dict[str, object] = {
+        "decision_id": "d-1",
+        "actor_id": "p0",
+        "selected_option_ids": ["opt-pass"],
+    }
+
+    class _EchoPolicy:
+        def decide(self, decision: dict[str, object]) -> dict[str, object]:
+            return sent_response
+
+    decision = _audit_priority_decision(
+        decision_id="d-1",
+        seat=0,
+        turn=1,
+        options=[
+            {
+                "option_id": "opt-land",
+                "option_type": "activated_ability",
+                "label": "Play Forest",
+                "metadata": {"ability_type": "play_land", "xmage_key": "raw-key-xyz"},
+            },
+            {"option_id": "opt-pass", "option_type": "pass", "label": "Pass priority"},
+        ],
+    )
+    wrapped = pilot_audit.PilotAuditPolicy(_EchoPolicy(), recorder)
+    returned = wrapped.decide(decision)
+    assert returned is sent_response
+    # Input dict must not be mutated
+    assert decision["pilot_state"]["xmage_key"] == "secret-ephemeral-engine-key-123"
+    final_path, summary = recorder.close(
+        status="finished",
+        winner_seats=[0],
+        decision_count=1,
+        semantic_transcript_sha256="a" * 64,
+    )
+    assert final_path.is_file()
+    assert final_path.parent == tmp_path / "pilot_audit"
+    assert final_path.name == "audit-sim-1.audit.jsonl.gz"
+    assert summary["series"]["display"] == "1/1"
+
+    entries = list(pilot_audit.read_audit_entries(final_path))
+    assert [e["kind"] for e in entries] == ["header", "decision", "end"]
+    rec_decision = entries[1]
+    assert rec_decision["pilot_state"]["xmage_key"] == pilot_audit.REDACTED_ENGINE_KEY
+    assert (
+        rec_decision["legal_options"][0]["metadata"]["xmage_key"] == pilot_audit.REDACTED_ENGINE_KEY
+    )
+
+    # 3. PLAY routes and games.list_games never expose pilot_audit files or fields
+    game_rec = games.GameRecorder(tmp_path, "audit-sim-1", sim_header)
+    game_rec.close({"status": "finished", "winner_seats": [0]})
+    listed = games.list_games(tmp_path)
+    assert [row["game_id"] for row in listed] == ["audit-sim-1"]
+    client = TestClient(create_app(tmp_path))
+    r_list = client.get("/api/games")
+    assert r_list.status_code == 200
+    assert "pilot_audit" not in r_list.text
+    assert "opt-land" not in r_list.text
+    r_game = client.get("/api/games/audit-sim-1")
+    assert r_game.status_code == 200
+    assert "pilot_audit" not in r_game.text
+    assert "opt-land" not in r_game.text
+    r_play = client.get("/api/play/audit-sim-1")
+    assert r_play.status_code in {200, 404}
+    assert "pilot_audit" not in r_play.text
+    assert "opt-land" not in r_play.text
+
+
+def test_pilot_audit_omission_counter_land_and_commander_rules(tmp_path: Path) -> None:
+    """#1524 (Owner E3): objective land_play and cast_commander omission counting (n/N),
+    handling same-turn spell-before-land, cancelled mana payments, turn-T cutoff, 1-based seats,
+    and missing audit files."""
+    from commander_lab.studio import pilot_audit
+
+    counter = pilot_audit.OmissionCounter(commander_turn_limit=4)
+    cmd_obj = [{"object_id": "cmd-1", "name": "Chulane, Teller of Tales"}]
+
+    # Seat 0, Turn 1: offered land, casts a spell first, then plays land later in same turn -> 0/1
+    d1 = _audit_priority_decision(
+        decision_id="d1",
+        seat=0,
+        turn=1,
+        options=[
+            {"option_id": "land1", "option_type": "play_land", "label": "Play Forest"},
+            {"option_id": "spell1", "option_type": "cast_spell", "label": "Cast Sol Ring"},
+        ],
+    )
+    counter.observe(d1, {"decision_id": "d1", "selected_option_ids": ["spell1"]})
+    d2 = _audit_priority_decision(
+        decision_id="d2",
+        seat=0,
+        turn=1,
+        options=[{"option_id": "land1", "option_type": "play_land", "label": "Play Forest"}],
+    )
+    counter.observe(d2, {"decision_id": "d2", "selected_option_ids": ["land1"]})
+
+    # Seat 0, Turn 2: offered land and NEVER plays it -> 1/2 land omissions for seat 1
+    d3 = _audit_priority_decision(
+        decision_id="d3",
+        seat=0,
+        turn=2,
+        options=[
+            {"option_id": "land2", "option_type": "play_land", "label": "Play Island"},
+            {"option_id": "pass", "option_type": "pass", "label": "Pass"},
+        ],
+    )
+    counter.observe(d3, {"decision_id": "d3", "selected_option_ids": ["pass"]})
+
+    # Seat 0, Turn 3: commander offered and chosen, THEN mana payment CANCELLED -> still omitted (1/1)!
+    d4 = _audit_priority_decision(
+        decision_id="d4",
+        seat=0,
+        turn=3,
+        command_zone=cmd_obj,
+        options=[
+            {
+                "option_id": "cast-cmd",
+                "option_type": "activated_ability",
+                "label": "Cast Chulane",
+                "metadata": {
+                    "ability_type": "spell",
+                    "source_object_id": "cmd-1",
+                    "source_name": "Chulane, Teller of Tales",
+                },
+            },
+            {"option_id": "pass", "option_type": "pass", "label": "Pass"},
+        ],
+    )
+    counter.observe(d4, {"decision_id": "d4", "selected_option_ids": ["cast-cmd"]})
+    counter.observe(
+        {
+            "decision_id": "d5",
+            "decision_class": "mana_payment",
+            "seat": 0,
+            "legal_options": [{"option_id": "cancel", "option_type": "cancel_mana_payment"}],
+            "pilot_state": {"seat": 0, "turn_number": 3},
+        },
+        {"decision_id": "d5", "selected_option_ids": ["cancel"]},
+    )
+
+    # Seat 1, Turn 4 (own turn 1 <= T=4): commander offered and cast cleanly -> 0/1
+    d6 = _audit_priority_decision(
+        decision_id="d6",
+        seat=1,
+        turn=4,
+        command_zone=[{"object_id": "cmd-2", "name": "Hakbal of the Surging Soul"}],
+        options=[
+            {
+                "option_id": "cast-hakbal",
+                "option_type": "activated_ability",
+                "label": "Cast Hakbal",
+                "metadata": {
+                    "ability_type": "spell",
+                    "source_object_id": "cmd-2",
+                    "source_name": "Hakbal of the Surging Soul",
+                },
+            },
+        ],
+    )
+    counter.observe(d6, {"decision_id": "d6", "selected_option_ids": ["cast-hakbal"]})
+
+    # Seat 2, own turns 1..5: commander offered ONLY on own turn 5 (> T=4) -> NOT in denominator!
+    for own_t in range(1, 6):
+        opts: list[dict[str, object]] = [{"option_id": "pass", "option_type": "pass"}]
+        if own_t == 5:
+            opts.append({"option_id": "cmd-late", "option_type": "cast_commander", "label": "Late"})
+        counter.observe(
+            _audit_priority_decision(
+                decision_id=f"s2-t{own_t}",
+                seat=2,
+                turn=own_t * 4,
+                options=opts,
+            ),
+            {"decision_id": f"s2-t{own_t}", "selected_option_ids": ["pass"]},
+        )
+
+    summary = counter.summary()
+    # Seat 1 (seat_0=0): land 1/2 + cmd 1/1 = 2/3; Seat 2 (seat_0=1): cmd 0/1; Seat 3 has 0 opp -> omitted
+    assert summary["series"]["display"] == "2/4"
+    assert summary["series"]["by_kind"]["land_play"]["display"] == "1/2"
+    assert summary["series"]["by_kind"]["cast_commander"]["display"] == "1/2"
+    assert [row["seat"] for row in summary["by_seat"]] == [1, 2]
+    assert summary["by_seat"][0]["display"] == "2/3"
+    assert summary["by_seat"][1]["display"] == "0/1"
+
+    # Normalized via _normalize_pilot_omissions stays valid & preserves by_kind
+    norm = simulations_module._normalize_pilot_omissions(summary)
+    assert norm["status"] == "measured"
+    assert norm["display"] == "2/4"
+    assert norm["series"]["by_kind"]["land_play"]["display"] == "1/2"
+    assert norm["by_seat"][0]["by_kind"]["cast_commander"]["display"] == "1/1"
+
+    # Missing audit files -> None -> "unbekannt" (never 0/0)
+    assert pilot_audit.aggregate_series_omissions(tmp_path, ["missing-game-1"]) is None
+
+    # P2-2 regression (7/8-seat table or skipForcedDecisions): opponent turn before seat's first
+    # own turn uses own_turn=0 (NOT global turn=7 > commander_turn_limit=6).
+    c8 = pilot_audit.OmissionCounter(commander_turn_limit=6)
+    opp_turn_flash = _audit_priority_decision(
+        decision_id="s7-t7-opp",
+        seat=7,
+        turn=7,
+        options=[
+            {"option_id": "flash-cmd", "option_type": "cast_commander", "label": "Flash Cmd"},
+            {"option_id": "pass", "option_type": "pass", "label": "Pass"},
+        ],
+    )
+    opp_turn_flash["pilot_state"]["active_player_id"] = "p0"  # opponent's turn
+    c8.observe(opp_turn_flash, {"decision_id": "s7-t7-opp", "selected_option_ids": ["pass"]})
+    s8 = c8.summary()
+    assert s8["series"]["display"] == "1/1"
+    assert s8["series"]["by_kind"]["cast_commander"]["display"] == "1/1"
+    assert s8["by_seat"][0]["seat"] == 8
+    assert s8["by_seat"][0]["display"] == "1/1"
+
+
+def test_batch_and_paired_opt_in_pilot_audit_integration(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """#1524: opt-in record_pilot_audit defaults to False, forwards --record-pilot-audit when
+    enabled, populates validity_block.pilot_omissions in batch & paired series, and survives
+    from_saved_series."""
+    from commander_lab.studio import paired_comparison, pilot_audit
+
+    sim_header: dict[str, object] = {
+        "data_class": "SIMULATED_RESULT",
+        "seed": 1000,
+        "seats": [{"seat": 1, "pilot": "AI"}, {"seat": 2, "pilot": "AI"}],
+    }
+    rec = pilot_audit.PilotAuditRecorder(tmp_path, "batch-b1524-s1000", sim_header)
+    rec.record(
+        _audit_priority_decision(
+            decision_id="d1",
+            seat=0,
+            turn=1,
+            options=[
+                {"option_id": "land", "option_type": "play_land", "label": "Play Forest"},
+                {"option_id": "pass", "option_type": "pass", "label": "Pass"},
+            ],
+        ),
+        {"decision_id": "d1", "selected_option_ids": ["pass"]},
+    )
+    rec.close(status="finished", winner_seats=[0], decision_count=1)
+
+    finished_summary = simulations_module.GameSummary(
+        game_id="batch-b1524-s1000",
+        seed=1000,
+        status="finished",
+        winner_seats=[0],
+        decision_count=1,
+        rounds=5,
+        candidate_won=True,
+    )
+
+    # Default OFF: pilot_omissions remains "unbekannt" even if an audit file exists on disk
+    batch_off = simulations_module.BatchSimulation(
+        batch_id="b1524",
+        data_folder=tmp_path,
+        deck_id="chulane",
+        revision_id="rev-1",
+        pod_name="precon",
+        opponent_paths=[],
+        opponent_ids=["opp-a", "opp-b", "opp-c"],
+        seeds=[1000],
+        initial_games=[finished_summary],
+    )
+    assert batch_off.record_pilot_audit is False
+    assert batch_off.to_dict()["validity_block"]["pilot_omissions"]["status"] == "unbekannt"
+
+    # Opt-in ON: populates validity_block.pilot_omissions and preserves flag on from_saved_series
+    batch_on = simulations_module.BatchSimulation(
+        batch_id="b1524",
+        data_folder=tmp_path,
+        deck_id="chulane",
+        revision_id="rev-1",
+        pod_name="precon",
+        opponent_paths=[],
+        opponent_ids=["opp-a", "opp-b", "opp-c"],
+        seeds=[1000],
+        initial_games=[finished_summary],
+        record_pilot_audit=True,
+    )
+    batch_on._write_record()
+    d_on = batch_on.to_dict()
+    assert d_on["record_pilot_audit"] is True
+    assert d_on["execution"]["record_pilot_audit"] is True
+    om = d_on["validity_block"]["pilot_omissions"]
+    assert om["status"] == "measured"
+    assert om["display"] == "1/1"
+    assert om["games_audited"] == 1
+    assert om["by_seat"][0]["seat"] == 1
+
+    restored = simulations_module.BatchSimulation.from_saved_series(
+        tmp_path, "b1524", opponent_paths=[tmp_path / "o1.json"]
+    )
+    assert restored.record_pilot_audit is True
+
+    # Verify _process_chunk passes --record-pilot-audit ONLY when record_pilot_audit=True
+    seen_cmds: list[list[str]] = []
+
+    class _FakeProc:
+        def __init__(self, cmd: list[str], **_kwargs: object) -> None:
+            seen_cmds.append(list(cmd))
+            self.stdout = iter([])
+
+        def wait(self, timeout: float | None = None) -> int:
+            return 0
+
+        def poll(self) -> int:
+            return 0
+
+    monkeypatch.setattr(simulations_module.subprocess, "Popen", _FakeProc)
+    list(batch_off._process_chunk([1000], tmp_path / "own.json"))
+    list(batch_on._process_chunk([1000], tmp_path / "own.json"))
+    assert "--record-pilot-audit" not in seen_cmds[0]
+    assert "--record-pilot-audit" in seen_cmds[1]
+
+    # Paired comparison _summarize aggregates pilot_omissions when audit_data_folder is given
+    base_exp: paired_comparison.GameExposure = {
+        "game_id": "batch-b1524-s1000",
+        "seed": 1000,
+        "engine_commit": "abc",
+        "bridge_jar_sha256": "e" * 64,
+        "bridge_qualification_state": "BRIDGE_AHEAD_OF_QUALIFICATION",
+        "covered_by_sealed_epoch": False,
+        "pilot": "GenericCommanderPilot",
+        "pilot_fingerprint": "f" * 64,
+        "decision_policy": "xmage-full-game-policy-1.0.0",
+        "seats": [
+            {"seat": 0, "deck_id": "base", "win_credit": 1.0},
+            {"seat": 1, "deck_id": "opp1", "win_credit": 0.0},
+        ],
+    }
+    var_exp: paired_comparison.GameExposure = {
+        **base_exp,
+        "game_id": "paired-var-s1000",
+        "seats": [
+            {"seat": 0, "deck_id": "variant", "win_credit": 0.0},
+            {"seat": 1, "deck_id": "opp1", "win_credit": 1.0},
+        ],
+    }
+    pair: paired_comparison.PairRecord = {
+        "seed": 1000,
+        "seat": 0,
+        "opponents": ["opp1"],
+        "base_game_id": "batch-b1524-s1000",
+        "variant_game_id": "paired-var-s1000",
+        "base_credit": 1.0,
+        "variant_credit": 0.0,
+        "difference": -1.0,
+    }
+    res_no_audit, _ = paired_comparison._summarize(
+        [pair],
+        base_deck_id="base",
+        variant_deck_id="variant",
+        threshold_pp=0.0,
+        significance_level=0.05,
+        alpha=0.05,
+        exposures=[base_exp, var_exp],
+        allow_mixed=False,
+        series=True,
+    )
+    assert res_no_audit["validity_block"]["pilot_omissions"]["status"] == "unbekannt"
+    res_with_audit, _ = paired_comparison._summarize(
+        [pair],
+        base_deck_id="base",
+        variant_deck_id="variant",
+        threshold_pp=0.0,
+        significance_level=0.05,
+        alpha=0.05,
+        exposures=[base_exp, var_exp],
+        allow_mixed=False,
+        series=True,
+        audit_data_folder=tmp_path,
+    )
+    p_om = res_with_audit["validity_block"]["pilot_omissions"]
+    assert p_om["status"] == "measured"
+    assert p_om["display"] == "1/1"
+    assert p_om["games_audited"] == 1
+    assert p_om["games_requested"] == 2

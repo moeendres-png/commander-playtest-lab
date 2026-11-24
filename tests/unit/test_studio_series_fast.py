@@ -329,8 +329,9 @@ class _Client:
 
 
 class _DrivingRunner(BatchRecordingRunner):
-    """Like ``_FakeEngineRunner``, but each game goes through the real ``_drive`` override, one
-    after the other, and the result of every game exists only when ``run_batch`` returns."""
+    """Like ``_FakeEngineRunner``, but each game goes through the real ``_drive`` loop and
+    ``after_drive`` hook, one after the other, and the result of every game exists only when
+    ``run_batch`` returns."""
 
     fail: frozenset[int] = frozenset()
     not_terminal: frozenset[int] = frozenset()
@@ -908,3 +909,309 @@ def test_web_api_corrupt_series_record_is_a_clean_client_error(tmp_path: Path) -
     assert res.status_code == 422
     res = client.post("/api/simulations/batch/d8/resume", headers={"X-Studio": "1"})
     assert res.status_code == 422
+
+
+def test_recording_runner_uses_public_hooks_with_identical_transcript_hash(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """#1731: ``_RecordingRunner`` records frames via ``decision_policy`` and exports the event
+    log via ``after_drive`` while preserving identical transcript hashes vs the bare runner."""
+    from commander_lab.candidates.models import FutureXmageScenario
+    from commander_lab.engine.rules import full_game
+    from commander_lab.studio.play import _RecordingRunner
+
+    commit = "b" * 40
+    decision: dict[str, object] = {
+        "decision_id": "rec-d1",
+        "actor_id": "p0",
+        "decision_class": "priority",
+        "seat": 0,
+        "legal_options": [{"option_id": "pass", "label": "Pass", "option_type": "pass"}],
+        "pilot_state": {
+            "seat": 0,
+            "turn_number": 1,
+            "phase": "main1",
+            "step": "precombat_main",
+            "players": [
+                {
+                    "player_id": "p0",
+                    "seat": 0,
+                    "is_actor": True,
+                    "life": 40,
+                    "hand": [],
+                    "battlefield": [],
+                    "graveyard": [],
+                },
+                {
+                    "player_id": "p1",
+                    "seat": 1,
+                    "is_actor": False,
+                    "life": 40,
+                    "hand_count": 7,
+                    "battlefield": [],
+                    "graveyard": [],
+                },
+            ],
+        },
+    }
+    raw_result: dict[str, object] = {
+        "evidence_class": full_game.FULL_GAME_EVIDENCE_CLASS,
+        "consumed_gameplay_evidence": False,
+        "holdout_consumed": False,
+        "official_campaign_eligible": False,
+        "rules_authority": "xmage",
+        "decision_policy_authority": "commander_lab_external_pilot",
+        "bit_exact_replay_validated": False,
+        "seed": 42,
+        "turn_number": 1,
+        "decision_count": 1,
+        "terminal": True,
+        "transcript": [
+            {
+                "sequence": 1,
+                "kind": "decision",
+                "decision_class": "priority",
+                "actor_seat": 0,
+                "prompt": "Pass",
+                "selected_option_types": ["pass"],
+                "selected_option_labels": ["Pass"],
+                "numeric_choice": None,
+            }
+        ],
+        "outcomes": [
+            {"seat": 0, "life": 40, "won": True, "lost": False, "left": False},
+            {"seat": 1, "life": 0, "won": False, "lost": True, "left": False},
+        ],
+    }
+
+    class _FakeClient:
+        requests: list[str]
+
+        def __init__(self, *_a: object, **_k: object) -> None:
+            self.requests = []
+            self.shutdown_disposition: str | None = None
+
+        def __enter__(self) -> _FakeClient:
+            return self
+
+        def __exit__(self, *_a: object) -> None:
+            self.shutdown_disposition = full_game.FULL_GAME_SHUTDOWN_GRACEFUL
+
+        def request(self, op: str, _payload: object = None) -> dict[str, object]:
+            self.requests.append(op)
+            if op == "start_full_game":
+                return {"decision": decision}
+            if op == "submit_full_game_decision":
+                return {"terminal": True}
+            if op == "export_event_log":
+                return {"events": [{"sequence": 1, "turn": 1, "step": "MAIN1", "kind": "pass"}]}
+            if op == "get_full_game_result":
+                return raw_result
+            return {}
+
+    class _PassPolicy:
+        def decide(self, req: dict[str, object]) -> dict[str, object]:
+            return {"decision_id": req["decision_id"], "selected_option_ids": ["pass"]}
+
+    scenario = FutureXmageScenario(
+        candidate_id="deck-a",
+        deck_hash="d" * 64,
+        opponent_deck_ids=("deck-b",),
+        player_count=2,
+        seat=1,
+        scenario_id="rec-sc",
+        seed=42,
+        xmage_commit=commit,
+        bridge_version="xmage-engine-bridge-0.1.0-SNAPSHOT",
+        pilot_identity="GenericCommanderPilot",
+        pilot_version="1.0.0",
+        decision_policy_version="xmage-full-game-policy-1.0.0",
+    )
+    provider = {"engine_version": "1.4.61", "engine_commit": commit}
+    monkeypatch.setattr(full_game, "_RawFullGameClient", _FakeClient)
+
+    bare = full_game.XmageFullGameRunner(("java", "-jar", "x.jar", "full-game"))
+    monkeypatch.setattr(bare, "_validated_policy", lambda *_a: _PassPolicy())
+    monkeypatch.setattr(bare, "_open_game", lambda *_a, **_k: provider)
+    bare_res = bare.run(scenario=scenario, decks=(), pilots=())
+
+    rec_runner = _RecordingRunner(("java", "-jar", "x.jar", "full-game"))
+    monkeypatch.setattr(rec_runner, "_validated_policy", lambda *_a: _PassPolicy())
+    monkeypatch.setattr(rec_runner, "_open_game", lambda *_a, **_k: provider)
+    recorder = games.GameRecorder(
+        tmp_path,
+        "rec-eq-1",
+        {"seed": 42, "seats": [{"seat": 1, "pilot": "AI"}, {"seat": 2, "pilot": "AI"}]},
+    )
+    rec_runner.recorder = recorder
+    rec_res = rec_runner.run(scenario=scenario, decks=(), pilots=())
+    recorder.close({"status": "finished", "winner_seats": list(rec_res.winner_seats)})
+
+    assert rec_res.semantic_transcript_sha256 == bare_res.semantic_transcript_sha256
+    assert rec_res.raw_result_sha256 == bare_res.raw_result_sha256
+    stored = games.read_game(tmp_path, "rec-eq-1", start=0, count=5)
+    assert stored["total"] == 1
+    result_entry = stored["result"]
+    assert isinstance(result_entry, dict)
+    assert result_entry["event_log"] == [
+        {"sequence": 1, "turn": 1, "step": "MAIN1", "kind": "pass"}
+    ]
+
+
+def test_batch_recording_runner_opt_in_pilot_audit_invariance(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """#1524: BatchRecordingRunner leaves games/ untouched and creates no pilot_audit/ when OFF;
+    when record_pilot_audit=True, wraps policy transparently without altering transcript/raw hash
+    or game log content and writes audit separately under pilot_audit/."""
+    from commander_lab.candidates.models import FutureXmageScenario
+    from commander_lab.engine.rules import full_game
+    from commander_lab.qualification.current_boundary.bridge_launcher import (
+        canonical_xmage_engine_pin,
+    )
+    from commander_lab.studio import pilot_audit
+    from commander_lab.studio.play_batch import BatchRecordingRunner
+
+    commit = canonical_xmage_engine_pin()
+    decision = {
+        "decision_id": "d-audit-1",
+        "decision_class": "priority",
+        "seat": 0,
+        "actor_id": "p0",
+        "prompt": "Main 1",
+        "legal_options": [
+            {"option_id": "land-1", "option_type": "play_land", "label": "Play Forest"},
+            {"option_id": "pass", "option_type": "pass", "label": "Pass"},
+        ],
+        "pilot_state": {
+            "seat": 0,
+            "actor_id": "p0",
+            "active_player_id": "p0",
+            "turn_number": 1,
+            "phase": "precombat_main",
+            "step": "precombat_main",
+            "players": [{"player_id": "p0", "is_actor": True, "command": []}],
+        },
+    }
+    raw_result: dict[str, object] = {
+        "evidence_class": full_game.FULL_GAME_EVIDENCE_CLASS,
+        "consumed_gameplay_evidence": False,
+        "holdout_consumed": False,
+        "official_campaign_eligible": False,
+        "rules_authority": "xmage",
+        "decision_policy_authority": "commander_lab_external_pilot",
+        "bit_exact_replay_validated": False,
+        "seed": 77,
+        "turn_number": 1,
+        "decision_count": 1,
+        "terminal": True,
+        "transcript": [
+            {
+                "sequence": 1,
+                "kind": "decision",
+                "decision_class": "priority",
+                "actor_seat": 0,
+                "prompt": "Pass",
+                "selected_option_types": ["pass"],
+                "selected_option_labels": ["Pass"],
+                "numeric_choice": None,
+            }
+        ],
+        "outcomes": [
+            {"seat": 0, "life": 40, "won": True, "lost": False, "left": False},
+            {"seat": 1, "life": 0, "won": False, "lost": True, "left": False},
+        ],
+    }
+
+    class _FakeClient:
+        def __init__(self, *_a: object, **_k: object) -> None:
+            self.shutdown_disposition: str | None = None
+
+        def __enter__(self) -> _FakeClient:
+            return self
+
+        def __exit__(self, *_a: object) -> None:
+            self.shutdown_disposition = full_game.FULL_GAME_SHUTDOWN_GRACEFUL
+
+        def request(self, op: str, _payload: object = None) -> dict[str, object]:
+            if op == "start_full_game":
+                return {"decision": decision}
+            if op == "submit_full_game_decision":
+                return {"terminal": True}
+            if op == "export_event_log":
+                return {"events": [{"sequence": 1, "turn": 1, "step": "MAIN1", "kind": "pass"}]}
+            if op == "get_full_game_result":
+                return raw_result
+            return {}
+
+    class _PassPolicy:
+        def decide(self, req: dict[str, object]) -> dict[str, object]:
+            return {"decision_id": req["decision_id"], "selected_option_ids": ["pass"]}
+
+    scenario = FutureXmageScenario(
+        candidate_id="deck-a",
+        deck_hash="d" * 64,
+        opponent_deck_ids=("deck-b",),
+        player_count=2,
+        seat=1,
+        scenario_id="batch-audit-sc",
+        seed=77,
+        xmage_commit=commit,
+        bridge_version="xmage-engine-bridge-0.1.0-SNAPSHOT",
+        pilot_identity="GenericCommanderPilot",
+        pilot_version="1.0.0",
+        decision_policy_version="xmage-full-game-policy-1.0.0",
+    )
+    provider = {"engine_version": "1.4.61", "engine_commit": commit}
+    monkeypatch.setattr(full_game, "_RawFullGameClient", _FakeClient)
+
+    # Mirror real play.prepare_game() headers, which omit data_class until recording.
+    header: dict[str, object] = {
+        "seed": 77,
+        "seats": [{"seat": 0, "pilot": "KI"}, {"seat": 1, "pilot": "KI"}],
+    }
+
+    # Audit OFF (default)
+    dir_off = tmp_path / "off"
+    runner_off = BatchRecordingRunner(
+        dir_off,
+        {"batch-audit-sc": ("g-audit-1", dict(header))},
+        command=("java", "-jar", "x.jar", "full-game"),
+    )
+    monkeypatch.setattr(runner_off, "_validated_policy", lambda *_a: _PassPolicy())
+    monkeypatch.setattr(runner_off, "_open_game", lambda *_a, **_k: provider)
+    res_off = runner_off.run(scenario=scenario, decks=(), pilots=())
+    runner_off.recorder_of("batch-audit-sc").close(
+        {"status": "finished", "winner_seats": list(res_off.winner_seats)}
+    )
+    assert not pilot_audit.pilot_audit_folder(dir_off, create=False).exists()
+
+    # Audit ON
+    dir_on = tmp_path / "on"
+    runner_on = BatchRecordingRunner(
+        dir_on,
+        {"batch-audit-sc": ("g-audit-1", dict(header))},
+        command=("java", "-jar", "x.jar", "full-game"),
+        record_pilot_audit=True,
+    )
+    monkeypatch.setattr(runner_on, "_validated_policy", lambda *_a: _PassPolicy())
+    monkeypatch.setattr(runner_on, "_open_game", lambda *_a, **_k: provider)
+    res_on = runner_on.run(scenario=scenario, decks=(), pilots=())
+    runner_on.recorder_of("batch-audit-sc").close(
+        {"status": "finished", "winner_seats": list(res_on.winner_seats)}
+    )
+    om_summary = runner_on.close_audit_game("batch-audit-sc", res_on)
+
+    # Identical game result hashes & counts
+    assert res_on.semantic_transcript_sha256 == res_off.semantic_transcript_sha256
+    assert res_on.raw_result_sha256 == res_off.raw_result_sha256
+    assert res_on.winner_seats == res_off.winner_seats
+    assert res_on.decision_count == res_off.decision_count
+
+    # Separate audit file written with 1/1 land omission
+    assert om_summary is not None
+    assert om_summary["series"]["display"] == "1/1"
+    audit_path = pilot_audit.audit_log_path(dir_on, "g-audit-1")
+    assert audit_path is not None
+    assert audit_path.parent == dir_on / "pilot_audit"
+    assert games.list_games(dir_on)[0]["game_id"] == "g-audit-1"

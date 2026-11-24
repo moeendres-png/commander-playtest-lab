@@ -38,7 +38,7 @@ and bridge are fit for this; it is never edited.
 | `engine_adapter_protocol.md` | Bridge protocol (schema: `../schemas/engine_adapter_protocol.schema.json`) |
 | `DECK_VARIANT_WORKFLOW.md`, `CUSTOM_DECKS.md`, `PRECON_VALIDATION.md`, `CARD_COVERAGE.md`, `coverage/` | Deck variants, own decks, precon and card coverage measurements |
 | `performance/` | Dated measurements of speed and determinism; each header names pin and commit |
-| `research/`, `studio/` | Data-derived reports and source catalogs behind the Studio's data pipeline |
+| `research/`, `studio/`, `analysis-reports/` | Data-derived reports, source catalogs, and code/analysis reports (e.g. `analysis-reports/schema22_k2b_inventory.md`) behind the Studio's data pipeline |
 | `EVIDENCE_INDEX_REQUIREMENTS.md`, `RETENTION_AND_LIFECYCLE_POLICY.md` | Evidence index schema and retention policy |
 | `architecture/`, `architecture_freeze_20261010/`, `owner_decision_*/`, `engine_strategy_*/` | Architecture direction and the decisions that fixed it (XMage only) |
 

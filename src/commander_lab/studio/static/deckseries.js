@@ -29,12 +29,18 @@ function deckSeriesVerdictText(befund) {
 // The table of a series or finding (#1661): 4-, 5- and 6-seat results are separate cohorts, so
 // every row names the seat count; an unknown size stays "Tischgröße unbekannt", never 4.
 // A plan whose seat count the played games contradict ("mismatch") or cannot show ("unreadable")
-// is unknown; a size no played pair has checked yet ("unobserved") is named as planned only.
-function deckSeriesTableText(size, check) {
+// is unknown; a size no played pair has checked yet ("unobserved") is named as planned only;
+// a legacy series checked only from its played games (no plan) names that source explicitly.
+function deckSeriesTableText(size, check, source) {
   if (check === "mismatch") return "Tischgröße unbekannt (Plan und gespielte Partien weichen ab)";
   if (check === "unreadable") return "Tischgröße unbekannt (Sitzzahl der gespielten Partien nicht lesbar)";
   if (!Number.isInteger(size) || size < 2) return "Tischgröße unbekannt";
-  return `Tisch mit ${StudioUI.num(size, 0)} Sitzen${check === "unobserved" ? " (geplant, nicht an Partien geprüft)" : ""}`;
+  const suffix = check === "unobserved"
+    ? " (geplant, nicht an Partien geprüft)"
+    : source === "aus den gespielten Partien"
+      ? " (aus den gespielten Partien)"
+      : "";
+  return `Tisch mit ${StudioUI.num(size, 0)} Sitzen${suffix}`;
 }
 
 function deckSeriesEvidence(h, befund) {
@@ -73,6 +79,49 @@ function deckSeriesRefLabel(ref, labels) {
   return "andere Revision";
 }
 
+function deckSeriesValidityBlock(h, vb, ct) {
+  if (!vb && !ct) return null;
+  const nodes = [];
+  if (vb) {
+    const sc = vb.seat_curve || {};
+    const seats = Array.isArray(sc.seats) ? sc.seats : [];
+    const om = vb.pilot_omissions || {};
+    const omText = om.status === "measured" && om.display ? om.display : "unbekannt";
+    nodes.push(h("div", { class: "muted" }, vb.validity_statement || "unbekannt"));
+    nodes.push(h("div", { class: "muted" }, `Pilot-Auslassungen: ${omText}`));
+    if (seats.length) {
+      const seatSummary = seats.map((s) => {
+        const rate = s.win_rate_pct !== null && s.win_rate_pct !== undefined ? `${StudioUI.num(s.win_rate_pct, 1)} %` : "unbekannt";
+        const ci = Array.isArray(s.ci95_pct) && s.ci95_pct.length === 2
+          ? ` [${StudioUI.num(s.ci95_pct[0], 1)}–${StudioUI.num(s.ci95_pct[1], 1)} %]`
+          : "";
+        const ref = sc.reference_comparable && s.reference_win_rate_pct !== null && s.reference_win_rate_pct !== undefined
+          ? ` (Ref ${StudioUI.num(s.reference_win_rate_pct, 1)} %)`
+          : "";
+        return `S${StudioUI.num(s.seat, 0)}: ${s.n_of_N || "unbekannt"} (${rate}${ci})${ref}`;
+      }).join(" · ");
+      nodes.push(h("div", { class: "muted" }, `Sitzkurve (95 %-Wilson-CI): ${seatSummary}`));
+    }
+    if (sc.reference_note) {
+      nodes.push(h("div", { class: "muted" }, sc.reference_note));
+    }
+  }
+  if (ct && Array.isArray(ct.rows) && ct.rows.length) {
+    const classes = Array.isArray(ct.origin_classes) ? ct.origin_classes : [];
+    const byClass = ct.by_origin_class || {};
+    const parts = classes.map((cls) => {
+      const items = Array.isArray(byClass[cls.key]) ? byClass[cls.key] : [];
+      if (!items.length) return null;
+      const summary = items.map((it) => `${it.label || it.metric_id}: ${it.n_of_N || "unbekannt"}`).join("; ");
+      return `${cls.label}: ${summary}`;
+    }).filter(Boolean);
+    if (parts.length) {
+      nodes.push(h("div", { class: "muted" }, `Konsistenz (3 Klassen): ${parts.join(" | ")}`));
+    }
+  }
+  return nodes.length ? h("div", { class: "validity-row" }, ...nodes) : null;
+}
+
 function deckSeriesCells(h, item, role, deps, labels, zahlen, befund) {
   const zahl = zahlen ? zahlen.get(`series.${item.series_id}.difference_pp`) : undefined;
   const other = role === "base" ? item.variant_ref : item.base_ref;
@@ -90,6 +139,8 @@ function deckSeriesCells(h, item, role, deps, labels, zahlen, befund) {
     ]
     : [h("div", { class: "muted" }, "nicht als Ergebnis gezählt")];
   figures.push(deckSeriesEvidence(h, befund));
+  const validityNode = deckSeriesValidityBlock(h, item.validity_block, item.consistency_table);
+  if (validityNode) figures.push(validityNode);
   const seeds = item.seeds.length ? item.seeds.map((s) => StudioUI.num(s)).join(", ") : "unbekannt";
   const seats = item.tested_seats.length ? item.tested_seats.map((s) => StudioUI.num(s + 1)).join(", ") : "unbekannt";
   const sha = item.bridge_jar_sha256s.length ? item.bridge_jar_sha256s.map((s) => s.slice(0, 12)).join(", ") : "unbekannt";
@@ -100,7 +151,7 @@ function deckSeriesCells(h, item, role, deps, labels, zahlen, befund) {
     h("td", {}, figures),
     h("td", {}, h("span", { class: `pill ${DECK_SERIES_STATUS_CLASS[item.status] || "warn"}` }, item.status_text),
       item.stop_reason && !/^(DECIDED_|BUDGET_EXHAUSTED)/.test(item.stop_reason) ? h("div", { class: "muted" }, item.stop_reason) : null),
-    h("td", {}, h("div", {}, `Seeds: ${seeds}`), h("div", {}, deckSeriesTableText(item.table_size, item.table_size_check)), h("div", {}, `Sitze${item.seats_planned ? " (geplant)" : ""}: ${seats}`),
+    h("td", {}, h("div", {}, `Seeds: ${seeds}`), h("div", {}, deckSeriesTableText(item.table_size, item.table_size_check, item.table_size_source)), h("div", {}, `Sitze${item.seats_planned ? " (geplant)" : ""}: ${seats}`),
       h("div", { class: "muted" }, `Bridge-JAR: ${sha} · Qualifizierung: ${qual}${item.covered_by_sealed_epoch === null ? "" : item.covered_by_sealed_epoch ? " · versiegelt" : " · nicht versiegelt"}`),
       h("div", { class: "muted" }, `Piloten: ${item.pilots.length ? item.pilots.join(", ") : "unbekannt"}`),
       h("div", { class: "muted" }, DECK_SERIES_ALIGNMENT_TEXT[item.slot_alignment_state] || "Ausrichtung unbekannt")),
@@ -182,7 +233,7 @@ function deckSeriesDiffEvidence(h, data, baseRev, targetRev) {
   const incomplete = data.truncated || data.scan_truncated ? " (ältere Serien nicht geprüft)" : "";
   if (!found.length) return h("div", { id: "diff-evidence" }, title, note, h("p", { class: "muted" }, `kein Befund: keine gespeicherte Serie für genau diese beiden Stände${incomplete} (unbekannt, nicht 0).`));
   return h("div", { id: "diff-evidence" }, title, note, ...found.map((item) => h("div", { class: "diff-evidence-series" },
-    h("p", { class: "muted" }, `Serie vom ${deckSeriesDate(item.created_at)} · Tisch ${item.pod || "unbekannt"} · ${deckSeriesTableText(item.table_size, item.table_size_check)}: A = ${side(item.base_ref)}, B = ${side(item.variant_ref)}`),
+    h("p", { class: "muted" }, `Serie vom ${deckSeriesDate(item.created_at)} · Tisch ${item.pod || "unbekannt"} · ${deckSeriesTableText(item.table_size, item.table_size_check, item.table_size_source)}: A = ${side(item.base_ref)}, B = ${side(item.variant_ref)}`),
     h("p", { class: "muted" }, "Stand-Bezug des Befunds darunter: gemessen an main bzw. dessen direktem Vorgänger, unabhängig davon, welcher Stand geöffnet ist."),
     deckSeriesEvidence(h, befunde[item.series_id]))));
 }

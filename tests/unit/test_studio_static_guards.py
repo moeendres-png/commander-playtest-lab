@@ -1849,6 +1849,57 @@ console.log(JSON.stringify({
     ]
     assert "const cards = draft.draft ? draft.draft.cards : revision.cards;" in load
     assert load.index("await ensureUnownedLoadedFor(cards)") < load.index("useCards(")
+    # #1738: app.js stores pool.unowned_selection and shows selected_by with German labels,
+    # strictly via h() / textContent (no innerHTML).
+    assert "innerHTML" not in app_js
+    assert "state.unownedSelection = state.includeUnowned && pool.unowned_selection" in app_js
+    for key, label in (
+        ("corpus", "Korpus"),
+        ("edhrec", "EDHREC"),
+        ("planeswalker", "Planeswalker"),
+        ("proliferate", "Proliferate"),
+        ("in_saved_deck", "Im gespeicherten Deck"),
+    ):
+        assert f'{key}: "{label}"' in app_js
+    assert "unownedReasonsText(card)" in app_js
+    assert "renderUnownedSelection();" in app_js
+    assert 'h("p", { class: "note" }, "Zukauf-Auswahl: "' in app_js
+
+    sel_script = f"""
+const fs = require('fs');
+const src = fs.readFileSync({json.dumps(str(STATIC / "app.js"))}, 'utf8');
+const StudioUI = {{ num: (n) => String(n) }};
+const labelsBlock = src.slice(src.indexOf('const UNOWNED_REASON_LABELS = {{'), src.indexOf('function unownedReasonsText('));
+const grab = (name) => {{
+  const start = src.indexOf('function ' + name + '(');
+  if (start < 0) throw new Error('missing ' + name);
+  let depth = 0, i = src.indexOf('{{', start);
+  for (; i < src.length; i += 1) {{ if (src[i] === '{{') depth += 1; else if (src[i] === '}}' && --depth === 0) break; }}
+  return src.slice(start, i + 1);
+}};
+eval(labelsBlock + '\\n' + grab('unownedReasonsText') + '\\n' + grab('formatUnownedSelection'));
+console.log(JSON.stringify({{
+  reasons: unownedReasonsText({{ selected_by: ['corpus', 'in_saved_deck'] }}),
+  emptyReasons: unownedReasonsText({{ selected_by: [] }}),
+  summary: formatUnownedSelection({{
+    total: 7,
+    min_corpus_pct: 2,
+    corpus_denominator: 80,
+    min_corpus_decks: 2,
+    min_edhrec_denominator: 30,
+    counts: {{ corpus: 3, edhrec: 2, planeswalker: 1, proliferate: 0, in_saved_deck: 1 }},
+  }}),
+}}));
+"""
+    sel_result = _node_json(sel_script)
+    assert sel_result == {
+        "reasons": "Korpus, Im gespeicherten Deck",
+        "emptyReasons": "",
+        "summary": (
+            "Zukauf-Auswahl: 7 Karten · Korpus 3 (≥2/80) · EDHREC 2 (N≥30) "
+            "· Planeswalker 1 · Im gespeicherten Deck 1"
+        ),
+    }
 
 
 # ---- #1662: the pill and the list of single games say what a game is -------------------------
@@ -1903,7 +1954,8 @@ const answer = { kind: 'Richtwert', source: 'Scryfall prices.eur (lokale Bulk-Da
   ] };
 const rows = W.tamPurchaseRows(missing, answer);
 const names = (list) => list.map((r) => r.name);
-const allUnknown = W.tamPurchaseRows(missing, { snapshot: null, cards: [] });
+const allUnknown = W.tamPurchaseRows(missing, { snapshot: null, cards: missing.map((c) => ({ card_id: c.card_id, status: 'unknown' })) });
+const allAbsent = W.tamPurchaseRows(missing, { snapshot: null, cards: [] });
 const view = W.tamPurchaseView(h, answer, missing, { sort: 'price-desc', budget: '' });
 const emptyView = W.tamPurchaseView(h, { snapshot: null, cards: [] }, missing, { sort: 'name', budget: '' });
 const filteredView = W.tamPurchaseView(h, answer, missing, { sort: 'name', budget: '5' });
@@ -1927,6 +1979,7 @@ console.log(JSON.stringify({
   noFilter: W.filterTamBudget(rows, null).rows.length,
   sum: W.tamSumText(W.summarizeTamRows(rows)),
   sumUnknown: W.tamSumText(W.summarizeTamRows(allUnknown)),
+  sumAbsent: W.tamSumText(W.summarizeTamRows(allAbsent)),
   sumCentsUnknown: W.summarizeTamRows(allUnknown).sumCents,
   sumEmpty: W.tamSumText(W.summarizeTamRows([])),
   view: text(view),
@@ -1988,6 +2041,11 @@ console.log(JSON.stringify({
         "Summe (eingetragen, sonst Cardmarket-Preisführer, sonst Näherung): unbekannt · "
         "0 von 6 Karten mit eingetragenem Preis · 0 Preisführer · 0 Näherung · "
         "6 von 6 Karten ohne Preis"
+    )
+    assert result["sumAbsent"] == (
+        "Summe (eingetragen, sonst Cardmarket-Preisführer, sonst Näherung): unbekannt · "
+        "0 von 0 Karten mit eingetragenem Preis · 0 Preisführer · 0 Näherung · "
+        "0 von 0 Karten ohne Preis · 6 nicht im gespeicherten Deck (kein Preis)"
     )
     assert result["sumEmpty"] == (
         "Summe (eingetragen, sonst Cardmarket-Preisführer, sonst Näherung): unbekannt · "
@@ -2127,6 +2185,64 @@ console.log(JSON.stringify({
     for name in ("unknown", "absent"):
         assert [text for _cls, text in rows[name]["pills"]] == ["Herkunft unbekannt"], name
     assert "simuliert" not in rows["human"]["text"].lower()
+
+
+def test_partie_end_text_and_game_title_distinguish_unclean_shutdown_from_abort() -> None:
+    """Issue #1734: a game that reached engine end before an unclean JVM shutdown explains that
+    explicitly as uncredited (never 'abgebrochen' or 'nicht zu Ende gespielt'), while ordinary
+    failures keep 'abgebrochen' and seatPanel never credits uncredited_winner_seats."""
+    out = _node_json(
+        _COHORT_PRELUDE
+        + """
+const partie = read('partie.js');
+function runEndText(result, header) {
+  const state = { result, header: header || { seats: [{ seat: 0, commanders: ['Chulane'] }, { seat: 1, commanders: ['Kinnan'] }] } };
+  const seatName = (s) => (s === null || s === undefined ? '?' : 'Sitz ' + (s + 1));
+  const seatInfo = (s) => ((state.header && state.header.seats) || []).find((e) => e.seat === s) || {};
+  const seatLabel = (s) => { const i = seatInfo(s); return i.commanders && i.commanders.length ? i.commanders.join(' + ') : (i.deck_id || seatName(s)); };
+  const make = new Function('state', 'seatName', 'seatLabel', grab(partie, 'endText') + '; return endText;');
+  return make(state, seatName, seatLabel)();
+}
+function runTitle(game) {
+  const make = new Function('StudioCohort', 'seatName', grab(partie, 'gameTitle') + '; return gameTitle;');
+  return make(C, (s) => 'Sitz ' + (s + 1))(game);
+}
+const baseGame = { header: { seats: [{ deck_id: 'd1', commanders: ['Chulane'] }], seed: 5 }, frames: 7, running: false };
+console.log(JSON.stringify({
+  uncleanWithWinner: runEndText({ status: 'failed', game_reached_engine_end: true, shutdown_disposition: 'forced_kill', result_credited: false, uncredited_winner_seats: [1] }),
+  uncleanNoWinner: runEndText({ status: 'failed', game_reached_engine_end: true, shutdown_disposition: 'unacked_exit', result_credited: false, uncredited_winner_seats: [] }),
+  normalFailed: runEndText({ status: 'failed', failure_class: 'FullGameConformanceError', failure_message: 'abgebrochen' }),
+  titleUncleanTop: runTitle(Object.assign({}, baseGame, HUMAN, { game_reached_engine_end: true, shutdown_disposition: 'forced_kill', result: { status: 'failed' } })),
+  titleUncleanNested: runTitle(Object.assign({}, baseGame, HUMAN, { result: { status: 'failed', game_reached_engine_end: true, shutdown_disposition: 'already_exited' } })),
+  titleNormalFailed: runTitle(Object.assign({}, baseGame, HUMAN, { game_reached_engine_end: false, shutdown_disposition: null, result: { status: 'failed' } })),
+}));
+"""
+    )
+    assert isinstance(out, dict)
+    assert (
+        out["uncleanWithWinner"]
+        == "Partie zu Ende gespielt, Engine-Prozess endete nicht sauber (forced_kill), "
+        "Ergebnis nicht gewertet. (Engine-Sieger, nicht gewertet: Sitz 2 (Kinnan))"
+    )
+    assert "Die Partie wurde nicht zu Ende gespielt" not in out["uncleanWithWinner"]
+    assert (
+        out["uncleanNoWinner"]
+        == "Partie zu Ende gespielt, Engine-Prozess endete nicht sauber (unacked_exit), "
+        "Ergebnis nicht gewertet."
+    )
+    assert out["normalFailed"] == "Die Partie wurde nicht zu Ende gespielt (abgebrochen)."
+    assert "nicht gewertet (forced_kill)" in out["titleUncleanTop"]
+    assert "abgebrochen" not in out["titleUncleanTop"]
+    assert "Sieger" not in out["titleUncleanTop"]
+    assert "nicht gewertet (already_exited)" in out["titleUncleanNested"]
+    assert "abgebrochen" not in out["titleUncleanNested"]
+    assert out["titleNormalFailed"].endswith("abgebrochen")
+    # seatPanel stays strictly on credited winner_seats
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    panel_start = js.index("function seatPanel(")
+    panel_body = js[panel_start : js.index("\n}\n", panel_start)]
+    assert "uncredited_winner_seats" not in panel_body
+    assert "result.winner_seats" in panel_body
 
 
 def test_partie_cohort_wiring_reads_the_server_value_and_uses_no_html_sinks() -> None:
@@ -2421,20 +2537,31 @@ const app = fs.readFileSync("app.js", "utf8");
 const cut = (from, to) => app.slice(app.indexOf(from), app.indexOf(to));
 const code = [
   cut("let discardingStaleDraft = false;", "// Loads `target`"),
+  cut("function openNewDeckModal() {", "function openImportDecklistModal() {"),
   cut("function renderSaveState() {", "function changed() {").replace("function renderSaveState()", "function realRenderSaveState()"),
   cut("// The saved state of `branch` now", "function saveRevision("),
   cut("async function afterExperimentDecision(", "async function openSeriesFromHistory("),
   cut("async function adoptForeignDraft() {", 'document.addEventListener("visibilitychange"'),
 ].join("\n");
 // a small server with the contract of #1733: expected_parent must be the head (null = new)
-let postedCards, revCards, server, posts, deletes, gets, toasts, failed, rendered, branchLoads, historyShown, closed, deleteFails, onAfterPrecheck, onPost, busy, draftOf, order, boxes, midDiscard, lockedDuringPost, listNow, syncs, deleteDecks, draftReadDecks;
+let postedCards, revCards, server, posts, deletes, deleteExpected, deleteConflict, gets, toasts, failed, rendered, branchLoads, loadBranchArgs, historyShown, closed, deleteFails, onAfterPrecheck, onPost, busy, draftOf, order, boxes, midDiscard, lockedDuringPost, listNow, syncs, deleteDecks, draftReadDecks;
 function resetAll() {
-  server = { main: "deck@v", variant2: "deck@w" }; posts = []; deletes = []; gets = 0; toasts = []; failed = []; rendered = 0;
-  branchLoads = 0; historyShown = 0; closed = 0; deleteFails = false; onAfterPrecheck = null; onPost = null; busy = false; draftOf = {}; revCards = {}; postedCards = []; order = []; boxes = {}; midDiscard = null; lockedDuringPost = null; listNow = [{ card_id: "c1", zone: "main", quantity: 1 }]; syncs = 0; deleteDecks = []; draftReadDecks = [];
+  server = { main: "deck@v", variant2: "deck@w" }; posts = []; deletes = []; deleteExpected = []; deleteConflict = false; gets = 0; toasts = []; failed = []; rendered = 0;
+  branchLoads = 0; loadBranchArgs = []; historyShown = 0; closed = 0; deleteFails = false; onAfterPrecheck = null; onPost = null; busy = false; draftOf = {}; revCards = {}; postedCards = []; order = []; boxes = {}; midDiscard = null; lockedDuringPost = null; listNow = [{ card_id: "c1", zone: "main", quantity: 1 }]; syncs = 0; deleteDecks = []; draftReadDecks = [];
 }
 resetAll();
+let createdDeckSeq = 0;
+const COMMANDER = "Chulane, Teller of Tales";
+const StudioCommander = { shortName: (name) => name.split(",")[0] };
+let lastInputModal = null;
+const openInputModal = (cfg) => { lastInputModal = cfg; };
 const httpError = (status, detail) => Object.assign(new Error(detail), { status, detail });
 const api = async (path, method, body) => {
+  if (path === "/api/decks" && method === "POST") {
+    const deckId = `d-new-${++createdDeckSeq}`;
+    state.decks.push({ deck_id: deckId, branches: [{ branch: "main", revision_id: `rev@${deckId}` }] });
+    return { deck_id: deckId };
+  }
   if (path === "/api/decks") {
     gets += 1;
     const answer = [{ deck_id: "d", branches: Object.entries(server).map(([branch, revision_id]) => ({ branch, revision_id })) }];
@@ -2442,10 +2569,10 @@ const api = async (path, method, body) => {
     return answer;
   }
   if (path.startsWith("/api/revisions/")) { const rid = decodeURIComponent(path.split("/").pop()); if (revHold[rid]) await revHold[rid]; if (revFail === rid) throw httpError(503, "Speicher belegt, bitte erneut versuchen."); if (getHold) await getHold; return { cards: revCards[decodeURIComponent(path.split("/").pop())] || [], issues: [], shape: null }; }
-  const m = path.match(/branches\/([^/]+)\/draft$/);
+  const m = path.match(/branches\/([^/]+)\/draft(?:\?expected_updated_at=([^&]+))?$/);
   if (path === "/api/check") return { issues: [], shape: null, roles: {}, combos: null };
-  if (m && method === "PUT") { if (putFail) throw httpError(409, "Entwurf in anderem Tab geändert"); draftPuts.push([decodeURIComponent(m[1]), body.base_revision_id]); return { updated_at: "t2" }; }
-  if (m && method === "DELETE") { deletes.push(decodeURIComponent(m[1])); order.push("delete"); deleteDecks.push(decodeURIComponent(path.split("/")[3])); if (deleteFails) throw httpError(500, "Platte voll"); await new Promise((r) => setTimeout(r, 5)); return {}; }
+  if (m && method === "PUT") { if (putFail === 503) throw httpError(503, "Speicher belegt, bitte erneut versuchen."); if (putFail) throw httpError(409, "Entwurf in anderem Tab geändert"); draftPuts.push([decodeURIComponent(m[1]), body.base_revision_id]); return { updated_at: "t2" }; }
+  if (m && method === "DELETE") { deletes.push(decodeURIComponent(m[1])); deleteExpected.push(m[2] ? decodeURIComponent(m[2]) : null); order.push("delete"); deleteDecks.push(decodeURIComponent(path.split("/")[3])); if (deleteConflict) throw httpError(409, "Der Entwurf wurde in einem anderen Tab geändert und wird nicht verworfen."); if (deleteFails) throw httpError(500, "Platte voll"); await new Promise((r) => setTimeout(r, 5)); return {}; }
   if (m) { draftReadDecks.push(decodeURIComponent(path.split("/")[3])); return { draft: draftOf[decodeURIComponent(m[1])] || null }; }
   if (path.endsWith("/revisions") && method === "POST") {
     posts.push({ ...body, cards: undefined, deck: decodeURIComponent(path.split("/")[3]) });
@@ -2475,7 +2602,7 @@ let decksHold = null;
 const loadDecks = async () => { order.push("decks"); if (decksHold) await decksHold; if (decksFail) throw httpError(503, "Speicher belegt, bitte erneut versuchen."); };
 const renderHeader = () => {}; const fail = (e) => failed.push(StudioUI.germanError(e));
 const closeModal = () => { closed += 1; }; const showHistory = async () => { historyShown += 1; };
-const loadBranch = async (...args) => { branchLoads += 1; order.push("branch"); if (loadBranchImpl) await loadBranchImpl(...args); };
+const loadBranch = async (...args) => { branchLoads += 1; loadBranchArgs.push(args); order.push("branch"); if (loadBranchImpl) return loadBranchImpl(...args); };
 function renderDeckSelects() {} const renderDeck = () => {};
 let draftPuts = []; let putFail = false;
 const $ = (id) => (boxes[id] = boxes[id] || { disabled: false, replaceChildren(...nodes) { this.nodes = nodes; } });
@@ -2486,9 +2613,9 @@ let usedCards = [];
 let ensureCalls = []; let ensureHold = null;
 const ensureUnownedLoadedFor = async (cards) => { ensureCalls.push(cards.map((c) => c.card_id)); if (ensureHold) { const hold = ensureHold; ensureHold = null; await hold; } }; const useCards = (cards) => { usedCards.push(cards.map((c) => c.card_id)); }; const renderAll = () => {}; let syncDraftImpl = null;
 const syncDraft = async () => { syncs += 1; if (syncDraftImpl) return syncDraftImpl(); };
-const state = { deckId: "d", branch: "main", baseRevision: "deck@v", baseStale: false, changeSeq: 1, savedSeq: 0, dirty: true,
+const state = { deckId: "d", branch: "main", baseRevision: "deck@v", baseStale: false, draftConflict: false, draftUpdatedAt: "t0", changeSeq: 1, savedSeq: 0, dirty: true, commanderIds: ["cmd1"],
   decks: [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }] };
-const set = (o) => Object.assign(state, { baseStale: false, savedSeq: state.changeSeq, ...o });
+const set = (o) => Object.assign(state, { baseStale: false, draftConflict: false, draftUpdatedAt: "t0", savedSeq: state.changeSeq, ...o });
 eval(code + "\n" + cut("async function loadBranch(", "// The saved state of `branch` now").replace("async function loadBranch(", "async function realLoadBranch(") + "\n" + cut("async function syncDraftNow()", "// Another page"));
 (async () => {
   const out = {};
@@ -2862,6 +2989,159 @@ eval(code + "\n" + cut("async function loadBranch(", "// The saved state of `bra
   await Promise.all([discardStaleDraft(), discardStaleDraft(), discardStaleDraft()]);
   out.deleted = deletes.length;
   out.discardOrder = order;
+  // #1739: conditional DELETE .../draft sends expected_updated_at and handles 409 cleanly
+  // (a) commitRevision identical-state read-then-delete sends found.draft.updated_at; on 409 keeps draftConflict=true
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", draftUpdatedAt: "ts-old" }); sameMode = true;
+  draftOf.main = { base_revision_id: "deck@v", cards: entries(), updated_at: "2026-11-23T10:00:00.000001Z" };
+  await commitRevision("main", "");
+  out.delSameStamp = [deleteExpected.slice(), state.draftConflict];
+  resetAll(); set({ branch: "main", baseRevision: "deck@v" }); sameMode = true; deleteConflict = true;
+  draftOf.main = { base_revision_id: "deck@v", cards: entries(), updated_at: "2026-11-23T10:00:00.000002Z" };
+  await commitRevision("main", "");
+  realRenderSaveState();
+  const sameConflictNodes = $("save-state").nodes;
+  const sameConflictButtons = sameConflictNodes.filter((n) => n && n.tag === "button").map((b) => b.kids[0]);
+  out.delSame409 = [deleteExpected.slice(), toasts.some((t) => t.includes("Entwurf wurde inzwischen in einem anderen Tab geändert und behalten.")), failed.length, state.draftConflict, sameConflictNodes[0].kids[0], sameConflictButtons];
+  sameMode = false;
+  // (b) discardStaleDraft sends state.draftUpdatedAt; on 409 sets draftConflict, renders conflict banner (not stale discard loop), toasts, no reload
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", baseStale: true, draftUpdatedAt: "2026-11-23T10:00:00.000003Z", draftConflict: false });
+  await discardStaleDraft();
+  out.delStaleStamp = [deleteExpected.slice(), order.slice()];
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", baseStale: true, draftUpdatedAt: "2026-11-23T10:00:00.000004Z", draftConflict: false });
+  deleteConflict = true;
+  await discardStaleDraft();
+  realRenderSaveState();
+  const staleConflictNodes = $("save-state").nodes;
+  const staleConflictButtons = staleConflictNodes.filter((n) => n && n.tag === "button").map((b) => b.kids[0]);
+  out.delStale409 = [deleteExpected.slice(), state.draftConflict, rendered >= 1, toasts.some((t) => t.includes("nicht verworfen")), order.slice(), branchLoads, failed.length, staleConflictNodes[0].kids[0], staleConflictButtons];
+  // (b2) discardStaleDraft with empty draftUpdatedAt sends NO DELETE, reloads directly
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", baseStale: true, draftUpdatedAt: "", draftConflict: false });
+  await discardStaleDraft();
+  out.delStaleEmpty = [deletes.slice(), order.slice()];
+  // (c) commitRevision (isNew) sends state.draftUpdatedAt; on 409 adds hint and keeps the new branch
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", draftUpdatedAt: "2026-11-23T10:00:00.000005Z", draftConflict: false });
+  await commitRevision("neu1739a", "");
+  out.delNewStamp = [deleteExpected.slice(), state.branch];
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", draftUpdatedAt: "2026-11-23T10:00:00.000006Z", draftConflict: false });
+  deleteConflict = true;
+  await commitRevision("neu1739b", "");
+  out.delNew409 = [deleteExpected.slice(), state.branch, toasts.some((t) => t.includes("in einem anderen Tab geändert und behalten")), toasts.some((t) => t.includes("nicht erneut speichern")), failed.length, state.draftConflict];
+  // (c2) commitRevision (isNew) with empty draftUpdatedAt sends NO DELETE on fromBranch
+  resetAll(); set({ branch: "main", baseRevision: "deck@v", draftUpdatedAt: "", draftConflict: false });
+  await commitRevision("neu1739c", "");
+  out.delNewEmpty = [deletes.slice(), state.branch];
+  // ---- #1745 Paket 1: follow-up guards from #1736 and #1729 reviews ----
+  // Punkt 1: flushLocal during active branchLoading reports deferred save, not server failure
+  resetAll(); set({ deckId: "d", branch: "test", baseRevision: "deck@t", dirty: false, needsDraftPut: false });
+  state.decks = decks2; draftPuts = []; loadBranchImpl = realLoadBranch; syncDraftImpl = syncDraftNow;
+  let releaseDecks1745; decksHold = new Promise((r) => { releaseDecks1745 = r; });
+  $("deck-select").value = "d2";
+  const deckEditDuringDecks = onDeckSelect();
+  edit(); // edit while loadDecks() is still running (branchLoading === 1)
+  decksHold = null; releaseDecks1745();
+  await deckEditDuringDecks;
+  await new Promise((r) => setTimeout(r, 5));
+  out.flushDeferredDeck = [state.deckId, $("deck-select").value, failed.slice(), draftPuts.map((d) => d[0]), state.savedSeq === state.changeSeq];
+  // second switch click while a branch load runs also gets deferred text (not UNSENT_TEXT)
+  resetAll(); set({ deckId: "d", branch: "test", baseRevision: "deck@t", dirty: false, needsDraftPut: false });
+  state.decks = decks2; draftPuts = [];
+  let releaseFirstLoad; revHold["deck@v"] = new Promise((r) => { releaseFirstLoad = r; });
+  $("branch-select").value = "main";
+  const firstSwitch = onBranchSelect();
+  await new Promise((r) => setTimeout(r, 5));
+  edit();
+  $("branch-select").value = "c";
+  await onBranchSelect();
+  const secondSwitchFailed = failed.slice();
+  releaseFirstLoad(); await firstSwitch; await new Promise((r) => setTimeout(r, 5));
+  out.flushDeferredSecond = [state.branch, secondSwitchFailed, draftPuts.map((d) => d[0]), state.savedSeq === state.changeSeq];
+  // Punkt 2: loadBranch returns boolean; openNewDeckModal does not overwrite abort toast on !opened
+  resetAll(); set({ deckId: "d", branch: "test", baseRevision: "deck@t", dirty: false, needsDraftPut: false });
+  state.decks = [{ deck_id: "d", branches: branches3 }];
+  const lbOk = await realLoadBranch({ deckId: "d", branch: "main" });
+  let releaseEditCheck; revHold["deck@c"] = new Promise((r) => { releaseEditCheck = r; });
+  const lbEditedP = realLoadBranch({ deckId: "d", branch: "c" });
+  await new Promise((r) => setTimeout(r, 5));
+  edit(); releaseEditCheck();
+  const lbEdited = await lbEditedP;
+  await syncDraftNow(); // flush the edit cleanly
+  let releaseSupErr; revHold["deck@t"] = new Promise((r) => { releaseSupErr = r; }); revFail = "deck@t";
+  const lbSupErrP = realLoadBranch({ deckId: "d", branch: "test" });
+  const lbSupOk = await realLoadBranch({ deckId: "d", branch: "c" });
+  releaseSupErr(); const lbSupErr = await lbSupErrP; revFail = null;
+  out.loadBranchBool = [lbOk, lbEdited, lbSupOk, lbSupErr];
+  // openNewDeckModal: opened === true -> "Deck „Alpha“ angelegt."
+  resetAll(); set({ deckId: "d", branch: "main", baseRevision: "deck@v", dirty: false, needsDraftPut: false });
+  state.decks = [{ deck_id: "d", branches: branches3 }];
+  openNewDeckModal();
+  await lastInputModal.onSubmit("Alpha");
+  out.newDeckOk = [state.deckId.startsWith("d-new-"), toasts.slice(-1)[0], failed.slice()];
+  // openNewDeckModal: local edit during loadBranch -> opened === false -> abort toast kept, no "angelegt" toast
+  resetAll(); set({ deckId: "d", branch: "main", baseRevision: "deck@v", dirty: false, needsDraftPut: false });
+  state.decks = [{ deck_id: "d", branches: branches3 }];
+  const nextNewRev = `rev@d-new-${createdDeckSeq + 1}`;
+  let releaseNewDeck; revHold[nextNewRev] = new Promise((r) => { releaseNewDeck = r; });
+  openNewDeckModal();
+  const creatingEdited = lastInputModal.onSubmit("Beta");
+  await new Promise((r) => setTimeout(r, 5));
+  edit(); releaseNewDeck(); await creatingEdited; await new Promise((r) => setTimeout(r, 5));
+  out.newDeckAborted = [state.deckId, toasts.slice(-1)[0], toasts.some((t) => t.includes("angelegt")), failed.slice()];
+  // openNewDeckModal: superseded error (token !== loadSeq) -> honest toast, no silent drop, no plain "angelegt."
+  resetAll(); set({ deckId: "d", branch: "main", baseRevision: "deck@v", dirty: false, needsDraftPut: false });
+  state.decks = [{ deck_id: "d", branches: branches3 }];
+  const nextSupRev = `rev@d-new-${createdDeckSeq + 1}`;
+  let releaseSupDeck; revHold[nextSupRev] = new Promise((r) => { releaseSupDeck = r; }); revFail = nextSupRev;
+  openNewDeckModal();
+  const creatingSup = lastInputModal.onSubmit("Gamma");
+  await new Promise((r) => setTimeout(r, 5));
+  $("branch-select").value = "c";
+  await onBranchSelect();
+  releaseSupDeck(); await creatingSup; revFail = null;
+  out.newDeckSupersededErr = [state.deckId, state.branch, toasts.slice(), failed.slice()];
+  // Punkt 3a: discardStaleDraft passes { discardLocal: true } and skips flushLocal/PUT even with unsent local edits
+  resetAll(); set({ deckId: "d", branch: "main", baseRevision: "deck@b", baseStale: true, draftUpdatedAt: "t-stale", dirty: true, needsDraftPut: true });
+  state.decks = [{ deck_id: "d", branches: [{ branch: "main", revision_id: "deck@v" }] }];
+  draftPuts = []; putFail = true; // if flushLocal ran, PUT would 409 and block reload
+  edit(); // ensure state.savedSeq !== state.changeSeq
+  await discardStaleDraft();
+  out.discardStaleArgs = [loadBranchArgs.slice(), draftPuts.slice(), state.baseStale, state.baseRevision, state.savedSeq === state.changeSeq, failed.slice()];
+  putFail = false;
+  // Punkt 3b: retryLoad refuses while committing === true (no loadBranch, "Speichern läuft schon" toast)
+  loadBranchImpl = null; syncDraftImpl = null;
+  resetAll(); set({ deckId: "d", branch: "main", baseRevision: "deck@v", changeSeq: 1, savedSeq: 1 });
+  onPost = () => { midDiscard = retryLoad(); };
+  await commitRevision("main", ""); await midDiscard;
+  out.retryDuringCommit = [branchLoads, order.slice(), toasts.filter((t) => t.includes("Speichern läuft schon")).length];
+  // Punkt 4: draft PUT 409 names switch lock in banner, 409 toast and flushLocal; 503 keeps generic UNSENT_TEXT
+  loadBranchImpl = realLoadBranch; syncDraftImpl = syncDraftNow;
+  resetAll(); set({ deckId: "d", branch: "test", baseRevision: "deck@t", dirty: false, needsDraftPut: false });
+  state.decks = decks2; draftPuts = []; putFail = true;
+  edit();
+  await syncDraftNow();
+  const put409Toast = toasts.slice(-1)[0];
+  realRenderSaveState();
+  const conflictBannerTexts = $("save-state").nodes.map((n) => (typeof n === "string" ? n : n.kids.join("")));
+  $("branch-select").value = "main";
+  await onBranchSelect();
+  const conflictSwitchMsg = failed.slice(-1)[0];
+  $("deck-select").value = "d2";
+  await onDeckSelect();
+  const conflictDeckMsg = failed.slice(-1)[0];
+  // DELETE 409 without unsent local edits (savedSeq === changeSeq): conflict banner does NOT claim switches are locked
+  resetAll(); set({ deckId: "d", branch: "main", baseRevision: "deck@v", baseStale: true, draftUpdatedAt: "2026-11-23T10:00:00.000009Z", draftConflict: false });
+  deleteConflict = true;
+  await discardStaleDraft();
+  realRenderSaveState();
+  const delete409BannerTexts = $("save-state").nodes.map((n) => (typeof n === "string" ? n : n.kids.join("")));
+  // non-409 PUT failure (503) still reports UNSENT_TEXT
+  resetAll(); set({ deckId: "d", branch: "test", baseRevision: "deck@t", dirty: false, needsDraftPut: false });
+  state.decks = decks2; putFail = 503;
+  edit();
+  $("branch-select").value = "main";
+  await onBranchSelect();
+  const unsent503Msg = failed.slice(-1)[0];
+  putFail = false; loadBranchImpl = null; syncDraftImpl = null;
+  out.conflictNotices = [put409Toast, conflictBannerTexts, delete409BannerTexts, conflictSwitchMsg, conflictDeckMsg, unsent503Msg];
   process.stdout.write(JSON.stringify(out));
 })();
 """
@@ -2987,6 +3267,88 @@ def test_saving_sends_expected_parent_and_never_overwrites_a_moved_branch() -> N
     assert r["afterFail"] == [0, "Speicher belegt, bitte erneut versuchen."]
     assert r["afterReject"] == 1
     assert r["deleted"] == 1
+    # #1739: all three DELETE .../draft calls pass expected_updated_at, skip DELETE without stamp, and handle 409 cleanly
+    assert r["delSameStamp"] == [["2026-11-23T10:00:00.000001Z"], False]
+    assert r["delSame409"] == [
+        ["2026-11-23T10:00:00.000002Z"],
+        True,
+        0,
+        True,
+        "Konflikt: Entwurf in anderem Tab geändert",
+        ["Aktuellen Stand laden"],
+    ]
+    assert r["delStaleStamp"] == [
+        ["2026-11-23T10:00:00.000003Z"],
+        ["delete", "decks", "branch"],
+    ]
+    assert r["delStale409"] == [
+        ["2026-11-23T10:00:00.000004Z"],
+        True,
+        True,
+        True,
+        ["delete"],
+        0,
+        0,
+        "Konflikt: Entwurf in anderem Tab geändert",
+        ["Als neue Variante speichern", "Aktuellen Stand laden"],
+    ]
+    assert r["delStaleEmpty"] == [[], ["decks", "branch"]]
+    assert r["delNewStamp"] == [["2026-11-23T10:00:00.000005Z"], "neu1739a"]
+    assert r["delNew409"] == [["2026-11-23T10:00:00.000006Z"], "neu1739b", True, False, 0, False]
+    assert r["delNewEmpty"] == [[], "neu1739c"]
+    # #1745 Paket 1: Punkt 1 — flushLocal during active load distinguishes deferred save from error
+    deferred_text = (
+        "Ladevorgang läuft noch — Änderungen werden direkt danach als Entwurf gesichert; "
+        "nichts gewechselt."
+    )
+    assert r["flushDeferredDeck"] == ["d", "d", [deferred_text], ["test"], True]
+    assert r["flushDeferredSecond"] == ["test", [deferred_text], ["test"], True]
+    assert "konnten nicht als Entwurf gesichert werden" not in deferred_text
+    # #1745 Paket 1: Punkt 2 — loadBranch returns boolean; openNewDeckModal keeps abort toast
+    assert r["loadBranchBool"] == [True, False, True, False]
+    assert r["newDeckOk"] == [True, "Deck „Alpha“ angelegt.", []]
+    assert r["newDeckAborted"] == [
+        "d",
+        "Während des Ladens wurde die Liste geändert: nicht gewechselt, die Änderungen bleiben in der offenen Variante.",
+        False,
+        [],
+    ]
+    assert r["newDeckSupersededErr"] == [
+        "d",
+        "c",
+        ["Deck „Gamma“ angelegt, aber nicht geöffnet — ein anderer Wechsel hatte Vorrang."],
+        [],
+    ]
+    assert "Deck „Gamma“ angelegt." not in r["newDeckSupersededErr"][2]
+    # #1745 Paket 1: Punkt 3a & 3b — kill surviving mutations on discardStaleDraft and retryLoad
+    assert r["discardStaleArgs"] == [[[{"discardLocal": True}]], [], False, "deck@v", True, []]
+    assert r["retryDuringCommit"] == [0, ["decks"], 1]
+    # #1745 Paket 1: Punkt 4 — draft PUT 409 lock notice in banner, toast and flushLocal
+    (
+        put409_toast,
+        banner_texts,
+        delete409_banner_texts,
+        branch_msg,
+        deck_msg,
+        unsent_503_msg,
+    ) = r["conflictNotices"]
+    assert "Entwurf in anderem Tab geändert" in put409_toast
+    assert "Deck- und Variantenwechsel" in put409_toast and "Aktuellen Stand laden" in put409_toast
+    assert banner_texts[0] == "Konflikt: Entwurf in anderem Tab geändert"
+    assert any(
+        "Deck- und Variantenwechsel" in part and "Aktuellen Stand laden" in part
+        for part in banner_texts
+    )
+    assert delete409_banner_texts[0] == "Konflikt: Entwurf in anderem Tab geändert"
+    assert not any("Deck- und Variantenwechsel" in part for part in delete409_banner_texts)
+    assert not any("gesperrt" in part for part in delete409_banner_texts)
+    for msg in (branch_msg, deck_msg):
+        assert "Entwurfs-Konflikt" in msg and "nicht als Entwurf gesichert" in msg
+        assert "Deck- und Variantenwechsel" in msg and "Aktuellen Stand laden" in msg
+    assert (
+        unsent_503_msg
+        == "Ungesicherte Änderungen konnten nicht als Entwurf gesichert werden: nichts gewechselt, damit sie nicht verloren gehen."
+    )
 
 
 def test_the_compile_request_never_names_a_branch() -> None:
@@ -3020,7 +3382,13 @@ def test_experiment_view_static_guards() -> None:
     assert "draft.draft.base_revision_id !== branch.revision_id" in load
     assert "state.baseStale = true" in load
     render = app[app.index("function renderSaveState()") : app.index("function changed()")]
-    assert render.index("if (state.baseStale)") < render.index("if (state.draftConflict)")
+    # #1739: draftConflict must stay visible and actionable even when baseStale is also set,
+    # while still offering "Als neue Variante speichern" when baseStale is true.
+    assert render.index("if (state.draftConflict)") < render.index("if (state.baseStale)")
+    conflict_block = render[
+        render.index("if (state.draftConflict)") : render.index("// B2b (#1658)")
+    ]
+    assert "if (state.baseStale)" in conflict_block and "openNewBranchModal()" in conflict_block
     # "Aktuellen Stand laden" reads the branches first, never the stale base again
     assert "loadDecks().then(() => loadBranch({ discardLocal: true }))" in render
     for sink in ("innerHTML", "outerHTML", "insertAdjacentHTML"):  # M14: DOM only via h()
@@ -3050,10 +3418,90 @@ def test_experiment_view_static_guards() -> None:
     assert not re.search(r"\w\.difference_pp", js)
     assert not re.search(r"\.(n|N|stufe)\s*[<>]", js)
     assert "befund.stufe ?" in js and "befund.empfehlungsfaehig" in js
-    # the decision is posted only from the confirm button's handler
-    assert js.count('"POST"') == 1
-    assert (
-        js.index("const yes = h(")
-        < js.index('"POST"')
-        < js.index('"Ja, übernehmen" : "Ja, verwerfen"')
-    )
+    # the decision and withdraw actions are posted only from their confirm buttons' handlers
+    assert js.count('"POST"') == 2
+    first_post = js.index('"POST"')
+    second_post = js.index('"POST"', first_post + 1)
+    assert js.index("const yes = h(") < first_post < js.index('"Ja, übernehmen" : "Ja, verwerfen"')
+    assert js.index("const yesWithdraw = h(") < second_post < js.index('"Ja, Plan zurückziehen"')
+    assert "detail.withdrawable === true" in js
+    assert "detail.withdraw_blocked_reasons" in js
+    assert '"Als Variante testen"' in app
+    assert "openPairedWithPreset(" in app
+    paired_js = (STATIC / "paired.js").read_text(encoding="utf-8")
+    assert "deps.pairedPreset" in paired_js and "deps.clearPairedPreset" in paired_js
+
+
+def test_simulate_validity_block_and_censored_round_ui_guards() -> None:
+    """#1527: UI renders censored first-cast rounds (no unlabelled 'Ø 1. Runde' or dash fallback),
+    validity_block (seat curve with 95% Wilson CI, Playgroup ref, pilot omissions, validity
+    statement) and 3-class consistency table without forbidden sinks or client R1-R3 logic."""
+    app_js = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert '"Ø 1. Runde"' not in app_js
+    assert "function formatCensoredFirstCastRound(" in app_js
+    assert "formatCensoredFirstCastRound(c)" in app_js
+    assert "formatCensoredFirstCastRound(s)" in app_js
+    assert '"nicht erreicht"' in app_js
+
+    paired_js = (STATIC / "paired.js").read_text(encoding="utf-8")
+    vb_fn = paired_js[
+        paired_js.index("function renderValidityBlock(") : paired_js.index(
+            "function renderPairedMonitor("
+        )
+    ]
+    for required in (
+        "95 %-Wilson-CI",
+        "Playgroup-Referenz (4 Sitze)",
+        "nur für 4 Sitze",
+        "Pilot-Auslassungen",
+        "Gültigkeitsblock (SIMULATED_RESULT)",
+        "Konsistenztabelle (3 Herkunftsklassen)",
+    ):
+        assert required in vb_fn, required
+    for forbidden in ("innerHTML", "outerHTML", "style:", ".toFixed(", ".toPrecision("):
+        assert forbidden not in vb_fn, forbidden
+    assert not re.search(r"\bR[123]\b", vb_fn)
+
+    deckseries_js = (STATIC / "deckseries.js").read_text(encoding="utf-8")
+    ds_fn = deckseries_js[
+        deckseries_js.index("function deckSeriesValidityBlock(") : deckseries_js.index(
+            "function deckSeriesCells("
+        )
+    ]
+    for required in (
+        "validity_statement",
+        "Pilot-Auslassungen",
+        "Sitzkurve (95 %-Wilson-CI)",
+        "Konsistenz (3 Klassen)",
+    ):
+        assert required in ds_fn, required
+    for forbidden in ("innerHTML", "outerHTML", "style:", ".toFixed(", ".toPrecision("):
+        assert forbidden not in ds_fn, forbidden
+    assert not re.search(r"\bR[123]\b", ds_fn)
+
+
+def test_builder_strength_summary_and_lazy_card_detail_guards() -> None:
+    """#1565: Builder requests detail='summary' for the list, lazily fetches full single-card
+    details on modal open with stale-modal guards, and leaves tierliste.js on full responses."""
+    app_js = (STATIC / "app.js").read_text(encoding="utf-8")
+    block = app_js[
+        app_js.index("async function showStrengthBreakdown(") : app_js.index(
+            "async function loadCardTrend("
+        )
+    ]
+    for required in (
+        'detail: "summary"',
+        'detail: "full", card_id: card.card_id',
+        "!Array.isArray(st.components)",
+        "strengthRef.map.set(card.card_id, fullCard)",
+        "!into.isConnected",
+        "state.modalCardId !== card.card_id",
+        "state.strength !== strengthRef",
+    ):
+        assert required in block, required
+    for forbidden in ("innerHTML", "outerHTML", "style:", ".toFixed(", ".toPrecision("):
+        assert forbidden not in block, forbidden
+    assert not re.search(r"\bR[123]\b", block)
+
+    tierliste_js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    assert 'detail: "summary"' not in tierliste_js

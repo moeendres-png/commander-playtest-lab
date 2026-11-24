@@ -88,6 +88,35 @@ through the replay. The decision panel is announced to screen readers when a new
 its option groups are labelled groups, and a poll that keeps failing shows a banner "Verbindung zum
 Studio unterbrochen" instead of retrying silently.
 
+## Fast start and skipped AI passes in PLAY
+
+A game started with "Neue Partie" (`POST /api/games`, `InteractivePlayManager.start_game`) starts
+the bridge with the same fast options as a series (`launch.fast_bridge_command`): serial GC, the
+AppCDS archive `<jar>.jsa` only if it exists next to the jar
+(`python -m commander_lab.studio build-appcds --jar <jar>`; `doctor` reports `appcds_archive`), and
+`-Dcommanderlab.fullGame.skipForcedDecisions=true`. A collector named in the environment command
+stays; the pass skipping is switched off with `-Dcommanderlab.fullGame.skipForcedDecisions=false` in
+that command. Single-game CLI `play` (`play_recorded_game`) stays on the plain engine command.
+
+What the skipping does and does not do (`XmageFullGameDecisionController.shouldSkipForced`): the
+engine answers a forced priority pass of an AI seat itself, without a round trip to Python and
+without the AI pause. A human seat is never skipped, so the human gets every decision of their
+own. The skipped passes are not frames of the game log: the live snapshot reports them in
+`forced_passes_answered_by_engine` (`None` when unknown, never 0), the closing entry records them in
+`forced_decisions_skipped` (integer, 0 when none or absent), and for each finished game
+`frames + forced_decisions_skipped = decision_count`. For the Owner acceptance
+(`docs/STUDIO_ABNAHME_PROTOKOLL.md`): AK-3 (classes of the human's answers) and AK-6 (decisions of
+the human per game) count the human's decisions and are not affected; a replay shows no frame for a
+skipped AI pass.
+
+Measured on the Owner PC on 2026-11-24 (`SIMULATED_RESULT`, a local measurement, no qualification
+and no CI credit; the jar was built from `main` `4d32d5eb5`, `BRIDGE_AHEAD_OF_QUALIFICATION`):
+`docs/analysis-reports/play_fast_start_evidence_1577_20261124.md`. In short: with and without the
+switch, seeds 11, 12 and 13 gave the same winner, decision count and semantic transcript SHA-256
+(3 of 3); the median time from the start request to the first open decision of the human was 3.01 s
+(G1, no skipping), 3.13 s (fast options, no archive) and 2.07 s (fast options with archive), n = 5
+each.
+
 ## Simulation series: several games per engine process
 
 A series (`python -m commander_lab.studio simulate`, `POST /api/simulations/batch`) plays its

@@ -12,10 +12,16 @@ from pathlib import Path, PureWindowsPath
 
 from .games import GAMES_FOLDER
 from .launch import _repository_root
+from .series_reservation import RESERVATION_SUFFIX
 from .store import DATABASE_NAME
 
 SCHEMA_BACKUP = "studio-backup-1"
 _CHUNK_BYTES = 1024 * 1024
+
+
+def _is_transient_game_file(path: Path) -> bool:
+    """Runtime claim or lock file in ``games/`` that may vanish while a backup runs (#1737)."""
+    return path.name.endswith(RESERVATION_SUFFIX) or path.name == "running.lock"
 
 
 def _sha256_file(path: Path) -> tuple[int, str]:
@@ -108,11 +114,18 @@ def create_backup(
         if games_src.is_dir():
             games_dst = backup_dir / GAMES_FOLDER
             for item in sorted(games_src.rglob("*")):
+                if item.name.endswith(RESERVATION_SUFFIX):
+                    continue
                 if item.is_file():
                     rel = item.relative_to(games_src)
                     target = games_dst / rel
                     target.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(item, target)
+                    try:
+                        shutil.copy2(item, target)
+                    except FileNotFoundError:
+                        if _is_transient_game_file(item):
+                            continue
+                        raise
 
         files: list[dict[str, object]] = []
         checksum_lines: list[str] = []

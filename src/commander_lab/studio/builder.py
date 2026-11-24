@@ -26,6 +26,7 @@ from commander_lab.deck_readiness import (
 )
 
 from . import cache
+from .answer_cache import ContentStamp, content_stamp
 from .decks import RevisionCard, color_set, list_rows
 from .german_names import load_german_names
 from .store import BINDING_KINDS, StudioStore, ensure_scryfall_cards, now_utc
@@ -326,6 +327,48 @@ def _corpus_hits(store: StudioStore, commander_names: Sequence[str]) -> dict[str
     )
 
 
+def _corpus_groups(store: StudioStore, commander_names: Sequence[str]) -> dict[str, set[str]]:
+    """Deck-id sets per group (``all``, each play group, each cohort, ``tuned``) over the
+    non-duplicate source decks bound to the commander. Remembered per store state (read-only)."""
+    if not commander_names:
+        return {}
+
+    def compute() -> dict[str, set[str]]:
+        db = store.connection
+        # A commander without any bound source deck has no hits: skip the scan over the corpus
+        # (the data report asks this for every commander of the collection).
+        for name in set(commander_names):
+            if (
+                db.execute(
+                    "SELECT 1 FROM commander_binding WHERE kind = 'corpus_deck' "
+                    "AND commander_name = ? LIMIT 1",
+                    (name,),
+                ).fetchone()
+                is None
+            ):
+                return {}
+        bound, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
+        groups: dict[str, set[str]] = {ALL_DECKS: set()}
+        for row in db.execute(
+            f"SELECT d.deck_id, d.play_group FROM corpus_deck d WHERE d.duplicate_of IS NULL{bound}",
+            bound_args,
+        ):
+            groups[ALL_DECKS].add(str(row["deck_id"]))
+            groups.setdefault(str(row["play_group"]), set()).add(str(row["deck_id"]))
+        for row in db.execute(
+            "SELECT c.cohort, c.deck_id FROM corpus_cohort c JOIN corpus_deck d USING (deck_id) "
+            f"WHERE d.duplicate_of IS NULL{bound}",
+            bound_args,
+        ):
+            groups.setdefault(str(row["cohort"]), set()).add(str(row["deck_id"]))
+        tuned_ids = groups.get("bracket:4", set()) | groups.get("bracket:5", set())
+        if tuned_ids:
+            groups["tuned"] = tuned_ids
+        return groups
+
+    return cache.cached(store, ("corpus_groups", tuple(commander_names)), compute)
+
+
 def _corpus_hits_uncached(
     store: StudioStore, commander_names: Sequence[str]
 ) -> dict[str, dict[str, int]]:
@@ -334,38 +377,9 @@ def _corpus_hits_uncached(
     every spelling merged into the card it names). Groups: ``all``, each play group, each
     cohort. A card absent from the result is unknown; a card present has a real count (0
     included) in every group."""
-    db = store.connection
-    if not commander_names:
+    groups = _corpus_groups(store, commander_names)
+    if not groups:
         return {}
-    # A commander without any bound source deck has no hits: skip the scan over the corpus
-    # (the data report asks this for every commander of the collection).
-    for name in set(commander_names):
-        if (
-            db.execute(
-                "SELECT 1 FROM commander_binding WHERE kind = 'corpus_deck' "
-                "AND commander_name = ? LIMIT 1",
-                (name,),
-            ).fetchone()
-            is None
-        ):
-            return {}
-    bound, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
-    groups: dict[str, set[str]] = {ALL_DECKS: set()}
-    for row in db.execute(
-        f"SELECT d.deck_id, d.play_group FROM corpus_deck d WHERE d.duplicate_of IS NULL{bound}",
-        bound_args,
-    ):
-        groups[ALL_DECKS].add(str(row["deck_id"]))
-        groups.setdefault(str(row["play_group"]), set()).add(str(row["deck_id"]))
-    for row in db.execute(
-        "SELECT c.cohort, c.deck_id FROM corpus_cohort c JOIN corpus_deck d USING (deck_id) "
-        f"WHERE d.duplicate_of IS NULL{bound}",
-        bound_args,
-    ):
-        groups.setdefault(str(row["cohort"]), set()).add(str(row["deck_id"]))
-    tuned_ids = groups.get("bracket:4", set()) | groups.get("bracket:5", set())
-    if tuned_ids:
-        groups["tuned"] = tuned_ids
     sets = corpus_deck_sets(store, commander_names)
     return {
         card: {group: len(decks & members) for group, members in groups.items()}
@@ -668,7 +682,9 @@ def _saved_deck_card_ids(db: sqlite3.Connection, commander_ids: Sequence[str]) -
     for cards in lists.values():
         commanders = frozenset(same_card(card) for card, zone in cards if zone == "commander")
         if commanders == wanted:
-            found.update(card for card, _zone in cards)
+            for card, _zone in cards:
+                found.add(card)
+                found.add(same_card(card))
     return found
 
 
@@ -718,7 +734,6 @@ def _unowned_pool_cards(
     commander_ids: Sequence[str],
     owned_oracle_ids: set[str],
     owned_names_cf: set[str],
-    hits: dict[str, dict[str, int]],
     corpus_denominator: int,
     roles: dict[str, list[str]],
     playgroup: dict[str, sqlite3.Row],
@@ -742,9 +757,14 @@ def _unowned_pool_cards(
     from .labels import card_labels as _card_labels
 
     db = store.connection
-    hits_cf: dict[str, dict[str, int]] = {}
-    for hit_name, group_counts in hits.items():
-        hits_cf.setdefault(hit_name.casefold(), group_counts)
+    # Deduplicating casefolded union over the underlying deck-id sets: different spellings
+    # (e.g. "Rhystic Study" in deck A and "rhystic study" in deck B) combine without losing
+    # variants or double-counting a deck that lists both (#1738).
+    corpus_groups = _corpus_groups(store, commander_names)
+    sets_cf: dict[str, set[str]] = {}
+    if corpus_groups:
+        for raw_name, decks in corpus_deck_sets(store, commander_names).items():
+            sets_cf.setdefault(raw_name.casefold(), set()).update(decks)
     edhrec_by_name: dict[str, sqlite3.Row] = {}
     cohort_bound, cohort_args = bound_to("observation_cohort", "o.cohort", commander_names)
     for obs in db.execute(
@@ -789,10 +809,18 @@ def _unowned_pool_cards(
             continue
         type_line = str(row["type_line"] or "")
         oracle_text = str(row["oracle_text"] or "")
-        # The deck count the threshold reads is the one the card shows (same name matching).
-        card_hits = _first_found(hits, name, front_name)
-        if card_hits is None:
-            card_hits = _first_found(hits_cf, name_cf, front_cf)
+        # The deck count the threshold reads is the one the card shows (deduplicated case union).
+        card_decks: set[str] = set()
+        matched_corpus = False
+        for key in (name_cf, front_cf) if front_cf != name_cf else (name_cf,):
+            if key in sets_cf:
+                card_decks |= sets_cf[key]
+                matched_corpus = True
+        card_hits = (
+            {group: len(card_decks & members) for group, members in corpus_groups.items()}
+            if matched_corpus
+            else None
+        )
         widest = _first_found(edhrec_by_name, name_cf, front_cf)
         card_signals = _first_found(signals_by_name, name_cf, front_cf) or {}
         inclusion = card_signals.get("inclusion")
@@ -811,7 +839,7 @@ def _unowned_pool_cards(
             selected_by.append("planeswalker")
         if "proliferate" in oracle_text.casefold():
             selected_by.append("proliferate")
-        if card_id in saved_ids or f"scryfall:{oracle_id}" in saved_ids:
+        if card_id in saved_ids or oracle_id in saved_ids or f"scryfall:{oracle_id}" in saved_ids:
             selected_by.append("in_saved_deck")
         if not selected_by:
             continue
@@ -1052,7 +1080,6 @@ def pool_cards(
             commander_ids=commander_ids,
             owned_oracle_ids=owned_oracle_ids,
             owned_names_cf=owned_names_cf,
-            hits=hits,
             corpus_denominator=cohorts.get(ALL_DECKS, 0),
             roles=roles,
             playgroup=playgroup,
@@ -1087,20 +1114,19 @@ def pool_cards(
         # the cards): it would resolve and count a universe nobody reads.
         from . import strength_view
 
-        # Only Studio catalog cards are counted here: a Zukauf card without a catalog row
-        # (``scryfall:<oracle_id>``) is no card of the counted spread (it would raise KeyError)
-        # and stays without a count: unknown, never 0 (#1648).
-        counted_cards = [card for card in cards if not str(card["card_id"]).startswith("scryfall:")]
+        # Unowned ``scryfall:<oracle_id>`` cards are matched against stored ``card_signal``
+        # rows of the chosen ``decklist_universe:...`` too; without a stored row they stay
+        # without ``counted`` (unknown, never 0; #1738).
         found = strength_view.builder_counted_universe(
             store,
             commander_names[0],
-            [str(card["card_id"]) for card in counted_cards],
-            {str(card["card_id"]): str(card["name"]) for card in counted_cards},
+            [str(card["card_id"]) for card in cards],
+            {str(card["card_id"]): str(card["name"]) for card in cards},
             strength,
         )
         if found is not None:
             choice, observed = found
-            for card in counted_cards:
+            for card in cards:
                 count = observed.get(str(card["card_id"]))
                 if count is not None and count.numerator is not None and count.denominator:
                     card["counted"] = {
@@ -1115,6 +1141,11 @@ def pool_cards(
         from . import gc_band as gc_band_mod
         from . import universe_view
 
+        extra_cards = [
+            (str(card["card_id"]), str(card["name"]))
+            for card in cards
+            if card.get("in_collection") is False
+        ]
         if gc_band is not None:
             if gc_band not in gc_band_mod.GC_BANDS:
                 raise ValueError(
@@ -1125,17 +1156,23 @@ def pool_cards(
                 {"gc_band": [gc_band]},
                 commander_names=commander_names,
                 label=gc_band,
+                extra_cards=extra_cards or None,
             )
         else:
-            spread = universe_view.pool_spread(store, str(profile), commander_names=commander_names)
+            spread = universe_view.pool_spread(
+                store,
+                str(profile),
+                commander_names=commander_names,
+                extra_cards=extra_cards or None,
+            )
         by_card = {item["card_id"]: item for item in spread["cards"]}
         for card in cards:
             item = by_card.get(str(card["card_id"]))
             if item is None:
                 if card.get("in_collection") is False:
-                    # A Zukauf card: the spread counts collection cards only. It stays under
-                    # the universe's own denominator as unknown (never the cohort figure,
-                    # never 0), so one view never mixes two denominators (#1648).
+                    # Defensive fallback if a Zukauf card was ever absent from the spread:
+                    # keep it under the universe's own denominator as unknown (never the
+                    # cohort figure, never 0), so one view never mixes two denominators (#1648).
                     card["universe"] = {
                         "matched": False,
                         "hits": None,
@@ -1221,22 +1258,17 @@ _COMBO_PARTNERS_PATH = (
     Path(__file__).resolve().parents[3] / "data" / "meta" / "spellbook_combos.json"
 )
 _combo_partners_lock = threading.Lock()
-_combo_partners: dict[tuple[tuple[str, ...], int, int], frozenset[str]] = {}
+_combo_partners: dict[tuple[tuple[str, ...], ContentStamp], frozenset[str]] = {}
 
 
 def _cached_combo_partners(commander_names: Sequence[str]) -> frozenset[str]:
     """Pure file-based Spellbook combo partners for ``commander_names`` (no SQL queries).
 
     The combo file is large (parsing it takes about half a second), so the result is kept per
-    commander list for as long as the file keeps its modification time and size."""
+    commander list for as long as the file keeps its content stamp (size and SHA-256, #1615)."""
     from .sources import load_spellbook_combo_partners
 
-    try:
-        found = _COMBO_PARTNERS_PATH.stat()
-        file_state = (found.st_mtime_ns, found.st_size)
-    except OSError:
-        file_state = (-1, -1)
-    key = (tuple(commander_names), *file_state)
+    key = (tuple(commander_names), content_stamp(_COMBO_PARTNERS_PATH))
     with _combo_partners_lock:
         if key in _combo_partners:
             return _combo_partners[key]
@@ -1487,10 +1519,13 @@ def card_simulations(
         raise KeyError(card_id)
     bound, bound_args = bound_to("simulation_run", "r.run_id", commander_names)
     rows = db.execute(
-        "SELECT r.run_id, r.pod, r.opponent_set_hash, r.table_size, r.engine_pin, "
-        "r.bridge_jar_sha256, r.bridge_qualification_state, r.pilot_policy, r.hand_dwell_status, "
-        "sc.games_completed, sc.games_offered, sc.games_cast_after_offer, sc.games_rotted, "
-        "sc.offered_castable, sc.cast_count, sc.mean_first_cast_round "
+        "SELECT r.run_id, r.pod, r.opponent_set_hash, r.table_size, r.pilot_fingerprint, "
+        "r.engine_pin, r.bridge_jar_sha256, r.bridge_qualification_state, r.pilot_policy, "
+        "r.hand_dwell_status, sc.games_completed, sc.games_offered, sc.games_cast_after_offer, "
+        "sc.games_rotted, sc.offered_castable, sc.cast_count, sc.mean_first_cast_round, "
+        "sc.first_cast_round_games_reached, sc.first_cast_round_games_not_reached, "
+        "sc.first_cast_round_q1, sc.first_cast_round_median, sc.first_cast_round_q3, "
+        "sc.first_cast_round_basis "
         "FROM simulation_card sc JOIN simulation_run r USING (run_id) "
         f"WHERE (sc.card_id = ? OR sc.card_name IN (?, ?)){bound} ORDER BY r.pod",
         (card_id, target["oracle_name"], target["engine_name"], *bound_args),
@@ -1498,6 +1533,18 @@ def card_simulations(
     return [
         {
             **dict(item),
+            "first_cast_round_quartiles": (
+                {
+                    "q1": item["first_cast_round_q1"],
+                    "median": item["first_cast_round_median"],
+                    "q3": item["first_cast_round_q3"],
+                }
+                if item["first_cast_round_games_reached"] is not None
+                or item["first_cast_round_q1"] is not None
+                or item["first_cast_round_median"] is not None
+                or item["first_cast_round_q3"] is not None
+                else None
+            ),
             "bridge_qualification_state": (item["bridge_qualification_state"] or "UNKNOWN"),
             "covered_by_sealed_epoch": (
                 item["bridge_qualification_state"] == "ALIGNED_WITH_SEALED_EPOCH"
@@ -1517,18 +1564,36 @@ def list_simulations(store: StudioStore, commander_names: Sequence[str]) -> list
     bound, bound_args = bound_to("simulation_run", "r.run_id", commander_names)
     for run in db.execute(
         "SELECT r.run_id, r.deck_id, r.pod, r.opponent_ids, r.opponent_set_hash, r.table_size, "
-        "r.engine_pin, r.bridge_jar_sha256, r.bridge_qualification_state, r.pilot_policy, r.seeds, "
-        "r.games_planned, r.games_completed, r.games_failed, r.wins_fractional, r.win_rate, "
-        f"r.mean_rounds, r.hand_dwell_status FROM simulation_run r WHERE 1{bound} "
+        "r.pilot_fingerprint, r.engine_pin, r.bridge_jar_sha256, r.bridge_qualification_state, "
+        "r.pilot_policy, r.seeds, r.games_planned, r.games_completed, r.games_failed, "
+        f"r.wins_fractional, r.win_rate, r.mean_rounds, r.hand_dwell_status "
+        f"FROM simulation_run r WHERE 1{bound} "
         "ORDER BY r.pod, r.run_id",
         bound_args,
     ):
         cards = [
-            dict(row)
+            {
+                **dict(row),
+                "first_cast_round_quartiles": (
+                    {
+                        "q1": row["first_cast_round_q1"],
+                        "median": row["first_cast_round_median"],
+                        "q3": row["first_cast_round_q3"],
+                    }
+                    if row["first_cast_round_games_reached"] is not None
+                    or row["first_cast_round_q1"] is not None
+                    or row["first_cast_round_median"] is not None
+                    or row["first_cast_round_q3"] is not None
+                    else None
+                ),
+            }
             for row in db.execute(
                 "SELECT card_id, card_name, games_completed, games_offered, "
                 "games_cast_after_offer, games_rotted, offered_castable, cast_count, "
-                "mean_first_cast_round FROM simulation_card WHERE run_id = ? "
+                "mean_first_cast_round, first_cast_round_games_reached, "
+                "first_cast_round_games_not_reached, first_cast_round_q1, "
+                "first_cast_round_median, first_cast_round_q3, first_cast_round_basis "
+                "FROM simulation_card WHERE run_id = ? "
                 "ORDER BY games_offered DESC, card_name ASC",
                 (run["run_id"],),
             )
@@ -2379,20 +2444,57 @@ def set_favorite(store: StudioStore, card_id: str, favorite: bool) -> dict[str, 
     }
 
 
+def _delete_draft_row(
+    db: sqlite3.Connection, deck_id: str, branch: str, keep_based_on: str | None
+) -> None:
+    if keep_based_on is None:
+        db.execute("DELETE FROM deck_draft WHERE deck_id = ? AND branch = ?", (deck_id, branch))
+    else:
+        db.execute(
+            "DELETE FROM deck_draft WHERE deck_id = ? AND branch = ? "
+            "AND (base_revision_id IS NULL OR base_revision_id != ?)",
+            (deck_id, branch, keep_based_on),
+        )
+
+
 def drop_draft(
-    store: StudioStore, deck_id: str, branch: str, *, keep_based_on: str | None = None
+    store: StudioStore,
+    deck_id: str,
+    branch: str,
+    *,
+    keep_based_on: str | None = None,
+    expected_updated_at: str | None = None,
 ) -> None:
     """Drop the draft of ``branch``. With ``keep_based_on``, a draft whose base is that revision
-    stays: it was started on the state just saved and is newer than the save (#1727)."""
-    with store.connection as db:
-        if keep_based_on is None:
-            db.execute("DELETE FROM deck_draft WHERE deck_id = ? AND branch = ?", (deck_id, branch))
-        else:
-            db.execute(
-                "DELETE FROM deck_draft WHERE deck_id = ? AND branch = ? "
-                "AND (base_revision_id IS NULL OR base_revision_id != ?)",
-                (deck_id, branch, keep_based_on),
-            )
+    stays: it was started on the state just saved and is newer than the save (#1727). With
+    ``expected_updated_at``, refuse to delete a newer draft with ``DraftConflict`` inside the
+    same write transaction (#1739)."""
+    db = store.connection
+    if expected_updated_at is None:
+        with db:
+            _delete_draft_row(db, deck_id, branch, keep_based_on)
+        return
+    own_tx = not db.in_transaction
+    if own_tx:
+        db.execute("BEGIN IMMEDIATE")
+    try:
+        row = db.execute(
+            "SELECT updated_at FROM deck_draft WHERE deck_id = ? AND branch = ?",
+            (deck_id, branch),
+        ).fetchone()
+        if row is not None:
+            if str(row["updated_at"]) != expected_updated_at:
+                raise DraftConflict(
+                    "Der Entwurf wurde in einem anderen Tab oder auf einer anderen Seite "
+                    "geändert und wird nicht verworfen. Lade den aktuellen Stand."
+                )
+            _delete_draft_row(db, deck_id, branch, keep_based_on)
+    except BaseException:
+        if own_tx:
+            db.rollback()
+        raise
+    if own_tx:
+        db.commit()
 
 
 def set_mark(

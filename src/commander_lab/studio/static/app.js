@@ -39,10 +39,10 @@ const state = {
   decks: [], deckId: null, branch: "main", baseRevision: null,
   list: new Map(), dirty: false, draftUpdatedAt: "", draftConflict: false, baseStale: false, needsDraftPut: false, issues: [], shape: null, deckRoles: {}, combos: null, roles: [], shapes: [],
   simulations: [], diffBaseRev: null, diffData: null, deckFacts: null, castability: null, activeBatch: null, batchPollTimer: null,
-  activePaired: null, pairedPollTimer: null, pairedHistory: [], readinessAudit: null,
+  activePaired: null, pairedPollTimer: null, pairedHistory: [], pairedPreset: null, readinessAudit: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
-  subset: null, subsetNames: [], subsetWanted: null, strength: null, showTier: true, changeSeq: 0, savedSeq: 0, layers: null, diffDefault: null,
-  includeUnowned: false, superfriendsFilter: "", autoDeck: null,
+  subset: null, subsetNames: [], subsetWanted: null, strength: null, showTier: true, modalCardId: null, changeSeq: 0, savedSeq: 0, layers: null, diffDefault: null,
+  includeUnowned: false, unownedSelection: null, superfriendsFilter: "", autoDeck: null,
   cardTrend: null, cardTrendDays: 180, cardTrendBracket: "", cardTrendSource: "edhrec", cardTrendReq: null,
   colors: new Set(), columns: new Set(["img", "name", "mana_cost", "type_line", "available", "freq", "edhrec"]),
 };
@@ -271,9 +271,28 @@ function movePreview(event) {
   const left = event.clientX + 290 > innerWidth ? event.clientX - 280 : event.clientX + 20;
   box.style.left = left + "px"; box.style.top = Math.min(event.clientY - 40, innerHeight - 380) + "px";
 }
+const UNOWNED_REASON_LABELS = {
+  corpus: "Korpus",
+  edhrec: "EDHREC",
+  planeswalker: "Planeswalker",
+  proliferate: "Proliferate",
+  in_saved_deck: "Im gespeicherten Deck",
+};
+function unownedReasonsText(card) {
+  if (!card || !Array.isArray(card.selected_by) || !card.selected_by.length) return "";
+  return card.selected_by.map((key) => UNOWNED_REASON_LABELS[key] || key).join(", ");
+}
 function wishlistBadge(card) {
   if (typeof StudioWishlist === "undefined" || !StudioWishlist.isUnowned(card)) return null;
-  return h("span", { class: "pill warn" }, "Zukauf (0 im Besitz)");
+  const reasons = unownedReasonsText(card);
+  return h(
+    "span",
+    {
+      class: "pill warn",
+      title: reasons ? `Zukauf-Auswahl: ${reasons}` : "Nicht im Besitz (Zukauf-Kandidat)",
+    },
+    reasons ? `Zukauf (0 im Besitz) · ${reasons}` : "Zukauf (0 im Besitz)"
+  );
 }
 function tile(card) {
   const count = qty(card.card_id);
@@ -455,6 +474,28 @@ function renderSaveState() {
     );
     return;
   }
+  // #1739: a draft conflict (409 from PUT or conditional DELETE) must stay visible and
+  // actionable even when baseStale is also set; when baseStale is set, rescue to a new variant
+  // stays offered alongside "Aktuellen Stand laden".
+  if (state.draftConflict) {
+    const items = [h("span", { class: "pill bad" }, "Konflikt: Entwurf in anderem Tab geändert")];
+    if (state.savedSeq !== state.changeSeq) {
+      items.push(" ", h("span", { class: "muted" }, "Jeder Deck- und Variantenwechsel bleibt bis „Aktuellen Stand laden“ gesperrt."));
+    }
+    if (state.baseStale) {
+      items.push(" ", h("button", { type: "button", class: "small", onclick: () => openNewBranchModal() }, "Als neue Variante speichern"));
+    }
+    items.push(
+      " ",
+      h("button", { type: "button", class: "small", onclick: () => {
+        if (committing) { toast("Speichern läuft schon, bitte warten."); return; } // a load now would be dropped by the save
+        // the conflict is resolved by taking the stored draft: the local list is given up on purpose
+        loadDecks().then(() => loadBranch({ discardLocal: true })).catch((error) => fail(error));
+      } }, "Aktuellen Stand laden"),
+    );
+    box.replaceChildren(...items);
+    return;
+  }
   // B2b (#1658), #1727: the saved state under this draft moved (an adoption, another tab):
   // saving into this variant is refused; the work can be kept as a new variant, or the draft is
   // discarded and the current state loaded. The notice stays until one of the two is done.
@@ -465,18 +506,6 @@ function renderSaveState() {
       h("button", { type: "button", class: "small", onclick: () => openNewBranchModal() }, "Als neue Variante speichern"),
       " ",
       h("button", { type: "button", class: "small", onclick: () => discardStaleDraft().catch((error) => fail(error)) }, "Entwurf verwerfen und aktuellen Stand laden"),
-    );
-    return;
-  }
-  if (state.draftConflict) {
-    box.replaceChildren(
-      h("span", { class: "pill bad" }, "Konflikt: Entwurf in anderem Tab geändert"),
-      " ",
-      h("button", { type: "button", class: "small", onclick: () => {
-        if (committing) { toast("Speichern läuft schon, bitte warten."); return; } // a load now would be dropped by the save
-        // the conflict is resolved by taking the stored draft: the local list is given up on purpose
-        loadDecks().then(() => loadBranch({ discardLocal: true })).catch((error) => fail(error));
-      } }, "Aktuellen Stand laden"),
     );
     return;
   }
@@ -524,7 +553,7 @@ async function syncDraftNow() {
     if (error && error.status === 409) {
       state.draftConflict = true;
       renderSaveState();
-      toast(StudioUI.germanError(error), "error");
+      toast(`${StudioUI.germanError(error)} — jeder Deck- und Variantenwechsel bleibt bis „Aktuellen Stand laden“ gesperrt.`, "error");
       return;
     }
     fail(error);
@@ -1404,7 +1433,17 @@ async function renderDiff(body) {
       renderDeck();
     },
   }, ...options.map((item) => h("option", { value: item.rev, selected: item.rev === state.diffBaseRev }, `${item.label} (${item.rev.slice(0, 20)})`)));
-  body.append(h("div", { class: "actions" }, h("label", {}, "Vergleichsbasis: ", select)));
+  const testVariantDisabled = state.dirty || !state.baseRevision || !state.diffBaseRev || state.diffBaseRev === state.baseRevision;
+  const testVariantBtn = h("button", {
+    type: "button",
+    class: "small",
+    disabled: testVariantDisabled,
+    title: state.dirty
+      ? "Entwurf erst als Stand speichern"
+      : (state.diffBaseRev === state.baseRevision ? "Basis und Variante müssen zwei verschiedene Stände sein" : "Diesen Vergleich im gepaarten Vergleichsdialog vorfüllen"),
+    onclick: () => openPairedWithPreset(state.diffBaseRev, state.baseRevision),
+  }, "Als Variante testen");
+  body.append(h("div", { class: "actions" }, h("label", {}, "Vergleichsbasis: ", select), testVariantBtn));
   const box = h("div", {}, h("p", { class: "muted" }, "Berechnet Differenz..."));
   body.append(box);
   try {
@@ -1479,6 +1518,12 @@ function pollBatch(batchId) {
     }
   }, 1200);
 }
+function openPairedWithPreset(baseRef, variantRef) {
+  if (!baseRef || !variantRef || baseRef === variantRef) return;
+  state.pairedPreset = { baseRef, variantRef };
+  state.tab = "sim";
+  renderDeck();
+}
 function pairedDeps() {
   return {
     h,
@@ -1493,6 +1538,8 @@ function pairedDeps() {
     decks: () => state.decks,
     currentDeckId: () => state.deckId,
     currentRevision: () => state.baseRevision,
+    pairedPreset: () => state.pairedPreset,
+    clearPairedPreset: () => { state.pairedPreset = null; },
     activePaired: () => state.activePaired,
     setActivePaired: (v) => { state.activePaired = v; },
     pairedHistory: () => state.pairedHistory,
@@ -1768,15 +1815,36 @@ function renderSimulations(body) {
     const inDeckCards = (run.cards || []).filter((c) => !c.card_id || qty(c.card_id) > 0 || state.commanderIds.includes(c.card_id));
     if (!inDeckCards.length) continue;
     const cTable = h("div", { class: "table-wrap" }, h("table", {},
-      h("thead", {}, h("tr", {}, h("th", {}, "Karte"), h("th", { class: "num" }, "Spiele angeboten"), h("th", { class: "num" }, "Spiele gewirkt"), h("th", { class: "num" }, "ungespielt geblieben"), h("th", { class: "num" }, "Ø 1. Runde"))),
+      h("thead", {}, h("tr", {}, h("th", {}, "Karte"), h("th", { class: "num" }, "Spiele angeboten"), h("th", { class: "num" }, "Spiele gewirkt"), h("th", { class: "num" }, "ungespielt geblieben"), h("th", { class: "num" }, "1. Wirk-Runde (zensiert, n/N)"))),
       h("tbody", {}, inDeckCards.slice(0, 25).map((c) => h("tr", {},
         h("td", { class: "name", onclick: () => { const card = c.card_id ? state.byId.get(c.card_id) : null; if (card) openCard(card); } }, c.card_name),
         h("td", { class: "num" }, `${StudioUI.num(c.games_offered, 0)}/${StudioUI.num(c.games_completed, 0)}`),
         h("td", { class: "num" }, `${StudioUI.num(c.games_cast_after_offer, 0)}/${StudioUI.num(c.games_offered, 0)}`),
         h("td", { class: "num" }, StudioUI.num(c.games_rotted, 0)),
-        h("td", { class: "num" }, c.mean_first_cast_round === null ? "–" : StudioUI.num(c.mean_first_cast_round, 1)))))));
+        h("td", { class: "num" }, formatCensoredFirstCastRound(c)))))));
     body.append(h("h3", {}, `Karten-Angebote im Pod „${run.pod}“ (${StudioUI.num(run.games_completed, 0)} Spiele)`), cTable);
   }
+}
+function formatCensoredFirstCastRound(c) {
+  if (!c) return "unbekannt";
+  const reached = c.first_cast_round_games_reached;
+  const total = c.games_completed;
+  if (reached !== null && reached !== undefined && total !== null && total !== undefined && total > 0) {
+    const notReached = c.first_cast_round_games_not_reached !== null && c.first_cast_round_games_not_reached !== undefined
+      ? c.first_cast_round_games_not_reached
+      : Math.max(0, total - reached);
+    const q = c.first_cast_round_quartiles || {
+      q1: c.first_cast_round_q1,
+      median: c.first_cast_round_median,
+      q3: c.first_cast_round_q3,
+    };
+    const fmtQ = (val) => (val !== null && val !== undefined ? `Runde ${StudioUI.num(val, 0)}` : "nicht erreicht");
+    return `Med: ${fmtQ(q.median)} (Q1: ${fmtQ(q.q1)}, Q3: ${fmtQ(q.q3)}; ${StudioUI.num(reached, 0)}/${StudioUI.num(total, 0)} erreicht, ${StudioUI.num(notReached, 0)} nicht erreicht)`;
+  }
+  if (c.mean_first_cast_round !== null && c.mean_first_cast_round !== undefined) {
+    return `Altbestand (nur erreichte, n/N unbekannt): Ø Runde ${StudioUI.num(c.mean_first_cast_round, 1)}`;
+  }
+  return "unbekannt";
 }
 // the reservation of a row of runs without a stored opponent set (#1688; builder.unknown_opponents_caveat)
 function unknownOpponentsCaveat(runs) {
@@ -2441,8 +2509,9 @@ async function renderSwapBox(into, card, initialMode = null) {
 }
 
 // ---------- card window ----------
-function closeModal() { $("modal").hidden = true; }
+function closeModal() { state.modalCardId = null; $("modal").hidden = true; }
 async function openCard(card) {
+  state.modalCardId = card.card_id;
   const initialSwapMode = arguments.length > 1 ? arguments[1] : null;
   const box = $("modal-box"); box.className = ""; box.replaceChildren();
   let face = "front";
@@ -2476,6 +2545,7 @@ async function openCard(card) {
     h("p", { class: "pre-line" }, card.text),
     card.roles.length ? h("p", {}, card.roles.map((role) => h("span", { class: "chip chip-static mr-1" }, roleName(role)))) : null,
     h("p", { class: "note" }, `Sammlung: ${StudioUI.num(card.owned, 0)} im Besitz, ${StudioUI.num(card.available, 0)} frei` + (card.reserved ? `, ${StudioUI.num(card.reserved, 0)} reserviert` : "") + ` · Kartendaten: ${card.fact_source === "scryfall" ? "Scryfall" : "deine Tabelle"}` + (card.edhrec_rank ? ` · EDHREC-Rang ${StudioUI.num(card.edhrec_rank, 0)}` : "") + (card.game_changer ? " · Game Changer" : "") + ` · Simulator: ${StudioUI.simStatusLabel(card.sim_status)}`),
+    unownedReasonsText(card) ? h("p", { class: "note" }, "Zukauf-Auswahl: ", card.selected_by.map((key) => h("span", { class: "chip chip-static mr-1" }, UNOWNED_REASON_LABELS[key] || key))) : null,
     allocationDetail(h, card),
     h("div", { class: "actions" },
       h("button", { type: "button", class: "primary", disabled: count >= maxCopies(card), onclick: () => { add(card); openCard(card); } }, "Ins Deck"),
@@ -2492,7 +2562,7 @@ async function openCard(card) {
     h("h3", {}, "Häufigkeit in den Quelldecks"), frequencies, h("p", { class: "note" }, "Gelb: Gruppe mit weniger als 30 Decks."),
     h("p", {}, h("a", { href: `decks.html?commander=${encodeURIComponent(COMMANDER)}&must=${encodeURIComponent(card.name)}`, class: "chip" }, "Quelldecks mit dieser Karte im Deck-Browser öffnen →")),
     trendBox,
-    card.universe && activeScope() ? h("p", { class: "note" }, `Im ${activeScope().label}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung)" : card.universe.matched ? `${StudioUI.num(card.universe.hits, 0)}/${StudioUI.num(card.universe.denominator, 0)} Decks (Verbreitung gezählt, keine Stärke)` : card.in_collection === false ? `unbekannt (${card.universe.reason})` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
+    card.universe && activeScope() ? h("p", { class: "note" }, `Im ${activeScope().label}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung)" : card.universe.matched ? `${StudioUI.num(card.universe.hits, 0)}/${StudioUI.num(card.universe.denominator, 0)} Decks (Verbreitung gezählt, keine Stärke)` : card.universe.reason === "UNIVERSE_EMPTY" ? "unbekannt (das Universum enthält keine Decks)" : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
     card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, strengthBox, understandingBox, extra);
   box.append(left, right); $("modal").hidden = false;
   if (!state.commanderIds.includes(card.card_id) && !card.basic) renderSwapBox(swapBox, card, initialSwapMode);
@@ -2584,13 +2654,13 @@ async function openCard(card) {
     if (detail.simulations && detail.simulations.length) {
       parts.push(h("h3", {}, "Simulationsergebnisse"),
         h("div", { class: "table-wrap" }, h("table", {},
-          h("thead", {}, h("tr", {}, h("th", {}, "Pod (Pin)"), h("th", { class: "num" }, "Spiele angeboten"), h("th", { class: "num" }, "Spiele gewirkt"), h("th", { class: "num" }, "ungespielt"), h("th", { class: "num" }, "Ø 1. Runde"), h("th", {}, "Handverweildauer"))),
+          h("thead", {}, h("tr", {}, h("th", {}, "Pod (Pin)"), h("th", { class: "num" }, "Spiele angeboten"), h("th", { class: "num" }, "Spiele gewirkt"), h("th", { class: "num" }, "ungespielt"), h("th", { class: "num" }, "1. Wirk-Runde (zensiert, n/N)"), h("th", {}, "Handverweildauer"))),
           h("tbody", {}, detail.simulations.map((s) => h("tr", {},
             h("td", {}, `${s.pod} (${s.engine_pin})`),
             h("td", { class: "num" }, `${StudioUI.num(s.games_offered, 0)}/${StudioUI.num(s.games_completed, 0)}`),
             h("td", { class: "num" }, `${StudioUI.num(s.games_cast_after_offer, 0)}/${StudioUI.num(s.games_offered, 0)}`),
             h("td", { class: "num" }, StudioUI.num(s.games_rotted, 0)),
-            h("td", { class: "num" }, s.mean_first_cast_round === null ? "unbekannt" : StudioUI.num(s.mean_first_cast_round, 1)),
+            h("td", { class: "num" }, formatCensoredFirstCastRound(s)),
             h("td", { class: "muted" }, s.hand_dwell_status === "UNKNOWN" ? "unbekannt (nicht gemessen)" : s.hand_dwell_status)))))));
     }
     const rows = detail.observations.filter((row) => row.metric === "inclusion_pct");
@@ -2641,12 +2711,35 @@ function _strengthStatusText(c) {
   return c.status || "unbekannt";
 }
 async function showStrengthBreakdown(into, card) {
+  const isStale = (strengthRef) =>
+    !into.isConnected
+    || ($("modal") && $("modal").hidden)
+    || state.modalCardId !== card.card_id
+    || (strengthRef && state.strength !== strengthRef);
   if (!state.strength) {
     into.replaceChildren(h("h3", {}, "Stärke-Index-Aufschlüsselung (v3)"), h("p", { class: "muted" }, "Lädt Signale …"));
     await loadStrength();
-    if (!into.isConnected) return;
+    if (isStale(null)) return;
   }
-  const st = state.strength && state.strength.map ? state.strength.map.get(card.card_id) : null;
+  const strengthRef = state.strength;
+  let st = strengthRef && strengthRef.map ? strengthRef.map.get(card.card_id) : null;
+  if (st && !Array.isArray(st.components)) {
+    into.replaceChildren(h("h3", {}, "Stärke-Index-Aufschlüsselung (v3)"), h("p", { class: "muted" }, "Lädt Signale …"));
+    try {
+      const base = strengthRef.payload || strengthBasePayload();
+      const detail = await api("/api/strength", "POST", { ...base, detail: "full", card_id: card.card_id });
+      const fullCard = detail && Array.isArray(detail.cards) ? detail.cards.find((item) => item.card_id === card.card_id) : null;
+      if (fullCard && state.strength === strengthRef && strengthRef.map) {
+        strengthRef.map.set(card.card_id, fullCard);
+      }
+      st = fullCard;
+    } catch (error) {
+      if (isStale(strengthRef)) return;
+      into.replaceChildren(h("h3", {}, "Stärke-Index-Aufschlüsselung (v3)"), h("p", { class: "muted" }, "Signale nicht lesbar: " + StudioUI.germanError(error)));
+      return;
+    }
+    if (isStale(strengthRef)) return;
+  }
   if (!st) {
     into.replaceChildren(h("h3", {}, "Stärke-Index-Aufschlüsselung (v3)"), h("p", { class: "muted" }, "Kein Stärke-Index für diese Karte geladen."));
     return;
@@ -2685,10 +2778,13 @@ async function showStrengthBreakdown(into, card) {
 }
 
 // ---------- Stärke-Index for the sort (the tier page's function, never a copy of its scoring) ----------
-function strengthRequest() {
+function strengthBasePayload() {
   let settings = null;
   try { settings = JSON.parse(StudioUI.recall("studio.strength.settings", "null")); } catch (error) { settings = null; }
-  return api("/api/strength", "POST", settings ? { commander: COMMANDER, settings } : { commander: COMMANDER });
+  return settings ? { commander: COMMANDER, settings } : { commander: COMMANDER };
+}
+function strengthRequest() {
+  return api("/api/strength", "POST", { ...strengthBasePayload(), detail: "summary" });
 }
 async function loadStrength() {
   if (state.strength) return state.strength;
@@ -2699,9 +2795,13 @@ async function loadStrength() {
       const early = state.strengthPrefetch; // started by start() beside the pool request
       state.strengthPrefetch = null;
       let result;
-      try { result = await (early || strengthRequest()); }
-      catch (error) { result = await api("/api/strength", "POST", { commander: COMMANDER }); } // remembered settings may be outdated
-      state.strength = { result, map: new Map(result.cards.map((item) => [item.card_id, item])) };
+      let activePayload = strengthBasePayload();
+      try { result = await (early || api("/api/strength", "POST", { ...activePayload, detail: "summary" })); }
+      catch (error) {
+        activePayload = { commander: COMMANDER };
+        result = await api("/api/strength", "POST", { ...activePayload, detail: "summary" });
+      } // remembered settings may be outdated
+      state.strength = { result, payload: activePayload, map: new Map(result.cards.map((item) => [item.card_id, item])) };
       if (state.sortKey === "strength") toast("Stärke-Index geladen (Schätzung aus Nutzungsdaten, Einstellungen der Tierliste).");
       renderPool(); if (state.deckId) renderDeck();
       return state.strength;
@@ -2746,6 +2846,54 @@ function renderSimReadiness() {
   $("f-sim-label").title = !missing
     ? "Alle Karten des Pools sind für den Simulator bereit: der Filter ändert nichts."
     : `${StudioUI.num(missing, 0)} Karten haben keine vollständigen Simulator-Kartendaten (Status laut deck_readiness).`;
+}
+function formatUnownedSelection(sel) {
+  if (!sel || typeof sel !== "object") return "";
+  const counts = sel.counts || {};
+  const parts = [];
+  for (const key of ["corpus", "edhrec", "planeswalker", "proliferate", "in_saved_deck"]) {
+    const n = counts[key] || 0;
+    if (!n) continue;
+    const label = UNOWNED_REASON_LABELS[key] || key;
+    if (key === "corpus" && sel.min_corpus_decks && sel.corpus_denominator) {
+      parts.push(`${label} ${StudioUI.num(n, 0)} (≥${StudioUI.num(sel.min_corpus_decks, 0)}/${StudioUI.num(sel.corpus_denominator, 0)})`);
+    } else if (key === "edhrec" && sel.min_edhrec_denominator) {
+      parts.push(`${label} ${StudioUI.num(n, 0)} (N≥${StudioUI.num(sel.min_edhrec_denominator, 0)})`);
+    } else {
+      parts.push(`${label} ${StudioUI.num(n, 0)}`);
+    }
+  }
+  const head = `Zukauf-Auswahl: ${StudioUI.num(sel.total || 0, 0)} Karten`;
+  return parts.length ? `${head} · ${parts.join(" · ")}` : head;
+}
+function renderUnownedSelection() {
+  const box = $("f-unowned");
+  const label = box && box.parentElement;
+  if (!label) return;
+  let info = $("unowned-selection-info");
+  if (!state.includeUnowned || !state.unownedSelection) {
+    if (info) {
+      info.textContent = "";
+      info.hidden = true;
+    }
+    return;
+  }
+  if (!info) {
+    info = h("span", { id: "unowned-selection-info", class: "muted" });
+    label.insertAdjacentElement("afterend", info);
+  }
+  const sel = state.unownedSelection;
+  const text = formatUnownedSelection(sel);
+  const tips = [];
+  if (sel.min_corpus_decks && sel.corpus_denominator) {
+    tips.push(`Korpus-Schwelle: mindestens ${StudioUI.num(sel.min_corpus_decks, 0)}/${StudioUI.num(sel.corpus_denominator, 0)} Decks (${StudioUI.num(sel.min_corpus_pct, 0)} %)`);
+  }
+  if (sel.min_edhrec_denominator) {
+    tips.push(`EDHREC: mindestens ${StudioUI.num(sel.min_edhrec_denominator, 0)} Decks`);
+  }
+  info.textContent = text;
+  info.title = tips.join(" · ");
+  info.hidden = !text;
 }
 // Every card of the pool, collection and Zukauf cards, is ready for the simulator.
 function simAllReady() {
@@ -2844,7 +2992,8 @@ function applyPool(pool) {
   state.countedUniverse = pool.counted_universe || null;
   state.simReadiness = pool.sim_readiness || null;
   state.simReadinessUnowned = pool.sim_readiness_unowned || null;
-  renderUniverseInfo(); renderBracketBar(); renderGcBandBar(); renderSimReadiness(); renderLabelFilter();
+  state.unownedSelection = state.includeUnowned && pool.unowned_selection ? pool.unowned_selection : null;
+  renderUniverseInfo(); renderBracketBar(); renderGcBandBar(); renderSimReadiness(); renderUnownedSelection(); renderLabelFilter();
 }
 // Archetype labels are the Owner's own words for ordering cards and decks: a filter and a
 // display, never a rating.
@@ -2921,8 +3070,11 @@ function openNewDeckModal() {
       const created = await api("/api/decks", "POST", { name: trimmed.slice(0, 80), commander_card_ids: state.commanderIds });
       closeModal();
       try {
-        await loadDecks(); await loadBranch({ deckId: created.deck_id, branch: "main" });
-        toast(`Deck „${trimmed}“ angelegt.`);
+        await loadDecks();
+        const target = { deckId: created.deck_id, branch: "main" };
+        const opened = await loadBranch(target);
+        if (opened) toast(`Deck „${trimmed}“ angelegt.`);
+        else if (target.dropReason !== "edited") toast(`Deck „${trimmed}“ angelegt, aber nicht geöffnet — ein anderer Wechsel hatte Vorrang.`);
       } catch (error) { fail(error); }
     },
   });
@@ -3052,13 +3204,29 @@ function useCards(cards) {
   if (dropped) toast(`${StudioUI.num(dropped, 0)} von ${StudioUI.num(mainEntries, 0)} Karten sind nicht im Pool (Sammlung oder Zukauf-Auswahl) und wurden nicht übernommen.`);
 }
 let discardingStaleDraft = false;
+function draftDeleteUrl(deckId, branch, expectedUpdatedAt) {
+  const base = `/api/decks/${encodeURIComponent(deckId)}/branches/${encodeURIComponent(branch)}/draft`;
+  return expectedUpdatedAt ? `${base}?expected_updated_at=${encodeURIComponent(expectedUpdatedAt)}` : base;
+}
 async function discardStaleDraft() {
   if (discardingStaleDraft) return; // one DELETE per click series
   if (committing) { toast("Speichern läuft schon, bitte warten."); return; } // the save decides first
   if (loadRefused("verworfen")) return;
   discardingStaleDraft = true;
   try {
-    await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "DELETE");
+    if (state.draftUpdatedAt) {
+      try {
+        await api(draftDeleteUrl(state.deckId, state.branch, state.draftUpdatedAt), "DELETE");
+      } catch (error) {
+        if (error && error.status === 409) {
+          state.draftConflict = true;
+          renderSaveState();
+          toast(StudioUI.germanError(error), "error");
+          return;
+        }
+        throw error;
+      }
+    }
     await loadDecks();
     await loadBranch({ discardLocal: true }); // discarding the draft is the point of this click
   } finally {
@@ -3074,6 +3242,8 @@ let loadSeq = 0;
 let loadFailed = false;
 let failedTarget = null; // what the failed load wanted to open; "Erneut laden" tries it again
 const UNSENT_TEXT = "Ungesicherte Änderungen konnten nicht als Entwurf gesichert werden: nichts gewechselt, damit sie nicht verloren gehen.";
+const DEFERRED_TEXT = "Ladevorgang läuft noch — Änderungen werden direkt danach als Entwurf gesichert; nichts gewechselt.";
+const CONFLICT_SWITCH_TEXT = "Entwurfs-Konflikt: Änderungen wurden nicht als Entwurf gesichert. Jeder Deck- und Variantenwechsel bleibt bis „Aktuellen Stand laden“ gesperrt.";
 // "Erneut laden": first the open variant's changes are saved as its draft, then the load that
 // failed is tried again; with changes that cannot be saved nothing is reloaded.
 async function retryLoad() {
@@ -3085,8 +3255,14 @@ async function retryLoad() {
 // throws (nothing switched) when they cannot be saved.
 async function flushLocal() {
   if (!state.deckId || state.savedSeq === state.changeSeq) return;
+  if (branchLoading > 0) {
+    throw Object.assign(new Error("unsent"), { detail: state.draftConflict ? CONFLICT_SWITCH_TEXT : DEFERRED_TEXT });
+  }
   await syncDraft();
-  if (state.savedSeq !== state.changeSeq) throw Object.assign(new Error("unsent"), { detail: UNSENT_TEXT });
+  if (state.savedSeq !== state.changeSeq) {
+    const detail = state.draftConflict ? CONFLICT_SWITCH_TEXT : branchLoading > 0 ? DEFERRED_TEXT : UNSENT_TEXT;
+    throw Object.assign(new Error("unsent"), { detail });
+  }
 }
 // A load ended: when no load runs any more, changes made meanwhile (their draft save was held
 // back) are saved now, as the draft of the variant that is open.
@@ -3126,6 +3302,7 @@ async function onBranchSelect() {
   }
 }
 // Loads `target` (default: the open deck and variant); throws when a GET fails.
+// Returns true when `target` was applied, false when dropped (local edit or newer load).
 async function loadBranch(target = {}) {
   // the open variant's unsent changes are saved as its draft before anything is replaced;
   // only a click that gives the local list up on purpose skips this
@@ -3141,18 +3318,24 @@ async function loadBranch(target = {}) {
   try {
     applied = await loadBranchNow(token, deckId, branchName, seqAtStart);
   } catch (error) {
-    if (token !== loadSeq) return; // a later load decides; this failure is not shown
+    if (token !== loadSeq) { target.dropReason = "superseded"; return false; } // a later load decides; this failure is not shown
     loadFailed = true; failedTarget = { deckId, branch: branchName };
     throw error;
   } finally {
     loadEnded(); // the editor may still be the previous variant: its changes go to its draft
   }
   if (!applied && token === loadSeq) {
+    target.dropReason = "edited";
     renderDeckSelects(); // the selects show the variant that stays open
     toast("Während des Ladens wurde die Liste geändert: nicht gewechselt, die Änderungen bleiben in der offenen Variante.");
-    return;
+    return false;
   }
-  if (applied && token === loadSeq) await syncDraft();
+  if (applied && token === loadSeq) {
+    await syncDraft();
+    return true;
+  }
+  target.dropReason = "superseded";
+  return false;
 }
 // The GETs of one load; the editor's state changes only at the end and only for the latest
 // load. Returns whether this load was applied.
@@ -3170,6 +3353,7 @@ async function loadBranchNow(token, deckId, branchName, seqAtStart) {
   if (token !== loadSeq) return false;
   if (state.changeSeq !== seqAtStart) return false; // edited while loading: those edits are kept
   // one step: deck, variant, base and list of the new variant together
+  if (state.deckId !== deckId) state.pairedPreset = null;
   state.deckId = deckId;
   state.branch = branch.branch;
   state.baseRevision = branch.revision_id;
@@ -3228,6 +3412,7 @@ async function commitRevision(branch = state.branch, note = "") {
   const deckId = state.deckId;
   const fromBranch = state.branch;
   const base = state.baseRevision;
+  const fromDraftUpdatedAt = state.draftUpdatedAt;
   const isNew = branch !== fromBranch;
   const cards = entries(); // the list of the click, before the first await
   const stillHere = () => state.deckId === deckId && state.branch === fromBranch;
@@ -3271,13 +3456,20 @@ async function commitRevision(branch = state.branch, note = "") {
       }
     }
     const hints = [];
+    let keepConflict = false;
     if (result.hinweis) hints.push(result.hinweis);
     if (isNew) {
-      // the work moved to the new variant; the old draft goes, and a failure is only named
-      try {
-        await api(`/api/decks/${encodeURIComponent(deckId)}/branches/${encodeURIComponent(fromBranch)}/draft`, "DELETE");
-      } catch (error) {
-        hints.push(`Der alte Entwurf in „${fromBranch}“ konnte nicht verworfen werden (${StudioUI.germanError(error)}); bitte dort verwerfen, nicht erneut speichern.`);
+      // the work moved to the new variant; drop the old draft only if this tab held one (#1739)
+      if (fromDraftUpdatedAt) {
+        try {
+          await api(draftDeleteUrl(deckId, fromBranch, fromDraftUpdatedAt), "DELETE");
+        } catch (error) {
+          if (error && error.status === 409) {
+            hints.push(`Der Entwurf in „${fromBranch}“ wurde inzwischen in einem anderen Tab geändert und behalten.`);
+          } else {
+            hints.push(`Der alte Entwurf in „${fromBranch}“ konnte nicht verworfen werden (${StudioUI.germanError(error)}); bitte dort verwerfen, nicht erneut speichern.`);
+          }
+        }
       }
     } else if (already || result.revision_id === base) {
       // the same content as the head: the server keeps a draft on that head (#1733), and after
@@ -3286,10 +3478,15 @@ async function commitRevision(branch = state.branch, note = "") {
       try {
         const found = await api(`/api/decks/${encodeURIComponent(deckId)}/branches/${encodeURIComponent(branch)}/draft`);
         if (found.draft && found.draft.base_revision_id === base && cardsKey(found.draft.cards) === cardsKey(cards)) {
-          await api(`/api/decks/${encodeURIComponent(deckId)}/branches/${encodeURIComponent(branch)}/draft`, "DELETE");
+          await api(draftDeleteUrl(deckId, branch, found.draft.updated_at), "DELETE");
         }
       } catch (error) {
-        hints.push(`Der unveränderte Entwurf konnte nicht verworfen werden (${StudioUI.germanError(error)}).`);
+        if (error && error.status === 409) {
+          keepConflict = true;
+          hints.push("Entwurf wurde inzwischen in einem anderen Tab geändert und behalten.");
+        } else {
+          hints.push(`Der unveränderte Entwurf konnte nicht verworfen werden (${StudioUI.germanError(error)}).`);
+        }
       }
     }
     const where = ` in Variante „${branch}“`;
@@ -3299,7 +3496,7 @@ async function commitRevision(branch = state.branch, note = "") {
     // the list now in the editor may differ from the one saved (an edit made while the save was
     // on its way, or a list loaded meanwhile): that is an unsaved draft on the NEW base, never saved
     state.dirty = state.changeSeq !== seq || cardsKey(entries()) !== cardsKey(cards);
-    state.draftUpdatedAt = ""; state.draftConflict = false; state.needsDraftPut = state.dirty;
+    state.draftUpdatedAt = ""; state.draftConflict = keepConflict; state.needsDraftPut = state.dirty;
     rememberVariant();
     await loadDecks(); renderHeader(); renderSaveState(); toast([done, ...hints].join(" "));
     if (state.dirty) syncDraft();
@@ -3335,6 +3532,8 @@ function openNewBranchModal() {
 }
 async function showHistory() {
   const rows = await api(`/api/decks/${encodeURIComponent(state.deckId)}/history`);
+  const mainRow = rows.find((item) => item.branch === "main");
+  const historyBaseRev = (mainRow && mainRow.revision_id) || state.baseRevision;
   const box = $("modal-box"); box.className = "plain"; box.replaceChildren(h("h2", {}, "Verlauf"),
     h("div", { class: "table-wrap" }, h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Gespeichert"), h("th", {}, "Variante"), h("th", { class: "num" }, "Karten"), h("th", {}, "Notiz"), h("th", {}, ""))),
       h("tbody", {}, rows.map((row) => h("tr", {},
@@ -3344,7 +3543,14 @@ async function showHistory() {
         h("td", {}, row.note),
         h("td", {}, h("div", { class: "actions" },
           h("button", { type: "button", class: "small", onclick: async () => { const revision = await api(`/api/revisions/${encodeURIComponent(row.revision_id)}`); await ensureUnownedLoadedFor(revision.cards); useCards(revision.cards); closeModal(); changed(); toast("Alter Stand geladen. Er wird erst mit Speichern zum aktuellen Stand."); } }, "Laden"),
-          h("button", { type: "button", class: "small", onclick: () => { state.diffBaseRev = row.revision_id; state.tab = "diff"; closeModal(); renderDeck(); } }, "Vergleichen")))))))),
+          h("button", { type: "button", class: "small", onclick: () => { state.diffBaseRev = row.revision_id; state.tab = "diff"; closeModal(); renderDeck(); } }, "Vergleichen"),
+          h("button", {
+            type: "button",
+            class: "small",
+            disabled: !historyBaseRev || row.revision_id === historyBaseRev,
+            title: !historyBaseRev || row.revision_id === historyBaseRev ? "Basis und Variante müssen zwei verschiedene Stände sein" : "Diesen Stand im gepaarten Vergleichsdialog als Variante vorfüllen",
+            onclick: () => { closeModal(); openPairedWithPreset(historyBaseRev, row.revision_id); },
+          }, "Als Variante testen")))))))),
     h("div", { id: "deck-series-slot" }),
     h("div", { id: "experiment-slot" }),
     h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen")));

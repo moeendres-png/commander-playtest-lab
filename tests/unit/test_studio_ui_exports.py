@@ -36,9 +36,15 @@ ROOT = Path(__file__).resolve().parents[2]
 STATIC = ROOT / "src" / "commander_lab" / "studio" / "static"
 UI = STATIC / "ui.js"
 
-_USE = re.compile(r"\bStudioUI\.([A-Za-z_$][\w$]*)")
-_BRACKET = re.compile(r"\bStudioUI\s*\[")
-_DESTRUCTURE = re.compile(r"\{([^{}]*)\}\s*=\s*StudioUI\b")
+_USE = re.compile(r"\b(?:(?:window|globalThis)\s*\??\.\s*)?StudioUI\s*\??\.\s*([A-Za-z_$][\w$]*)")
+_BRACKET = re.compile(
+    r"\b(?:(?:window|globalThis)\s*\??\.\s*)?StudioUI\s*(?:\?\.\s*)?\["
+    r"|\b(?:window|globalThis)\s*\[\s*[\"']StudioUI[\"']\s*\]"
+)
+_DESTRUCTURE = re.compile(r"\{([^{}]*)\}\s*=\s*(?:(?:window|globalThis)\s*\??\.\s*)?StudioUI\b")
+_ALIAS = re.compile(
+    r"\b[A-Za-z_$][\w$]*\s*=(?!=)\s*(?:(?:window|globalThis)\s*\??\.\s*)?StudioUI\b(?!\s*\??\.)"
+)
 
 
 def _exports_from_source() -> set[str]:
@@ -51,18 +57,25 @@ def _exports_from_source() -> set[str]:
     return names
 
 
+def _scan_code(code: str, filename: str) -> set[str]:
+    """Names read from ``StudioUI`` in one JS snippet (comments cut out)."""
+    stripped = re.sub(r"/\*.*?\*/", "", code, flags=re.DOTALL)
+    stripped = re.sub(r"^\s*//.*$", "", stripped, flags=re.MULTILINE)
+    names = set(_USE.findall(stripped))
+    for group in _DESTRUCTURE.findall(stripped):
+        names |= {p.split(":")[0].strip() for p in group.split(",") if p.strip()}
+    assert not _BRACKET.search(stripped), f"{filename}: StudioUI[...] hides a use from this guard"
+    assert not _ALIAS.search(stripped), f"{filename}: aliasing StudioUI hides uses from this guard"
+    return names
+
+
 def _uses() -> dict[str, set[str]]:
     """File -> names it reads from ``StudioUI`` (comments cut out)."""
     result: dict[str, set[str]] = {}
     for path in sorted(STATIC.glob("*.js")):
         if path == UI:
             continue
-        code = re.sub(r"/\*.*?\*/", "", path.read_text(encoding="utf-8"), flags=re.DOTALL)
-        code = re.sub(r"^\s*//.*$", "", code, flags=re.MULTILINE)
-        names = set(_USE.findall(code))
-        for group in _DESTRUCTURE.findall(code):
-            names |= {p.split(":")[0].strip() for p in group.split(",") if p.strip()}
-        assert not _BRACKET.search(code), f"{path.name}: StudioUI[...] hides a use from this guard"
+        names = _scan_code(path.read_text(encoding="utf-8"), path.name)
         if names:
             result[path.name] = names
     return result
@@ -80,12 +93,42 @@ def test_every_studioui_name_used_by_a_page_is_exported_by_ui_js() -> None:
 
 
 def test_the_page_scan_sees_a_missing_export() -> None:
-    """The check above is not vacuous: a use that ui.js does not export is reported."""
-    code = "const x = StudioUI.nope(1); const { num, alsoNope } = StudioUI;"
-    names = set(_USE.findall(code))
-    for group in _DESTRUCTURE.findall(code):
-        names |= {p.strip() for p in group.split(",") if p.strip()}
-    assert names - _exports_from_source() == {"nope", "alsoNope"}
+    """The check above is not vacuous: a use that ui.js does not export is reported, including
+    optional chaining, window/globalThis prefixes, renamed destructuring, bracket access and
+    aliasing."""
+    code = (
+        "const x = StudioUI.nope(1); "
+        "const y = StudioUI?.optNope(2); "
+        "const z = window.StudioUI.winNope(3); "
+        "const g = globalThis?.StudioUI?.globNope(4); "
+        "const { num: fmt, alsoNope: renamed } = StudioUI; "
+        "const { kids, winDestr } = window.StudioUI;"
+    )
+    names = _scan_code(code, "<snippet>")
+    assert names - _exports_from_source() == {
+        "nope",
+        "optNope",
+        "winNope",
+        "globNope",
+        "alsoNope",
+        "winDestr",
+    }
+    assert {"num", "kids"} <= names
+    for hidden in (
+        'StudioUI["kids"]',
+        'window["StudioUI"]',
+        "globalThis['StudioUI']",
+        "window.StudioUI['kids']",
+    ):
+        with pytest.raises(AssertionError, match="hides a use"):
+            _scan_code(f"const x = {hidden};", "<bracket>")
+    for aliased in (
+        "const U = StudioUI;",
+        "let U = window.StudioUI;",
+        "var U = globalThis?.StudioUI;",
+    ):
+        with pytest.raises(AssertionError, match="aliasing StudioUI"):
+            _scan_code(aliased, "<alias>")
 
 
 def _node() -> str:

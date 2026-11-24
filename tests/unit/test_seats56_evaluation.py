@@ -122,15 +122,28 @@ def test_the_shipped_lock_is_read_from_the_module_and_refuses_what_it_does_not_r
 
 def test_the_pair_sd_follows_the_base_win_rate_at_five_and_six_and_stays_at_four() -> None:
     assert paired_series.planning_pair_sd(4) == 0.63
-    assert paired_series.planning_pair_sd(2) == paired_series.planning_pair_sd(3) == 0.63
-    # 0.63 / sqrt(2 * 1/4 * 3/4) * sqrt(2 * p * (1 - p)), hand-computed
+    # 0.63 / sqrt(2 * 1/4 * 3/4) * sqrt(2 * p * (1 - p)), hand-computed (#1661, #1757)
+    assert paired_series.planning_pair_sd(2) == 0.7275
+    assert paired_series.planning_pair_sd(3) == 0.6859
     assert paired_series.planning_pair_sd(5) == 0.582
     assert paired_series.planning_pair_sd(6) == 0.5422
-    assert paired_series.planning_pair_sd(6) < paired_series.planning_pair_sd(5) < 0.63
+    assert (
+        paired_series.planning_pair_sd(6)
+        < paired_series.planning_pair_sd(5)
+        < 0.63
+        < paired_series.planning_pair_sd(3)
+        < paired_series.planning_pair_sd(2)
+    )
 
 
 @pytest.mark.parametrize(
-    ("seats", "pct", "half", "games"), [(5, 20.0, 4.0, 383), (6, 16.7, 3.33, 480)]
+    ("seats", "pct", "half", "games"),
+    [
+        (2, 50.0, 10.0, 93),
+        (3, 33.3, 6.67, 189),
+        (5, 20.0, 4.0, 383),
+        (6, 16.7, 3.33, 480),
+    ],
 )
 def test_the_wilson_games_give_plus_minus_twenty_percent_of_one_over_n(
     seats: int, pct: float, half: float, games: int
@@ -143,8 +156,9 @@ def test_the_wilson_games_give_plus_minus_twenty_percent_of_one_over_n(
     # the fewest games: the independent Wilson half width holds at n and not at n - 1
     assert _independent_wilson_half_width(p, games) <= 0.2 * p
     assert _independent_wilson_half_width(p, games - 1) > 0.2 * p
-    # close to the normal approximation 1.96^2 * p(1-p) / (0.2 p)^2 (384.2 at 5, 480.2 at 6)
-    assert abs(games - 1.96**2 * p * (1 - p) / (0.2 * p) ** 2) < 3
+    # close to the normal approximation 1.96^2 * p(1-p) / (0.2 p)^2
+    # (96.04 at 2, 192.08 at 3, 384.16 at 5, 480.20 at 6; Wilson shrinks slightly vs normal)
+    assert abs(games - 1.96**2 * p * (1 - p) / (0.2 * p) ** 2) < 4
     assert f"Zufallsbasis 1/{seats}" in str(base["basis"])
 
 
@@ -179,6 +193,70 @@ def test_the_plan_at_five_and_six_seats_is_built_on_one_over_n(seats: int, sd: f
     # the table size never comes from the seats per seed: one tested seat, still 1/N
     fixed = paired_series.planned_detectable_difference_pp(10, 1, seats)
     assert fixed["assumptions"]["pair_sd"] == sd  # type: ignore[index]
+
+
+@pytest.mark.parametrize(
+    ("seats", "sd", "exact", "exact_3d", "pct", "half", "games"),
+    [
+        (2, 0.7275, 0.7071, "0.707", 50.0, 10.0, 93),
+        (3, 0.6859, 0.6667, "0.667", 33.3, 6.67, 189),
+    ],
+)
+def test_the_plan_and_api_at_two_and_three_seats_use_one_over_n_and_keep_duration_unknown(
+    lab: dict[str, object],  # noqa: F811
+    seats: int,
+    sd: float,
+    exact: float,
+    exact_3d: str,
+    pct: float,
+    half: float,
+    games: int,
+) -> None:
+    pairs = 20
+    plan = paired_series.planned_detectable_difference_pp(pairs, seats, seats)
+    four = paired_series.planned_detectable_difference_pp(pairs, seats, 4)
+    seeds = math.ceil(pairs / seats)
+    t95, t80 = difference_quantiles(seeds - 1)
+    expected = (t95 + t80) * sd / math.sqrt(pairs) * 100
+    assert plan["detectable_pp_low"] == round(expected, 1)
+    # 1/2 and 1/3 have larger variance than 1/4: larger detectable diff and more pairs needed
+    assert float(str(plan["detectable_pp_low"])) > float(str(four["detectable_pp_low"]))
+    assert float(str(plan["detectable_pp_high"])) > float(str(four["detectable_pp_high"]))
+    assert int(str(plan["pairs_needed_low"])) > int(str(four["pairs_needed_low"]))
+    assert int(str(plan["pairs_needed_high"])) > int(str(four["pairs_needed_high"]))
+    assumptions = plan["assumptions"]
+    assert isinstance(assumptions, dict)
+    assert assumptions["pair_sd"] == sd
+    assert assumptions["pair_sd_independent_exact"] == exact
+    assert assumptions["pair_sd_win_rate_pct"] == pct
+    assert f"1/{seats}" in str(assumptions["pair_sd_basis"])
+    assert exact_3d in str(assumptions["pair_sd_basis"])
+    baseline = plan["baseline"]
+    assert isinstance(baseline, dict)
+    assert baseline["applies_to_plan"] is True
+    assert baseline["win_rate_pct"] == pct
+    assert baseline["half_width_pp"] == half
+    assert baseline["games_needed_wilson"] == games
+    # fixed single seat still uses table_size 1/N
+    fixed = paired_series.planned_detectable_difference_pp(10, 1, seats)
+    assert fixed["assumptions"]["pair_sd"] == sd  # type: ignore[index]
+    # HTTP endpoint GET /api/simulations/paired-plan
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    resp = client.get(
+        f"/api/simulations/paired-plan?budget_pairs={pairs}&table_size={seats}",
+        headers=HEADERS,
+    )
+    assert resp.status_code == 200, resp.text
+    api_plan = resp.json()
+    assert api_plan["assumptions"]["pair_sd"] == sd
+    assert api_plan["assumptions"]["pair_sd_independent_exact"] == exact
+    assert api_plan["baseline"]["applies_to_plan"] is True
+    assert api_plan["baseline"]["games_needed_wilson"] == games
+    assert api_plan["detectable_pp_low"] == plan["detectable_pp_low"]
+    assert api_plan["pairs_needed_low"] == plan["pairs_needed_low"]
+    effort = api_plan["table"]["effort"]
+    assert effort["duration_known"] is False and effort["duration_kind"] == "unknown"
 
 
 # -- duration: a rough orientation from table A, never a floor; 2/3 stay UNKNOWN -----------
@@ -413,8 +491,8 @@ def test_the_series_figure_carries_its_table_size_and_two_sizes_never_share_a_co
 def test_findings_name_their_table_and_holm_never_crosses_table_sizes() -> None:
     five = _finding("c5", table_hash="t5")
     six = _finding("c6", table_hash="t6", first_seed=600)
-    five.entry["table_size"] = 5
-    six.entry["table_size"] = 6
+    five.entry.update(table_size=5, table_size_check="consistent")
+    six.entry.update(table_size=6, table_size_check="consistent")
     got = _assess(five, six)
     assert got["c5"]["tisch_sitze"] == 5 and got["c6"]["tisch_sitze"] == 6
     assert got["c5"]["tisch_text"] == "Tisch mit 5 Sitzen (Zufallsbasis 1/5)"
@@ -538,6 +616,51 @@ def test_the_plan_dialog_names_one_over_n_and_the_wilson_games(
     assert "mindestens" not in est and "n = 10/10" in est
 
 
+@pytest.mark.parametrize(
+    ("seats", "games", "half", "pct", "sd_de", "exact_de"),
+    [
+        (2, "93", "10", "50", "0,73", "0,707"),
+        (3, "189", "6,67", "33,3", "0,69", "0,667"),
+    ],
+)
+def test_the_plan_dialog_at_two_and_three_seats_names_one_over_n_and_unknown_duration(
+    seats: int, games: str, half: str, pct: str, sd_de: str, exact_de: str
+) -> None:
+    plan = json.dumps(paired_series.table_plan(seats, seats * seats))
+    four = json.dumps(paired_series.table_plan(4, 40))
+    out = _run_node(
+        _UI
+        + "load('paired.js');\n"
+        + f"const plan = {plan}; const four = {four};\n"
+        + f"""process.stdout.write(JSON.stringify({{
+  ref: planPairedReference(plan),
+  lines: planPairedLines(plan, 0),
+  four: planPairedLines(four, 0),
+  est: estimatePairedText({seats * seats}, 3, {seats}),
+}}));
+"""
+    )
+    ref = str(out["ref"])
+    lines, four_lines = out["lines"], out["four"]
+    assert isinstance(lines, list) and isinstance(four_lines, list)
+    expected_ref = (
+        f"Referenz: Zufallsbasis 1/{seats} = {pct} % bei {seats} gleich starken Plätzen; ein "
+        f"einzelner Siegrate-Anteil braucht {games} Partien für ±{half} pp (±20 % relativ"
+    )
+    assert expected_ref in ref
+    assert expected_ref in lines[1]
+    assert "bei 25 % rund 800 Partien" not in ref
+    assert "bei 25 % rund 800 Partien" not in lines[1]
+    assert "25 %" not in lines[1] and "25 %" not in lines[2]
+    assert f"Paar-Streuung {sd_de}" in lines[2]
+    assert f"exakt {exact_de}" in lines[2]
+    assert f"{pct} % Siegrate = Zufallsbasis 1/{seats}" in lines[2]
+    assert "rund 800 Partien für ±3 pp" in four_lines[1]  # four seats: unchanged
+    est = str(out["est"])
+    assert est.startswith("Dauer: unbekannt (UNKNOWN).")
+    assert f"Tisch mit {seats} Sitzen ist kein Durchsatz gemessen (n = 0 Partien)" in est
+
+
 # -- end to end: a five- and a six-seat experiment of one deck, behind the lifted lock --------
 
 
@@ -583,12 +706,19 @@ def test_five_and_six_seat_experiments_reach_the_deck_builder_as_two_cohorts(
         sid = str(started[seats]["series_id"])
         assert by_id[sid]["table_size"] == seats
         assert befunde[sid]["tisch_sitze"] == seats
-        # the table condition is met (proven by the played games); the level is then exactly
-        # R1 when the result is evaluable (the test bridge can give zero spread: no level)
+        # the controlled bridge deterministically yields variant wins (+1.0 per pair): 6 seeds give
+        # p = 0.03125 (decided -> R1), while 5 seeds give p = 0.0625 and zero spread (no y_pp)
         assert by_id[sid]["table_size_check"] == "consistent"
         met = {c["name"]: c["erfuellt"] for c in befunde[sid]["bedingungen"]}
         assert met["Tischgröße an den gespielten Partien belegt"] is True
-        assert befunde[sid]["stufe"] == ("R1" if met["Ergebnis auswertbar"] else None)
+        if seats == 6:
+            assert met["Ergebnis auswertbar"] is True
+            assert befunde[sid]["stufe"] == "R1"
+            assert befunde[sid]["urteil"] == maturity.BETTER
+        else:
+            assert met["Ergebnis auswertbar"] is False
+            assert befunde[sid]["stufe"] is None
+            assert befunde[sid]["urteil"] == maturity.NOT_EVALUABLE
         assert f"Tisch mit {seats} Sitzen" in zahlen[f"series.{sid}.difference_pp"]["kohorte"]
         detail = client.get(
             f"/api/experiments/{started[seats]['experiment_id']}", headers=HEADERS
@@ -710,19 +840,33 @@ def test_the_history_names_a_mismatch_as_unknown() -> None:
 load('deckseries.js');
 const bare = { stufe: null, stufe_text: 'kein Reifegrad', urteil_text: 'x', n: 1, N: 1, bezug: 'Paare',
   stand: { bezug: 'aktuell', text: 'Befund' }, empfehlungsfaehig: false, empfehlungsfaehig_gruende: [], hinweise: [] };
-process.stdout.write(JSON.stringify({ v: [deckSeriesTableText(5, 'mismatch'), deckSeriesTableText(5, 'consistent'), deckSeriesTableText(null, 'unknown'),
-  deckSeriesTableText(null, 'unreadable'), deckSeriesTableText(6, 'unobserved'), deckSeriesTableText(4, 'consistent')],
-  bare: text(deckSeriesEvidence(h, bare)) }));
+const legacyItem = { series_id: 'old', base_ref: 'rev-a', variant_ref: 'rev-b', created_at: '2026-11-22T10:00:00', pod: 'precon',
+  table_size: 4, table_size_check: 'consistent', table_size_source: 'aus den gespielten Partien', status: 'completed',
+  status_text: 'abgeschlossen', counts_as_result: true, pairs_planned: 25, pairs_completed: 25, pairs_attempted: 25,
+  difference_pp: 4, difference_ci95_pp: null, decision_ci_pp: null, decision_level_pct: null, seeds: [1], tested_seats: [0],
+  seats_planned: false, bridge_jar_sha256s: [], bridge_qualification_states: [], covered_by_sealed_epoch: null,
+  pilots: [], slot_alignment_state: 'aligned', stop_reason: null };
+const legacyCells = deckSeriesCells(h, legacyItem, 'base', { open: () => {} }, new Map(), null, bare).map(text);
+const legacyDiff = text(deckSeriesDiffEvidence(h, { series: [legacyItem], reifegrad: { befunde: { old: bare } } }, 'rev-a', 'rev-b'));
+process.stdout.write(JSON.stringify({ v: [deckSeriesTableText(5, 'mismatch'), deckSeriesTableText(5, 'consistent', 'aus Plan und gespielten Partien'),
+  deckSeriesTableText(4, 'consistent', 'aus den gespielten Partien'), deckSeriesTableText(null, 'unknown'),
+  deckSeriesTableText(null, 'unreadable'), deckSeriesTableText(6, 'unobserved', 'aus den gespielten Partien'), deckSeriesTableText(4, 'consistent')],
+  bare: text(deckSeriesEvidence(h, bare)), legacyCells, legacyDiff }));
 """
     )
     assert out["v"] == [
         "Tischgröße unbekannt (Plan und gespielte Partien weichen ab)",
         "Tisch mit 5 Sitzen",
+        "Tisch mit 4 Sitzen (aus den gespielten Partien)",
         "Tischgröße unbekannt",
         "Tischgröße unbekannt (Sitzzahl der gespielten Partien nicht lesbar)",
         "Tisch mit 6 Sitzen (geplant, nicht an Partien geprüft)",
         "Tisch mit 4 Sitzen",
     ]
+    assert any(
+        "Tisch mit 4 Sitzen (aus den gespielten Partien)" in str(c) for c in out["legacyCells"]
+    )  # type: ignore[union-attr]
+    assert "Tisch mit 4 Sitzen (aus den gespielten Partien)" in str(out["legacyDiff"])
     # a finding without a table text is unknown, never four seats
     assert str(out["bare"]).endswith("Paare · Tischgröße unbekanntBefundnicht empfehlungsfähig: ")
 
@@ -788,11 +932,17 @@ def test_a_table_the_played_games_do_not_prove_gives_no_maturity_and_stays_a_pla
     good.entry.update(table_size=5, table_size_check="consistent")
     got = _assess(bad, good)
     assert got["bad"]["stufe"] is None and got["bad"]["belegt"] is False
+    assert got["bad"]["urteil"] == maturity.NOT_EVALUABLE
     assert not str(got["bad"]["urteil_text"]).startswith("belegt")
+    assert "Hinweis" not in str(got["bad"]["urteil_text"])
     reason = maturity.TABLE_CHECK_TEXT[check]
+    assert reason in str(got["bad"]["urteil_text"])
+    assert got["bad"]["holm_p"] is None and got["bad"]["effektives_p"] is None
+    assert not any("Holm-Familie" in str(n) for n in got["bad"]["hinweise"])  # type: ignore[union-attr]
     assert reason in got["bad"]["empfehlungsfaehig_gruende"]  # type: ignore[operator]
     unmet = {c["name"]: c["grund"] for c in got["bad"]["bedingungen"] if not c["erfuellt"]}  # type: ignore[attr-defined,union-attr]
     assert unmet["Tischgröße an den gespielten Partien belegt"] == reason
+    assert "Holm angewandt" in unmet
     # review round 3: the unproven member stays in the family as a placeholder (p = 1); the
     # family keeps its size, so 6:0 (p = 0.031) is withheld at Holm 2 * p > 0.05
     notes = got["good"]["hinweise"]
@@ -800,6 +950,38 @@ def test_a_table_the_played_games_do_not_prove_gives_no_maturity_and_stays_a_pla
     assert any(str(n).startswith("Holm-Familie: 2 Bestätigung(en)") for n in notes), notes
     assert "Ergebnis durch Holm zurückgehalten" in notes
     assert got["good"]["belegt"] is False and got["good"]["stufe"] == "R1"
+
+
+def test_a_mismatch_confirmation_with_12_to_0_is_not_evaluable_never_a_hint() -> None:
+    mismatch = _finding("bad12", table_hash="t5", wins=12)
+    mismatch.entry.update(table_size=None, table_size_check="mismatch")
+    got = _assess(mismatch)["bad12"]
+    assert got["stufe"] is None and got["belegt"] is False
+    assert got["urteil"] == maturity.NOT_EVALUABLE
+    assert "Hinweis" not in str(got["urteil_text"])
+    assert maturity.TABLE_CHECK_TEXT["mismatch"] in str(got["urteil_text"])
+    assert got["holm_p"] is None and got["effektives_p"] is None
+    assert not any("Holm-Familie" in str(n) for n in got["hinweise"])  # type: ignore[union-attr]
+
+
+def test_observed_table_sizes_rejects_a_pod_with_zero_pairs() -> None:
+    zero_only = {
+        "result": {
+            "pods": [{"opponents": ["o1", "o2", "o3", "o4"], "pairs": 0}],
+            "pairs_completed": 0,
+        }
+    }
+    assert paired_series.observed_table_sizes(zero_only) == ([], True)
+    mixed = {
+        "result": {
+            "pods": [
+                {"opponents": ["o1", "o2", "o3", "o4"], "pairs": 5},
+                {"opponents": ["o1", "o2", "o3", "o4", "o5"], "pairs": 0},
+            ],
+            "pairs_completed": 5,
+        }
+    }
+    assert paired_series.observed_table_sizes(mixed) == ([5], True)
 
 
 def test_a_cancelled_confirmation_without_pairs_keeps_the_family_at_two() -> None:
@@ -830,12 +1012,17 @@ def test_the_finding_table_text_never_claims_a_cohort_without_proof() -> None:
         "tisch_sitze": None,
         "tisch_text": "Tisch mit 5 Sitzen (geplant, nicht an Partien geprüft)",
     }
+    for check in (None, "unknown", "unobserved", "mismatch", "unreadable"):
+        fields = maturity.table_fields(5, check)
+        assert fields["tisch_sitze"] is None, check
+        assert "Zufallsbasis" not in str(fields["tisch_text"]), check
     assert maturity.table_fields(None, "mismatch")["tisch_text"] == (
         "Tischgröße unbekannt: Plan und gespielte Partien weichen ab"
     )
-    assert maturity.table_fields(6, "consistent")["tisch_text"] == (
-        "Tisch mit 6 Sitzen (Zufallsbasis 1/6)"
-    )
+    assert maturity.table_fields(6, "consistent") == {
+        "tisch_sitze": 6,
+        "tisch_text": "Tisch mit 6 Sitzen (Zufallsbasis 1/6)",
+    }
 
 
 def test_the_experiment_list_names_the_table_of_each_row() -> None:

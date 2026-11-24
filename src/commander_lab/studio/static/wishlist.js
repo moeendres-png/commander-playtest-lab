@@ -293,41 +293,46 @@ const StudioWishlist = (() => {
   }
 
   // Budget filter: a per-card upper limit, nothing cumulative. Rows without a value (unknown,
-  // or owned) are hidden while the filter is on and counted apart.
+  // owned or not in the saved deck) are hidden while the filter is on and counted apart.
   function filterTamBudget(rows, maxCents) {
     const limit = validCents(maxCents);
-    if (limit === null) return { rows: [...(rows || [])], hiddenOver: 0, hiddenUnknown: 0, hiddenOwned: 0, active: false };
+    if (limit === null) return { rows: [...(rows || [])], hiddenOver: 0, hiddenUnknown: 0, hiddenOwned: 0, hiddenAbsent: 0, active: false };
     let hiddenOver = 0;
     let hiddenUnknown = 0;
     let hiddenOwned = 0;
+    let hiddenAbsent = 0;
     const kept = [];
     for (const row of rows || []) {
       if (row.status === "owned") hiddenOwned += 1;
+      else if (row.status === "absent") hiddenAbsent += 1;
       else if (row.cents === null) hiddenUnknown += 1;
       else if (row.cents > limit) hiddenOver += 1;
       else kept.push(row);
     }
-    return { rows: kept, hiddenOver, hiddenUnknown, hiddenOwned, active: true };
+    return { rows: kept, hiddenOver, hiddenUnknown, hiddenOwned, hiddenAbsent, active: true };
   }
 
   // Sum of the shown rows (value x missing copies); null when no shown row has a value. Cards
-  // already owned (in any printing) are counted apart: they carry no value and are no gap.
+  // already owned (in any printing) or not in the saved deck are counted apart: they carry no
+  // value and are no gap.
   function summarizeTamRows(rows) {
     let sum = 0;
     let priced = 0;
     let owned = 0;
+    let absent = 0;
     let stale = 0;
     const byBasis = { eingetragen: 0, preisfuehrer: 0, naeherung: 0 };
     for (const row of rows || []) {
       if (row.status === "owned") { owned += 1; continue; }
+      if (row.status === "absent") { absent += 1; continue; }
       if (row.stale) stale += 1;
       if (row.cents === null) continue;
       priced += 1;
       byBasis[row.basis === "preisfuehrer-trend" ? "preisfuehrer" : row.basis] += 1;
       sum += row.cents * Math.max(1, row.missing);
     }
-    const total = (rows || []).length - owned;
-    return { sumCents: priced ? sum : null, priced, without: total - priced, total, owned, stale, entered: byBasis.eingetragen, guide: byBasis.preisfuehrer, approx: byBasis.naeherung };
+    const total = (rows || []).length - owned - absent;
+    return { sumCents: priced ? sum : null, priced, without: total - priced, total, owned, absent, stale, entered: byBasis.eingetragen, guide: byBasis.preisfuehrer, approx: byBasis.naeherung };
   }
 
   function tamSumText(summary) {
@@ -341,6 +346,7 @@ const StudioWishlist = (() => {
     ];
     if (summary.stale) parts.push(`${summary.stale} veraltete Einträge (älter als 14 Tage) nicht gezählt`);
     if (summary.owned) parts.push(`${summary.owned} im Besitz (kein Preis)`);
+    if (summary.absent) parts.push(`${summary.absent} nicht im gespeicherten Deck (kein Preis)`);
     return parts.join(" · ");
   }
 
@@ -456,7 +462,7 @@ const StudioWishlist = (() => {
           ? h("p", { class: "note", id: "tam-zukauf-absent" }, `${absent} Karten stehen nicht in der gespeicherten Deckliste und haben keinen Preis; erst speichern.`)
           : "",
         filtered.active
-          ? h("p", { class: "note", id: "tam-zukauf-hidden" }, `Budgetfilter: ${filtered.hiddenOver} Karten über dem Höchstwert, ${filtered.hiddenUnknown} Karten ohne Preis und ${filtered.hiddenOwned} im Besitz ausgeblendet.`)
+          ? h("p", { class: "note", id: "tam-zukauf-hidden" }, `Budgetfilter: ${filtered.hiddenOver} Karten über dem Höchstwert, ${filtered.hiddenUnknown} Karten ohne Preis${filtered.hiddenAbsent ? `, ${filtered.hiddenAbsent} nicht im gespeicherten Deck` : ""} und ${filtered.hiddenOwned} im Besitz ausgeblendet.`)
           : "",
         h("div", { class: "table-wrap" },
           h("table", { id: "tam-zukauf-table" },

@@ -23,6 +23,7 @@ engine pin.
 
 from __future__ import annotations
 
+import copy
 import threading
 from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
@@ -53,6 +54,16 @@ from .card_outcomes import (
     table_size_of,
 )
 from .games import games_folder
+from .simulations import (
+    CONSISTENCY_ORIGIN_ENGINE_PILOT_DEPENDENT,
+    CONSISTENCY_ORIGIN_ENGINE_PILOT_INDEPENDENT,
+    CONSISTENCY_ORIGIN_EXACT,
+    _fmt_win_count,
+    build_consistency_table,
+    build_validity_block,
+    compute_seat_curve,
+    wilson_score_interval,
+)
 
 if TYPE_CHECKING:
     from .game_pool import GamePool
@@ -147,6 +158,8 @@ class PairedComparison(TypedDict):
     looks_used: int
     pairs_played: int
     execution: dict[str, object]
+    validity_block: dict[str, object]
+    consistency_table: dict[str, object]
     warnings: list[str]
     pairs: list[PairRecord]
 
@@ -342,6 +355,152 @@ def _check_provenance(
     return provenance, warnings
 
 
+def _build_paired_consistency_table(
+    *,
+    pairs_completed: int,
+    pairs_censored: int,
+    games_failed_base: int,
+    games_failed_variant: int,
+    seeds_completed_count: int,
+    seeds_attempted_count: int,
+    base_wins: float,
+    variant_wins: float,
+    base_rate: float | None,
+    variant_rate: float | None,
+    variant_only_wins: int,
+    baseline_only_wins: int,
+    discordant_share: float | None,
+) -> dict[str, object]:
+    total_pairs_considered = pairs_completed + pairs_censored
+    seeds_denom = max(seeds_attempted_count, seeds_completed_count)
+    base_ci = (
+        wilson_score_interval(base_wins, pairs_completed, confidence=0.95)
+        if pairs_completed > 0
+        else None
+    )
+    variant_ci = (
+        wilson_score_interval(variant_wins, pairs_completed, confidence=0.95)
+        if pairs_completed > 0
+        else None
+    )
+    discordant_count = variant_only_wins + baseline_only_wins
+    rows: list[dict[str, object]] = [
+        {
+            "metric_id": "seed_blocks_completed",
+            "label": "Seed-Blöcke (gepaart & sitzrotiert)",
+            "origin_class": CONSISTENCY_ORIGIN_EXACT,
+            "n": seeds_completed_count,
+            "N": seeds_denom,
+            "n_of_N": f"{seeds_completed_count}/{seeds_denom}" if seeds_denom > 0 else "unbekannt",
+            "value": round(seeds_completed_count / seeds_denom, 4) if seeds_denom > 0 else None,
+            "display": (
+                f"{seeds_completed_count}/{seeds_denom} Seed-Blöcke"
+                if seeds_denom > 0
+                else "unbekannt"
+            ),
+            "is_time_to_event": False,
+        },
+        {
+            "metric_id": "pairs_completed_vs_censored",
+            "label": "Paare abgeschlossen vs. zensiert/fehlgeschlagen",
+            "origin_class": CONSISTENCY_ORIGIN_ENGINE_PILOT_INDEPENDENT,
+            "n": pairs_completed,
+            "N": total_pairs_considered,
+            "n_of_N": (
+                f"{pairs_completed}/{total_pairs_considered}"
+                if total_pairs_considered > 0
+                else "unbekannt"
+            ),
+            "value": (
+                round(pairs_completed / total_pairs_considered, 4)
+                if total_pairs_considered > 0
+                else None
+            ),
+            "display": (
+                f"{pairs_completed}/{total_pairs_considered} abgeschlossen, "
+                f"{pairs_censored} zensiert "
+                f"(Fehler A: {games_failed_base}, B: {games_failed_variant})"
+                if total_pairs_considered > 0
+                else "unbekannt"
+            ),
+            "is_time_to_event": False,
+        },
+        {
+            "metric_id": "base_win_rate",
+            "label": "Basis-Siegrate A (95 %-Wilson-CI)",
+            "origin_class": CONSISTENCY_ORIGIN_ENGINE_PILOT_DEPENDENT,
+            "n": round(base_wins, 4),
+            "N": pairs_completed,
+            "n_of_N": f"{_fmt_win_count(base_wins)}/{pairs_completed}"
+            if pairs_completed > 0
+            else "unbekannt",
+            "value": round(base_rate, 4) if base_rate is not None else None,
+            "ci95": [base_ci[0], base_ci[1]] if base_ci is not None else None,
+            "display": (
+                f"{round(base_rate * 100.0, 1)} % [{round(base_ci[0] * 100.0, 1)} %; "
+                f"{round(base_ci[1] * 100.0, 1)} %]"
+                if base_rate is not None and base_ci is not None
+                else "unbekannt"
+            ),
+            "is_time_to_event": False,
+        },
+        {
+            "metric_id": "variant_win_rate",
+            "label": "Varianten-Siegrate B (95 %-Wilson-CI)",
+            "origin_class": CONSISTENCY_ORIGIN_ENGINE_PILOT_DEPENDENT,
+            "n": round(variant_wins, 4),
+            "N": pairs_completed,
+            "n_of_N": f"{_fmt_win_count(variant_wins)}/{pairs_completed}"
+            if pairs_completed > 0
+            else "unbekannt",
+            "value": round(variant_rate, 4) if variant_rate is not None else None,
+            "ci95": [variant_ci[0], variant_ci[1]] if variant_ci is not None else None,
+            "display": (
+                f"{round(variant_rate * 100.0, 1)} % [{round(variant_ci[0] * 100.0, 1)} %; "
+                f"{round(variant_ci[1] * 100.0, 1)} %]"
+                if variant_rate is not None and variant_ci is not None
+                else "unbekannt"
+            ),
+            "is_time_to_event": False,
+        },
+        {
+            "metric_id": "discordant_pairs",
+            "label": "Diskordante Paare (B vs. A)",
+            "origin_class": CONSISTENCY_ORIGIN_ENGINE_PILOT_DEPENDENT,
+            "n": discordant_count,
+            "N": pairs_completed,
+            "n_of_N": f"{discordant_count}/{pairs_completed}"
+            if pairs_completed > 0
+            else "unbekannt",
+            "value": round(discordant_share, 4) if discordant_share is not None else None,
+            "display": (
+                f"{discordant_count}/{pairs_completed} "
+                f"({variant_only_wins} B : {baseline_only_wins} A)"
+                if pairs_completed > 0
+                else "unbekannt"
+            ),
+            "is_time_to_event": False,
+        },
+    ]
+    return build_consistency_table(rows)
+
+
+def _winner_seats_of(game: GameExposure) -> list[int]:
+    """Return 0-based winning seat indices from ``winner_seats`` or seat win credits."""
+    raw = game.get("winner_seats")
+    if isinstance(raw, list):
+        return [int(s) for s in raw if isinstance(s, int)]
+    winners: list[int] = []
+    for seat_entry in game.get("seats") or []:
+        if not isinstance(seat_entry, Mapping):
+            continue
+        seat_idx = seat_entry.get("seat")
+        credit = seat_entry.get("win_credit")
+        if isinstance(seat_idx, int) and isinstance(credit, (int, float)) and credit > 0:
+            winners.append(seat_idx)
+    return winners
+
+
 def _summarize(
     pairs: Sequence[PairRecord],
     *,
@@ -353,6 +512,7 @@ def _summarize(
     exposures: Sequence[GameExposure],
     allow_mixed: bool,
     series: bool,
+    audit_data_folder: Path | str | None = None,
 ) -> tuple[PairedComparison, Answer | None]:
     """The comparison result over ``pairs`` and the decision at level ``alpha``.
 
@@ -433,6 +593,59 @@ def _summarize(
         for game in involved
     )
     pods: Counter[tuple[str, ...]] = Counter(tuple(pair["opponents"]) for pair in pairs)
+    resolved_table_size = sizes[0] if len(sizes) == 1 else None
+    seat_curve = compute_seat_curve(
+        [{"winner_seats": _winner_seats_of(game), "seed": game.get("seed")} for game in involved],
+        table_size=resolved_table_size,
+    )
+    pilot_fps = sorted(
+        {
+            str(game["pilot_fingerprint"]).strip()
+            for game in involved
+            if isinstance(game.get("pilot_fingerprint"), str)
+            and str(game["pilot_fingerprint"]).strip()
+        }
+    )
+    fp_value = ", ".join(pilot_fps) if pilot_fps else None
+    pods_labels = [
+        ", ".join(pod) for pod, _ in sorted(pods.items(), key=lambda kv: (-kv[1], kv[0])) if pod
+    ]
+    engine_ver = (
+        ", ".join(provenance["engine_commit"])
+        if provenance["engine_commit"]
+        else canonical_xmage_engine_pin()
+    )
+    omissions: Mapping[str, object] | None = None
+    if audit_data_folder is not None and pair_games:
+        from .pilot_audit import aggregate_series_omissions
+
+        omissions = aggregate_series_omissions(audit_data_folder, sorted(pair_games))
+    validity_block = build_validity_block(
+        seat_curve=seat_curve,
+        pilot_fingerprint=fp_value,
+        pods=pods_labels or None,
+        engine_version=engine_ver,
+        pilot_omissions=omissions,
+    )
+    seeds_completed = sorted({pair["seed"] for pair in pairs})
+    base_wins = sum(pair["base_credit"] for pair in pairs)
+    variant_wins = sum(pair["variant_credit"] for pair in pairs)
+    discordant_share_val = round((variant_only + baseline_only) / n, 6) if n else None
+    consistency_table = _build_paired_consistency_table(
+        pairs_completed=n,
+        pairs_censored=0,
+        games_failed_base=0,
+        games_failed_variant=0,
+        seeds_completed_count=len(seeds_completed),
+        seeds_attempted_count=len(seeds_completed),
+        base_wins=base_wins,
+        variant_wins=variant_wins,
+        base_rate=base_rate,
+        variant_rate=variant_rate,
+        variant_only_wins=variant_only,
+        baseline_only_wins=baseline_only,
+        discordant_share=discordant_share_val,
+    )
     result: PairedComparison = {
         "schema": SCHEMA,
         "data_class": DATA_CLASS,
@@ -467,7 +680,7 @@ def _summarize(
         "variant_only_wins": variant_only,
         "baseline_only_wins": baseline_only,
         "tied_pairs": n - variant_only - baseline_only,
-        "discordant_share": round((variant_only + baseline_only) / n, 6) if n else None,
+        "discordant_share": discordant_share_val,
         "discordant_share_if_independent": (
             None
             if base_rate is None or variant_rate is None
@@ -475,7 +688,7 @@ def _summarize(
         ),
         "sign_test_p_value": None if sign_p is None else round(sign_p, 6),
         "seeds": [],
-        "seeds_completed": sorted({pair["seed"] for pair in pairs}),
+        "seeds_completed": seeds_completed,
         "pods": [
             {"opponents": list(pod), "pairs": count}
             for pod, count in sorted(pods.items(), key=lambda kv: (-kv[1], kv[0]))
@@ -492,6 +705,8 @@ def _summarize(
         "looks_used": 1,
         "pairs_played": n,
         "execution": {},
+        "validity_block": validity_block,
+        "consistency_table": consistency_table,
         "warnings": warnings,
         "pairs": list(pairs),
     }
@@ -521,10 +736,12 @@ def compare_logs(
     pin — the recorded provenance of the paired games themselves is in
     ``engine_commits``.
 
-    The folder is read as it is (``load_exposures``): every log in it counts, also one a series
-    manifest does not name. The foreign-log rule of the series pool and journal (only games the
-    manifest names) does not apply to this folder comparison; that is a decision of #1660 (S1
-    Rest), not an omission. A comparison of a folder is not the record of one series.
+    Fail-closed series filtering (S1, #1660): delegated to :func:`card_outcomes.load_exposures`.
+    When ``games_dir`` contains a ``manifest.json``, logs whose ``game_id`` is not listed in that
+    manifest are excluded (``skipped_foreign``). When ``games_dir`` itself or any subdirectory of
+    ``games_dir / "series"`` has a ``DETERMINISM_VIOLATION`` or an unreadable/corrupt manifest or
+    journal, the affected games (or all games when a manifest itself cannot be read) are excluded
+    fail-closed (``skipped_determinism_violation``) and reported in ``warnings``.
     """
     if base_deck_id == variant_deck_id:
         raise ValueError("base and variant must be two different decks")
@@ -559,6 +776,16 @@ def compare_logs(
             f"{failed_variant} the variant deck; in logs mode they belong to no "
             "pair, so pairs_censored stays 0 — a skipped game is never scored"
         )
+    if report["skipped_foreign"]:
+        result["warnings"].append(
+            f"{report['skipped_foreign']} foreign log(s) not listed in the series manifest "
+            "were excluded"
+        )
+    if report["skipped_determinism_violation"]:
+        result["warnings"].append(
+            f"{report['skipped_determinism_violation']} log(s) from series with "
+            "DETERMINISM_VIOLATION or unreadable manifest/journal were excluded"
+        )
     if pairs:
         result["warnings"].append(
             "engine_pin names the current canonical pin; the paired games were "
@@ -567,6 +794,21 @@ def compare_logs(
     result["seeds"] = list(result["seeds_completed"])
     result["unpaired_base"] = unpaired_base
     result["unpaired_variant"] = unpaired_variant
+    result["consistency_table"] = _build_paired_consistency_table(
+        pairs_completed=result["pairs_completed"],
+        pairs_censored=result["pairs_censored"],
+        games_failed_base=failed_base,
+        games_failed_variant=failed_variant,
+        seeds_completed_count=len(result["seeds_completed"]),
+        seeds_attempted_count=len(result["seeds"]),
+        base_wins=sum(pair["base_credit"] for pair in pairs),
+        variant_wins=sum(pair["variant_credit"] for pair in pairs),
+        base_rate=result["base_rate"],
+        variant_rate=result["variant_rate"],
+        variant_only_wins=result["variant_only_wins"],
+        baseline_only_wins=result["baseline_only_wins"],
+        discordant_share=result["discordant_share"],
+    )
     if result["status"] == "DECIDED":
         result["stop_reason"] = "DECIDED_" + str(answer)
     elif result["status"] == "NOT_DECIDED":
@@ -589,6 +831,7 @@ def run_comparison_series(
     allow_mixed: bool = False,
     play: PairPlayer,
     execution: Mapping[str, object] | None = None,
+    audit_data_folder: Path | str | None = None,
 ) -> PairedComparison:
     """Play a paired series that stops by itself once the question is answered.
 
@@ -713,6 +956,7 @@ def run_comparison_series(
         exposures=exposures,
         allow_mixed=allow_mixed,
         series=True,
+        audit_data_folder=audit_data_folder,
     )
     result["pairs_censored"] = censored
     result["games_failed_base"] = failed["base"]
@@ -724,6 +968,21 @@ def run_comparison_series(
     result["looks_planned"] = len(look_counts)
     result["looks_used"] = looks_used
     result["pairs_played"] = attempted
+    result["consistency_table"] = _build_paired_consistency_table(
+        pairs_completed=result["pairs_completed"],
+        pairs_censored=censored,
+        games_failed_base=failed["base"],
+        games_failed_variant=failed["variant"],
+        seeds_completed_count=len(result["seeds_completed"]),
+        seeds_attempted_count=len(result["seeds"]),
+        base_wins=sum(pair["base_credit"] for pair in pairs),
+        variant_wins=sum(pair["variant_credit"] for pair in pairs),
+        base_rate=result["base_rate"],
+        variant_rate=result["variant_rate"],
+        variant_only_wins=result["variant_only_wins"],
+        baseline_only_wins=result["baseline_only_wins"],
+        discordant_share=result["discordant_share"],
+    )
     if misseated:
         result["warnings"].append(
             f"{misseated} finished game(s) did not seat the compared deck at the tested seat"
@@ -879,6 +1138,9 @@ def parallel_window_player(
     on_game_played: Callable[[str, int, int], None] | None = None,
     series_pool: bool | None = None,
     pool: GamePool | None = None,
+    table: Mapping[str, object] | None = None,
+    table_hash: str | None = None,
+    record_pilot_audit: bool = False,
 ) -> WindowPlayer:
     """Execute each O'Brien-Fleming look window in parallel without changing sequential outcomes.
 
@@ -919,8 +1181,12 @@ def parallel_window_player(
     contenders = {"base": base_deck, "variant": variant_deck}
     used_workers = max(1, int(workers))
     used_batch = max(1, int(games_per_jvm))
-    use_pool = play_single is None and (
-        pool is not None or (series_pool if series_pool is not None else series_pool_enabled())
+    use_pool = (
+        play_single is None
+        and not record_pilot_audit
+        and (
+            pool is not None or (series_pool if series_pool is not None else series_pool_enabled())
+        )
     )
     if use_pool and pool is None:
         # Pre-flight (#1661): the pool of this series needs the wall-clock limit of its seat count;
@@ -960,6 +1226,12 @@ def parallel_window_player(
 
     planned_tasks: dict[tuple[str, int, int], GameTask] = {}
     record_holder: list[SeriesRecord] = []
+    table_snapshot: dict[str, object] | None = (
+        copy.deepcopy(dict(table)) if table is not None else None
+    )
+    normalized_table_hash: str | None = (
+        table_hash.strip() or None if isinstance(table_hash, str) else None
+    )
 
     def _plan_series_on_pool() -> None:
         """Every game of the series as a complete task, and the manifest (S1, #1660).
@@ -994,6 +1266,8 @@ def parallel_window_player(
                     engine_pin=pin,
                     skip_forced_decisions=skip_forced,
                     jvm_options=jvm_options,
+                    table=copy.deepcopy(table_snapshot) if table_snapshot is not None else None,
+                    table_hash=normalized_table_hash,
                     deck_hashes=deck_hashes,
                 )
         record_holder.append(
@@ -1004,8 +1278,8 @@ def parallel_window_player(
                     {"task_id": t.task_id, "game_id": t.game_id, "game_key": t.game_key}
                     for t in planned_tasks.values()
                 ],
-                table_hash=None,
-                table=None,
+                table_hash=normalized_table_hash,
+                table=copy.deepcopy(table_snapshot) if table_snapshot is not None else None,
             )
         )
 
@@ -1155,6 +1429,7 @@ def parallel_window_player(
                 private_card_repository=(used_workers > 1),
                 on_game=_on_game,
                 on_played=_on_played,
+                record_pilot_audit=record_pilot_audit,
             )
             results: list[tuple[tuple[str, int, int], PlayedGame]] = []
             for w_seed, summary in zip(chunk_seeds, summaries, strict=True):

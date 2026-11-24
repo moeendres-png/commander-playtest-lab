@@ -227,6 +227,7 @@ def freeze_guard(rater_dir: Path, checksums: Mapping[str, Sequence[str]]) -> dic
     steps 3 and 5). Raises before any output line is parsed."""
     frozen: dict[int, str] = {}
     problems: list[str] = []
+    expected_names = {output_path(rater_dir, k).name for k in ALL_CHUNKS}
     for k in ALL_CHUNKS:
         path = output_path(rater_dir, k)
         listed = checksums.get(path.name)
@@ -241,9 +242,14 @@ def freeze_guard(rater_dir: Path, checksums: Mapping[str, Sequence[str]]) -> dic
             problems.append(f"{path.name}: SHA-256 {digest} differs from the last frozen hash")
         else:
             frozen[k] = digest
-    unknown = sorted(set(checksums) - {output_path(rater_dir, k).name for k in ALL_CHUNKS})
+    unknown = sorted(set(checksums) - expected_names)
     if unknown:
         problems.append(f"checksum list names files that are no wave-2 output: {unknown}")
+    unlisted = sorted(
+        p.name for p in rater_dir.glob("rr2_output_*.jsonl") if p.name not in expected_names
+    )
+    if unlisted:
+        problems.append(f"unlisted wave-2 output file(s) present in rater_dir: {unlisted}")
     if problems:
         raise RefusedError("freeze guard: " + "; ".join(problems))
     return frozen
