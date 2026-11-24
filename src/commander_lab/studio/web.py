@@ -14,7 +14,7 @@ import json
 import re
 import sqlite3
 import threading
-from collections.abc import AsyncIterator, Awaitable, Callable, Iterable
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterable, Mapping
 from contextlib import asynccontextmanager
 from dataclasses import asdict
 from datetime import UTC, datetime
@@ -25,7 +25,7 @@ from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi import Path as PathParam
 from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, ConfigDict, Field, StrictInt
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, model_validator
 
 from . import (
     allocation,
@@ -500,13 +500,29 @@ class UniverseBody(BaseModel):
 
 
 class StrengthBody(BaseModel):
-    """Compute the strength index of one commander's pool; at most one settings source."""
+    """Compute the strength index of one commander's pool; at most one settings source.
+
+    ``detail="summary"`` returns only the lightweight builder list fields per card without
+    component breakdowns or top-level diagnostics. ``card_id`` (only with ``detail="full"``)
+    projects the cached answer down to that single card (empty ``cards`` list if absent).
+    """
 
     model_config = ConfigDict(extra="forbid")
     commander: str = Field(min_length=1, max_length=200)
     preset: str | None = Field(default=None, max_length=80)
     profile: str | None = Field(default=None, max_length=80)
     settings: dict[str, object] | None = None
+    detail: Literal["full", "summary"] = "full"
+    card_id: str | None = Field(default=None, max_length=120)
+
+    @model_validator(mode="after")
+    def _validate_projection(self) -> StrengthBody:
+        if self.card_id is not None:
+            if not self.card_id.strip():
+                raise ValueError("card_id must not be empty or whitespace-only")
+            if self.detail == "summary":
+                raise ValueError("detail='summary' cannot be combined with card_id")
+        return self
 
 
 class StrengthProfileBody(BaseModel):
@@ -579,6 +595,76 @@ def data_report_cached(store: StudioStore) -> dict[str, object]:
     return report
 
 
+_STRENGTH_SUMMARY_CARD_KEYS: tuple[str, ...] = (
+    "card_id",
+    "name",
+    "tier",
+    "index",
+    "present",
+    "is_land",
+)
+
+
+def _project_strength_summary(
+    answer: Mapping[str, object],
+    *,
+    preset: str | None,
+    profile: str | None,
+) -> dict[str, object]:
+    """Slim projection of a cached strength answer for the Builder list (#1565).
+
+    Every included card figure is copied verbatim from the full answer; no components,
+    chulane_textfit, role_ranks, tier_alternatives or heavy top-level blocks are emitted.
+    """
+    raw_cards = answer.get("cards")
+    cards = [
+        {key: card[key] for key in _STRENGTH_SUMMARY_CARD_KEYS if key in card}
+        for card in (raw_cards if isinstance(raw_cards, list) else [])
+        if isinstance(card, Mapping)
+    ]
+    return {
+        "schema": answer.get("schema"),
+        "data_class": answer.get("data_class"),
+        "commander": answer.get("commander"),
+        "preset": preset,
+        "profile": profile,
+        "detail": "summary",
+        "card_count": len(cards),
+        "cards": cards,
+    }
+
+
+def _project_strength_card(
+    answer: Mapping[str, object],
+    *,
+    card_id: str,
+    preset: str | None,
+    profile: str | None,
+) -> dict[str, object]:
+    """Single-card full projection of a cached strength answer (#1565).
+
+    Returns only the requested card (complete with components, coverage, confidence,
+    borderline and role_ranks) or an empty ``cards`` list when ``card_id`` is absent.
+    """
+    raw_cards = answer.get("cards")
+    matched = [
+        card
+        for card in (raw_cards if isinstance(raw_cards, list) else [])
+        if isinstance(card, Mapping) and card.get("card_id") == card_id
+    ]
+    return {
+        "schema": answer.get("schema"),
+        "data_class": answer.get("data_class"),
+        "commander": answer.get("commander"),
+        "preset": preset,
+        "profile": profile,
+        "detail": "full",
+        "card_id": card_id,
+        "card_count": len(matched),
+        "cards": matched,
+    }
+
+
 def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]:
     """The strength index answer of ``/api/strength``, remembered per store state and request
     (the resolved settings are part of the key; errors are not kept). Also what the start-up
@@ -626,6 +712,12 @@ def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]
         json.dumps(asdict(settings), sort_keys=True, default=str),
     )
     answer = cache.cached(store, ("strength", *key), compute)
+    if body.detail == "summary":
+        return _project_strength_summary(answer, preset=body.preset, profile=body.profile)
+    if body.card_id is not None:
+        return _project_strength_card(
+            answer, card_id=body.card_id, preset=body.preset, profile=body.profile
+        )
     # Additive: the rubric v2 field "Kartenverständnis (Modellurteil)" (Q1-b3, #1678, E5), only
     # for Chulane. Added after the snapshot and the remembered answer, so neither of them
     # changes (``with_understanding`` copies the answer); the stamps of the data, audit and pooled

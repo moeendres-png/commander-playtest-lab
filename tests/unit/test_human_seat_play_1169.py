@@ -5241,3 +5241,149 @@ def test_the_game_info_line_names_the_origin_from_the_same_cohort_as_the_pill() 
         assert out[name]["pill"] == "Herkunft unbekannt, nicht als Simulation gewertet", name
     assert "KI: KI-Pilot 1" in out["sim"]["info"] and "Mensch gegen KI" not in out["sim"]["info"]
     assert out["sim"]["pill"] == "simuliert (KI auf allen Plätzen)"
+
+
+def test_partie_adopts_live_forced_passes_and_resets_on_game_switch() -> None:
+    """#1591: loadMoreOnce adopts forced_passes_answered_by_engine from live GET and prefetched
+    POST snapshots, ignores malformed values, and openGame/listGames reset forcedPasses."""
+    script = (
+        _SUBMIT_PRELUDE
+        + """
+(async () => {
+  const responses = [
+    parked({}, 2, {forced_passes_answered_by_engine: null, frames: [], total: 2}),
+    parked({}, 2, {forced_passes_answered_by_engine: 7, frames: [], total: 2}),
+    parked({}, 2, {forced_passes_answered_by_engine: -3, frames: [], total: 2}),
+    parked({}, 2, {forced_passes_answered_by_engine: '7', frames: [], total: 2}),
+    parked({}, 2, {forced_passes_answered_by_engine: true, frames: [], total: 2}),
+    parked({}, 2, {forced_passes_answered_by_engine: null, frames: [], total: 2}),
+  ];
+  let idx = 0;
+  const page = await run({
+    reply: () => ({accepted: true}),
+    get: () => responses[idx++],
+  });
+  page.state.forcedPasses = null;
+  await page.fns.loadMoreOnce(false);
+  const afterNull = page.state.forcedPasses;
+  await page.fns.loadMoreOnce(false);
+  const afterSeven = page.state.forcedPasses;
+  // prefetched snapshot from POST /decision carries an updated live count
+  await page.fns.loadMoreOnce(false, parked(page.state, 2, {
+    revision: 7, forced_passes_answered_by_engine: 11, frames: [], total: 2,
+  }));
+  const afterPrefetched = page.state.forcedPasses;
+  // malformed values must not overwrite a valid count
+  await page.fns.loadMoreOnce(false);
+  const afterNeg = page.state.forcedPasses;
+  await page.fns.loadMoreOnce(false);
+  const afterStr = page.state.forcedPasses;
+  await page.fns.loadMoreOnce(false);
+  const afterBool = page.state.forcedPasses;
+  // explicit null resets back to unknown
+  await page.fns.loadMoreOnce(false);
+  const afterResetNull = page.state.forcedPasses;
+  console.log(JSON.stringify({
+    afterNull, afterSeven, afterPrefetched, afterNeg, afterStr, afterBool, afterResetNull,
+  }));
+})();
+"""
+    )
+    out = _node_json(script)
+    assert out == {
+        "afterNull": None,
+        "afterSeven": 7,
+        "afterPrefetched": 11,
+        "afterNeg": 11,
+        "afterStr": 11,
+        "afterBool": 11,
+        "afterResetNull": None,
+    }
+
+    reset_script = (
+        _OPEN_PRELUDE
+        + """
+(async () => {
+  const switching = page({});
+  switching.state.games = [AI_GAME, HUMAN_GAME];
+  switching.state.forcedPasses = 9;
+  let atLoad = 'unset';
+  switching.setLoad(() => { atLoad = switching.state.forcedPasses; });
+  await switching.fns.openGame('me-1');
+
+  const empty = page({api: async () => []});
+  empty.state.forcedPasses = 9;
+  await empty.fns.listGames(null);
+  console.log(JSON.stringify({atLoad, afterSwitch: switching.state.forcedPasses, afterEmpty: empty.state.forcedPasses}));
+})();
+"""
+    )
+    reset_out = _node_json(reset_script)
+    assert reset_out == {"atLoad": None, "afterSwitch": None, "afterEmpty": None}
+
+
+def test_partie_render_view_shows_live_and_finished_forced_passes() -> None:
+    """#1591: renderView shows (+ N erzwungene Pässe) in #where while running from
+    state.forcedPasses, prefers result.forced_decisions_skipped when finished, and hides 0/null."""
+    script = f"""
+const SRC = require('fs').readFileSync({json.dumps((STATIC / "partie.js").as_posix())}, 'utf8');
+const grab = (name) => {{
+  const start = SRC.indexOf('function ' + name + '(');
+  if (start < 0) throw new Error('missing ' + name);
+  let depth = 0, i = SRC.indexOf('{{', start);
+  for (; i < SRC.length; i += 1) {{ if (SRC[i] === '{{') depth += 1; else if (SRC[i] === '}}' && --depth === 0) break; }}
+  return SRC.slice(start, i + 1);
+}};
+function renderCase(overrides) {{
+  const els = {{}};
+  const el = (id) => (els[id] = els[id] || {{
+    id, textContent: '', value: '', hidden: id === 'modal', dataset: {{}}, children: [],
+    append(...kids) {{ this.children.push(...kids); }},
+  }});
+  const frame = {{
+    n: 4, turn: 2, phase: 'precombat_main', step: 'precombat_main', seat: 0, active_seat: 0,
+    decision_class: 'priority', prompt: 'Priority', options: 2,
+    players: [{{seat: 0, life: 40, hand: []}}],
+  }};
+  const state = Object.assign({{
+    interactive: true, running: true, pendingDecision: null, index: 0, frames: [frame],
+    seatKeys: [], humanSeats: [0], handsRevealed: false, result: null, forcedPasses: null,
+    ff: {{on: false}}, click: null, clickActive: false, submitting: false,
+  }}, overrides);
+  const make = new Function(
+    'state', '$', 'h', 'STEPS', 'PHASES', 'CLASSES', 'document',
+    'renderBridgeBanner', 'endFastForward', 'renderHumanDecision', 'renderReplayControls',
+    'pilotStateToFrame', 'endText', 'seatPanel', 'seatName', 'seatLabel', 'answer',
+    'renderOwnCombat', 'renderStackRail', 'cardTile', 'showZone', 'drawBlockLinks', 'lineFor',
+    grab('renderView') + '; return renderView;'
+  );
+  const renderView = make(
+    state, el, (tag, props, ...kids) => ({{tag, props, kids}}),
+    {{precombat_main: 'Hauptphase 1'}}, {{precombat_main: 'Hauptphase 1'}}, {{priority: 'Aktion'}},
+    {{querySelectorAll: () => []}},
+    () => {{}}, () => {{}}, () => {{}}, () => {{}}, () => frame, () => 'Ende', () => ({{}}),
+    (s) => 'Sitz ' + (s + 1), () => 'Deck', () => 'passt', () => {{}}, () => {{}}, () => ({{}}),
+    () => {{}}, () => {{}}, () => null
+  );
+  renderView();
+  return el('where').textContent;
+}}
+console.log(JSON.stringify({{
+  liveCount: renderCase({{running: true, result: null, forcedPasses: 7}}),
+  liveNull: renderCase({{running: true, result: null, forcedPasses: null}}),
+  liveZero: renderCase({{running: true, result: null, forcedPasses: 0}}),
+  finishedPrefersResult: renderCase({{running: false, result: {{status: 'finished', forced_decisions_skipped: 14}}, forcedPasses: 12}}),
+  finishedZeroResult: renderCase({{running: false, result: {{status: 'finished', forced_decisions_skipped: 0}}, forcedPasses: 5}}),
+  finishedFallback: renderCase({{running: false, result: {{status: 'finished'}}, forcedPasses: 5}}),
+}}));
+"""
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    assert "(+ 7 erzwungene Pässe)" in out["liveCount"]
+    assert "(Partie läuft noch)" in out["liveCount"]
+    assert "erzwungene Pässe" not in out["liveNull"]
+    assert "erzwungene Pässe" not in out["liveZero"]
+    assert "(+ 14 erzwungene Pässe)" in out["finishedPrefersResult"]
+    assert "12" not in out["finishedPrefersResult"]
+    assert "erzwungene Pässe" not in out["finishedZeroResult"]
+    assert "(+ 5 erzwungene Pässe)" in out["finishedFallback"]
