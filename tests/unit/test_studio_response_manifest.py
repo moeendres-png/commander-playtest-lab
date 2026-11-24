@@ -384,7 +384,13 @@ class Handler(BaseHTTPRequestHandler):
             return self.answer(b"{}", 403)
         return self.answer(dump({"path": self.path, "body": body}))
 
-    do_PUT = do_POST
+    def do_PUT(self):
+        path = DATA / "studio.sqlite3"
+        raw = bytearray(path.read_bytes())
+        if len(raw) >= 28:  # a store with a header: a write moves the file change counter
+            raw[27] = (raw[27] + 1) % 100  # stays ASCII, /api/status reads the file as text
+            path.write_bytes(bytes(raw))
+        return self.do_POST()
 
 
 port = int(sys.argv[sys.argv.index("--port") + 1])
@@ -549,3 +555,54 @@ def test_studio_inputs_record_the_commander_lab_environment(
     monkeypatch.setenv("COMMANDER_LAB_TOPDECK_DIR", "/other")
     b = {"format": tool.FORMAT, "inputs": INPUTS.record(), "requests": []}
     assert tool.compare_manifests(a, b)[0].startswith("inputs differ")
+
+
+def _header_template(tmp_path: Path) -> Path:
+    """A template whose file is long enough to carry SQLite's change counter (bytes 24 to 27)."""
+    template = tmp_path / "template"
+    template.mkdir()
+    (template / "studio.sqlite3").write_text("x" * 28, encoding="utf-8")
+    return template
+
+
+def test_studio_click_times_the_first_answer_after_each_effective_write(tmp_path: Path) -> None:
+    """#1561: ``click`` writes ``--clicks`` favorites and times the four routes after each one."""
+    src, template = _fake_src(tmp_path), _header_template(tmp_path)
+    out = tmp_path / "click.json"
+    code = tool.main(
+        ["click", "--store", str(template), "--out", str(out), "--src", str(src),
+         "--start-timeout", "60", "--clicks", "3"]
+    )  # fmt: skip
+    result = json.loads(out.read_text(encoding="utf-8"))
+    assert code == 0, result
+    assert result["format"] == tool.CLICK_FORMAT and result["ok"] is True
+    assert [w["write_effective"] for w in result["writes"]] == [True, True, True]
+    assert set(result["routes"]) == set(tool.CLICK_ROUTES)
+    for row in result["routes"].values():
+        assert row["n"] == 3 and len(row["after_click_ms"]) == 3  # n is the number of clicks
+        assert row["median_ms"] == sorted(row["after_click_ms"])[1]
+        assert row["answer_bytes_unchanged"] is True  # the stand-in answers do not depend on writes
+    assert result["run"]["clicks"] == 3
+
+
+def test_studio_click_with_a_write_that_moves_nothing_is_not_ok(tmp_path: Path) -> None:
+    """A write that leaves the file change counter alone proves nothing: not ``ok``, exit 1."""
+    src, template = _fake_src(tmp_path), _template(tmp_path)  # 8 bytes: no counter to move
+    out = tmp_path / "click.json"
+    code = tool.main(
+        ["click", "--store", str(template), "--out", str(out), "--src", str(src),
+         "--start-timeout", "60", "--clicks", "2"]
+    )  # fmt: skip
+    result = json.loads(out.read_text(encoding="utf-8"))
+    assert code == 1 and result["ok"] is False
+    assert [w["write_effective"] for w in result["writes"]] == [False, False]
+
+
+def test_studio_click_refuses_more_clicks_than_main_cards(tmp_path: Path) -> None:
+    src, template = _fake_src(tmp_path), _header_template(tmp_path)
+    out = tmp_path / "click.json"
+    code = tool.main(
+        ["click", "--store", str(template), "--out", str(out), "--src", str(src),
+         "--start-timeout", "60", "--clicks", "4"]
+    )  # fmt: skip
+    assert code == 2 and not out.exists()
