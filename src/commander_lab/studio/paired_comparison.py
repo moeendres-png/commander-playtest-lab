@@ -58,6 +58,7 @@ from .simulations import (
     CONSISTENCY_ORIGIN_ENGINE_PILOT_DEPENDENT,
     CONSISTENCY_ORIGIN_ENGINE_PILOT_INDEPENDENT,
     CONSISTENCY_ORIGIN_EXACT,
+    _fmt_win_count,
     build_consistency_table,
     build_validity_block,
     compute_seat_curve,
@@ -430,7 +431,7 @@ def _build_paired_consistency_table(
             "origin_class": CONSISTENCY_ORIGIN_ENGINE_PILOT_DEPENDENT,
             "n": round(base_wins, 4),
             "N": pairs_completed,
-            "n_of_N": f"{round(base_wins, 2)}/{pairs_completed}"
+            "n_of_N": f"{_fmt_win_count(base_wins)}/{pairs_completed}"
             if pairs_completed > 0
             else "unbekannt",
             "value": round(base_rate, 4) if base_rate is not None else None,
@@ -449,7 +450,7 @@ def _build_paired_consistency_table(
             "origin_class": CONSISTENCY_ORIGIN_ENGINE_PILOT_DEPENDENT,
             "n": round(variant_wins, 4),
             "N": pairs_completed,
-            "n_of_N": f"{round(variant_wins, 2)}/{pairs_completed}"
+            "n_of_N": f"{_fmt_win_count(variant_wins)}/{pairs_completed}"
             if pairs_completed > 0
             else "unbekannt",
             "value": round(variant_rate, 4) if variant_rate is not None else None,
@@ -593,7 +594,7 @@ def _summarize(
     pods: Counter[tuple[str, ...]] = Counter(tuple(pair["opponents"]) for pair in pairs)
     resolved_table_size = sizes[0] if len(sizes) == 1 else None
     seat_curve = compute_seat_curve(
-        [_winner_seats_of(game) for game in involved],
+        [{"winner_seats": _winner_seats_of(game), "seed": game.get("seed")} for game in involved],
         table_size=resolved_table_size,
     )
     pilot_fps = sorted(
@@ -787,6 +788,21 @@ def compare_logs(
     result["seeds"] = list(result["seeds_completed"])
     result["unpaired_base"] = unpaired_base
     result["unpaired_variant"] = unpaired_variant
+    result["consistency_table"] = _build_paired_consistency_table(
+        pairs_completed=result["pairs_completed"],
+        pairs_censored=result["pairs_censored"],
+        games_failed_base=failed_base,
+        games_failed_variant=failed_variant,
+        seeds_completed_count=len(result["seeds_completed"]),
+        seeds_attempted_count=len(result["seeds"]),
+        base_wins=sum(pair["base_credit"] for pair in pairs),
+        variant_wins=sum(pair["variant_credit"] for pair in pairs),
+        base_rate=result["base_rate"],
+        variant_rate=result["variant_rate"],
+        variant_only_wins=result["variant_only_wins"],
+        baseline_only_wins=result["baseline_only_wins"],
+        discordant_share=result["discordant_share"],
+    )
     if result["status"] == "DECIDED":
         result["stop_reason"] = "DECIDED_" + str(answer)
     elif result["status"] == "NOT_DECIDED":

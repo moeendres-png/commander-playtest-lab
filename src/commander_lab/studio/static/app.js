@@ -1829,7 +1829,7 @@ function formatCensoredFirstCastRound(c) {
   if (!c) return "unbekannt";
   const reached = c.first_cast_round_games_reached;
   const total = c.games_completed;
-  if (reached !== null && reached !== undefined && total !== null && total !== undefined) {
+  if (reached !== null && reached !== undefined && total !== null && total !== undefined && total > 0) {
     const notReached = c.first_cast_round_games_not_reached !== null && c.first_cast_round_games_not_reached !== undefined
       ? c.first_cast_round_games_not_reached
       : Math.max(0, total - reached);

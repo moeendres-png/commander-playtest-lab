@@ -161,32 +161,70 @@ def _fmt_win_count(wins: float) -> str:
     return str(int(rounded)) if float(rounded).is_integer() else str(round(rounded, 2))
 
 
+def _resolve_starting_seat(game: Mapping[str, object], table_size: int) -> int | None:
+    """Resolve 0-based ``starting_player_seat`` from explicit field or ``seed % table_size``.
+
+    Fail-closed: returns ``None`` if neither a valid ``starting_player_seat`` nor an integer
+    ``seed`` is present (never guesses 0).
+    """
+    raw_start = game.get("starting_player_seat")
+    if type(raw_start) is int and 0 <= raw_start < table_size:
+        return raw_start
+    raw_seed = game.get("seed")
+    if type(raw_seed) is int:
+        return raw_seed % table_size
+    return None
+
+
 def compute_seat_curve(
-    winner_seat_lists: Sequence[Sequence[int]],
+    games: Sequence[Mapping[str, object]],
     *,
     table_size: int | None,
 ) -> dict[str, object]:
-    """Seat win-rate curve (1..table_size) with 95% Wilson CI and Playgroup 4-seat reference.
+    """Turn-order seat win-rate curve (1..table_size) with 95% Wilson CI and Playgroup reference.
 
-    ``seat`` is 1-based (matching 0-based ``seat_idx = seat - 1`` in ``winner_seats``).
+    Each game maps its 0-based ``winner_seats`` to 0-based turn-order position
+    ``(winner_seat - starting_seat) % table_size`` where ``starting_seat`` comes from
+    ``starting_player_seat`` or ``seed % table_size`` (matching ``full_game.py``). Seat 1 is
+    the starting player. Games without a resolvable starting seat are NOT guessed (fail-closed)
+    and are counted in ``games_without_starting_seat``.
     Direct comparison against ``PLAYGROUP_SEAT_CURVE_REFERENCE`` is enabled ONLY when
     ``table_size == 4``; for any other or unknown table size, no reference value is fabricated.
     """
-    total_games = len(winner_seat_lists)
-    reference_comparable = table_size == 4
+    valid_size = type(table_size) is int and table_size >= 2
+    reference_comparable = valid_size and table_size == 4
     ref_by_seat: dict[int, float] = {1: 29.1, 2: 25.7, 3: 23.6, 4: 21.5}
     seats_out: list[dict[str, object]] = []
+    mapped_winner_positions: list[list[int]] = []
+    unmapped_games = 0
 
-    if isinstance(table_size, int) and table_size >= 2:
+    if valid_size and table_size is not None:
+        for game in games:
+            start = _resolve_starting_seat(game, table_size)
+            if start is None:
+                unmapped_games += 1
+                continue
+            raw_ws = game.get("winner_seats")
+            ws_list = (
+                raw_ws
+                if isinstance(raw_ws, Sequence) and not isinstance(raw_ws, (str, bytes))
+                else ()
+            )
+            mapped = [
+                (w - start) % table_size for w in ws_list if type(w) is int and 0 <= w < table_size
+            ]
+            mapped_winner_positions.append(mapped)
+
+        total_mapped = len(mapped_winner_positions)
         for seat_idx in range(table_size):
             seat_num = seat_idx + 1
             wins = sum(
-                (1.0 / len(ws)) if ws and seat_idx in ws else 0.0 for ws in winner_seat_lists
+                (1.0 / len(ws)) if ws and seat_idx in ws else 0.0 for ws in mapped_winner_positions
             )
-            win_rate = round(wins / total_games, 4) if total_games > 0 else None
+            win_rate = round(wins / total_mapped, 4) if total_mapped > 0 else None
             win_rate_pct = round(win_rate * 100.0, 1) if win_rate is not None else None
-            if total_games > 0:
-                ci_low, ci_high = wilson_score_interval(wins, total_games, confidence=0.95)
+            if total_mapped > 0:
+                ci_low, ci_high = wilson_score_interval(wins, total_mapped, confidence=0.95)
                 ci95: list[float] | None = [ci_low, ci_high]
                 ci95_pct: list[float] | None = [round(ci_low * 100.0, 1), round(ci_high * 100.0, 1)]
             else:
@@ -196,9 +234,9 @@ def compute_seat_curve(
                 {
                     "seat": seat_num,
                     "wins": round(wins, 4),
-                    "games": total_games,
-                    "n_of_N": f"{_fmt_win_count(wins)}/{total_games}"
-                    if total_games > 0
+                    "games": total_mapped,
+                    "n_of_N": f"{_fmt_win_count(wins)}/{total_mapped}"
+                    if total_mapped > 0
                     else "unbekannt",
                     "win_rate": win_rate,
                     "win_rate_pct": win_rate_pct,
@@ -209,13 +247,15 @@ def compute_seat_curve(
                     ),
                 }
             )
+    else:
+        total_mapped = 0
 
     if reference_comparable:
         reference_note = (
             "Direkter Vergleich mit Playgroup-Referenz (4 Sitze, n = 300.240, Stand 2026-11-16; "
             "Casual, Selbstangabe, Sitz nicht randomisiert, Unentschieden ausgeschlossen)."
         )
-    elif isinstance(table_size, int) and table_size >= 2:
+    elif valid_size:
         reference_note = (
             f"Playgroup-Referenz gilt nur für 4 Sitze (diese Serie: {table_size} Sitze); "
             "kein direkter Vergleich."
@@ -227,8 +267,9 @@ def compute_seat_curve(
         )
 
     return {
-        "table_size": table_size if isinstance(table_size, int) and table_size >= 2 else None,
-        "games_completed": total_games,
+        "table_size": table_size if valid_size else None,
+        "games_completed": total_mapped,
+        "games_without_starting_seat": unmapped_games,
         "seats": seats_out,
         "reference": _playgroup_reference_copy(),
         "reference_comparable": reference_comparable,
@@ -239,66 +280,66 @@ def compute_seat_curve(
 def _normalize_pilot_omissions(
     pilot_omissions: Mapping[str, object] | None,
 ) -> dict[str, object]:
-    """Normalize pilot omissions audit data; missing data is ALWAYS 'unbekannt'/None, never 0."""
+    """Normalize pilot omissions audit data; missing or invalid data is ALWAYS 'unbekannt'/None."""
+    unknown: dict[str, object] = {
+        "status": "unbekannt",
+        "series": None,
+        "by_seat": None,
+        "display": "unbekannt",
+    }
     if not isinstance(pilot_omissions, Mapping):
-        return {
-            "status": "unbekannt",
-            "series": None,
-            "by_seat": None,
-            "display": "unbekannt",
-        }
+        return unknown
     raw_series = pilot_omissions.get("series")
-    if isinstance(raw_series, Mapping):
+    series_entry: dict[str, object] | None = None
+    if raw_series is not None:
+        if not isinstance(raw_series, Mapping):
+            return unknown
         om = raw_series.get("omissions")
         opp = raw_series.get("opportunities")
-        if isinstance(om, int) and isinstance(opp, int) and opp > 0 and om >= 0:
-            series_entry: dict[str, object] | None = {
-                "omissions": om,
-                "opportunities": opp,
-                "rate": round(om / opp, 4),
-                "display": f"{om}/{opp}",
-            }
-        else:
-            series_entry = None
-    else:
-        series_entry = None
+        if not (type(om) is int and type(opp) is int and opp > 0 and 0 <= om <= opp):
+            return unknown
+        series_entry = {
+            "omissions": om,
+            "opportunities": opp,
+            "rate": round(om / opp, 4),
+            "display": f"{om}/{opp}",
+        }
 
     raw_seats = pilot_omissions.get("by_seat")
     seats_out: list[dict[str, object]] | None = None
-    if isinstance(raw_seats, list):
+    if raw_seats is not None:
+        if not isinstance(raw_seats, list):
+            return unknown
         parsed_seats: list[dict[str, object]] = []
         for entry in raw_seats:
             if not isinstance(entry, Mapping):
-                continue
+                return unknown
             seat = entry.get("seat")
             om = entry.get("omissions")
             opp = entry.get("opportunities")
-            if (
-                isinstance(seat, int)
-                and isinstance(om, int)
-                and isinstance(opp, int)
+            if not (
+                type(seat) is int
+                and seat >= 1
+                and type(om) is int
+                and type(opp) is int
                 and opp > 0
-                and om >= 0
+                and 0 <= om <= opp
             ):
-                parsed_seats.append(
-                    {
-                        "seat": seat,
-                        "omissions": om,
-                        "opportunities": opp,
-                        "rate": round(om / opp, 4),
-                        "display": f"{om}/{opp}",
-                    }
-                )
+                return unknown
+            parsed_seats.append(
+                {
+                    "seat": seat,
+                    "omissions": om,
+                    "opportunities": opp,
+                    "rate": round(om / opp, 4),
+                    "display": f"{om}/{opp}",
+                }
+            )
         if parsed_seats:
             seats_out = parsed_seats
 
     if series_entry is None and seats_out is None:
-        return {
-            "status": "unbekannt",
-            "series": None,
-            "by_seat": None,
-            "display": "unbekannt",
-        }
+        return unknown
     return {
         "status": "measured",
         "series": series_entry,
@@ -311,7 +352,7 @@ def build_validity_block(
     *,
     seat_curve: Mapping[str, object],
     pilot_fingerprint: str | None = None,
-    pods: str | Sequence[str] | None = None,
+    pods: str | Sequence[object] | None = None,
     engine_version: str | None = None,
     pilot_omissions: Mapping[str, object] | None = None,
 ) -> dict[str, object]:
@@ -324,7 +365,7 @@ def build_validity_block(
     if isinstance(pods, str) and pods.strip():
         pods_text = pods.strip()
     elif isinstance(pods, Sequence) and not isinstance(pods, (str, bytes)):
-        cleaned = [str(p).strip() for p in pods if str(p).strip()]
+        cleaned = [str(p).strip() for p in pods if p is not None and str(p).strip()]
         pods_text = ", ".join(cleaned) if cleaned else "unbekannt"
     else:
         pods_text = "unbekannt"
@@ -547,6 +588,7 @@ class GameSummary:
     bridge_qualification_state: str | None = None
     covered_by_sealed_epoch: bool = False
     table_size: int | None = None
+    starting_player_seat: int | None = None
     pilot_fingerprint: str | None = None
     observed_cards: dict[str, dict[str, object]] = field(default_factory=dict)
     plan_telemetry: dict[str, object] = field(default_factory=dict)
@@ -569,6 +611,8 @@ class GameSummary:
         }
         if self.table_size is not None:
             payload["table_size"] = self.table_size
+        if self.starting_player_seat is not None:
+            payload["starting_player_seat"] = self.starting_player_seat
         if self.pilot_fingerprint is not None:
             payload["pilot_fingerprint"] = self.pilot_fingerprint
         if self.plan_telemetry:
@@ -710,6 +754,12 @@ def extract_game_log_telemetry(
     table_size = (
         len(raw_seats_hdr) if isinstance(raw_seats_hdr, list) and len(raw_seats_hdr) >= 2 else None
     )
+    raw_start_hdr = hdr.get("starting_player_seat")
+    starting_player_seat = (
+        raw_start_hdr
+        if type(raw_start_hdr) is int and (table_size is None or 0 <= raw_start_hdr < table_size)
+        else None
+    )
     raw_fp_hdr = hdr.get("pilot_fingerprint")
     pilot_fp = (
         str(raw_fp_hdr).strip() if isinstance(raw_fp_hdr, str) and raw_fp_hdr.strip() else None
@@ -730,6 +780,7 @@ def extract_game_log_telemetry(
         bridge_qualification_state=bridge_qualification_state,
         covered_by_sealed_epoch=covered_by_sealed_epoch,
         table_size=table_size,
+        starting_player_seat=starting_player_seat,
         pilot_fingerprint=pilot_fp,
         observed_cards=card_telemetry,
         plan_telemetry=plan_telemetry,
@@ -860,7 +911,14 @@ def aggregate_batch_results(
         resolved_fp = pilot_fingerprint
 
     seat_curve = compute_seat_curve(
-        [g.winner_seats for g in successful],
+        [
+            {
+                "winner_seats": g.winner_seats,
+                "seed": g.seed,
+                "starting_player_seat": g.starting_player_seat,
+            }
+            for g in successful
+        ],
         table_size=resolved_table_size,
     )
     validity_block = build_validity_block(
@@ -982,9 +1040,13 @@ def aggregate_batch_results(
             "not_reached": len(failed),
             "not_reached_label": "nicht erreicht",
             "display": (
-                f"Median Runde {rounds_quartiles['median']} ({completed_count}/{planned_count} erreicht, {len(failed)} nicht erreicht)"
-                if rounds_quartiles.get("median") is not None
-                else f"nicht erreicht ({completed_count}/{planned_count} erreicht, {len(failed)} nicht erreicht)"
+                "unbekannt"
+                if planned_count == 0
+                else (
+                    f"Median Runde {rounds_quartiles['median']} ({completed_count}/{planned_count} erreicht, {len(failed)} nicht erreicht)"
+                    if rounds_quartiles.get("median") is not None
+                    else f"nicht erreicht ({completed_count}/{planned_count} erreicht, {len(failed)} nicht erreicht)"
+                )
             ),
             "is_time_to_event": True,
         },
@@ -1419,7 +1481,15 @@ class BatchSimulation:
                 if isinstance(self._summary, dict) and "validity_block" in self._summary
                 else build_validity_block(
                     seat_curve=compute_seat_curve(
-                        [g.winner_seats for g in games if g.status == "finished"],
+                        [
+                            {
+                                "winner_seats": g.winner_seats,
+                                "seed": g.seed,
+                                "starting_player_seat": g.starting_player_seat,
+                            }
+                            for g in games
+                            if g.status == "finished"
+                        ],
                         table_size=self._resolved_table_size(),
                     ),
                     pilot_fingerprint=self.pilot_fingerprint,

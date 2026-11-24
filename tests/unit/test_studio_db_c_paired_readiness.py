@@ -2804,3 +2804,145 @@ def test_paired_comparison_and_deck_series_include_validity_block_and_consistenc
         assert isinstance(entry["consistency_table"], dict)
     finally:
         store.close()
+
+
+def test_paired_seat_curve_turn_order_legacy_disk_fallback_and_compare_logs_failures(
+    tmp_path: Path,
+) -> None:
+    """P1-1, P2-2, P2-3 (#1527):
+    - paired_comparison aggregates seat curve by turn-order position (winner - seed % 4) % 4
+    - PairedSeriesManager.get_series()/list_series() attach fallback validity_block to legacy files
+    - compare_logs() rebuilds consistency_table after recording failed base/variant games.
+    """
+    from commander_lab.studio.games import games_folder
+
+    # P1-1: paired series where starting player (seed % 4) always wins -> Seat 1 = 100 %
+    exposures = []
+    for seed in range(1000, 1004):
+        start_seat = seed % 4
+        for arm, did in (("base", "deck-a"), ("variant", "deck-b")):
+            exp = _mock_exposure(
+                f"{arm}-{seed}",
+                seed=seed,
+                seat=0,
+                tested_deck_id=did,
+                won=(start_seat == 0),
+            )
+            exp["table_size"] = 4
+            exp["winner_seats"] = [start_seat]
+            exposures.append(exp)
+    pairs, _, _, _ = paired_comparison.pair_exposures(
+        exposures,  # type: ignore[arg-type]
+        base_deck_id="deck-a",
+        variant_deck_id="deck-b",
+    )
+    res, _ = paired_comparison._summarize(
+        pairs,
+        base_deck_id="deck-a",
+        variant_deck_id="deck-b",
+        threshold_pp=0.0,
+        significance_level=0.05,
+        alpha=0.05,
+        exposures=exposures,  # type: ignore[arg-type]
+        allow_mixed=False,
+        series=False,
+    )
+    sc_seats = res["validity_block"]["seat_curve"]["seats"]
+    assert [s["n_of_N"] for s in sc_seats] == ["8/8", "0/8", "0/8", "0/8"]
+    assert [s["win_rate_pct"] for s in sc_seats] == [100.0, 0.0, 0.0, 0.0]
+
+    # P2-2: legacy .paired.json without validity_block on disk
+    gdir = games_folder(tmp_path)
+    gdir.mkdir(parents=True, exist_ok=True)
+    legacy_paired = {
+        "schema": "studio-paired-series-job-1",
+        "series_id": "paired-legacy-1527",
+        "status": "completed",
+        "base_ref": "chulane@a",
+        "variant_ref": "chulane@b",
+        "pod": "precon",
+        "opponent_ids": ["o1", "o2", "o3"],
+        "result": {"pairs_completed": 4, "engine_pin": "xmage-test-pin"},
+    }
+    (gdir / "paired-legacy-1527.paired.json").write_text(
+        json.dumps(legacy_paired), encoding="utf-8"
+    )
+    mgr = PairedSeriesManager()
+    got = mgr.get_series(tmp_path, "paired-legacy-1527")
+    assert got is not None
+    assert got["validity_block"]["data_class"] == "SIMULATED_RESULT"
+    assert got["validity_block"]["pilot_omissions"]["status"] == "unbekannt"
+    assert got["validity_block"]["seat_curve"]["table_size"] == 4
+    assert got["result"]["validity_block"]["data_class"] == "SIMULATED_RESULT"
+    listed = mgr.list_series(tmp_path)
+    assert any(
+        item["series_id"] == "paired-legacy-1527"
+        and item["validity_block"]["data_class"] == "SIMULATED_RESULT"
+        for item in listed
+    )
+
+    # P2-3: compare_logs() with a failed base game reflects Fehler A: 1 in consistency_table
+    logs_dir = tmp_path / "compare_logs_case"
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    for seed in (10, 11):
+        for arm, did in (("base", "deck-a"), ("variant", "deck-b")):
+            header = {
+                "kind": "header",
+                "schema": "studio-game-log-1",
+                "game_id": f"{arm}-{seed}",
+                "seed": seed,
+                "cohort": "simulated",
+                "engine_commit": "eng-1",
+                "pilot_fingerprint": "fp-1",
+                "seats": [
+                    {"seat": 0, "deck_id": did, "pilot": "ai"},
+                    {"seat": 1, "deck_id": "opp-1", "pilot": "ai"},
+                    {"seat": 2, "deck_id": "opp-2", "pilot": "ai"},
+                    {"seat": 3, "deck_id": "opp-3", "pilot": "ai"},
+                ],
+            }
+            result_line = {
+                "kind": "result",
+                "status": "finished",
+                "winner_seats": [0 if arm == "variant" else 1],
+            }
+            (logs_dir / f"{arm}-{seed}.jsonl").write_text(
+                json.dumps(header) + "\n" + json.dumps(result_line) + "\n",
+                encoding="utf-8",
+            )
+    # Add one failed base game
+    failed_header = {
+        "kind": "header",
+        "schema": "studio-game-log-1",
+        "game_id": "base-failed-99",
+        "seed": 99,
+        "cohort": "simulated",
+        "engine_commit": "eng-1",
+        "pilot_fingerprint": "fp-1",
+        "seats": [
+            {"seat": 0, "deck_id": "deck-a", "pilot": "ai"},
+            {"seat": 1, "deck_id": "opp-1", "pilot": "ai"},
+            {"seat": 2, "deck_id": "opp-2", "pilot": "ai"},
+            {"seat": 3, "deck_id": "opp-3", "pilot": "ai"},
+        ],
+    }
+    failed_result = {"kind": "result", "status": "failed", "failure_class": "Timeout"}
+    (logs_dir / "base-failed-99.jsonl").write_text(
+        json.dumps(failed_header) + "\n" + json.dumps(failed_result) + "\n",
+        encoding="utf-8",
+    )
+    compared = paired_comparison.compare_logs(
+        logs_dir, base_deck_id="deck-a", variant_deck_id="deck-b"
+    )
+    assert compared["games_failed_base"] == 1
+    pair_row = next(
+        r
+        for r in compared["consistency_table"]["rows"]
+        if r["metric_id"] == "pairs_completed_vs_censored"
+    )
+    assert "Fehler A: 1" in str(pair_row["display"])
+    # P3: integer win count formatted as "2/2", not "2.0/2"
+    var_row = next(
+        r for r in compared["consistency_table"]["rows"] if r["metric_id"] == "variant_win_rate"
+    )
+    assert var_row["n_of_N"] == "2/2"

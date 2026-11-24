@@ -1431,7 +1431,53 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             except ValueError:
                 raise HTTPException(422, "corrupt series record") from None
             if isinstance(payload, dict):
-                return cast(dict[str, object], payload)
+                from .simulations import build_validity_block, compute_seat_curve
+
+                result_payload = cast(dict[str, object], payload)
+                raw_summary = result_payload.get("summary")
+                summary_dict = raw_summary if isinstance(raw_summary, dict) else None
+                raw_vb = (
+                    summary_dict.get("validity_block")
+                    if summary_dict is not None
+                    and isinstance(summary_dict.get("validity_block"), dict)
+                    else result_payload.get("validity_block")
+                )
+                if isinstance(raw_vb, dict):
+                    vb: dict[str, object] = dict(raw_vb)
+                else:
+                    raw_opp_ids = result_payload.get("opponent_ids")
+                    table_size = (
+                        1 + len(raw_opp_ids)
+                        if isinstance(raw_opp_ids, list) and raw_opp_ids
+                        else None
+                    )
+                    raw_games = result_payload.get("games")
+                    finished_games = (
+                        [
+                            g
+                            for g in raw_games
+                            if isinstance(g, dict) and g.get("status") == "finished"
+                        ]
+                        if isinstance(raw_games, list)
+                        else []
+                    )
+                    raw_fp = result_payload.get("pilot_fingerprint")
+                    fp = raw_fp if isinstance(raw_fp, str) and raw_fp.strip() else None
+                    raw_pod = result_payload.get("pod")
+                    pod = raw_pod if isinstance(raw_pod, str) and raw_pod.strip() else None
+                    vb = build_validity_block(
+                        seat_curve=compute_seat_curve(finished_games, table_size=table_size),
+                        pilot_fingerprint=fp,
+                        pods=pod,
+                        engine_version=None,
+                        pilot_omissions=None,
+                    )
+                result_payload["validity_block"] = vb
+                if summary_dict is not None and not isinstance(
+                    summary_dict.get("validity_block"), dict
+                ):
+                    result_payload["summary"] = {**summary_dict, "validity_block": vb}
+                return result_payload
         raise HTTPException(404, "unknown batch")
 
     @app.post("/api/simulations/batch/{batch_id}/resume")

@@ -1965,12 +1965,13 @@ def test_playgroup_seat_curve_reference_constant_and_table_size_gate() -> None:
     for word in ("casual", "selbstangabe", "randomisiert", "unentschieden"):
         assert word in caveats
 
-    # 4-seat curve: direct comparison enabled + 95% Wilson CI matches wilson_score_interval
-    winners = [[0], [0], [1], [2], [3], [0], [1], [0]]
-    curve_4 = simulations_module.compute_seat_curve(winners, table_size=4)
+    # 4-seat curve (all starting_player_seat=0 via seed=0): Wilson CI + Playgroup 4-seat ref
+    games_4 = [{"winner_seats": ws, "seed": 0} for ws in ([0], [0], [1], [2], [3], [0], [1], [0])]
+    curve_4 = simulations_module.compute_seat_curve(games_4, table_size=4)
     assert curve_4["reference_comparable"] is True
     assert curve_4["table_size"] == 4
     assert curve_4["games_completed"] == 8
+    assert curve_4["games_without_starting_seat"] == 0
     seats_4 = curve_4["seats"]
     assert isinstance(seats_4, list) and len(seats_4) == 4
     assert seats_4[0]["seat"] == 1
@@ -1981,8 +1982,42 @@ def test_playgroup_seat_curve_reference_constant_and_table_size_gate() -> None:
     assert seats_4[0]["reference_win_rate_pct"] == 29.1
     assert seats_4[3]["reference_win_rate_pct"] == 21.5
 
+    # P1-1 Probe 1: consecutive seeds 1000..1003, starting player (seed % 4) wins 4/4 ->
+    # Seat 1 MUST be 4/4 (100.0 %), Seats 2-4 MUST be 0/4 (0.0 %), never 25/25/25/25 %.
+    probe1_games = [{"winner_seats": [seed % 4], "seed": seed} for seed in range(1000, 1004)]
+    probe1 = simulations_module.compute_seat_curve(probe1_games, table_size=4)
+    assert [s["n_of_N"] for s in probe1["seats"]] == ["4/4", "0/4", "0/4", "0/4"]
+    assert [s["win_rate_pct"] for s in probe1["seats"]] == [100.0, 0.0, 0.0, 0.0]
+
+    # P1-1 Probe 2: batch with consecutive seeds 1000..1003 where raw slot 0 wins 4/4 ->
+    # turn-order seats MUST be 1/4 (25.0 %) each, never Seat 1 = 100 %.
+    probe2_summaries = [
+        GameSummary(
+            game_id=f"p2-{seed}",
+            seed=seed,
+            status="finished",
+            winner_seats=[0],
+            rounds=8,
+            candidate_won=True,
+            table_size=4,
+        )
+        for seed in range(1000, 1004)
+    ]
+    probe2_batch = aggregate_batch_results(probe2_summaries, table_size=4)
+    probe2_seats = probe2_batch["validity_block"]["seat_curve"]["seats"]
+    assert [s["n_of_N"] for s in probe2_seats] == ["1/4", "1/4", "1/4", "1/4"]
+    assert [s["win_rate_pct"] for s in probe2_seats] == [25.0, 25.0, 25.0, 25.0]
+
+    # Fail-closed when neither starting_player_seat nor integer seed is present
+    unmapped = simulations_module.compute_seat_curve(
+        [{"winner_seats": [0], "seed": None}], table_size=4
+    )
+    assert unmapped["games_completed"] == 0
+    assert unmapped["games_without_starting_seat"] == 1
+    assert all(s["n_of_N"] == "unbekannt" and s["win_rate"] is None for s in unmapped["seats"])
+
     # 5-seat curve: reference NOT comparable, no fabricated reference values
-    curve_5 = simulations_module.compute_seat_curve(winners, table_size=5)
+    curve_5 = simulations_module.compute_seat_curve(games_4, table_size=5)
     assert curve_5["reference_comparable"] is False
     seats_5 = curve_5["seats"]
     assert isinstance(seats_5, list) and len(seats_5) == 5
@@ -1991,9 +2026,38 @@ def test_playgroup_seat_curve_reference_constant_and_table_size_gate() -> None:
     assert "5 Sitze" in str(curve_5["reference_note"])
 
     # Unknown table size: no fabricated seats, not comparable
-    curve_unknown = simulations_module.compute_seat_curve(winners, table_size=None)
+    curve_unknown = simulations_module.compute_seat_curve(games_4, table_size=None)
     assert curve_unknown["reference_comparable"] is False
     assert curve_unknown["seats"] == []
+
+    # P2-4 strict validation: bools, omissions > opportunities, seat < 1, pods=[None]
+    for bad_om in (
+        {"series": {"omissions": True, "opportunities": 10}},
+        {"series": {"omissions": 1, "opportunities": True}},
+        {"series": {"omissions": 11, "opportunities": 10}},
+        {"by_seat": [{"seat": 0, "omissions": 1, "opportunities": 5}]},
+        {"by_seat": [{"seat": True, "omissions": 1, "opportunities": 5}]},
+        {"by_seat": [{"seat": 1, "omissions": 6, "opportunities": 5}]},
+    ):
+        vb_bad = simulations_module.build_validity_block(
+            seat_curve=curve_4,
+            pods=[None],
+            pilot_omissions=bad_om,
+        )
+        assert vb_bad["pilot_omissions"]["status"] == "unbekannt"
+        assert vb_bad["pilot_omissions"]["series"] is None
+        assert vb_bad["pilot_omissions"]["by_seat"] is None
+        assert vb_bad["pods"] == "unbekannt"
+        assert "None" not in str(vb_bad["validity_statement"])
+
+    # P3: empty batch (planned_count == 0) renders rounds_to_finish as "unbekannt"
+    empty_summary = aggregate_batch_results([])
+    rounds_row = next(
+        r
+        for r in empty_summary["consistency_table"]["rows"]
+        if r["metric_id"] == "rounds_to_finish"
+    )
+    assert rounds_row["display"] == "unbekannt"
 
 
 def test_batch_validity_block_consistency_table_and_censored_persistence(tmp_path: Path) -> None:
@@ -2177,3 +2241,40 @@ def test_batch_validity_block_consistency_table_and_censored_persistence(tmp_pat
         assert card_sims[0]["first_cast_round_quartiles"] == {"q1": 1, "median": 3, "q3": None}
     finally:
         store.close()
+
+
+def test_legacy_batch_series_json_gets_fallback_validity_block_via_api(tmp_path: Path) -> None:
+    """P2-2 (#1527): legacy {batch_id}.series.json without validity_block gets a fail-closed
+    validity_block when read via GET /api/simulations/batch/{batch_id}."""
+    store = StudioStore.open(tmp_path)
+    store.close()
+    gdir = games.games_folder(tmp_path)
+    gdir.mkdir(parents=True, exist_ok=True)
+    legacy_record = {
+        "batch_id": "legacy-batch-1527",
+        "deck_id": "chulane",
+        "pod": "precon",
+        "opponent_ids": ["opp-a", "opp-b", "opp-c"],
+        "status": "completed",
+        "games": [
+            {"game_id": "g0", "seed": 1000, "status": "finished", "winner_seats": [0]},
+            {"game_id": "g1", "seed": 1001, "status": "finished", "winner_seats": [1]},
+        ],
+        "summary": {"games_completed": 2, "games_planned": 2},
+    }
+    (gdir / "legacy-batch-1527.series.json").write_text(json.dumps(legacy_record), encoding="utf-8")
+    client = TestClient(create_app(tmp_path))
+    resp = client.get("/api/simulations/batch/legacy-batch-1527")
+    assert resp.status_code == 200
+    body = resp.json()
+    vb = body["validity_block"]
+    assert vb["data_class"] == "SIMULATED_RESULT"
+    assert vb["pilot_omissions"]["status"] == "unbekannt"
+    assert vb["pilot_omissions"]["series"] is None
+    assert vb["pilot_fingerprint"] == "unbekannt"
+    assert vb["pods"] == "precon"
+    assert vb["seat_curve"]["table_size"] == 4
+    assert vb["seat_curve"]["reference_comparable"] is True
+    # Starting player won both games (seed 1000 -> start 0, winner 0; seed 1001 -> start 1, winner 1)
+    assert vb["seat_curve"]["seats"][0]["n_of_N"] == "2/2"
+    assert body["summary"]["validity_block"]["data_class"] == "SIMULATED_RESULT"

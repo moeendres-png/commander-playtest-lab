@@ -1013,7 +1013,10 @@ def test_validity_block_omissions_unknown_never_zero_and_deck_series_legacy_fall
     from commander_lab.studio.deck_series import _entry
     from commander_lab.studio.simulations import build_validity_block, compute_seat_curve
 
-    sc = compute_seat_curve([[0], [1]], table_size=4)
+    sc = compute_seat_curve(
+        [{"winner_seats": [0], "seed": 0}, {"winner_seats": [1], "seed": 1}],
+        table_size=4,
+    )
     vb_none = build_validity_block(seat_curve=sc, pilot_omissions=None)
     assert vb_none["pilot_omissions"]["status"] == "unbekannt"
     assert vb_none["pilot_omissions"]["series"] is None
