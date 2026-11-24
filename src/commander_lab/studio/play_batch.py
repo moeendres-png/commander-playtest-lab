@@ -28,7 +28,7 @@ from commander_lab.engine.rules.full_game import (
 from commander_lab.engine.rules.full_game_batch import games_per_jvm_permitted
 from commander_lab.models import RulesDeckInput
 
-from .games import SERIES_GZIP_COMPRESSLEVEL, GameRecorder
+from .games import SERIES_GZIP_COMPRESSLEVEL, GameRecorder, game_cohort
 from .launch import bridge_jar_sha256, engine_command
 from .pilot_audit import PilotAuditPolicy, PilotAuditRecorder
 from .play import (
@@ -94,10 +94,15 @@ class BatchRecordingRunner(_RecordingRunner):
         if previous is not None:
             previous.discard()
         game_id, header = self._headers[scenario_id]
+        # Mirror GameRecorder.__init__: prepare_game() omits data_class until recording; derive
+        # cohort fail-closed when seats are present without overriding an explicit data_class.
+        audit_header: dict[str, object] = dict(header)
+        if "data_class" not in audit_header and audit_header.get("seats"):
+            audit_header["data_class"] = game_cohort(audit_header)
         recorder = PilotAuditRecorder(
             self._data_folder,
             game_id,
-            header,
+            audit_header,
             gzip_compresslevel=SERIES_GZIP_COMPRESSLEVEL,
         )
         self._audit_recorders[scenario_id] = recorder

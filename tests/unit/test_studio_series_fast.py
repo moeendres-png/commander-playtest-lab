@@ -1165,10 +1165,10 @@ def test_batch_recording_runner_opt_in_pilot_audit_invariance(
     provider = {"engine_version": "1.4.61", "engine_commit": commit}
     monkeypatch.setattr(full_game, "_RawFullGameClient", _FakeClient)
 
+    # Mirror real play.prepare_game() headers, which omit data_class until recording.
     header: dict[str, object] = {
-        "data_class": "SIMULATED_RESULT",
         "seed": 77,
-        "seats": [{"seat": 1, "pilot": "AI"}, {"seat": 2, "pilot": "AI"}],
+        "seats": [{"seat": 0, "pilot": "KI"}, {"seat": 1, "pilot": "KI"}],
     }
 
     # Audit OFF (default)
