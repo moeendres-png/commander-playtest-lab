@@ -1,0 +1,163 @@
+{
+ "schema": "mechanics-glossary-1",
+ "stand": "2026-11-23",
+ "zweck": "Kurzerklaerungen fuer Mechaniken, Schluesselwoerter und vordefinierte Token, die ein Kartenblock (Generator v2, Refs #1404, Plan Bewertung v3 G6/G10) als Zeile 'Mechanics (rules summary)' zeigt.",
+ "regel": "Jeder Text ist ein woertliches Zitat (oder ein woertlicher Auszug, Feld 'excerpt') aus oeffentlichen Kartendaten im Repo: Erinnerungstext einer genannten Karte oder ein datiertes Ruling. Was im Repo keinen solchen Beleg hat, steht nicht hier (Liste 'ohne_beleg_weggelassen'). Die Comprehensive Rules liegen nicht im Repo; darum nennt keine Zeile eine CR-Nummer.",
+ "quellen": {
+  "pck": "data/cards/pilot_card_knowledge.json (Scryfall default-cards, Stand 2026-11-09, Datei erzeugt 2026-11-12)",
+  "facts_v2": "data/research/chulane_rubric_v2_20261118/data/facts.jsonl (Rulings aus dem Studio-Store, Scryfall-Rulings)",
+  "rulings_1655": "data/research/deckbuilder_1655/card_rulings_1655.jsonl (Scryfall Rulings Bulk, gefiltert, 2026-11-12)"
+ },
+ "entries": [
+  {
+   "id": "prepare",
+   "term": "prepare / prepared",
+   "kind": "mechanic",
+   "detect": {"keywords": ["Prepared"], "text_regex": "\\bprepared?\\b"},
+   "text": "As an effect causes a creature with a prepare spell to become prepared (including effects that state that a creature \"enters prepared\"), that creature's controller creates a copy of that creature's prepare spell in exile. That copy remains in exile for as long as that permanent is on the battlefield and is prepared. That creature's controller may cast that copy as long as it remains in exile. As they cast it, that creature stops being prepared.",
+   "excerpt": false,
+   "source": {"file": "facts_v2", "card": "Studious First-Year // Rampant Growth", "type": "ruling", "date": "2026-03-20"}
+  },
+  {
+   "id": "goad",
+   "term": "goad",
+   "kind": "keyword action",
+   "detect": {"keywords": ["Goad"], "text_regex": "\\bgoad(?:s|ed)?\\b"},
+   "text": "Until your next turn, that creature attacks each combat if able and attacks a player other than you if able.",
+   "excerpt": false,
+   "source": {"file": "pck", "card": "Besmirch", "type": "reminder text", "date": "2026-11-09"}
+  },
+  {
+   "id": "cloak",
+   "term": "cloak",
+   "kind": "keyword action",
+   "detect": {"keywords": ["Cloak"], "text_regex": "\\bcloak(?:s|ed)?\\b"},
+   "text": "To cloak a card, put it onto the battlefield face down as a 2/2 creature with ward {2}. Turn it face up any time for its mana cost if it's a creature card.",
+   "excerpt": false,
+   "source": {"file": "pck", "card": "Become Anonymous", "type": "reminder text", "date": "2026-11-09"}
+  },
+  {
+   "id": "adventure",
+   "term": "Adventure",
+   "kind": "card layout",
+   "detect": {"layouts": ["adventure"]},
+   "text": "If a spell is cast as an Adventure, its controller exiles it instead of putting it into its owner's graveyard as it resolves. For as long as it remains exiled, that player may play it using its primary characteristics. If an Adventure spell leaves the stack in any way other than resolving (most likely by being countered or by failing to resolve because its targets have all become illegal), that card won't be exiled and the spell's controller won't be able to play that card from exile later.",
+   "excerpt": false,
+   "source": {"file": "facts_v2", "card": "Brazen Borrower // Petty Theft", "type": "ruling", "date": "2025-06-06"}
+  },
+  {
+   "id": "loyalty_abilities",
+   "term": "loyalty abilities",
+   "kind": "rule",
+   "detect": {"type_words": ["Planeswalker"], "keywords": ["Empower Jace"]},
+   "text": "Loyalty abilities can't be mana abilities. [...] Like all loyalty abilities, it can be activated only once per turn, during your main phase, when the stack is empty, and only if no other loyalty abilities of the planeswalker have been activated this turn.",
+   "excerpt": true,
+   "source": {"file": "rulings_1655", "card": "Chandra, Torch of Defiance", "type": "ruling", "date": "2026-08-21"}
+  },
+  {
+   "id": "station",
+   "term": "Station (Spacecraft)",
+   "kind": "keyword ability",
+   "detect": {"keywords": ["Station"], "text_regex": "\\bstation\\b"},
+   "text": "Tap another creature you control: Put charge counters equal to its power on this Spacecraft. Station only as a sorcery.",
+   "excerpt": true,
+   "source": {"file": "pck", "card": "Atmospheric Greenhouse", "type": "reminder text", "date": "2026-11-09"}
+  },
+  {
+   "id": "empower",
+   "term": "Empower Jace N",
+   "kind": "keyword action",
+   "detect": {"keywords": ["Empower Jace"], "text_regex": "\\bempower jace\\b"},
+   "text": "Put two loyalty counters on a Jace token you control. If you don't control one, first create a blue Jace planeswalker token with \"[−1]: Surveil 1\" and \"[−3]: Draw a card.\"",
+   "excerpt": false,
+   "source": {"file": "pck", "card": "Academic Ascent", "type": "reminder text (Empower Jace 2)", "date": "2026-11-09"}
+  },
+  {
+   "id": "token_food",
+   "term": "Food token",
+   "kind": "predefined token",
+   "detect": {"token": "Food"},
+   "text": "It's an artifact with \"{2}, {T}, Sacrifice this token: You gain 3 life.\"",
+   "excerpt": false,
+   "source": {"file": "pck", "card": "Bake into a Pie", "type": "reminder text", "date": "2026-11-09"}
+  },
+  {
+   "id": "token_clue",
+   "term": "Clue token",
+   "kind": "predefined token",
+   "detect": {"token": "Clue"},
+   "text": "It's an artifact with \"{2}, Sacrifice this token: Draw a card.\"",
+   "excerpt": false,
+   "source": {"file": "pck", "card": "Air Nomad Legacy", "type": "reminder text", "date": "2026-11-09"}
+  },
+  {
+   "id": "token_treasure",
+   "term": "Treasure token",
+   "kind": "predefined token",
+   "detect": {"token": "Treasure"},
+   "text": "It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\"",
+   "excerpt": false,
+   "source": {"file": "pck", "card": "Ancestors' Aid", "type": "reminder text", "date": "2026-11-09"}
+  },
+  {
+   "id": "token_blood",
+   "term": "Blood token",
+   "kind": "predefined token",
+   "detect": {"token": "Blood"},
+   "text": "It's an artifact with \"{1}, {T}, Discard a card, Sacrifice this token: Draw a card.\"",
+   "excerpt": false,
+   "source": {"file": "pck", "card": "Belligerent Guest", "type": "reminder text", "date": "2026-11-09"}
+  },
+  {
+   "id": "token_map",
+   "term": "Map token",
+   "kind": "predefined token",
+   "detect": {"token": "Map"},
+   "text": "It's an artifact with \"{1}, {T}, Sacrifice this token: Target creature you control explores. Activate only as a sorcery.\"",
+   "excerpt": false,
+   "source": {"file": "pck", "card": "Brackish Blunder", "type": "reminder text", "date": "2026-11-09"}
+  },
+  {
+   "id": "token_gold",
+   "term": "Gold token",
+   "kind": "predefined token",
+   "detect": {"token": "Gold"},
+   "text": "It's an artifact with \"Sacrifice this token: Add one mana of any color.\"",
+   "excerpt": false,
+   "source": {"file": "pck", "card": "Gild", "type": "reminder text", "date": "2026-11-09"}
+  },
+  {
+   "id": "token_powerstone",
+   "term": "Powerstone token",
+   "kind": "predefined token",
+   "detect": {"token": "Powerstone"},
+   "text": "It's an artifact with \"{T}: Add {C}. This mana can't be spent to cast a nonartifact spell.\"",
+   "excerpt": false,
+   "source": {"file": "pck", "card": "Arbalest Engineers", "type": "reminder text", "date": "2026-11-09"}
+  },
+  {
+   "id": "token_junk",
+   "term": "Junk token",
+   "kind": "predefined token",
+   "detect": {"token": "Junk"},
+   "text": "It's an artifact with \"{T}, Sacrifice this token: Exile the top card of your library. You may play that card this turn. Activate only as a sorcery.\"",
+   "excerpt": false,
+   "source": {"file": "pck", "card": "Boomer Scrapper", "type": "reminder text", "date": "2026-11-09"}
+  },
+  {
+   "id": "token_lander",
+   "term": "Lander token",
+   "kind": "predefined token",
+   "detect": {"token": "Lander"},
+   "text": "It's an artifact with \"{2}, {T}, Sacrifice this token: Search your library for a basic land card, put it onto the battlefield tapped, then shuffle.\"",
+   "excerpt": false,
+   "source": {"file": "pck", "card": "Beamsaw Prospector", "type": "reminder text", "date": "2026-11-09"}
+  }
+ ],
+ "ohne_beleg_weggelassen": [
+  {"term": "Ki-Zaehler / Flip (Faithful Squire // Kaiso, Memory of Loyalty)", "grund": "kein Erinnerungstext und kein Ruling zur Flip-Regel in den Kartendaten des Repos"},
+  {"term": "Kopie-Grundregel (eine Token-Kopie loest ETB-Ausloeser aus)", "grund": "kein Ruling im Repo sagt das allgemein; das einzige Kopie-Ruling (Muddle, 2026-03-20) betrifft 'becomes a copy' ohne Eintritt"},
+  {"term": "Station-Stufen ('N+ | Faehigkeit')", "grund": "der Erinnerungstext nennt nur 'It's an artifact creature at N+'; eine allgemeine Regel zu den Stufenzeilen liegt nicht im Repo"},
+  {"term": "Incubator, Shard (Token)", "grund": "kein Erinnerungstext mit 'It's an artifact ...' in den Kartendaten gefunden; im Pool kommen sie nicht vor"}
+ ]
+}

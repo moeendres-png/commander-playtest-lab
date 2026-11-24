@@ -216,6 +216,8 @@
   "tests/unit/test_rating_full_second_run_results.py": 0.1,
   "tests/unit/test_rating_second_run_full_eval.py": 7.0,
   "tests/unit/test_rating_second_run_full_inputs.py": 0.7,
+  "tests/unit/test_rating_v3_eval.py": 4.1,
+  "tests/unit/test_rating_v3_generator.py": 16.3,
   "tests/unit/test_real_4p_full_game_smoke.py": 0.1,
   "tests/unit/test_real_4p_progress_contract.py": 0.1,
   "tests/unit/test_real_4p_progress_execution.py": 0.1,
