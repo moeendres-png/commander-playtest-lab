@@ -2520,6 +2520,48 @@ def test_audit_series_folder_handles_valid_violated_and_corrupt_cases(tmp_path: 
     assert res_nm.violated is True and res_nm.members is None
 
 
+def test_close_recorded_game_propagates_semantic_transcript_hash_for_series_guard(
+    tmp_path: Path,
+) -> None:
+    """S1 (#1660): pool worker summaries must carry semantic_transcript_sha256 so the guard runs."""
+    from types import SimpleNamespace
+
+    from commander_lab.studio.play import GameRecorder, close_recorded_game
+
+    transcript_hash = "a" * 64
+    recorder = GameRecorder(
+        tmp_path,
+        "g-hash",
+        header={"game_id": "g-hash", "seats": [{"seat": 0}, {"seat": 1}]},
+    )
+    outcome = SimpleNamespace(
+        status="finished",
+        winner_seats=(1,),
+        decision_count=42,
+        forced_decisions_skipped=3,
+        engine_version="1.4.62",
+        semantic_transcript_sha256=transcript_hash,
+        result_payload={"forced_decisions_skipped": 3},
+    )
+    summary = close_recorded_game(recorder, outcome)  # type: ignore[arg-type]
+    assert summary["semantic_transcript_sha256"] == transcript_hash
+
+    key = "k" * 64
+    rec = series_record.SeriesRecord.open(
+        tmp_path,
+        "s-guarded",
+        games=[{"game_id": "g-hash", "game_key": key, "seed": 1}],
+        table_hash=None,
+        table=None,
+    )
+    rec.record("g-hash", summary)
+    guard = series_record.series_guard(tmp_path, "s-guarded")
+    assert guard is not None
+    assert guard["finished"] == 1
+    assert guard["unguarded"] == 0
+    assert guard["violation"] is False
+
+
 def test_hard_kill_mid_jvm_life_keeps_earlier_finished_game_logs_closed(
     tmp_path: Path,
 ) -> None:

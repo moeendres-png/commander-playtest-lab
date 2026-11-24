@@ -594,6 +594,7 @@ def close_recorded_game(
         "winner_seats": winners,
         "decision_count": outcome.decision_count,
         "forced_decisions_skipped": forced_skipped,
+        "semantic_transcript_sha256": outcome.semantic_transcript_sha256,
         "frames": recorder.frames,
         "log": str(path),
         "bridge_jar_sha256": bridge_sha,
