@@ -155,7 +155,7 @@ function deckSeriesCells(h, item, role, deps, labels, zahlen, befund) {
       h("div", { class: "muted" }, `Bridge-JAR: ${sha} · Qualifizierung: ${qual}${item.covered_by_sealed_epoch === null ? "" : item.covered_by_sealed_epoch ? " · versiegelt" : " · nicht versiegelt"}`),
       h("div", { class: "muted" }, `Piloten: ${item.pilots.length ? item.pilots.join(", ") : "unbekannt"}`),
       item.baseline_reuse && item.baseline_reuse.reused_count > 0
-        ? h("div", { class: "muted" }, `Basis-Wiederverwendung: ${StudioUI.num(item.baseline_reuse.reused_count)} / ${StudioUI.num(item.baseline_reuse.total_base_games)} Basis-Partien übernommen · Gegenprobe ${StudioUI.num(item.baseline_reuse.spot_checks_verified)} identisch`)
+        ? h("div", { class: "muted" }, `Basis-Wiederverwendung: ${StudioUI.num(item.baseline_reuse.reused_count)} / ${StudioUI.num(item.baseline_reuse.total_base_games)} Basis-Partien übernommen · Gegenprobe ${StudioUI.num(item.baseline_reuse.spot_checks_verified)} / ${StudioUI.num(item.baseline_reuse.spot_checks_planned ?? item.baseline_reuse.spot_checks_verified)} identisch`)
         : null,
       h("div", { class: "muted" }, DECK_SERIES_ALIGNMENT_TEXT[item.slot_alignment_state] || "Ausrichtung unbekannt")),
     h("td", {}, h("button", { type: "button", class: "small", onclick: () => deps.open(item.series_id) }, "Serie öffnen")),

@@ -1098,7 +1098,7 @@ def test_withdrawn_plans_are_excluded_from_holm_and_explorations(tmp_path: Path)
 
 def test_maturity_notes_shared_baseline_arm_and_fails_closed_without_spot_check() -> None:
     """#1589: reused baseline arms add Holm correlation note and require >=1 verified spot-check."""
-    f_ok = _finding("s-reuse-ok", wins=6, first_seed=10, alpha=0.05)
+    f_ok = _finding("s-reuse-ok", wins=8, first_seed=10, alpha=0.05)
     f_ok = replace(
         f_ok,
         entry={
@@ -1108,12 +1108,13 @@ def test_maturity_notes_shared_baseline_arm_and_fails_closed_without_spot_check(
                 "reused_count": 3,
                 "played_count": 1,
                 "total_base_games": 4,
+                "spot_checks_planned": 1,
                 "spot_checks_verified": 1,
                 "spot_checks_failed": 0,
             },
         },
     )
-    f_bad = _finding("s-reuse-bad", wins=6, first_seed=20, alpha=0.05)
+    f_bad = _finding("s-reuse-bad", wins=8, first_seed=20, alpha=0.05)
     f_bad = replace(
         f_bad,
         entry={
@@ -1123,28 +1124,65 @@ def test_maturity_notes_shared_baseline_arm_and_fails_closed_without_spot_check(
                 "reused_count": 3,
                 "played_count": 0,
                 "total_base_games": 3,
+                "spot_checks_planned": 0,
                 "spot_checks_verified": 0,
                 "spot_checks_failed": 0,
             },
         },
     )
+    f_bool = _finding("s-reuse-bool", wins=8, first_seed=30, alpha=0.05)
+    f_bool = replace(
+        f_bool,
+        entry={
+            **f_bool.entry,
+            "baseline_reuse": {
+                "enabled": True,
+                "reused_count": 3,
+                "played_count": 1,
+                "total_base_games": 4,
+                "spot_checks_verified": True,  # bool must NEVER pass as int >= 1
+                "spot_checks_failed": 0,
+            },
+        },
+    )
+    f_fail = _finding("s-reuse-fail", wins=8, first_seed=40, alpha=0.05)
+    f_fail = replace(
+        f_fail,
+        entry={
+            **f_fail.entry,
+            "baseline_reuse": {
+                "enabled": True,
+                "reused_count": 0,
+                "played_count": 4,
+                "total_base_games": 4,
+                "spot_checks_verified": 1,
+                "spot_checks_failed": 1,  # failed spot-check always blocks fail-closed
+            },
+        },
+    )
     res = m.assess(
-        [f_ok, f_bad],
+        [f_ok, f_bad, f_bool, f_fail],
         explorations=[],
         hashes={"rev-main": "h1", "rev-var": "h2"},
         current=CUR,
     )
     ok_bef = res["befunde"]["s-reuse-ok"]  # type: ignore[index]
-    bad_bef = res["befunde"]["s-reuse-bad"]  # type: ignore[index]
     assert ok_bef["stufe"] == m.R1
+    assert ok_bef["belegt"] is True
     assert any("Geteilter Basis-Arm (#1589)" in note for note in ok_bef["hinweise"])
+    assert any("Gegenprobe 1 / 1 identisch" in note for note in ok_bef["hinweise"])
     assert any(
         "Holm-Bonferroni bleibt ohne Unabhängigkeitsannahme gültig" in note
         for note in ok_bef["hinweise"]
     )
-    assert bad_bef["stufe"] is None
-    assert bad_bef["belegt"] is False
-    assert (
-        "Basis-Wiederverwendung ohne bestandene Stichproben-Gegenprobe"
-        in bad_bef["empfehlungsfaehig_gruende"]
-    )
+    for bad_id in ("s-reuse-bad", "s-reuse-bool", "s-reuse-fail"):
+        bef = res["befunde"][bad_id]  # type: ignore[index]
+        assert bef["stufe"] is None, bad_id
+        assert bef["belegt"] is False, bad_id
+        assert "belegt" not in str(bef["urteil_text"]), (bad_id, bef["urteil_text"])
+        cond = next(c for c in bef["bedingungen"] if "Basis-Wiederverwendung" in str(c["name"]))
+        assert cond["erfuellt"] is False and cond["stufe"] == m.R0, bad_id
+        assert (
+            "Basis-Wiederverwendung ohne bestandene Stichproben-Gegenprobe"
+            in bef["empfehlungsfaehig_gruende"]
+        ), bad_id

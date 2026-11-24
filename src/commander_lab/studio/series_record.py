@@ -682,6 +682,7 @@ def select_spot_check_units(
 
 def _closing_transcript_hash(log_path: Path) -> str | None:
     import gzip
+    import zlib
 
     opener = gzip.open if log_path.suffix == ".gz" else open
     try:
@@ -691,7 +692,7 @@ def _closing_transcript_hash(log_path: Path) -> str | None:
                 stripped = line.strip()
                 if stripped:
                     last = stripped
-    except OSError:
+    except (OSError, EOFError, zlib.error, UnicodeDecodeError):
         return None
     if not last:
         return None
@@ -699,10 +700,14 @@ def _closing_transcript_hash(log_path: Path) -> str | None:
         parsed = json.loads(last)
     except ValueError:
         return None
-    if not isinstance(parsed, dict) or parsed.get("status") != "finished":
+    if (
+        not isinstance(parsed, dict)
+        or parsed.get("kind") != "result"
+        or parsed.get("status") != "finished"
+    ):
         return None
     sha = parsed.get("semantic_transcript_sha256")
-    return sha if isinstance(sha, str) and _SHA256_RE.match(sha) else None
+    return sha if isinstance(sha, str) and _SHA256_RE.fullmatch(sha) else None
 
 
 def _rebind_exposure_deck_id(
@@ -794,7 +799,7 @@ def find_reusable_baseline_games(
             ):
                 continue
             sha = entry.get("semantic_transcript_sha256")
-            if not isinstance(sha, str) or not _SHA256_RE.match(sha):
+            if not isinstance(sha, str) or not _SHA256_RE.fullmatch(sha):
                 continue
             prev = seen_hash_by_key.get(entry_key)
             if prev is not None and prev[0] != sha:

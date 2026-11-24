@@ -3078,7 +3078,76 @@ def test_parallel_window_player_reuses_baseline_games_and_spot_checks_live(
         s2_reuse["source_series_ids"],
     ) == (3, 1, 4, 1, 0, ["ser-1"])
 
-    # Series 3 (mutation): spot-check returns tampered hash -> DeterminismViolation fail-closed!
+    # Corrupt/truncated gzip log must be skipped fail-closed (no zlib/EOF crash)
+    corrupt_gz = tmp_path / "games" / "s-corrupt-gz.jsonl.gz"
+    corrupt_gz.write_bytes(b"\x1f\x8b\x08\x00corrupt")
+    assert series_record._closing_transcript_hash(corrupt_gz) is None
+
+    # Multi-window early stop + workers=2 + Resume with preloaded games:
+    # Window 1 = (100, 0), (100, 1); Window 2 = (101, 0), (101, 1).
+    # Stopping after Window 1 must report ONLY Window 1 counts (1 reused, 1 spot-check verified)!
+    played_ids.clear()
+    p_win = paired_comparison.parallel_window_player(
+        tmp_path,
+        series_id="ser-early",
+        base_deck=base_deck,
+        variant_deck=var2_deck,
+        opponents=opp_decks,
+        paths_by_deck_id=paths,
+        seeds=[100, 101],
+        tested_seats=[0, 1],
+        budget_pairs=4,
+        look_every_pairs=2,
+        workers=2,
+        games_per_jvm=1,
+        command=cmd,
+        series_pool=False,
+        reuse_baseline=True,
+    )
+    w1_b0 = p_win("base", 100, 0)
+    w1_b1 = p_win("base", 100, 1)
+    assert w1_b0.get("source") == "played" and w1_b0.get("spot_check_verified") is True
+    assert w1_b1.get("source") == "reused"
+    early_summary = p_win.baseline_reuse_summary()
+    assert early_summary is not None
+    assert (
+        early_summary["reused_count"],
+        early_summary["played_count"],
+        early_summary["total_base_games"],
+        early_summary["spot_checks_planned"],
+        early_summary["spot_checks_verified"],
+    ) == (1, 1, 2, 1, 1)
+
+    # Resume with preloaded Window 1 games preserves exact n/N and spot_checks_verified!
+    p_resumed = paired_comparison.parallel_window_player(
+        tmp_path,
+        series_id="ser-early",
+        base_deck=base_deck,
+        variant_deck=var2_deck,
+        opponents=opp_decks,
+        paths_by_deck_id=paths,
+        seeds=[100, 101],
+        tested_seats=[0, 1],
+        budget_pairs=4,
+        look_every_pairs=2,
+        workers=2,
+        games_per_jvm=1,
+        command=cmd,
+        preloaded={("base", 100, 0): w1_b0, ("base", 100, 1): w1_b1},
+        series_pool=False,
+        reuse_baseline=True,
+    )
+    resumed_summary = p_resumed.baseline_reuse_summary()
+    assert resumed_summary is not None
+    assert (
+        resumed_summary["reused_count"],
+        resumed_summary["played_count"],
+        resumed_summary["total_base_games"],
+        resumed_summary["spot_checks_verified"],
+    ) == (1, 1, 2, 1)
+
+    # Series 3 (mutation): spot-check returns tampered hash -> DeterminismViolation fail-closed
+    # AND the violating game is recorded in ser-3/journal.jsonl!
     tamper_hash["on"] = True
     p3 = paired_comparison.parallel_window_player(
         tmp_path,
@@ -3099,3 +3168,7 @@ def test_parallel_window_player_reuses_baseline_games_and_spot_checks_live(
     )
     with pytest.raises(series_record.DeterminismViolation):
         p3("base", 100, 0)
+    journal_3 = (series_record.series_folder(tmp_path, "ser-3") / "journal.jsonl").read_text(
+        encoding="utf-8"
+    )
+    assert "ser-3-base-s100-t0" in journal_3
