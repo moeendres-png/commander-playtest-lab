@@ -346,6 +346,7 @@ from pathlib import Path
 
 DATA = Path(os.environ["COMMANDER_LAB_STUDIO_DATA"])
 FOLDER = os.environ.get("FAKE_STUDIO_FOLDER") or str(DATA / "images")
+FAIL_ROUTE = os.environ.get("FAKE_STUDIO_FAIL_ROUTE") or ""
 
 
 def dump(value):
@@ -363,6 +364,8 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
+        if FAIL_ROUTE and self.path.split("?")[0] == FAIL_ROUTE:
+            return self.answer(b"{}", 500)
         if not self.path.startswith("/api/"):
             return self.answer(b"<html>" + self.path.encode() + b"</html>")
         if self.path == "/api/status":
@@ -382,6 +385,8 @@ class Handler(BaseHTTPRequestHandler):
         body = json.loads(self.rfile.read(length) or b"null")
         if self.headers.get("x-studio") != "1":
             return self.answer(b"{}", 403)
+        if FAIL_ROUTE and self.path.split("?")[0] == FAIL_ROUTE:
+            return self.answer(b"{}", 500)
         return self.answer(dump({"path": self.path, "body": body}))
 
     def do_PUT(self):
@@ -581,8 +586,26 @@ def test_studio_click_times_the_first_answer_after_each_effective_write(tmp_path
     for row in result["routes"].values():
         assert row["n"] == 3 and len(row["after_click_ms"]) == 3  # n is the number of clicks
         assert row["median_ms"] == sorted(row["after_click_ms"])[1]
+        assert row["all_200"] is True
         assert row["answer_bytes_unchanged"] is True  # the stand-in answers do not depend on writes
     assert result["run"]["clicks"] == 3
+
+
+def test_studio_click_fails_closed_when_a_probe_returns_non_200(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A 500 on any timed probe route invalidates the click timing run: not ``ok``, exit 1."""
+    monkeypatch.setenv("FAKE_STUDIO_FAIL_ROUTE", "/api/layers")
+    src, template = _fake_src(tmp_path), _header_template(tmp_path)
+    out = tmp_path / "click.json"
+    code = tool.main(
+        ["click", "--store", str(template), "--out", str(out), "--src", str(src),
+         "--start-timeout", "60", "--clicks", "2"]
+    )  # fmt: skip
+    result = json.loads(out.read_text(encoding="utf-8"))
+    assert code == 1 and result["ok"] is False
+    assert result["routes"]["/api/layers"]["all_200"] is False
+    assert result["routes"]["/api/strength"]["all_200"] is True
 
 
 def test_studio_click_with_a_write_that_moves_nothing_is_not_ok(tmp_path: Path) -> None:

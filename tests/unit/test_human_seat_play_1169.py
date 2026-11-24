@@ -4756,7 +4756,8 @@ async function run(opts) {{
     (text) => calls.toasts.push(text), () => {{}}, (i) => {{ state.index = i; fns.render(); }},
     () => {{ calls.follows += 1; calls.followWhileSending.push(state.submitting); }},
     () => {{ calls.renders += 1; if (opts.onRender) opts.onRender(state, fns); }},
-    (next) => {{ state.pendingDecision = next; }}, async () => {{}}, () => {{}}, () => {{}}, () => {{}},
+    (next) => {{ state.pendingDecision = next; }}, async () => {{}}, () => {{}},
+    () => {{ state.frames = []; }}, () => {{}},
     () => {{}}, () => {{}}, {{now: () => 0}}, C);
   return {{state, calls, fns, pill}};
 }}
@@ -4831,30 +4832,56 @@ def test_page_answer_takes_the_state_from_the_post_and_asks_again_only_when_unus
 
 
 def test_page_uses_the_answer_state_once_even_when_the_first_page_is_asked_again() -> None:
-    """#1578 (P3 of the review of #1655): ``ready = null`` in ``loadMoreOnce``. The state that came
-    with an answer serves the first page only. When that page ends the game while the page
-    watched it (the hands are revealed now), the loop asks again from the start; that second
-    page must come from the server, never from the same answer state a second time (a replay
-    of it would hide the frames the reveal makes visible)."""
+    """#1578 (P3 of the review of #1655):
+    1. When an answer ends the game while the page watched it (``hands_revealed`` flips to true),
+       ``resetFrames()`` empties ``state.frames`` and the loop reloads from ``start=0`` from the
+       server.
+    2. ``ready = null`` in ``loadMoreOnce``: when the loop re-iterates with the *same*
+       ``requestedStart`` (e.g. ``hasHumans && !state.interactive`` flips ``state.interactive``
+       and continues before updating ``state.frames`` or ``state.revision``), the second pass must
+       still ask the server rather than reusing ``ready`` a second time."""
     script = (
         _SUBMIT_PRELUDE
         + """
 (async () => {
   const ended = (state, start) => parked(state, start, {hands_revealed: true, running: false,
     result: {status: 'finished'}, pending_decision: null, revision: 7});
-  const page = await run({reply: (body, state) => ({accepted: true, state: ended(state, body.start)}),
-    get: (path, state) => ended(state, state.frames.length)});
-  await page.fns.submitHumanChoice({decision_id: 'd1', selected_option_ids: ['pass-d1'], ordering: []}, {});
-  console.log(JSON.stringify({requests: page.calls.requests.map((r) => r.method + ' ' + r.path),
-    handsRevealed: page.state.handsRevealed, revision: page.state.revision}));
+  const revealPage = await run({
+    reply: (body, state) => ({accepted: true, state: ended(state, body.start)}),
+    get: (path, state) => Object.assign(ended(state, 0), {frames: [frame(1), frame(2), frame(3)]})});
+  await revealPage.fns.submitHumanChoice(
+    {decision_id: 'd1', selected_option_ids: ['pass-d1'], ordering: []}, {});
+
+  // Genuine same-start re-iteration: state.interactive starts false, prefetched carries
+  // interactive=true with start=2 (matching state.frames.length). Line 1481 flips
+  // state.interactive=true and continues without changing frames.length or revision;
+  // without `ready = null`, iteration 2 would reuse `ready` instead of calling GET.
+  const sameStartPage = await run({
+    reply: () => { throw new Error('unexpected POST'); },
+    get: (path, state) => parked(state, state.frames.length)});
+  sameStartPage.state.interactive = false;
+  const prefetched = parked(sameStartPage.state, 2);
+  await sameStartPage.fns.loadMoreOnce(false, prefetched);
+
+  console.log(JSON.stringify({
+    revealRequests: revealPage.calls.requests.map((r) => r.method + ' ' + r.path),
+    handsRevealed: revealPage.state.handsRevealed,
+    revealRevision: revealPage.state.revision,
+    sameStartRequests: sameStartPage.calls.requests.map((r) => r.method + ' ' + r.path),
+    sameStartInteractive: sameStartPage.state.interactive,
+  }));
 })();
 """
     )
     out = _node_json(script)
     assert isinstance(out, dict)
-    # the answer state served the first page, the second one was asked for: one POST, one GET
-    assert out["requests"] == ["POST /api/play/g/decision", "GET /api/play/g?start=2&count=1000"]
-    assert out["handsRevealed"] is True and out["revision"] == 7
+    assert out["revealRequests"] == [
+        "POST /api/play/g/decision",
+        "GET /api/play/g?start=0&count=1000",
+    ]
+    assert out["handsRevealed"] is True and out["revealRevision"] == 7
+    assert out["sameStartRequests"] == ["GET /api/play/g?start=2&count=1000"]
+    assert out["sameStartInteractive"] is True
 
 
 def test_follow_tick_draws_only_when_the_view_changed() -> None:
