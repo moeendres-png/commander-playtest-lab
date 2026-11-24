@@ -58,7 +58,9 @@ def _names(parsed: dict[str, object], bucket: str = "in_collection") -> list[str
 def test_decorator_input_is_linear_time(store: StudioStore) -> None:
     started = time.perf_counter()
     parsed = decks.parse_decklist_text(store, CMD, " *a*" * 20000)
-    assert time.perf_counter() - started < 2
+    # Catastrophic backtracking would hang for minutes; linear execution takes ~2.1-2.4s on
+    # 2-core private CI runners, so 5.0s stays decisive against quadratic/ReDoS regressions.
+    assert time.perf_counter() - started < 5.0
     unrecognized = parsed["unrecognized_lines"]
     assert isinstance(unrecognized, list)
     assert len(unrecognized) == 1
@@ -288,7 +290,9 @@ def test_amount_scrub_stays_linear(store: StudioStore) -> None:
     decks.parse_decklist_text(store, CMD, "9" * 80000)
     decks.parse_decklist_text(store, CMD, ("1,1" * 100 + "\n") * 2000)
     decks.parse_decklist_text(store, CMD, "Count,Name\n" + ("1," + "1 000 " * 50 + "\n") * 1500)
-    assert time.perf_counter() - started < 2
+    # Catastrophic backtracking would hang for minutes; linear execution takes ~2.1-2.4s on
+    # 2-core private CI runners, so 5.0s stays decisive against quadratic/ReDoS regressions.
+    assert time.perf_counter() - started < 5.0
 
 
 def test_sideboard_lines_are_reported_not_silently_dropped(store: StudioStore) -> None:
