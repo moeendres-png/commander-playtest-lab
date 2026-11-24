@@ -28,7 +28,9 @@ from commander_lab.bridge_qualification import (
     BRIDGE_UNKNOWN,
     bridge_qualification,
 )
-from commander_lab.qualification.current_boundary.bridge_launcher import canonical_xmage_engine_pin
+from commander_lab.qualification.current_boundary.bridge_launcher import (
+    canonical_xmage_engine_pin as canonical_xmage_engine_pin,
+)
 
 from . import cache, series_reservation
 from .decks import lab_snapshot
