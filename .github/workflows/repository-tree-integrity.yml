@@ -37,7 +37,14 @@ jobs:
       - name: Inspect candidate objects without executing candidate code
         env:
           CANDIDATE_SHA: ${{ github.event.pull_request.head.sha }}
+          GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           [[ "$CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ]] || exit 1
-          git fetch --no-tags --depth=1 origin "$CANDIDATE_SHA"
+          AUTH_HEADER="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w 0)"
+          GIT_CONFIG_COUNT=1 \
+            GIT_CONFIG_KEY_0="http.https://github.com/.extraheader" \
+            GIT_CONFIG_VALUE_0="$AUTH_HEADER" \
+            git fetch --no-tags --depth=1 origin "$CANDIDATE_SHA"
+          unset GH_TOKEN AUTH_HEADER
           python scripts/verify_repository_tree.py --head "$CANDIDATE_SHA"
