@@ -1956,14 +1956,24 @@ def test_parallel_window_player_forwards_table_and_table_hash_to_tasks_and_manif
         table=table_spec_dict,
         table_hash=th,
     )
+    # P3: mutating caller's nested table list after construction must not affect tasks/manifest
+    cast_opps = table_spec_dict["opponents"]
+    assert isinstance(cast_opps, list)
+    cast_opps.append("deck/mutated")
+    expected_table: dict[str, object] = {
+        "schema": "studio-table-spec-1",
+        "seats": 3,
+        "opponents": [OPP1, OPP2],
+        "seat_policy": "rotate",
+    }
     player_with("base", 1, 0)
     assert pool_with_table.runs and pool_with_table.runs[0]
     for task in pool_with_table.runs[0]:
-        assert task.table == table_spec_dict
+        assert task.table == expected_table
         assert task.table_hash == th
     assert pool_with_table.record is not None
     manifest = json.loads(pool_with_table.record.manifest_path.read_text(encoding="utf-8"))
-    assert manifest["table"] == table_spec_dict
+    assert manifest["table"] == expected_table
     assert manifest["table_hash"] == th
 
     # Without table, game_key must differ (proving table entered game_key via plan_task)

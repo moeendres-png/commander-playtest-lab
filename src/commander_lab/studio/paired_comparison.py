@@ -23,6 +23,7 @@ engine pin.
 
 from __future__ import annotations
 
+import copy
 import threading
 from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
@@ -974,6 +975,12 @@ def parallel_window_player(
 
     planned_tasks: dict[tuple[str, int, int], GameTask] = {}
     record_holder: list[SeriesRecord] = []
+    table_snapshot: dict[str, object] | None = (
+        copy.deepcopy(dict(table)) if table is not None else None
+    )
+    normalized_table_hash: str | None = (
+        table_hash.strip() or None if isinstance(table_hash, str) else None
+    )
 
     def _plan_series_on_pool() -> None:
         """Every game of the series as a complete task, and the manifest (S1, #1660).
@@ -1008,8 +1015,8 @@ def parallel_window_player(
                     engine_pin=pin,
                     skip_forced_decisions=skip_forced,
                     jvm_options=jvm_options,
-                    table=table,
-                    table_hash=table_hash,
+                    table=copy.deepcopy(table_snapshot) if table_snapshot is not None else None,
+                    table_hash=normalized_table_hash,
                     deck_hashes=deck_hashes,
                 )
         record_holder.append(
@@ -1020,8 +1027,8 @@ def parallel_window_player(
                     {"task_id": t.task_id, "game_id": t.game_id, "game_key": t.game_key}
                     for t in planned_tasks.values()
                 ],
-                table_hash=table_hash,
-                table=table,
+                table_hash=normalized_table_hash,
+                table=copy.deepcopy(table_snapshot) if table_snapshot is not None else None,
             )
         )
 

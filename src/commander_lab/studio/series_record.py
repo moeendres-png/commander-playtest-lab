@@ -454,9 +454,11 @@ def audit_series_folder(folder: Path) -> SeriesFolderAudit:
     """Inspect a series folder (``manifest.json`` and optional ``journal.jsonl``) fail-closed.
 
     A manifest is valid only as a JSON object whose ``games`` field is a list of objects each
-    naming a non-empty string ``game_id``. When ``journal.jsonl`` is present, every newline-
-    terminated line must parse as a JSON object, a non-empty journal with no complete line counts
-    as corrupt, and :class:`SeriesRecord` must read it without ``DeterminismViolation``.
+    naming a non-empty string ``game_id``. When ``journal.jsonl`` is present, it is read through
+    :class:`SeriesRecord`: a ``DeterminismViolation``, an I/O error or a non-empty journal with
+    zero admitted entries and ignored/corrupt lines marks the series as violated. A series
+    resumed after a cut-off line that still has valid admitted entries and no violation stays
+    valid, matching :func:`series_violation` and :func:`series_guard`.
     """
     manifest_path = folder / "manifest.json"
     try:
@@ -483,21 +485,10 @@ def audit_series_folder(folder: Path) -> SeriesFolderAudit:
         if not journal_path.is_file():
             return SeriesFolderAudit(members=member_set, violated=True)
         try:
-            total_lines = 0
-            complete_lines = 0
-            with journal_path.open("rb") as handle:
-                for raw in handle:
-                    total_lines += 1
-                    if not raw.endswith(b"\n"):
-                        continue
-                    complete_lines += 1
-                    parsed = json.loads(raw)
-                    if not isinstance(parsed, dict):
-                        return SeriesFolderAudit(members=member_set, violated=True)
-            if total_lines > 0 and complete_lines == 0:
-                return SeriesFolderAudit(members=member_set, violated=True)
             record._read_journal()
-        except (DeterminismViolation, OSError, ValueError):
+        except (DeterminismViolation, OSError):
+            return SeriesFolderAudit(members=member_set, violated=True)
+        if not record._entries and record.ignored_lines > 0:
             return SeriesFolderAudit(members=member_set, violated=True)
     return SeriesFolderAudit(members=member_set, violated=False)
 

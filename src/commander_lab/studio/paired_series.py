@@ -15,6 +15,7 @@ Hard invariants:
 from __future__ import annotations
 
 import contextlib
+import copy
 import hashlib
 import json
 import math
@@ -851,8 +852,12 @@ class PairedSeriesJob:
         #: The experiment this series plays (B2, #1658): id, plan SHA and table hash.
         self.experiment = dict(experiment) if experiment is not None else None
         #: Optional canonical table spec and its hash (S1, #1660), forwarded to pool tasks/manifest.
-        self.table: dict[str, object] | None = dict(table) if table is not None else None
-        self.table_hash: str | None = str(table_hash) if table_hash is not None else None
+        self.table: dict[str, object] | None = (
+            copy.deepcopy(dict(table)) if table is not None else None
+        )
+        self.table_hash: str | None = (
+            str(table_hash).strip() or None if table_hash is not None else None
+        )
         self.data_folder = data_folder
         self.base_ref = base_ref
         self.variant_ref = variant_ref
@@ -1808,9 +1813,15 @@ class PairedSeriesManager:
                 created_at=str(raw.get("created_at")) if raw.get("created_at") else None,
                 preloaded_games=preloaded,
                 experiment=raw_exp if isinstance(raw_exp := raw.get("experiment"), dict) else None,
-                table=raw_tbl if isinstance(raw_tbl := raw.get("table"), dict) else None,
+                table=(
+                    copy.deepcopy(raw_tbl)
+                    if isinstance(raw_tbl := raw.get("table"), dict)
+                    else None
+                ),
                 table_hash=(
-                    raw_th if isinstance(raw_th := raw.get("table_hash"), str) and raw_th else None
+                    raw_th.strip() or None
+                    if isinstance(raw_th := raw.get("table_hash"), str)
+                    else None
                 ),
             )
             job.persist()

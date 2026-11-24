@@ -732,7 +732,13 @@ def load_exposures(games_dir: str | Path) -> LoadReport:
     is_series_dir = False
     if folder.is_dir():
         manifest_entry = folder / "manifest.json"
-        if manifest_entry.exists() or manifest_entry.is_symlink():
+        journal_entry = folder / "journal.jsonl"
+        if (
+            manifest_entry.exists()
+            or manifest_entry.is_symlink()
+            or journal_entry.exists()
+            or journal_entry.is_symlink()
+        ):
             is_series_dir = True
             audit = series_record.audit_series_folder(folder)
             if audit.violated:
@@ -746,6 +752,9 @@ def load_exposures(games_dir: str | Path) -> LoadReport:
         series_root = folder / "series"
         if series_root.is_dir():
             for child in sorted(series_root.iterdir()):
+                if child.is_symlink() and not child.is_dir():
+                    exclude_all = True
+                    continue
                 if not child.is_dir():
                     continue
                 has_manifest = (child / "manifest.json").exists() or (
