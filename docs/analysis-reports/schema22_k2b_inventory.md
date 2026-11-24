@@ -11,13 +11,13 @@ Evidenzklasse dieser Inventur: `CODE_DERIVED` (alle Zahlen maschinell per AST/SQ
 
 | Befund | Verifizierte Zahl | Bedeutung für Schema 22 |
 |---|---|---|
-| Tabellen in Schema 21 (`store.py:41-634`) | **52** (davon **16** `WITHOUT ROWID`) | Aufteilung: **1** `meta` je Datei, **32** `reference`, **16** `studio`, **2** `simulate` (Altbestand → K-2d/e), **1** `tier_snapshot` (entfällt) |
+| Tabellen in Schema 21 (`store.py:41-634`) | **52** (davon **13** `WITHOUT ROWID`) | Aufteilung: **1** `meta` je Datei, **32** `reference`, **16** `studio`, **2** `simulate` (Altbestand → K-2d/e), **1** `tier_snapshot` (entfällt) |
 | Explizite Indizes / Views / persistente Trigger | **23** Indizes (1 `UNIQUE`), **1** View (`card_fact`), **0** persistente Trigger (+**8** Temp-Trigger in `importing_for`) | `card_fact` bleibt komplett in `reference.sqlite3` (29/93 Studio-Module, 86 Referenzen) |
 | Fremdschlüssel in Schema 21 | **47** gesamt | **7/47** dateiübergreifend bei `inventory`/`card_location` in `reference` (**11/47** falls in `studio`); SQLite prüft keine FKs über `ATTACH`-Grenzen |
 | Lücken in `state_export.py` (`studio-user-state-1`) | **14** exportiert, **2** in `NOT_EXPORTED`, **3 Nutzertabellen fehlen komplett** | **Kritischer Befund:** `tam_cardmarket_price` (manuelle Owner-Preise, ohne zweite Quelle!) und `experiment`/`experiment_arm` fehlen in `_TABLES` **und** `NOT_EXPORTED` |
-| Cross-DB-SQL in `src/commander_lab/studio/` | **17** Abfragen (+**3** `store.py`-Binding-Methoden) in **10/93** Dateien (`inventory` in `reference`); **+18** Abfragen (+**7** Dateien) falls `inventory` in `studio` | `inventory` + `card_location` gehören klar in `reference.sqlite3` (re-importierbar aus Excel-Workbook, nie im Studio editierbar) |
+| Cross-DB-SQL in `src/commander_lab/studio/` | **17** Abfragen (+**3** `store.py`-Binding-Methoden) in **10/93** Dateien (`inventory` in `reference`); **+20** SQL-Stellen (**+19** `execute`-Aufrufe, +**7** weitere Dateien) falls `inventory` in `studio` | `inventory` + `card_location` gehören klar in `reference.sqlite3` (re-importierbar aus Excel-Workbook, nie im Studio editierbar) |
 | Single-File-Pfadannahmen (`studio.sqlite3` / `store.path` / `sqlite3.connect`) | **11/93** Studio-Module (davon **3/93** mit `sqlite3.connect`), **17/127** Studio-Skripte (davon **7/127** mit `sqlite3.connect`) | Betrifft Kernkomponenten: `store.py`, `cache.py`, `memo.py`, `backup.py`, `oneclick.py`, `doctor.py`, `images.py`, `import_all.py`, `simulations.py`, `__main__.py` |
-| `sqlite_master`-Inspektionen | **5/93** Studio-Module (**6** Stellen), **3/127** Skripte, **23/497** Testdateien | `SELECT ... FROM sqlite_master` sieht nur `main`, nicht `ATTACH`-Schemas |
+| `sqlite_master`-Inspektionen | **5/93** Studio-Module (**6** Stellen), **3/127** Skripte, **11/497** Studio-Testdateien (**12/497** gesamt; **23/497** Studio-Tests inkl. `PRAGMA`) | `SELECT ... FROM sqlite_master` sieht nur `main`, nicht `ATTACH`-Schemas |
 | Betroffene Testdateien (`tests/**/test_*.py`, `N = 497`) | **89/497** `test_*.py` (**90/504** aller `.py` inkl. `studio_synth.py`), davon **85/497** mit direktem `.execute()` | **+19** gegenüber den „70 Testdateien“ der Charta §6. Kategorien: **44 HOCH**, **40 MITTEL** (+1 Helfer), **5 NIEDRIG** |
 | D-1-Cache (`cache.py`) & WAL | `cache.py:307,606-615` erzwingt **Rollback-Journal-Modus** und prüft nur **eine** Datei (`store.path`, `PRAGMA data_version`, `database == "main"`) | Blocker für naives `ATTACH` und für WAL; erfordert mehrdateifähigen `store_stamp` + `data_version` je Datei oder getrennte Verbindungen |
 | Owner-Store & Windows-Laufzeit | `UNKNOWN` | `windows-runtime.yml` führt aktuell nur **2/128** Studio-Testdateien aus; keine Messdaten zum Owner-PC |
@@ -34,7 +34,7 @@ Additive Spalten beim Öffnen ohne Schema-Bump (`store.py:899-976, 1053-1056`):
 - `experiment`: `status` (`store.py:940-952`)
 
 **Hinweis zu nicht-SQLite-Beständen:**
-- **Kartenverständnis** (`card_understanding.py:30-35`, `understanding_field.py`): liegt als JSONL im Repository (`data/card_understanding/card_understanding_v2_1.jsonl`, `pooled.jsonl`), keine SQLite-Tabelle.
+- **Kartenverständnis** (`card_understanding.py:30-35, 411-417`, `understanding_field.py`): liegt als JSONL im Repository (`data/card_understanding/card_understanding_v2_1.jsonl` und `data/research/chulane_rubric_v2_20261118/second_run_full_20261122/pooled.jsonl`), keine SQLite-Tabelle.
 - **`deck_guides`**: Python-Modul in `src/commander_lab/agents/deck_guides.py`, keine SQLite-Tabelle.
 - **PLAY-Sitzungen** (`play.py`): Laufzeitzustand im Arbeitsspeicher + Protokolle unter `games/`, keine SQLite-Tabelle.
 - **Experiment- und Serien-Dateien**: Quelldateien unter `games/experiments/<id>/` (`plan.json`, `decision.json`; `deck_series.py:331-340`, `experiments.py:368,558`) und `games/series/<id>/` (`manifest.json`, `journal.jsonl`; `series_record.py:34`).
@@ -165,16 +165,16 @@ SQLite erzwingt `FOREIGN KEY`s **nicht** über `ATTACH`-Grenzen (`CREATE TABLE` 
 6. `simulation_run.source_id` (`simulate`) → `source.source_id` (`reference`) (`store.py:353`) *(entfällt mit K-2e)*
 7. `simulation_card.card_id` (`simulate`) → `card.card_id` (`reference`) (`store.py:357`) *(entfällt mit K-2e)*
 
-**Szenario B (`inventory` & `card_location` in `studio.sqlite3` — nicht empfohlen): 11/47 FKs brechen** (+4: `inventory.card_id`, `inventory.source_id`, `card_location.card_id`, `card_location.source_id`) und **+18** zusätzliche Cross-DB-JOINs in **7** weiteren Modulen.
+**Szenario B (`inventory` & `card_location` in `studio.sqlite3` — nicht empfohlen): 11/47 FKs brechen** (+4: `inventory.card_id`, `inventory.source_id`, `card_location.card_id`, `card_location.source_id`) und **+20** zusätzliche Cross-DB-SQL-Stellen (**+19** `execute`-Aufrufe) in **7** weiteren Modulen.
 
 ### 2.4 Zweifelsfälle und konkrete Empfehlungen
 
 | # | Zweifelsfall | Befund im Code | Empfehlung |
 |---|---|---|---|
-| **Z1** | `inventory` & `card_location` (`reference` vs. `studio`) | Werden ausschließlich durch `importers.py:338-352` aus dem externen Excel-Workbook vollständig überschrieben (`DELETE` + `INSERT`); 0 Schreibpfade im Studio-UI; in `STUDIO_STATE_EXPORT_FORMAT.md:70-71` (E-A1) bereits als Importtabelle ausgeschlossen; **18** `card_fact/card JOIN inventory`-Abfragen in 11 Modulen. | **`reference.sqlite3`**. Hält `studio.sqlite3` klein, vermeidet 4 Cross-DB-FKs und 18 Cross-DB-JOINs; Quelle der Wahrheit der Sammlung bleibt das Excel-Workbook. |
+| **Z1** | `inventory` & `card_location` (`reference` vs. `studio`) | Werden ausschließlich durch `importers.py:338-352` aus dem externen Excel-Workbook vollständig überschrieben (`DELETE` + `INSERT`); 0 Schreibpfade im Studio-UI; in `STUDIO_STATE_EXPORT_FORMAT.md:70-71` (E-A1) bereits als Importtabelle ausgeschlossen; **20** `card_fact/card JOIN inventory`-SQL-Stellen (**19** `execute`-Aufrufe) in 11 Modulen. | **`reference.sqlite3`**. Hält `studio.sqlite3` klein, vermeidet 4 Cross-DB-FKs und 20 Cross-DB-SQL-Stellen; Quelle der Wahrheit der Sammlung bleibt das Excel-Workbook. |
 | **Z2** | `deck_revision.source_id → source` | `state_export.py:77,158-161` exportiert bereits die kleine Teilmenge von `source`, auf die `deck_revision.source_id` zeigt. | Eigene kleine `deck_source`-Tabelle in `studio.sqlite3` (oder Inline-Spalten `source_sha256`/`source_title`), um Namenskollision mit `reference.source` zu vermeiden. |
 | **Z3** | `card_id` vs. `oracle_id` in `studio`-Tabellen (E-A3) | Die 4 `studio → reference.card`-FKs (`deck_revision_card`, `deck_module_card`, `card_mark`, `card_label`) und `ensure_scryfall_cards` (`store.py:1279-1341`, 4 Aufrufer) existieren nur wegen `card_id` als FK auf `card`. | Umstellung auf `oracle_id` als fachlicher Schlüssel in Schema 22 (`studio.sqlite3`), ohne Cross-DB-FK. `ensure_scryfall_cards` und `state_import_stub` (`state_export.py:42`) entfallen damit komplett; kein Cross-DB-Schreiben beim Deck-/Marken-Speichern. |
-| **Z4** | TAM-Preistabellen (`tam_*`, 6 Tabellen) | 5 Tabellen (`tam_price_snapshot`, `tam_price_eur`, `tam_price_print`, `tam_cardmarket_guide`, `tam_cardmarket_guide_snapshot`) sind re-importierbare Ableitungen lokaler Scryfall-/Cardmarket-Dateien (`tam_prices.py:182-205,317-338`). **`tam_cardmarket_price`** (`store.py:594-601`, `tam_prices.py:527-530`) speichert dagegen **manuell eingetragene Preise des Owners**. | 5 Import-Tabellen → **`reference.sqlite3`**; **`tam_cardmarket_price` → `studio.sqlite3`** (und in `studio-user-state-2` aufnehmen). |
+| **Z4** | TAM-Preistabellen (`tam_*`, 6 Tabellen) | 5 Tabellen (`tam_price_snapshot`, `tam_price_eur`, `tam_price_print`, `tam_cardmarket_guide`, `tam_cardmarket_guide_snapshot`) sind re-importierbare Ableitungen lokaler Scryfall-/Cardmarket-Dateien (`tam_prices.py:182-205,317-338`). **`tam_cardmarket_price`** (`store.py:594-601`, `tam_prices.py:527-530`) speichert dagegen **manuell eingetragene Preise des Owners**. | 5 Import-Tabellen → **`reference.sqlite3`** (beim Neuaufbau werden `tam_cardmarket_guide*` nur aus bereits lokal vorhandenen Dateien wieder eingelesen, nie automatisch nachgeladen — Owner-Ausnahme Cardmarket gilt nur auf expliziten Befehl, max. 1×/Datei/Tag); **`tam_cardmarket_price` → `studio.sqlite3`** (und in `studio-user-state-2` aufnehmen; Test-Fixtures nur synthetisch, `AGENTS.md` §12). |
 | **Z5** | `experiment` & `experiment_arm` | Charta §3 Nr. 1 ordnet „Experiment-Index + Entscheidungen“ explizit `studio` zu. Quelldateien (`plan.json`, `decision.json`) liegen zusätzlich unter `games/experiments/` (`deck_series.py:331-340`), und `experiments.rebuild_index` baut beide Tabellen neu auf. | **`studio.sqlite3`** (wie Charta §3 Nr. 1); Migration führt entweder Export über `studio-user-state-2` oder zwingend `rebuild_index` nach Übernahme von `games/experiments/` aus. |
 | **Z6** | `meta`-Schlüssel | Schreibstellen in `src/`: `schema_version` (`store.py:1018,1051`), `user_state_import_sha256` (`state_export.py:43,555`), `field_read.META_FALLBACKS_KEY` (`field_read.py:204`, Import-Fallback-Zähler). | Jede der 3 Dateien hat ihre eigene `meta` (`schema_version`). `user_state_import_sha256` liegt in `studio.meta`; `field_read` schreibt in `reference.meta`. |
 
@@ -191,7 +191,7 @@ Format `studio-user-state-1` (`state_export.py:37`):
 
 | Tabelle | Hinzugefügt durch | Zustand in `state_export.py` | Verlustrisiko bei Migration über `studio-user-state-1` | Maßnahme vor K-2c |
 |---|---|---|---|---|
-| **`tam_cardmarket_price`** (`store.py:594-601`) | #1637 WP-10b (manuelle Cardmarket-Preise des Owners) | **Weder in `_TABLES` noch in `NOT_EXPORTED`** | **HOCH — echter Datenverlust.** Es existiert keine zweite Datei-Quelle auf Platte (nur im lokalen Store). | Zwingend vor K-2c in **`studio-user-state-2`** aufnehmen (PK ist bereits `oracle_id`, keine `card_id`-Abhängigkeit; Daten bleiben strikt lokal, nie ins Repo). |
+| **`tam_cardmarket_price`** (`store.py:594-601`) | #1637 WP-10b (manuelle Cardmarket-Preise des Owners) | **Weder in `_TABLES` noch in `NOT_EXPORTED`** | **HOCH — echter Datenverlust.** Es existiert keine zweite Datei-Quelle auf Platte (nur im lokalen Store). | Zwingend vor K-2c in **`studio-user-state-2`** aufnehmen (PK ist bereits `oracle_id`, keine `card_id`-Abhängigkeit; Daten bleiben strikt lokal, nie ins Repo; Tests nur synthetisch). |
 | **`experiment`** & **`experiment_arm`** (`store.py:372-403`) | B2 #1658 (Experiment-Index + Owner-Entscheidungen + `status='withdrawn'`) | **Weder in `_TABLES` noch in `NOT_EXPORTED`** | **MITTEL:** Plan-/Entscheidungs-/Rückzugsdateien liegen in `games/experiments/<id>/`, `experiments.rebuild_index` kann den Index neu aufbauen — aber nur wenn `games/experiments/` beim Migrationspfad vorhanden bleibt und `rebuild_index` automatisch läuft. | Entweder in `studio-user-state-2` aufnehmen **oder** explizit in `NOT_EXPORTED` melden und `rebuild_index` als verbindlichen Schritt in K-2c verankern (mit Gleichheitsprüfung gegen Alt-Store). |
 
 *Hinweis zu `studio-user-state-1` für den aktuellen Owner-Export (6a):* Die 3 vorbereiteten Owner-Befehle im Issue #1703 bleiben gültig, prüfen aber `tam_cardmarket_price` und `experiment`/`experiment_arm` noch nicht mit. Vor dem eigentlichen K-2c-Schnitt muss entweder ein kleiner PR `K-2a2` (`studio-user-state-2`) folgen oder der K-2c-Migrator diese Tabellen explizit aus dem gesicherten Alt-Store (bzw. `games/experiments/`) verifizieren und übernehmen.
@@ -221,7 +221,7 @@ Format `studio-user-state-1` (`state_export.py:37`):
 
 #### Alle dateiübergreifenden SQL-Abfragen in `src/commander_lab/studio/` (Szenario A: `inventory` in `reference`)
 
-**14 direkte `studio ↔ reference` (bzw. `+ simulate`) JOIN/Subquery-Abfragen in 8/93 Dateien:**
+**14 direkte `studio ↔ reference` (bzw. `+ simulate`) JOIN/Subquery-Abfragen in 9/93 Dateien (13 produktive Abfragen in 8/93 Dateien + 1 Legacy-Migrationsabfrage in `store.py`):**
 
 | # | Datei:Zeile | Beteiligte Tabellen/Views | Betroffene DBs |
 |---:|---|---|---|
@@ -249,7 +249,7 @@ Format `studio-user-state-1` (`state_export.py:37`):
 **Zusätzlich 1 dateiübergreifender Schreibpfad:**
 - `ensure_scryfall_cards` (`store.py:1279-1341`), aufgerufen beim Speichern von Nutzerdaten in `builder.py:2426,2505`, `decks.py:136`, `labels.py:85` — schreibt in `reference.card` aus einem `studio`-Write-Pfad heraus (entfällt bei Z3 / `oracle_id`-Umstellung).
 
-*(Vergleich Szenario B: Läge `inventory` in `studio.sqlite3`, kämen **+18** `card_fact/card JOIN inventory`-Abfragen in `builder.py:212,440,1226,1247,2330`, `combos.py:524,534`, `decks.py:318,536`, `land_advisor.py:457,782`, `packages.py:164`, `queries.py:24`, `roles.py:819`, `similar_decks.py:237,542,765`, `state_export.py:307`, `tam_prices.py:368`, `universe.py:560` hinzu → 35 statt 17 Cross-DB-Abfragen.)*
+*(Vergleich Szenario B: Läge `inventory` in `studio.sqlite3`, kämen **+20** `card_fact/card JOIN inventory`-SQL-Stellen — **+19** `execute`-Aufrufe, da `combos.py:524,534` zwei Zweige eines `db.execute(sql)` in `:537` sind — in `builder.py:212,440,1226,1247,2330`, `combos.py:524,534`, `decks.py:318,536`, `land_advisor.py:457,782`, `packages.py:164`, `queries.py:24`, `roles.py:819`, `similar_decks.py:237,542,765`, `state_export.py:307`, `tam_prices.py:368`, `universe.py:560` hinzu → 37 statt 17 Cross-DB-SQL-Stellen.)*
 
 ### 4.2 `scripts/` (`N = 127` `.py`-Dateien)
 
@@ -320,7 +320,7 @@ Gesamtbestand: **504** `.py`-Dateien unter `tests/`, davon **497** Testdateien (
 
 | Kriterium | Option A: `ATTACH DATABASE` (1 Verbindung: `main=studio`, `ref=reference`, `sim=simulate`) | Option B: Getrennte Verbindungen (`store.studio`, `store.reference`, `store.simulate`) |
 |---|---|---|
-| 14 Cross-DB-JOINs in `studio/` | Laufen nach Auflösung der Namenskollisionen (`meta`, ggf. `source`) weiter. | Müssen in 8 Dateien auf 2 Abfragen + Python-Join umgestellt werden (überschaubar, da `deck_revision_card` ≤ 100 Karten, `card_mark` klein). |
+| 14 Cross-DB-JOINs in `studio/` | Laufen nach Auflösung der Namenskollisionen (`meta`, ggf. `source`) weiter. | Müssen in 9 Dateien (13 produktive Abfragen in 8 Dateien + 1 Legacy-Migrationsabfrage in `store.py`) auf 2 Abfragen + Python-Join umgestellt werden (überschaubar, da `deck_revision_card` ≤ 100 Karten, `card_mark` klein). |
 | 85 Testdateien mit `store.connection.execute(...)` | Unqualifizierte SQL-Aufrufe laufen großteils weiter (außer `meta`, `sqlite_master`, `PRAGMA`, `SCHEMA_VERSION`). | **Alle 85 Testdateien brechen sofort**, sofern `store.connection` entfällt; ohne Übergangsfassade hoher Migrationsaufwand. |
 | Fremdschlüssel (`PRAGMA foreign_keys=ON`) | **Keine** Durchsetzung über `ATTACH`-Grenzen; 7 Cross-DB-FKs müssen ohnehin entfallen. | Identisch: 7 Cross-DB-FKs entfallen; jede Datei behält volle dateiinterne FK-Integrität. |
 | **D-1-Cache (`cache.py`)** | **Schwerer Umbau nötig:** `store_stamp` muss alle 3 Dateien prüfen, `PRAGMA <schema>.data_version` je Schema, `_Window.authorize()` (`cache.py:586`) akzeptiert heute nur `database == "main"`. | **Sauber:** Jede Datei hat eigenen `store_stamp`, eigenes `PRAGMA data_version`, eigene `Group`-Zuordnung (`Group.IMPORT` ↔ `reference.sqlite3`, `DECKS/MARKS/PROFILES` ↔ `studio.sqlite3`, `SIMULATION` ↔ `simulate.sqlite3`). |
@@ -362,7 +362,7 @@ Nach `docs/STUDIO_CHARTA_V2.md` §6 gilt als Abbruchkriterium: **Paket-Budget > 
   1. Nutzer-Export `studio-user-state-2` (inkl. `tam_cardmarket_price` und `experiment`/`experiment_arm`) bleibt dauerhafte kleine Sicherung und Rundlauf-Prüfmittel.
   2. Umstellung der Nutzertabellen auf `oracle_id` (E-A3) → Entkopplung von `card_id`/Workbook-Importen, Wegfall `ensure_scryfall_cards` und `state_import_stub`.
   3. Entfernung von `tier_snapshot` (Q1/E4) und Ablösung von `simulation_run`/`simulation_card` durch das inhaltsadressierte Partie-Archiv (`simulate.sqlite3` optional als isolierte zweite Datei nur für SIMULATE, ohne `ATTACH` an `studio.sqlite3`).
-  4. **Neuaufbau an Ort und Stelle:** `studio rebuild-store` exportiert Nutzerzustand (`studio-user-state-2`), legt Backup an, erstellt frische `studio.sqlite3`, importiert Referenzdaten neu, spielt Nutzerzustand mit SHA-Gleichheitsbeweis zurück und schrumpft die Datei sauber (`VACUUM`).
+  4. **Neuaufbau an Ort und Stelle:** `studio rebuild-store` exportiert Nutzerzustand (`studio-user-state-2`), legt Backup an, erstellt frische `studio.sqlite3`, importiert Referenzdaten aus lokal vorhandenen Dateien neu (insbesondere `tam_cardmarket_guide*` nur aus lokal vorhandenen Dateien, nie automatisch nachgeladen), spielt Nutzerzustand mit SHA-Gleichheitsbeweis zurück und schrumpft die Datei sauber (`VACUUM`).
 - **Einsparung:** Kein Multi-File-Umbau von `cache.py`, kein Umbau der 14 Cross-DB-JOINs, kein Umbau von 89 Testdateien und 7 `sqlite3.connect`-Skripten, keine Windows-Multi-File-Locking-Risiken.
 
 ---
@@ -380,16 +380,16 @@ Gemeldet werden im Issue #1703 nur Zahlen (`source_schema_version`, Zeilen je Ta
 - **`not_exported` (`simulation_run`/`simulation_card`) > 0 vs. 0:** bei 0 entfällt eine Altbestand-Übernahme; bei > 0 wird der Übernahmepfad in K-2c/K-2e fest eingeplant.
 
 ### Schritt 1 — Vorbereitung PR `K-2a2` + Vorab-Aufräumen (MATERIAL Klasse A)
-1. **`state_export.py` → `studio-user-state-2`:** `tam_cardmarket_price` aufnehmen; `experiment`/`experiment_arm` aufnehmen oder explizit in `NOT_EXPORTED` + `rebuild_index`-Vertrag dokumentieren; Abwärtskompatibilität zum Lesen von `studio-user-state-1` (Fixture-Test).
+1. **`state_export.py` → `studio-user-state-2`:** `tam_cardmarket_price` aufnehmen (Test-Fixtures strikt synthetisch, `AGENTS.md` §12); `experiment`/`experiment_arm` aufnehmen oder explizit in `NOT_EXPORTED` + `rebuild_index`-Vertrag dokumentieren; Abwärtskompatibilität zum Lesen von `studio-user-state-1` (Fixture-Test).
 2. **Windows-Baseline schließen:** `windows-runtime.yml` um `test_studio_store.py`, `test_studio_cache_groups.py`, `test_studio_state_export.py`, `test_studio_backup.py` erweitern.
 3. **Oberfläche vor dem Schnitt verkleinern:**
    - `tier_snapshot` (Tabelle, `tier_snapshot.py`, Aufrufer in `strength_view.py`, `import_all.py`, `ranking_check.py`, `web.py`) gemäß Q1/E4 entfernen.
-   - `memo.py` ablösen (die 3 `memo.cached`-Stellen in `universe.py:467,1110` und `import_all.py:331` auf `cache.cached` umstellen → nur noch ein Cache-Anker D-1).
+   - `memo.py` ablösen (die 3 `memo.cached`-Stellen in `universe.py:467,1110` und `import_all.py:349` auf `cache.cached` umstellen → nur noch ein Cache-Anker D-1).
 
 ### Schritt 2 — K-2c: Schema 22 Dateischnitt (`reference.sqlite3` + `studio.sqlite3`) und Migration (MATERIAL Klasse A + Studio-Daten-Gate #1667)
 - **K-2c1 (Store & Cache-Fundament):** `StudioStore` mit `studio.sqlite3` (16 Tabellen, `oracle_id`-Schlüssel, eigene `deck_source` oder Inline-Provenienz statt Cross-DB-FK) und `reference.sqlite3` (32 Tabellen + View `card_fact`); `store.count()` auf alle Tabellen synchronisieren; `cache.py` auf Dateigruppen je Datei umstellen; `backup.py` auf `studio-backup-2`; `oneclick.py`, `doctor.py`, `images.py`, `import_all.py`, `data_report.py` anpassen.
-- **K-2c2 (Cross-DB-Abfragen & Skripte):** Die 14 `studio ↔ reference`-JOINs in 8 Modulen auf getrennte Abfragen + Python-Join umbauen; `ensure_scryfall_cards` entfernen; die 7 `sqlite3.connect`-Skripte und `studio_response_manifest.py` anpassen.
-- **K-2c3 (Migrationsbefehl & Beweis):** CLI `python -m commander_lab.studio migrate-schema-22 [--dry-run] [--copy-to ORDNER]` (fail-closed bei blockierten Karten, Vorab-Backup, Staging-Aufbau, `PRAGMA integrity_check` + `foreign_key_check` + Zeilen-Gleichheit + Rückexport-SHA-256).
+- **K-2c2 (Cross-DB-Abfragen & Skripte):** Die 14 `studio ↔ reference`-JOINs in 9 Modulen (13 produktive Abfragen in 8 Modulen + 1 Legacy-Migrationsabfrage in `store.py`) auf getrennte Abfragen + Python-Join umbauen; `ensure_scryfall_cards` entfernen; die 7 `sqlite3.connect`-Skripte und `studio_response_manifest.py` anpassen.
+- **K-2c3 (Migrationsbefehl & Beweis):** CLI `python -m commander_lab.studio migrate-schema-22 [--dry-run] [--copy-to ORDNER]` (fail-closed bei blockierten Karten, Vorab-Backup, Staging-Aufbau, `PRAGMA integrity_check` + `foreign_key_check` + Zeilen-Gleichheit + Rückexport-SHA-256; `tam_cardmarket_guide*` werden dabei ausschließlich aus bereits lokal vorliegenden Dateien übernommen und nie automatisch aus dem Netz nachgeladen).
 - **K-2c4 (Test-Suite):** Migration der 89 betroffenen `test_*.py` (44 HOCH → 40 MITTEL → 5 NIEDRIG) + `studio_synth.py`, volle `quality`/`security`/`infrastructure`/`windows-runtime`-Gates.
 - **Abbruch-/Rückfall-Prüfpunkt:** Überschreitet K-2c1/K-2c4 das Budget um > 50 % oder schlägt der Windows-Nachweis fehl → geordneter Rückfall auf §6.5.
 
