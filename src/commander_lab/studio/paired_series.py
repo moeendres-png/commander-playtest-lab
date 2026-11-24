@@ -15,6 +15,7 @@ Hard invariants:
 from __future__ import annotations
 
 import contextlib
+import copy
 import hashlib
 import json
 import math
@@ -848,10 +849,19 @@ class PairedSeriesJob:
         created_at: str | None = None,
         preloaded_games: dict[tuple[str, int, int], paired_comparison.PlayedGame] | None = None,
         experiment: Mapping[str, object] | None = None,
+        table: Mapping[str, object] | None = None,
+        table_hash: str | None = None,
     ) -> None:
         self.series_id = series_id
         #: The experiment this series plays (B2, #1658): id, plan SHA and table hash.
         self.experiment = dict(experiment) if experiment is not None else None
+        #: Optional canonical table spec and its hash (S1, #1660), forwarded to pool tasks/manifest.
+        self.table: dict[str, object] | None = (
+            copy.deepcopy(dict(table)) if table is not None else None
+        )
+        self.table_hash: str | None = (
+            str(table_hash).strip() or None if table_hash is not None else None
+        )
         self.data_folder = data_folder
         self.base_ref = base_ref
         self.variant_ref = variant_ref
@@ -1098,11 +1108,21 @@ class PairedSeriesJob:
                 "experiment": self.experiment,
                 "validity_block": validity_block,
                 "consistency_table": consistency_table,
+                "table": self.table,
+                "table_hash": self.table_hash,
                 "result": res,
             }
 
     def run(self) -> None:
         try:
+            withdraw_block = _experiment_withdraw_block(self.data_folder, self.experiment)
+            if withdraw_block is not None:
+                with self._lock:
+                    self.status = "cancelled"
+                    self.error = withdraw_block
+                    self.ended_at = now_utc()
+                self.persist()
+                return
             self._write_lock()
             self._ensure_progress_newline()
             with self._lock:
@@ -1137,6 +1157,8 @@ class PairedSeriesJob:
                 preloaded=self.preloaded_games,
                 on_game_result=self._append_game_result,
                 on_game_played=self.mark_game_played,
+                table=self.table,
+                table_hash=self.table_hash,
             )
 
             final_status = "failed"
@@ -1214,6 +1236,24 @@ class PairedSeriesJob:
 
 
 PAIRED_ID_ATTEMPTS = 1000
+_EXPERIMENT_ID_RE = re.compile(r"^exp-[A-Za-z0-9_-]{1,90}$")
+
+
+def _experiment_withdraw_block(target_folder: Path | None, experiment: object) -> str | None:
+    """Fail-closed check whether an experiment-linked series was withdrawn (Owner 5a, #1658)."""
+    if experiment is None:
+        return None
+    if not isinstance(experiment, dict):
+        return "ungültige Experiment-Verknüpfung (nicht fortsetzbar)"
+    exp_id = experiment.get("experiment_id")
+    if not isinstance(exp_id, str) or not _EXPERIMENT_ID_RE.fullmatch(exp_id):
+        return "ungültige Experiment-ID (nicht fortsetzbar)"
+    if target_folder is None:
+        return "Datenordner fehlt für Experiment-Prüfung (nicht fortsetzbar)"
+    withdraw_path = games_folder(target_folder) / "experiments" / exp_id / "withdraw.json"
+    if withdraw_path.exists() or withdraw_path.is_symlink():
+        return f"Experiment {exp_id} wurde zurückgezogen (nicht fortsetzbar)"
+    return None
 
 
 def _paired_id_in_use(claims: Path, series_id: str) -> bool:
@@ -1253,6 +1293,8 @@ class PairedSeriesManager:
         allow_unreleased_seats: bool = False,
         experiment: Mapping[str, object] | None = None,
         table_size: int | None = None,
+        table: Mapping[str, object] | None = None,
+        table_hash: str | None = None,
     ) -> PairedSeriesJob:
         """Start a paired series. ``table_size`` (seats, 2 to 6) sizes a pod preset's table:
         the preset's first ``table_size - 1`` opponents sit down, and the series records them
@@ -1427,6 +1469,8 @@ class PairedSeriesManager:
                 player_count=table_size,
                 opponent_ids=opponent_ids,
                 experiment=experiment,
+                table=table,
+                table_hash=table_hash,
             )
             job.reserved_in = claims
             job.persist()
@@ -1537,6 +1581,10 @@ class PairedSeriesManager:
             or "abweichen" in err
             or "nicht fortsetzbar" in err
             or DETERMINISM_VIOLATION in err
+        ):
+            return False
+        if raw.get("experiment") is not None and (
+            _experiment_withdraw_block(target_folder, raw.get("experiment")) is not None
         ):
             return False
         if target_folder is not None and isinstance(raw.get("series_id"), str):
@@ -1651,6 +1699,9 @@ class PairedSeriesManager:
             if key_problem is not None:
                 # an older key version is no violation and never mixed with new games
                 raise ValueError(f"{key_problem} (nicht fortsetzbar)")
+            withdraw_block = _experiment_withdraw_block(target_folder, raw.get("experiment"))
+            if withdraw_block is not None:
+                raise ValueError(withdraw_block)
 
             base_files = sorted(deck_dir.glob("base-*.json"))
             variant_files = sorted(deck_dir.glob("variant-*.json"))
@@ -1820,6 +1871,16 @@ class PairedSeriesManager:
                 created_at=str(raw.get("created_at")) if raw.get("created_at") else None,
                 preloaded_games=preloaded,
                 experiment=raw_exp if isinstance(raw_exp := raw.get("experiment"), dict) else None,
+                table=(
+                    copy.deepcopy(raw_tbl)
+                    if isinstance(raw_tbl := raw.get("table"), dict)
+                    else None
+                ),
+                table_hash=(
+                    raw_th.strip() or None
+                    if isinstance(raw_th := raw.get("table_hash"), str)
+                    else None
+                ),
             )
             job.persist()
             job._write_lock()

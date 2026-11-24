@@ -39,7 +39,7 @@ const state = {
   decks: [], deckId: null, branch: "main", baseRevision: null,
   list: new Map(), dirty: false, draftUpdatedAt: "", draftConflict: false, baseStale: false, needsDraftPut: false, issues: [], shape: null, deckRoles: {}, combos: null, roles: [], shapes: [],
   simulations: [], diffBaseRev: null, diffData: null, deckFacts: null, castability: null, activeBatch: null, batchPollTimer: null,
-  activePaired: null, pairedPollTimer: null, pairedHistory: [], readinessAudit: null,
+  activePaired: null, pairedPollTimer: null, pairedHistory: [], pairedPreset: null, readinessAudit: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
   subset: null, subsetNames: [], subsetWanted: null, strength: null, showTier: true, changeSeq: 0, savedSeq: 0, layers: null, diffDefault: null,
   includeUnowned: false, unownedSelection: null, superfriendsFilter: "", autoDeck: null,
@@ -1433,7 +1433,17 @@ async function renderDiff(body) {
       renderDeck();
     },
   }, ...options.map((item) => h("option", { value: item.rev, selected: item.rev === state.diffBaseRev }, `${item.label} (${item.rev.slice(0, 20)})`)));
-  body.append(h("div", { class: "actions" }, h("label", {}, "Vergleichsbasis: ", select)));
+  const testVariantDisabled = state.dirty || !state.baseRevision || !state.diffBaseRev || state.diffBaseRev === state.baseRevision;
+  const testVariantBtn = h("button", {
+    type: "button",
+    class: "small",
+    disabled: testVariantDisabled,
+    title: state.dirty
+      ? "Entwurf erst als Stand speichern"
+      : (state.diffBaseRev === state.baseRevision ? "Basis und Variante müssen zwei verschiedene Stände sein" : "Diesen Vergleich im gepaarten Vergleichsdialog vorfüllen"),
+    onclick: () => openPairedWithPreset(state.diffBaseRev, state.baseRevision),
+  }, "Als Variante testen");
+  body.append(h("div", { class: "actions" }, h("label", {}, "Vergleichsbasis: ", select), testVariantBtn));
   const box = h("div", {}, h("p", { class: "muted" }, "Berechnet Differenz..."));
   body.append(box);
   try {
@@ -1508,6 +1518,12 @@ function pollBatch(batchId) {
     }
   }, 1200);
 }
+function openPairedWithPreset(baseRef, variantRef) {
+  if (!baseRef || !variantRef || baseRef === variantRef) return;
+  state.pairedPreset = { baseRef, variantRef };
+  state.tab = "sim";
+  renderDeck();
+}
 function pairedDeps() {
   return {
     h,
@@ -1522,6 +1538,8 @@ function pairedDeps() {
     decks: () => state.decks,
     currentDeckId: () => state.deckId,
     currentRevision: () => state.baseRevision,
+    pairedPreset: () => state.pairedPreset,
+    clearPairedPreset: () => { state.pairedPreset = null; },
     activePaired: () => state.activePaired,
     setActivePaired: (v) => { state.activePaired = v; },
     pairedHistory: () => state.pairedHistory,
@@ -3304,6 +3322,7 @@ async function loadBranchNow(token, deckId, branchName, seqAtStart) {
   if (token !== loadSeq) return false;
   if (state.changeSeq !== seqAtStart) return false; // edited while loading: those edits are kept
   // one step: deck, variant, base and list of the new variant together
+  if (state.deckId !== deckId) state.pairedPreset = null;
   state.deckId = deckId;
   state.branch = branch.branch;
   state.baseRevision = branch.revision_id;
@@ -3482,6 +3501,8 @@ function openNewBranchModal() {
 }
 async function showHistory() {
   const rows = await api(`/api/decks/${encodeURIComponent(state.deckId)}/history`);
+  const mainRow = rows.find((item) => item.branch === "main");
+  const historyBaseRev = (mainRow && mainRow.revision_id) || state.baseRevision;
   const box = $("modal-box"); box.className = "plain"; box.replaceChildren(h("h2", {}, "Verlauf"),
     h("div", { class: "table-wrap" }, h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Gespeichert"), h("th", {}, "Variante"), h("th", { class: "num" }, "Karten"), h("th", {}, "Notiz"), h("th", {}, ""))),
       h("tbody", {}, rows.map((row) => h("tr", {},
@@ -3491,7 +3512,14 @@ async function showHistory() {
         h("td", {}, row.note),
         h("td", {}, h("div", { class: "actions" },
           h("button", { type: "button", class: "small", onclick: async () => { const revision = await api(`/api/revisions/${encodeURIComponent(row.revision_id)}`); await ensureUnownedLoadedFor(revision.cards); useCards(revision.cards); closeModal(); changed(); toast("Alter Stand geladen. Er wird erst mit Speichern zum aktuellen Stand."); } }, "Laden"),
-          h("button", { type: "button", class: "small", onclick: () => { state.diffBaseRev = row.revision_id; state.tab = "diff"; closeModal(); renderDeck(); } }, "Vergleichen")))))))),
+          h("button", { type: "button", class: "small", onclick: () => { state.diffBaseRev = row.revision_id; state.tab = "diff"; closeModal(); renderDeck(); } }, "Vergleichen"),
+          h("button", {
+            type: "button",
+            class: "small",
+            disabled: !historyBaseRev || row.revision_id === historyBaseRev,
+            title: !historyBaseRev || row.revision_id === historyBaseRev ? "Basis und Variante müssen zwei verschiedene Stände sein" : "Diesen Stand im gepaarten Vergleichsdialog als Variante vorfüllen",
+            onclick: () => { closeModal(); openPairedWithPreset(historyBaseRev, row.revision_id); },
+          }, "Als Variante testen")))))))),
     h("div", { id: "deck-series-slot" }),
     h("div", { id: "experiment-slot" }),
     h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen")));

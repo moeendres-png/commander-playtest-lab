@@ -23,7 +23,13 @@ from pathlib import Path
 
 from .games import games_folder
 from .launch import MAX_SEATS, MIN_SEATS
-from .paired_series import SCHEMA_PAIRED_JOB, observed_table_sizes, validate_series_id
+from .paired_series import (
+    SCHEMA_PAIRED_JOB,
+    PairedSeriesManager,
+    observed_table_sizes,
+    paired_series_manager,
+    validate_series_id,
+)
 from .simulations import build_validity_block, compute_seat_curve
 from .store import StudioStore
 from .table_spec import sha256_of
@@ -356,7 +362,159 @@ def plan_intact(record: Mapping[str, object] | None, series_raw: Mapping[str, ob
     return isinstance(experiment, dict) and experiment.get("plan_sha") == sha
 
 
-def experiment_view(row: sqlite3.Row) -> dict[str, object] | None:
+_EXPERIMENT_STATUS_TEXT = {
+    "active": "aktiv",
+    "withdrawn": "zurückgezogen",
+}
+
+
+def row_status(row: sqlite3.Row) -> str:
+    """Lifecycle status of an indexed experiment row (``active`` or ``withdrawn``)."""
+    keys = set(row.keys())
+    if "status" not in keys or row["status"] is None:
+        return "active"
+    return str(row["status"])
+
+
+def _lock_active_or_unreadable(lock_path: Path) -> bool:
+    if not lock_path.exists():
+        return False
+    try:
+        if not lock_path.is_file() or lock_path.stat().st_size > MAX_FILE_BYTES:
+            return True
+        raw = json.loads(lock_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, RecursionError):
+        return True
+    if not isinstance(raw, dict):
+        return True
+    pid = raw.get("pid")
+    if type(pid) is not int or pid <= 0:
+        return True
+    return PairedSeriesManager._is_pid_alive(pid)
+
+
+def _nonempty_or_unreadable(path: Path) -> bool:
+    if not path.exists():
+        return False
+    try:
+        if not path.is_file():
+            return True
+        return path.stat().st_size > 0
+    except OSError:
+        return True
+
+
+def _series_activity_reasons(data_path: Path, series_id: object, *, prefix: str = "") -> list[str]:
+    if series_id is None:
+        return []
+    if not isinstance(series_id, str) or not series_id:
+        return [f"{prefix}ungültige Serien-ID"]
+    try:
+        validate_series_id(series_id)
+    except ValueError:
+        return [f"{prefix}ungültige Serien-ID"]
+    reasons: list[str] = []
+    live = paired_series_manager.get_job(series_id)
+    if live is not None and live.status in ("pending", "running"):
+        reasons.append(f"{prefix}Serie läuft oder startet gerade im Prozess (status={live.status})")
+    g_folder = games_folder(data_path)
+    paired_dir = g_folder / "paired_decks" / series_id
+    if _lock_active_or_unreadable(paired_dir / "running.lock"):
+        reasons.append(f"{prefix}Serie läuft noch (Lock aktiv)")
+    if _nonempty_or_unreadable(paired_dir / "progress.jsonl"):
+        reasons.append(f"{prefix}progress.jsonl ist nicht leer (Spiele bereits begonnen)")
+    if _nonempty_or_unreadable(g_folder / "series" / series_id / "journal.jsonl"):
+        reasons.append(f"{prefix}journal.jsonl ist nicht leer (Spiele bereits protokolliert)")
+    series_path = g_folder / f"{series_id}.paired.json"
+    if series_path.exists():
+        raw = read_series_file(series_path)
+        if raw is None:
+            reasons.append(f"{prefix}.paired.json ist unlesbar oder korrupt")
+        else:
+            if raw.get("status") in ("running", "pending"):
+                reasons.append(
+                    f"{prefix}Serie läuft noch oder ist ausstehend (status={raw.get('status')})"
+                )
+            result = raw.get("result")
+            if result is not None:
+                if isinstance(result, dict) and (_as_int(result.get("looks_used")) or 0) > 0:
+                    reasons.append(
+                        f"{prefix}Serie hat bereits mindestens einen Look (looks_used > 0)"
+                    )
+                else:
+                    reasons.append(f"{prefix}Serie hat bereits ein Ergebnis")
+            looks_used = raw.get("looks_used")
+            if looks_used is not None:
+                looks_int = _as_int(looks_used)
+                if looks_int is None or looks_int > 0:
+                    reasons.append(
+                        f"{prefix}Serie hat bereits mindestens einen Look (looks_used > 0)"
+                    )
+            attempted = raw.get("pairs_attempted")
+            if attempted is not None:
+                att_int = _as_int(attempted)
+                if att_int is None or att_int > 0:
+                    reasons.append(f"{prefix}es wurden bereits Paare versucht")
+            played = raw.get("games_played")
+            if played is not None:
+                played_int = _as_int(played)
+                if played_int is None or played_int > 0:
+                    reasons.append(f"{prefix}es wurden bereits Spiele gespielt")
+    return reasons
+
+
+def withdraw_blocked_reasons(
+    store: StudioStore, data_folder: str | Path, row: sqlite3.Row
+) -> list[str]:
+    """Fail-closed reasons why an experiment plan cannot be withdrawn (Owner 5a, #1658).
+    An empty list means withdrawal is allowed."""
+    data_path = Path(data_folder).resolve()
+    if row["plan_sha"] is None:
+        return ["Alt-Serie ohne Plan kann nicht zurückgezogen werden"]
+    reasons: list[str] = []
+    exp_status = row_status(row)
+    if exp_status == "withdrawn":
+        reasons.append("Plan wurde bereits zurückgezogen")
+    elif exp_status != "active":
+        reasons.append(f"unbekannter Plan-Status ({exp_status})")
+    if row["decision"] != "open":
+        reasons.append(f"Experiment ist bereits entschieden ({row['decision']})")
+    own_id = str(row["experiment_id"])
+    state = _plan_state(plan_record(data_path, own_id), row["plan_sha"])
+    if state != "intact":
+        reasons.append(f"Plan-Datei ist nicht intakt ({state})")
+    reasons.extend(_series_activity_reasons(data_path, row["series_id"]))
+    if str(row["purpose"]) == "confirmation":
+        table_hash = row["table_hash"]
+        if not isinstance(table_hash, str) or not table_hash:
+            reasons.append("Bestätigung ohne table_hash: Holm-Familie nicht prüfbar (fail-closed)")
+        else:
+            siblings = store.connection.execute(
+                "SELECT experiment_id, series_id FROM experiment "
+                "WHERE deck_id = ? AND base_revision_id = ? AND table_hash = ? "
+                "AND purpose = 'confirmation' "
+                "AND COALESCE(status, 'active') != 'withdrawn' "
+                "AND experiment_id != ?",
+                (row["deck_id"], row["base_revision_id"], table_hash, own_id),
+            ).fetchall()
+            for sib in siblings:
+                sib_id = str(sib["experiment_id"])
+                reasons.extend(
+                    _series_activity_reasons(
+                        data_path,
+                        sib["series_id"],
+                        prefix=f"Holm-Familienmitglied {sib_id}: ",
+                    )
+                )
+    return reasons
+
+
+def experiment_view(
+    row: sqlite3.Row,
+    *,
+    store: StudioStore | None = None,
+    data_folder: str | Path | None = None,
+) -> dict[str, object] | None:
     """What the history shows about an experiment; None for a legacy series (no plan)."""
     if row["plan_sha"] is None:
         return None
@@ -365,6 +523,13 @@ def experiment_view(row: sqlite3.Row) -> dict[str, object] | None:
     text = {"open": "offen", "adopted": "übernommen", "rejected": "verworfen"}[decision]
     if decision == "adopted" and tested == 0:
         text = "übernommen (ungetestet)"
+    exp_status = row_status(row)
+    exp_status_text = _EXPERIMENT_STATUS_TEXT.get(exp_status, "unbekannt")
+    blocked = (
+        withdraw_blocked_reasons(store, data_folder, row)
+        if store is not None and data_folder is not None
+        else ["Prüfung nicht verfügbar (fail-closed)"]
+    )
     return {
         "experiment_id": str(row["experiment_id"]),
         "question": str(row["question"]),
@@ -377,6 +542,10 @@ def experiment_view(row: sqlite3.Row) -> dict[str, object] | None:
         "engine_pin": row["engine_pin"],
         "bridge_jar_sha256": row["bridge_jar_sha256"],
         "bridge_state": row["bridge_state"],
+        "status": exp_status,
+        "status_text": exp_status_text,
+        "withdrawable": len(blocked) == 0,
+        "withdraw_blocked_reasons": blocked,
         "decision": decision,
         "decision_text": text,
         "decision_at": row["decision_at"],
@@ -385,7 +554,12 @@ def experiment_view(row: sqlite3.Row) -> dict[str, object] | None:
     }
 
 
-def entry_for_experiment(data_folder: str | Path, row: sqlite3.Row) -> dict[str, object]:
+def entry_for_experiment(
+    data_folder: str | Path,
+    row: sqlite3.Row,
+    *,
+    store: StudioStore | None = None,
+) -> dict[str, object]:
     """The history entry of one indexed experiment (or legacy series) from its result file."""
     folder = games_folder(Path(data_folder).resolve())
     series_id = row["series_id"]
@@ -399,7 +573,7 @@ def entry_for_experiment(data_folder: str | Path, row: sqlite3.Row) -> dict[str,
         status = STATUS_INCOMPLETE
     else:
         status = series_status(raw)
-    experiment = experiment_view(row)
+    experiment = experiment_view(row, store=store, data_folder=data_folder)
     if experiment is not None and not plan_intact(
         plan_record(data_folder, str(row["experiment_id"])), raw
     ):
@@ -429,7 +603,7 @@ def _indexed(
         )
     }
     every = {str(r[0]) for r in db.execute("SELECT series_id FROM experiment") if r[0]}
-    return [entry_for_experiment(data_folder, row) for row in rows], revisions, every
+    return [entry_for_experiment(data_folder, row, store=store) for row in rows], revisions, every
 
 
 def deck_series(
@@ -599,6 +773,9 @@ def experiment_detail(
         if deck_id
         else None
     )
+    exp_status = row_status(row)
+    exp_status_text = _EXPERIMENT_STATUS_TEXT.get(exp_status, "unbekannt")
+    blocked = withdraw_blocked_reasons(store, data_folder, row)
     return {
         "schema": "studio-experiment-detail-1",
         "data_class": "SIMULATED_RESULT",
@@ -607,6 +784,10 @@ def experiment_detail(
         "legacy": row["plan_sha"] is None,
         "question": str(row["question"]),
         "purpose": str(row["purpose"]),
+        "status": exp_status,
+        "status_text": exp_status_text,
+        "withdrawable": len(blocked) == 0,
+        "withdraw_blocked_reasons": blocked,
         "created_at": str(row["created_at"]) or None,
         "plan_state": state,
         "plan": plan,
@@ -626,9 +807,9 @@ def experiment_detail(
             "bridge_state": row["bridge_state"],
             "pilot_fingerprint": row["pilot_fingerprint"],
         },
-        "experiment": experiment_view(row),
+        "experiment": experiment_view(row, store=store, data_folder=data_folder),
         "current_main_revision_id": None if main is None else str(main[0]),
-        "result": entry_for_experiment(data_folder, row),
+        "result": entry_for_experiment(data_folder, row, store=store),
         "sources": {
             "plan": f"games/experiments/{own_id}/plan.json" if row["plan_sha"] else None,
             "result": f"games/{row['series_id']}.paired.json" if row["series_id"] else None,

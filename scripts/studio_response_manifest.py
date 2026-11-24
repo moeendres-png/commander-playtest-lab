@@ -13,6 +13,13 @@ before and after a change.
 ``writes``  the optional write matrix: after each write (favorite, mark, label, draft, revision,
             primer, universe profile) the read routes plus ``observer_requests`` of the running
             server must equal those of a freshly started server on the same written copy.
+``click``   the first request after a write (Refs #1561): after warming every read route, ``--clicks``
+            favorites (one write each, a different card each time) are written and the routes in
+            ``CLICK_ROUTES`` are asked once after each write; per route the times (n = clicks), their
+            median and whether the answer bytes stayed those from before the first write. A write
+            that does not move the file change counter of the copy proves nothing: it is recorded
+            as ``write_effective: false`` and the run is not ``ok``. The times are measurements of
+            this machine and store copy, not a threshold; the verdict is the reader's.
 ``compare`` two ``run`` manifests; exit 0 if the inputs and every answer agree, 1 otherwise.
             Only manifests of the same ``format`` are comparable; an older one is refused (exit 2).
 ``fields``  two JSON answers of one route (before and after a change that removes fields,
@@ -59,6 +66,7 @@ import os
 import platform
 import shutil
 import socket
+import statistics
 import subprocess
 import sys
 import tempfile
@@ -81,6 +89,10 @@ DEFAULT_DECK = "chulane"
 DATABASE = "studio.sqlite3"
 DATA_PLACEHOLDER = "<STUDIO_DATA>"
 WRITE_MARK = "d0-messnetz"
+CLICK_FORMAT = "studio-click-timing/1"
+# routes whose first answer after a write the issue #1561 times: two keep their bytes (strength,
+# evidence), land-advisor is import-only, layers contains the favorites and is recomputed.
+CLICK_ROUTES = ("/api/strength", "/api/land-advisor", "/api/layers", "/api/evidence")
 
 # Route key -> JSON paths whose value is the absolute store folder of the run (see module text).
 NORMALIZATIONS: dict[str, tuple[tuple[str, ...], ...]] = {
@@ -854,6 +866,100 @@ def run_writes(
     }
 
 
+def _change_counter(database: Path) -> int | None:
+    """SQLite's file change counter (header bytes 24 to 27), ``None`` when unreadable."""
+    try:
+        with database.open("rb") as handle:
+            header = handle.read(28)
+    except OSError:
+        return None
+    return int.from_bytes(header[24:28], "big") if len(header) == 28 else None
+
+
+def run_click_timing(
+    context: RunContext, commander: str, deck_id: str, clicks: int
+) -> dict[str, object]:
+    """Time the first answer of ``CLICK_ROUTES`` after each of ``clicks`` favorite writes (#1561)."""
+    if clicks < 1:
+        raise ManifestError("--clicks must be at least 1")
+    before = template_fingerprint(context.template)
+    started = time.perf_counter()
+    warm: dict[str, float] = {}
+    after: dict[str, list[float]] = {key: [] for key in CLICK_ROUTES}
+    same: dict[str, list[bool]] = {key: [] for key in CLICK_ROUTES}
+    writes: list[dict[str, object]] = []
+    try:
+        data = _copy(context)
+        server = _start(context, data)
+        try:
+            inputs = resolve_inputs(server.base, commander, deck_id)
+            reads = read_requests(inputs)
+            probes = {
+                r.path.split("?")[0]: r for r in reads if r.path.split("?")[0] in CLICK_ROUTES
+            }
+            if set(probes) != set(CLICK_ROUTES):
+                raise ManifestError(f"the read routes lack some of {CLICK_ROUTES}")
+            cards = inputs.main_ids()
+            if len(cards) < clicks:
+                raise ManifestError(
+                    f"deck {deck_id} has {len(cards)} main cards, --clicks {clicks}"
+                )
+            for request in reads:  # warm everything once
+                call(server.base, request)
+            baseline: dict[str, str] = {}
+            for key, probe in probes.items():
+                _status, body, ms = call(server.base, probe)
+                baseline[key] = hashlib.sha256(body).hexdigest()
+                warm[key] = round(ms, 1)
+            database = data / DATABASE
+            for index in range(clicks):
+                counter = _change_counter(database)
+                # alternate the value: a card that is a favorite already must not turn a write
+                # into a no-op for every second click
+                click = Request(
+                    "PUT", f"/api/cards/{_q(cards[index])}/favorite", {"favorite": index % 2 == 0}
+                )
+                status, _body, _ms = call(server.base, click)
+                moved = _change_counter(database) != counter
+                writes.append({"key": click.key, "status": status, "write_effective": moved})
+                for key, probe in probes.items():
+                    probe_status, body, ms = call(server.base, probe)
+                    after[key].append(round(ms, 1))
+                    same[key].append(
+                        probe_status == 200 and hashlib.sha256(body).hexdigest() == baseline[key]
+                    )
+                    print(f"click {index + 1}/{clicks} {key}: {ms:.0f} ms", flush=True)
+            server.check_store()
+        finally:
+            server.stop()
+    finally:
+        _guard_template(context, before)
+    routes = {
+        key: {
+            "warm_ms": warm[key],
+            "after_click_ms": after[key],
+            "n": len(after[key]),
+            "median_ms": round(statistics.median(after[key]), 1),
+            "answer_bytes_unchanged": all(same[key]),
+        }
+        for key in CLICK_ROUTES
+    }
+    return {
+        "format": CLICK_FORMAT,
+        "tool": "scripts/studio_response_manifest.py",
+        "run": {
+            **_header(context, before),
+            "total_seconds": round(time.perf_counter() - started, 1),
+            "load_after": _load(),
+            "clicks": clicks,
+        },
+        "inputs": inputs.record(),
+        "ok": all(w["status"] == 200 and w["write_effective"] for w in writes),
+        "writes": writes,
+        "routes": routes,
+    }
+
+
 # --- command line -----------------------------------------------------------------------------
 
 
@@ -933,6 +1039,9 @@ def main(argv: list[str] | None = None) -> int:
         default="favorite,mark,label,draft,revision,primer,universe_profile",
         help="comma-separated subset of the write matrix",
     )
+    click = commands.add_parser("click", help="first request after a favorite write (n clicks)")
+    _add_run_options(click)
+    click.add_argument("--clicks", type=int, default=5, help="favorite writes, one card each")
     compare = commands.add_parser("compare", help="compare two run manifests (exit 1 if different)")
     compare.add_argument("left")
     compare.add_argument("right")
@@ -978,6 +1087,13 @@ def main(argv: list[str] | None = None) -> int:
                 _write_json(Path(args.out), result)
                 print(f"{_count(result.get('requests'))} routes -> {args.out}")
                 return 0
+            if args.command == "click":
+                timing = run_click_timing(context, args.commander, args.deck_id, args.clicks)
+                _write_json(Path(args.out), timing)
+                routes = timing.get("routes")
+                for key, row in (routes if isinstance(routes, dict) else {}).items():
+                    print(f"{key}: median {row['median_ms']} ms of n={row['n']} after a write")
+                return 0 if timing["ok"] else 1
             selected = [name.strip() for name in args.writes.split(",") if name.strip()]
             outcome = run_writes(context, args.commander, args.deck_id, selected)
             _write_json(Path(args.out), outcome)

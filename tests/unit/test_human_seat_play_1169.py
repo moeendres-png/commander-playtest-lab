@@ -4652,8 +4652,11 @@ def test_post_decision_that_ends_the_game_reveals_only_with_the_closing_result(
         # never before. The answer follows the same rule as the GET.
         revealed = state["running"] is False and state["result"] is not None
         assert state["hands_revealed"] is revealed
-        if not revealed:
-            assert _FakeInteractiveClient.SECRET_CARD not in json.dumps(last)
+        # No branch on the timing of the closing result (#1578, P3 of the review of #1655): the
+        # POST asked for all frames (``start`` 0), so the AI hand is in the answer exactly when
+        # the answer says the hands are revealed, and never otherwise, whichever side of the
+        # game end this answer falls on.
+        assert (_FakeInteractiveClient.SECRET_CARD in json.dumps(last)) is revealed
         assert state["pending_decision"] is None
         done = _wait_finished(client, "post-end")
         assert done["hands_revealed"] is True
@@ -4825,6 +4828,33 @@ def test_page_answer_takes_the_state_from_the_post_and_asks_again_only_when_unus
     refused = out["refused"]
     assert refused["requests"] == [post, plain] and refused["follows"] == 1
     assert refused["toasts"] == 1
+
+
+def test_page_uses_the_answer_state_once_even_when_the_first_page_is_asked_again() -> None:
+    """#1578 (P3 of the review of #1655): ``ready = null`` in ``loadMoreOnce``. The state that came
+    with an answer serves the first page only. When that page ends the game while the page
+    watched it (the hands are revealed now), the loop asks again from the start; that second
+    page must come from the server, never from the same answer state a second time (a replay
+    of it would hide the frames the reveal makes visible)."""
+    script = (
+        _SUBMIT_PRELUDE
+        + """
+(async () => {
+  const ended = (state, start) => parked(state, start, {hands_revealed: true, running: false,
+    result: {status: 'finished'}, pending_decision: null, revision: 7});
+  const page = await run({reply: (body, state) => ({accepted: true, state: ended(state, body.start)}),
+    get: (path, state) => ended(state, state.frames.length)});
+  await page.fns.submitHumanChoice({decision_id: 'd1', selected_option_ids: ['pass-d1'], ordering: []}, {});
+  console.log(JSON.stringify({requests: page.calls.requests.map((r) => r.method + ' ' + r.path),
+    handsRevealed: page.state.handsRevealed, revision: page.state.revision}));
+})();
+"""
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    # the answer state served the first page, the second one was asked for: one POST, one GET
+    assert out["requests"] == ["POST /api/play/g/decision", "GET /api/play/g?start=2&count=1000"]
+    assert out["handsRevealed"] is True and out["revision"] == 7
 
 
 def test_follow_tick_draws_only_when_the_view_changed() -> None:
