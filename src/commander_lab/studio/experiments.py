@@ -445,12 +445,23 @@ def start_experiment(
                 )
         shutil.rmtree(folder, ignore_errors=True)
         raise
-    _write_json(folder / "run.json", {"experiment_id": experiment_id, "series_id": job.series_id})
     with store.connection:
-        store.connection.execute(
-            "UPDATE experiment SET series_id = ?, bridge_jar_sha256 = ? WHERE experiment_id = ?",
+        updated = store.connection.execute(
+            "UPDATE experiment SET series_id = ?, bridge_jar_sha256 = ? "
+            "WHERE experiment_id = ? AND COALESCE(status, 'active') = 'active'",
             (job.series_id, job.bridge_jar_sha256, experiment_id),
-        )
+        ).rowcount
+        if updated != 1:
+            with contextlib.suppress(Exception):
+                paired_series.paired_series_manager.cancel_series(job.series_id)
+            if hasattr(job, "cancel") and callable(job.cancel):
+                with contextlib.suppress(Exception):
+                    job.cancel()
+            raise WithdrawRefused(
+                f"Experiment {experiment_id} wurde während des Starts zurückgezogen oder geändert; "
+                "Serie wurde abgebrochen"
+            )
+    _write_json(folder / "run.json", {"experiment_id": experiment_id, "series_id": job.series_id})
     return {
         "experiment_id": experiment_id,
         "plan_sha": sha,
@@ -741,6 +752,7 @@ def _rebuild(store: StudioStore, data_folder: str | Path) -> dict[str, int]:
         withdraw = _read_json(plan_file.parent / "withdraw.json") or {}
         if (
             withdraw.get("schema") == SCHEMA_WITHDRAW
+            and withdraw.get("status") == "withdrawn"
             and withdraw.get("experiment_id") == row["experiment_id"]
             and withdraw.get("plan_sha") == row["plan_sha"]
             and row.get("decision", "open") == "open"

@@ -27,6 +27,7 @@ from .paired_series import (
     SCHEMA_PAIRED_JOB,
     PairedSeriesManager,
     observed_table_sizes,
+    paired_series_manager,
     validate_series_id,
 )
 from .store import StudioStore
@@ -379,6 +380,9 @@ def _series_activity_reasons(data_path: Path, series_id: object, *, prefix: str 
     except ValueError:
         return [f"{prefix}ungültige Serien-ID"]
     reasons: list[str] = []
+    live = paired_series_manager.get_job(series_id)
+    if live is not None and live.status in ("pending", "running"):
+        reasons.append(f"{prefix}Serie läuft oder startet gerade im Prozess (status={live.status})")
     g_folder = games_folder(data_path)
     paired_dir = g_folder / "paired_decks" / series_id
     if _lock_active_or_unreadable(paired_dir / "running.lock"):
@@ -393,8 +397,10 @@ def _series_activity_reasons(data_path: Path, series_id: object, *, prefix: str 
         if raw is None:
             reasons.append(f"{prefix}.paired.json ist unlesbar oder korrupt")
         else:
-            if raw.get("status") == "running":
-                reasons.append(f"{prefix}Serie läuft noch")
+            if raw.get("status") in ("running", "pending"):
+                reasons.append(
+                    f"{prefix}Serie läuft noch oder ist ausstehend (status={raw.get('status')})"
+                )
             result = raw.get("result")
             if result is not None:
                 if isinstance(result, dict) and (_as_int(result.get("looks_used")) or 0) > 0:
@@ -403,8 +409,13 @@ def _series_activity_reasons(data_path: Path, series_id: object, *, prefix: str 
                     )
                 else:
                     reasons.append(f"{prefix}Serie hat bereits ein Ergebnis")
-            if (_as_int(raw.get("looks_used")) or 0) > 0:
-                reasons.append(f"{prefix}Serie hat bereits mindestens einen Look (looks_used > 0)")
+            looks_used = raw.get("looks_used")
+            if looks_used is not None:
+                looks_int = _as_int(looks_used)
+                if looks_int is None or looks_int > 0:
+                    reasons.append(
+                        f"{prefix}Serie hat bereits mindestens einen Look (looks_used > 0)"
+                    )
             attempted = raw.get("pairs_attempted")
             if attempted is not None:
                 att_int = _as_int(attempted)

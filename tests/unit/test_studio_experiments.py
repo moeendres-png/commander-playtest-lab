@@ -1484,8 +1484,8 @@ def _make_unplayed_experiment(
         plan_dict["table"]["opponents"] = opponents
     plan = experiments.ExperimentPlan.model_validate(plan_dict)
 
-    def pending_starter(settings: dict[str, object]) -> paired_series.PairedSeriesJob:
-        series_id = f"paired-pending-{first_seed}-{variant_key}"
+    def cancelled_unplayed_starter(settings: dict[str, object]) -> paired_series.PairedSeriesJob:
+        series_id = f"paired-unplayed-{first_seed}-{variant_key}"
         series_path = folder / "games" / f"{series_id}.paired.json"
         series_path.parent.mkdir(parents=True, exist_ok=True)
         series_path.write_text(
@@ -1493,7 +1493,7 @@ def _make_unplayed_experiment(
                 {
                     "schema": SCHEMA_PAIRED_JOB,
                     "series_id": series_id,
-                    "status": "pending",
+                    "status": "cancelled",
                     "base_ref": settings["base_revision_id"],
                     "variant_ref": settings["variant_revision_id"],
                     "budget_pairs": settings["budget_pairs"],
@@ -1516,7 +1516,9 @@ def _make_unplayed_experiment(
 
     store = StudioStore.open(folder)
     try:
-        return experiments.start_experiment(store, folder, plan, start_series=pending_starter)
+        return experiments.start_experiment(
+            store, folder, plan, start_series=cancelled_unplayed_starter
+        )
     finally:
         store.close()
 
@@ -1796,3 +1798,155 @@ def test_withdraw_refuses_played_running_corrupt_decided_legacy_and_family_activ
     assert any("Holm-Familienmitglied" in r for r in detail_a["withdraw_blocked_reasons"])
     res_fam = client.post(f"/api/experiments/{conf_a['experiment_id']}/withdraw", headers=HEADERS)
     assert res_fam.status_code == 409 and "Holm-Familienmitglied" in res_fam.json()["detail"]
+
+
+def test_withdraw_blocks_resume_pending_live_job_malformed_looks_and_start_race(
+    lab: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """PR #1788 review regressions (P1-1, P1-2, P2-1, P3-1)."""
+    revs = lab["revs"]
+    assert isinstance(revs, dict)
+    client = lab["client"]
+    assert isinstance(client, TestClient)
+    folder = Path(str(lab["folder"]))
+
+    # P1-1: withdrawn plan cannot be resumed (_is_disk_resumable == False, resume_series raises)
+    w_exp = _make_unplayed_experiment(lab, purpose="exploration", first_seed=900)
+    w_sid = str(w_exp["series_id"])
+    w_path = folder / "games" / f"{w_sid}.paired.json"
+    # Populate fields _is_disk_resumable requires so only withdraw.json makes it False
+    deck_dir = folder / "games" / "paired_decks" / w_sid
+    deck_dir.mkdir(parents=True, exist_ok=True)
+    (deck_dir / "base-a.json").write_text("{}", encoding="utf-8")
+    (deck_dir / "variant-b.json").write_text("{}", encoding="utf-8")
+    raw = json.loads(w_path.read_text(encoding="utf-8"))
+    raw.update(
+        {
+            "opponent_deck_ids": ["opp1", "opp2", "opp3"],
+            "seed_plan": {"first_seed": 900, "seeds_planned": 4},
+            "tested_seats": [0, 1, 2, 3],
+            "threshold_pp": 5.0,
+        }
+    )
+    w_path.write_text(json.dumps(raw), encoding="utf-8")
+    assert paired_series.PairedSeriesManager._is_disk_resumable(raw, folder) is True
+
+    assert (
+        client.post(
+            f"/api/experiments/{w_exp['experiment_id']}/withdraw", headers=HEADERS
+        ).status_code
+        == 200
+    )
+    assert paired_series.PairedSeriesManager._is_disk_resumable(raw, folder) is False
+    with pytest.raises(ValueError, match="zurückgezogen"):
+        paired_series.paired_series_manager.resume_series(folder, w_sid)
+    # Corrupt withdraw.json still blocks fail-closed
+    (folder / "games" / "experiments" / str(w_exp["experiment_id"]) / "withdraw.json").write_text(
+        "{corrupt", encoding="utf-8"
+    )
+    assert paired_series.PairedSeriesManager._is_disk_resumable(raw, folder) is False
+    # Malformed experiment payload blocks fail-closed
+    assert (
+        paired_series.PairedSeriesManager._is_disk_resumable({**raw, "experiment": "bad"}, folder)
+        is False
+    )
+
+    # P1-2a: status == "pending" in .paired.json blocks withdrawal
+    pend = _make_unplayed_experiment(lab, purpose="exploration", first_seed=910)
+    pend_path = folder / "games" / f"{pend['series_id']}.paired.json"
+    pend_raw = json.loads(pend_path.read_text(encoding="utf-8"))
+    pend_raw["status"] = "pending"
+    pend_path.write_text(json.dumps(pend_raw), encoding="utf-8")
+    assert _detail(lab, str(pend["experiment_id"]))["withdrawable"] is False
+    assert (
+        client.post(
+            f"/api/experiments/{pend['experiment_id']}/withdraw", headers=HEADERS
+        ).status_code
+        == 409
+    )
+
+    # P1-2b: live in-process job in paired_series_manager blocks withdrawal
+    live_exp = _make_unplayed_experiment(lab, purpose="exploration", first_seed=920)
+    live_sid = str(live_exp["series_id"])
+
+    class _LiveStub:
+        status = "pending"
+
+    monkeypatch.setattr(
+        paired_series.paired_series_manager,
+        "get_job",
+        lambda sid: _LiveStub() if sid == live_sid else None,
+    )
+    assert _detail(lab, str(live_exp["experiment_id"]))["withdrawable"] is False
+    assert (
+        client.post(
+            f"/api/experiments/{live_exp['experiment_id']}/withdraw", headers=HEADERS
+        ).status_code
+        == 409
+    )
+    monkeypatch.undo()
+
+    # P1-2c: race window in start_experiment (withdrawn before post-start UPDATE) cancels job
+    cancelled_jobs: list[str] = []
+
+    class _CancelJob:
+        def __init__(self, sid: str) -> None:
+            self.series_id = sid
+            self.bridge_jar_sha256 = None
+
+        def cancel(self) -> None:
+            cancelled_jobs.append(self.series_id)
+
+    plan_race = experiments.ExperimentPlan.model_validate(_plan(revs, first_seed=930))
+
+    def racing_starter(settings: dict[str, object]) -> paired_series.PairedSeriesJob:
+        exp_meta = settings["experiment"]
+        assert isinstance(exp_meta, dict)
+        eid = str(exp_meta["experiment_id"])
+        # Another request withdraws the freshly inserted row before start_series returns
+        other_store = StudioStore.open(folder)
+        try:
+            experiments.withdraw_experiment(other_store, folder, eid, note="race")
+        finally:
+            other_store.close()
+        return _CancelJob("paired-race-930")  # type: ignore[return-value]
+
+    store = StudioStore.open(folder)
+    try:
+        with pytest.raises(experiments.WithdrawRefused, match="während des Starts"):
+            experiments.start_experiment(store, folder, plan_race, start_series=racing_starter)
+    finally:
+        store.close()
+    assert cancelled_jobs == ["paired-race-930"]
+
+    # P2-1: malformed looks_used in .paired.json (string or bool) blocks withdrawal fail-closed
+    for bad_looks, seed in (("corrupt", 940), (True, 950)):
+        mal = _make_unplayed_experiment(lab, purpose="exploration", first_seed=seed)
+        mal_path = folder / "games" / f"{mal['series_id']}.paired.json"
+        mal_raw = json.loads(mal_path.read_text(encoding="utf-8"))
+        mal_raw["looks_used"] = bad_looks
+        mal_path.write_text(json.dumps(mal_raw), encoding="utf-8")
+        assert _detail(lab, str(mal["experiment_id"]))["withdrawable"] is False
+        assert (
+            client.post(
+                f"/api/experiments/{mal['experiment_id']}/withdraw", headers=HEADERS
+            ).status_code
+            == 409
+        )
+
+    # P3-1: rebuild_index requires withdraw.json status == "withdrawn"
+    bad_w = _make_unplayed_experiment(lab, purpose="exploration", first_seed=960)
+    bad_w_file = folder / "games" / "experiments" / str(bad_w["experiment_id"]) / "withdraw.json"
+    bad_w_file.write_text(
+        json.dumps(
+            {
+                "schema": experiments.SCHEMA_WITHDRAW,
+                "experiment_id": bad_w["experiment_id"],
+                "plan_sha": bad_w["plan_sha"],
+                "status": "active",
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert client.post("/api/experiments/rebuild-index", headers=HEADERS).status_code == 200
+    assert _detail(lab, str(bad_w["experiment_id"]))["status"] == "active"

@@ -3301,6 +3301,7 @@ async function loadBranchNow(token, deckId, branchName, seqAtStart) {
   if (token !== loadSeq) return false;
   if (state.changeSeq !== seqAtStart) return false; // edited while loading: those edits are kept
   // one step: deck, variant, base and list of the new variant together
+  if (state.deckId !== deckId) state.pairedPreset = null;
   state.deckId = deckId;
   state.branch = branch.branch;
   state.baseRevision = branch.revision_id;
