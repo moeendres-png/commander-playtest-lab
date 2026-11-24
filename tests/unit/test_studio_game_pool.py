@@ -2518,3 +2518,186 @@ def test_audit_series_folder_handles_valid_violated_and_corrupt_cases(tmp_path: 
     (no_m / "journal.jsonl").write_text("{}\n", encoding="utf-8")
     res_nm = series_record.audit_series_folder(no_m)
     assert res_nm.violated is True and res_nm.members is None
+
+
+def test_hard_kill_mid_jvm_life_keeps_earlier_finished_game_logs_closed(
+    tmp_path: Path,
+) -> None:
+    """#1586: hard process kill mid-JVM leaves earlier finished games closed on disk as finished.
+
+    Runs real ``SessionWorkerEngine.play`` inside a real worker subprocess (budget=4 games per JVM).
+    Games 1 and 2 finish inside the same open JVM life; during game 3 the worker process is
+    hard-killed (SIGKILL on POSIX, os._exit(9) on Windows) before the JVM ever closes. Games 1 and 2
+    must already have closed ``.jsonl.gz`` logs with ``status == 'finished'`` and valid results,
+    while the killed in-flight game 3 must not read as finished.
+    """
+    from commander_lab.studio import games as studio_games
+
+    jar = tmp_path / "bridge.jar"
+    jar.write_bytes(b"mid-jvm-kill-jar")
+    jar_sha = hashlib.sha256(jar.read_bytes()).hexdigest()
+    worker_script = tmp_path / "mid_jvm_kill_worker.py"
+    worker_script.write_text(
+        textwrap.dedent(
+            """
+            import os, signal, sys
+            from pathlib import Path
+            from commander_lab.engine.rules import full_game_series
+            from commander_lab.engine.rules.full_game import FullGameHiddenInformationAudit
+            from commander_lab.engine.rules.full_game_pilot.common import FULL_GAME_EVIDENCE_CLASS
+            from commander_lab.engine.rules.full_game_series import (
+                build_series_result,
+                checked_shutdown_ack,
+            )
+            from commander_lab.studio import game_pool
+
+            DATA = Path(sys.argv[2])
+            JAR = Path(sys.argv[3])
+            PIN = "p" * 40
+            for key in ("JAVA_TOOL_OPTIONS", "_JAVA_OPTIONS", "JDK_JAVA_OPTIONS"):
+                os.environ.pop(key, None)
+            os.environ["COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"] = (
+                f"java -Dcommanderlab.fullGame.gamesPerJvm=4 -jar {JAR} full-game"
+            )
+            game_pool.own_engine_pin = lambda _folder: PIN
+
+            class MidJvmKillSession:
+                def __init__(self, runner, *, id_prefix=""):
+                    self.runner = runner
+                    self.lives = ()
+                    self._played = 0
+                    self._life_id = f"{id_prefix}-1"
+
+                def play(self, scenario, decks, pilots):
+                    self._played += 1
+                    recorder = self.runner._recorder_for(scenario)
+                    if "killme" in recorder.game_id:
+                        # Game 3 is in flight inside the SAME open JVM life: hard-kill the worker!
+                        if hasattr(signal, "SIGKILL"):
+                            os.kill(os.getpid(), signal.SIGKILL)
+                        os._exit(9)
+                    self.runner.on_played(recorder.game_id)
+                    seed = scenario.seed
+                    wire = {
+                        "evidence_class": FULL_GAME_EVIDENCE_CLASS,
+                        "consumed_gameplay_evidence": False,
+                        "holdout_consumed": False,
+                        "official_campaign_eligible": False,
+                        "rules_authority": "xmage",
+                        "decision_policy_authority": "commander_lab_external_pilot",
+                        "bit_exact_replay_validated": False,
+                        "seed": seed,
+                        "terminal": True,
+                        "turn_number": 7,
+                        "decision_count": 25 + seed,
+                        "outcomes": [{"seat": i, "life": 5, "won": i == seed % 4} for i in range(4)],
+                        "transcript": [],
+                    }
+                    wire_gid = f"{scenario.scenario_id}:{scenario.candidate_id}:{seed}"
+                    ack = checked_shutdown_ack(
+                        {
+                            "game_id": wire_gid,
+                            "shut_down": True,
+                            "engine_thread_alive": False,
+                            "game_over": True,
+                            "shutdown_unwind": "none",
+                        },
+                        game_id=wire_gid,
+                    )
+                    return build_series_result(
+                        scenario,
+                        {"engine_version": "1.4.61", "engine_commit": "b" * 40},
+                        wire,
+                        ack,
+                        jvm_life_id=self._life_id,
+                        position_in_jvm=self._played,
+                        hidden_audit=FullGameHiddenInformationAudit(),
+                    )
+
+                def close(self):
+                    return ()
+
+            full_game_series.XmageFullGameSeriesSession = MidJvmKillSession
+            sys.exit(
+                game_pool.worker_main(
+                    stdin=sys.stdin,
+                    stdout=sys.stdout,
+                    label=sys.argv[1],
+                    engine_factory=lambda: game_pool.SessionWorkerEngine(
+                        DATA,
+                        label=sys.argv[1],
+                        private_card_repository=False,
+                        command=None,
+                    ),
+                )
+            )
+            """
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "games").mkdir(exist_ok=True)
+    deck_paths = [str(DECK), *map(str, PRECONS)]
+    tasks = [
+        game_pool.plan_task(
+            task_id=f"mk:{seed}",
+            seed=seed,
+            game_id=gid,
+            deck_paths=deck_paths,
+            seat_styles=[0.5, 0.5, 0.5, 0.5],
+            jar_sha256=jar_sha,
+            engine_pin=PIN,
+            skip_forced_decisions=None,
+            jvm_options=NO_JVM_OPTIONS,
+            strategy="generic",
+        )
+        for seed, gid in (
+            (1, "g-mk-1"),
+            (2, "g-mk-2"),
+            (3, "g-mk-killme-3"),
+        )
+    ]
+
+    pool = GamePool(
+        tmp_path,
+        workers=1,
+        worker_argv=lambda label: [
+            sys.executable,
+            str(worker_script),
+            label,
+            str(tmp_path),
+            str(jar),
+        ],
+        game_wall_limit_seconds=30.0,
+    )
+    with pool:
+        results = pool.run(tasks)
+
+    assert results["mk:1"]["status"] == "finished"
+    assert results["mk:2"]["status"] == "finished"
+    assert results["mk:1"]["jvm_life_id"] == results["mk:2"]["jvm_life_id"]
+    assert (results["mk:1"]["position_in_jvm"], results["mk:2"]["position_in_jvm"]) == (1, 2)
+    assert results["mk:3"]["status"] == "failed"
+    assert results["mk:3"]["failure_class"] == "WorkerExited"
+
+    games_dir = tmp_path / "games"
+    for seed, gid in ((1, "g-mk-1"), (2, "g-mk-2")):
+        assert not (games_dir / f"{gid}.jsonl").exists()
+        assert (games_dir / f"{gid}.jsonl.gz").is_file()
+        loaded = studio_games.read_game(tmp_path, gid, start=0, count=1)
+        result = loaded["result"]
+        assert isinstance(result, dict)
+        assert result["status"] == "finished"
+        assert result["winner_seats"] == [seed % 4]
+        assert result["decision_count"] == 25 + seed
+        assert result["jvm_life_id"] == results[f"mk:{seed}"]["jvm_life_id"]
+        assert result["position_in_jvm"] == seed
+        assert len(str(result["semantic_transcript_sha256"])) == 64
+
+    # Game 3 was killed in flight: its unclosed log was closed with WorkerExited, never finished.
+    assert not (games_dir / "g-mk-killme-3.jsonl").exists()
+    packed_3 = games_dir / "g-mk-killme-3.jsonl.gz"
+    assert packed_3.is_file()
+    with gzip.open(packed_3, "rt", encoding="utf-8") as handle:
+        tail = json.loads(handle.read().splitlines()[-1])
+    assert tail["status"] == "failed"
+    assert tail["failure_class"] == "WorkerExited"
