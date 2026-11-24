@@ -23,6 +23,7 @@ engine pin.
 
 from __future__ import annotations
 
+import copy
 import threading
 from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
@@ -521,10 +522,12 @@ def compare_logs(
     pin — the recorded provenance of the paired games themselves is in
     ``engine_commits``.
 
-    The folder is read as it is (``load_exposures``): every log in it counts, also one a series
-    manifest does not name. The foreign-log rule of the series pool and journal (only games the
-    manifest names) does not apply to this folder comparison; that is a decision of #1660 (S1
-    Rest), not an omission. A comparison of a folder is not the record of one series.
+    Fail-closed series filtering (S1, #1660): delegated to :func:`card_outcomes.load_exposures`.
+    When ``games_dir`` contains a ``manifest.json``, logs whose ``game_id`` is not listed in that
+    manifest are excluded (``skipped_foreign``). When ``games_dir`` itself or any subdirectory of
+    ``games_dir / "series"`` has a ``DETERMINISM_VIOLATION`` or an unreadable/corrupt manifest or
+    journal, the affected games (or all games when a manifest itself cannot be read) are excluded
+    fail-closed (``skipped_determinism_violation``) and reported in ``warnings``.
     """
     if base_deck_id == variant_deck_id:
         raise ValueError("base and variant must be two different decks")
@@ -558,6 +561,16 @@ def compare_logs(
             f"{failed_base} failed or unfinished game(s) name the base deck and "
             f"{failed_variant} the variant deck; in logs mode they belong to no "
             "pair, so pairs_censored stays 0 — a skipped game is never scored"
+        )
+    if report["skipped_foreign"]:
+        result["warnings"].append(
+            f"{report['skipped_foreign']} foreign log(s) not listed in the series manifest "
+            "were excluded"
+        )
+    if report["skipped_determinism_violation"]:
+        result["warnings"].append(
+            f"{report['skipped_determinism_violation']} log(s) from series with "
+            "DETERMINISM_VIOLATION or unreadable manifest/journal were excluded"
         )
     if pairs:
         result["warnings"].append(
@@ -879,6 +892,8 @@ def parallel_window_player(
     on_game_played: Callable[[str, int, int], None] | None = None,
     series_pool: bool | None = None,
     pool: GamePool | None = None,
+    table: Mapping[str, object] | None = None,
+    table_hash: str | None = None,
 ) -> WindowPlayer:
     """Execute each O'Brien-Fleming look window in parallel without changing sequential outcomes.
 
@@ -960,6 +975,12 @@ def parallel_window_player(
 
     planned_tasks: dict[tuple[str, int, int], GameTask] = {}
     record_holder: list[SeriesRecord] = []
+    table_snapshot: dict[str, object] | None = (
+        copy.deepcopy(dict(table)) if table is not None else None
+    )
+    normalized_table_hash: str | None = (
+        table_hash.strip() or None if isinstance(table_hash, str) else None
+    )
 
     def _plan_series_on_pool() -> None:
         """Every game of the series as a complete task, and the manifest (S1, #1660).
@@ -994,6 +1015,8 @@ def parallel_window_player(
                     engine_pin=pin,
                     skip_forced_decisions=skip_forced,
                     jvm_options=jvm_options,
+                    table=copy.deepcopy(table_snapshot) if table_snapshot is not None else None,
+                    table_hash=normalized_table_hash,
                     deck_hashes=deck_hashes,
                 )
         record_holder.append(
@@ -1004,8 +1027,8 @@ def parallel_window_player(
                     {"task_id": t.task_id, "game_id": t.game_id, "game_key": t.game_key}
                     for t in planned_tasks.values()
                 ],
-                table_hash=None,
-                table=None,
+                table_hash=normalized_table_hash,
+                table=copy.deepcopy(table_snapshot) if table_snapshot is not None else None,
             )
         )
 

@@ -2438,3 +2438,83 @@ def test_own_engine_pin_refuses_missing_or_blank_pin(
     monkeypatch.setattr(launch, "engine_state", lambda _folder: state)
     with pytest.raises(game_pool.GamePoolError, match="kein Engine-Pin bekannt"):
         game_pool.own_engine_pin(tmp_path)
+
+
+def test_audit_series_folder_handles_valid_violated_and_corrupt_cases(tmp_path: Path) -> None:
+    """S1 (#1660): audit_series_folder fails closed on violation, corrupt journal or corrupt manifest."""
+    key = "a" * 64
+    manifest = {
+        "schema": series_record.MANIFEST_SCHEMA,
+        "series_id": "s",
+        "table_hash": None,
+        "table": None,
+        "game_key_schema": series_record.GAME_KEY_SCHEMA,
+        "games": [
+            {"task_id": "t1", "game_id": "g1", "game_key": key},
+            {"task_id": "t2", "game_id": "g2", "game_key": key},
+        ],
+    }
+
+    clean = tmp_path / "clean"
+    clean.mkdir()
+    (clean / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    (clean / "journal.jsonl").write_text(
+        json.dumps(
+            {
+                "game_id": "g1",
+                "game_key": key,
+                "status": "finished",
+                "semantic_transcript_sha256": "1" * 64,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    res_clean = series_record.audit_series_folder(clean)
+    assert res_clean.violated is False and res_clean.members == frozenset({"g1", "g2"})
+
+    viol = tmp_path / "viol"
+    viol.mkdir()
+    (viol / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    (viol / "journal.jsonl").write_text(
+        json.dumps(
+            {
+                "game_id": "g1",
+                "game_key": key,
+                "status": "finished",
+                "semantic_transcript_sha256": "1" * 64,
+            }
+        )
+        + "\n"
+        + json.dumps(
+            {
+                "game_id": "g2",
+                "game_key": key,
+                "status": "finished",
+                "semantic_transcript_sha256": "2" * 64,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    res_viol = series_record.audit_series_folder(viol)
+    assert res_viol.violated is True and res_viol.members == frozenset({"g1", "g2"})
+
+    corrupt_j = tmp_path / "corrupt_j"
+    corrupt_j.mkdir()
+    (corrupt_j / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    (corrupt_j / "journal.jsonl").write_text("{corrupt\n", encoding="utf-8")
+    res_cj = series_record.audit_series_folder(corrupt_j)
+    assert res_cj.violated is True and res_cj.members == frozenset({"g1", "g2"})
+
+    corrupt_m = tmp_path / "corrupt_m"
+    corrupt_m.mkdir()
+    (corrupt_m / "manifest.json").write_text("{corrupt", encoding="utf-8")
+    res_cm = series_record.audit_series_folder(corrupt_m)
+    assert res_cm.violated is True and res_cm.members is None
+
+    no_m = tmp_path / "no_m"
+    no_m.mkdir()
+    (no_m / "journal.jsonl").write_text("{}\n", encoding="utf-8")
+    res_nm = series_record.audit_series_folder(no_m)
+    assert res_nm.violated is True and res_nm.members is None

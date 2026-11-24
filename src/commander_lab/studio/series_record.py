@@ -436,6 +436,63 @@ class SeriesRecord:
                 os.fsync(handle.fileno())
 
 
+@dataclass(frozen=True)
+class SeriesFolderAudit:
+    """Fail-closed inspection result of one series directory (S1, #1660).
+
+    ``members`` holds the manifest's ``game_id`` set when ``manifest.json`` is valid, or ``None``
+    when the manifest is missing, corrupt or unreadable. ``violated`` is True when the journal
+    shows a ``DETERMINISM_VIOLATION`` or when ``manifest.json`` / ``journal.jsonl`` is unreadable
+    or corrupt.
+    """
+
+    members: frozenset[str] | None
+    violated: bool
+
+
+def audit_series_folder(folder: Path) -> SeriesFolderAudit:
+    """Inspect a series folder (``manifest.json`` and optional ``journal.jsonl``) fail-closed.
+
+    A manifest is valid only as a JSON object whose ``games`` field is a list of objects each
+    naming a non-empty string ``game_id``. When ``journal.jsonl`` is present, it is read through
+    :class:`SeriesRecord`: a ``DeterminismViolation``, an I/O error or a non-empty journal with
+    zero admitted entries and ignored/corrupt lines marks the series as violated. A series
+    resumed after a cut-off line that still has valid admitted entries and no violation stays
+    valid, matching :func:`series_violation` and :func:`series_guard`.
+    """
+    manifest_path = folder / "manifest.json"
+    try:
+        stored = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return SeriesFolderAudit(members=None, violated=True)
+    if not isinstance(stored, dict):
+        return SeriesFolderAudit(members=None, violated=True)
+    games_raw = stored.get("games")
+    if not isinstance(games_raw, list):
+        return SeriesFolderAudit(members=None, violated=True)
+    members: set[str] = set()
+    for entry in games_raw:
+        if not isinstance(entry, dict):
+            return SeriesFolderAudit(members=None, violated=True)
+        gid = entry.get("game_id")
+        if not isinstance(gid, str) or not gid:
+            return SeriesFolderAudit(members=None, violated=True)
+        members.add(gid)
+    member_set = frozenset(members)
+    record = SeriesRecord(folder, stored)
+    journal_path = record.journal_path
+    if journal_path.exists() or journal_path.is_symlink():
+        if not journal_path.is_file():
+            return SeriesFolderAudit(members=member_set, violated=True)
+        try:
+            record._read_journal()
+        except (DeterminismViolation, OSError):
+            return SeriesFolderAudit(members=member_set, violated=True)
+        if not record._entries and record.ignored_lines > 0:
+            return SeriesFolderAudit(members=member_set, violated=True)
+    return SeriesFolderAudit(members=member_set, violated=False)
+
+
 def series_violation(data_folder: str | Path, series_id: str) -> DeterminismViolation | None:
     """The violation the stored journal of a series shows, whichever path played it.
 
@@ -600,7 +657,9 @@ __all__ = [
     "DeterminismViolation",
     "KeyVersionMismatch",
     "ManifestMismatch",
+    "SeriesFolderAudit",
     "SeriesRecord",
+    "audit_series_folder",
     "file_sha256",
     "game_key",
     "series_folder",
