@@ -397,6 +397,7 @@ class PairedSeriesBody(BaseModel):
     workers: int | None = Field(default=None, ge=MIN_WORKERS, le=MAX_WORKERS)
     games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
     record_pilot_audit: bool = False
+    reuse_baseline: bool = False
 
 
 #: What the card evaluation says when games without a pilot fingerprint name two pilot versions
@@ -1638,6 +1639,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 workers=body.workers,
                 games_per_jvm=body.games_per_jvm,
                 record_pilot_audit=body.record_pilot_audit,
+                reuse_baseline=body.reuse_baseline,
             )
             return job.to_dict()
         except KeyError as error:

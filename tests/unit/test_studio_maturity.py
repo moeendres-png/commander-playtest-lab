@@ -1094,3 +1094,57 @@ def test_withdrawn_plans_are_excluded_from_holm_and_explorations(tmp_path: Path)
         assert m._explorations(store.connection, "d1") == [(200, 210)]
     finally:
         store.close()
+
+
+def test_maturity_notes_shared_baseline_arm_and_fails_closed_without_spot_check() -> None:
+    """#1589: reused baseline arms add Holm correlation note and require >=1 verified spot-check."""
+    f_ok = _finding("s-reuse-ok", wins=6, first_seed=10, alpha=0.05)
+    f_ok = replace(
+        f_ok,
+        entry={
+            **f_ok.entry,
+            "baseline_reuse": {
+                "enabled": True,
+                "reused_count": 3,
+                "played_count": 1,
+                "total_base_games": 4,
+                "spot_checks_verified": 1,
+                "spot_checks_failed": 0,
+            },
+        },
+    )
+    f_bad = _finding("s-reuse-bad", wins=6, first_seed=20, alpha=0.05)
+    f_bad = replace(
+        f_bad,
+        entry={
+            **f_bad.entry,
+            "baseline_reuse": {
+                "enabled": True,
+                "reused_count": 3,
+                "played_count": 0,
+                "total_base_games": 3,
+                "spot_checks_verified": 0,
+                "spot_checks_failed": 0,
+            },
+        },
+    )
+    res = m.assess(
+        [f_ok, f_bad],
+        explorations=[],
+        hashes={"rev-main": "h1", "rev-var": "h2"},
+        current=CUR,
+    )
+    ok_bef = res["befunde"]["s-reuse-ok"]  # type: ignore[index]
+    bad_bef = res["befunde"]["s-reuse-bad"]  # type: ignore[index]
+    assert ok_bef["stufe"] == m.R1
+    assert any("Geteilter Basis-Arm (#1589)" in note for note in ok_bef["hinweise"])
+    assert any(
+        "Holm-Bonferroni bleibt ohne Unabhängigkeitsannahme gültig" in note
+        for note in ok_bef["hinweise"]
+    )
+    assert bad_bef["stufe"] is None
+    assert bad_bef["belegt"] is False
+    assert (
+        "Basis-Wiederverwendung ohne bestandene Stichproben-Gegenprobe"
+        in bad_bef["empfehlungsfaehig_gruende"]
+    )

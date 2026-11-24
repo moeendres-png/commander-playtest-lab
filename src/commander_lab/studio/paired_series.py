@@ -853,6 +853,7 @@ class PairedSeriesJob:
         table: Mapping[str, object] | None = None,
         table_hash: str | None = None,
         record_pilot_audit: bool = False,
+        reuse_baseline: bool = False,
     ) -> None:
         self.series_id = series_id
         #: The experiment this series plays (B2, #1658): id, plan SHA and table hash.
@@ -865,6 +866,7 @@ class PairedSeriesJob:
             str(table_hash).strip() or None if table_hash is not None else None
         )
         self.record_pilot_audit = bool(record_pilot_audit)
+        self.reuse_baseline = bool(reuse_baseline)
         self.data_folder = data_folder
         self.base_ref = base_ref
         self.variant_ref = variant_ref
@@ -1036,6 +1038,7 @@ class PairedSeriesJob:
             "serial_gc": engine.serial_gc if engine is not None else False,
             "appcds": engine.appcds if engine is not None else False,
             "record_pilot_audit": self.record_pilot_audit,
+            "reuse_baseline": self.reuse_baseline,
         }
 
     def to_dict(self) -> dict[str, object]:
@@ -1164,6 +1167,7 @@ class PairedSeriesJob:
                 table=self.table,
                 table_hash=self.table_hash,
                 record_pilot_audit=self.record_pilot_audit,
+                reuse_baseline=self.reuse_baseline,
             )
 
             final_status = "failed"
@@ -1202,6 +1206,9 @@ class PairedSeriesJob:
                 pool_summary = player.pool_summary()
                 if pool_summary is not None:
                     result["execution"] = {**result["execution"], "pool": pool_summary}
+                reuse_summary = player.baseline_reuse_summary()
+                if reuse_summary is not None:
+                    result["baseline_reuse"] = reuse_summary
                 final_result = result
                 pairs_played = result.get("pairs_played")
                 final_pairs_attempted = int(pairs_played) if pairs_played else None
@@ -1302,6 +1309,7 @@ class PairedSeriesManager:
         table: Mapping[str, object] | None = None,
         table_hash: str | None = None,
         record_pilot_audit: bool = False,
+        reuse_baseline: bool = False,
     ) -> PairedSeriesJob:
         """Start a paired series. ``table_size`` (seats, 2 to 6) sizes a pod preset's table:
         the preset's first ``table_size - 1`` opponents sit down, and the series records them
@@ -1479,6 +1487,7 @@ class PairedSeriesManager:
                 table=table,
                 table_hash=table_hash,
                 record_pilot_audit=record_pilot_audit,
+                reuse_baseline=reuse_baseline,
             )
             job.reserved_in = claims
             job.persist()
@@ -1934,6 +1943,7 @@ class PairedSeriesManager:
                     else None
                 ),
                 record_pilot_audit=bool(exec_meta.get("record_pilot_audit", False)),
+                reuse_baseline=bool(exec_meta.get("reuse_baseline", False)),
             )
             job.persist()
             job._write_lock()

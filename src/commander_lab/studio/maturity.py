@@ -636,6 +636,29 @@ def _one(
                 "Ergebnis auf dem kleineren Familienniveau zurückgehalten "
                 "(auf dem eigenen Niveau der Serie entschieden)"
             )
+    reuse = entry.get("baseline_reuse")
+    if isinstance(reuse, Mapping):
+        reused_n = reuse.get("reused_count")
+        total_n = reuse.get("total_base_games")
+        verified_n = reuse.get("spot_checks_verified")
+        failed_n = reuse.get("spot_checks_failed")
+        if isinstance(reused_n, int) and reused_n > 0:
+            total_text = str(total_n) if isinstance(total_n, int) else "?"
+            ver_text = str(verified_n) if isinstance(verified_n, int) else "0"
+            notes.append(
+                f"Geteilter Basis-Arm (#1589): {reused_n} / {total_text} Basis-Partien "
+                f"wiederverwendet (Gegenprobe {ver_text} identisch); Holm-Bonferroni bleibt "
+                "ohne Unabhängigkeitsannahme gültig, Vergleiche derselben Familie sind "
+                "positiv korreliert"
+            )
+            if (
+                not isinstance(verified_n, int)
+                or verified_n < 1
+                or (isinstance(failed_n, int) and failed_n > 0)
+            ):
+                level = None
+                proven = False
+                reasons.append("Basis-Wiederverwendung ohne bestandene Stichproben-Gegenprobe")
     if entry.get("experiment") is None:
         notes.append("Alt-Serie ohne Plan: höchstens R0")
     effective_p = None if shown is None else shown.effective_p_value
