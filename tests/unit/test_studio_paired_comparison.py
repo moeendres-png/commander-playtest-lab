@@ -1929,3 +1929,337 @@ def test_a_series_recorded_with_the_old_key_version_is_not_resumable_and_not_a_v
         manager.resume_series(tmp_path, "oldkey", play_override=lambda *_a: {})  # type: ignore[arg-type,return-value]
     assert "DETERMINISM_VIOLATION" not in str(caught.value)
     assert manager.get_job("oldkey") is None and journal.read_bytes() == before
+
+
+# --- S1 (#1660): table/table_hash forwarding + compare_logs violation/foreign filtering -------
+
+
+def test_parallel_window_player_forwards_table_and_table_hash_to_tasks_and_manifest(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """S1 (#1660): table and table_hash reach plan_task (into game_key) and manifest.json."""
+    table_spec_dict: dict[str, object] = {
+        "schema": "studio-table-spec-1",
+        "seats": 3,
+        "opponents": [OPP1, OPP2],
+        "seat_policy": "rotate",
+    }
+    th = "e" * 64
+    with_dir = tmp_path / "with_table"
+    with_dir.mkdir()
+    pool_with_table = _FakePool(_ScriptedPlayer(tmp_path / "p1", _variant_sweeps))
+    player_with = _pool_player(
+        with_dir,
+        pool_with_table,
+        monkeypatch,
+        series_id="tbl-yes",
+        table=table_spec_dict,
+        table_hash=th,
+    )
+    player_with("base", 1, 0)
+    assert pool_with_table.runs and pool_with_table.runs[0]
+    for task in pool_with_table.runs[0]:
+        assert task.table == table_spec_dict
+        assert task.table_hash == th
+    assert pool_with_table.record is not None
+    manifest = json.loads(pool_with_table.record.manifest_path.read_text(encoding="utf-8"))
+    assert manifest["table"] == table_spec_dict
+    assert manifest["table_hash"] == th
+
+    # Without table, game_key must differ (proving table entered game_key via plan_task)
+    without_dir = tmp_path / "without_table"
+    without_dir.mkdir()
+    pool_without = _FakePool(_ScriptedPlayer(tmp_path / "p2", _variant_sweeps))
+    player_without = _pool_player(
+        without_dir,
+        pool_without,
+        monkeypatch,
+        series_id="tbl-no",
+    )
+    player_without("base", 1, 0)
+    assert pool_with_table.runs[0][0].game_key != pool_without.runs[0][0].game_key
+
+
+def test_paired_series_forwards_table_and_preserves_legacy_resume_compat(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """S1 (#1660): PairedSeriesJob forwards table/table_hash on start & resume; legacy series
+    without top-level table/table_hash resume with None/None and never raise ManifestMismatch."""
+    from commander_lab.studio import paired_series, series_record
+    from commander_lab.studio.games import games_folder
+
+    captured: list[tuple[object, object]] = []
+    real_pwp = paired_comparison.parallel_window_player
+
+    def spy_pwp(*args: object, **kwargs: object) -> paired_comparison.WindowPlayer:
+        captured.append((kwargs.get("table"), kwargs.get("table_hash")))
+        return real_pwp(*args, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(paired_comparison, "parallel_window_player", spy_pwp)
+
+    # 1. PairedSeriesJob with table & table_hash persists them and forwards to parallel_window_player
+    table_obj: dict[str, object] = {"seats": 3, "opponents": [OPP1, OPP2]}
+    th = "f" * 64
+    scripted = _ScriptedPlayer(tmp_path / "s1", _variant_sweeps)
+    job = paired_series.PairedSeriesJob(
+        series_id="paired-new-tbl",
+        data_folder=tmp_path,
+        base_ref=BASE,
+        variant_ref=VARIANT,
+        base_deck=SimpleNamespace(deck_id=BASE),  # type: ignore[arg-type]
+        variant_deck=SimpleNamespace(deck_id=VARIANT),  # type: ignore[arg-type]
+        opponents=[SimpleNamespace(deck_id=OPP1), SimpleNamespace(deck_id=OPP2)],  # type: ignore[list-item]
+        paths_by_deck_id={},
+        pod_name="table",
+        seeds=[1, 2],
+        tested_seats=[0],
+        budget_pairs=2,
+        look_every_pairs=2,
+        threshold_pp=0.0,
+        play_override=scripted,
+        table=table_obj,
+        table_hash=th,
+    )
+    job.run()
+    assert captured[-1] == (table_obj, th)
+    persisted = json.loads(job.series_file().read_text(encoding="utf-8"))
+    assert persisted["table"] == table_obj
+    assert persisted["table_hash"] == th
+
+    # 2. Legacy series on disk: experiment has table_hash, but NO top-level table/table_hash,
+    #    and manifest.json was recorded with table=None, table_hash=None -> resume must NOT fail!
+    legacy_id = "paired-legacy-res"
+    gfolder = games_folder(tmp_path)
+    deck_dir = gfolder / "paired_decks" / legacy_id
+    deck_dir.mkdir(parents=True)
+    snap_tpl = {
+        "name": "TestDeck",
+        "commander": {"commanders": ["Chulane, Teller of Tales"], "uses_partner": False},
+        "cards": [{"oracle_name": "Forest", "quantity": 99, "zone": "main"}],
+    }
+    (deck_dir / "base-b.json").write_text(
+        json.dumps({**snap_tpl, "deck_id": BASE}), encoding="utf-8"
+    )
+    (deck_dir / "variant-v.json").write_text(
+        json.dumps({**snap_tpl, "deck_id": VARIANT}), encoding="utf-8"
+    )
+    opp_path = deck_dir / "opponent-0-repo-opp.json"
+    opp_path.write_text(json.dumps({**snap_tpl, "deck_id": OPP1}), encoding="utf-8")
+    raw_legacy = {
+        "series_id": legacy_id,
+        "status": "cancelled",
+        "pod": "table",
+        "opponent_ids": ["repo:opp"],
+        "opponent_deck_ids": [OPP1],
+        "seed_plan": {"first_seed": 1, "seeds_planned": 2, "player_count": 2},
+        "tested_seats": [0],
+        "budget_pairs": 2,
+        "look_every_pairs": 2,
+        "threshold_pp": 0.0,
+        "significance_level": 0.05,
+        # Legacy experiment block had table_hash while manifest.json had table=None, table_hash=None
+        "experiment": {"experiment_id": "exp-1", "plan_sha": "p" * 64, "table_hash": th},
+    }
+    (gfolder / f"{legacy_id}.paired.json").write_text(json.dumps(raw_legacy), encoding="utf-8")
+    series_record.SeriesRecord.open(
+        tmp_path,
+        legacy_id,
+        games=[{"task_id": "base:1:0", "game_id": f"{legacy_id}-base-s1-t0", "game_key": "k" * 64}],
+        table_hash=None,
+        table=None,
+    )
+    manager = paired_series.PairedSeriesManager()
+    resumed = manager.resume_series(
+        tmp_path, legacy_id, play_override=_ScriptedPlayer(tmp_path / "s2", _variant_sweeps)
+    )
+    assert resumed.table is None
+    assert resumed.table_hash is None
+    # Wait briefly for background thread to finish
+    import time as _time
+
+    deadline = _time.monotonic() + 5.0
+    while resumed.status in {"pending", "running"} and _time.monotonic() < deadline:
+        _time.sleep(0.02)
+    assert resumed.status == "completed"
+    assert captured[-1] == (None, None)
+
+    # 3. New series on disk with top-level table & table_hash resumes and forwards them
+    new_res_id = "paired-new-res"
+    new_deck_dir = gfolder / "paired_decks" / new_res_id
+    new_deck_dir.mkdir(parents=True)
+    (new_deck_dir / "base-b.json").write_text(
+        json.dumps({**snap_tpl, "deck_id": BASE}), encoding="utf-8"
+    )
+    (new_deck_dir / "variant-v.json").write_text(
+        json.dumps({**snap_tpl, "deck_id": VARIANT}), encoding="utf-8"
+    )
+    (new_deck_dir / "opponent-0-repo-opp.json").write_text(
+        json.dumps({**snap_tpl, "deck_id": OPP1}), encoding="utf-8"
+    )
+    raw_new = {**raw_legacy, "series_id": new_res_id, "table": table_obj, "table_hash": th}
+    (gfolder / f"{new_res_id}.paired.json").write_text(json.dumps(raw_new), encoding="utf-8")
+    series_record.SeriesRecord.open(
+        tmp_path,
+        new_res_id,
+        games=[
+            {"task_id": "base:1:0", "game_id": f"{new_res_id}-base-s1-t0", "game_key": "k" * 64}
+        ],
+        table_hash=th,
+        table=table_obj,
+    )
+    resumed_new = manager.resume_series(
+        tmp_path, new_res_id, play_override=_ScriptedPlayer(tmp_path / "s3", _variant_sweeps)
+    )
+    assert resumed_new.table == table_obj
+    assert resumed_new.table_hash == th
+    deadline = _time.monotonic() + 5.0
+    while resumed_new.status in {"pending", "running"} and _time.monotonic() < deadline:
+        _time.sleep(0.02)
+    assert resumed_new.status == "completed"
+    assert captured[-1] == (table_obj, th)
+
+
+def test_start_experiment_forwards_table_and_table_hash_to_start_series(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """S1 (#1660): experiments.start_experiment passes resolved table and table_hash to start_series."""
+    from commander_lab.studio import experiments
+    from commander_lab.studio import store as studio_store
+    from commander_lab.studio.table_spec import PilotProfile, TableSpec
+
+    resolved_table: dict[str, object] = {
+        "schema": "studio-table-spec-1",
+        "seats": 2,
+        "opponents": ["precon-1"],
+        "seat_policy": "rotate",
+        "opponent_hashes": ["a" * 64],
+        "pilot_fingerprint": "b" * 64,
+    }
+    resolved_hash = "c" * 64
+    monkeypatch.setattr(
+        experiments,
+        "resolve_plan",
+        lambda _s, _p: {
+            "arms": [
+                {"role": "base", "revision_id": "d@1", "deck_hash": "1" * 64},
+                {"role": "variant", "revision_id": "d@2", "deck_hash": "2" * 64},
+            ],
+            "table": resolved_table,
+            "table_hash": resolved_hash,
+            "tested_seats": [0, 1],
+            "seeds": {
+                "first": 10,
+                "last": 10,
+                "count": 1,
+                "rule": "consecutive",
+                "starting_seat_rule": "seed % seats",
+            },
+        },
+    )
+    seen_settings: list[dict[str, object]] = []
+
+    def fake_starter(settings: dict[str, object]) -> object:
+        seen_settings.append(dict(settings))
+        return SimpleNamespace(series_id="paired-exp-1", bridge_jar_sha256="d" * 64)
+
+    plan = experiments.ExperimentPlan(
+        question="Test table forwarding",
+        question_kind="single_swap",
+        deck_id="d",
+        base=experiments.ArmRef(revision_id="d@1"),
+        variants=[experiments.ArmRef(revision_id="d@2")],
+        table=TableSpec(seats=2, opponents=["precon-1"], pilot=PilotProfile()),
+        purpose="exploration",
+        budget_pairs=2,
+        look_every_pairs=2,
+        first_seed=10,
+    )
+    db = studio_store.StudioStore.open(tmp_path)
+    try:
+        experiments.start_experiment(
+            db,
+            tmp_path,
+            plan,
+            start_series=fake_starter,  # type: ignore[arg-type]
+        )
+    finally:
+        db.close()
+    assert len(seen_settings) == 1
+    assert seen_settings[0]["table"] == resolved_table
+    assert seen_settings[0]["table_hash"] == resolved_hash
+
+
+def test_compare_logs_excludes_foreign_and_violated_series_logs(tmp_path: Path) -> None:
+    """S1 (#1660): compare_logs excludes foreign logs in a series dir and violated series in games/."""
+    # 1. Series dir with manifest.json: foreign pair is excluded with warning
+    sdir = tmp_path / "series_dir"
+    sdir.mkdir()
+    _write_log(sdir, "g-b-1", seed=1, decks=[BASE, OPP1, OPP2], winners=[1])
+    _write_log(sdir, "g-v-1", seed=1, decks=[VARIANT, OPP1, OPP2], winners=[0])
+    _write_log(sdir, "g-b-foreign", seed=2, decks=[BASE, OPP1, OPP2], winners=[1])
+    _write_log(sdir, "g-v-foreign", seed=2, decks=[VARIANT, OPP1, OPP2], winners=[0])
+    manifest = {
+        "schema": "studio-series-manifest-1",
+        "series_id": "s1",
+        "table_hash": None,
+        "table": None,
+        "game_key_schema": "studio-game-key-2",
+        "games": [
+            {"task_id": "base:1:0", "game_id": "g-b-1", "game_key": "a" * 64},
+            {"task_id": "variant:1:0", "game_id": "g-v-1", "game_key": "b" * 64},
+        ],
+    }
+    (sdir / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    res = paired_comparison.compare_logs(sdir, base_deck_id=BASE, variant_deck_id=VARIANT)
+    assert res["pairs_completed"] == 1
+    assert any("foreign log(s)" in w for w in res["warnings"])
+
+    # 2. Games dir with series/s-viol having DETERMINISM_VIOLATION: pair excluded with warning
+    gdir = tmp_path / "games_dir"
+    gdir.mkdir()
+    _write_log(gdir, "gv-b-1", seed=1, decks=[BASE, OPP1, OPP2], winners=[1])
+    _write_log(gdir, "gv-v-1", seed=1, decks=[VARIANT, OPP1, OPP2], winners=[0])
+    viol_folder = gdir / "series" / "s-viol"
+    viol_folder.mkdir(parents=True)
+    key = "d" * 64
+    (viol_folder / "manifest.json").write_text(
+        json.dumps(
+            {
+                "schema": "studio-series-manifest-1",
+                "series_id": "s-viol",
+                "table_hash": None,
+                "table": None,
+                "game_key_schema": "studio-game-key-2",
+                "games": [
+                    {"task_id": "base:1:0", "game_id": "gv-b-1", "game_key": key},
+                    {"task_id": "variant:1:0", "game_id": "gv-v-1", "game_key": key},
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    (viol_folder / "journal.jsonl").write_text(
+        json.dumps(
+            {
+                "game_id": "gv-b-1",
+                "game_key": key,
+                "status": "finished",
+                "semantic_transcript_sha256": "1" * 64,
+            }
+        )
+        + "\n"
+        + json.dumps(
+            {
+                "game_id": "gv-v-1",
+                "game_key": key,
+                "status": "finished",
+                "semantic_transcript_sha256": "2" * 64,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    viol_res = paired_comparison.compare_logs(gdir, base_deck_id=BASE, variant_deck_id=VARIANT)
+    assert viol_res["status"] == "NO_PAIRS"
+    assert viol_res["pairs_completed"] == 0
+    assert any("DETERMINISM_VIOLATION" in w for w in viol_res["warnings"])
