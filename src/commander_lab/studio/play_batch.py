@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from commander_lab.candidates.models import FutureXmageScenario
+from commander_lab.engine.rules.failure_privacy import public_exception_type
 from commander_lab.engine.rules.full_game import (
     FullGameBridgeClient,
     FullGameConformanceResult,
@@ -123,19 +124,29 @@ class BatchRecordingRunner(_RecordingRunner):
         audit = self._audit_recorders.pop(scenario_id, None)
         if audit is None:
             return None
-        if isinstance(outcome, Exception):
+        try:
+            if isinstance(outcome, Exception):
+                _, summary = audit.close(
+                    status="failed",
+                    failure_class=public_exception_type(outcome),
+                )
+                return summary
             _, summary = audit.close(
-                status="failed",
-                failure_class=type(outcome).__name__,
+                status="finished",
+                winner_seats=[seat - 1 for seat in outcome.winner_seats],
+                decision_count=outcome.decision_count,
+                semantic_transcript_sha256=outcome.semantic_transcript_sha256,
             )
             return summary
-        _, summary = audit.close(
-            status="finished",
-            winner_seats=outcome.winner_seats,
-            decision_count=outcome.decision_count,
-            semantic_transcript_sha256=outcome.semantic_transcript_sha256,
-        )
-        return summary
+        except OSError:
+            audit.discard()
+            return None
+
+    def discard_open_audits(self) -> None:
+        """Best-effort cleanup of any remaining open audit recorders."""
+        while self._audit_recorders:
+            _, audit = self._audit_recorders.popitem()
+            audit.discard()
 
     def begin_game(self, scenario_id: str) -> GameRecorder:
         previous = self._recorders.pop(scenario_id, None)
@@ -277,20 +288,26 @@ def play_recorded_games(
     runner.on_played = on_played
     permitted = games_per_jvm_permitted(runner.command) if runner.command else 1
     summaries: list[dict[str, object]] = []
-    for start in range(0, len(prepared), permitted):
-        piece = prepared[start : start + permitted]
-        outcomes: list[FullGameConformanceResult | Exception]
-        try:
-            outcomes = runner.run_batch(
-                [(item.scenario, item.decks, item.pilots) for item in piece]
-            )
-        except Exception as error:  # no engine command: every game of the piece failed to start
-            outcomes = [error] * len(piece)
-        for item, outcome in zip(piece, outcomes, strict=True):
-            summary = close_recorded_game(runner.recorder_of(item.scenario.scenario_id), outcome)
-            if record_pilot_audit and hasattr(runner, "close_audit_game"):
-                runner.close_audit_game(item.scenario.scenario_id, outcome)
-            summaries.append(summary)
-            if on_game is not None:
-                on_game(summary)
+    try:
+        for start in range(0, len(prepared), permitted):
+            piece = prepared[start : start + permitted]
+            outcomes: list[FullGameConformanceResult | Exception]
+            try:
+                outcomes = runner.run_batch(
+                    [(item.scenario, item.decks, item.pilots) for item in piece]
+                )
+            except Exception as error:  # no engine command: every game of the piece failed to start
+                outcomes = [error] * len(piece)
+            for item, outcome in zip(piece, outcomes, strict=True):
+                summary = close_recorded_game(
+                    runner.recorder_of(item.scenario.scenario_id), outcome
+                )
+                if record_pilot_audit and hasattr(runner, "close_audit_game"):
+                    runner.close_audit_game(item.scenario.scenario_id, outcome)
+                summaries.append(summary)
+                if on_game is not None:
+                    on_game(summary)
+    finally:
+        if record_pilot_audit and hasattr(runner, "discard_open_audits"):
+            runner.discard_open_audits()
     return summaries

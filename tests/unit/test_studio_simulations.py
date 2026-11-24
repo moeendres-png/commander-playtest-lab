@@ -2338,6 +2338,8 @@ def test_pilot_audit_recorder_redacts_keys_and_isolates_from_play_routes(tmp_pat
         {"data_class": "SIMULATED_RESULT", "seats": [{"seat": 1, "pilot": "Mensch"}]},
         {"data_class": "SIMULATED_RESULT", "seats": [{"seat": 1, "is_human": True}]},
         {"data_class": "UNKNOWN", "seats": [{"seat": 1, "pilot": "AI"}]},
+        {},
+        {"seed": 1, "seats": [{"seat": 1, "pilot": "AI"}]},
     ]:
         with pytest.raises(ValueError):
             pilot_audit.PilotAuditRecorder(tmp_path, "audit-bad-1", bad_header)
@@ -2545,6 +2547,26 @@ def test_pilot_audit_omission_counter_land_and_commander_rules(tmp_path: Path) -
 
     # Missing audit files -> None -> "unbekannt" (never 0/0)
     assert pilot_audit.aggregate_series_omissions(tmp_path, ["missing-game-1"]) is None
+
+    # P2-2 regression (7/8-seat table or skipForcedDecisions): opponent turn before seat's first
+    # own turn uses own_turn=0 (NOT global turn=7 > commander_turn_limit=6).
+    c8 = pilot_audit.OmissionCounter(commander_turn_limit=6)
+    opp_turn_flash = _audit_priority_decision(
+        decision_id="s7-t7-opp",
+        seat=7,
+        turn=7,
+        options=[
+            {"option_id": "flash-cmd", "option_type": "cast_commander", "label": "Flash Cmd"},
+            {"option_id": "pass", "option_type": "pass", "label": "Pass"},
+        ],
+    )
+    opp_turn_flash["pilot_state"]["active_player_id"] = "p0"  # opponent's turn
+    c8.observe(opp_turn_flash, {"decision_id": "s7-t7-opp", "selected_option_ids": ["pass"]})
+    s8 = c8.summary()
+    assert s8["series"]["display"] == "1/1"
+    assert s8["series"]["by_kind"]["cast_commander"]["display"] == "1/1"
+    assert s8["by_seat"][0]["seat"] == 8
+    assert s8["by_seat"][0]["display"] == "1/1"
 
 
 def test_batch_and_paired_opt_in_pilot_audit_integration(

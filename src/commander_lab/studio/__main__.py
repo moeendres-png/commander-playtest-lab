@@ -776,6 +776,7 @@ def _compare_decks(args: argparse.Namespace) -> int:
                     "workers": used_workers,
                     "games_per_jvm": engine.games_per_jvm if engine is not None else used_batch,
                     "games_dir": str(games_folder(folder)),
+                    "record_pilot_audit": record_audit,
                 },
             )
         finally:

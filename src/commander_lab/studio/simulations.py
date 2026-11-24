@@ -285,11 +285,11 @@ def _normalize_omission_by_kind(raw: object) -> dict[str, dict[str, object]] | N
     out: dict[str, dict[str, object]] = {}
     for kind_name, raw_entry in raw.items():
         if not isinstance(kind_name, str) or not isinstance(raw_entry, Mapping):
-            continue
+            return None
         om = raw_entry.get("omissions")
         opp = raw_entry.get("opportunities")
         if not (type(om) is int and type(opp) is int and opp >= 0 and 0 <= om <= opp):
-            continue
+            return None
         cleaned: dict[str, object] = {
             "omissions": om,
             "opportunities": opp,
@@ -297,7 +297,9 @@ def _normalize_omission_by_kind(raw: object) -> dict[str, dict[str, object]] | N
             "display": f"{om}/{opp}" if opp > 0 else "unbekannt",
         }
         turn_limit = raw_entry.get("turn_limit")
-        if type(turn_limit) is int and turn_limit >= 1:
+        if turn_limit is not None:
+            if type(turn_limit) is not int or turn_limit < 1:
+                return None
             cleaned["turn_limit"] = turn_limit
         out[kind_name] = cleaned
     return out or None
@@ -377,9 +379,14 @@ def _normalize_pilot_omissions(
         "by_seat": seats_out,
         "display": str(series_entry["display"]) if series_entry is not None else "gemessen",
     }
-    for meta_key in ("commander_turn_limit", "games_audited", "games_requested", "total_decisions"):
+    for meta_key, min_val in (
+        ("commander_turn_limit", 1),
+        ("games_audited", 0),
+        ("games_requested", 0),
+        ("total_decisions", 0),
+    ):
         meta_val = pilot_omissions.get(meta_key)
-        if type(meta_val) is int and meta_val >= 0:
+        if type(meta_val) is int and meta_val >= min_val:
             out[meta_key] = meta_val
     return out
 

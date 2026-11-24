@@ -124,6 +124,12 @@ def ensure_simulated_audit_header(header: Mapping[str, object]) -> dict[str, obj
     """
     if not isinstance(header, Mapping):
         raise ValueError("pilot audit requires a mapping game header")
+    raw_data_class = header.get("data_class")
+    if raw_data_class != COHORT_SIMULATED:
+        raise ValueError(
+            f"pilot audit recording refused for data_class {raw_data_class!r}; "
+            f"only explicit {COHORT_SIMULATED!r} allowed"
+        )
     cohort = game_cohort(header)
     if cohort != COHORT_SIMULATED:
         raise ValueError(
@@ -293,7 +299,7 @@ class OmissionCounter:
     def _own_turn_index(self, seat: int, turn: int, *, is_own_turn: bool) -> int:
         if not is_own_turn:
             seen = self._own_turns.get(seat)
-            return len(seen) if seen else turn
+            return len(seen) if seen else 0
         seen = self._own_turns.setdefault(seat, [])
         if (not seen or seen[-1] != turn) and turn not in seen:
             seen.append(turn)
@@ -473,16 +479,20 @@ class PilotAuditRecorder:
         self._handle: IO[str] | None = self.plain_path.open(
             "w", encoding="utf-8", buffering=SERIES_BUFFER_BYTES
         )
-        self._write_line(
-            {
-                "kind": "header",
-                "schema": AUDIT_SCHEMA,
-                "game_id": self.game_id,
-                "recorded_at": now_utc(),
-                "commander_turn_limit": self.counter.commander_turn_limit,
-                "header": self.header,
-            }
-        )
+        try:
+            self._write_line(
+                {
+                    "kind": "header",
+                    "schema": AUDIT_SCHEMA,
+                    "game_id": self.game_id,
+                    "recorded_at": now_utc(),
+                    "commander_turn_limit": self.counter.commander_turn_limit,
+                    "header": self.header,
+                }
+            )
+        except OSError:
+            self.discard()
+            raise
 
     def _write_line(self, payload: Mapping[str, object]) -> None:
         handle = self._handle
@@ -542,25 +552,37 @@ class PilotAuditRecorder:
         """Write closing summary, compress to ``.audit.jsonl.gz``, and remove plain file."""
         summary = self.counter.summary()
         if not self._closed:
-            self._write_line(
-                {
-                    "kind": "end",
-                    "ended_at": now_utc(),
-                    "status": status,
-                    "winner_seats": list(winner_seats) if winner_seats is not None else [],
-                    "decision_count": decision_count
-                    if decision_count is not None
-                    else self.counter.total_decisions,
-                    "semantic_transcript_sha256": semantic_transcript_sha256,
-                    "failure_class": failure_class,
-                    "omissions": summary,
-                }
-            )
+            handle = self._handle
             self._closed = True
-            handle, self._handle = self._handle, None
-            if handle is not None:
-                handle.flush()
-                handle.close()
+            self._handle = None
+            try:
+                if handle is not None:
+                    handle.write(
+                        json.dumps(
+                            {
+                                "kind": "end",
+                                "ended_at": now_utc(),
+                                "status": status,
+                                "winner_seats": list(winner_seats)
+                                if winner_seats is not None
+                                else [],
+                                "decision_count": decision_count
+                                if decision_count is not None
+                                else self.counter.total_decisions,
+                                "semantic_transcript_sha256": semantic_transcript_sha256,
+                                "failure_class": failure_class,
+                                "omissions": summary,
+                            },
+                            ensure_ascii=False,
+                            separators=(",", ":"),
+                        )
+                        + "\n"
+                    )
+                    handle.flush()
+            finally:
+                if handle is not None:
+                    with contextlib.suppress(OSError):
+                        handle.close()
             if self.plain_path.is_file():
                 with (
                     self.plain_path.open("rb") as src,
@@ -632,6 +654,7 @@ def summarize_audit_file(
                 raw_om = entry.get("omissions")
                 if (
                     isinstance(raw_om, dict)
+                    and type(raw_om.get("commander_turn_limit")) is int
                     and raw_om.get("commander_turn_limit") == commander_turn_limit
                 ):
                     stored_summary = raw_om

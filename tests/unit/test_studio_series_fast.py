@@ -1066,10 +1066,13 @@ def test_batch_recording_runner_opt_in_pilot_audit_invariance(
     or game log content and writes audit separately under pilot_audit/."""
     from commander_lab.candidates.models import FutureXmageScenario
     from commander_lab.engine.rules import full_game
+    from commander_lab.qualification.current_boundary.bridge_launcher import (
+        canonical_xmage_engine_pin,
+    )
     from commander_lab.studio import pilot_audit
     from commander_lab.studio.play_batch import BatchRecordingRunner
 
-    commit = "f4d12f6e8066203fba7aa38bd35ea3358117393d"
+    commit = canonical_xmage_engine_pin()
     decision = {
         "decision_id": "d-audit-1",
         "decision_class": "priority",
