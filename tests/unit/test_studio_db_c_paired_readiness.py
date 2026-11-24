@@ -2689,3 +2689,260 @@ def test_paired_start_series_releases_claim_on_startup_failure_and_handles_mkdir
         assert sorted(p.name for p in gdir.glob(f"*{series_reservation.RESERVATION_SUFFIX}")) == []
     finally:
         store.close()
+
+
+def test_paired_comparison_and_deck_series_include_validity_block_and_consistency_table(
+    tmp_path: Path,
+) -> None:
+    """#1527: paired series results and deck_series entries carry validity_block (seat curve
+    with 95% Wilson CI + Playgroup 4-seat ref + unknown pilot_omissions + fixed statement)
+    and 3-class consistency_table."""
+    from commander_lab.studio import deck_series as deck_series_mod
+    from commander_lab.studio.simulations import wilson_score_interval
+
+    store, folder = _make_store(tmp_path)
+    try:
+        rev_base = create_revision(
+            store,
+            deck_id="chulane-vb",
+            name="Chulane VB",
+            branch="main",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-sol-ring", 1, "main"),
+                RevisionCard("cid-llanowar", 1, "main"),
+                RevisionCard("cid-forest", 97, "main"),
+            ],
+        )
+        rev_var = create_revision(
+            store,
+            deck_id="chulane-vb",
+            name="Chulane VB",
+            branch="variant",
+            cards=[
+                RevisionCard("cid-chulane", 1, "commander"),
+                RevisionCard("cid-sol-ring", 1, "main"),
+                RevisionCard("cid-signet", 1, "main"),
+                RevisionCard("cid-forest", 97, "main"),
+            ],
+        )
+
+        def _play(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+            did = "chulane-vb--base" if arm == "base" else "chulane-vb--variant"
+            exp = _mock_exposure(
+                f"{arm}-{seed}-{seat}",
+                seed=seed,
+                seat=seat,
+                tested_deck_id=did,
+                won=(arm == "variant"),
+            )
+            exp["pilot_fingerprint"] = "fp-paired-test-1527"
+            exp["table_size"] = 4
+            return {"exposure": exp, "failure_class": None}  # type: ignore[typeddict-item]
+
+        mgr = PairedSeriesManager()
+        job = mgr.start_series(
+            store,
+            folder,
+            base_revision_id=rev_base,
+            variant_revision_id=rev_var,
+            pod="precon",
+            budget_pairs=8,
+            look_every_pairs=4,
+            base_seed=4000,
+            rotate_seats=True,
+            play_override=_play,
+        )
+        done = _wait_job(mgr, folder, job.series_id)
+        assert done["status"] == "completed"
+        res = done["result"]
+        assert isinstance(res, dict)
+
+        vb = res["validity_block"]
+        assert isinstance(vb, dict)
+        assert vb["data_class"] == "SIMULATED_RESULT"
+        assert vb["pilot_fingerprint"] == "fp-paired-test-1527"
+        assert vb["pilot_omissions"]["status"] == "unbekannt"
+        assert vb["pilot_omissions"]["series"] is None
+        assert vb["pilot_omissions"]["by_seat"] is None
+        assert vb["validity_statement"].startswith(
+            "Gilt für diese Piloten (Fingerabdruck: fp-paired-test-1527), diese Pods ("
+        )
+        assert vb["validity_statement"].endswith("; keine Aussage über menschliches Spiel.")
+
+        sc = vb["seat_curve"]
+        assert sc["table_size"] == 4
+        assert sc["reference_comparable"] is True
+        assert sc["reference"]["n"] == 300240
+        assert len(sc["seats"]) == 4
+        for seat_row in sc["seats"]:
+            expected_ci = list(
+                wilson_score_interval(seat_row["wins"], seat_row["games"], confidence=0.95)
+            )
+            assert seat_row["ci95"] == expected_ci
+            assert seat_row["reference_win_rate_pct"] is not None
+
+        ct = res["consistency_table"]
+        assert [c["key"] for c in ct["origin_classes"]] == [
+            "exact_calculated",
+            "engine_pilot_independent",
+            "engine_pilot_dependent",
+        ]
+        assert len(ct["by_origin_class"]["exact_calculated"]) >= 1
+        assert len(ct["by_origin_class"]["engine_pilot_independent"]) >= 1
+        assert len(ct["by_origin_class"]["engine_pilot_dependent"]) >= 1
+
+        # deck_series exposes validity_block & consistency_table for stored series
+        ds = deck_series_mod.deck_series(
+            folder, [rev_base, rev_var], store=store, deck_id="chulane-vb"
+        )
+        assert len(ds["series"]) == 1
+        entry = ds["series"][0]
+        assert isinstance(entry["validity_block"], dict)
+        assert entry["validity_block"]["data_class"] == "SIMULATED_RESULT"
+        assert entry["validity_block"]["pilot_omissions"]["status"] == "unbekannt"
+        assert isinstance(entry["consistency_table"], dict)
+    finally:
+        store.close()
+
+
+def test_paired_seat_curve_turn_order_legacy_disk_fallback_and_compare_logs_failures(
+    tmp_path: Path,
+) -> None:
+    """P1-1, P2-2, P2-3 (#1527):
+    - paired_comparison aggregates seat curve by turn-order position (winner - seed % 4) % 4
+    - PairedSeriesManager.get_series()/list_series() attach fallback validity_block to legacy files
+    - compare_logs() rebuilds consistency_table after recording failed base/variant games.
+    """
+    from commander_lab.studio.games import games_folder
+
+    # P1-1: paired series where starting player (seed % 4) always wins -> Seat 1 = 100 %
+    exposures = []
+    for seed in range(1000, 1004):
+        start_seat = seed % 4
+        for arm, did in (("base", "deck-a"), ("variant", "deck-b")):
+            exp = _mock_exposure(
+                f"{arm}-{seed}",
+                seed=seed,
+                seat=0,
+                tested_deck_id=did,
+                won=(start_seat == 0),
+            )
+            exp["table_size"] = 4
+            exp["winner_seats"] = [start_seat]
+            exposures.append(exp)
+    pairs, _, _, _ = paired_comparison.pair_exposures(
+        exposures,  # type: ignore[arg-type]
+        base_deck_id="deck-a",
+        variant_deck_id="deck-b",
+    )
+    res, _ = paired_comparison._summarize(
+        pairs,
+        base_deck_id="deck-a",
+        variant_deck_id="deck-b",
+        threshold_pp=0.0,
+        significance_level=0.05,
+        alpha=0.05,
+        exposures=exposures,  # type: ignore[arg-type]
+        allow_mixed=False,
+        series=False,
+    )
+    sc_seats = res["validity_block"]["seat_curve"]["seats"]
+    assert [s["n_of_N"] for s in sc_seats] == ["8/8", "0/8", "0/8", "0/8"]
+    assert [s["win_rate_pct"] for s in sc_seats] == [100.0, 0.0, 0.0, 0.0]
+
+    # P2-2: legacy .paired.json without validity_block on disk
+    gdir = games_folder(tmp_path)
+    gdir.mkdir(parents=True, exist_ok=True)
+    legacy_paired = {
+        "schema": "studio-paired-series-job-1",
+        "series_id": "paired-legacy-1527",
+        "status": "completed",
+        "base_ref": "chulane@a",
+        "variant_ref": "chulane@b",
+        "pod": "precon",
+        "opponent_ids": ["o1", "o2", "o3"],
+        "result": {"pairs_completed": 4, "engine_pin": "xmage-test-pin"},
+    }
+    (gdir / "paired-legacy-1527.paired.json").write_text(
+        json.dumps(legacy_paired), encoding="utf-8"
+    )
+    mgr = PairedSeriesManager()
+    got = mgr.get_series(tmp_path, "paired-legacy-1527")
+    assert got is not None
+    assert got["validity_block"]["data_class"] == "SIMULATED_RESULT"
+    assert got["validity_block"]["pilot_omissions"]["status"] == "unbekannt"
+    assert got["validity_block"]["seat_curve"]["table_size"] == 4
+    assert got["result"]["validity_block"]["data_class"] == "SIMULATED_RESULT"
+    listed = mgr.list_series(tmp_path)
+    assert any(
+        item["series_id"] == "paired-legacy-1527"
+        and item["validity_block"]["data_class"] == "SIMULATED_RESULT"
+        for item in listed
+    )
+
+    # P2-3: compare_logs() with a failed base game reflects Fehler A: 1 in consistency_table
+    logs_dir = tmp_path / "compare_logs_case"
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    for seed in (10, 11):
+        for arm, did in (("base", "deck-a"), ("variant", "deck-b")):
+            header = {
+                "kind": "header",
+                "schema": "studio-game-log-1",
+                "game_id": f"{arm}-{seed}",
+                "seed": seed,
+                "cohort": "simulated",
+                "engine_commit": "eng-1",
+                "pilot_fingerprint": "fp-1",
+                "seats": [
+                    {"seat": 0, "deck_id": did, "pilot": "ai"},
+                    {"seat": 1, "deck_id": "opp-1", "pilot": "ai"},
+                    {"seat": 2, "deck_id": "opp-2", "pilot": "ai"},
+                    {"seat": 3, "deck_id": "opp-3", "pilot": "ai"},
+                ],
+            }
+            result_line = {
+                "kind": "result",
+                "status": "finished",
+                "winner_seats": [0 if arm == "variant" else 1],
+            }
+            (logs_dir / f"{arm}-{seed}.jsonl").write_text(
+                json.dumps(header) + "\n" + json.dumps(result_line) + "\n",
+                encoding="utf-8",
+            )
+    # Add one failed base game
+    failed_header = {
+        "kind": "header",
+        "schema": "studio-game-log-1",
+        "game_id": "base-failed-99",
+        "seed": 99,
+        "cohort": "simulated",
+        "engine_commit": "eng-1",
+        "pilot_fingerprint": "fp-1",
+        "seats": [
+            {"seat": 0, "deck_id": "deck-a", "pilot": "ai"},
+            {"seat": 1, "deck_id": "opp-1", "pilot": "ai"},
+            {"seat": 2, "deck_id": "opp-2", "pilot": "ai"},
+            {"seat": 3, "deck_id": "opp-3", "pilot": "ai"},
+        ],
+    }
+    failed_result = {"kind": "result", "status": "failed", "failure_class": "Timeout"}
+    (logs_dir / "base-failed-99.jsonl").write_text(
+        json.dumps(failed_header) + "\n" + json.dumps(failed_result) + "\n",
+        encoding="utf-8",
+    )
+    compared = paired_comparison.compare_logs(
+        logs_dir, base_deck_id="deck-a", variant_deck_id="deck-b"
+    )
+    assert compared["games_failed_base"] == 1
+    pair_row = next(
+        r
+        for r in compared["consistency_table"]["rows"]
+        if r["metric_id"] == "pairs_completed_vs_censored"
+    )
+    assert "Fehler A: 1" in str(pair_row["display"])
+    # P3: integer win count formatted as "2/2", not "2.0/2"
+    var_row = next(
+        r for r in compared["consistency_table"]["rows"] if r["metric_id"] == "variant_win_rate"
+    )
+    assert var_row["n_of_N"] == "2/2"

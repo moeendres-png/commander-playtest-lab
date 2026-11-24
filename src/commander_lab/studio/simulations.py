@@ -28,7 +28,9 @@ from commander_lab.bridge_qualification import (
     BRIDGE_UNKNOWN,
     bridge_qualification,
 )
-from commander_lab.qualification.current_boundary.bridge_launcher import canonical_xmage_engine_pin
+from commander_lab.qualification.current_boundary.bridge_launcher import (
+    canonical_xmage_engine_pin as canonical_xmage_engine_pin,
+)
 
 from . import cache, series_reservation
 from .decks import lab_snapshot
@@ -94,6 +96,324 @@ def wilson_score_interval(wins: float, total: int, confidence: float = 0.95) -> 
     lower = max(0.0, center - spread)
     upper = min(1.0, center + spread)
     return (round(lower, 4), round(upper, 4))
+
+
+#: Playgroup 4-seat win-rate reference (static constant, no network fetch; #1527, G-SIM Punkt 4).
+#: Direct comparison is valid ONLY when ``table_size == 4``.
+PLAYGROUP_SEAT_CURVE_REFERENCE: dict[str, object] = {
+    "source": "Playgroup",
+    "as_of": "2026-11-16",
+    "table_size": 4,
+    "n": 300240,
+    "seats": [
+        {"seat": 1, "win_rate_pct": 29.1},
+        {"seat": 2, "win_rate_pct": 25.7},
+        {"seat": 3, "win_rate_pct": 23.6},
+        {"seat": 4, "win_rate_pct": 21.5},
+    ],
+    "caveats": (
+        "Casual, Selbstangabe, Sitz nicht randomisiert, Unentschieden ausgeschlossen; "
+        "Referenz gilt nur für 4 Sitze."
+    ),
+}
+
+CONSISTENCY_ORIGIN_EXACT = "exact_calculated"
+CONSISTENCY_ORIGIN_ENGINE_PILOT_INDEPENDENT = "engine_pilot_independent"
+CONSISTENCY_ORIGIN_ENGINE_PILOT_DEPENDENT = "engine_pilot_dependent"
+
+CONSISTENCY_ORIGIN_LABELS: dict[str, str] = {
+    CONSISTENCY_ORIGIN_EXACT: "Exakt gerechnet",
+    CONSISTENCY_ORIGIN_ENGINE_PILOT_INDEPENDENT: "Engine, pilotunabhängig",
+    CONSISTENCY_ORIGIN_ENGINE_PILOT_DEPENDENT: "Engine, pilotabhängig",
+}
+
+
+def _playgroup_reference_copy() -> dict[str, object]:
+    raw_seats = PLAYGROUP_SEAT_CURVE_REFERENCE["seats"]
+    seats_copy = [dict(item) for item in raw_seats] if isinstance(raw_seats, list) else []
+    return {
+        "source": PLAYGROUP_SEAT_CURVE_REFERENCE["source"],
+        "as_of": PLAYGROUP_SEAT_CURVE_REFERENCE["as_of"],
+        "table_size": PLAYGROUP_SEAT_CURVE_REFERENCE["table_size"],
+        "n": PLAYGROUP_SEAT_CURVE_REFERENCE["n"],
+        "seats": seats_copy,
+        "caveats": PLAYGROUP_SEAT_CURVE_REFERENCE["caveats"],
+    }
+
+
+def _derive_pilot_fingerprint(style: float | None = None) -> str | None:
+    """Derive the real pilot code/data fingerprint; returns None if pilot data is unavailable."""
+    try:
+        from commander_lab.models.pilots import PilotStrength
+
+        from .pilot_fingerprint import pilot_fingerprint
+        from .play import POLICY_VERSION
+
+        return pilot_fingerprint(
+            policy_version=POLICY_VERSION,
+            strength=PilotStrength.NEAR_OPTIMAL_HEURISTIC.value,
+            style=style,
+        )
+    except (ImportError, OSError, ValueError):
+        return None
+
+
+def _fmt_win_count(wins: float) -> str:
+    rounded = round(wins, 4)
+    return str(int(rounded)) if float(rounded).is_integer() else str(round(rounded, 2))
+
+
+def _resolve_starting_seat(game: Mapping[str, object], table_size: int) -> int | None:
+    """Resolve 0-based ``starting_player_seat`` from explicit field or ``seed % table_size``.
+
+    Fail-closed: returns ``None`` if neither a valid ``starting_player_seat`` nor an integer
+    ``seed`` is present (never guesses 0).
+    """
+    raw_start = game.get("starting_player_seat")
+    if type(raw_start) is int and 0 <= raw_start < table_size:
+        return raw_start
+    raw_seed = game.get("seed")
+    if type(raw_seed) is int:
+        return raw_seed % table_size
+    return None
+
+
+def compute_seat_curve(
+    games: Sequence[Mapping[str, object]],
+    *,
+    table_size: int | None,
+) -> dict[str, object]:
+    """Turn-order seat win-rate curve (1..table_size) with 95% Wilson CI and Playgroup reference.
+
+    Each game maps its 0-based ``winner_seats`` to 0-based turn-order position
+    ``(winner_seat - starting_seat) % table_size`` where ``starting_seat`` comes from
+    ``starting_player_seat`` or ``seed % table_size`` (matching ``full_game.py``). Seat 1 is
+    the starting player. Games without a resolvable starting seat are NOT guessed (fail-closed)
+    and are counted in ``games_without_starting_seat``.
+    Direct comparison against ``PLAYGROUP_SEAT_CURVE_REFERENCE`` is enabled ONLY when
+    ``table_size == 4``; for any other or unknown table size, no reference value is fabricated.
+    """
+    valid_size = type(table_size) is int and table_size >= 2
+    reference_comparable = valid_size and table_size == 4
+    ref_by_seat: dict[int, float] = {1: 29.1, 2: 25.7, 3: 23.6, 4: 21.5}
+    seats_out: list[dict[str, object]] = []
+    mapped_winner_positions: list[list[int]] = []
+    unmapped_games = 0
+
+    if valid_size and table_size is not None:
+        for game in games:
+            start = _resolve_starting_seat(game, table_size)
+            if start is None:
+                unmapped_games += 1
+                continue
+            raw_ws = game.get("winner_seats")
+            ws_list = (
+                raw_ws
+                if isinstance(raw_ws, Sequence) and not isinstance(raw_ws, (str, bytes))
+                else ()
+            )
+            mapped = [
+                (w - start) % table_size for w in ws_list if type(w) is int and 0 <= w < table_size
+            ]
+            mapped_winner_positions.append(mapped)
+
+        total_mapped = len(mapped_winner_positions)
+        for seat_idx in range(table_size):
+            seat_num = seat_idx + 1
+            wins = sum(
+                (1.0 / len(ws)) if ws and seat_idx in ws else 0.0 for ws in mapped_winner_positions
+            )
+            win_rate = round(wins / total_mapped, 4) if total_mapped > 0 else None
+            win_rate_pct = round(win_rate * 100.0, 1) if win_rate is not None else None
+            if total_mapped > 0:
+                ci_low, ci_high = wilson_score_interval(wins, total_mapped, confidence=0.95)
+                ci95: list[float] | None = [ci_low, ci_high]
+                ci95_pct: list[float] | None = [round(ci_low * 100.0, 1), round(ci_high * 100.0, 1)]
+            else:
+                ci95 = None
+                ci95_pct = None
+            seats_out.append(
+                {
+                    "seat": seat_num,
+                    "wins": round(wins, 4),
+                    "games": total_mapped,
+                    "n_of_N": f"{_fmt_win_count(wins)}/{total_mapped}"
+                    if total_mapped > 0
+                    else "unbekannt",
+                    "win_rate": win_rate,
+                    "win_rate_pct": win_rate_pct,
+                    "ci95": ci95,
+                    "ci95_pct": ci95_pct,
+                    "reference_win_rate_pct": (
+                        ref_by_seat.get(seat_num) if reference_comparable else None
+                    ),
+                }
+            )
+    else:
+        total_mapped = 0
+
+    if reference_comparable:
+        reference_note = (
+            "Direkter Vergleich mit Playgroup-Referenz (4 Sitze, n = 300.240, Stand 2026-11-16; "
+            "Casual, Selbstangabe, Sitz nicht randomisiert, Unentschieden ausgeschlossen)."
+        )
+    elif valid_size:
+        reference_note = (
+            f"Playgroup-Referenz gilt nur für 4 Sitze (diese Serie: {table_size} Sitze); "
+            "kein direkter Vergleich."
+        )
+    else:
+        reference_note = (
+            "Playgroup-Referenz gilt nur für 4 Sitze (Tischgröße unbekannt); "
+            "kein direkter Vergleich."
+        )
+
+    return {
+        "table_size": table_size if valid_size else None,
+        "games_completed": total_mapped,
+        "games_without_starting_seat": unmapped_games,
+        "seats": seats_out,
+        "reference": _playgroup_reference_copy(),
+        "reference_comparable": reference_comparable,
+        "reference_note": reference_note,
+    }
+
+
+def _normalize_pilot_omissions(
+    pilot_omissions: Mapping[str, object] | None,
+) -> dict[str, object]:
+    """Normalize pilot omissions audit data; missing or invalid data is ALWAYS 'unbekannt'/None."""
+    unknown: dict[str, object] = {
+        "status": "unbekannt",
+        "series": None,
+        "by_seat": None,
+        "display": "unbekannt",
+    }
+    if not isinstance(pilot_omissions, Mapping):
+        return unknown
+    raw_series = pilot_omissions.get("series")
+    series_entry: dict[str, object] | None = None
+    if raw_series is not None:
+        if not isinstance(raw_series, Mapping):
+            return unknown
+        om = raw_series.get("omissions")
+        opp = raw_series.get("opportunities")
+        if not (type(om) is int and type(opp) is int and opp > 0 and 0 <= om <= opp):
+            return unknown
+        series_entry = {
+            "omissions": om,
+            "opportunities": opp,
+            "rate": round(om / opp, 4),
+            "display": f"{om}/{opp}",
+        }
+
+    raw_seats = pilot_omissions.get("by_seat")
+    seats_out: list[dict[str, object]] | None = None
+    if raw_seats is not None:
+        if not isinstance(raw_seats, list):
+            return unknown
+        parsed_seats: list[dict[str, object]] = []
+        for entry in raw_seats:
+            if not isinstance(entry, Mapping):
+                return unknown
+            seat = entry.get("seat")
+            om = entry.get("omissions")
+            opp = entry.get("opportunities")
+            if not (
+                type(seat) is int
+                and seat >= 1
+                and type(om) is int
+                and type(opp) is int
+                and opp > 0
+                and 0 <= om <= opp
+            ):
+                return unknown
+            parsed_seats.append(
+                {
+                    "seat": seat,
+                    "omissions": om,
+                    "opportunities": opp,
+                    "rate": round(om / opp, 4),
+                    "display": f"{om}/{opp}",
+                }
+            )
+        if parsed_seats:
+            seats_out = parsed_seats
+
+    if series_entry is None and seats_out is None:
+        return unknown
+    return {
+        "status": "measured",
+        "series": series_entry,
+        "by_seat": seats_out,
+        "display": str(series_entry["display"]) if series_entry is not None else "gemessen",
+    }
+
+
+def build_validity_block(
+    *,
+    seat_curve: Mapping[str, object],
+    pilot_fingerprint: str | None = None,
+    pods: str | Sequence[object] | None = None,
+    engine_version: str | None = None,
+    pilot_omissions: Mapping[str, object] | None = None,
+) -> dict[str, object]:
+    """Canonical validity block for every SIMULATE series result (#1527, G-SIM Punkt 4)."""
+    fp_text = (
+        pilot_fingerprint.strip()
+        if isinstance(pilot_fingerprint, str) and pilot_fingerprint.strip()
+        else "unbekannt"
+    )
+    if isinstance(pods, str) and pods.strip():
+        pods_text = pods.strip()
+    elif isinstance(pods, Sequence) and not isinstance(pods, (str, bytes)):
+        cleaned = [str(p).strip() for p in pods if p is not None and str(p).strip()]
+        pods_text = ", ".join(cleaned) if cleaned else "unbekannt"
+    else:
+        pods_text = "unbekannt"
+    ver_text = (
+        engine_version.strip()
+        if isinstance(engine_version, str) and engine_version.strip()
+        else "unbekannt"
+    )
+    omissions_block = _normalize_pilot_omissions(pilot_omissions)
+    validity_statement = (
+        f"Gilt für diese Piloten (Fingerabdruck: {fp_text}), "
+        f"diese Pods ({pods_text}), "
+        f"diese Engine-Version ({ver_text}); "
+        "keine Aussage über menschliches Spiel."
+    )
+    return {
+        "data_class": DataClass.SIMULATED_RESULT.value,
+        "seat_curve": dict(seat_curve),
+        "pilot_omissions": omissions_block,
+        "pilot_fingerprint": fp_text,
+        "pods": pods_text,
+        "engine_version": ver_text,
+        "validity_statement": validity_statement,
+    }
+
+
+def build_consistency_table(rows: Sequence[Mapping[str, object]]) -> dict[str, object]:
+    """Structure consistency metrics into the three canonical origin classes (#1527)."""
+    grouped: dict[str, list[dict[str, object]]] = {key: [] for key in CONSISTENCY_ORIGIN_LABELS}
+    normalized_rows: list[dict[str, object]] = []
+    for row in rows:
+        origin = str(row.get("origin_class") or "")
+        if origin not in CONSISTENCY_ORIGIN_LABELS:
+            raise ValueError(f"unknown consistency origin_class: {origin!r}")
+        entry = dict(row)
+        entry["origin_label"] = CONSISTENCY_ORIGIN_LABELS[origin]
+        normalized_rows.append(entry)
+        grouped[origin].append(entry)
+    return {
+        "data_class": DataClass.SIMULATED_RESULT.value,
+        "origin_classes": [
+            {"key": key, "label": label} for key, label in CONSISTENCY_ORIGIN_LABELS.items()
+        ],
+        "rows": normalized_rows,
+        "by_origin_class": grouped,
+    }
 
 
 def _norm_card_name(name: str) -> str:
@@ -269,6 +589,9 @@ class GameSummary:
     bridge_jar_sha256: str | None = None
     bridge_qualification_state: str | None = None
     covered_by_sealed_epoch: bool = False
+    table_size: int | None = None
+    starting_player_seat: int | None = None
+    pilot_fingerprint: str | None = None
     observed_cards: dict[str, dict[str, object]] = field(default_factory=dict)
     plan_telemetry: dict[str, object] = field(default_factory=dict)
 
@@ -288,6 +611,12 @@ class GameSummary:
             "bridge_qualification_state": self.bridge_qualification_state,
             "covered_by_sealed_epoch": self.covered_by_sealed_epoch,
         }
+        if self.table_size is not None:
+            payload["table_size"] = self.table_size
+        if self.starting_player_seat is not None:
+            payload["starting_player_seat"] = self.starting_player_seat
+        if self.pilot_fingerprint is not None:
+            payload["pilot_fingerprint"] = self.pilot_fingerprint
         if self.plan_telemetry:
             payload["plan_telemetry"] = self.plan_telemetry
         return payload
@@ -423,6 +752,21 @@ def extract_game_log_telemetry(
         else {}
     )
 
+    raw_seats_hdr = hdr.get("seats")
+    table_size = (
+        len(raw_seats_hdr) if isinstance(raw_seats_hdr, list) and len(raw_seats_hdr) >= 2 else None
+    )
+    raw_start_hdr = hdr.get("starting_player_seat")
+    starting_player_seat = (
+        raw_start_hdr
+        if type(raw_start_hdr) is int and (table_size is None or 0 <= raw_start_hdr < table_size)
+        else None
+    )
+    raw_fp_hdr = hdr.get("pilot_fingerprint")
+    pilot_fp = (
+        str(raw_fp_hdr).strip() if isinstance(raw_fp_hdr, str) and raw_fp_hdr.strip() else None
+    )
+
     return GameSummary(
         game_id=game_id,
         seed=seed,
@@ -437,6 +781,9 @@ def extract_game_log_telemetry(
         bridge_jar_sha256=bridge_jar_sha256,
         bridge_qualification_state=bridge_qualification_state,
         covered_by_sealed_epoch=covered_by_sealed_epoch,
+        table_size=table_size,
+        starting_player_seat=starting_player_seat,
+        pilot_fingerprint=pilot_fp,
         observed_cards=card_telemetry,
         plan_telemetry=plan_telemetry,
     )
@@ -499,6 +846,12 @@ def censored_round_quartiles(reached_rounds: Sequence[int], games: int) -> dict[
 def aggregate_batch_results(
     games: Sequence[GameSummary],
     deck_card_names: Sequence[str] | None = None,
+    *,
+    table_size: int | None = None,
+    pilot_fingerprint: str | None = None,
+    pod_name: str | None = None,
+    engine_version: str | None = None,
+    pilot_omissions: Mapping[str, object] | None = None,
 ) -> dict[str, object]:
     """Aggregate multiple game outcomes into an objective simulation summary."""
     successful = [g for g in games if g.status == "finished"]
@@ -531,6 +884,53 @@ def aggregate_batch_results(
         for g in successful
     )
 
+    # Resolve table_size from explicit argument or homogeneous game headers
+    resolved_table_size = table_size
+    if resolved_table_size is None:
+        header_sizes = sorted(
+            {
+                g.table_size
+                for g in successful
+                if isinstance(g.table_size, int) and g.table_size >= 2
+            }
+        )
+        if len(header_sizes) == 1:
+            resolved_table_size = header_sizes[0]
+
+    # Resolve pilot_fingerprint from game headers or explicit argument
+    header_fps = sorted(
+        {
+            g.pilot_fingerprint
+            for g in successful
+            if isinstance(g.pilot_fingerprint, str) and g.pilot_fingerprint
+        }
+    )
+    if len(header_fps) == 1:
+        resolved_fp: str | None = header_fps[0]
+    elif len(header_fps) > 1:
+        resolved_fp = ", ".join(header_fps)
+    else:
+        resolved_fp = pilot_fingerprint
+
+    seat_curve = compute_seat_curve(
+        [
+            {
+                "winner_seats": g.winner_seats,
+                "seed": g.seed,
+                "starting_player_seat": g.starting_player_seat,
+            }
+            for g in successful
+        ],
+        table_size=resolved_table_size,
+    )
+    validity_block = build_validity_block(
+        seat_curve=seat_curve,
+        pilot_fingerprint=resolved_fp,
+        pods=pod_name,
+        engine_version=engine_version,
+        pilot_omissions=pilot_omissions,
+    )
+
     # Per-card aggregation
     card_names = set(deck_card_names or ())
     for g in successful:
@@ -553,10 +953,13 @@ def aggregate_batch_results(
         mean_first_round = round(sum(first_rounds) / len(first_rounds), 2) if first_rounds else None
         rotted_games = max(0, offered_games - cast_games)
         reached_games = len(first_rounds)
+        not_reached_games = completed_count - reached_games
+        quartiles = censored_round_quartiles(first_rounds, completed_count)
 
         cards_summary.append(
             {
                 "card_name": c_name,
+                "origin_class": CONSISTENCY_ORIGIN_ENGINE_PILOT_DEPENDENT,
                 "games_completed": completed_count,
                 "games_offered": offered_games,
                 "games_cast_after_offer": cast_games,
@@ -571,15 +974,90 @@ def aggregate_batch_results(
                     "the game lasted (None = not reached)"
                 ),
                 "first_cast_round_games_reached": reached_games,
-                "first_cast_round_games_not_reached": completed_count - reached_games,
-                "first_cast_round_quartiles": censored_round_quartiles(
-                    first_rounds, completed_count
-                ),
+                "first_cast_round_games_not_reached": not_reached_games,
+                "first_cast_round_quartiles": quartiles,
             }
         )
 
+    planned_count = len(games)
+    rounds_quartiles = censored_round_quartiles(
+        [g.rounds for g in successful],
+        planned_count,
+    )
+    consistency_rows: list[dict[str, object]] = [
+        {
+            "metric_id": "hypergeometric_curve",
+            "label": "Hypergeometrie / Manakurve",
+            "origin_class": CONSISTENCY_ORIGIN_EXACT,
+            "n": None,
+            "N": None,
+            "n_of_N": "unbekannt",
+            "value": None,
+            "display": "separat aus Deckliste exakt berechnet",
+            "is_time_to_event": False,
+        },
+        {
+            "metric_id": "games_completed",
+            "label": "Abgeschlossene Partien (vs. Abbrüche/Fehler)",
+            "origin_class": CONSISTENCY_ORIGIN_ENGINE_PILOT_INDEPENDENT,
+            "n": completed_count,
+            "N": planned_count,
+            "n_of_N": f"{completed_count}/{planned_count}" if planned_count > 0 else "unbekannt",
+            "value": round(completed_count / planned_count, 4) if planned_count > 0 else None,
+            "display": (
+                f"{completed_count}/{planned_count} abgeschlossen, {len(failed)} fehlgeschlagen"
+                if planned_count > 0
+                else "unbekannt"
+            ),
+            "is_time_to_event": False,
+        },
+        {
+            "metric_id": "win_rate",
+            "label": "Siegrate (95 %-Wilson-CI)",
+            "origin_class": CONSISTENCY_ORIGIN_ENGINE_PILOT_DEPENDENT,
+            "n": round(wins, 4),
+            "N": completed_count,
+            "n_of_N": f"{_fmt_win_count(wins)}/{completed_count}"
+            if completed_count > 0
+            else "unbekannt",
+            "value": win_rate,
+            "ci95": [ci_lower, ci_upper] if completed_count > 0 else None,
+            "display": (
+                f"{round(win_rate * 100.0, 1)} % [{round(ci_lower * 100.0, 1)} %; {round(ci_upper * 100.0, 1)} %]"
+                if win_rate is not None
+                else "unbekannt"
+            ),
+            "is_time_to_event": False,
+        },
+        {
+            "metric_id": "rounds_to_finish",
+            "label": "Partiedauer bis Abschluss (zensiert)",
+            "origin_class": CONSISTENCY_ORIGIN_ENGINE_PILOT_DEPENDENT,
+            "n": completed_count,
+            "N": planned_count,
+            "n_of_N": f"{completed_count}/{planned_count}" if planned_count > 0 else "unbekannt",
+            "value": rounds_quartiles,
+            "quartiles": rounds_quartiles,
+            "reached": completed_count,
+            "not_reached": len(failed),
+            "not_reached_label": "nicht erreicht",
+            "display": (
+                "unbekannt"
+                if planned_count == 0
+                else (
+                    f"Median Runde {rounds_quartiles['median']} ({completed_count}/{planned_count} erreicht, {len(failed)} nicht erreicht)"
+                    if rounds_quartiles.get("median") is not None
+                    else f"nicht erreicht ({completed_count}/{planned_count} erreicht, {len(failed)} nicht erreicht)"
+                )
+            ),
+            "is_time_to_event": True,
+        },
+    ]
+    consistency_table = build_consistency_table(consistency_rows)
+
     result_payload: dict[str, object] = {
-        "games_planned": len(games),
+        "data_class": DataClass.SIMULATED_RESULT.value,
+        "games_planned": planned_count,
         "games_completed": completed_count,
         "games_failed": len(failed),
         "wins_fractional": round(wins, 2),
@@ -592,10 +1070,13 @@ def aggregate_batch_results(
             "upper_percent": round(ci_upper * 100.0, 1),
         },
         "mean_rounds": mean_rounds,
+        "pilot_fingerprint": resolved_fp,
         "bridge_jar_sha256": bridge_shas[0] if len(bridge_shas) == 1 else None,
         "bridge_jar_sha256s": bridge_shas,
         "bridge_qualification_states": qual_states,
         "covered_by_sealed_epoch": covered_by_sealed_epoch,
+        "validity_block": validity_block,
+        "consistency_table": consistency_table,
         "cards": cards_summary,
     }
     plan_summary = _aggregate_plan_summary(successful)
@@ -706,6 +1187,11 @@ def save_batch_to_store(
                 (card_name,),
             ).fetchone()
             card_id = row[0] if row else None
+            raw_q = c.get("first_cast_round_quartiles")
+            quartiles_map = raw_q if isinstance(raw_q, Mapping) else {}
+            raw_reached = c.get("first_cast_round_games_reached")
+            raw_not_reached = c.get("first_cast_round_games_not_reached")
+            raw_basis = c.get("first_cast_round_basis")
             card_rows.append(
                 (
                     run_id,
@@ -718,24 +1204,40 @@ def save_batch_to_store(
                     int(c.get("offered_castable") or 0),
                     int(c.get("cast_count") or 0),
                     c.get("mean_first_cast_round"),
+                    int(raw_reached) if isinstance(raw_reached, int) else None,
+                    int(raw_not_reached) if isinstance(raw_not_reached, int) else None,
+                    quartiles_map.get("q1") if isinstance(quartiles_map.get("q1"), int) else None,
+                    quartiles_map.get("median")
+                    if isinstance(quartiles_map.get("median"), int)
+                    else None,
+                    quartiles_map.get("q3") if isinstance(quartiles_map.get("q3"), int) else None,
+                    str(raw_basis) if isinstance(raw_basis, str) and raw_basis else None,
                 )
             )
+
+    raw_fp = summary.get("pilot_fingerprint")
+    pilot_fp = (
+        str(raw_fp).strip()
+        if isinstance(raw_fp, str) and raw_fp.strip()
+        else getattr(batch, "pilot_fingerprint", None)
+    )
 
     with store.connection as db:
         db.execute("DELETE FROM simulation_card WHERE run_id = ?", (run_id,))
         db.execute(
             "INSERT OR REPLACE INTO simulation_run(run_id, deck_id, revision_id, deck_hash, "
-            "opponent_ids, opponent_set_hash, table_size, "
+            "opponent_ids, opponent_set_hash, table_size, pilot_fingerprint, "
             "pod, engine_pin, bridge_jar_sha256, bridge_qualification_state, "
             "pilot_policy, seeds, games_planned, games_completed, games_failed, "
             "wins_fractional, win_rate, mean_rounds, hand_dwell_status, source_id) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 run_id,
                 batch.deck_id,
                 batch.revision_id or None,
                 getattr(batch, "deck_hash", None),
                 *opponent_table(batch.opponent_ids),
+                pilot_fp,
                 batch.pod_name,
                 engine_pin,
                 bridge_jar_sha256,
@@ -755,7 +1257,10 @@ def save_batch_to_store(
         db.executemany(
             "INSERT INTO simulation_card(run_id, card_id, card_name, games_completed, "
             "games_offered, games_cast_after_offer, games_rotted, offered_castable, "
-            "cast_count, mean_first_cast_round) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "cast_count, mean_first_cast_round, first_cast_round_games_reached, "
+            "first_cast_round_games_not_reached, first_cast_round_q1, "
+            "first_cast_round_median, first_cast_round_q3, first_cast_round_basis) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             card_rows,
         )
         # A series belongs to the commander of the deck revision it played; it is shown
@@ -861,6 +1366,8 @@ class BatchSimulation:
         # The deck state the series plays (#1657): the seat's ``deck_hash`` of the game log
         # header, set from the own deck snapshot in ``run_worker``; None reads "Stand unbekannt".
         self.deck_hash: str | None = None
+        # Real pilot code/data fingerprint (#1527); None when pilot data is unavailable.
+        self.pilot_fingerprint: str | None = _derive_pilot_fingerprint(self.style)
 
         # Track completed vs remaining seeds for resumable execution
         self._games: list[GameSummary] = list(initial_games or [])
@@ -887,9 +1394,25 @@ class BatchSimulation:
         self._played: set[str] = set()
         self._processes: set[subprocess.Popen[str]] = set()
         self._summary: dict[str, object] | None = (
-            aggregate_batch_results(self._games) if not remaining_seeds else None
+            self._aggregate_games(self._games) if not remaining_seeds else None
         )
         self._lock = threading.Lock()
+
+    def _resolved_table_size(self) -> int | None:
+        if self.opponent_paths:
+            return 1 + len(self.opponent_paths)
+        if self.opponent_ids is not None and self.opponent_ids:
+            return 1 + len(self.opponent_ids)
+        return None
+
+    def _aggregate_games(self, games: Sequence[GameSummary]) -> dict[str, object]:
+        return aggregate_batch_results(
+            games,
+            table_size=self._resolved_table_size(),
+            pilot_fingerprint=self.pilot_fingerprint,
+            pod_name=self.pod_name,
+            engine_version=canonical_xmage_engine_pin(),
+        )
 
     def game_id_of(self, seed: int) -> str:
         return f"batch-{self.batch_id}-s{seed}"
@@ -955,6 +1478,32 @@ class BatchSimulation:
                     and self.bridge_qualification.get("status") == BRIDGE_ALIGNED
                     and bool(self.bridge_jar_sha256)
                 )
+            validity_block = (
+                self._summary.get("validity_block")
+                if isinstance(self._summary, dict) and "validity_block" in self._summary
+                else build_validity_block(
+                    seat_curve=compute_seat_curve(
+                        [
+                            {
+                                "winner_seats": g.winner_seats,
+                                "seed": g.seed,
+                                "starting_player_seat": g.starting_player_seat,
+                            }
+                            for g in games
+                            if g.status == "finished"
+                        ],
+                        table_size=self._resolved_table_size(),
+                    ),
+                    pilot_fingerprint=self.pilot_fingerprint,
+                    pods=self.pod_name,
+                    engine_version=canonical_xmage_engine_pin(),
+                )
+            )
+            consistency_table = (
+                self._summary.get("consistency_table")
+                if isinstance(self._summary, dict) and "consistency_table" in self._summary
+                else None
+            )
             return {
                 "batch_id": self.batch_id,
                 "seeds": list(self.seeds),
@@ -962,6 +1511,7 @@ class BatchSimulation:
                 "revision_id": self.revision_id,
                 "pod": self.pod_name,
                 "opponent_ids": self.opponent_ids,
+                "pilot_fingerprint": self.pilot_fingerprint,
                 "status": self.status,
                 "games_planned": len(self.seeds),
                 "games_completed": sum(1 for g in games if g.status == "finished"),
@@ -977,6 +1527,8 @@ class BatchSimulation:
                 "bridge_qualification": dict(self.bridge_qualification),
                 "covered_by_sealed_epoch": covered,
                 "execution": self.execution(),
+                "validity_block": validity_block,
+                "consistency_table": consistency_table,
                 "summary": self._summary,
                 "games": [g.to_dict() for g in games],
             }
@@ -1121,7 +1673,7 @@ class BatchSimulation:
                     self.status = "cancelled"
                 self.ended_at = now_utc()
                 self._games = self._games_in_seed_order()
-                self._summary = aggregate_batch_results(self._games)
+                self._summary = self._aggregate_games(self._games)
 
             # Persist into StudioStore if available
             if (

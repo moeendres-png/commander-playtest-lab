@@ -314,6 +314,66 @@ function pairedMonitorTableText(job) {
     : "Tisch: Sitzzahl unbekannt (ältere Serie).";
 }
 
+function renderValidityBlock(h, vb) {
+  if (!vb) return null;
+  const sc = vb.seat_curve || {};
+  const seats = Array.isArray(sc.seats) ? sc.seats : [];
+  const om = vb.pilot_omissions || {};
+  const omText = om.status === "measured" && om.display ? om.display : "unbekannt";
+  const seatTable = seats.length
+    ? h("div", { class: "table-wrap" }, h("table", {},
+      h("thead", {}, h("tr", {},
+        h("th", {}, "Sitz"),
+        h("th", { class: "num" }, "Siege/Spiele (n/N)"),
+        h("th", { class: "num" }, "Siegrate"),
+        h("th", { class: "num" }, "95 %-Wilson-CI"),
+        h("th", { class: "num" }, "Playgroup-Referenz (4 Sitze)"))),
+      h("tbody", {}, seats.map((s) => h("tr", {},
+        h("td", {}, `Sitz ${StudioUI.num(s.seat, 0)}`),
+        h("td", { class: "num" }, s.n_of_N || "unbekannt"),
+        h("td", { class: "num" }, s.win_rate_pct !== null && s.win_rate_pct !== undefined ? `${StudioUI.num(s.win_rate_pct, 1)} %` : "unbekannt"),
+        h("td", { class: "num" }, Array.isArray(s.ci95_pct) && s.ci95_pct.length === 2
+          ? `[${StudioUI.num(s.ci95_pct[0], 1)} %; ${StudioUI.num(s.ci95_pct[1], 1)} %]`
+          : "unbekannt"),
+        h("td", { class: "num" }, sc.reference_comparable && s.reference_win_rate_pct !== null && s.reference_win_rate_pct !== undefined
+          ? `${StudioUI.num(s.reference_win_rate_pct, 1)} %`
+          : "nur für 4 Sitze"))))))
+    : h("p", { class: "muted" }, "Sitzkurve: unbekannt (keine abgeschlossenen Partien oder Tischgröße unbekannt).");
+  return h("div", { class: "validity-block", id: "paired-validity-block" },
+    h("h5", {}, "Gültigkeitsblock (SIMULATED_RESULT)"),
+    h("p", { class: "note note-compact" }, vb.validity_statement || "unbekannt"),
+    h("p", { class: "note note-compact" }, `Pilot-Auslassungen: ${omText}`),
+    seatTable,
+    sc.reference_note ? h("p", { class: "note note-compact" }, sc.reference_note) : null);
+}
+
+function renderConsistencyTable(h, ct) {
+  if (!ct || !Array.isArray(ct.rows) || !ct.rows.length) return null;
+  const classes = Array.isArray(ct.origin_classes) ? ct.origin_classes : [];
+  const byClass = ct.by_origin_class || {};
+  const bodyRows = [];
+  for (const cls of classes) {
+    const items = Array.isArray(byClass[cls.key]) ? byClass[cls.key] : [];
+    for (const item of items) {
+      bodyRows.push(h("tr", {},
+        h("td", {}, cls.label || item.origin_label || item.origin_class),
+        h("td", {}, item.label || item.metric_id),
+        h("td", { class: "num" }, item.n_of_N || "unbekannt"),
+        h("td", {}, item.display || "unbekannt")));
+    }
+  }
+  if (!bodyRows.length) return null;
+  return h("div", { class: "consistency-block", id: "paired-consistency-table" },
+    h("h5", {}, "Konsistenztabelle (3 Herkunftsklassen)"),
+    h("div", { class: "table-wrap" }, h("table", {},
+      h("thead", {}, h("tr", {},
+        h("th", {}, "Herkunftsklasse"),
+        h("th", {}, "Kennzahl"),
+        h("th", { class: "num" }, "n/N"),
+        h("th", {}, "Wert / Status"))),
+      h("tbody", {}, bodyRows))));
+}
+
 function renderPairedMonitor(h, job, deps) {
   const isRunning = job.status === "running" || job.status === "pending";
   const isInterrupted = job.status === "interrupted";
@@ -415,6 +475,8 @@ function renderPairedMonitor(h, job, deps) {
       ...(res.warnings && res.warnings.length
         ? [h("ul", { class: "note" }, res.warnings.map((w) => h("li", {}, w)))]
         : []),
+      renderValidityBlock(h, res.validity_block || job.validity_block),
+      renderConsistencyTable(h, res.consistency_table || job.consistency_table),
       h("p", { class: "note note-compact" }, "SIMULATED_RESULT: gleiche Seeds, Sitze und Gegner-Tisch. Simulationsergebnisse fließen nie in die Tierliste ein (Gewicht 0)."));
     monitor.append(sumBox);
   }

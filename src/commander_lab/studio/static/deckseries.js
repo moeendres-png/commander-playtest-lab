@@ -79,6 +79,49 @@ function deckSeriesRefLabel(ref, labels) {
   return "andere Revision";
 }
 
+function deckSeriesValidityBlock(h, vb, ct) {
+  if (!vb && !ct) return null;
+  const nodes = [];
+  if (vb) {
+    const sc = vb.seat_curve || {};
+    const seats = Array.isArray(sc.seats) ? sc.seats : [];
+    const om = vb.pilot_omissions || {};
+    const omText = om.status === "measured" && om.display ? om.display : "unbekannt";
+    nodes.push(h("div", { class: "muted" }, vb.validity_statement || "unbekannt"));
+    nodes.push(h("div", { class: "muted" }, `Pilot-Auslassungen: ${omText}`));
+    if (seats.length) {
+      const seatSummary = seats.map((s) => {
+        const rate = s.win_rate_pct !== null && s.win_rate_pct !== undefined ? `${StudioUI.num(s.win_rate_pct, 1)} %` : "unbekannt";
+        const ci = Array.isArray(s.ci95_pct) && s.ci95_pct.length === 2
+          ? ` [${StudioUI.num(s.ci95_pct[0], 1)}–${StudioUI.num(s.ci95_pct[1], 1)} %]`
+          : "";
+        const ref = sc.reference_comparable && s.reference_win_rate_pct !== null && s.reference_win_rate_pct !== undefined
+          ? ` (Ref ${StudioUI.num(s.reference_win_rate_pct, 1)} %)`
+          : "";
+        return `S${StudioUI.num(s.seat, 0)}: ${s.n_of_N || "unbekannt"} (${rate}${ci})${ref}`;
+      }).join(" · ");
+      nodes.push(h("div", { class: "muted" }, `Sitzkurve (95 %-Wilson-CI): ${seatSummary}`));
+    }
+    if (sc.reference_note) {
+      nodes.push(h("div", { class: "muted" }, sc.reference_note));
+    }
+  }
+  if (ct && Array.isArray(ct.rows) && ct.rows.length) {
+    const classes = Array.isArray(ct.origin_classes) ? ct.origin_classes : [];
+    const byClass = ct.by_origin_class || {};
+    const parts = classes.map((cls) => {
+      const items = Array.isArray(byClass[cls.key]) ? byClass[cls.key] : [];
+      if (!items.length) return null;
+      const summary = items.map((it) => `${it.label || it.metric_id}: ${it.n_of_N || "unbekannt"}`).join("; ");
+      return `${cls.label}: ${summary}`;
+    }).filter(Boolean);
+    if (parts.length) {
+      nodes.push(h("div", { class: "muted" }, `Konsistenz (3 Klassen): ${parts.join(" | ")}`));
+    }
+  }
+  return nodes.length ? h("div", { class: "validity-row" }, ...nodes) : null;
+}
+
 function deckSeriesCells(h, item, role, deps, labels, zahlen, befund) {
   const zahl = zahlen ? zahlen.get(`series.${item.series_id}.difference_pp`) : undefined;
   const other = role === "base" ? item.variant_ref : item.base_ref;
@@ -96,6 +139,8 @@ function deckSeriesCells(h, item, role, deps, labels, zahlen, befund) {
     ]
     : [h("div", { class: "muted" }, "nicht als Ergebnis gezählt")];
   figures.push(deckSeriesEvidence(h, befund));
+  const validityNode = deckSeriesValidityBlock(h, item.validity_block, item.consistency_table);
+  if (validityNode) figures.push(validityNode);
   const seeds = item.seeds.length ? item.seeds.map((s) => StudioUI.num(s)).join(", ") : "unbekannt";
   const seats = item.tested_seats.length ? item.tested_seats.map((s) => StudioUI.num(s + 1)).join(", ") : "unbekannt";
   const sha = item.bridge_jar_sha256s.length ? item.bridge_jar_sha256s.map((s) => s.slice(0, 12)).join(", ") : "unbekannt";

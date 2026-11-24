@@ -1007,6 +1007,45 @@ def test_evidence_row_static_guards() -> None:
     assert "R2" not in row and "R3" not in row
 
 
+def test_validity_block_omissions_unknown_never_zero_and_deck_series_legacy_fallback() -> None:
+    """#1527: missing pilot_omissions is always 'unbekannt'/None (never 0) and legacy series
+    records without validity_block still receive one from deck_series._entry."""
+    from commander_lab.studio.deck_series import _entry
+    from commander_lab.studio.simulations import build_validity_block, compute_seat_curve
+
+    sc = compute_seat_curve(
+        [{"winner_seats": [0], "seed": 0}, {"winner_seats": [1], "seed": 1}],
+        table_size=4,
+    )
+    vb_none = build_validity_block(seat_curve=sc, pilot_omissions=None)
+    assert vb_none["pilot_omissions"]["status"] == "unbekannt"
+    assert vb_none["pilot_omissions"]["series"] is None
+    assert vb_none["pilot_omissions"]["by_seat"] is None
+    assert vb_none["pilot_omissions"]["display"] == "unbekannt"
+
+    vb_empty = build_validity_block(seat_curve=sc, pilot_omissions={})
+    assert vb_empty["pilot_omissions"]["status"] == "unbekannt"
+    assert vb_empty["pilot_omissions"]["series"] is None
+
+    legacy = _entry(
+        {
+            "series_id": "legacy-1527",
+            "base_ref": "chulane@a",
+            "variant_ref": "chulane@b",
+            "pod": "precon",
+            "status": "completed",
+            "result": {"pairs_completed": 4, "tested_seats": [0, 1, 2, 3]},
+        },
+        "completed",
+    )
+    assert isinstance(legacy["validity_block"], dict)
+    assert legacy["validity_block"]["data_class"] == "SIMULATED_RESULT"
+    assert legacy["validity_block"]["pilot_omissions"]["status"] == "unbekannt"
+    assert "keine Aussage über menschliches Spiel." in str(
+        legacy["validity_block"]["validity_statement"]
+    )
+
+
 def test_withdrawn_plans_are_excluded_from_holm_and_explorations(tmp_path: Path) -> None:
     """Owner 5a (#1658): a withdrawn confirmation does not inflate the Holm family of active
     confirmations, and a withdrawn exploration does not block fresh seeds."""

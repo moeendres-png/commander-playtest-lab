@@ -70,6 +70,11 @@ from .series_record import (
     series_key_problem,
     series_violation,
 )
+from .simulations import (
+    build_validity_block,
+    canonical_xmage_engine_pin,
+    compute_seat_curve,
+)
 from .store import StudioStore, now_utc
 from .strength import StrengthSettings
 
@@ -1048,6 +1053,25 @@ class PairedSeriesJob:
                 )
             )
             covered = bool(res.get("covered_by_sealed_epoch")) if res is not None else False
+            validity_block = (
+                res.get("validity_block")
+                if isinstance(res, dict) and isinstance(res.get("validity_block"), dict)
+                else build_validity_block(
+                    seat_curve=compute_seat_curve(
+                        [],
+                        table_size=1 + len(self.opponents) if self.opponents else None,
+                    ),
+                    pilot_fingerprint=header_pilot_fingerprint(),
+                    pods=self.pod_name,
+                    engine_version=canonical_xmage_engine_pin(),
+                    pilot_omissions=None,
+                )
+            )
+            consistency_table = (
+                res.get("consistency_table")
+                if isinstance(res, dict) and isinstance(res.get("consistency_table"), dict)
+                else None
+            )
             return {
                 "schema": SCHEMA_PAIRED_JOB,
                 "series_id": self.series_id,
@@ -1083,6 +1107,8 @@ class PairedSeriesJob:
                 "bridge_qualification": self.bridge_qualification,
                 "covered_by_sealed_epoch": covered,
                 "experiment": self.experiment,
+                "validity_block": validity_block,
+                "consistency_table": consistency_table,
                 "table": self.table,
                 "table_hash": self.table_hash,
                 "result": res,
@@ -1600,6 +1626,50 @@ class PairedSeriesManager:
             out["resumable"] = cls._is_disk_resumable(out, target_folder)
         else:
             out["resumable"] = False
+
+        res = out.get("result")
+        res_dict = res if isinstance(res, dict) else None
+        raw_vb = (
+            res_dict.get("validity_block")
+            if res_dict is not None and isinstance(res_dict.get("validity_block"), dict)
+            else out.get("validity_block")
+        )
+        if isinstance(raw_vb, dict):
+            vb: dict[str, object] = dict(raw_vb)
+        else:
+            opp_deck_ids = out.get("opponent_deck_ids")
+            opp_ids = out.get("opponent_ids")
+            if isinstance(opp_deck_ids, list) and opp_deck_ids:
+                table_size: int | None = 1 + len(opp_deck_ids)
+            elif isinstance(opp_ids, list) and opp_ids:
+                table_size = 1 + len(opp_ids)
+            else:
+                table_size = None
+            raw_pod = out.get("pod")
+            pod_str = raw_pod if isinstance(raw_pod, str) and raw_pod.strip() else None
+            engine_ver: str | None = None
+            if res_dict is not None:
+                raw_commits = res_dict.get("engine_commits")
+                if isinstance(raw_commits, list):
+                    cleaned = [
+                        str(c).strip() for c in raw_commits if c is not None and str(c).strip()
+                    ]
+                    if cleaned:
+                        engine_ver = ", ".join(cleaned)
+                if engine_ver is None:
+                    raw_pin = res_dict.get("engine_pin")
+                    if isinstance(raw_pin, str) and raw_pin.strip():
+                        engine_ver = raw_pin.strip()
+            vb = build_validity_block(
+                seat_curve=compute_seat_curve([], table_size=table_size),
+                pilot_fingerprint=None,
+                pods=pod_str,
+                engine_version=engine_ver,
+                pilot_omissions=None,
+            )
+        out["validity_block"] = vb
+        if res_dict is not None and not isinstance(res_dict.get("validity_block"), dict):
+            out["result"] = {**res_dict, "validity_block": vb}
         return out
 
     @staticmethod
