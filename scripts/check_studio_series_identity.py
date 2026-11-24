@@ -395,6 +395,8 @@ def main(argv: list[str] | None = None) -> int:
         (work / name).mkdir(parents=True, exist_ok=True)
     # the bridge keeps its card database under ./db of the working directory
     previous_cwd = Path.cwd()
+    managed_env_keys = ("COMMANDER_LAB_OWNER_DATA", "PYTHONPATH", ENGINE_COMMAND_ENV)
+    previous_env = {key: os.environ.get(key) for key in managed_env_keys}
     os.chdir(work / "cwd")
     try:
         env = dict(os.environ)
@@ -554,6 +556,11 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0 if ok else 1
     finally:
+        for key, value in previous_env.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
         os.chdir(previous_cwd)
 
 
