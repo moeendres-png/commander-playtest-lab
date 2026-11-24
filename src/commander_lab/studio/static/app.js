@@ -41,7 +41,7 @@ const state = {
   simulations: [], diffBaseRev: null, diffData: null, deckFacts: null, castability: null, activeBatch: null, batchPollTimer: null,
   activePaired: null, pairedPollTimer: null, pairedHistory: [], pairedPreset: null, readinessAudit: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
-  subset: null, subsetNames: [], subsetWanted: null, strength: null, showTier: true, changeSeq: 0, savedSeq: 0, layers: null, diffDefault: null,
+  subset: null, subsetNames: [], subsetWanted: null, strength: null, showTier: true, modalCardId: null, changeSeq: 0, savedSeq: 0, layers: null, diffDefault: null,
   includeUnowned: false, unownedSelection: null, superfriendsFilter: "", autoDeck: null,
   cardTrend: null, cardTrendDays: 180, cardTrendBracket: "", cardTrendSource: "edhrec", cardTrendReq: null,
   colors: new Set(), columns: new Set(["img", "name", "mana_cost", "type_line", "available", "freq", "edhrec"]),
@@ -2509,8 +2509,9 @@ async function renderSwapBox(into, card, initialMode = null) {
 }
 
 // ---------- card window ----------
-function closeModal() { $("modal").hidden = true; }
+function closeModal() { state.modalCardId = null; $("modal").hidden = true; }
 async function openCard(card) {
+  state.modalCardId = card.card_id;
   const initialSwapMode = arguments.length > 1 ? arguments[1] : null;
   const box = $("modal-box"); box.className = ""; box.replaceChildren();
   let face = "front";
@@ -2710,12 +2711,35 @@ function _strengthStatusText(c) {
   return c.status || "unbekannt";
 }
 async function showStrengthBreakdown(into, card) {
+  const isStale = (strengthRef) =>
+    !into.isConnected
+    || ($("modal") && $("modal").hidden)
+    || state.modalCardId !== card.card_id
+    || (strengthRef && state.strength !== strengthRef);
   if (!state.strength) {
     into.replaceChildren(h("h3", {}, "Stärke-Index-Aufschlüsselung (v3)"), h("p", { class: "muted" }, "Lädt Signale …"));
     await loadStrength();
-    if (!into.isConnected) return;
+    if (isStale(null)) return;
   }
-  const st = state.strength && state.strength.map ? state.strength.map.get(card.card_id) : null;
+  const strengthRef = state.strength;
+  let st = strengthRef && strengthRef.map ? strengthRef.map.get(card.card_id) : null;
+  if (st && !Array.isArray(st.components)) {
+    into.replaceChildren(h("h3", {}, "Stärke-Index-Aufschlüsselung (v3)"), h("p", { class: "muted" }, "Lädt Signale …"));
+    try {
+      const base = strengthRef.payload || strengthBasePayload();
+      const detail = await api("/api/strength", "POST", { ...base, detail: "full", card_id: card.card_id });
+      const fullCard = detail && Array.isArray(detail.cards) ? detail.cards.find((item) => item.card_id === card.card_id) : null;
+      if (fullCard && state.strength === strengthRef && strengthRef.map) {
+        strengthRef.map.set(card.card_id, fullCard);
+      }
+      st = fullCard;
+    } catch (error) {
+      if (isStale(strengthRef)) return;
+      into.replaceChildren(h("h3", {}, "Stärke-Index-Aufschlüsselung (v3)"), h("p", { class: "muted" }, "Signale nicht lesbar: " + StudioUI.germanError(error)));
+      return;
+    }
+    if (isStale(strengthRef)) return;
+  }
   if (!st) {
     into.replaceChildren(h("h3", {}, "Stärke-Index-Aufschlüsselung (v3)"), h("p", { class: "muted" }, "Kein Stärke-Index für diese Karte geladen."));
     return;
@@ -2754,10 +2778,13 @@ async function showStrengthBreakdown(into, card) {
 }
 
 // ---------- Stärke-Index for the sort (the tier page's function, never a copy of its scoring) ----------
-function strengthRequest() {
+function strengthBasePayload() {
   let settings = null;
   try { settings = JSON.parse(StudioUI.recall("studio.strength.settings", "null")); } catch (error) { settings = null; }
-  return api("/api/strength", "POST", settings ? { commander: COMMANDER, settings } : { commander: COMMANDER });
+  return settings ? { commander: COMMANDER, settings } : { commander: COMMANDER };
+}
+function strengthRequest() {
+  return api("/api/strength", "POST", { ...strengthBasePayload(), detail: "summary" });
 }
 async function loadStrength() {
   if (state.strength) return state.strength;
@@ -2768,9 +2795,13 @@ async function loadStrength() {
       const early = state.strengthPrefetch; // started by start() beside the pool request
       state.strengthPrefetch = null;
       let result;
-      try { result = await (early || strengthRequest()); }
-      catch (error) { result = await api("/api/strength", "POST", { commander: COMMANDER }); } // remembered settings may be outdated
-      state.strength = { result, map: new Map(result.cards.map((item) => [item.card_id, item])) };
+      let activePayload = strengthBasePayload();
+      try { result = await (early || api("/api/strength", "POST", { ...activePayload, detail: "summary" })); }
+      catch (error) {
+        activePayload = { commander: COMMANDER };
+        result = await api("/api/strength", "POST", { ...activePayload, detail: "summary" });
+      } // remembered settings may be outdated
+      state.strength = { result, payload: activePayload, map: new Map(result.cards.map((item) => [item.card_id, item])) };
       if (state.sortKey === "strength") toast("Stärke-Index geladen (Schätzung aus Nutzungsdaten, Einstellungen der Tierliste).");
       renderPool(); if (state.deckId) renderDeck();
       return state.strength;
