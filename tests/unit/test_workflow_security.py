@@ -518,3 +518,36 @@ def test_pull_request_target_checkouts_never_persist_credentials() -> None:
                     assert (step.get("with") or {}).get("persist-credentials") is False, path.name
                     checked += 1
     assert checked >= 1, "no pull_request_target checkout found: the check is vacuous"
+
+
+def test_persist_credentials_false_git_fetch_uses_ephemeral_token_header() -> None:
+    """Private repos need auth on `git fetch` when checkout sets `persist-credentials: false`."""
+    checked: list[str] = []
+    for path in WORKFLOWS:
+        doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+        for job_name, job in (doc.get("jobs") or {}).items():
+            steps = job.get("steps") or []
+            has_no_persist = any(
+                str(step.get("uses", "")).startswith("actions/checkout@")
+                and (step.get("with") or {}).get("persist-credentials") is False
+                for step in steps
+            )
+            if not has_no_persist:
+                continue
+            for step in steps:
+                run = str(step.get("run", ""))
+                if "git fetch " not in run:
+                    continue
+                env = step.get("env") or {}
+                assert env.get("GH_TOKEN") == "${{ github.token }}", f"{path.name}:{job_name}"
+                assert "GIT_CONFIG_COUNT=1" in run, f"{path.name}:{job_name}"
+                assert 'GIT_CONFIG_KEY_0="http.https://github.com/.extraheader"' in run, (
+                    f"{path.name}:{job_name}"
+                )
+                assert "unset GH_TOKEN" in run, f"{path.name}:{job_name}"
+                checked.append(f"{path.name}:{job_name}")
+    assert set(checked) >= {
+        "ci.yml:changes",
+        "repository-tree-integrity.yml:repository-tree-integrity",
+        "ci-definition-integrity.yml:ci-definition-integrity-shadow",
+    }

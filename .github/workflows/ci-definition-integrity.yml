@@ -48,6 +48,7 @@ jobs:
           BASE_REF: ${{ github.event.pull_request.base.ref }}
           CANDIDATE_SHA: ${{ github.event.pull_request.head.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           [[ "$TRUSTED_SHA" =~ ^[0-9a-f]{40}$ ]] || exit 1
@@ -55,7 +56,12 @@ jobs:
           [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]] || exit 1
           test "$BASE_REF" = "main"
           test "$(git rev-parse HEAD)" = "$TRUSTED_SHA"
-          git fetch --no-tags origin "refs/pull/$PR_NUMBER/head"
+          AUTH_HEADER="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w 0)"
+          GIT_CONFIG_COUNT=1 \
+            GIT_CONFIG_KEY_0="http.https://github.com/.extraheader" \
+            GIT_CONFIG_VALUE_0="$AUTH_HEADER" \
+            git fetch --no-tags origin "refs/pull/$PR_NUMBER/head"
+          unset GH_TOKEN AUTH_HEADER
           test "$(git rev-parse FETCH_HEAD)" = "$CANDIDATE_SHA"
           set +e
           python scripts/verify_required_check_definitions.py \
