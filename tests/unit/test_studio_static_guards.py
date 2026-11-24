@@ -3418,10 +3418,15 @@ def test_experiment_view_static_guards() -> None:
     assert not re.search(r"\w\.difference_pp", js)
     assert not re.search(r"\.(n|N|stufe)\s*[<>]", js)
     assert "befund.stufe ?" in js and "befund.empfehlungsfaehig" in js
-    # the decision is posted only from the confirm button's handler
-    assert js.count('"POST"') == 1
-    assert (
-        js.index("const yes = h(")
-        < js.index('"POST"')
-        < js.index('"Ja, übernehmen" : "Ja, verwerfen"')
-    )
+    # the decision and withdraw actions are posted only from their confirm buttons' handlers
+    assert js.count('"POST"') == 2
+    first_post = js.index('"POST"')
+    second_post = js.index('"POST"', first_post + 1)
+    assert js.index("const yes = h(") < first_post < js.index('"Ja, übernehmen" : "Ja, verwerfen"')
+    assert js.index("const yesWithdraw = h(") < second_post < js.index('"Ja, Plan zurückziehen"')
+    assert "detail.withdrawable === true" in js
+    assert "detail.withdraw_blocked_reasons" in js
+    assert '"Als Variante testen"' in app
+    assert "openPairedWithPreset(" in app
+    paired_js = (STATIC / "paired.js").read_text(encoding="utf-8")
+    assert "deps.pairedPreset" in paired_js and "deps.clearPairedPreset" in paired_js

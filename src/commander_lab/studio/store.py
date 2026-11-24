@@ -386,6 +386,7 @@ CREATE TABLE IF NOT EXISTS experiment (
     bridge_state TEXT,
     pilot_fingerprint TEXT,
     decision TEXT NOT NULL DEFAULT 'open' CHECK (decision IN ('open', 'adopted', 'rejected')),
+    status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'withdrawn')),
     decision_at TEXT,
     decision_note TEXT,
     decision_tested INTEGER,
@@ -924,6 +925,21 @@ def _ensure_tam_price_columns(connection: sqlite3.Connection) -> None:
                     raise
 
 
+def _ensure_experiment_status_column(connection: sqlite3.Connection) -> None:
+    """Additive ``status`` column on ``experiment`` for Owner 5a plan withdrawal (#1658);
+    no schema bump (schema 22 is reserved for K-2, E15 Q9)."""
+    columns = {str(row["name"]) for row in connection.execute("PRAGMA table_info(experiment)")}
+    if "status" not in columns:
+        try:
+            connection.execute(
+                "ALTER TABLE experiment ADD COLUMN status TEXT NOT NULL DEFAULT 'active' "
+                "CHECK (status IN ('active', 'withdrawn'))"
+            )
+        except sqlite3.OperationalError as error:
+            if "duplicate column" not in str(error).lower():
+                raise
+
+
 def _ensure_simulation_run_state_columns(connection: sqlite3.Connection) -> None:
     columns = {str(row["name"]) for row in connection.execute("PRAGMA table_info(simulation_run)")}
     wanted = [(column, "TEXT") for column in SIMULATION_RUN_STATE_COLUMNS]
@@ -1013,6 +1029,7 @@ class StudioStore:
             )
         _ensure_simulation_run_state_columns(connection)
         _ensure_tam_price_columns(connection)
+        _ensure_experiment_status_column(connection)
         connection.commit()
         return connection
 

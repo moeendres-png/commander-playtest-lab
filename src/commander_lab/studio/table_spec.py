@@ -19,7 +19,7 @@ import hashlib
 import json
 from typing import Final, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from .launch import MAX_SEATS, MIN_SEATS, validate_released_seat_count
 
@@ -71,13 +71,30 @@ class TableSpec(BaseModel):
     seat_policy: Literal["rotate", "fixed"] = "rotate"
     pilot: PilotProfile = Field(default_factory=PilotProfile)
 
+    @field_validator("draw_seed", mode="before")
+    @classmethod
+    def _reject_bool_draw_seed(cls, value: object) -> object:
+        if isinstance(value, bool):
+            raise ValueError("draw_seed muss eine Ganzzahl sein, kein Wahrheitswert")
+        return value
+
     @model_validator(mode="after")
     def _check(self) -> TableSpec:
         validate_released_seat_count(self.seats - 1)
+        needed = self.seats - 1
         if self.opponent_mode == "fixed":
-            if len(self.opponents) != self.seats - 1:
+            if (
+                self.opponent_tables is not None
+                or self.draw_pool is not None
+                or self.draw_seed is not None
+            ):
                 raise ValueError(
-                    f"ein Tisch mit {self.seats} Sitzen braucht {self.seats - 1} Gegner, "
+                    "Modus 'fixed' erlaubt keine Angaben zu opponent_tables, "
+                    "draw_pool oder draw_seed"
+                )
+            if len(self.opponents) != needed:
+                raise ValueError(
+                    f"ein Tisch mit {self.seats} Sitzen braucht {needed} Gegner, "
                     f"angegeben sind {len(self.opponents)}"
                 )
             cleaned = [o.strip() for o in self.opponents]
@@ -85,6 +102,47 @@ class TableSpec(BaseModel):
                 raise ValueError("leere Gegner-Kennung")
             if len(set(cleaned)) != len(cleaned):
                 raise ValueError("Gegner-Decks dürfen nicht doppelt vorkommen")
+        elif self.opponent_mode == "rotation":
+            if self.opponents or self.draw_pool is not None or self.draw_seed is not None:
+                raise ValueError(
+                    "Modus 'rotation' erlaubt keine Angaben zu opponents, draw_pool oder draw_seed"
+                )
+            if not self.opponent_tables:
+                raise ValueError(
+                    "Modus 'rotation' braucht mindestens einen Tisch in opponent_tables"
+                )
+            for idx, table in enumerate(self.opponent_tables):
+                if len(table) != needed:
+                    raise ValueError(
+                        f"Tisch {idx + 1} in opponent_tables braucht {needed} Gegner, "
+                        f"angegeben sind {len(table)}"
+                    )
+                cleaned = [o.strip() for o in table]
+                if any(not o for o in cleaned):
+                    raise ValueError(f"leere Gegner-Kennung in opponent_tables[{idx}]")
+                if len(set(cleaned)) != len(cleaned):
+                    raise ValueError(
+                        f"Gegner-Decks in opponent_tables[{idx}] dürfen nicht doppelt vorkommen"
+                    )
+        elif self.opponent_mode == "draw":
+            if self.opponents or self.opponent_tables is not None:
+                raise ValueError(
+                    "Modus 'draw' erlaubt keine Angaben zu opponents oder opponent_tables"
+                )
+            if not self.draw_pool:
+                raise ValueError("Modus 'draw' braucht einen nicht-leeren draw_pool")
+            cleaned = [o.strip() for o in self.draw_pool]
+            if any(not o for o in cleaned):
+                raise ValueError("leere Gegner-Kennung im draw_pool")
+            if len(set(cleaned)) != len(cleaned):
+                raise ValueError("Gegner-Decks im draw_pool dürfen nicht doppelt vorkommen")
+            if len(cleaned) < needed:
+                raise ValueError(
+                    f"draw_pool braucht mindestens {needed} Gegner für {self.seats} Sitze, "
+                    f"angegeben sind {len(cleaned)}"
+                )
+            if self.draw_seed is None:
+                raise ValueError("Modus 'draw' braucht einen gültigen ganzzahligen draw_seed")
         return self
 
     def ensure_runnable(self) -> None:
