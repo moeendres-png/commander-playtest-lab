@@ -127,6 +127,12 @@ def _seed(folder: Path, *, without_oracle: tuple[str, ...] = ()) -> StudioStore:
         "INSERT INTO universe_profile(profile_id, name, spec, created_at, version, updated_at) "
         "VALUES ('u1', 'Universum', '{\"n\": 3}', '2026-11-20T10:00:00Z', 2, '2026-11-20')"
     )
+    db.execute(
+        "INSERT INTO tam_cardmarket_price("
+        "oracle_id, eur_cents, price_date, recorded_at, filter_code, source_url"
+        ") VALUES (?, 123, '2026-11-20', '2026-11-20T10:00:00Z', 'SYNTHETIC', NULL)",
+        (SYNTHETIC_CARDS["c_one"][0],),
+    )
     db.commit()
     return store
 
@@ -149,6 +155,7 @@ def _dump(db: sqlite3.Connection) -> dict[str, list[tuple[object, ...]]]:
         "card_label",
         "strength_profile",
         "universe_profile",
+        "tam_cardmarket_price",
     ):
         query = f"SELECT * FROM {table}"
         if table == "source":  # the import's own stub source is not user state
@@ -242,6 +249,7 @@ def test_export_content_shape_and_card_identity(tmp_path: Path) -> None:
         "card_label",
         "strength_profile",
         "universe_profile",
+        "tam_cardmarket_price",
     }
 
 
@@ -773,6 +781,18 @@ def test_export_import_and_start_copy_name_the_rows_they_leave_out(
 ) -> None:
     store = _seed(tmp_path / "data")
     _add_simulation_rows(store)
+    store.connection.execute(
+        "INSERT INTO experiment("
+        "experiment_id, deck_id, question, purpose, base_revision_id, created_at"
+        ") VALUES ('exp-1', 'deck-a', 'q', 'exploration', 'r0', '2026-11-20T10:00:00Z')"
+    )
+    store.connection.execute(
+        "INSERT INTO experiment_arm("
+        "experiment_id, role, revision_id, deck_hash"
+        ") VALUES ('exp-1', 'base', 'r0', ?)",
+        ("c" * 64,),
+    )
+    store.connection.commit()
     store.close()
     out = tmp_path / "out.json.gz"
     data = str(tmp_path / "data")
@@ -780,7 +800,9 @@ def test_export_import_and_start_copy_name_the_rows_they_leave_out(
     assert studio_cli.main(["--data", data, "export-state", "--to", str(out)]) == 0
     assert studio_cli.main(["--data", str(tmp_path / "new"), "import-state", str(out)]) == 0
     assert studio_cli.main(["import-state", str(out), "--verify"]) == 0
-    expected = "Nicht exportierte Zeilen aus simulation_run/simulation_card: 3"
+    expected = (
+        "Nicht exportierte Zeilen aus simulation_run/simulation_card/experiment/experiment_arm: 5"
+    )
     assert capsys.readouterr().out.count(expected) == 4
     state_export.start_copy_best_effort(data)
     assert expected in capsys.readouterr().out
@@ -793,8 +815,138 @@ def test_a_file_without_the_count_and_an_uncountable_table_read_unbekannt(
     export_state(store, tmp_path / "x.json.gz")
     _rewrite(tmp_path / "x.json.gz", lambda e: e.pop("not_exported_rows"))
     assert studio_cli.main(["import-state", str(tmp_path / "x.json.gz"), "--verify"]) == 0
-    assert "simulation_run/simulation_card: unbekannt" in capsys.readouterr().out
+    assert (
+        "simulation_run/simulation_card/experiment/experiment_arm: unbekannt"
+        in capsys.readouterr().out
+    )
     store.connection.execute("DROP TABLE simulation_card")
     counted = state_export.not_exported_rows(store.connection)
     assert counted["simulation_card"] is None and counted["simulation_run"] == 0
     assert state_export.not_exported_line(counted).endswith(": unbekannt")
+
+
+def test_studio_user_state_v1_backward_compat_and_v2_tam_prices(tmp_path: Path) -> None:
+    """#1703 K-2a2: v2 exports tam_cardmarket_price; v1 files still verify & import losslessly,
+    while a v1 file containing a v2-only table is refused fail-closed."""
+    src = _seed(tmp_path / "src")
+    v2_path = tmp_path / "v2.json.gz"
+    v2_hdr = export_state(src, v2_path)
+    assert v2_hdr["rows"]["tam_cardmarket_price"] == 1
+    v2_verified = verify_state_file(v2_path)
+    assert v2_verified["format"] == state_export.FORMAT
+    assert v2_verified["rows"]["tam_cardmarket_price"] == 1
+
+    # Construct an exact studio-user-state-1 archive (14 tables, no tam_cardmarket_price)
+    v1_content, blocked = state_export.build_content(
+        src.connection, tables_spec=state_export._TABLES_V1
+    )
+    assert blocked == []
+    assert "tam_cardmarket_price" not in v1_content["tables"]
+    v1_sha = state_export.content_sha256(v1_content)
+    v1_path = tmp_path / "v1.json.gz"
+    state_export._write_gzip(
+        v1_path,
+        {
+            "format": state_export.FORMAT_V1,
+            "source_schema_version": 21,
+            "created_at": "2026-11-20T10:00:00Z",
+            "content_sha256": v1_sha,
+            "not_exported_rows": {"simulation_run": 0, "simulation_card": 0},
+            "content": v1_content,
+        },
+    )
+
+    v1_verified = verify_state_file(v1_path)
+    assert v1_verified["format"] == state_export.FORMAT_V1
+    assert v1_verified["content_sha256"] == v1_sha
+    assert "tam_cardmarket_price" not in v1_verified["rows"]
+
+    dst_v1 = StudioStore.open(tmp_path / "dst_v1")
+    try:
+        imp = import_state(dst_v1, v1_path)
+        assert imp["format"] == state_export.FORMAT_V1
+        assert imp["content_sha256"] == v1_sha
+        # tam_cardmarket_price remains empty after v1 import; all 14 v1 tables match src
+        assert (
+            dst_v1.connection.execute("SELECT COUNT(*) FROM tam_cardmarket_price").fetchone()[0]
+            == 0
+        )
+        src_dump = _dump(src.connection)
+        dst_dump = _dump(dst_v1.connection)
+        for name in state_export._TABLE_NAMES_V1:
+            assert dst_dump[name] == src_dump[name]
+    finally:
+        dst_v1.close()
+
+    # Fail-closed: a v1 envelope claiming a v2-only table is refused on verify and import
+    bad_v1_content = {
+        "tables": {**v1_content["tables"], "tam_cardmarket_price": []},
+        "not_in_schema": list(state_export.NOT_IN_SCHEMA),
+    }
+    bad_v1_path = tmp_path / "bad_v1.json.gz"
+    state_export._write_gzip(
+        bad_v1_path,
+        {
+            "format": state_export.FORMAT_V1,
+            "source_schema_version": 21,
+            "created_at": "2026-11-20T10:00:00Z",
+            "content_sha256": state_export.content_sha256(bad_v1_content),
+            "content": bad_v1_content,
+        },
+    )
+    with pytest.raises(StateFileError, match="tam_cardmarket_price"):
+        verify_state_file(bad_v1_path)
+    dst_bad_v1 = StudioStore.open(tmp_path / "dst_bad_v1")
+    try:
+        with pytest.raises(StateFileError, match="tam_cardmarket_price"):
+            import_state(dst_bad_v1, bad_v1_path)
+    finally:
+        dst_bad_v1.close()
+
+    # Fail-closed: a v2 envelope missing tam_cardmarket_price is refused on verify and import
+    bad_v2_path = tmp_path / "bad_v2_missing_tam.json.gz"
+    state_export._write_gzip(
+        bad_v2_path,
+        {
+            "format": state_export.FORMAT,
+            "source_schema_version": 21,
+            "created_at": "2026-11-20T10:00:00Z",
+            "content_sha256": v1_sha,
+            "content": v1_content,
+        },
+    )
+    with pytest.raises(StateFileError, match="tam_cardmarket_price"):
+        verify_state_file(bad_v2_path)
+    dst_bad_v2 = StudioStore.open(tmp_path / "dst_bad_v2")
+    try:
+        with pytest.raises(StateFileError, match="tam_cardmarket_price"):
+            import_state(dst_bad_v2, bad_v2_path)
+    finally:
+        dst_bad_v2.close()
+
+    # Fail-closed: a v1 envelope missing a required v1 table is refused on verify and import
+    v1_missing_tables = {k: v for k, v in v1_content["tables"].items() if k != "deck"}
+    bad_v1_missing_content = {
+        "tables": v1_missing_tables,
+        "not_in_schema": list(state_export.NOT_IN_SCHEMA),
+    }
+    bad_v1_missing_path = tmp_path / "bad_v1_missing_deck.json.gz"
+    state_export._write_gzip(
+        bad_v1_missing_path,
+        {
+            "format": state_export.FORMAT_V1,
+            "source_schema_version": 21,
+            "created_at": "2026-11-20T10:00:00Z",
+            "content_sha256": state_export.content_sha256(bad_v1_missing_content),
+            "content": bad_v1_missing_content,
+        },
+    )
+    with pytest.raises(StateFileError, match="deck"):
+        verify_state_file(bad_v1_missing_path)
+    dst_bad_v1_missing = StudioStore.open(tmp_path / "dst_bad_v1_missing")
+    try:
+        with pytest.raises(StateFileError, match="deck"):
+            import_state(dst_bad_v1_missing, bad_v1_missing_path)
+    finally:
+        dst_bad_v1_missing.close()
+    src.close()
