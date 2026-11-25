@@ -1,8 +1,9 @@
-# Studio: Export-Format des Nutzerzustands `studio-user-state-1`
+# Studio: Export-Format des Nutzerzustands `studio-user-state-2`
 
-Stand: 2026-11-20, Refs #1668 (K-2a), #1656, #1167. Grundlage: Owner-Entscheid E15 Q9 und Charta v2
-§3.2 E-A2/E-A6. Diese Seite beschreibt das Format, die Befehle und das Prüfmittel. Die Migration
-selbst (Dateischnitt, Schema 22, K-2b bis K-2e) ist nicht Teil dieses Pakets.
+Stand: 2026-11-24, Refs #1668 (K-2a), #1703 (K-2a2), #1656, #1167. Grundlage: Owner-Entscheid
+E15 Q9 und Charta v2 §3.2 E-A2/E-A6. Diese Seite beschreibt das Format `studio-user-state-2`
+(abwärtskompatibel beim Lesen/Importieren von `studio-user-state-1`), die Befehle und das
+Prüfmittel. Die Migration selbst (Dateischnitt, Schema 22, K-2c bis K-2e) ist ein eigenes Paket.
 
 ## 1. Zweck
 
@@ -25,11 +26,11 @@ gzip-komprimiertes JSON, UTF-8, ein Objekt:
 
 | Feld | Inhalt |
 |---|---|
-| `format` | `studio-user-state-1` (andere Werte lehnt der Import ab) |
+| `format` | `studio-user-state-2` (Import und `--verify` akzeptieren zusätzlich `studio-user-state-1`; andere Werte lehnt der Import ab) |
 | `source_schema_version` | Schema des Stores, aus dem exportiert wurde (heute 21) |
 | `created_at` | UTC-Zeit des Exports; nicht Teil des SHA |
 | `content_sha256` | SHA-256 über die kanonische Form von `content` (unten) |
-| `not_exported_rows` | Zeilen je Tabelle in `simulation_run`, `simulation_card`, die das Format auslässt (Zahl, oder `null` = nicht zählbar); nicht Teil des SHA; fehlt das Feld, gilt es als unbekannt |
+| `not_exported_rows` | Zeilen je Tabelle in `simulation_run`, `simulation_card`, `experiment`, `experiment_arm`, die das Format auslässt (Zahl, oder `null` = nicht zählbar); nicht Teil des SHA; fehlt ein Feld (z. B. in `studio-user-state-1`), gilt es als unbekannt |
 | `content` | `tables` und `not_in_schema` |
 
 **Kanonische Form**: `json.dumps(content, sort_keys=True, ensure_ascii=False,
@@ -52,6 +53,7 @@ Jede Tabelle ist eine Liste von Zeilen, Schlüssel = Spaltennamen des Schemas (a
 | `deck_module`, `deck_module_card` | Module und ihre Karten |
 | `card_mark`, `card_label` | Markierungen und Karten-Labels |
 | `strength_profile`, `universe_profile` | gespeicherte Profile |
+| `tam_cardmarket_price` | ab `studio-user-state-2` (#1703 K-2a2): manuell erfasste TAM-Richtwerte je `oracle_id` (Schlüssel direkt `oracle_id`; Test-Fixtures strikt synthetisch, `AGENTS.md` §12) |
 
 **Kartenidentität**: jede Zeile mit einem Kartenverweis trägt `card_id` (Schlüssel des Stores, für
 den Rundlauf in Schema 21), `oracle_id` (Scryfall, der Schlüssel des Zielmodells E-A3) und `name`
@@ -67,16 +69,16 @@ Ziel findet, bricht ab und lässt ihn nie still fallen.
 
 ### 2.3 Bewusst nicht enthalten
 
-- Alle Importtabellen (Karten, Sammlung, Korpus, Beobachtungen, Rollen, Signale, ...). Sie sind
-  neu bauen, nicht sichern (E-A1).
+- Alle Importtabellen (Karten, Sammlung, Korpus, Beobachtungen, Rollen, Signale, `tam_price_print`,
+  `tam_cardmarket_guide*`, ...). Sie sind neu bauen, nicht sichern (E-A1).
 - `tier_snapshot`: aus Daten und Profil ableitbar.
-- `simulation_run`, `simulation_card` (Ergebnisse, `SIMULATED_RESULT`) und `games/`: nicht im
-  Umfang von Q9 genannt; E-A4 will die Zeilen als Altbestand in den Index übernehmen. **Offener
-  Entscheid** (Issue #1668): Abschnitt `simulation` vor K-2c nachziehen oder den Altbestand aus der
-  Sicherung `studio backup` übernehmen. Bis dahin sichert nur `backup.py` sie. Export, Import,
-  `--verify`, `--check` und die Start-Kopie melden dazu eine Zeile `Nicht exportierte Zeilen aus
-  simulation_run/simulation_card: n` (Summe beider Tabellen; `unbekannt`, wenn eine Tabelle nicht
-  zählbar ist oder die Datei die Zahl nicht trägt; nie 0 für unbekannt).
+- `simulation_run`, `simulation_card` (Ergebnisse, `SIMULATED_RESULT`), `experiment`,
+  `experiment_arm` (vollständig aus `games/experiments/<id>/plan.json` und `decision.json` via
+  `experiments.rebuild_index()` rekonstruierbare Indizes) und `games/`: Export, Import, `--verify`,
+  `--check` und die Start-Kopie melden dazu eine Zeile
+  `Nicht exportierte Zeilen aus simulation_run/simulation_card/experiment/experiment_arm: n`
+  (Summe der Tabellen; `unbekannt`, wenn eine Tabelle nicht zählbar ist oder die Datei das Feld
+  nicht trägt; nie 0 für unbekannt).
 - `meta`, `commander_binding` und was der Import schreibt.
 
 ## 3. Befehle
@@ -180,6 +182,7 @@ die Zahl nicht abbildbarer Karten); Windows (siehe 5); Größe der Datei am Owne
 
 ## 7. Versionierung
 
-`studio-user-state-1` ist eine eigene Version neben dem Schema des Stores (E-A6). Ändert sich das
-Format, steigt die Zahl und der Rundlauf wird gegen Fixtures jeder früheren Version gefahren. Kein
-`SCHEMA_VERSION`-Bump in K-2a.
+`studio-user-state-2` ist eine eigene Version neben dem Schema des Stores (E-A6), mit
+Abwärtskompatibilität für `studio-user-state-1`-Importe. Ändert sich das Format, steigt die Zahl
+und der Rundlauf wird gegen Fixtures jeder früheren Version gefahren. Kein `SCHEMA_VERSION`-Bump
+in K-2a2.

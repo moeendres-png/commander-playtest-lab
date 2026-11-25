@@ -760,7 +760,12 @@ def test_every_route_that_answers_holds_no_price(tmp_path: Path) -> None:
 
 
 def test_price_tables_stay_out_of_the_user_state_export(tmp_path: Path) -> None:
-    assert not (PRICE_TABLES & state_export._TABLE_NAMES)
+    # Imported price tables (5 tables) never enter state_export; only manual Owner entries in
+    # tam_cardmarket_price (no second source) are included in local studio-user-state-2 (#1703 K-2a2).
+    imported_price_tables = PRICE_TABLES - {"tam_cardmarket_price"}
+    assert len(imported_price_tables) == 5
+    assert not (imported_price_tables & state_export._TABLE_NAMES)
+    assert "tam_cardmarket_price" in state_export._TABLE_NAMES
     client, ids = _tam_store(tmp_path)
     saved = client.post(
         "/api/tam/cardmarket-eintrag",
@@ -780,7 +785,15 @@ def test_price_tables_stay_out_of_the_user_state_export(tmp_path: Path) -> None:
     store.close()
     text = gzip.decompress(target.read_bytes()).decode("utf-8").casefold()
     assert "deck" in text  # the export holds the user state
-    for marker in ("765432", "876543", "1234", "tam_price", "tam_cardmarket", "eur_cents"):
+    assert "tam_cardmarket_price" in text  # manual Owner entries are preserved in local v2 export
+    for marker in (
+        "876543",
+        "1234",
+        "tam_price",
+        "tam_cardmarket_guide",
+        "low_cents",
+        "trend_cents",
+    ):
         assert marker not in text, marker
 
 
@@ -864,13 +877,14 @@ _VALUE_NAMES = re.compile(
     r"tam_price_eur|tam_price_snapshot|tam_price_print|tam_cardmarket_guide|"
     r"tam_cardmarket_price|eur_cents|low_cents|trend_cents"
 )
-# the display of the TAM purchase list (static/wishlist.js) reads the values of the route answer
+# the display of the TAM purchase list (static/wishlist.js) reads the values of the route answer;
+# state_export.py only names tam_cardmarket_price for local studio-user-state-2 backup (#1703 K-2a2)
 _VALUE_FILES = frozenset(
-    {"tam_prices.py", "store.py", "cache.py", "sources.py", "static/wishlist.js"}
+    {"tam_prices.py", "store.py", "cache.py", "sources.py", "state_export.py", "static/wishlist.js"}
 )
 # the new tables only where they are declared and read (sources.py names only tam_price_eur)
 _NEW_TABLES = re.compile(r"tam_price_print|tam_cardmarket_guide|tam_cardmarket_price")
-_NEW_TABLE_FILES = frozenset({"tam_prices.py", "store.py", "cache.py"})
+_NEW_TABLE_FILES = frozenset({"tam_prices.py", "store.py", "cache.py", "state_export.py"})
 _MODULE_USERS = frozenset({"web.py", "__main__.py"})
 _CARDMARKET_MODULE_USERS = frozenset({"tam_prices.py", "__main__.py"})
 _TAM_WEB_PARTS = (
@@ -899,6 +913,13 @@ def test_guide_values_have_one_reader_in_src() -> None:
     assert by_value == {f"commander_lab/studio/{name}" for name in _VALUE_FILES}
     by_table = {name for name, text in texts.items() if _NEW_TABLES.search(text)}
     assert by_table == {f"commander_lab/studio/{name}" for name in _NEW_TABLE_FILES}
+    # state_export.py may only reference the manual table name, never imported price tables or value columns
+    state_export_text = texts["commander_lab/studio/state_export.py"]
+    assert not re.search(
+        r"tam_price_eur|tam_price_snapshot|tam_price_print|tam_cardmarket_guide|"
+        r"eur_cents|low_cents|trend_cents",
+        state_export_text,
+    )
     module_users = {
         name
         for name, text in texts.items()

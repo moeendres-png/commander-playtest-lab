@@ -1,16 +1,18 @@
-"""Export and import of the Studio user state, format ``studio-user-state-1`` (#1668, K-2a).
+"""Export and import of the Studio user state, format ``studio-user-state-2`` (#1668, #1703 K-2a2).
 
 The file is a gzip-compressed JSON envelope::
 
-    {"format": "studio-user-state-1", "source_schema_version": 21, "created_at": "...",
+    {"format": "studio-user-state-2", "source_schema_version": 21, "created_at": "...",
      "content_sha256": "<hex>", "content": {"tables": {...}, "not_in_schema": [...]}}
 
 ``content`` holds the user tables of the store (decks, revisions with their cards, branches,
-drafts, labels, primers, modules, marks, profiles) as rows, every card reference written as
-``card_id`` plus ``oracle_id`` plus ``name``. ``content_sha256`` is the SHA-256 of the canonical
-JSON of ``content`` alone, so the creation time does not change it. Import tables (the card
-catalogue, corpus, observations, ...) are never part of it. A card that is referenced but has no
-``oracle_id`` stops the export with the list; nothing is guessed. The specification is
+drafts, labels, primers, modules, marks, profiles, manual TAM prices) as rows, every card reference
+written as ``card_id`` plus ``oracle_id`` plus ``name`` (``tam_cardmarket_price`` is keyed directly
+by ``oracle_id``). Import accepts both ``studio-user-state-1`` and ``studio-user-state-2``.
+``content_sha256`` is the SHA-256 of the canonical JSON of ``content`` alone, so the creation time
+does not change it. Import tables (the card catalogue, corpus, observations, imported price
+snapshots/guides, ...) are never part of it. A card that is referenced but has no ``oracle_id``
+stops the export with the list; nothing is guessed. The specification is
 ``docs/STUDIO_STATE_EXPORT_FORMAT.md``.
 """
 
@@ -34,7 +36,9 @@ from . import cache
 from .instance_lock import resolve_data_folder
 from .store import DataClass, StudioStore, _repository_root
 
-FORMAT = "studio-user-state-1"
+FORMAT_V1 = "studio-user-state-1"
+FORMAT = "studio-user-state-2"
+SUPPORTED_FORMATS = (FORMAT_V1, FORMAT)
 EXPORT_SUBFOLDER = "state-exports"
 COPY_PREFIX = "studio-state-"
 COPY_SUFFIX = ".json.gz"
@@ -45,15 +49,18 @@ META_IMPORT_KEY = "user_state_import_sha256"
 # table for: they are listed, never written as an empty section (absent is unknown, not zero).
 NOT_IN_SCHEMA = ("setting", "table_preset")
 BLOCKED_SHOWN = 50
-# Tables that hold user-produced rows but are not part of the format (``docs/STUDIO_STATE_EXPORT_FORMAT.md``
-# §2.3, open decision #1668): export, import and the start copy name how many rows they leave out.
-NOT_EXPORTED = ("simulation_run", "simulation_card")
+# Tables that hold user-produced or index rows not part of the format
+# (``docs/STUDIO_STATE_EXPORT_FORMAT.md`` §2.3, #1668, #1703 K-2a2): ``simulation_run`` and
+# ``simulation_card`` are SIMULATE legacy results; ``experiment`` and ``experiment_arm`` are
+# rebuildable indices over ``games/experiments/<id>/plan.json`` (``experiments.rebuild_index``).
+# Export, import and the start copy name how many rows they leave out.
+NOT_EXPORTED = ("simulation_run", "simulation_card", "experiment", "experiment_arm")
 
 _COPY_NAME = re.compile(r"^studio-state-(\d{8}-\d{6})(?:-(\d+))?\.json\.gz$")
 
 
 class StateFileError(ValueError):
-    """The file is not a usable ``studio-user-state-1`` file, or the target cannot take it."""
+    """The file is not a usable ``studio-user-state-1``/``-2`` file, or the target cannot take it."""
 
 
 class ExportBlocked(ValueError):
@@ -73,7 +80,7 @@ class _Table:
 
 
 # Dependency order; foreign keys are checked at commit on import.
-_TABLES: tuple[_Table, ...] = (
+_TABLES_V1: tuple[_Table, ...] = (
     _Table("source", source=True),
     _Table("deck"),
     _Table("deck_revision"),
@@ -89,6 +96,12 @@ _TABLES: tuple[_Table, ...] = (
     _Table("strength_profile"),
     _Table("universe_profile"),
 )
+# studio-user-state-2 (#1703 K-2a2): adds manual TAM guide prices (keyed directly by oracle_id).
+_TABLES: tuple[_Table, ...] = (
+    *_TABLES_V1,
+    _Table("tam_cardmarket_price"),
+)
+_TABLE_NAMES_V1 = frozenset(table.name for table in _TABLES_V1)
 _TABLE_NAMES = frozenset(table.name for table in _TABLES)
 _USER_ONLY = tuple(table for table in _TABLES if not table.source)
 _CARD_KEYS = ("oracle_id", "name")
@@ -208,19 +221,25 @@ def not_exported_line(value: object) -> str:
     return f"Nicht exportierte Zeilen aus {'/'.join(NOT_EXPORTED)}: {shown}"
 
 
-def build_content(db: sqlite3.Connection) -> tuple[dict[str, object], list[dict[str, object]]]:
+def build_content(
+    db: sqlite3.Connection,
+    *,
+    tables_spec: tuple[_Table, ...] = _TABLES,
+) -> tuple[dict[str, object], list[dict[str, object]]]:
     """The content of the export and the list of references that block it (one read snapshot)."""
     with _read_snapshot(db):
-        return _build_content(db)
+        return _build_content(db, tables_spec=tables_spec)
 
 
 def _build_content(
     db: sqlite3.Connection,
+    *,
+    tables_spec: tuple[_Table, ...] = _TABLES,
 ) -> tuple[dict[str, object], list[dict[str, object]]]:
     blocked: list[dict[str, object]] = []
     fetched: dict[str, tuple[list[dict[str, object]], list[str]]] = {}
     wanted: set[str] = set()
-    for table in _TABLES:
+    for table in tables_spec:
         rows, keys = _fetch_rows(db, table)
         fetched[table.name] = (rows, keys)
         if table.cards:
@@ -244,7 +263,7 @@ def _build_content(
         return oracle, name
 
     tables: dict[str, object] = {}
-    for table in _TABLES:
+    for table in tables_spec:
         rows, keys = fetched[table.name]
         out: list[dict[str, object]] = []
         for row in rows:
@@ -369,6 +388,16 @@ def export_state(store: StudioStore, path: Path) -> dict[str, object]:
 # -- reading the file --------------------------------------------------------------------------
 
 
+def _tables_for_format(fmt: str) -> tuple[_Table, ...]:
+    if fmt == FORMAT_V1:
+        return _TABLES_V1
+    if fmt == FORMAT:
+        return _TABLES
+    raise StateFileError(
+        f"unbekanntes Format {fmt!r}, erwartet eines von {', '.join(SUPPORTED_FORMATS)}"
+    )
+
+
 @dataclass(frozen=True, slots=True)
 class StateFile:
     declared_sha256: str
@@ -376,6 +405,7 @@ class StateFile:
     created_at: object
     content: dict[str, object]
     not_exported_rows: object = None
+    format: str = FORMAT
 
     @property
     def computed_sha256(self) -> str:
@@ -399,8 +429,11 @@ def read_state(path: Path, *, verify: bool = True) -> StateFile:
     except (OSError, EOFError, ValueError) as error:
         raise StateFileError(f"{path}: keine lesbare gz-JSON-Datei ({error})") from error
     envelope = _as_dict(loaded, "Datei")
-    if envelope.get("format") != FORMAT:
-        raise StateFileError(f"unbekanntes Format {envelope.get('format')!r}, erwartet {FORMAT}")
+    fmt = envelope.get("format")
+    if not isinstance(fmt, str) or fmt not in SUPPORTED_FORMATS:
+        raise StateFileError(
+            f"unbekanntes Format {fmt!r}, erwartet eines von {', '.join(SUPPORTED_FORMATS)}"
+        )
     declared = envelope.get("content_sha256")
     if not isinstance(declared, str) or not re.fullmatch(r"[0-9a-f]{64}", declared):
         raise StateFileError("content_sha256 fehlt oder ist keine SHA-256")
@@ -410,21 +443,30 @@ def read_state(path: Path, *, verify: bool = True) -> StateFile:
         envelope.get("created_at"),
         _as_dict(envelope.get("content"), "content"),
         envelope.get("not_exported_rows"),
+        fmt,
     )
     if verify:
         _check_sha(state)
     return state
 
 
+def _validate_table_keys(tables: dict[str, object], allowed_names: frozenset[str]) -> None:
+    unknown = sorted(set(tables) - allowed_names)
+    if unknown:
+        raise StateFileError(f"Tabellen ohne Ziel in diesem Schema: {unknown}")
+    missing = sorted(allowed_names - set(tables))
+    if missing:
+        raise StateFileError(f"Pflichttabellen fehlen in dieser Export-Datei: {missing}")
+
+
 def verify_state_file(path: Path) -> dict[str, object]:
     """The ``--verify`` report: SHA checked, rows per table, nothing written."""
     state = read_state(path)
+    allowed_names = frozenset(table.name for table in _tables_for_format(state.format))
     tables = _as_dict(state.content.get("tables"), "content.tables")
-    unknown = sorted(set(tables) - _TABLE_NAMES)
-    if unknown:
-        raise StateFileError(f"Tabellen ohne Ziel in diesem Schema: {unknown}")
+    _validate_table_keys(tables, allowed_names)
     return {
-        "format": FORMAT,
+        "format": state.format,
         "content_sha256": state.declared_sha256,
         "sha_ok": True,
         "source_schema_version": state.source_schema_version,
@@ -460,7 +502,11 @@ def _insert(db: sqlite3.Connection, table: str, row: dict[str, object], allowed:
         raise StateFileError(f"{table}: Zeile nicht einfügbar ({error})") from error
 
 
-def _plan_cards(tables: dict[str, object]) -> dict[str, tuple[str, str]]:
+def _plan_cards(
+    tables: dict[str, object],
+    *,
+    tables_spec: tuple[_Table, ...] = _TABLES,
+) -> dict[str, tuple[str, str]]:
     """Every referenced card of the file as card_id -> (oracle_id, name)."""
     found: dict[str, tuple[str, str]] = {}
 
@@ -471,7 +517,7 @@ def _plan_cards(tables: dict[str, object]) -> dict[str, tuple[str, str]]:
         if found.setdefault(card_id, (oracle, name)) != (oracle, name):
             raise StateFileError(f"{where}: {card_id} nennt zwei verschiedene Identitäten")
 
-    for table in _TABLES:
+    for table in tables_spec:
         for raw in _as_list(tables.get(table.name, []), table.name):
             row = _as_dict(raw, table.name)
             if table.cards:
@@ -497,15 +543,16 @@ def _row_for_table(table: _Table, row: dict[str, object]) -> dict[str, object]:
 def import_state(store: StudioStore, path: Path) -> dict[str, object]:
     """Read ``path`` into the user tables of ``store``, which must hold no user state yet.
 
-    The SHA is checked before any write. Inside one transaction the rows are inserted, cards the
-    target does not know get a stub row (``identity_evidence`` ``state_import_stub``, facts come
-    from the next card-data import), and the result is exported again in memory: it must hash like
-    the file's content, otherwise everything is rolled back."""
+    Accepts both ``studio-user-state-1`` and ``studio-user-state-2``. The SHA is checked before
+    any write. Inside one transaction the rows are inserted, cards the target does not know get a
+    stub row (``identity_evidence`` ``state_import_stub``, facts come from the next card-data
+    import), and the result is exported again in memory using the input file's table spec: it
+    must hash like the file's content, otherwise everything is rolled back."""
     state = read_state(path)
+    tables_spec = _tables_for_format(state.format)
+    allowed_names = frozenset(table.name for table in tables_spec)
     tables = _as_dict(state.content.get("tables"), "content.tables")
-    unknown = sorted(set(tables) - _TABLE_NAMES)
-    if unknown:
-        raise StateFileError(f"Tabellen ohne Ziel in diesem Schema: {unknown}")
+    _validate_table_keys(tables, allowed_names)
     db = store.connection
     present = {name: n for name, n in _user_row_counts(db).items() if n}
     if present:
@@ -513,7 +560,7 @@ def import_state(store: StudioStore, path: Path) -> dict[str, object]:
             f"Der Zielspeicher hat schon Nutzerdaten ({present}); der Import braucht einen "
             "frischen Datenordner."
         )
-    plan = _plan_cards(tables)
+    plan = _plan_cards(tables, tables_spec=tables_spec)
     expected = state.computed_sha256
     stubs = 0
     # ``defer_foreign_keys`` is a pragma with a value, which the cache window counts as a write
@@ -532,7 +579,7 @@ def import_state(store: StudioStore, path: Path) -> dict[str, object]:
                     if stub_source is None:
                         stub_source = store.register_source(
                             data_class=DataClass.UNKNOWN,
-                            title=f"{FORMAT} import (card stubs)",
+                            title=f"{state.format} import (card stubs)",
                             sha256=expected,
                         )
                     db.execute(
@@ -546,7 +593,7 @@ def import_state(store: StudioStore, path: Path) -> dict[str, object]:
                         f"Karte {card_id}: der Zielspeicher hat die oracle_id {existing[0]!r}, "
                         f"die Datei {oracle!r}; es wird nicht geraten."
                     )
-            for table in _TABLES:
+            for table in tables_spec:
                 allowed = set(_columns(db, table.name)[0])
                 for raw in _as_list(tables.get(table.name, []), table.name):
                     row = _row_for_table(table, _as_dict(raw, table.name))
@@ -556,11 +603,15 @@ def import_state(store: StudioStore, path: Path) -> dict[str, object]:
                 "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
                 (META_IMPORT_KEY, expected),
             )
-            again, blocked = build_content(db)
+            again, blocked = (
+                build_content(db)
+                if tables_spec == _TABLES
+                else build_content(db, tables_spec=tables_spec)
+            )
             if blocked or content_sha256(again) != expected:
                 differing = sorted(
                     name
-                    for name in _TABLE_NAMES
+                    for name in allowed_names
                     if _as_dict(again.get("tables"), "content").get(name) != tables.get(name, [])
                 )
                 raise StateFileError(
@@ -579,6 +630,7 @@ def import_state(store: StudioStore, path: Path) -> dict[str, object]:
                 db.execute("ROLLBACK")
             raise
     return {
+        "format": state.format,
         "content_sha256": expected,
         "rows": counts(state.content),
         "card_stubs": stubs,
