@@ -10,22 +10,39 @@ import pytest
 from scripts.audit_committed_research_data import main, run_audit
 
 MAX_RESEARCH_FILE_BYTES = 3 * 1024 * 1024  # 3 MiB ceiling (blocks 4 MB+ dumps under data/research/)
+_BYTECODE_SUFFIXES = frozenset({".pyc", ".pyo"})
 _MODEL_VENDOR_RE = re.compile(
-    r"\b("
-    r"claude|sonnet|haiku|opus[\s-]?[0-9][0-9a-z.]*|anthropic|"
-    r"openai|gpt-[0-9][0-9a-z.]*|chatgpt|"
-    r"gemini|deepseek|llama[\s-]?[0-9][0-9a-z.]*|mistral|qwen|grok|copilot|codex"
-    r")\b",
+    r"(?<![A-Za-z0-9])("
+    r"claude|sonnet|haiku|anthropic|"
+    r"opus[\s_-]?(?:[0-9][0-9a-z.]*|rater|review|stufe|modell|model)|"
+    r"(?:rater|model|modell|stufe|tier|review)[^\n]{0,24}(?<![A-Za-z0-9])opus|"
+    r"openai|gpt[\s_-]?[0-9][0-9a-z.]*|chatgpt|"
+    r"o[134](?:-(?:mini|pro|preview))?|"
+    r"gemini|deepseek|llama[\s_-]?[0-9][0-9a-z.]*|mistral|qwen|grok|copilot|codex"
+    r")(?![A-Za-z0-9])",
     re.IGNORECASE,
 )
+
+
+def _is_bytecode_cache(path: Path) -> bool:
+    return "__pycache__" in path.parts or path.suffix in _BYTECODE_SUFFIXES
+
+
+def _iter_committed_files(root: Path) -> list[Path]:
+    return [
+        path
+        for path in sorted(root.rglob("*"))
+        if not _is_bytecode_cache(path) and (path.is_file() or path.is_symlink())
+    ]
 
 
 def _oversized_research_files(
     root: Path, limit_bytes: int = MAX_RESEARCH_FILE_BYTES
 ) -> list[tuple[str, int]]:
     hits: list[tuple[str, int]] = []
-    for path in sorted(root.rglob("*")):
-        if not path.is_file():
+    for path in _iter_committed_files(root):
+        if path.is_symlink():
+            hits.append((path.relative_to(root).as_posix(), -1))
             continue
         size = path.stat().st_size
         if size > limit_bytes:
@@ -36,6 +53,8 @@ def _oversized_research_files(
 def _find_model_vendor_mentions(paths: list[Path]) -> list[tuple[str, int, str]]:
     hits: list[tuple[str, int, str]] = []
     for path in sorted(paths):
+        if _is_bytecode_cache(path):
+            continue
         text = path.read_text(encoding="utf-8")
         for line_no, line in enumerate(text.splitlines(), start=1):
             for match in _MODEL_VENDOR_RE.finditer(line):
@@ -149,48 +168,62 @@ def test_main_cli_execution(tmp_path: Path, capsys: pytest.CaptureFixture[str]) 
 def test_committed_research_data_files_stay_within_size_limit() -> None:
     """#1745 (#1768 P3-2): no single file under ``data/research/`` may exceed 3 MiB."""
     root = Path("data/research")
-    files = [path for path in root.rglob("*") if path.is_file()]
+    files = _iter_committed_files(root)
     assert len(files) >= 10
     assert _oversized_research_files(root) == []
 
 
 def test_oversized_research_file_is_caught_by_size_guard(tmp_path: Path) -> None:
-    """Negative control: a 4 MiB file under ``data/research/`` is flagged."""
+    """Negative control: a 4 MiB file under ``data/research/`` is flagged; ``__pycache__`` ignored."""
     root = tmp_path / "data" / "research"
-    root.mkdir(parents=True)
+    pycache = root / "__pycache__"
+    pycache.mkdir(parents=True)
     (root / "ok.json").write_bytes(b"{}\n")
     big_size = 4 * 1024 * 1024
+    (pycache / "mod.cpython-312.pyc").write_bytes(b"\xcb\x0d\x0d\x0a" + b"\xff" * big_size)
     (root / "too_large.bin").write_bytes(b"x" * big_size)
     assert _oversized_research_files(root) == [("too_large.bin", big_size)]
 
 
 def test_rating_v3_plan_and_scripts_contain_no_model_or_vendor_names() -> None:
     """#1745 (#1768 P3-2, AGENTS.md §12): rating-v3 plan, reports and scripts stay neutral."""
-    targets = [
-        *sorted(Path("docs/analysis-reports").glob("rating_v3_*.md")),
-        Path("scripts/analysis/rating_v3_eval.py"),
-        *[
-            path
-            for path in sorted(Path("data/research/chulane_rubric_v3_20261123").rglob("*"))
-            if path.is_file()
-        ],
+    v3_docs = sorted(Path("docs/analysis-reports").glob("rating_v3_*.md"))
+    v3_scripts = sorted(Path("scripts/analysis").glob("rating_v3_*.py"))
+    v3_data_dirs = sorted(
+        path for path in Path("data/research").glob("chulane_rubric_v3_*") if path.is_dir()
+    )
+    v3_data_files = [
+        path for directory in v3_data_dirs for path in _iter_committed_files(directory)
     ]
-    assert len(targets) >= 5
-    assert _find_model_vendor_mentions(targets) == []
+    assert len(v3_docs) >= 1
+    assert len(v3_scripts) >= 1
+    assert len(v3_data_files) >= 1
+    assert _find_model_vendor_mentions([*v3_docs, *v3_scripts, *v3_data_files]) == []
 
 
-def test_model_vendor_guard_catches_rater_line_and_ignores_mtg_opus_keyword(tmp_path: Path) -> None:
-    """Negative control: a ``Rater A = ...`` model line is caught; MTG ability word Opus passes."""
+def test_model_vendor_guard_catches_leaks_and_ignores_bytecode_and_mtg_opus(tmp_path: Path) -> None:
+    """Negative control: model/rater/snake_case leaks are caught; bytecode and MTG Opus pass."""
     sample = tmp_path / "plan.md"
     sample.write_text(
-        "Rater A = Claude Sonnet\n"
-        "Rater B = GPT-4o\n"
+        "Rater A = Opus\n"
+        "Rater B = GPT 4 / o4-mini\n"
+        "claude_sonnet = 'bad'\n"
+        "Version: Opus 4.5 and GPT-4o\n"
         "Ability word: Opus — whenever you cast an instant or sorcery spell.\n",
         encoding="utf-8",
     )
-    hits = _find_model_vendor_mentions([sample])
+    pycache = tmp_path / "__pycache__"
+    pycache.mkdir()
+    pyc = pycache / "extract_facts_v2.cpython-312.pyc"
+    pyc.write_bytes(b"\xcb\x0d\x0d\x0a\x00\x00\x00\x00\xff\xfe")
+
+    hits = _find_model_vendor_mentions([sample, pyc])
     assert [(line_no, token.lower()) for _path, line_no, token in hits] == [
-        (1, "claude"),
-        (1, "sonnet"),
-        (2, "gpt-4o"),
+        (1, "rater a = opus"),
+        (2, "gpt 4"),
+        (2, "o4-mini"),
+        (3, "claude"),
+        (3, "sonnet"),
+        (4, "opus 4.5"),
+        (4, "gpt-4o"),
     ]
