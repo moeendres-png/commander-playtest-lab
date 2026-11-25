@@ -3,10 +3,44 @@
 from __future__ import annotations
 
 import csv
+import re
 from pathlib import Path
 
 import pytest
 from scripts.audit_committed_research_data import main, run_audit
+
+MAX_RESEARCH_FILE_BYTES = 3 * 1024 * 1024  # 3 MiB ceiling (blocks 4 MB+ dumps under data/research/)
+_MODEL_VENDOR_RE = re.compile(
+    r"\b("
+    r"claude|sonnet|haiku|opus[\s-]?[0-9][0-9a-z.]*|anthropic|"
+    r"openai|gpt-[0-9][0-9a-z.]*|chatgpt|"
+    r"gemini|deepseek|llama[\s-]?[0-9][0-9a-z.]*|mistral|qwen|grok|copilot|codex"
+    r")\b",
+    re.IGNORECASE,
+)
+
+
+def _oversized_research_files(
+    root: Path, limit_bytes: int = MAX_RESEARCH_FILE_BYTES
+) -> list[tuple[str, int]]:
+    hits: list[tuple[str, int]] = []
+    for path in sorted(root.rglob("*")):
+        if not path.is_file():
+            continue
+        size = path.stat().st_size
+        if size > limit_bytes:
+            hits.append((path.relative_to(root).as_posix(), size))
+    return hits
+
+
+def _find_model_vendor_mentions(paths: list[Path]) -> list[tuple[str, int, str]]:
+    hits: list[tuple[str, int, str]] = []
+    for path in sorted(paths):
+        text = path.read_text(encoding="utf-8")
+        for line_no, line in enumerate(text.splitlines(), start=1):
+            for match in _MODEL_VENDOR_RE.finditer(line):
+                hits.append((path.as_posix(), line_no, match.group(0)))
+    return hits
 
 
 def test_card_global_signals_csv_has_no_price_columns() -> None:
@@ -110,3 +144,53 @@ def test_main_cli_execution(tmp_path: Path, capsys: pytest.CaptureFixture[str]) 
     assert out_file.is_file()
     captured = capsys.readouterr().out
     assert "Wrote audit report to" in captured
+
+
+def test_committed_research_data_files_stay_within_size_limit() -> None:
+    """#1745 (#1768 P3-2): no single file under ``data/research/`` may exceed 3 MiB."""
+    root = Path("data/research")
+    files = [path for path in root.rglob("*") if path.is_file()]
+    assert len(files) >= 10
+    assert _oversized_research_files(root) == []
+
+
+def test_oversized_research_file_is_caught_by_size_guard(tmp_path: Path) -> None:
+    """Negative control: a 4 MiB file under ``data/research/`` is flagged."""
+    root = tmp_path / "data" / "research"
+    root.mkdir(parents=True)
+    (root / "ok.json").write_bytes(b"{}\n")
+    big_size = 4 * 1024 * 1024
+    (root / "too_large.bin").write_bytes(b"x" * big_size)
+    assert _oversized_research_files(root) == [("too_large.bin", big_size)]
+
+
+def test_rating_v3_plan_and_scripts_contain_no_model_or_vendor_names() -> None:
+    """#1745 (#1768 P3-2, AGENTS.md §12): rating-v3 plan, reports and scripts stay neutral."""
+    targets = [
+        *sorted(Path("docs/analysis-reports").glob("rating_v3_*.md")),
+        Path("scripts/analysis/rating_v3_eval.py"),
+        *[
+            path
+            for path in sorted(Path("data/research/chulane_rubric_v3_20261123").rglob("*"))
+            if path.is_file()
+        ],
+    ]
+    assert len(targets) >= 5
+    assert _find_model_vendor_mentions(targets) == []
+
+
+def test_model_vendor_guard_catches_rater_line_and_ignores_mtg_opus_keyword(tmp_path: Path) -> None:
+    """Negative control: a ``Rater A = ...`` model line is caught; MTG ability word Opus passes."""
+    sample = tmp_path / "plan.md"
+    sample.write_text(
+        "Rater A = Claude Sonnet\n"
+        "Rater B = GPT-4o\n"
+        "Ability word: Opus — whenever you cast an instant or sorcery spell.\n",
+        encoding="utf-8",
+    )
+    hits = _find_model_vendor_mentions([sample])
+    assert [(line_no, token.lower()) for _path, line_no, token in hits] == [
+        (1, "claude"),
+        (1, "sonnet"),
+        (2, "gpt-4o"),
+    ]
