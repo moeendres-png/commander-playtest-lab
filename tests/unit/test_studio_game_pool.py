@@ -2899,11 +2899,14 @@ def test_find_reusable_baseline_games_enforces_key_version_audit_and_cross_serie
         encoding="utf-8",
     )
 
+    from commander_lab.studio.card_outcomes import game_exposures
+
     found = series_record.find_reusable_baseline_games(
         tmp_path,
         wanted_keys={(10, 0): k1, (11, 1): k2, (12, 2): k3, (13, 3): k4},
         exclude_series_id="ser-new",
         base_deck_id="new--base",
+        exposure_loader=game_exposures,
     )
     assert list(found.keys()) == [(10, 0)]
     item = found[(10, 0)]
@@ -2932,6 +2935,7 @@ def test_find_reusable_baseline_games_enforces_key_version_audit_and_cross_serie
             wanted_keys={(10, 0): k1},
             exclude_series_id="ser-new",
             base_deck_id="new--base",
+            exposure_loader=game_exposures,
         )
 
 

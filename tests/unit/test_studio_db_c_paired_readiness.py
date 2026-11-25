@@ -1533,6 +1533,7 @@ def test_estimate_series_duration_scales_with_workers_and_api_validates_parallel
             "serial_gc": False,
             "appcds": False,
             "record_pilot_audit": False,
+            "reuse_baseline": False,
         }
         finished = _wait_job(mgr, folder, job.series_id)
         assert finished["status"] == "completed"

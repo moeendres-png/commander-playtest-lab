@@ -72,7 +72,7 @@ import json
 import os
 import re
 import time
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Final
@@ -731,6 +731,7 @@ def find_reusable_baseline_games(
     wanted_keys: Mapping[tuple[int, int], str],
     exclude_series_id: str,
     base_deck_id: str,
+    exposure_loader: Callable[[str | Path], Mapping[str, object] | None],
 ) -> dict[tuple[int, int], ReusableBaselineGame]:
     """Locate finished baseline games in other clean ``studio-game-key-2`` series (#1589).
 
@@ -742,8 +743,6 @@ def find_reusable_baseline_games(
     - Only finished, non-human-seat game logs whose closing ``semantic_transcript_sha256`` matches
       the journal entry are admitted.
     """
-    from .card_outcomes import game_exposures
-
     if not wanted_keys:
         return {}
     series_root = games_folder(data_folder) / "series"
@@ -814,7 +813,7 @@ def find_reusable_baseline_games(
                 continue
             if _closing_transcript_hash(log_path) != sha:
                 continue
-            exposure = game_exposures(log_path)
+            exposure = exposure_loader(log_path)
             if exposure is None:
                 continue
             found_by_key[entry_key] = (folder.name, gid, sha, dict(exposure))

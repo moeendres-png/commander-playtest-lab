@@ -1367,6 +1367,7 @@ def parallel_window_player(
             wanted_keys=wanted_keys,
             exclude_series_id=series_id,
             base_deck_id=base_deck.deck_id,
+            exposure_loader=game_exposures,
         )
         spot_units = select_spot_check_units(list(matched.keys()), every=reuse_spot_check_every)
         for unit, candidate in matched.items():
