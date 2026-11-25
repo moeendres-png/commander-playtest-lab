@@ -346,3 +346,38 @@ def test_backup_skips_reserve_files_and_tolerates_vanishing_transient_files(
     with pytest.raises(FileNotFoundError):
         create_backup(data_dir, backup_root, repo_root=fake_repo)
     assert set(backup_root.iterdir()) == before_dirs
+
+
+def test_backup_closes_source_connection_when_destination_open_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """If opening the backup destination DB raises, src_conn must still be closed."""
+    from commander_lab.studio import backup as backup_module
+
+    data_dir = tmp_path / "studio_data"
+    backup_root = tmp_path / "backups"
+    fake_repo = tmp_path / "repo"
+    fake_repo.mkdir()
+    _seed_store(data_dir)
+
+    real_connect = backup_module.sqlite3.connect
+    opened_src: list[sqlite3.Connection] = []
+    calls = 0
+
+    def failing_dst_connect(target: str, *args: object, **kwargs: object) -> sqlite3.Connection:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            conn = real_connect(target, *args, **kwargs)  # type: ignore[arg-type]
+            opened_src.append(conn)
+            return conn
+        raise sqlite3.OperationalError("simulated destination open failure")
+
+    monkeypatch.setattr(backup_module.sqlite3, "connect", failing_dst_connect)
+    with pytest.raises(sqlite3.OperationalError, match="simulated destination open failure"):
+        create_backup(data_dir, backup_root, repo_root=fake_repo)
+
+    assert len(opened_src) == 1
+    with pytest.raises(sqlite3.ProgrammingError, match="closed database"):
+        opened_src[0].execute("SELECT 1")
+    assert list(backup_root.iterdir()) == []
