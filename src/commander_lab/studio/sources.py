@@ -1078,7 +1078,7 @@ def calculate_pool_gap_matrix(
 
     spellbook_cards = load_spellbook_combo_cards(combos_path)
     corpus_sizes = pool.get("cohorts", {})
-    denominator = 975
+    denominator = 0
     if isinstance(corpus_sizes, dict) and ALL_DECKS in corpus_sizes:
         denominator = int(corpus_sizes[ALL_DECKS])
 
@@ -1177,7 +1177,7 @@ def generate_gap_example_report(
         "description": "Representative examples of observed, sparse, partial and unobserved pool cards (P0 Deliverable 3).",
         "commander": str(matrix.get("commander", "")),
         "total_pool_cards": int(matrix.get("total_cards", 0)),
-        "corpus_denominator": int(matrix.get("corpus_denominator", 975)),
+        "corpus_denominator": int(matrix.get("corpus_denominator", 0)),
         "summary_counts": matrix.get("summary_counts", {}),
         "examples_by_grade": examples,
     }
