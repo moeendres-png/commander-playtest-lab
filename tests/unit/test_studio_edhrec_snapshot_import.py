@@ -278,17 +278,65 @@ def test_sha_mismatch_fails_closed(tmp_path: Path) -> None:
         store.close()
 
 
-def test_full_20_snapshot_proof_import_if_present() -> None:
-    """If the real downloaded proof is in /tmp/edhrec_proof, verify the full 20 files."""
-    proof_manifest = Path("/tmp/edhrec_proof/manifest.json")
-    if not proof_manifest.exists():
-        pytest.skip("Full /tmp/edhrec_proof not present on this runner")
+def test_full_20_snapshot_manifest_import(tmp_path: Path) -> None:
+    """Verify importing a full 20-snapshot manifest with SHA-256 checks and idempotency."""
+    capture_entries: list[dict[str, str]] = []
+    expected_unique_card_pages = 0
+    for idx in range(20):
+        page_slug = f"snapshot-{idx:02d}"
+        url = f"https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/{page_slug}.json"
+        cardviews = [
+            {
+                "name": f"Card {idx:02d}-{card_idx}",
+                "inclusion": 100 + idx + card_idx,
+                "num_decks": 100 + idx + card_idx,
+                "potential_decks": 1000,
+                "synergy": 0.12,
+                "label": f"{10 + card_idx}% of 1000 decks",
+            }
+            for card_idx in range(3)
+        ]
+        expected_unique_card_pages += len(cardviews)
+        raw_payload = {
+            "container": {
+                "json_dict": {
+                    "cardlists": [
+                        {"header": "Top Cards", "tag": "topcards", "cardviews": cardviews}
+                    ]
+                }
+            }
+        }
+        raw_bytes = json.dumps(raw_payload).encode("utf-8")
+        capture_entries.append(
+            _make_proven_capture(
+                tmp_path,
+                url,
+                raw_bytes,
+                started=f"2026-11-11T12:54:{idx:02d}.100Z",
+                completed=f"2026-11-11T12:54:{idx:02d}.200Z",
+            )
+        )
+
+    manifest = {
+        "capture_method": "synthetic_20_snapshot_test",
+        "records": capture_entries,
+    }
+    manifest_file = tmp_path / "manifest.json"
+    manifest_file.write_text(json.dumps(manifest), encoding="utf-8")
 
     store = StudioStore.in_memory()
     try:
-        res = importers.import_edhrec_capture_manifest(store, proof_manifest)
+        res = importers.import_edhrec_capture_manifest(store, manifest_file)
         assert res["events"] == 20
-        assert res["unique_card_pages"] == 4945
+        assert res["unique_card_pages"] == expected_unique_card_pages
         assert store.count("source_capture_event") == 20
+        obs_count = store.count("observation")
+        assert obs_count == expected_unique_card_pages * 3
+
+        # Re-importing the same manifest is idempotent (no duplicate events/observations)
+        res_again = importers.import_edhrec_capture_manifest(store, manifest_file)
+        assert res_again["events"] == 20
+        assert store.count("source_capture_event") == 20
+        assert store.count("observation") == obs_count
     finally:
         store.close()

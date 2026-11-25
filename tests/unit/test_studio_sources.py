@@ -372,10 +372,34 @@ def test_calculate_card_coverage_record_grades_and_scores() -> None:
     assert rec_partial.is_long_tail_candidate is False
 
 
+def _public_card(
+    name: str,
+    colors: list[str],
+    type_line: str,
+    *,
+    mana_cost: str,
+    cmc: float,
+) -> dict[str, object]:
+    slug = name.casefold().replace(" ", "-").replace("/", "")
+    return {
+        "id": f"print-{slug}",
+        "oracle_id": f"oracle-{slug}",
+        "name": name,
+        "layout": "normal",
+        "mana_cost": mana_cost,
+        "cmc": cmc,
+        "type_line": type_line,
+        "oracle_text": "",
+        "color_identity": colors,
+        "legalities": {"commander": "legal"},
+        "keywords": [],
+        "image_uris": {"normal": f"https://cards.scryfall.io/normal/front/a/b/{slug}.jpg"},
+    }
+
+
 def _build_gap_matrix_store(tmp_path: Path, *, with_corpus: bool = True) -> tuple[Path, Path]:
     """Build a self-contained synthetic Chulane StudioStore covering all four coverage grades."""
     from commander_lab.studio import catalog, importers
-    from tests.unit.test_studio_builder import _public
     from tests.unit.test_studio_store import (
         _card,
         _card_row,
@@ -432,17 +456,21 @@ def _build_gap_matrix_store(tmp_path: Path, *, with_corpus: bool = True) -> tupl
         ),
     ]
     public_cards = [
-        _public(
+        _public_card(
             commander,
             ["G", "U", "W"],
             "Legendary Creature — Human Druid",
             mana_cost="{2}{G}{W}{U}",
             cmc=5.0,
         ),
-        _public("Shrieking Drake", ["U"], "Creature — Drake", mana_cost="{U}", cmc=1.0),
-        _public("Fleetfoot Panther", ["G", "W"], "Creature — Cat", mana_cost="{1}{G}{W}", cmc=3.0),
-        _public("Cloudstone Curio", [], "Artifact", mana_cost="{3}", cmc=3.0),
-        _public("Esperzoa", ["U"], "Artifact Creature — Jellyfish", mana_cost="{2}{U}", cmc=3.0),
+        _public_card("Shrieking Drake", ["U"], "Creature — Drake", mana_cost="{U}", cmc=1.0),
+        _public_card(
+            "Fleetfoot Panther", ["G", "W"], "Creature — Cat", mana_cost="{1}{G}{W}", cmc=3.0
+        ),
+        _public_card("Cloudstone Curio", [], "Artifact", mana_cost="{3}", cmc=3.0),
+        _public_card(
+            "Esperzoa", ["U"], "Artifact Creature — Jellyfish", mana_cost="{2}{U}", cmc=3.0
+        ),
     ]
     oracle_path = inputs_dir / "oracle.jsonl.gz"
     with gzip.open(oracle_path, "wt", encoding="utf-8") as handle:
@@ -747,7 +775,9 @@ def test_generate_gap_example_report() -> None:
     assert examples["UNOBSERVED_IN_CORPUS"][0]["card_name"] == "Card Unobserved"
 
 
-def test_cli_sources_commands(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_cli_sources_commands(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
     # 1. Default sources list
     rc = studio_main(["sources"])
     assert rc == 0
@@ -774,8 +804,9 @@ def test_cli_sources_commands(tmp_path: Path, capsys: pytest.CaptureFixture[str]
     loaded_out = json.loads(out_file.read_text(encoding="utf-8"))
     assert loaded_out["total_sources"] == 5
 
-    # 4. Gap report CLI (against an isolated synthetic store, never Path.home())
+    # 4. Gap report CLI (against an isolated synthetic store, never Path.home() or repo CWD files)
     store_dir, _combos_path = _build_gap_matrix_store(tmp_path, with_corpus=True)
+    monkeypatch.chdir(tmp_path)
     gap_out_file = tmp_path / "gap_test.json"
     rc_gap = studio_main(
         ["--data", str(store_dir), "sources", "--gap-report", "--gap-out", str(gap_out_file)]

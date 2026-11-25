@@ -102,11 +102,13 @@ def create_backup(
     try:
         db_dst = backup_dir / DATABASE_NAME
         src_conn = sqlite3.connect(str(db_src), timeout=30.0)
-        dst_conn = sqlite3.connect(str(db_dst))
         try:
-            src_conn.backup(dst_conn)
+            dst_conn = sqlite3.connect(str(db_dst))
+            try:
+                src_conn.backup(dst_conn)
+            finally:
+                dst_conn.close()
         finally:
-            dst_conn.close()
             src_conn.close()
         _check_sqlite_integrity(db_dst)
 

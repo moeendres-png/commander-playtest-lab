@@ -1065,7 +1065,7 @@ def calculate_pool_gap_matrix(
     commander_names: Sequence[str] = ("Chulane, Teller of Tales",),
     combos_path: str | Path | None = None,
 ) -> PoolGapMatrixPayload:
-    """Calculate the 927-card data gap matrix and research priority scores (P0 Deliverable 2).
+    """Calculate the pool data gap matrix and research priority scores (P0 Deliverable 2).
 
     Per-card evidence grades against the legacy corpus cohort (``ALL_DECKS``) as denominator, for
     research prioritisation. The deck-frequency class counts over the deduplicated local deck-list
@@ -1191,7 +1191,7 @@ def write_gap_matrix_json(
     *,
     payload: PoolGapMatrixPayload | None = None,
 ) -> Path:
-    """Calculate and write the 927-card gap matrix JSON to disk."""
+    """Calculate and write the pool gap matrix JSON to disk."""
     out_path = Path(path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     if payload is None:
