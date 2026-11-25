@@ -29,7 +29,7 @@ from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, TypedDict
+from typing import TYPE_CHECKING, Literal, NotRequired, TypedDict
 
 from commander_lab.bridge_qualification import BRIDGE_AHEAD, BRIDGE_ALIGNED
 from commander_lab.engine.rules.full_game_comparison import (
@@ -160,6 +160,7 @@ class PairedComparison(TypedDict):
     execution: dict[str, object]
     validity_block: dict[str, object]
     consistency_table: dict[str, object]
+    baseline_reuse: NotRequired[dict[str, object] | None]
     warnings: list[str]
     pairs: list[PairRecord]
 
@@ -169,6 +170,12 @@ class PlayedGame(TypedDict):
 
     exposure: GameExposure | None
     failure_class: str | None
+    source: NotRequired[Literal["played", "reused"]]
+    reused_from_series_id: NotRequired[str]
+    reused_from_game_id: NotRequired[str]
+    game_key: NotRequired[str]
+    semantic_transcript_sha256: NotRequired[str]
+    spot_check_verified: NotRequired[bool]
 
 
 #: Plays one game of one arm ("base" or "variant") at (seed, seat) and reports it.
@@ -1098,9 +1105,12 @@ class WindowPlayer:
         self,
         play: PairPlayer,
         pool_holder: list[GamePool],
+        *,
+        reuse_summary_fn: Callable[[], dict[str, object] | None] | None = None,
     ) -> None:
         self._play = play
         self._pool_holder = pool_holder
+        self._reuse_summary_fn = reuse_summary_fn
 
     def __call__(self, arm: str, seed: int, seat: int) -> PlayedGame:
         return self._play(arm, seed, seat)
@@ -1108,6 +1118,10 @@ class WindowPlayer:
     def pool_summary(self) -> dict[str, object] | None:
         """What the worker pool did (n of N games, each JVM life), or ``None`` without one."""
         return self._pool_holder[0].summary() if self._pool_holder else None
+
+    def baseline_reuse_summary(self) -> dict[str, object] | None:
+        """Baseline game reuse provenance and spot-check counts (#1589), or ``None`` if off."""
+        return self._reuse_summary_fn() if self._reuse_summary_fn is not None else None
 
     def close(self) -> None:
         for pool in self._pool_holder:
@@ -1141,6 +1155,8 @@ def parallel_window_player(
     table: Mapping[str, object] | None = None,
     table_hash: str | None = None,
     record_pilot_audit: bool = False,
+    reuse_baseline: bool = False,
+    reuse_spot_check_every: int = 10,
 ) -> WindowPlayer:
     """Execute each O'Brien-Fleming look window in parallel without changing sequential outcomes.
 
@@ -1165,7 +1181,14 @@ def parallel_window_player(
         skip_forced_decisions_of,
     )
     from .play_batch import SeriesGame, play_recorded_games
-    from .series_record import SeriesRecord
+    from .series_record import (
+        GAME_KEY_SCHEMA,
+        DeterminismViolation,
+        ReusableBaselineGame,
+        SeriesRecord,
+        find_reusable_baseline_games,
+        select_spot_check_units,
+    )
     from .table_spec import DEFAULT_STYLE, game_wall_limit_seconds
 
     planned_units = [(seed, seat) for seed in seeds for seat in tested_seats][:budget_pairs]
@@ -1232,6 +1255,14 @@ def parallel_window_player(
     normalized_table_hash: str | None = (
         table_hash.strip() or None if isinstance(table_hash, str) else None
     )
+    reuse_initialized = False
+    spot_check_targets: dict[tuple[int, int], ReusableBaselineGame] = {}
+    reuse_reused_games: list[dict[str, object]] = []
+    reuse_source_series: set[str] = set()
+    reuse_spot_checks_planned = 0
+    reuse_spot_checks_verified = 0
+    reuse_spot_checks_failed = 0
+    reuse_played_base = 0
 
     def _plan_series_on_pool() -> None:
         """Every game of the series as a complete task, and the manifest (S1, #1660).
@@ -1283,6 +1314,156 @@ def parallel_window_player(
             )
         )
 
+    def _init_reuse_from_preloaded() -> None:
+        """Seed reuse counters from resumed ``preloaded`` base games so Resume keeps exact n/N."""
+        nonlocal reuse_initialized, reuse_played_base, reuse_spot_checks_planned
+        nonlocal reuse_spot_checks_verified
+        if reuse_initialized:
+            return
+        reuse_initialized = True
+        for (p_arm, p_seed, p_seat), p_game in cache.items():
+            if p_arm != "base":
+                continue
+            src = p_game.get("source")
+            if src == "reused":
+                src_ser = p_game.get("reused_from_series_id")
+                src_gid = p_game.get("reused_from_game_id")
+                if isinstance(src_ser, str) and src_ser:
+                    reuse_source_series.add(src_ser)
+                reuse_reused_games.append(
+                    {
+                        "seed": p_seed,
+                        "seat": p_seat,
+                        "game_key": p_game.get("game_key"),
+                        "source_series_id": src_ser,
+                        "source_game_id": src_gid,
+                        "semantic_transcript_sha256": p_game.get("semantic_transcript_sha256"),
+                    }
+                )
+            elif src == "played":
+                reuse_played_base += 1
+                if p_game.get("spot_check_verified") is True:
+                    reuse_spot_checks_planned += 1
+                    reuse_spot_checks_verified += 1
+
+    def _prepare_baseline_reuse(window_units: Sequence[tuple[int, int]]) -> None:
+        """Look up exact ``studio-game-key-2`` baseline games for ONE look window (#1589)."""
+        nonlocal reuse_spot_checks_planned
+        if not reuse_baseline or play_single is not None:
+            return
+        _init_reuse_from_preloaded()
+        if not planned_tasks:
+            _plan_series_on_pool()
+        wanted_keys: dict[tuple[int, int], str] = {}
+        for seed, seat in window_units:
+            if ("base", seed, seat) not in cache and (seed, seat) not in spot_check_targets:
+                gk = planned_tasks[("base", seed, seat)].game_key
+                if isinstance(gk, str) and gk:
+                    wanted_keys[(seed, seat)] = gk
+        if not wanted_keys:
+            return
+        matched = find_reusable_baseline_games(
+            data_folder,
+            wanted_keys=wanted_keys,
+            exclude_series_id=series_id,
+            base_deck_id=base_deck.deck_id,
+            exposure_loader=game_exposures,
+        )
+        spot_units = select_spot_check_units(list(matched.keys()), every=reuse_spot_check_every)
+        for unit, candidate in matched.items():
+            if unit in spot_units:
+                with lock:
+                    spot_check_targets[unit] = candidate
+                    reuse_spot_checks_planned += 1
+                continue
+            seed, seat = unit
+            played: PlayedGame = {
+                "exposure": candidate.exposure,  # type: ignore[typeddict-item]
+                "failure_class": None,
+                "source": "reused",
+                "reused_from_series_id": candidate.source_series_id,
+                "reused_from_game_id": candidate.source_game_id,
+                "game_key": candidate.game_key,
+                "semantic_transcript_sha256": candidate.semantic_transcript_sha256,
+            }
+            with lock:
+                cache[("base", seed, seat)] = played
+                reuse_source_series.add(candidate.source_series_id)
+                reuse_reused_games.append(
+                    {
+                        "seed": seed,
+                        "seat": seat,
+                        "game_key": candidate.game_key,
+                        "source_series_id": candidate.source_series_id,
+                        "source_game_id": candidate.source_game_id,
+                        "semantic_transcript_sha256": candidate.semantic_transcript_sha256,
+                    }
+                )
+            if on_game_result is not None:
+                on_game_result("base", seed, seat, played)
+            _mark_game_done("base", seed, seat)
+
+    def _verify_live_game(
+        arm: str, seed: int, seat: int, summary: Mapping[str, object], played: PlayedGame
+    ) -> None:
+        """Record live game provenance and verify mandatory spot-check hash (#1589)."""
+        nonlocal reuse_spot_checks_verified, reuse_spot_checks_failed, reuse_played_base
+        if not reuse_baseline or play_single is not None:
+            return
+        played["source"] = "played"
+        sha = summary.get("semantic_transcript_sha256")
+        if isinstance(sha, str) and sha:
+            played["semantic_transcript_sha256"] = sha
+        task = planned_tasks.get((arm, seed, seat))
+        if task is not None and isinstance(task.game_key, str) and task.game_key:
+            played["game_key"] = task.game_key
+        if arm == "base":
+            with lock:
+                reuse_played_base += 1
+            expected = spot_check_targets.get((seed, seat))
+            if expected is not None:
+                live_sha = sha if isinstance(sha, str) and sha else ""
+                if (
+                    summary.get("status") != "finished"
+                    or live_sha != expected.semantic_transcript_sha256
+                ):
+                    with lock:
+                        reuse_spot_checks_failed += 1
+                    raise DeterminismViolation(
+                        expected.game_key,
+                        [expected.semantic_transcript_sha256, live_sha or "missing"],
+                        [expected.source_game_id, str(summary.get("game_id") or "")],
+                    )
+                with lock:
+                    reuse_spot_checks_verified += 1
+                    reuse_source_series.add(expected.source_series_id)
+                played["spot_check_verified"] = True
+
+    def _baseline_reuse_summary() -> dict[str, object] | None:
+        if not reuse_baseline:
+            return None
+        _init_reuse_from_preloaded()
+        with lock:
+            reused_n = len(reuse_reused_games)
+            played_n = reuse_played_base
+            planned_checks = reuse_spot_checks_planned
+            verified_n = reuse_spot_checks_verified
+            failed_n = reuse_spot_checks_failed
+            sources = sorted(reuse_source_series)
+            reused_copy = [dict(item) for item in reuse_reused_games]
+        return {
+            "enabled": True,
+            "game_key_schema": GAME_KEY_SCHEMA,
+            "reused_count": reused_n,
+            "played_count": played_n,
+            "total_base_games": reused_n + played_n,
+            "spot_checks_planned": planned_checks,
+            "spot_checks_verified": verified_n,
+            "spot_checks_failed": failed_n,
+            "source_series_ids": sources,
+            "reused_games": reused_copy,
+        }
+
     def _run_window_on_pool(missing_units: list[tuple[int, int]]) -> None:
         """Play the missing games of one window on the worker pool (long-lived JVMs)."""
         if not planned_tasks:
@@ -1318,6 +1499,7 @@ def parallel_window_player(
         def _on_done(task: GameTask, summary: Mapping[str, object]) -> None:
             arm, seed, seat = keys[task.task_id]
             played = _summary_to_played_game(summary)
+            _verify_live_game(arm, seed, seat, summary, played)
             if on_game_result is not None:
                 on_game_result(arm, seed, seat, played)
             with lock:
@@ -1378,6 +1560,7 @@ def parallel_window_player(
             _raise_if_cancelled()
             return
 
+        _prepare_baseline_reuse(window_units)
         with lock:
             missing_units = [
                 (seed, seat)
@@ -1434,6 +1617,12 @@ def parallel_window_player(
             results: list[tuple[tuple[str, int, int], PlayedGame]] = []
             for w_seed, summary in zip(chunk_seeds, summaries, strict=True):
                 played = _summary_to_played_game(summary)
+                if reuse_baseline and record_holder:
+                    task = planned_tasks.get((w_arm, w_seed, w_seat))
+                    if task is not None:
+                        with lock:
+                            record_holder[0].record(task.game_id, summary)
+                _verify_live_game(w_arm, w_seed, w_seat, summary, played)
                 if on_game_result is not None:
                     on_game_result(w_arm, w_seed, w_seat, played)
                 _mark_game_done(w_arm, w_seed, w_seat)
@@ -1471,7 +1660,11 @@ def parallel_window_player(
         with lock:
             return cache[(arm, seed, seat)]
 
-    return WindowPlayer(play, pool_holder)
+    return WindowPlayer(
+        play,
+        pool_holder,
+        reuse_summary_fn=_baseline_reuse_summary if reuse_baseline else None,
+    )
 
 
 def format_comparison(result: PairedComparison) -> str:

@@ -294,6 +294,9 @@ def _entry(raw: Mapping[str, object], status: str) -> dict[str, object]:
         "slot_alignment_state": alignment_state,
         "validity_block": validity_block,
         "consistency_table": consistency_table,
+        "baseline_reuse": res.get("baseline_reuse")
+        if isinstance(res.get("baseline_reuse"), dict)
+        else None,
     }
 
 

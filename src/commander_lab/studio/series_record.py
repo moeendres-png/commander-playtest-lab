@@ -72,7 +72,7 @@ import json
 import os
 import re
 import time
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Final
@@ -649,7 +649,190 @@ def _ends_with_newline(path: Path) -> bool:
         return handle.read(1) == b"\n"
 
 
+DEFAULT_SPOT_CHECK_EVERY: Final = 10
+_SHA256_RE: Final = re.compile(r"^[0-9a-f]{64}$")
+
+
+@dataclass(frozen=True)
+class ReusableBaselineGame:
+    """A finished baseline game from another series matching exact ``studio-game-key-2`` (#1589)."""
+
+    game_key: str
+    source_series_id: str
+    source_game_id: str
+    semantic_transcript_sha256: str
+    exposure: dict[str, object]
+
+
+def select_spot_check_units(
+    matched_units: Sequence[tuple[int, int]], *, every: int = DEFAULT_SPOT_CHECK_EVERY
+) -> frozenset[tuple[int, int]]:
+    """Deterministic mandatory spot-check subset for reused baseline games (#1589).
+
+    Whenever at least one baseline game matches for reuse, at least one matched unit (the first,
+    plus every ``every``-th unit) is replayed live and checked against the stored
+    ``semantic_transcript_sha256``.
+    """
+    if not matched_units:
+        return frozenset()
+    step = max(1, int(every))
+    ordered = sorted(matched_units)
+    return frozenset(ordered[idx] for idx in range(0, len(ordered), step))
+
+
+def _closing_transcript_hash(log_path: Path) -> str | None:
+    import gzip
+    import zlib
+
+    opener = gzip.open if log_path.suffix == ".gz" else open
+    try:
+        with opener(log_path, "rt", encoding="utf-8") as handle:
+            last = ""
+            for line in handle:
+                stripped = line.strip()
+                if stripped:
+                    last = stripped
+    except (OSError, EOFError, zlib.error, UnicodeDecodeError):
+        return None
+    if not last:
+        return None
+    try:
+        parsed = json.loads(last)
+    except ValueError:
+        return None
+    if (
+        not isinstance(parsed, dict)
+        or parsed.get("kind") != "result"
+        or parsed.get("status") != "finished"
+    ):
+        return None
+    sha = parsed.get("semantic_transcript_sha256")
+    return sha if isinstance(sha, str) and _SHA256_RE.fullmatch(sha) else None
+
+
+def _rebind_exposure_deck_id(
+    exposure: Mapping[str, object], seat: int, base_deck_id: str
+) -> dict[str, object]:
+    """Deep-copy an exposure and align the tested base seat's deck_id (same deck_hash by key)."""
+    import copy
+
+    copied: dict[str, object] = copy.deepcopy(dict(exposure))
+    seats_raw = copied.get("seats")
+    if isinstance(seats_raw, list):
+        for entry in seats_raw:
+            if isinstance(entry, dict) and entry.get("seat") == seat:
+                entry["deck_id"] = base_deck_id
+    return copied
+
+
+def find_reusable_baseline_games(
+    data_folder: str | Path,
+    *,
+    wanted_keys: Mapping[tuple[int, int], str],
+    exclude_series_id: str,
+    base_deck_id: str,
+    exposure_loader: Callable[[str | Path], Mapping[str, object] | None],
+) -> dict[tuple[int, int], ReusableBaselineGame]:
+    """Locate finished baseline games in other clean ``studio-game-key-2`` series (#1589).
+
+    Fail-closed rules:
+    - Only series folders with ``manifest.json`` matching ``MANIFEST_SCHEMA`` and
+      ``GAME_KEY_SCHEMA`` (``studio-game-key-2``) and ``audit_series_folder(folder).violated is False``.
+    - Cross-series determinism guard: if two finished games share a wanted ``game_key`` with
+      different ``semantic_transcript_sha256``, raises :class:`DeterminismViolation`.
+    - Only finished, non-human-seat game logs whose closing ``semantic_transcript_sha256`` matches
+      the journal entry are admitted.
+    """
+    if not wanted_keys:
+        return {}
+    series_root = games_folder(data_folder) / "series"
+    if not series_root.is_dir():
+        return {}
+    units_by_key: dict[str, list[tuple[int, int]]] = {}
+    for unit, key in wanted_keys.items():
+        units_by_key.setdefault(key, []).append(unit)
+
+    games_dir = games_folder(data_folder)
+    seen_hash_by_key: dict[str, tuple[str, str]] = {}
+    found_by_key: dict[str, tuple[str, str, str, dict[str, object]]] = {}
+
+    for folder in sorted(series_root.iterdir(), key=lambda p: p.name):
+        if not folder.is_dir() or folder.name == exclude_series_id:
+            continue
+        audit = audit_series_folder(folder)
+        if audit.violated or audit.members is None:
+            continue
+        manifest_path = folder / "manifest.json"
+        try:
+            stored = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if (
+            not isinstance(stored, dict)
+            or stored.get("schema") != MANIFEST_SCHEMA
+            or stored.get("game_key_schema") != GAME_KEY_SCHEMA
+        ):
+            continue
+        record = SeriesRecord(folder, stored)
+        if not record.journal_path.is_file():
+            continue
+        try:
+            record._read_journal()
+        except (DeterminismViolation, OSError):
+            continue
+        manifest_keys = {
+            str(item["game_id"]): str(item["game_key"])
+            for item in stored.get("games", [])
+            if isinstance(item, dict)
+            and isinstance(item.get("game_id"), str)
+            and isinstance(item.get("game_key"), str)
+        }
+        for gid, entry in record._entries.items():
+            if entry.get("status") != "finished":
+                continue
+            entry_key = manifest_keys.get(gid)
+            if (
+                entry_key is None
+                or entry_key not in units_by_key
+                or entry.get("game_key") != entry_key
+            ):
+                continue
+            sha = entry.get("semantic_transcript_sha256")
+            if not isinstance(sha, str) or not _SHA256_RE.fullmatch(sha):
+                continue
+            prev = seen_hash_by_key.get(entry_key)
+            if prev is not None and prev[0] != sha:
+                raise DeterminismViolation(entry_key, [prev[0], sha], [prev[1], gid])
+            seen_hash_by_key[entry_key] = (sha, gid)
+            if entry_key in found_by_key:
+                continue
+            log_path = games_dir / f"{gid}.jsonl.gz"
+            if not log_path.is_file():
+                log_path = games_dir / f"{gid}.jsonl"
+            if not log_path.is_file():
+                continue
+            if _closing_transcript_hash(log_path) != sha:
+                continue
+            exposure = exposure_loader(log_path)
+            if exposure is None:
+                continue
+            found_by_key[entry_key] = (folder.name, gid, sha, dict(exposure))
+
+    matched: dict[tuple[int, int], ReusableBaselineGame] = {}
+    for key, (src_series, src_gid, sha, raw_exposure) in found_by_key.items():
+        for seed, seat in units_by_key[key]:
+            matched[(seed, seat)] = ReusableBaselineGame(
+                game_key=key,
+                source_series_id=src_series,
+                source_game_id=src_gid,
+                semantic_transcript_sha256=sha,
+                exposure=_rebind_exposure_deck_id(raw_exposure, seat, base_deck_id),
+            )
+    return matched
+
+
 __all__ = [
+    "DEFAULT_SPOT_CHECK_EVERY",
     "DETERMINISM_VIOLATION",
     "GAME_KEY_SCHEMA",
     "INFRASTRUCTURE_FAILURES",
@@ -657,11 +840,14 @@ __all__ = [
     "DeterminismViolation",
     "KeyVersionMismatch",
     "ManifestMismatch",
+    "ReusableBaselineGame",
     "SeriesFolderAudit",
     "SeriesRecord",
     "audit_series_folder",
     "file_sha256",
+    "find_reusable_baseline_games",
     "game_key",
+    "select_spot_check_units",
     "series_folder",
     "series_guard",
     "series_key_problem",

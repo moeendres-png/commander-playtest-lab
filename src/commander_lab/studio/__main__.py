@@ -511,6 +511,11 @@ def _parser() -> argparse.ArgumentParser:
         action="store_true",
         help="opt-in: record pilot decision requests and count objective omissions (SIMULATED_RESULT only)",
     )
+    compare.add_argument(
+        "--reuse-baseline",
+        action="store_true",
+        help="opt-in (#1589): reuse finished baseline games matching exact studio-game-key-2 with mandatory spot-check verification",
+    )
     commands.add_parser("status")
     doctor_cmd = commands.add_parser(
         "doctor",
@@ -728,8 +733,11 @@ def _compare_decks(args: argparse.Namespace) -> int:
         paths_by_deck_id = dict(zip(deck_ids, paths, strict=True))
         engine = series_engine(folder, used_batch)
         record_audit = bool(getattr(args, "record_pilot_audit", False))
+        reuse_base = bool(getattr(args, "reuse_baseline", False))
         play: paired_comparison.PairPlayer
-        if engine is not None and (used_workers > 1 or engine.games_per_jvm > 1 or record_audit):
+        if engine is not None and (
+            used_workers > 1 or engine.games_per_jvm > 1 or record_audit or reuse_base
+        ):
             play = paired_comparison.parallel_window_player(
                 folder,
                 series_id=series_id,
@@ -745,6 +753,7 @@ def _compare_decks(args: argparse.Namespace) -> int:
                 games_per_jvm=engine.games_per_jvm,
                 command=engine.command,
                 record_pilot_audit=record_audit,
+                reuse_baseline=reuse_base,
             )
         else:
             play = paired_comparison.recorded_game_player(
@@ -777,8 +786,13 @@ def _compare_decks(args: argparse.Namespace) -> int:
                     "games_per_jvm": engine.games_per_jvm if engine is not None else used_batch,
                     "games_dir": str(games_folder(folder)),
                     "record_pilot_audit": record_audit,
+                    "reuse_baseline": reuse_base,
                 },
             )
+            if isinstance(play, paired_comparison.WindowPlayer):
+                reuse_summary = play.baseline_reuse_summary()
+                if reuse_summary is not None:
+                    result["baseline_reuse"] = reuse_summary
         finally:
             if isinstance(play, paired_comparison.WindowPlayer):
                 play.close()  # ends the worker processes of a pooled series

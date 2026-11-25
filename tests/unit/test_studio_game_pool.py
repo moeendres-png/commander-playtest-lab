@@ -2743,3 +2743,436 @@ def test_hard_kill_mid_jvm_life_keeps_earlier_finished_game_logs_closed(
         tail = json.loads(handle.read().splitlines()[-1])
     assert tail["status"] == "failed"
     assert tail["failure_class"] == "WorkerExited"
+
+
+def _write_finished_game_log(
+    data_folder: Path,
+    game_id: str,
+    *,
+    seed: int,
+    seat: int,
+    base_deck_id: str,
+    transcript_sha: str,
+    human_seats: list[int] | None = None,
+) -> None:
+    games_dir = data_folder / "games"
+    games_dir.mkdir(parents=True, exist_ok=True)
+    header: dict[str, object] = {
+        "kind": "header",
+        "schema": "studio-game-log-1",
+        "data_class": "SIMULATED_RESULT",
+        "game_id": game_id,
+        "seed": seed,
+        "engine_commit": "e" * 40,
+        "bridge_jar_sha256": "j" * 64,
+        "bridge_qualification_state": "BRIDGE_AHEAD_OF_QUALIFICATION",
+        "covered_by_sealed_epoch": False,
+        "pilot": "GenericCommanderPilot 1.0.0",
+        "pilot_fingerprint": "f" * 64,
+        "decision_policy": "xmage-full-game-policy-1.0.0",
+        "seats": [
+            {
+                "seat": i,
+                "deck_id": base_deck_id if i == seat else f"opp-{i}",
+                "commanders": ["Chulane, Teller of Tales"],
+                "deck_hash": "d" * 64,
+            }
+            for i in range(4)
+        ],
+    }
+    if human_seats:
+        header["human_seats"] = human_seats
+    closing = {
+        "kind": "result",
+        "status": "finished",
+        "winner_seats": [seat],
+        "decision_count": 42,
+        "semantic_transcript_sha256": transcript_sha,
+    }
+    with gzip.open(games_dir / f"{game_id}.jsonl.gz", "wt", encoding="utf-8") as handle:
+        handle.write(json.dumps(header) + "\n")
+        handle.write(json.dumps(closing) + "\n")
+
+
+def test_find_reusable_baseline_games_enforces_key_version_audit_and_cross_series_determinism(
+    tmp_path: Path,
+) -> None:
+    """#1589: reuse admits only clean studio-game-key-2 logs and fails closed on mismatch."""
+    k1, k2, k3, k4 = "1" * 64, "2" * 64, "3" * 64, "4" * 64
+    h1, h2, h3, h4 = "a" * 64, "b" * 64, "c" * 64, "d" * 64
+
+    # Clean studio-game-key-2 series with g1 (valid) and g2 (human seat -> must be skipped)
+    _write_finished_game_log(
+        tmp_path, "s1-base-1", seed=10, seat=0, base_deck_id="old--base", transcript_sha=h1
+    )
+    _write_finished_game_log(
+        tmp_path,
+        "s1-base-2",
+        seed=11,
+        seat=1,
+        base_deck_id="old--base",
+        transcript_sha=h2,
+        human_seats=[1],
+    )
+    rec1 = series_record.SeriesRecord.open(
+        tmp_path,
+        "ser-clean",
+        games=[
+            {"task_id": "base:10:0", "game_id": "s1-base-1", "game_key": k1},
+            {"task_id": "base:11:1", "game_id": "s1-base-2", "game_key": k2},
+        ],
+        table_hash=None,
+        table=None,
+    )
+    rec1.record("s1-base-1", {"status": "finished", "semantic_transcript_sha256": h1})
+    rec1.record("s1-base-2", {"status": "finished", "semantic_transcript_sha256": h2})
+
+    # Legacy studio-game-key-1 series -> must be ignored even if key string matches
+    _write_finished_game_log(
+        tmp_path, "s-leg-3", seed=12, seat=2, base_deck_id="old--base", transcript_sha=h3
+    )
+    leg_dir = series_record.series_folder(tmp_path, "ser-legacy")
+    leg_dir.mkdir(parents=True, exist_ok=True)
+    (leg_dir / "manifest.json").write_text(
+        json.dumps(
+            {
+                "schema": series_record.MANIFEST_SCHEMA,
+                "series_id": "ser-legacy",
+                "game_key_schema": "studio-game-key-1",
+                "games": [{"task_id": "base:12:2", "game_id": "s-leg-3", "game_key": k3}],
+            }
+        ),
+        encoding="utf-8",
+    )
+    (leg_dir / "journal.jsonl").write_text(
+        json.dumps(
+            {
+                "game_id": "s-leg-3",
+                "game_key": k3,
+                "status": "finished",
+                "semantic_transcript_sha256": h3,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    # Violated series -> must be ignored fail-closed
+    _write_finished_game_log(
+        tmp_path, "s-viol-4", seed=13, seat=3, base_deck_id="old--base", transcript_sha=h4
+    )
+    viol_dir = series_record.series_folder(tmp_path, "ser-viol")
+    viol_dir.mkdir(parents=True, exist_ok=True)
+    (viol_dir / "manifest.json").write_text(
+        json.dumps(
+            {
+                "schema": series_record.MANIFEST_SCHEMA,
+                "series_id": "ser-viol",
+                "game_key_schema": series_record.GAME_KEY_SCHEMA,
+                "games": [
+                    {"task_id": "a", "game_id": "s-viol-4", "game_key": k4},
+                    {"task_id": "b", "game_id": "s-viol-4b", "game_key": k4},
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    (viol_dir / "journal.jsonl").write_text(
+        json.dumps(
+            {
+                "game_id": "s-viol-4",
+                "game_key": k4,
+                "status": "finished",
+                "semantic_transcript_sha256": h4,
+            }
+        )
+        + "\n"
+        + json.dumps(
+            {
+                "game_id": "s-viol-4b",
+                "game_key": k4,
+                "status": "finished",
+                "semantic_transcript_sha256": "9" * 64,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    from commander_lab.studio.card_outcomes import game_exposures
+
+    found = series_record.find_reusable_baseline_games(
+        tmp_path,
+        wanted_keys={(10, 0): k1, (11, 1): k2, (12, 2): k3, (13, 3): k4},
+        exclude_series_id="ser-new",
+        base_deck_id="new--base",
+        exposure_loader=game_exposures,
+    )
+    assert list(found.keys()) == [(10, 0)]
+    item = found[(10, 0)]
+    assert item.source_series_id == "ser-clean"
+    assert item.source_game_id == "s1-base-1"
+    assert item.semantic_transcript_sha256 == h1
+    # Rebound deck_id on seat 0 so paired_comparison attributes win credit to the new base arm
+    seat0 = next(s for s in item.exposure["seats"] if s["seat"] == 0)  # type: ignore[union-attr]
+    assert seat0["deck_id"] == "new--base"
+
+    # Cross-series determinism violation: a second clean series with same k1 but different hash!
+    _write_finished_game_log(
+        tmp_path, "s2-base-1", seed=10, seat=0, base_deck_id="old--base", transcript_sha="e" * 64
+    )
+    rec2 = series_record.SeriesRecord.open(
+        tmp_path,
+        "ser-conflict",
+        games=[{"task_id": "base:10:0", "game_id": "s2-base-1", "game_key": k1}],
+        table_hash=None,
+        table=None,
+    )
+    rec2.record("s2-base-1", {"status": "finished", "semantic_transcript_sha256": "e" * 64})
+    with pytest.raises(series_record.DeterminismViolation):
+        series_record.find_reusable_baseline_games(
+            tmp_path,
+            wanted_keys={(10, 0): k1},
+            exclude_series_id="ser-new",
+            base_deck_id="new--base",
+            exposure_loader=game_exposures,
+        )
+
+
+def test_parallel_window_player_reuses_baseline_games_and_spot_checks_live(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """#1589: Series 2 reuses 3/4 base games, replays 1/4 as spot-check, fails closed on mismatch."""
+    from commander_lab.studio import launch, paired_comparison, play_batch
+
+    jar = tmp_path / "bridge.jar"
+    jar.write_bytes(b"reuse-jar-1589")
+    cmd = ("java", "-jar", str(jar), "full-game")
+    _own_configuration(monkeypatch)
+    monkeypatch.setattr(paired_comparison, "canonical_xmage_engine_pin", lambda: PIN)
+    monkeypatch.setattr(
+        launch, "bridge_jar_sha256", lambda _f, _c: hashlib.sha256(b"reuse-jar-1589").hexdigest()
+    )
+
+    loaded_all = play_batch.load_decks([DECK, *PRECONS])
+    base_deck = loaded_all[0]
+    opp_decks = loaded_all[1:]
+    raw_deck = json.loads(DECK.read_text(encoding="utf-8"))
+    var1_path = tmp_path / "var1.json"
+    var2_path = tmp_path / "var2.json"
+    var1_path.write_text(json.dumps({**raw_deck, "deck_id": "v1"}), encoding="utf-8")
+    var2_path.write_text(json.dumps({**raw_deck, "deck_id": "v2"}), encoding="utf-8")
+    var1_deck, var2_deck = play_batch.load_decks([var1_path, var2_path])
+    paths = {
+        base_deck.deck_id: DECK,
+        var1_deck.deck_id: var1_path,
+        var2_deck.deck_id: var2_path,
+        **{d.deck_id: p for d, p in zip(opp_decks, PRECONS, strict=True)},
+    }
+
+    played_ids: list[str] = []
+    tamper_hash = {"on": False}
+
+    def fake_play_recorded_games(
+        data_folder: Path,
+        deck_paths: list[Path],
+        games: Sequence[play_batch.SeriesGame],
+        **_kwargs: object,
+    ) -> list[dict[str, object]]:
+        out: list[dict[str, object]] = []
+        for g in games:
+            played_ids.append(g.game_id)
+            seat = int(g.game_id.rsplit("-t", 1)[1])
+            is_base = "-base-" in g.game_id
+            sha = hashlib.sha256(
+                f"{g.seed}:{seat}:{'base' if is_base else 'var'}".encode()
+            ).hexdigest()
+            if tamper_hash["on"] and is_base:
+                sha = "f" * 64
+            deck_id = (
+                base_deck.deck_id
+                if is_base
+                else (var1_deck.deck_id if "ser-1-" in g.game_id else var2_deck.deck_id)
+            )
+            _write_finished_game_log(
+                Path(data_folder),
+                g.game_id,
+                seed=g.seed,
+                seat=seat,
+                base_deck_id=deck_id,
+                transcript_sha=sha,
+            )
+            out.append(
+                {
+                    "game_id": g.game_id,
+                    "status": "finished",
+                    "winner_seats": [seat],
+                    "decision_count": 42,
+                    "semantic_transcript_sha256": sha,
+                    "log": str(Path(data_folder) / "games" / f"{g.game_id}.jsonl.gz"),
+                }
+            )
+        return out
+
+    monkeypatch.setattr(play_batch, "play_recorded_games", fake_play_recorded_games)
+
+    # Series 1: plays all 4 base + 4 variant games (0 reused)
+    p1 = paired_comparison.parallel_window_player(
+        tmp_path,
+        series_id="ser-1",
+        base_deck=base_deck,
+        variant_deck=var1_deck,
+        opponents=opp_decks,
+        paths_by_deck_id=paths,
+        seeds=[100, 101],
+        tested_seats=[0, 1],
+        budget_pairs=4,
+        look_every_pairs=4,
+        workers=1,
+        games_per_jvm=2,
+        command=cmd,
+        series_pool=False,
+        reuse_baseline=True,
+    )
+    for seed in (100, 101):
+        for seat in (0, 1):
+            assert p1("base", seed, seat).get("source") == "played"
+            assert p1("variant", seed, seat).get("source") == "played"
+    s1_reuse = p1.baseline_reuse_summary()
+    assert s1_reuse is not None
+    assert (
+        s1_reuse["reused_count"],
+        s1_reuse["played_count"],
+        s1_reuse["spot_checks_verified"],
+    ) == (0, 4, 0)
+
+    # Series 2: reuses 3/4 base games and replays 1/4 as mandatory spot-check!
+    played_ids.clear()
+    p2 = paired_comparison.parallel_window_player(
+        tmp_path,
+        series_id="ser-2",
+        base_deck=base_deck,
+        variant_deck=var2_deck,
+        opponents=opp_decks,
+        paths_by_deck_id=paths,
+        seeds=[100, 101],
+        tested_seats=[0, 1],
+        budget_pairs=4,
+        look_every_pairs=4,
+        workers=1,
+        games_per_jvm=2,
+        command=cmd,
+        series_pool=False,
+        reuse_baseline=True,
+    )
+    sources = [p2("base", seed, seat).get("source") for seed in (100, 101) for seat in (0, 1)]
+    assert sources.count("reused") == 3 and sources.count("played") == 1
+    assert p2("base", 100, 0).get("spot_check_verified") is True
+    assert p2("base", 100, 1).get("reused_from_series_id") == "ser-1"
+    # Only 1 base game (spot-check) + 4 variant games were played by the engine!
+    assert sum("-base-" in gid for gid in played_ids) == 1
+    s2_reuse = p2.baseline_reuse_summary()
+    assert s2_reuse is not None
+    assert (
+        s2_reuse["reused_count"],
+        s2_reuse["played_count"],
+        s2_reuse["total_base_games"],
+        s2_reuse["spot_checks_verified"],
+        s2_reuse["spot_checks_failed"],
+        s2_reuse["source_series_ids"],
+    ) == (3, 1, 4, 1, 0, ["ser-1"])
+
+    # Corrupt/truncated gzip log must be skipped fail-closed (no zlib/EOF crash)
+    corrupt_gz = tmp_path / "games" / "s-corrupt-gz.jsonl.gz"
+    corrupt_gz.write_bytes(b"\x1f\x8b\x08\x00corrupt")
+    assert series_record._closing_transcript_hash(corrupt_gz) is None
+
+    # Multi-window early stop + workers=2 + Resume with preloaded games:
+    # Window 1 = (100, 0), (100, 1); Window 2 = (101, 0), (101, 1).
+    # Stopping after Window 1 must report ONLY Window 1 counts (1 reused, 1 spot-check verified)!
+    played_ids.clear()
+    p_win = paired_comparison.parallel_window_player(
+        tmp_path,
+        series_id="ser-early",
+        base_deck=base_deck,
+        variant_deck=var2_deck,
+        opponents=opp_decks,
+        paths_by_deck_id=paths,
+        seeds=[100, 101],
+        tested_seats=[0, 1],
+        budget_pairs=4,
+        look_every_pairs=2,
+        workers=2,
+        games_per_jvm=1,
+        command=cmd,
+        series_pool=False,
+        reuse_baseline=True,
+    )
+    w1_b0 = p_win("base", 100, 0)
+    w1_b1 = p_win("base", 100, 1)
+    assert w1_b0.get("source") == "played" and w1_b0.get("spot_check_verified") is True
+    assert w1_b1.get("source") == "reused"
+    early_summary = p_win.baseline_reuse_summary()
+    assert early_summary is not None
+    assert (
+        early_summary["reused_count"],
+        early_summary["played_count"],
+        early_summary["total_base_games"],
+        early_summary["spot_checks_planned"],
+        early_summary["spot_checks_verified"],
+    ) == (1, 1, 2, 1, 1)
+
+    # Resume with preloaded Window 1 games preserves exact n/N and spot_checks_verified!
+    p_resumed = paired_comparison.parallel_window_player(
+        tmp_path,
+        series_id="ser-early",
+        base_deck=base_deck,
+        variant_deck=var2_deck,
+        opponents=opp_decks,
+        paths_by_deck_id=paths,
+        seeds=[100, 101],
+        tested_seats=[0, 1],
+        budget_pairs=4,
+        look_every_pairs=2,
+        workers=2,
+        games_per_jvm=1,
+        command=cmd,
+        preloaded={("base", 100, 0): w1_b0, ("base", 100, 1): w1_b1},
+        series_pool=False,
+        reuse_baseline=True,
+    )
+    resumed_summary = p_resumed.baseline_reuse_summary()
+    assert resumed_summary is not None
+    assert (
+        resumed_summary["reused_count"],
+        resumed_summary["played_count"],
+        resumed_summary["total_base_games"],
+        resumed_summary["spot_checks_verified"],
+    ) == (1, 1, 2, 1)
+
+    # Series 3 (mutation): spot-check returns tampered hash -> DeterminismViolation fail-closed
+    # AND the violating game is recorded in ser-3/journal.jsonl!
+    tamper_hash["on"] = True
+    p3 = paired_comparison.parallel_window_player(
+        tmp_path,
+        series_id="ser-3",
+        base_deck=base_deck,
+        variant_deck=var2_deck,
+        opponents=opp_decks,
+        paths_by_deck_id=paths,
+        seeds=[100, 101],
+        tested_seats=[0, 1],
+        budget_pairs=4,
+        look_every_pairs=4,
+        workers=1,
+        games_per_jvm=2,
+        command=cmd,
+        series_pool=False,
+        reuse_baseline=True,
+    )
+    with pytest.raises(series_record.DeterminismViolation):
+        p3("base", 100, 0)
+    journal_3 = (series_record.series_folder(tmp_path, "ser-3") / "journal.jsonl").read_text(
+        encoding="utf-8"
+    )
+    assert "ser-3-base-s100-t0" in journal_3
