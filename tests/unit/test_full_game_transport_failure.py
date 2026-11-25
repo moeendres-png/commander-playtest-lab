@@ -52,6 +52,12 @@ for line in sys.stdin:
     elif mode == "late":
         time.sleep(late)
         reply(request)
+    elif mode == "cp1252":
+        # A JVM on a German Windows writes stderr in windows-1252 (#1815).
+        sys.stderr.buffer.write("Unzul\\u00e4ssige Funktion \\u00e4\\u00f6\\u00fc\\n".encode("cp1252"))
+        sys.stderr.buffer.write(b"after the cp1252 line\\n")
+        sys.stderr.flush()
+        reply(request)
     else:
         for index in range(stderr_lines):
             print(f"engine log line {index}", file=sys.stderr)
@@ -184,3 +190,33 @@ def test_bridge_stderr_kept_in_memory_is_bounded(tmp_path: Path) -> None:
         assert len(client._stderr_lines) <= _STDERR_BUFFER_LINES
         assert client.stderr_tail[-1] == f"engine log line {lines - 1}"
         assert len(client.stderr_tail) == 80
+
+
+def test_cp1252_bytes_on_bridge_stderr_neither_kill_the_pump_nor_the_game(
+    tmp_path: Path,
+) -> None:
+    # #1815: with strict UTF-8 pipes the stderr pump died on byte 0xe4 and the
+    # game ended as BRIDGE_ERROR with frames 0.
+    client, log = _client(tmp_path, "cp1252")
+    with client:
+        client.request("start_engine")
+        client.request("get_full_game_decision")
+        deadline = time.monotonic() + 10
+        while (
+            not client.stderr_tail or client.stderr_tail[-1] != "after the cp1252 line"
+        ) and time.monotonic() < deadline:
+            time.sleep(0.05)
+        assert tuple(client.stderr_tail[-2:]) == (
+            "Unzul\\xe4ssige Funktion \\xe4\\xf6\\xfc",
+            "after the cp1252 line",
+        )
+        assert client._stderr_thread is not None and client._stderr_thread.is_alive()
+        client.request("get_full_game_result")
+    assert client.transport_failure is None
+    assert client.shutdown_disposition == FULL_GAME_SHUTDOWN_GRACEFUL
+    assert _received(log) == [
+        "start_engine",
+        "get_full_game_decision",
+        "get_full_game_result",
+        "shutdown_engine",
+    ]
