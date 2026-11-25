@@ -372,50 +372,248 @@ def test_calculate_card_coverage_record_grades_and_scores() -> None:
     assert rec_partial.is_long_tail_candidate is False
 
 
-def test_calculate_pool_gap_matrix_integration_and_write(tmp_path: Path) -> None:
-    store_dir = Path.home() / ".local" / "share" / "commander-studio"
-    db_path = store_dir / "studio.sqlite3"
-    if not db_path.is_file():
-        pytest.skip(f"Studio sqlite DB not found at {db_path}")
+def _build_gap_matrix_store(tmp_path: Path, *, with_corpus: bool = True) -> tuple[Path, Path]:
+    """Build a self-contained synthetic Chulane StudioStore covering all four coverage grades."""
+    from commander_lab.studio import catalog, importers
+    from tests.unit.test_studio_builder import _public
+    from tests.unit.test_studio_store import (
+        _card,
+        _card_row,
+        _register_row,
+        _workbook,
+        _write_csv,
+    )
+
+    commander = "Chulane, Teller of Tales"
+    store_dir = tmp_path / "studio"
+    inputs_dir = tmp_path / "inputs"
+    inputs_dir.mkdir(parents=True, exist_ok=True)
+
+    cards = [
+        _card(
+            1,
+            commander,
+            "GWU",
+            "Legendary Creature — Human Druid",
+            mana_cost="{2}{G}{W}{U}",
+            mana_value=5,
+        ),
+        _card(
+            2,
+            "Shrieking Drake",
+            "U",
+            "Creature — Drake",
+            mana_cost="{U}",
+            mana_value=1,
+        ),
+        _card(
+            3,
+            "Fleetfoot Panther",
+            "GW",
+            "Creature — Cat",
+            mana_cost="{1}{G}{W}",
+            mana_value=3,
+        ),
+        _card(
+            4,
+            "Cloudstone Curio",
+            "",
+            "Artifact",
+            mana_cost="{3}",
+            mana_value=3,
+        ),
+        _card(
+            5,
+            "Esperzoa",
+            "U",
+            "Artifact Creature — Jellyfish",
+            mana_cost="{2}{U}",
+            mana_value=3,
+        ),
+    ]
+    public_cards = [
+        _public(
+            commander,
+            ["G", "U", "W"],
+            "Legendary Creature — Human Druid",
+            mana_cost="{2}{G}{W}{U}",
+            cmc=5.0,
+        ),
+        _public("Shrieking Drake", ["U"], "Creature — Drake", mana_cost="{U}", cmc=1.0),
+        _public("Fleetfoot Panther", ["G", "W"], "Creature — Cat", mana_cost="{1}{G}{W}", cmc=3.0),
+        _public("Cloudstone Curio", [], "Artifact", mana_cost="{3}", cmc=3.0),
+        _public("Esperzoa", ["U"], "Artifact Creature — Jellyfish", mana_cost="{2}{U}", cmc=3.0),
+    ]
+    oracle_path = inputs_dir / "oracle.jsonl.gz"
+    with gzip.open(oracle_path, "wt", encoding="utf-8") as handle:
+        handle.write("[\n" + ",\n".join(json.dumps(c) for c in public_cards) + "\n]\n")
+
+    combos_path = inputs_dir / "spellbook_combos.json"
+    combos_path.write_text(
+        json.dumps(
+            {
+                "combos": [
+                    {
+                        "commander": commander,
+                        "cards": [commander, "Shrieking Drake"],
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
 
     store = StudioStore.open(store_dir)
-    matrix = calculate_pool_gap_matrix(store)
+    try:
+        importers.import_inventory_workbook(store, _workbook(inputs_dir / "cards.xlsx", cards))
+        catalog.import_scryfall_oracle(store, oracle_path)
+        db = store.connection
+        source_id = str(db.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0])
+        if with_corpus:
+            register_rows = [_register_row(f"d{i}", "community") for i in range(1, 7)]
+            card_rows: list[dict[str, object]] = []
+            # 6 decks: Chulane + Shrieking Drake (6 hits) + Fleetfoot Panther (5 hits) + Cloudstone Curio (2 hits); Esperzoa has 0 hits.
+            for idx in range(1, 7):
+                deck_id = f"d{idx}"
+                card_rows.append(
+                    {
+                        **_card_row(deck_id, commander),
+                        "oracle_id": "oracle-chulane,-teller-of-tales",
+                    }
+                )
+                card_rows.append(
+                    {**_card_row(deck_id, "Shrieking Drake"), "oracle_id": "oracle-shrieking-drake"}
+                )
+                if idx <= 5:
+                    card_rows.append(
+                        {
+                            **_card_row(deck_id, "Fleetfoot Panther"),
+                            "oracle_id": "oracle-fleetfoot-panther",
+                        }
+                    )
+                if idx <= 2:
+                    card_rows.append(
+                        {
+                            **_card_row(deck_id, "Cloudstone Curio"),
+                            "oracle_id": "oracle-cloudstone-curio",
+                        }
+                    )
+            importers.import_corpus_register(
+                store, _write_csv(inputs_dir / "register.csv", register_rows)
+            )
+            importers.import_corpus_cards(
+                store, _write_csv(inputs_dir / "corpus_cards.csv", card_rows)
+            )
+            store.bind_unbound(commander)
 
-    assert matrix["schema_version"] == "pool-gap-matrix-1.1.0"
-    assert matrix["total_cards"] == 927
-    assert matrix["corpus_denominator"] == 2823
-    assert matrix["commander"] == "Chulane, Teller of Tales"
+        # EDHREC inclusion signal for Shrieking Drake -> COMPLETE; Fleetfoot Panther has no EDHREC -> PARTIAL.
+        from commander_lab.studio import strength
 
-    summary = matrix["summary_counts"]
-    grades = summary["coverage_grades"]
-    assert isinstance(grades, dict)
-    assert grades["COMPLETE"] == 291
-    assert grades["SPARSE"] == 209
-    assert grades["PARTIAL"] == 73
-    assert grades["UNOBSERVED_IN_CORPUS"] == 354
-    assert summary["long_tail_candidates_count"] == 395
-    assert summary["observed_in_corpus_count"] == 573
-    assert summary["unobserved_in_corpus_count"] == 354
-    assert summary["xmage_ready_count"] == 927
+        db.execute(
+            "INSERT INTO card_signal(commander_name, signal, card_name, value, numerator,"
+            " denominator, source_id) VALUES (?, ?, ?, 0.8, 800, 1000, ?)",
+            (
+                commander,
+                strength.signal_for(strength.COMMANDER_INCLUSION, strength.BRACKET_NONE),
+                "Shrieking Drake",
+                source_id,
+            ),
+        )
+        # Roles for relevance/long-tail verification.
+        for oracle_id, role in (
+            ("oracle-shrieking-drake", "bounce"),
+            ("oracle-cloudstone-curio", "bounce"),
+            ("oracle-esperzoa", "bounce"),
+        ):
+            db.execute(
+                "INSERT OR IGNORE INTO card_role(oracle_id, role, source_id) VALUES (?, ?, ?)",
+                (oracle_id, role, source_id),
+            )
+        db.commit()
+    finally:
+        store.close()
+    return store_dir, combos_path
 
-    cards = matrix["cards"]
-    assert len(cards) == 927
 
-    # Verify descending sort by research_priority_score
-    scores = [float(c["research_priority_score"]) for c in cards]  # type: ignore[arg-type]
-    assert len(scores) == 927
-    for i in range(len(scores) - 1):
-        assert scores[i] >= scores[i + 1]
+def test_calculate_pool_gap_matrix_integration_and_write(tmp_path: Path) -> None:
+    store_dir, combos_path = _build_gap_matrix_store(tmp_path, with_corpus=True)
+    store = StudioStore.open(store_dir)
+    try:
+        matrix = calculate_pool_gap_matrix(store, combos_path=combos_path)
 
-    # Verify file roundtrip
-    out_file = tmp_path / "research" / "test_gap_matrix.json"
-    written_path = write_gap_matrix_json(store, out_file)
-    assert written_path.is_file()
+        assert matrix["schema_version"] == "pool-gap-matrix-1.1.0"
+        assert matrix["total_cards"] == 5
+        assert matrix["corpus_denominator"] == 6
+        assert matrix["commander"] == "Chulane, Teller of Tales"
 
-    loaded = json.loads(written_path.read_text(encoding="utf-8"))
-    assert loaded["total_cards"] == 927
-    assert loaded["schema_version"] == "pool-gap-matrix-1.1.0"
-    assert len(loaded["cards"]) == 927
+        summary = matrix["summary_counts"]
+        grades = summary["coverage_grades"]
+        assert isinstance(grades, dict)
+        assert grades == {
+            "COMPLETE": 1,  # Shrieking Drake (>=5 hits, scryfall, xmage, edhrec)
+            "PARTIAL": 2,  # Chulane + Fleetfoot Panther (>=5 hits, no edhrec)
+            "SPARSE": 1,  # Cloudstone Curio (2 hits)
+            "UNOBSERVED_IN_CORPUS": 1,  # Esperzoa (0 hits)
+        }
+        assert summary["long_tail_candidates_count"] == 2  # Cloudstone Curio + Esperzoa
+        assert summary["observed_in_corpus_count"] == 4
+        assert summary["unobserved_in_corpus_count"] == 1
+        assert summary["has_edhrec_count"] == 1
+        assert summary["has_spellbook_combos_count"] == 2  # Chulane + Shrieking Drake
+        assert summary["xmage_ready_count"] == 5
+
+        cards = matrix["cards"]
+        assert len(cards) == 5
+
+        # Verify descending sort by research_priority_score
+        scores = [float(c["research_priority_score"]) for c in cards]  # type: ignore[arg-type]
+        for i in range(len(scores) - 1):
+            assert scores[i] >= scores[i + 1]
+        by_name = {str(c["card_name"]): c for c in cards}
+        assert by_name["Shrieking Drake"]["coverage_grade"] == "COMPLETE"
+        assert by_name["Shrieking Drake"]["research_priority_score"] == 0.0
+        assert by_name["Esperzoa"]["coverage_grade"] == "UNOBSERVED_IN_CORPUS"
+        assert "0/6 corpus hits" in str(by_name["Esperzoa"]["notes"])
+
+        # Verify file roundtrip
+        out_file = tmp_path / "research" / "test_gap_matrix.json"
+        written_path = write_gap_matrix_json(store, out_file, combos_path=combos_path)
+        assert written_path.is_file()
+
+        loaded = json.loads(written_path.read_text(encoding="utf-8"))
+        assert loaded["total_cards"] == 5
+        assert loaded["corpus_denominator"] == 6
+        assert loaded["schema_version"] == "pool-gap-matrix-1.1.0"
+        assert len(loaded["cards"]) == 5
+    finally:
+        store.close()
+
+
+def test_calculate_pool_gap_matrix_empty_corpus_uses_zero_denominator_not_975(
+    tmp_path: Path,
+) -> None:
+    """An empty corpus must report denominator 0, never the stale hardcoded 975."""
+    store_dir, combos_path = _build_gap_matrix_store(tmp_path, with_corpus=False)
+    store = StudioStore.open(store_dir)
+    try:
+        matrix = calculate_pool_gap_matrix(store, combos_path=combos_path)
+        assert matrix["total_cards"] == 5
+        assert matrix["corpus_denominator"] == 0
+        assert all(int(c["corpus_denominator"]) == 0 for c in matrix["cards"])  # type: ignore[arg-type]
+    finally:
+        store.close()
+    empty_report = generate_gap_example_report(
+        {
+            "schema_version": "pool-gap-matrix-1.1.0",
+            "description": "empty",
+            "commander": "Chulane, Teller of Tales",
+            "generated_at_utc": "2026-11-24T00:00:00Z",
+            "total_cards": 0,
+            "summary_counts": {},
+            "cards": [],
+        }  # type: ignore[typeddict-item]
+    )
+    assert empty_report["corpus_denominator"] == 0
 
 
 def test_source_inventory_payload_filtered_by_status() -> None:
@@ -576,25 +774,29 @@ def test_cli_sources_commands(tmp_path: Path, capsys: pytest.CaptureFixture[str]
     loaded_out = json.loads(out_file.read_text(encoding="utf-8"))
     assert loaded_out["total_sources"] == 5
 
-    # 4. Gap report CLI (skip if DB not present)
-    store_dir = Path.home() / ".local" / "share" / "commander-studio"
-    if (store_dir / "studio.sqlite3").is_file():
-        gap_out_file = tmp_path / "gap_test.json"
-        rc_gap = studio_main(["sources", "--gap-report", "--gap-out", str(gap_out_file)])
-        assert rc_gap == 0
-        captured_gap = capsys.readouterr()
-        summary = json.loads(captured_gap.out)
-        assert summary["total_cards"] == 927
-        assert gap_out_file.is_file()
+    # 4. Gap report CLI (against an isolated synthetic store, never Path.home())
+    store_dir, _combos_path = _build_gap_matrix_store(tmp_path, with_corpus=True)
+    gap_out_file = tmp_path / "gap_test.json"
+    rc_gap = studio_main(
+        ["--data", str(store_dir), "sources", "--gap-report", "--gap-out", str(gap_out_file)]
+    )
+    assert rc_gap == 0
+    captured_gap = capsys.readouterr()
+    summary = json.loads(captured_gap.out)
+    assert summary["total_cards"] == 5
+    assert summary["corpus_denominator"] == 6
+    assert gap_out_file.is_file()
 
-        # 5. Example report CLI
-        rc_ex = studio_main(["sources", "--example-report"])
-        assert rc_ex == 0
-        captured_ex = capsys.readouterr()
-        ex_report = json.loads(captured_ex.out)
-        assert ex_report["schema_version"] == "gap-example-report-1.0.0"
-        assert ex_report["total_pool_cards"] == 927
-        assert "UNOBSERVED_IN_CORPUS" in ex_report["examples_by_grade"]
+    # 5. Example report CLI
+    rc_ex = studio_main(["--data", str(store_dir), "sources", "--example-report"])
+    assert rc_ex == 0
+    captured_ex = capsys.readouterr()
+    ex_report = json.loads(captured_ex.out)
+    assert ex_report["schema_version"] == "gap-example-report-1.0.0"
+    assert ex_report["total_pool_cards"] == 5
+    assert ex_report["corpus_denominator"] == 6
+    assert "UNOBSERVED_IN_CORPUS" in ex_report["examples_by_grade"]
+    assert len(ex_report["examples_by_grade"]["UNOBSERVED_IN_CORPUS"]) == 1
 
 
 def _extract_local_paths(entries: list[dict[str, object]]) -> list[tuple[str, str]]:

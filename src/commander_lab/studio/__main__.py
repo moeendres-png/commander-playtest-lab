@@ -1422,10 +1422,15 @@ def main(argv: list[str] | None = None) -> int:
 
         if getattr(args, "gap_report", False):
             store = StudioStore.open(data_folder)
-            matrix = calculate_pool_gap_matrix(store)
-            default_gap_path = Path("data/research/chulane_legal_pool_gap_matrix.json")
-            target_path = Path(args.gap_out) if getattr(args, "gap_out", None) else default_gap_path
-            written = write_gap_matrix_json(store, target_path, payload=matrix)
+            try:
+                matrix = calculate_pool_gap_matrix(store)
+                default_gap_path = Path("data/research/chulane_legal_pool_gap_matrix.json")
+                target_path = (
+                    Path(args.gap_out) if getattr(args, "gap_out", None) else default_gap_path
+                )
+                written = write_gap_matrix_json(store, target_path, payload=matrix)
+            finally:
+                store.close()
             summary = {
                 "written": str(written),
                 "total_cards": matrix["total_cards"],
@@ -1437,7 +1442,10 @@ def main(argv: list[str] | None = None) -> int:
 
         if getattr(args, "example_report", False):
             store = StudioStore.open(data_folder)
-            matrix = calculate_pool_gap_matrix(store)
+            try:
+                matrix = calculate_pool_gap_matrix(store)
+            finally:
+                store.close()
             report = generate_gap_example_report(matrix)
             print(json.dumps(report, indent=2, ensure_ascii=False))
             return 0
