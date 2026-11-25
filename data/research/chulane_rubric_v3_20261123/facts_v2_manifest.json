@@ -7695,8 +7695,8 @@
   "data/research/chulane_rubric_v3_20261123/phaseA_scripts/A2/a2_inventory.py": "b513740a7b7569848ffb974d6b17440cbcaa73275a457f385dce31789d44e784",
   "data/research/chulane_rubric_v3_20261123/render_prompt_v2.py": "888ee253e8c3a30a9a1589ee29177d6311a3bf67506c54d0bf737d9a58e43d94",
   "data/research/deckbuilder_1655/card_rulings_1655.jsonl": "18db065ea490c41adfb6772678d2837b485c05ea591c6dcba0cd37369f7851da",
-  "src/commander_lab/studio/castability.py": "9cef65fe254bee511f849d7aa983493e6f5ab8d7e0dcd23810362ca792b182b5",
-  "src/commander_lab/studio/roles.py": "8080566a7399eb9d425f1c79b74e3ed36e24b1ed6451ec5ca8ee466947bf232c"
+  "src/commander_lab/studio/castability.py": "b3f546dfaf4a0e904ed66856219f36f2137169a1820a6d68c2386009904a22df",
+  "src/commander_lab/studio/roles.py": "8e0744b7e0ac2b910e077c52be2335f0347bc0e5faf82742e44542ed0e25e831"
  },
  "open_points": {
   "etb_own_draw_on_noncreatures_still_shown": [
