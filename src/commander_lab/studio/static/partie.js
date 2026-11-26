@@ -2192,6 +2192,7 @@ function renderView() {
   if (!frame) {
     state.seatKeys = [];
     if ($("table-mode-bar")) $("table-mode-bar").hidden = true;
+    if ($("replay-timeline")) $("replay-timeline").hidden = true;
     if (typeof renderPhaseBar === "function") renderPhaseBar(null, false);
     if (typeof renderDecisionBar === "function") renderDecisionBar(null, false);
     if (state.running) {
@@ -2324,6 +2325,7 @@ function renderView() {
   drawBlockLinks();
   if (typeof renderPhaseBar === "function") renderPhaseBar(frame, atLiveTail);
   if (typeof renderDecisionBar === "function") renderDecisionBar(frame, atLiveTail);
+  if (typeof renderReplayTimeline === "function") renderReplayTimeline();
   for (const line of document.querySelectorAll("#log .here")) line.classList.remove("here");
   const line = lineFor(state.index);
   if (line) {
@@ -2555,6 +2557,60 @@ function renderReplayControls() {
   if (!available && state.playing) setPlaying(false);
 }
 function go(index) { state.index = Math.max(0, Math.min(state.frames.length - 1, index)); render(); }
+function renderReplayTimeline() {
+  const tl = $("replay-timeline");
+  if (!tl) return;
+  const available = StudioReplay.isReplayAvailable(state);
+  if (!available || !Array.isArray(state.frames) || !state.frames.length) {
+    tl.hidden = true;
+    tl.textContent = "";
+    return;
+  }
+  const milestones = [];
+  let lastTurn = null;
+  const lostSeen = new Set();
+  for (let i = 0; i < state.frames.length; i += 1) {
+    const f = state.frames[i];
+    if (!f) continue;
+    if (Number.isInteger(f.turn) && f.turn !== lastTurn) {
+      lastTurn = f.turn;
+      milestones.push({ index: i, label: `Zug ${f.turn}`, kind: "turn" });
+    }
+    for (const p of f.players || []) {
+      if (p && p.lost && !lostSeen.has(p.seat)) {
+        lostSeen.add(p.seat);
+        milestones.push({ index: i, label: `💀 ${seatName(p.seat)} ausgeschieden`, kind: "elim" });
+      }
+    }
+  }
+  if (!milestones.length) {
+    tl.hidden = true;
+    tl.textContent = "";
+    return;
+  }
+  // Keep elimination milestones always + evenly sample turns to fit cleanly in ~18 chips
+  const elims = milestones.filter((m) => m.kind === "elim");
+  const turns = milestones.filter((m) => m.kind === "turn");
+  const maxTurns = Math.max(4, 18 - elims.length);
+  const stride = turns.length > maxTurns ? Math.ceil(turns.length / maxTurns) : 1;
+  const picked = [
+    ...turns.filter((_, idx) => idx === 0 || idx === turns.length - 1 || idx % stride === 0),
+    ...elims,
+  ].sort((a, b) => a.index - b.index);
+  tl.textContent = "";
+  tl.append(h("span", { class: "muted" }, "Zeitleiste:"));
+  for (let k = 0; k < picked.length; k += 1) {
+    const m = picked[k];
+    const nextIdx = k + 1 < picked.length ? picked[k + 1].index : state.frames.length;
+    const isCurrent = state.index >= m.index && state.index < nextIdx;
+    tl.append(h("button", {
+      type: "button",
+      class: `timeline-chip${m.kind === "elim" ? " elim" : ""}${isCurrent ? " active" : ""}`,
+      onclick: () => { setPlaying(false); go(m.index); },
+    }, m.label));
+  }
+  tl.hidden = false;
+}
 function step(direction) {
   if (!StudioReplay.isReplayAvailable(state)) return;
   const skipMinor = $("skip").checked;
@@ -3121,6 +3177,7 @@ async function listGames(wanted) {
     state.logRuns = [];
     state.focusSeat = null;
     if ($("table-mode-bar")) $("table-mode-bar").hidden = true;
+    if ($("replay-timeline")) { $("replay-timeline").hidden = true; $("replay-timeline").textContent = ""; }
     if ($("stack-count")) $("stack-count").textContent = "";
     state.ownCombat = StudioPlayP1a.emptyCombatLedger();
     $("game-info").textContent = "";

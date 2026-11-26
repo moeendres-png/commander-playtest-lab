@@ -1073,10 +1073,9 @@ def test_series_progress_text_counts_played_games_and_says_unknown_when_absent()
         "Partien steht darunter."
     )
     assert out["paired"].startswith("Gespielt: 12 von höchstens 80 Partien.")  # type: ignore[union-attr]
-    # a paired series says plainly that it shows no interim yet; the missing view is no finding
+    # since #1828 Paket 3 a running paired series announces its descriptive interim below without deciding early
     assert out["paired"].endswith(  # type: ignore[union-attr]
-        "Gepaarte Serien zeigen noch keinen Zwischenstand: weder Ergebnis noch Paar-Differenz "
-        "erscheinen, bevor die Serie endet. Das ist eine fehlende Anzeige, kein Befund."
+        "Der vorläufige Zwischenstand der abgeschlossenen Paare steht darunter (kein Entscheid)."
     )
     assert "Das Ergebnis folgt" not in out["paired"]  # type: ignore[operator]
     # the notes belong to a running series only

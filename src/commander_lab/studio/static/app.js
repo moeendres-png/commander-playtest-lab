@@ -1570,10 +1570,14 @@ function batchPaceEta(b) {
   const done = Number(b.games_played) - Number(b.games_played_at_run_start);
   if (!Number.isFinite(seconds) || seconds < BATCH_PACE_MIN_SECONDS || !(done >= 1)) return none;
   const perSecond = done / seconds;
-  // games that failed are not played again in this run: they are no games left
+  // games that failed are not played again in this run: they are no games left.
+  // When run_seeds_planned is present (#1828 resumed ETA), count against this run's scheduled seeds
+  // so previously-failed re-queued seeds are never subtracted from remaining work.
   const failedRaw = b.interim_summary && batchKnown(b.interim_summary.games_failed) ? b.interim_summary.games_failed : b.games_failed;
   if (!batchKnown(failedRaw)) return none;
-  const left = Math.max(0, Number(b.games_planned) - Number(b.games_played) - Number(failedRaw));
+  const left = batchKnown(b.run_seeds_planned)
+    ? Math.max(0, Number(b.run_seeds_planned) - done - Number(failedRaw))
+    : Math.max(0, Number(b.games_planned) - Number(b.games_played) - Number(failedRaw));
   return { perHour: perSecond * 3600, etaSeconds: left / perSecond, done, seconds };
 }
 // The heading of the result box: a stopped series is a partial result, also when the page reads its
@@ -1627,15 +1631,18 @@ function batchInterimTexts(b) {
   const originText = `Herkunft: Simulationsergebnis (SIMULATED_RESULT) nur dieser einen Serie „${origin.pod || "unbekannt"}“ (${origin.batch_id || "unbekannt"}), Deck ${origin.deck_id || "unbekannt"}, Stand ${origin.revision_id || "unbekannt"}; nicht mit anderen Serien oder Deck-Ständen zusammengezählt.`;
   const cancelled = Number(part.games_cancelled) || 0;
   const failed = Number(part.games_failed) || 0;
+  const draws = Number(part.draws) || 0;
   const rest = cancelled || failed
     ? `Ohne Ergebnis: ${StudioUI.num(cancelled, 0)} abgebrochen, ${StudioUI.num(failed, 0)} fehlgeschlagen (von ${of} geplant).`
     : null;
+  const drawsText = draws > 0 ? `Unentschieden (ohne Sieger): ${StudioUI.num(draws, 0)} / ${StudioUI.num(n ?? 0, 0)}.` : null;
+  const placements = part.placements_modeled || null;
   const seats = (Array.isArray(part.by_seat) ? part.by_seat : []).map((seat) => ({
     seat: `Sitz ${StudioUI.num(seat.seat, 0)}${seat.label ? ` (${seat.label})` : ""}`,
     count: batchKnown(seat.games) && Number(seat.games) > 0 && batchKnown(seat.wins) ? `${StudioUI.numFlex(seat.wins, 2)}/${StudioUI.num(seat.games, 0)}` : "unbekannt",
     rate: batchRateText(batchKnown(seat.games) && Number(seat.games) > 0 ? seat.win_rate : null),
   }));
-  return { title, headline, caveat, tempo, chunk, originText, rest, seats };
+  return { title, headline, caveat, tempo, chunk, originText, rest, drawsText, placements, seats };
 }
 // END batch-interim
 function pollBatch(batchId) {
@@ -1843,9 +1850,9 @@ function renderSimulations(body) {
         : b.status === "completed"
           ? (failedCount > 0 ? `Abgeschlossen (${StudioUI.num(failedCount, 0)} fehlgeschlagen)` : "Abgeschlossen")
           : b.status === "cancelled"
-            ? "Abgebrochen"
+            ? (completed > 0 ? "Gestoppt (Teilergebnis)" : "Abgebrochen")
             : "Fehlgeschlagen";
-    const badgeCls = isRunning ? "warn" : (b.status === "completed" && !allFailed) ? "good" : "bad";
+    const badgeCls = isRunning ? "warn" : (b.status === "completed" && !allFailed) ? "good" : b.status === "cancelled" ? "warn" : "bad";
     const pct = b.games_planned > 0 ? Math.round((b.games_completed / b.games_planned) * 100) : 0;
 
     const monitor = h("div", { class: "sim-monitor" },
@@ -1858,18 +1865,51 @@ function renderSimulations(body) {
       h("p", { class: "note note-compact" }, seriesPlayedText(b.games_played, b.games_planned, b.games_completed, false, isRunning))
     );
 
+    const renderPlacementsBlock = (pm) => {
+      if (!pm || !Array.isArray(pm.by_seat) || !pm.by_seat.length) return null;
+      const sampleRanks = Object.keys(pm.by_seat[0].ranks || {}).sort((a, b) => Number(a) - Number(b));
+      const rankCols = sampleRanks.length <= 4 ? sampleRanks : ["1", "2", "3", "4+"];
+      return h("div", { class: "placements-block mt-2", "data-data-class": pm.data_class || "MODELED" },
+        h("h5", {}, "Platzierungs-Verteilung (", h("span", { class: "pill warn" }, "MODELED · abgeleitet aus Spielverlauf"), ")"),
+        h("div", { class: "table-wrap" }, h("table", {},
+          h("thead", {}, h("tr", {},
+            h("th", {}, "Sitz"),
+            ...rankCols.map((rk) => h("th", { class: "num" }, `${rk}. Platz`)),
+            h("th", { class: "num" }, "Unbekannt"),
+            h("th", { class: "num" }, "Ø Platz"))),
+          h("tbody", {}, pm.by_seat.map((seatRow) => {
+            const ranksMap = seatRow.ranks || {};
+            const nGames = Number(seatRow.games) || 0;
+            const rankCell = (rk) => {
+              const cnt = rk === "4+"
+                ? Object.entries(ranksMap).filter(([k]) => Number(k) >= 4).reduce((s, [, v]) => s + Number(v || 0), 0)
+                : Number(ranksMap[rk] || 0);
+              const pct = nGames > 0 ? ` (${StudioUI.num((100 * cnt) / nGames, 0)} %)` : "";
+              return `${StudioUI.num(cnt, 0)}/${StudioUI.num(nGames, 0)}${pct}`;
+            };
+            return h("tr", {},
+              h("td", {}, `Sitz ${StudioUI.num(seatRow.seat, 0)}${seatRow.label ? ` (${seatRow.label})` : ""}`),
+              ...rankCols.map((rk) => h("td", { class: "num" }, rankCell(rk))),
+              h("td", { class: "num" }, `${StudioUI.num(seatRow.unknown || 0, 0)}/${StudioUI.num(nGames, 0)}`),
+              h("td", { class: "num" }, seatRow.mean_placement !== null && seatRow.mean_placement !== undefined ? StudioUI.num(seatRow.mean_placement, 2) : "–"));
+          })))),
+        h("p", { class: "note note-compact" }, `Herkunft: ${pm.provenance || "MODELED"} (fließt nie in die Tierliste ein).`));
+    };
+
     // #1828: interim of the finished games while the series runs, the partial result after a stop
     const interim = batchInterimTexts(b);
     if (interim) {
       monitor.append(h("div", { class: "sim-summary sim-interim", id: "sim-interim" },
         h("h4", {}, interim.title),
         h("p", { id: "sim-interim-rate" }, interim.headline),
+        interim.drawsText ? h("p", { class: "note note-compact", id: "sim-interim-draws" }, interim.drawsText) : null,
         interim.rest ? h("p", { class: "note note-compact" }, interim.rest) : null,
         interim.seats.length
           ? h("div", { class: "table-wrap" }, h("table", { class: "mt-2" },
               h("thead", {}, h("tr", {}, h("th", {}, "Sitz"), h("th", { class: "num" }, "Siege / Partien"), h("th", { class: "num" }, "Siegrate"))),
               h("tbody", {}, interim.seats.map((seat) => h("tr", {}, h("td", {}, seat.seat), h("td", { class: "num" }, seat.count), h("td", { class: "num" }, seat.rate))))))
           : null,
+        !b.summary ? renderPlacementsBlock(interim.placements) : null,
         interim.tempo ? h("p", { class: "note note-compact", id: "sim-interim-pace" }, interim.tempo) : null,
         h("p", { class: "note note-compact", id: "sim-interim-chunk" }, interim.chunk),
         h("p", { class: "note note-compact", id: "sim-interim-caveat" }, interim.caveat),
@@ -1900,19 +1940,20 @@ function renderSimulations(body) {
 
     const rawFailures = (() => {
       if (b.summary && Array.isArray(b.summary.failure_summary) && b.summary.failure_summary.length) {
-        return b.summary.failure_summary;
+        return b.summary.failure_summary.filter((f) => !(b.status === "cancelled" && f.reason === "Cancelled"));
       }
       return Object.entries((Array.isArray(b.games) ? b.games : []).reduce((acc, g) => {
-        if (g && g.status !== "finished") {
+        if (g && g.status !== "finished" && !(b.status === "cancelled" && g.failure_class === "Cancelled")) {
           const key = g.failure_class || "Unbekannt";
           acc[key] = (acc[key] || 0) + 1;
         }
         return acc;
       }, {})).map(([reason, count]) => ({ reason, count }));
     })();
+    const failCountNonCancelled = rawFailures.reduce((n, f) => n + f.count, 0);
     const failText = rawFailures.length
       ? rawFailures.map((f) => `${StudioUI.num(f.count, 0)} × ${StudioUI.mapFailureReason(f.reason)}`).join(", ")
-      : (failedCount > 0 ? `${StudioUI.num(failedCount, 0)} fehlgeschlagen` : "");
+      : (failedCount > 0 && b.status !== "cancelled" ? `${StudioUI.num(failedCount, 0)} fehlgeschlagen` : "");
     const rawFailTitle = rawFailures.map((f) => `${f.count} × ${f.reason}`).join(", ");
 
     if (b.summary) {
@@ -1922,19 +1963,26 @@ function renderSimulations(body) {
       const qualStates = s.bridge_qualification_states || (b.bridge_qualification && b.bridge_qualification.status ? [b.bridge_qualification.status] : []);
       const bridgeSha = s.bridge_jar_sha256 || b.bridge_jar_sha256 || null;
       const epochLabel = s.covered_by_sealed_epoch ? "versiegelt" : (qualStates.join(", ") || "nicht versiegelt");
+      const drawsFinal = Number(s.draws) || 0;
       const sumBox = h("div", { class: "sim-summary" },
         h("h4", {}, batchSummaryTitle(b)),
+        b.status === "cancelled" && !b.interim_summary
+          ? h("p", { class: "note note-compact", id: "sim-stopped-saved-note" },
+              `Teilergebnis: ${StudioUI.num(s.games_completed ?? 0, 0)} von ${StudioUI.num(b.games_planned ?? s.games_planned ?? 0, 0)} Partien (ungeplanter Stopp · breiteres CI, nicht als abgeschlossener Lauf gespeichert).`)
+          : null,
         h("div", { class: "sim-grid" },
           h("div", {}, h("span", { class: "muted" }, "Siege: "), h("b", {}, `${StudioUI.numFlex(s.wins_fractional, 1)} / ${StudioUI.num(s.games_completed, 0)}`)),
           h("div", {}, h("span", { class: "muted" }, "Siegrate: "), h("b", {}, s.win_rate !== null && Number(s.games_completed) > 0 ? `${StudioUI.num(s.win_rate_percent, 1)} %` : "–")),
           h("div", {}, h("span", { class: "muted" }, "95 %-CI (Wilson): "), h("b", {}, hasCi ? `[${StudioUI.num(ci.lower_percent, 1)} %, ${StudioUI.num(ci.upper_percent, 1)} %]` : "–")),
+          drawsFinal > 0 ? h("div", {}, h("span", { class: "muted" }, "Unentschieden: "), h("b", {}, `${StudioUI.num(drawsFinal, 0)} / ${StudioUI.num(s.games_completed, 0)}`)) : null,
           h("div", {}, h("span", { class: "muted" }, "Ø Runden: "), h("b", {}, s.mean_rounds == null ? "–" : StudioUI.numFlex(s.mean_rounds, 1))),
           h("div", {}, h("span", { class: "muted" }, "Bridge-JAR: "), h("code", { title: bridgeSha || "" }, bridgeSha ? String(bridgeSha).slice(0, 12) : "–")),
           h("div", {}, h("span", { class: "muted" }, "Epoche: "), h("b", {}, epochLabel))
         ),
-        (failedCount > 0 || rawFailures.length > 0)
+        renderPlacementsBlock(s.placements_modeled),
+        (failCountNonCancelled > 0 || (failedCount > 0 && b.status !== "cancelled"))
           ? h("div", { class: "sim-failures", title: rawFailTitle },
-              h("strong", {}, `${StudioUI.num(failedCount || rawFailures.reduce((n, f) => n + f.count, 0), 0)} fehlgeschlagen: `),
+              h("strong", {}, `${StudioUI.num(failCountNonCancelled || failedCount, 0)} fehlgeschlagen: `),
               h("span", {}, failText))
           : null,
         b.run_id ? h("p", { class: "note note-compact" }, `Dauerhaft im Store hinterlegt unter ID: `, h("code", {}, b.run_id)) : null
@@ -1969,7 +2017,7 @@ function renderSimulations(body) {
             h("td", { class: "num" }, StudioUI.num(g.seed, 0)),
             h("td", { class: "num" }, g.rounds ? StudioUI.num(g.rounds, 0) : "–"),
             h("td", {}, outcome),
-            h("td", {}, h("a", { href: `partie.html?partie=${encodeURIComponent(g.game_id)}` }, "Ansehen →"))
+            h("td", {}, h("a", { href: `partie.html?partie=${encodeURIComponent(g.game_id)}` }, "Replay öffnen →"))
           );
         }))
       ));
