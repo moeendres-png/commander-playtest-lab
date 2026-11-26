@@ -291,7 +291,7 @@ code.cmd{white-space:pre-wrap;word-break:break-all;font-size:12px}
 .deck-series-scroll{max-height:46vh;overflow:auto}
 .deck-series-scroll td{vertical-align:top}
 .data-page{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:var(--s3);padding:var(--s3) var(--s4);align-items:start}
-.data-page>section.layer{background:var(--surface,#fff);border:1px solid var(--line);border-radius:8px;padding:var(--s3)}
+.data-page>section.layer{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:var(--s3)}
 
 .search-help-wrap{position:relative;display:inline-flex;align-items:center}
 .search-help-btn{min-width:28px;padding:3px 8px;font-weight:700}

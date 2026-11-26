@@ -23,6 +23,7 @@ import hashlib
 import json
 import re
 import sqlite3
+from collections.abc import Mapping
 from datetime import UTC, date, datetime
 from typing import cast
 
@@ -86,6 +87,12 @@ def role_fingerprint(db: sqlite3.Connection) -> dict[str, object]:
         "card_role": _digest(roles),
         "corpus_deck_role": _digest(decks),
     }
+
+
+def role_fingerprint_digest(parts: Mapping[str, object]) -> str:
+    """Single deterministic SHA-256 hex digest summarizing :func:`role_fingerprint`."""
+    payload = json.dumps(parts, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _collection(db: sqlite3.Connection) -> dict[str, object]:
@@ -325,6 +332,7 @@ def _roles(db: sqlite3.Connection) -> dict[str, object]:
         "JOIN card_fact f ON f.oracle_id = r.oracle_id GROUP BY r.role",
     )
     decks = _scalar(db, "SELECT COUNT(*) FROM corpus_deck")
+    fp_parts = role_fingerprint(db)
     return {
         "vocabulary": len(ROLES),
         "collection_with_any_role": _share(with_claim, with_oracle),
@@ -335,7 +343,8 @@ def _roles(db: sqlite3.Connection) -> dict[str, object]:
         "corpus_decks_with_role_counts": _share(
             _scalar(db, "SELECT COUNT(DISTINCT deck_id) FROM corpus_deck_role"), decks
         ),
-        "fingerprint": role_fingerprint(db),
+        "fingerprint": role_fingerprint_digest(fp_parts),
+        "fingerprint_parts": fp_parts,
     }
 
 
