@@ -295,6 +295,12 @@ class StderrDrain:
                 except (OSError, ValueError):
                     return
                 if not data:
+                    try:
+                        tail = decoder.decode(b"", final=True)
+                    except ValueError:
+                        return
+                    if tail:
+                        self._retain(tail)
                     break
                 try:
                     text = decoder.decode(data)

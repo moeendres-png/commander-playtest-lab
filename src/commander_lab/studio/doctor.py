@@ -16,7 +16,11 @@ from commander_lab.engine.rules.base import (
     ENGINE_RUNTIME_DIRECTORY_ENV,
     RulesEngineError,
 )
-from commander_lab.engine.rules.full_game import FullGameProtocolError, _RawFullGameClient
+from commander_lab.engine.rules.full_game import (
+    FULL_GAME_SHUTDOWN_GRACEFUL,
+    FullGameProtocolError,
+    _RawFullGameClient,
+)
 from commander_lab.qualification.current_boundary.bridge_launcher import (
     canonical_xmage_engine_pin,
 )
@@ -494,6 +498,10 @@ def is_unc_or_network_path(raw: str | Path) -> bool:
     lowered = text.lower()
     if lowered.startswith(("nio://wsl.localhost/", "nio://wsl$/")):
         return True
+    if lowered.startswith(("\\\\?\\unc\\", "//?/unc/")):
+        return True
+    if lowered.startswith(("\\\\?\\", "//?/", "\\\\.\\", "//./")):
+        return False
     if lowered.startswith(("\\\\wsl.localhost\\", "\\\\wsl$\\", "//wsl.localhost/", "//wsl$/")):
         return True
     return bool(_UNC_PREFIX_RE.match(text))
@@ -502,19 +510,29 @@ def is_unc_or_network_path(raw: str | Path) -> bool:
 def _resolve_engine_runtime_dir_raw() -> tuple[str, Path, bool]:
     configured = os.environ.get(ENGINE_RUNTIME_DIRECTORY_ENV, "").strip()
     raw = configured or DEFAULT_ENGINE_RUNTIME_DIRECTORY
+    expanded = Path(raw).expanduser()
     try:
-        resolved = Path(raw).expanduser().resolve()
+        resolved = expanded.resolve()
     except OSError:
-        resolved = Path(raw).expanduser()
+        resolved = expanded
     return raw, resolved, bool(configured)
 
 
 def _check_engine_runtime_dir(data_dir: Path) -> dict[str, object]:
     raw_runtime, resolved_runtime, configured = _resolve_engine_runtime_dir_raw()
-    unc_runtime = is_unc_or_network_path(raw_runtime) or is_unc_or_network_path(resolved_runtime)
+    cwd_raw: str | Path = ""
+    if not Path(raw_runtime).expanduser().is_absolute():
+        try:
+            cwd_raw = Path.cwd()
+        except OSError:
+            cwd_raw = os.environ.get("PWD", "")
+    unc_runtime = (
+        is_unc_or_network_path(raw_runtime)
+        or is_unc_or_network_path(resolved_runtime)
+        or (bool(cwd_raw) and is_unc_or_network_path(cwd_raw))
+    )
     unc_data = is_unc_or_network_path(data_dir)
-    if unc_runtime or unc_data:
-        affected = str(raw_runtime if unc_runtime else data_dir)
+    if unc_runtime:
         return {
             "name": "engine_runtime_dir",
             "status": "FAIL",
@@ -522,7 +540,7 @@ def _check_engine_runtime_dir(data_dir: Path) -> dict[str, object]:
             "configured": configured,
             "runtime_dir": str(resolved_runtime),
             "detail": (
-                f"UNC-/WSL-Netzpfad erkannt ({affected}): H2-MVStore-Dateisperren "
+                f"UNC-/WSL-Netzpfad für Engine-Laufzeit erkannt ({raw_runtime}): H2-MVStore-Dateisperren "
                 "(FileChannel.tryLock) schlagen dort mit IOException: Unzulässige Funktion fehl."
             ),
             "remediation": (
@@ -531,13 +549,54 @@ def _check_engine_runtime_dir(data_dir: Path) -> dict[str, object]:
                 "eine lokale Festplatte statt unter \\\\wsl.localhost\\ klonen."
             ),
         }
+    if unc_data:
+        return {
+            "name": "engine_runtime_dir",
+            "status": "FAIL",
+            "required": True,
+            "configured": configured,
+            "runtime_dir": str(resolved_runtime),
+            "detail": (
+                f"UNC-/WSL-Netzpfad für Studio-Datenordner erkannt ({data_dir}): "
+                "SQLite-/H2-Sperren sind über UNC-/WSL-Netzpfade unzuverlässig."
+            ),
+            "remediation": (
+                f"{STUDIO_DATA_ENV} bzw. --data auf ein lokales NTFS-Verzeichnis "
+                "(z. B. %LOCALAPPDATA%\\CommanderStudio) setzen."
+            ),
+        }
+    if resolved_runtime.exists() and not resolved_runtime.is_dir():
+        return {
+            "name": "engine_runtime_dir",
+            "status": "FAIL",
+            "required": True,
+            "configured": configured,
+            "runtime_dir": str(resolved_runtime),
+            "detail": (f"Engine-Laufzeitpfad kollidiert mit regulärer Datei: {resolved_runtime}"),
+            "remediation": (
+                f"{ENGINE_RUNTIME_DIRECTORY_ENV} auf ein Verzeichnis setzen oder Datei entfernen."
+            ),
+        }
+    if not _is_dir_writable(resolved_runtime):
+        return {
+            "name": "engine_runtime_dir",
+            "status": "FAIL",
+            "required": True,
+            "configured": configured,
+            "runtime_dir": str(resolved_runtime),
+            "detail": f"Engine-Laufzeitordner nicht beschreibbar: {resolved_runtime}",
+            "remediation": (
+                f"Schreibrechte prüfen oder {ENGINE_RUNTIME_DIRECTORY_ENV} auf ein beschreibbares "
+                "lokales Verzeichnis setzen."
+            ),
+        }
     return {
         "name": "engine_runtime_dir",
         "status": "PASS",
         "required": True,
         "configured": configured,
         "runtime_dir": str(resolved_runtime),
-        "detail": f"Engine-Laufzeitordner lokal (kein UNC-/WSL-Netzpfad): {resolved_runtime}",
+        "detail": f"Engine-Laufzeitordner lokal beschreibbar (kein UNC-/WSL-Netzpfad): {resolved_runtime}",
         "remediation": None,
     }
 
@@ -624,10 +683,25 @@ def _check_bridge_smoke(
                     code="BRIDGE_SMOKE_INVALID_HANDLE",
                     diagnostics=tuple(client.stderr_tail),
                 )
+        if client.shutdown_disposition != FULL_GAME_SHUTDOWN_GRACEFUL:
+            raise FullGameProtocolError(
+                f"Bridge fuhr nicht sauber herunter: {client.shutdown_disposition}",
+                code="BRIDGE_SMOKE_UNGRACEFUL_SHUTDOWN",
+                diagnostics=(
+                    f"Bridge fuhr nicht sauber herunter: {client.shutdown_disposition}",
+                    *client.stderr_tail,
+                ),
+            )
     except (FullGameProtocolError, RulesEngineError, OSError, RuntimeError, ValueError) as exc:
         code = getattr(exc, "code", None) or type(exc).__name__
         stderr_tail = getattr(locals().get("client"), "stderr_tail", ())
         diag_lines = _collect_local_diagnostics(exc, stderr_tail)
+        remediation = (
+            f"Sicherstellen, dass {launch.ENGINE_COMMAND_ENV} das Unterkommando 'full-game' enthält."
+            if "full-game subcommand" in str(exc)
+            else "Lokale Bridge-Diagnose unten prüfen (häufig: UNC-/WSL-Pfadsperre -> "
+            "ENGINE_RUNTIME_DIRECTORY lokal setzen, oder fehlende/beschädigte Bridge-JAR)."
+        )
         return {
             "name": "bridge_smoke",
             "status": "FAIL",
@@ -637,10 +711,7 @@ def _check_bridge_smoke(
                 f"Live-Bridge-Smoke fehlgeschlagen ({code}); "
                 "Klartext-Diagnose lokal verfügbar (nicht für Export bestimmt)."
             ),
-            "remediation": (
-                "Lokale Bridge-Diagnose unten prüfen (häufig: UNC-/WSL-Pfadsperre -> "
-                "ENGINE_RUNTIME_DIRECTORY lokal setzen, oder fehlende/beschädigte Bridge-JAR)."
-            ),
+            "remediation": remediation,
             "local_only_diagnostics": diag_lines,
         }
     return {
