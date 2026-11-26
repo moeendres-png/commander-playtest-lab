@@ -1912,6 +1912,13 @@ async function start() {
     history.replaceState(null, "", location.pathname); // a reload must not reopen the dialog
     await newGame(query.get("revision") || "");
   }
+  try {
+    const pendingToast = sessionStorage.getItem("studio.pendingToast");
+    if (pendingToast) {
+      sessionStorage.removeItem("studio.pendingToast");
+      toast(pendingToast, 5500);
+    }
+  } catch (error) { /* private mode: no session storage */ }
   if (!any) {
     $("table").classList.add("one");
     $("table").textContent = "";

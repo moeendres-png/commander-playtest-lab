@@ -5,6 +5,33 @@ const h = StudioUI.h;
 const api = StudioUI.api;
 // replaceChildren passes null straight to the DOM (it would show the text "null"): StudioUI.kids drops empty children.
 const kids = StudioUI.kids;
+const PENDING_TOAST_KEY = "studio.pendingToast";
+
+function rememberPendingToast(message) {
+  try {
+    sessionStorage.setItem(PENDING_TOAST_KEY, message);
+  } catch (error) {
+    /* private mode: no session storage */
+  }
+}
+
+function buildCopyToast(copied, nextStep) {
+  const unresolvedCount = (copied.unresolved_cards || []).reduce(
+    (acc, entry) => acc + (entry.quantity || 1),
+    0
+  );
+  const parts = [
+    `Kopie „${copied.name}“ angelegt (${StudioUI.num(copied.copied_total_cards, 0)}/${StudioUI.num(copied.source_total_cards, 0)} Karten).`,
+  ];
+  if (copied.unowned_cards > 0) {
+    parts.push(`${StudioUI.num(copied.unowned_cards, 0)} nicht in deiner Sammlung (bleiben als fehlend markiert).`);
+  }
+  if (unresolvedCount > 0) {
+    parts.push(`${StudioUI.num(unresolvedCount, 0)} Karten im Katalog nicht auflösbar.`);
+  }
+  parts.push(nextStep);
+  return parts.join(" ");
+}
 
 const state = {
   commander: "",
@@ -50,14 +77,93 @@ async function openDeckDetail(item) {
         h("td", { class: "num" }, StudioUI.num(c.quantity, 0)),
         h("td", {}, c.name),
         h("td", {}, c.in_collection ? `${StudioUI.num(c.available, 0)} frei / ${StudioUI.num(c.owned, 0)} im Besitz` : h("span", { class: "muted" }, "nicht in deiner Sammlung")))))));
+
+    let copiedDeck = null;
+    const statusNote = h("p", { class: "note", id: "deck-detail-action-status", hidden: true });
+    const copyBtn = h("button", {
+      type: "button",
+      id: "deck-detail-copy-builder",
+      class: "primary",
+    }, "Als Kopie im Deckbau öffnen");
+    const playBtn = h("button", {
+      type: "button",
+      id: "deck-detail-start-game",
+    }, "Partie mit diesem Deck starten");
+    const closeBtn = h("button", { type: "button", onclick: closeModal }, "Schließen");
+
+    const setBusy = (busy) => {
+      copyBtn.disabled = busy;
+      playBtn.disabled = busy;
+    };
+
+    const ensureCopy = async () => {
+      if (copiedDeck) return copiedDeck;
+      copiedDeck = await api("/api/deck-browser/copy", "POST", { item_id: detail.id });
+      return copiedDeck;
+    };
+
+    copyBtn.addEventListener("click", async () => {
+      setBusy(true);
+      try {
+        const copied = await ensureCopy();
+        if (copied.commander_in_collection && copied.commanders && copied.commanders.length) {
+          const msg = buildCopyToast(
+            copied,
+            "Im Deckbau geöffnet: Kartenliste prüfen, fehlende Karten außerhalb der Sammlung sichten oder direkt spielen."
+          );
+          rememberPendingToast(msg);
+          StudioUI.toast(msg);
+          location.href = `index.html?commander=${encodeURIComponent(copied.commanders[0])}&deck=${encodeURIComponent(copied.deck_id)}&branch=${encodeURIComponent(copied.branch || "main")}`;
+          return;
+        }
+        const msg = buildCopyToast(
+          copied,
+          "Der Commander steht nicht in deiner Sammlung; du kannst das Deck aber direkt für eine Partie verwenden."
+        );
+        statusNote.textContent = msg;
+        statusNote.hidden = false;
+        StudioUI.toast(msg);
+      } catch (error) {
+        StudioUI.toast("Kopie konnte nicht angelegt werden: " + StudioUI.germanError(error), "error");
+      } finally {
+        setBusy(false);
+      }
+    });
+
+    playBtn.addEventListener("click", async () => {
+      setBusy(true);
+      try {
+        let revisionId = detail.origin === "saved" ? detail.revision_id : "";
+        let msg = "";
+        if (revisionId) {
+          msg = `„${detail.name}“ für neue Partie auf Sitz 1 vorausgewählt — Gegner und Seed prüfen und Partie starten.`;
+        } else {
+          const copied = await ensureCopy();
+          revisionId = copied.revision_id;
+          msg = buildCopyToast(
+            copied,
+            "Für neue Partie auf Sitz 1 vorausgewählt — Gegner und Seed prüfen und Partie starten."
+          );
+        }
+        rememberPendingToast(msg);
+        StudioUI.toast(msg);
+        location.href = `partie.html?neu=1&revision=${encodeURIComponent(revisionId)}`;
+      } catch (error) {
+        StudioUI.toast("Partie konnte nicht vorbereitet werden: " + StudioUI.germanError(error), "error");
+      } finally {
+        setBusy(false);
+      }
+    });
+
     box.replaceChildren(...kids(
       h("h2", {}, detail.name),
       h("p", { class: "note" },
         `Nur-Lese-Ansicht (${detail.origin === "saved" ? "Gespeichertes Studio-Deck" : `Quelldeck · ${detail.platform || "Korpus"}`})` +
         ` · ${StudioUI.num(inColl, 0)} von ${StudioUI.num(total, 0)} Karten in deiner Sammlung.`),
       detail.url ? h("p", {}, h("a", { href: detail.url, target: "_blank", rel: "noopener" }, "Quelladresse öffnen ↗")) : null,
+      statusNote,
       tbl,
-      h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen"))
+      h("div", { class: "actions" }, copyBtn, playBtn, closeBtn)
     ));
   } catch (error) {
     box.replaceChildren(

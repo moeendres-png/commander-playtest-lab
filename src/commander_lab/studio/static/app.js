@@ -3181,13 +3181,28 @@ async function loadDecks() {
     state.deckId = created.deck_id; state.decks = mine(await api("/api/decks"));
     state.autoDeck = { deckId: created.deck_id }; // not asked for by the person: renderAutoDeckNote says so
   }
-  if (!state.deckId) { // first load after opening the page: reopen the variant that was open
-    const wantedDeck = StudioUI.recall(variantKey("deck"), "");
-    if (state.decks.some((deck) => deck.deck_id === wantedDeck)) {
-      state.deckId = wantedDeck;
-      const wantedBranch = StudioUI.recall(variantKey("branch"), "");
-      const wanted = state.decks.find((deck) => deck.deck_id === wantedDeck);
-      if (wanted.branches.some((item) => item.branch === wantedBranch)) state.branch = wantedBranch;
+  if (!state.deckId) { // first load after opening the page: honor explicit ?deck= link, else reopen last variant
+    const urlParams = typeof location !== "undefined" ? new URLSearchParams(location.search) : null;
+    const urlDeck = urlParams ? urlParams.get("deck") : null;
+    const urlBranch = urlParams ? urlParams.get("branch") : null;
+    if (urlDeck && state.decks.some((deck) => deck.deck_id === urlDeck)) {
+      state.deckId = urlDeck;
+      const wanted = state.decks.find((deck) => deck.deck_id === urlDeck);
+      if (urlBranch && wanted.branches.some((item) => item.branch === urlBranch)) state.branch = urlBranch;
+      if (typeof history !== "undefined" && typeof history.replaceState === "function") {
+        urlParams.delete("deck");
+        urlParams.delete("branch");
+        const rest = urlParams.toString();
+        history.replaceState(null, "", location.pathname + (rest ? "?" + rest : ""));
+      }
+    } else {
+      const wantedDeck = StudioUI.recall(variantKey("deck"), "");
+      if (state.decks.some((deck) => deck.deck_id === wantedDeck)) {
+        state.deckId = wantedDeck;
+        const wantedBranch = StudioUI.recall(variantKey("branch"), "");
+        const wanted = state.decks.find((deck) => deck.deck_id === wantedDeck);
+        if (wanted.branches.some((item) => item.branch === wantedBranch)) state.branch = wantedBranch;
+      }
     }
   }
   if (!state.decks.some((deck) => deck.deck_id === state.deckId)) state.deckId = state.decks[0].deck_id;
@@ -3911,6 +3926,13 @@ async function start() {
     const runningPaired = state.pairedHistory.find((j) => j.status === "running" || j.status === "pending");
     if (runningPaired) { state.activePaired = runningPaired; pollPaired(runningPaired.series_id); }
     setupControls(); await loadDecks(); await loadBranch();
+    try {
+      const pendingToast = sessionStorage.getItem("studio.pendingToast");
+      if (pendingToast) {
+        sessionStorage.removeItem("studio.pendingToast");
+        toast(pendingToast);
+      }
+    } catch (error) { /* private mode: no session storage */ }
   } catch (error) {
     $("pool-body").replaceChildren(h("p", {}, "Das Studio konnte die Daten nicht laden: " + StudioUI.germanError(error)), h("p", { class: "muted" }, `Gewählter Commander: ${COMMANDER}. Er muss in der Sammlung stehen; sonst oben einen anderen Commander wählen. Sind Sammlung und Kartendaten importiert?`));
   }
