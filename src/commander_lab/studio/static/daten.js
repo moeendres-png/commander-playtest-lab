@@ -3,14 +3,6 @@
 // Strictly counts-only (n / N, UNKNOWN never 0, no private card-name or deck-URL leakage).
 
 const $ = (id) => document.getElementById(id);
-const h = (tag, props, ...children) => StudioUI.h(tag, props, ...children);
-const nf = (value) => (value === null || value === undefined || typeof value === "object" ? "unbekannt" : StudioUI.num(value, 0));
-const shareText = (obj) => {
-  if (!obj || obj.count === null || obj.count === undefined || obj.of === null || obj.of === undefined) {
-    return "unbekannt";
-  }
-  return obj.of ? `${nf(obj.count)} / ${nf(obj.of)} (${StudioUI.pct(obj.count / obj.of, 1)})` : `${nf(obj.count)} / 0`;
-};
 const unknown = (text = "unbekannt") => h("span", { class: "unknown" }, text);
 
 function isRenderNode(value) {
@@ -28,6 +20,15 @@ function safeCell(value) {
   if (typeof value === "object") return "unbekannt";
   return value;
 }
+
+const h = (tag, props, ...children) => StudioUI.h(tag, props, ...children.map(safeCell));
+const nf = (value) => (value === null || value === undefined || typeof value === "object" ? "unbekannt" : StudioUI.num(value, 0));
+const shareText = (obj) => {
+  if (!obj || obj.count === null || obj.count === undefined || obj.of === null || obj.of === undefined) {
+    return "unbekannt";
+  }
+  return obj.of ? `${nf(obj.count)} / ${nf(obj.of)} (${StudioUI.pct(obj.count / obj.of, 1)})` : `${nf(obj.count)} / 0`;
+};
 
 function formatFingerprint(fp) {
   if (typeof fp === "string" && fp.trim()) {

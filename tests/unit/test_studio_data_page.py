@@ -245,7 +245,7 @@ globalThis.StudioUI = {
 };
 globalThis.StudioCommander = { shortName: (c) => String(c || '') };
 globalThis.document = { getElementById: (id) => hosts.get(id) || makeHost(id) };
-const load = new Function(src + '; return { renderBridge, renderSources, renderCollection, renderRoles, renderCorpus, renderLayersAndRecipes, safeCell };');
+const load = new Function(src + '; return { renderBridge, renderSources, renderCollection, renderRoles, renderCorpus, renderLayersAndRecipes, safeCell, isRenderNode };');
 const mod = load();
 const [status, report, layers, audit] = JSON.parse(process.argv[1]);
 mod.renderBridge(report);
@@ -262,7 +262,9 @@ mod.renderRoles({ roles: { ...report.roles, fingerprint: { card_role: '012345678
 const objCompat = flat(hosts.get('data-roles').children);
 mod.renderRoles({ roles: { ...report.roles, fingerprint: { unexpected: 1 }, by_origin: { tagger: { claims: { bad: 1 }, cards: 1 } } } }, audit);
 const objBlocked = flat(hosts.get('data-roles').children);
-console.log(JSON.stringify({ sectionTexts, objCompat, objBlocked }));
+const directSafeObj = mod.safeCell({ bad: 1 });
+const domNodeCheck = mod.isRenderNode({ nodeType: 1 }) && mod.safeCell({ nodeType: 1 }).nodeType === 1;
+console.log(JSON.stringify({ sectionTexts, objCompat, objBlocked, directSafeObj, domNodeCheck }));
 """
     done = subprocess.run(
         [node, "-e", script, json.dumps([status, report, layers, audit])],
@@ -280,6 +282,8 @@ console.log(JSON.stringify({ sectionTexts, objCompat, objBlocked }));
     assert "[object Object]" not in payload["objCompat"]
     assert "[object Object]" not in payload["objBlocked"]
     assert "unbekannt" in payload["objBlocked"]
+    assert payload["directSafeObj"] == "unbekannt"
+    assert payload["domNodeCheck"] is True
 
 
 def test_daten_page_has_theme_toggle_and_dark_surface_token() -> None:
