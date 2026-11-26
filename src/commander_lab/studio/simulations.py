@@ -1144,6 +1144,67 @@ def aggregate_batch_results(
     return result_payload
 
 
+def interim_batch_summary(
+    games: Sequence[GameSummary],
+    *,
+    games_planned: int,
+    table_size: int | None,
+    seat_labels: Sequence[str | None] = (),
+    origin: Mapping[str, object] | None = None,
+) -> dict[str, object]:
+    """Key figures of the games a running or cancelled series has finished so far (#1828).
+
+    Descriptive only: win counts and rates of this one series with ``n`` finished games out of
+    ``games_planned`` and the 95 % Wilson interval of the shared aggregation. It has no pilot
+    audit, no card table and no consistency table, and it is never stored. ``n == 0`` is
+    unknown (``None``), never a 0 % rate or an interval. Games the series stopped itself
+    (``Cancelled``) are counted apart from failed games: an aborted run is its own class.
+    """
+    # the latest row of a seed counts: a resumed series plays a stopped seed again, and the old
+    # ``Cancelled`` row of it must not stay next to the new result
+    latest: dict[int, GameSummary] = {}
+    for game in games:
+        latest[game.seed] = game
+    games = list(latest.values())
+    figures = aggregate_batch_results(games, table_size=table_size)
+    finished = [g for g in games if g.status == "finished"]
+    completed = len(finished)
+    cancelled = sum(1 for g in games if g.status != "finished" and g.failure_class == "Cancelled")
+    failed = sum(1 for g in games if g.status != "finished") - cancelled
+    by_seat: list[dict[str, object]] = []
+    if type(table_size) is int and table_size >= 2:
+        for seat in range(table_size):
+            wins = sum(
+                (1.0 / len(g.winner_seats)) if g.winner_seats and seat in g.winner_seats else 0.0
+                for g in finished
+            )
+            by_seat.append(
+                {
+                    "seat": seat + 1,
+                    "label": seat_labels[seat] if seat < len(seat_labels) else None,
+                    "wins": round(wins, 2),
+                    "games": completed,
+                    "n_of_N": f"{_fmt_win_count(wins)}/{completed}"
+                    if completed > 0
+                    else "unbekannt",
+                    "win_rate": round(wins / completed, 4) if completed > 0 else None,
+                }
+            )
+    return {
+        "data_class": DataClass.SIMULATED_RESULT.value,
+        "origin": dict(origin) if origin is not None else {},
+        "games_planned": games_planned,
+        "games_completed": completed,
+        "games_failed": failed,
+        "games_cancelled": cancelled,
+        "wins_fractional": figures["wins_fractional"],
+        "win_rate": figures["win_rate"],
+        "win_rate_percent": figures["win_rate_percent"],
+        "confidence_interval_95": figures["confidence_interval_95"],
+        "by_seat": by_seat,
+    }
+
+
 def opponent_table(
     opponent_ids: Sequence[str] | None,
 ) -> tuple[str | None, str | None, int | None]:
@@ -1440,6 +1501,10 @@ class BatchSimulation:
         self.current_index = len(self._games)
         self.current_game_id: str | None = None
         self.started_at: str | None = None
+        #: Start of the current ``run_worker`` and the games already played then: a resumed series
+        #: keeps its first ``started_at``, so a rate over this run counts from here (#1828).
+        self.run_started_at: str | None = None
+        self._played_at_run_start = 0
         self.ended_at: str | None = None
         self.error: str | None = None
         self.run_id: str | None = None
@@ -1536,7 +1601,32 @@ class BatchSimulation:
         order = {self.game_id_of(seed): index for index, seed in enumerate(self.seeds)}
         return sorted(self._games, key=lambda game: order.get(game.game_id, len(order)))
 
-    def to_dict(self) -> dict[str, object]:
+    def _interim_summary(self, games: Sequence[GameSummary]) -> dict[str, object] | None:
+        """The interim figures of a running or cancelled series; caller holds the lock."""
+        if self.status not in ("pending", "running", "cancelled"):
+            return None
+        table_size = self._resolved_table_size()
+        labels: list[str | None] = [self.deck_id]
+        if table_size is not None:
+            ids = self.opponent_ids or []
+            labels += [ids[i] if i < len(ids) else None for i in range(table_size - 1)]
+        return interim_batch_summary(
+            games,
+            games_planned=len(self.seeds),
+            table_size=table_size,
+            seat_labels=labels,
+            origin={
+                "batch_id": self.batch_id,
+                "deck_id": self.deck_id,
+                "revision_id": self.revision_id,
+                "pod": self.pod_name,
+                "deck_hash": self.deck_hash,
+            },
+        )
+
+    def to_dict(self, *, live: bool = True) -> dict[str, object]:
+        """The series as the monitor reads it; ``live=False`` is the saved record without the
+        live-only keys (interim figures, observation time), so a record never holds an interim."""
         with self._lock:
             games = self._games_in_seed_order()
             if isinstance(self._summary, dict) and "covered_by_sealed_epoch" in self._summary:
@@ -1573,7 +1663,7 @@ class BatchSimulation:
                 if isinstance(self._summary, dict) and "consistency_table" in self._summary
                 else None
             )
-            return {
+            payload: dict[str, object] = {
                 "batch_id": self.batch_id,
                 "seeds": list(self.seeds),
                 "deck_id": self.deck_id,
@@ -1602,6 +1692,18 @@ class BatchSimulation:
                 "summary": self._summary,
                 "games": [g.to_dict() for g in games],
             }
+            if live:
+                # #1828: an interim of the games finished so far; ``summary`` stays the final one.
+                # ``summary_partial``: what the figures show is not the whole series (running, or
+                # stopped by the user). Never stored: not in the record, the store or a cache key.
+                payload["summary_partial"] = self.status in ("pending", "running", "cancelled")
+                payload["interim_summary"] = self._interim_summary(games)
+                payload["observed_at"] = now_utc()
+                payload["run_started_at"] = self.run_started_at
+                payload["games_played_at_run_start"] = (
+                    self._played_at_run_start if self.run_started_at is not None else None
+                )
+            return payload
 
     @classmethod
     def from_saved_series(
@@ -1723,6 +1825,11 @@ class BatchSimulation:
         """Main execution loop running in a background thread."""
         self.worker_done.clear()
         self.started_at = self.started_at or now_utc()
+        with self._lock:
+            self.run_started_at = now_utc()
+            self._played_at_run_start = self._games_played()
+            # a resumed series shows no stale final result next to its interim while it runs
+            self._summary = None
         self.status = "running"
 
         try:
@@ -1789,7 +1896,8 @@ class BatchSimulation:
         folder = games_folder(self.data_folder)
         with contextlib.suppress(OSError):
             (folder / f"{self.batch_id}.series.json").write_text(
-                json.dumps(self.to_dict(), indent=1, ensure_ascii=False) + "\n", encoding="utf-8"
+                json.dumps(self.to_dict(live=False), indent=1, ensure_ascii=False) + "\n",
+                encoding="utf-8",
             )
 
     def _run_chunk(self, seeds: Sequence[int], own_deck_path: Path | None) -> None:
