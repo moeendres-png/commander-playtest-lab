@@ -375,21 +375,42 @@ function cell(card, key) {
   const value = card[key];
   return h("td", { class: typeof value === "number" ? "num" : "" }, value === null || value === undefined ? "" : typeof value === "number" ? StudioUI.numFlex(value, 2) : value);
 }
-// The second filter row folds away on small windows; the chip keeps the active ones in sight.
+// Count every active filter group so #filter-count always reflects the true filter state (#1833).
 const FILTER_OPEN_KEY = "studio.builder.filters-open";
-function activeSecondaryFilters() {
-  const on = [$("type-filter").value, $("role-filter").value, $("label-filter").value].filter((value) => value !== "").length
-    + ($("mv-min").value !== "" || $("mv-max").value !== "" ? 1 : 0)
-    + ($("f-free").checked ? 0 : 1)
-    + (state.superfriendsFilter ? 1 : 0)
-    + ["f-notin", "f-fav", "f-excl", "f-sim", "f-unowned"].filter((id) => $(id) && $(id).checked).length;
-  return on;
+function activeFilters() {
+  const active = [];
+  if (state.colors && state.colors.size) active.push(`Farbe (${[...state.colors].join("")})`);
+  if ($("q") && $("q").value.trim() !== "") active.push("Suche");
+  if ($("type-filter") && $("type-filter").value !== "") active.push("Typ");
+  if ($("role-filter") && $("role-filter").value !== "") active.push("Rolle");
+  if ($("label-filter") && $("label-filter").value !== "") active.push("Marke");
+  if (($("mv-min") && $("mv-min").value !== "") || ($("mv-max") && $("mv-max").value !== "")) {
+    active.push("Manawert");
+  }
+  if ($("f-free") && !$("f-free").checked) active.push("auch belegte");
+  for (const [id, label] of [
+    ["f-notin", "nicht im Deck"],
+    ["f-fav", "Favoriten"],
+    ["f-excl", "Ausgeschlossene"],
+    ["f-sim", "Simulator-bereit"],
+    ["f-unowned", "Zukauf-Pool"],
+  ]) {
+    if ($(id) && $(id).checked) active.push(label);
+  }
+  if (state.superfriendsFilter) active.push(`Schnellfilter (${state.superfriendsFilter})`);
+  if (state.cohort && state.cohort !== "all") active.push(`Kohorte (${cohortName(state.cohort)})`);
+  if (state.gcBand) active.push("Game-Changer-Band");
+  if (state.universe) active.push(`Universum (${state.universe})`);
+  if (state.subset) active.push("Teilmenge");
+  return { count: active.length, labels: active };
 }
 function updateFilterChip() {
-  const chip = $("filter-count"), n = activeSecondaryFilters();
-  chip.hidden = n === 0;
-  chip.textContent = `${StudioUI.num(n)} aktiv`;
-  chip.title = `${StudioUI.num(n)} Filter in der eingeklappten Leiste aktiv`;
+  const chip = $("filter-count");
+  if (!chip) return;
+  const { count, labels } = activeFilters();
+  chip.hidden = count === 0;
+  chip.textContent = `${StudioUI.num(count)} aktiv`;
+  chip.title = count ? `Aktive Filter (${StudioUI.num(count)}): ${labels.join(", ")}` : "Keine Filter aktiv";
 }
 function setFiltersOpen(open) {
   $("filters-more").hidden = !open;
@@ -3702,26 +3723,55 @@ function setupControls() {
     $("q").value = cfg.q || "";
     $("type-filter").value = cfg.type || "";
     $("role-filter").value = cfg.role || "";
+    if ($("label-filter")) $("label-filter").value = cfg.label || "";
     $("mv-min").value = cfg.mvMin || "";
     $("mv-max").value = cfg.mvMax || "";
     $("f-free").checked = cfg.free !== false;
     $("f-notin").checked = Boolean(cfg.notin);
     $("f-fav").checked = Boolean(cfg.fav);
     $("f-excl").checked = Boolean(cfg.excl);
+    if ($("f-sim")) $("f-sim").checked = Boolean(cfg.sim);
     state.superfriendsFilter = cfg.superfriends || "";
     state.colors = new Set(Array.isArray(cfg.colors) ? cfg.colors : []);
     for (const btn of $("color-filter").querySelectorAll("button")) btn.classList.toggle("on", state.colors.has(btn.textContent));
+    let needsReload = false;
+    if (cfg.resetAll) {
+      if (state.subset || (state.subsetNames && state.subsetNames.length)) {
+        subsetTicket++;
+        state.subset = null;
+        state.subsetNames = [];
+        state.subsetWanted = null;
+      }
+      if (state.universe || state.gcBand) needsReload = true;
+      state.cohort = "all";
+      state.gcBand = "";
+      state.universe = "";
+      if ($("cohort")) $("cohort").value = "all";
+      if ($("universe")) $("universe").value = "";
+      if (state.includeUnowned) {
+        state.includeUnowned = false;
+        if ($("f-unowned")) $("f-unowned").checked = false;
+        needsReload = true;
+      }
+    }
     state.shown = 120;
     if (state.superfriendsFilter === "missing") {
       $("f-free").checked = false;
       if (!state.includeUnowned) {
         state.includeUnowned = true;
         if ($("f-unowned")) $("f-unowned").checked = true;
-        try { await loadPool(); renderAll(); } catch (error) { fail(error); }
-        return;
+        needsReload = true;
       }
     }
+    if (needsReload) {
+      try { await loadPool(); renderAll(); } catch (error) { fail(error); }
+      return;
+    }
+    renderBracketBar();
+    renderGcBandBar();
+    renderUniverseInfo();
     renderPool();
+    renderDeck();
   };
   const renderQuickFilterPresets = () => {
     if (!$("quick-filter-presets")) return;
@@ -3751,7 +3801,7 @@ function setupControls() {
       onclick: () => toggleSuperfriends(kind),
     }, label);
     $("quick-filter-presets").replaceChildren(
-      h("button", { type: "button", class: "chip", onclick: () => { applyBuilderFilterPreset({ free: true }); renderQuickFilterPresets(); } }, "Standardfilter"),
+      h("button", { type: "button", class: "chip", onclick: () => { applyBuilderFilterPreset({ free: true, resetAll: true }); renderQuickFilterPresets(); } }, "Standardfilter"),
       h("button", { type: "button", class: "chip", onclick: () => { applyBuilderFilterPreset({ free: true, notin: true }); renderQuickFilterPresets(); } }, "Frei & nicht im Deck"),
       h("button", { type: "button", class: "chip", onclick: () => { applyBuilderFilterPreset({ free: true, mvMax: "2" }); renderQuickFilterPresets(); } }, "Frühe Aktionen (MV ≤ 2)"),
       h("button", { type: "button", class: "chip", onclick: () => { applyBuilderFilterPreset({ free: true, type: "Creature" }); renderQuickFilterPresets(); } }, "Kreaturen (frei)"),
