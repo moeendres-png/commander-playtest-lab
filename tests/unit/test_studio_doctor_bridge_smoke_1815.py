@@ -310,7 +310,7 @@ def test_doctor_bridge_smoke_fails_on_missing_subcommand_or_ungraceful_shutdown(
         ),
         encoding="utf-8",
     )
-    orig_client = doctor._RawFullGameClient
+    orig_client = doctor.FullGameBridgeClient
 
     def _fast_client(command: tuple[str, ...], *, request_timeout_seconds: float = 30.0) -> Any:
         return orig_client(
@@ -319,7 +319,7 @@ def test_doctor_bridge_smoke_fails_on_missing_subcommand_or_ungraceful_shutdown(
             shutdown_grace_seconds=0.3,
         )
 
-    monkeypatch.setattr(doctor, "_RawFullGameClient", _fast_client)
+    monkeypatch.setattr(doctor, "FullGameBridgeClient", _fast_client)
     res_ungraceful = doctor._check_bridge_smoke(
         tmp_path, [sys.executable, str(script), "full-game"], None
     )
@@ -372,7 +372,7 @@ def test_doctor_bridge_smoke_fails_on_missing_subcommand_or_ungraceful_shutdown(
                 return {"lane": "full_game"}
             return {"deck_handle": {"handle_id": "h1"}}
 
-    monkeypatch.setattr(doctor, "_RawFullGameClient", _StubUngracefulClient)
+    monkeypatch.setattr(doctor, "FullGameBridgeClient", _StubUngracefulClient)
     res_stub = doctor._check_bridge_smoke(
         tmp_path, [sys.executable, str(script_early), "full-game"], None
     )

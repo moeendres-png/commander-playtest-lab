@@ -18,8 +18,8 @@ from commander_lab.engine.rules.base import (
 )
 from commander_lab.engine.rules.full_game import (
     FULL_GAME_SHUTDOWN_GRACEFUL,
+    FullGameBridgeClient,
     FullGameProtocolError,
-    _RawFullGameClient,
 )
 from commander_lab.qualification.current_boundary.bridge_launcher import (
     canonical_xmage_engine_pin,
@@ -667,7 +667,7 @@ def _check_bridge_smoke(
             "local_only_diagnostics": [str(resolve_err)],
         }
     try:
-        client = _RawFullGameClient(
+        client = FullGameBridgeClient(
             command,
             request_timeout_seconds=30.0,
         )
