@@ -42,7 +42,7 @@ def test_doctor_passes_when_all_prerequisites_present(
     payload = json.loads(capsys.readouterr().out)
     assert payload["ok"] is True
     assert payload["status"] == "PASS"
-    assert payload["summary"] == {"pass": 8, "warn": 0, "fail": 0}
+    assert payload["summary"] == {"pass": 9, "warn": 0, "fail": 0}
 
 
 def test_doctor_fails_when_bridge_jar_or_java_missing(

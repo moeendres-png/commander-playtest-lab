@@ -28,6 +28,7 @@ with the engine's own rejection code and stays fail-closed.
 from __future__ import annotations
 
 import contextlib
+import io
 import json
 import os
 import re
@@ -342,8 +343,12 @@ class MidgameLaneClient:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
+                encoding="utf-8",
+                errors="strict",
                 bufsize=1,
             )
+            if isinstance(self._process.stderr, io.TextIOWrapper):
+                self._process.stderr.reconfigure(errors="backslashreplace")
         except OSError as exc:
             raise MidgameLaneError(f"cannot launch the mid-game lane: {exc}") from exc
         if self._process.stderr is not None:

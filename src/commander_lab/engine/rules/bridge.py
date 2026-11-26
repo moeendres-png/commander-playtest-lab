@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import io
 import json
 import os
 import queue
@@ -133,8 +134,12 @@ class JsonLineBridgeClient:
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=True,
+                    encoding="utf-8",
+                    errors="strict",
                     bufsize=1,
                 )
+                if isinstance(self._process.stderr, io.TextIOWrapper):
+                    self._process.stderr.reconfigure(errors="backslashreplace")
             except OSError as exc:
                 raise RulesEngineUnavailable(
                     f"unable to start bridge command {self.command!r}: {exc}"

@@ -10,6 +10,7 @@ from __future__ import annotations
 import codecs
 import contextlib
 import dataclasses
+import io
 import json
 import os
 import re
@@ -294,6 +295,12 @@ class StderrDrain:
                 except (OSError, ValueError):
                     return
                 if not data:
+                    try:
+                        tail = decoder.decode(b"", final=True)
+                    except ValueError:
+                        return
+                    if tail:
+                        self._retain(tail)
                     break
                 try:
                     text = decoder.decode(data)
@@ -638,8 +645,12 @@ def launch(plan: LaunchPlan, *, timeout_s: float = 60.0) -> BridgeProcess:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
+            encoding="utf-8",
+            errors="strict",
             bufsize=1,
         )
+        if isinstance(popen.stderr, io.TextIOWrapper):
+            popen.stderr.reconfigure(errors="backslashreplace")
     except OSError as exc:
         raise BridgeLaunchError(f"cannot launch {plan.candidate}: {exc}") from exc
     return BridgeProcess(plan=plan, popen=popen)

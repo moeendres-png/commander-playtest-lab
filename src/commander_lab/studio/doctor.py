@@ -2,13 +2,25 @@
 
 from __future__ import annotations
 
+import hashlib
 import importlib
 import os
+import re
 import shlex
 import sys
 from collections.abc import Callable
 from pathlib import Path
 
+from commander_lab.engine.rules.base import (
+    DEFAULT_ENGINE_RUNTIME_DIRECTORY,
+    ENGINE_RUNTIME_DIRECTORY_ENV,
+    RulesEngineError,
+)
+from commander_lab.engine.rules.full_game import (
+    FULL_GAME_SHUTDOWN_GRACEFUL,
+    FullGameBridgeClient,
+    FullGameProtocolError,
+)
 from commander_lab.qualification.current_boundary.bridge_launcher import (
     canonical_xmage_engine_pin,
 )
@@ -475,10 +487,251 @@ def _check_studio_data(
     }
 
 
+_UNC_PREFIX_RE = re.compile(r"^(?:\\\\|//)[^\\/]+[\\/][^\\/]+")
+
+
+def is_unc_or_network_path(raw: str | Path) -> bool:
+    """Return True for Windows/WSL UNC share paths (e.g. ``\\\\wsl.localhost\\...``)."""
+    text = str(raw).strip()
+    if not text:
+        return False
+    lowered = text.lower()
+    if lowered.startswith(("nio://wsl.localhost/", "nio://wsl$/")):
+        return True
+    if lowered.startswith(("\\\\?\\unc\\", "//?/unc/")):
+        return True
+    if lowered.startswith(("\\\\?\\", "//?/", "\\\\.\\", "//./")):
+        return False
+    if lowered.startswith(("\\\\wsl.localhost\\", "\\\\wsl$\\", "//wsl.localhost/", "//wsl$/")):
+        return True
+    return bool(_UNC_PREFIX_RE.match(text))
+
+
+def _resolve_engine_runtime_dir_raw() -> tuple[str, Path, bool]:
+    configured = os.environ.get(ENGINE_RUNTIME_DIRECTORY_ENV, "").strip()
+    raw = configured or DEFAULT_ENGINE_RUNTIME_DIRECTORY
+    expanded = Path(raw).expanduser()
+    try:
+        resolved = expanded.resolve()
+    except OSError:
+        resolved = expanded
+    return raw, resolved, bool(configured)
+
+
+def _check_engine_runtime_dir(data_dir: Path) -> dict[str, object]:
+    raw_runtime, resolved_runtime, configured = _resolve_engine_runtime_dir_raw()
+    cwd_raw: str | Path = ""
+    if not Path(raw_runtime).expanduser().is_absolute():
+        try:
+            cwd_raw = Path.cwd()
+        except OSError:
+            cwd_raw = os.environ.get("PWD", "")
+    unc_runtime = (
+        is_unc_or_network_path(raw_runtime)
+        or is_unc_or_network_path(resolved_runtime)
+        or (bool(cwd_raw) and is_unc_or_network_path(cwd_raw))
+    )
+    unc_data = is_unc_or_network_path(data_dir)
+    if unc_runtime:
+        return {
+            "name": "engine_runtime_dir",
+            "status": "FAIL",
+            "required": True,
+            "configured": configured,
+            "runtime_dir": str(resolved_runtime),
+            "detail": (
+                f"UNC-/WSL-Netzpfad für Engine-Laufzeit erkannt ({raw_runtime}): H2-MVStore-Dateisperren "
+                "(FileChannel.tryLock) schlagen dort mit IOException: Unzulässige Funktion fehl."
+            ),
+            "remediation": (
+                f"{ENGINE_RUNTIME_DIRECTORY_ENV} auf ein lokales NTFS-Verzeichnis "
+                "(z. B. C:\\CommanderStudio\\engine-runtime) setzen oder das Repository auf "
+                "eine lokale Festplatte statt unter \\\\wsl.localhost\\ klonen."
+            ),
+        }
+    if unc_data:
+        return {
+            "name": "engine_runtime_dir",
+            "status": "FAIL",
+            "required": True,
+            "configured": configured,
+            "runtime_dir": str(resolved_runtime),
+            "detail": (
+                f"UNC-/WSL-Netzpfad für Studio-Datenordner erkannt ({data_dir}): "
+                "SQLite-/H2-Sperren sind über UNC-/WSL-Netzpfade unzuverlässig."
+            ),
+            "remediation": (
+                f"{STUDIO_DATA_ENV} bzw. --data auf ein lokales NTFS-Verzeichnis "
+                "(z. B. %LOCALAPPDATA%\\CommanderStudio) setzen."
+            ),
+        }
+    if resolved_runtime.exists() and not resolved_runtime.is_dir():
+        return {
+            "name": "engine_runtime_dir",
+            "status": "FAIL",
+            "required": True,
+            "configured": configured,
+            "runtime_dir": str(resolved_runtime),
+            "detail": (f"Engine-Laufzeitpfad kollidiert mit regulärer Datei: {resolved_runtime}"),
+            "remediation": (
+                f"{ENGINE_RUNTIME_DIRECTORY_ENV} auf ein Verzeichnis setzen oder Datei entfernen."
+            ),
+        }
+    if not _is_dir_writable(resolved_runtime):
+        return {
+            "name": "engine_runtime_dir",
+            "status": "FAIL",
+            "required": True,
+            "configured": configured,
+            "runtime_dir": str(resolved_runtime),
+            "detail": f"Engine-Laufzeitordner nicht beschreibbar: {resolved_runtime}",
+            "remediation": (
+                f"Schreibrechte prüfen oder {ENGINE_RUNTIME_DIRECTORY_ENV} auf ein beschreibbares "
+                "lokales Verzeichnis setzen."
+            ),
+        }
+    return {
+        "name": "engine_runtime_dir",
+        "status": "PASS",
+        "required": True,
+        "configured": configured,
+        "runtime_dir": str(resolved_runtime),
+        "detail": f"Engine-Laufzeitordner lokal beschreibbar (kein UNC-/WSL-Netzpfad): {resolved_runtime}",
+        "remediation": None,
+    }
+
+
+def _collect_local_diagnostics(
+    exc: BaseException,
+    stderr_tail: tuple[str, ...] | list[str] | None,
+) -> list[str]:
+    lines: list[str] = []
+    seen: set[str] = set()
+    raw_diag = getattr(exc, "diagnostics", None)
+    if isinstance(raw_diag, (tuple, list)):
+        for entry in raw_diag:
+            text = str(entry).strip()
+            if text and text not in seen:
+                seen.add(text)
+                lines.append(text)
+    if stderr_tail:
+        for entry in stderr_tail:
+            text = str(entry).rstrip()
+            if text and text not in seen:
+                seen.add(text)
+                lines.append(text)
+    if not lines:
+        lines.append(str(exc))
+    return lines[-30:]
+
+
+def _resolve_bridge_smoke_command(
+    data_dir: Path,
+    env_cmd: list[str] | None,
+    env_err: str | None,
+) -> tuple[tuple[str, ...] | None, str | None]:
+    if env_err is not None:
+        return None, env_err
+    base = tuple(env_cmd) if env_cmd is not None else launch.engine_command(data_dir)
+    if not base:
+        return None, ("Kein startbarer Bridge-Befehl verfügbar (Java 17+ oder Bridge-JAR fehlt).")
+    interactive = launch.interactive_bridge_command(base)
+    return (interactive if interactive is not None else base), None
+
+
+def _smoke_deck_payload() -> dict[str, object]:
+    deck_hash = hashlib.sha256(b"studio-doctor-bridge-smoke").hexdigest()
+    return {
+        "deck_id": "studio-doctor-bridge-smoke",
+        "deck_hash": deck_hash,
+        "mainboard": ["Forest"] * 99,
+        "commander_names": ["Omnath, Locus of Mana"],
+        "sideboard": [],
+    }
+
+
+def _check_bridge_smoke(
+    data_dir: Path,
+    env_cmd: list[str] | None,
+    env_err: str | None,
+) -> dict[str, object]:
+    """Run an operator-only live ``start_engine`` + ``import_deck`` bridge smoke."""
+    command, resolve_err = _resolve_bridge_smoke_command(data_dir, env_cmd, env_err)
+    if command is None:
+        return {
+            "name": "bridge_smoke",
+            "status": "FAIL",
+            "required": True,
+            "detail": f"Live-Bridge-Smoke nicht startbar: {resolve_err}",
+            "remediation": "Vorherige [FAIL]-Punkte (java / engine_bridge) beheben und erneut prüfen.",
+            "local_only_diagnostics": [str(resolve_err)],
+        }
+    try:
+        client = FullGameBridgeClient(
+            command,
+            request_timeout_seconds=30.0,
+        )
+        with client:
+            started = client.request("start_engine")
+            lane = started.get("lane") if isinstance(started, dict) else None
+            imported = client.request("import_deck", {"deck": _smoke_deck_payload()})
+            handle = imported.get("deck_handle") if isinstance(imported, dict) else None
+            handle_id = str(handle.get("handle_id", "")).strip() if isinstance(handle, dict) else ""
+            if not handle_id:
+                raise FullGameProtocolError(
+                    "import_deck lieferte keine deck_handle.handle_id",
+                    code="BRIDGE_SMOKE_INVALID_HANDLE",
+                    diagnostics=tuple(client.stderr_tail),
+                )
+        if client.shutdown_disposition != FULL_GAME_SHUTDOWN_GRACEFUL:
+            raise FullGameProtocolError(
+                f"Bridge fuhr nicht sauber herunter: {client.shutdown_disposition}",
+                code="BRIDGE_SMOKE_UNGRACEFUL_SHUTDOWN",
+                diagnostics=(
+                    f"Bridge fuhr nicht sauber herunter: {client.shutdown_disposition}",
+                    *client.stderr_tail,
+                ),
+            )
+    except (FullGameProtocolError, RulesEngineError, OSError, RuntimeError, ValueError) as exc:
+        code = getattr(exc, "code", None) or type(exc).__name__
+        stderr_tail = getattr(locals().get("client"), "stderr_tail", ())
+        diag_lines = _collect_local_diagnostics(exc, stderr_tail)
+        remediation = (
+            f"Sicherstellen, dass {launch.ENGINE_COMMAND_ENV} das Unterkommando 'full-game' enthält."
+            if "full-game subcommand" in str(exc)
+            else "Lokale Bridge-Diagnose unten prüfen (häufig: UNC-/WSL-Pfadsperre -> "
+            "ENGINE_RUNTIME_DIRECTORY lokal setzen, oder fehlende/beschädigte Bridge-JAR)."
+        )
+        return {
+            "name": "bridge_smoke",
+            "status": "FAIL",
+            "required": True,
+            "error_code": str(code),
+            "detail": (
+                f"Live-Bridge-Smoke fehlgeschlagen ({code}); "
+                "Klartext-Diagnose lokal verfügbar (nicht für Export bestimmt)."
+            ),
+            "remediation": remediation,
+            "local_only_diagnostics": diag_lines,
+        }
+    return {
+        "name": "bridge_smoke",
+        "status": "PASS",
+        "required": True,
+        "lane": lane,
+        "detail": (
+            "Live-Bridge-Smoke bestanden (start_engine + import_deck inkl. "
+            "Karten-Repository-Initialisierung erfolgreich)."
+        ),
+        "remediation": None,
+    }
+
+
 def run_doctor(
     data_folder: str | Path | None = None,
     *,
     check_dependencies: bool = True,
+    bridge_smoke: bool = False,
 ) -> dict[str, object]:
     """Run local environment diagnostics and return structured status payload."""
     data_dir, configured, data_err = _resolve_data_folder(data_folder)
@@ -500,8 +753,11 @@ def run_doctor(
             _check_appcds(jar_path),
             _check_card_knowledge(),
             _check_studio_data(data_dir, configured, data_err),
+            _check_engine_runtime_dir(data_dir),
         ]
     )
+    if bridge_smoke:
+        checks.append(_check_bridge_smoke(data_dir, env_cmd, env_err))
 
     counts = {"pass": 0, "warn": 0, "fail": 0}
     for item in checks:
@@ -539,4 +795,9 @@ def format_doctor_report(report: dict[str, object]) -> str:
             remediation = entry.get("remediation")
             if remediation:
                 lines.append(f"       -> {remediation}")
+            local_diag = entry.get("local_only_diagnostics")
+            if isinstance(local_diag, list) and local_diag:
+                lines.append("       lokale Bridge-Diagnose (Klartext, nicht exportiert):")
+                for diag_line in local_diag[-20:]:
+                    lines.append(f"         | {diag_line}")
     return "\n".join(lines)
