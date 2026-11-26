@@ -1645,13 +1645,9 @@ async function refreshStrength() {
     else { s.result = null; s.map = null; s.status = "error"; }
   } finally {
     if (busy) busy.stop();
+    StudioUI.setControlsBusy(busyCtrls, false);
     if (ticket === s.ticket) {
       panel.classList.remove("working");
-      const currentCtrls = [
-        ...busyCtrls,
-        ...panel.querySelectorAll("button, select, input"),
-      ];
-      StudioUI.setControlsBusy(currentCtrls, false);
     }
   }
   renderStrengthSummary();
@@ -1799,9 +1795,9 @@ async function loadSavedProfile(profile) {
     throw error;
   } finally {
     if (busy) busy.stop();
-    if (ticket === s.ticket) {
-      if (panel) panel.classList.remove("working");
-      StudioUI.setControlsBusy([...lockCtrls, ...(panel ? panel.querySelectorAll("button, select, input") : [])], false);
+    StudioUI.setControlsBusy(lockCtrls, false);
+    if (ticket === s.ticket && panel) {
+      panel.classList.remove("working");
     }
   }
 }

@@ -90,8 +90,8 @@ StudioUI.setControlsBusy([ctrlAlreadyDisabled], false); // unpaired false must n
 const afterUnpaired = ctrlAlreadyDisabled.disabled;
 
 StudioUI.setControlsBusy([ctrlEnabled, ctrlAlreadyDisabled], true);
-StudioUI.setControlsBusy([ctrlEnabled], true); // second overlapping lock
-StudioUI.setControlsBusy([ctrlEnabled], false); // only 1 released -> still locked!
+StudioUI.setControlsBusy([ctrlEnabled, ctrlEnabled], true); // second overlapping lock (duplicates deduped to +1)
+StudioUI.setControlsBusy([ctrlEnabled, ctrlEnabled], false); // duplicates deduped to -1 -> count still 1!
 const stillLockedDuringOverlap = [ctrlEnabled.disabled, ctrlEnabled.getAttribute('aria-busy')];
 StudioUI.setControlsBusy([ctrlEnabled, ctrlAlreadyDisabled], false); // final release
 const afterOverlap = [ctrlEnabled.disabled, ctrlAlreadyDisabled.disabled, ctrlEnabled.getAttribute('aria-busy')];

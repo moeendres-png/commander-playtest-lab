@@ -557,11 +557,14 @@ const StudioUI = (() => {
   const busyControlLocks = new WeakMap();
 
   function setControlsBusy(targets, isBusy) {
-    const list = (Array.isArray(targets) ? targets : [targets]).flat(Infinity).filter(Boolean);
+    const raw = (Array.isArray(targets) ? targets : [targets]).flat(Infinity).filter(Boolean);
     const hasDoc = typeof document !== "undefined";
-    for (const target of list) {
+    const nodes = new Set();
+    for (const target of raw) {
       const node = typeof target === "string" ? (hasDoc ? document.getElementById(target.replace(/^#/, "")) : null) : target;
-      if (!node || typeof node !== "object") continue;
+      if (node && typeof node === "object") nodes.add(node);
+    }
+    for (const node of nodes) {
       if (isBusy) {
         const entry = busyControlLocks.get(node);
         if (entry) {

@@ -62,7 +62,7 @@ function renderDuelBox(into, card, deps) {
       deps.fail(error);
     } finally {
       if (busy) busy.stop();
-      if (mine === request && typeof StudioUI !== "undefined" && StudioUI.setControlsBusy) {
+      if (typeof StudioUI !== "undefined" && StudioUI.setControlsBusy) {
         StudioUI.setControlsBusy([input, runBtn], false);
       }
     }
