@@ -271,11 +271,49 @@ function seriesPlayedText(played, planned, closed, atMost, running) {
   if (!known(played)) return "Gespielt: unbekannt (ältere Serie ohne Zählung je Partie).";
   const of = known(planned) ? `${atMost ? "von höchstens" : "von"} ${StudioUI.num(planned, 0)}` : "von unbekannt vielen";
   const tail = known(closed) ? ` · abgeschlossen: ${StudioUI.num(closed, 0)}` : "";
-  // A batch shows its interim of finished games below this line (app.js); a paired series shows none yet.
+  // Both batch and paired series now show a descriptive interim summary below while running (#1828).
   const note = !running ? ""
-    : atMost ? " Gepaarte Serien zeigen noch keinen Zwischenstand: weder Ergebnis noch Paar-Differenz erscheinen, bevor die Serie endet. Das ist eine fehlende Anzeige, kein Befund."
+    : atMost ? " Der vorläufige Zwischenstand der abgeschlossenen Paare steht darunter (kein Entscheid)."
       : " Der Zwischenstand der abgeschlossenen Partien steht darunter.";
   return `Gespielt: ${StudioUI.num(played, 0)} ${of} Partien${tail}.${note}`;
+}
+
+function pairedDurationText(seconds) {
+  if (seconds === null || seconds === undefined || !Number.isFinite(Number(seconds))) return "unbekannt";
+  const minutes = Math.round(Number(seconds) / 60);
+  if (minutes < 1) return "weniger als 1 Minute";
+  if (minutes < 60) return `etwa ${StudioUI.num(minutes, 0)} Min.`;
+  return `etwa ${StudioUI.num(Math.floor(minutes / 60), 0)} Std. ${StudioUI.num(minutes % 60, 0)} Min.`;
+}
+
+function pairedPaceEta(job) {
+  const none = { perHour: null, etaSeconds: null, done: null, seconds: null };
+  if (!job || !job.run_started_at || !job.observed_at) return none;
+  const known = (v) => v !== null && v !== undefined && v !== "" && Number.isFinite(Number(v));
+  if (!known(job.games_played) || !known(job.games_played_at_run_start) || !known(job.games_planned_max)) return none;
+  const seconds = (Date.parse(job.observed_at) - Date.parse(job.run_started_at)) / 1000;
+  const done = Number(job.games_played) - Number(job.games_played_at_run_start);
+  if (!Number.isFinite(seconds) || seconds < 10 || !(done >= 1)) return none;
+  const perSecond = done / seconds;
+  const left = Math.max(0, Number(job.games_planned_max) - Number(job.games_played));
+  return { perHour: perSecond * 3600, etaSeconds: left / perSecond, done, seconds };
+}
+
+function pairedTruthBadge(summary, isPartial) {
+  if (isPartial || !summary || !summary.status) {
+    const n = summary && Number.isFinite(Number(summary.pairs_completed)) ? Number(summary.pairs_completed) : 0;
+    return [
+      "warn",
+      n > 0 ? `Vorläufiger Zwischenstand (kein Entscheid · ${StudioUI.num(n, 0)} Paare)` : "Vorläufig (noch kein Paar abgeschlossen)",
+    ];
+  }
+  if (summary.status === "DECIDED" && summary.answer === "ABOVE") {
+    return ["good", "Hinweis auf echten Unterschied (B > A · CI schließt Schwelle aus)"];
+  }
+  if (summary.status === "DECIDED" && summary.answer === "NOT_ABOVE") {
+    return ["bad", "Hinweis auf echten Unterschied (A ≥ B · CI überschreitet Schwelle nicht)"];
+  }
+  return ["warn", "Zufall nicht ausgeschlossen (KI enthält 0 · kein eindeutiger Unterschied)"];
 }
 
 // The determinism guard of a series that was played on the worker pool (S1 Rest, #1660), in words.
@@ -457,18 +495,89 @@ function renderPairedMonitor(h, job, deps) {
     monitor.append(resumeBtn);
   }
 
+  const renderSeedPairsTable = (rows) => {
+    if (!Array.isArray(rows) || !rows.length) return null;
+    const gameLink = (gid, label) => gid
+      ? h("a", { href: `partie.html?partie=${encodeURIComponent(gid)}` }, `${label} →`)
+      : h("span", { class: "muted" }, "–");
+    const fmtSide = (credit, err, gid, sideLabel) => {
+      if (err) return h("span", { class: "muted" }, `Fehler (${err})`);
+      if (credit === null || credit === undefined) return h("span", { class: "muted" }, "läuft / offen");
+      const label = credit >= 1 ? "Sieg" : credit > 0 ? `Split (${StudioUI.num(credit, 2)})` : "Niederlage";
+      return h("span", {}, `${label} · `, gameLink(gid, `Replay ${sideLabel}`));
+    };
+    const fmtDelta = (row) => {
+      if (row.status === "censored") return h("span", { class: "pill warn" }, "zensiert");
+      if (row.difference === null || row.difference === undefined) return h("span", { class: "muted" }, "–");
+      const d = Number(row.difference);
+      const cls = d > 0 ? "seed-delta pos" : d < 0 ? "seed-delta neg" : "seed-delta zero";
+      const txt = d > 0 ? `+${StudioUI.numFlex(d, 2)} B` : d < 0 ? `${StudioUI.numFlex(d, 2)} A` : "0 Gleich";
+      return h("span", { class: cls }, txt);
+    };
+    return h("details", { class: "paired-seed-pairs mt-2", id: "paired-seed-pairs", open: rows.length <= 20 },
+      h("summary", {}, `Seed-Paartabelle (${StudioUI.num(rows.length, 0)} Paare · Einzelspiel-Drilldown ins Replay)`),
+      h("div", { class: "table-wrap mt-2" }, h("table", {},
+        h("thead", {}, h("tr", {},
+          h("th", { class: "num" }, "Seed"),
+          h("th", { class: "num" }, "Sitz"),
+          h("th", {}, "Basis (A)"),
+          h("th", {}, "Variante (B)"),
+          h("th", {}, "Paar-Delta"))),
+        h("tbody", {}, rows.slice(0, 60).map((row) => h("tr", {},
+          h("td", { class: "num" }, row.seed !== null && row.seed !== undefined ? StudioUI.num(row.seed, 0) : "–"),
+          h("td", { class: "num" }, row.seat !== null && row.seat !== undefined ? `Sitz ${StudioUI.num(row.seat, 0)}` : "–"),
+          h("td", {}, fmtSide(row.base_credit, row.base_error, row.base_game_id, "A")),
+          h("td", {}, fmtSide(row.variant_credit, row.variant_error, row.variant_game_id, "B")),
+          h("td", {}, fmtDelta(row))))))));
+  };
+
+  const interim = job.interim_comparison;
+  if (interim && typeof interim === "object" && !job.result) {
+    const stopped = job.status === "cancelled" || job.status === "interrupted";
+    const pairsDone = Number(interim.pairs_completed) || 0;
+    const pairsBudget = Number(interim.pairs_budget || job.budget_pairs) || 0;
+    const truth = pairedTruthBadge(interim, true);
+    const pace = pairedPaceEta(job);
+    const tempoText = stopped
+      ? `Teilergebnis: ${StudioUI.num(pairsDone, 0)} von ${StudioUI.num(pairsBudget, 0)} Paaren (ungeplanter Stopp · breiteres CI, nicht als abgeschlossene Serie gewertet).`
+      : pace.perHour === null
+        ? "Tempo: unbekannt (noch zu wenige Partien oder keine Zeitangabe) · Restzeit: unbekannt"
+        : `Tempo: ${StudioUI.num(pace.perHour, 1)} Partien/Std. · Restzeit: ${pairedDurationText(pace.etaSeconds)} (Schätzung)`;
+    const fmtRateCi = (rate, ci) => {
+      if (rate === null || rate === undefined) return "unbekannt";
+      const ciStr = Array.isArray(ci) && ci.length === 2 ? ` [${StudioUI.num(ci[0], 1)} %; ${StudioUI.num(ci[1], 1)} %]` : "";
+      return `${fmtRatePct(rate)}${ciStr}`;
+    };
+    const abInterim = h("div", { class: "sim-summary sim-interim paired-ab-card", id: "paired-interim" },
+      h("div", { class: "sim-monitor-head" },
+        h("h4", { class: "mt-0" }, stopped ? `Paar-Teilergebnis (${StudioUI.num(pairsDone, 0)} / ${StudioUI.num(pairsBudget, 0)} Paare)` : "A/B-Zwischenstand (live, schrumpfendes CI)"),
+        h("span", { class: `pill ${truth[0]}`, id: "paired-truth-flag" }, truth[1])),
+      h("div", { class: "sim-grid" },
+        h("div", {}, h("span", { class: "muted" }, "Basis-Siegrate (A, 95 %-CI): "), h("b", {}, fmtRateCi(interim.base_rate, interim.base_ci95_pp))),
+        h("div", {}, h("span", { class: "muted" }, "Varianten-Siegrate (B, 95 %-CI): "), h("b", {}, fmtRateCi(interim.variant_rate, interim.variant_ci95_pp))),
+        h("div", {}, h("span", { class: "muted" }, "Delta (B − A): "), h("b", {}, fmtPp(interim.difference_pp))),
+        h("div", {}, h("span", { class: "muted" }, "95 %-Cluster-CI (Delta): "), h("b", {}, fmtCiPp(interim.difference_ci95_pp))),
+        h("div", {}, h("span", { class: "muted" }, "Diskordante Paare: "), h("b", {}, `${StudioUI.num(interim.variant_only_wins || 0, 0)}B : ${StudioUI.num(interim.baseline_only_wins || 0, 0)}A · ${StudioUI.num(interim.tied_pairs || 0, 0)} gleich (${StudioUI.num(interim.pairs_censored || 0, 0)} zensiert)`))),
+      h("p", { class: "note note-compact", id: "paired-interim-pace" }, tempoText),
+      renderSeedPairsTable(job.seed_pairs),
+      h("p", { class: "note note-compact" }, "SIMULATED_RESULT (Teilstand): kein Entscheid vor Erreichen der geplanten Looks. Simulationsergebnisse fließen nie in die Tierliste ein (Gewicht 0)."));
+    monitor.append(abInterim);
+  }
+
   const res = job.result;
   if (res) {
     const vInfo = pairedVerdictInfo(res);
+    const truthFlag = pairedTruthBadge(res, Boolean(job.summary_partial));
     const bridgeSha = (res.bridge_jar_sha256s && res.bridge_jar_sha256s[0]) || job.bridge_jar_sha256 || null;
     const epochLabel = res.covered_by_sealed_epoch ? "versiegelt" : ((res.bridge_qualification_states || qualStates).join(", ") || "nicht versiegelt");
     const pVal = res.sign_test_p_value !== null && res.sign_test_p_value !== undefined
       ? StudioUI.num(res.sign_test_p_value, 4)
       : "–";
-    const sumBox = h("div", { class: "sim-summary" },
+    const sumBox = h("div", { class: "sim-summary paired-ab-card", id: "paired-ab-card" },
       h("div", { class: "sim-monitor-head" },
-        h("h4", { class: "mt-0" }, "Sequentielles Paar-Ergebnis"),
-        vInfo ? h("span", { class: `pill ${vInfo[0]}` }, vInfo[1]) : null),
+        h("h4", { class: "mt-0" }, "Sequentielles Paar-Ergebnis (A vs. B)"),
+        vInfo ? h("span", { class: `pill ${vInfo[0]}` }, vInfo[1]) : null,
+        h("span", { class: `pill ${truthFlag[0]}`, id: "paired-truth-flag" }, truthFlag[1])),
       h("p", { class: "note" }, res.stop_reason || ""),
       res.stop_reason === "BUDGET_EXHAUSTED" ? h("p", { class: "note", id: "paired-not-decided" }, notDecidedText(res)) : null,
       h("div", { class: "sim-grid" },
@@ -492,6 +601,13 @@ function renderPairedMonitor(h, job, deps) {
         : []),
       renderValidityBlock(h, res.validity_block || job.validity_block),
       renderConsistencyTable(h, res.consistency_table || job.consistency_table),
+      renderSeedPairsTable(
+        Array.isArray(job.seed_pairs)
+          ? job.seed_pairs
+          : (Array.isArray(res.pairs)
+              ? res.pairs.map((p) => ({ ...p, seat: typeof p.seat === "number" ? p.seat + 1 : p.seat, status: "paired" }))
+              : [])
+      ),
       h("p", { class: "note note-compact" }, "SIMULATED_RESULT: gleiche Seeds, Sitze und Gegner-Tisch. Simulationsergebnisse fließen nie in die Tierliste ein (Gewicht 0)."));
     monitor.append(sumBox);
   }

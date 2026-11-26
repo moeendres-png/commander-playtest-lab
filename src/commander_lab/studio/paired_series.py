@@ -35,6 +35,7 @@ from commander_lab.engine.rules.full_game_comparison import (
     PLANNED_PAIR_SD,
     SlotAlignment,
     align_to_baseline_slots,
+    cluster_difference_stats,
     difference_quantiles,
     pairs_needed,
 )
@@ -74,8 +75,9 @@ from .simulations import (
     build_validity_block,
     canonical_xmage_engine_pin,
     compute_seat_curve,
+    wilson_score_interval,
 )
-from .store import StudioStore, now_utc
+from .store import DataClass, StudioStore, now_utc
 from .strength import StrengthSettings
 
 SCHEMA_PAIRED_JOB = "studio-paired-series-job-1"
@@ -932,6 +934,7 @@ class PairedSeriesJob:
         )
         self.created_at = created_at or now_utc()
         self.started_at: str | None = None
+        self.run_started_at: str | None = None
         self.ended_at: str | None = None
         self.error: str | None = None
         self.result: paired_comparison.PairedComparison | None = None
@@ -943,6 +946,10 @@ class PairedSeriesJob:
             for key, played in self.preloaded_games.items()
             if played.get("failure_class") is None
         }
+        self._played_at_run_start = len(self._games_played)
+        self._live_games: dict[tuple[str, int, int], paired_comparison.PlayedGame] = (
+            dict(preloaded_games) if preloaded_games else {}
+        )
         self._lock = threading.Lock()
         self._persist_lock = threading.Lock()
         self._progress_lock = threading.Lock()
@@ -997,8 +1004,9 @@ class PairedSeriesJob:
     def _append_game_result(
         self, arm: str, seed: int, seat: int, played: paired_comparison.PlayedGame
     ) -> None:
-        if played.get("failure_class") is not None:
-            with self._lock:  # a game that ended as a failure is not a played game
+        with self._lock:
+            self._live_games[(arm, seed, seat)] = played
+            if played.get("failure_class") is not None:
                 self._games_played.discard((arm, seed, seat))
         path = self.progress_file()
         line = json.dumps(
@@ -1028,7 +1036,7 @@ class PairedSeriesJob:
 
     def persist(self) -> None:
         with self._persist_lock:
-            _write_json_atomic(self.series_file(), self.to_dict())
+            _write_json_atomic(self.series_file(), self.to_dict(live=False))
 
     def execution_metadata(self) -> dict[str, object]:
         engine = self.engine
@@ -1041,7 +1049,154 @@ class PairedSeriesJob:
             "reuse_baseline": self.reuse_baseline,
         }
 
-    def to_dict(self) -> dict[str, object]:
+    def _build_live_paired_views(
+        self,
+    ) -> tuple[dict[str, object] | None, list[dict[str, object]]]:
+        """Compute live interim paired metrics and seed-pair table rows (caller holds lock)."""
+        if self.result is not None and isinstance(self.result.get("pairs"), list):
+            pairs_raw = self.result.get("pairs") or []
+            rows: list[dict[str, object]] = []
+            for p in pairs_raw:
+                if not isinstance(p, Mapping):
+                    continue
+                rows.append(
+                    {
+                        "seed": p.get("seed"),
+                        "seat": int(p["seat"]) + 1 if type(p.get("seat")) is int else None,
+                        "base_game_id": p.get("base_game_id"),
+                        "variant_game_id": p.get("variant_game_id"),
+                        "base_credit": p.get("base_credit"),
+                        "variant_credit": p.get("variant_credit"),
+                        "difference": p.get("difference"),
+                        "status": "paired",
+                    }
+                )
+            return None, rows
+
+        def _exposure_credit(exp: Mapping[str, object], tested_seat: int) -> float:
+            winners = exp.get("winner_seats")
+            if not isinstance(winners, list) or not winners or tested_seat not in winners:
+                return 0.0
+            return round(1.0 / len(winners), 4)
+
+        keys = sorted({(seed, seat) for (_, seed, seat) in self._live_games})
+        rows = []
+        complete_clusters: list[tuple[int, float]] = []
+        base_wins = 0.0
+        variant_wins = 0.0
+        variant_only = 0
+        baseline_only = 0
+        tied = 0
+        censored = 0
+        for seed, seat in keys:
+            b_play = self._live_games.get(("base", seed, seat))
+            v_play = self._live_games.get(("variant", seed, seat))
+            b_exp = b_play.get("exposure") if isinstance(b_play, Mapping) else None
+            v_exp = v_play.get("exposure") if isinstance(v_play, Mapping) else None
+            b_gid = (
+                str(b_exp["game_id"])
+                if isinstance(b_exp, Mapping) and b_exp.get("game_id")
+                else None
+            )
+            v_gid = (
+                str(v_exp["game_id"])
+                if isinstance(v_exp, Mapping) and v_exp.get("game_id")
+                else None
+            )
+            b_err = b_play.get("failure_class") if isinstance(b_play, Mapping) else None
+            v_err = v_play.get("failure_class") if isinstance(v_play, Mapping) else None
+            if isinstance(b_exp, Mapping) and isinstance(v_exp, Mapping):
+                bc = _exposure_credit(b_exp, seat)
+                vc = _exposure_credit(v_exp, seat)
+                diff = round(vc - bc, 4)
+                base_wins += bc
+                variant_wins += vc
+                if diff > 0:
+                    variant_only += 1
+                elif diff < 0:
+                    baseline_only += 1
+                else:
+                    tied += 1
+                complete_clusters.append((seed, diff))
+                rows.append(
+                    {
+                        "seed": seed,
+                        "seat": seat + 1,
+                        "base_game_id": b_gid,
+                        "variant_game_id": v_gid,
+                        "base_credit": bc,
+                        "variant_credit": vc,
+                        "difference": diff,
+                        "status": "paired",
+                    }
+                )
+            else:
+                if b_err or v_err:
+                    censored += 1
+                rows.append(
+                    {
+                        "seed": seed,
+                        "seat": seat + 1,
+                        "base_game_id": b_gid,
+                        "variant_game_id": v_gid,
+                        "base_credit": None,
+                        "variant_credit": None,
+                        "difference": None,
+                        "status": "censored" if (b_err or v_err) else "pending",
+                        "base_error": str(b_err) if b_err else None,
+                        "variant_error": str(v_err) if v_err else None,
+                    }
+                )
+
+        n_pairs = len(complete_clusters)
+        interim: dict[str, object] | None = None
+        if self.status in ("pending", "running", "cancelled", "interrupted"):
+            if n_pairs > 0:
+                interval, _, _ = cluster_difference_stats(complete_clusters)
+                b_rate = round(base_wins / n_pairs, 4)
+                v_rate = round(variant_wins / n_pairs, 4)
+                b_lo, b_hi = wilson_score_interval(base_wins, n_pairs)
+                v_lo, v_hi = wilson_score_interval(variant_wins, n_pairs)
+                diff_pp = round((variant_wins - base_wins) / n_pairs * 100.0, 2)
+                ci_pp = (
+                    [round(float(interval.low) * 100.0, 2), round(float(interval.high) * 100.0, 2)]
+                    if interval is not None
+                    else None
+                )
+                interim = {
+                    "data_class": DataClass.SIMULATED_RESULT.value,
+                    "pairs_completed": n_pairs,
+                    "pairs_budget": self.budget_pairs,
+                    "pairs_censored": censored,
+                    "base_rate": b_rate,
+                    "variant_rate": v_rate,
+                    "base_ci95_pp": [round(b_lo * 100.0, 1), round(b_hi * 100.0, 1)],
+                    "variant_ci95_pp": [round(v_lo * 100.0, 1), round(v_hi * 100.0, 1)],
+                    "difference_pp": diff_pp,
+                    "difference_ci95_pp": ci_pp,
+                    "variant_only_wins": variant_only,
+                    "baseline_only_wins": baseline_only,
+                    "tied_pairs": tied,
+                }
+            else:
+                interim = {
+                    "data_class": DataClass.SIMULATED_RESULT.value,
+                    "pairs_completed": 0,
+                    "pairs_budget": self.budget_pairs,
+                    "pairs_censored": censored,
+                    "base_rate": None,
+                    "variant_rate": None,
+                    "base_ci95_pp": None,
+                    "variant_ci95_pp": None,
+                    "difference_pp": None,
+                    "difference_ci95_pp": None,
+                    "variant_only_wins": 0,
+                    "baseline_only_wins": 0,
+                    "tied_pairs": 0,
+                }
+        return interim, rows
+
+    def to_dict(self, *, live: bool = True) -> dict[str, object]:
         with self._lock:
             res = self.result
             bridge_shas = (
@@ -1078,7 +1233,7 @@ class PairedSeriesJob:
                 if isinstance(res, dict) and isinstance(res.get("consistency_table"), dict)
                 else None
             )
-            return {
+            payload: dict[str, object] = {
                 "schema": SCHEMA_PAIRED_JOB,
                 "series_id": self.series_id,
                 "status": self.status,
@@ -1119,6 +1274,20 @@ class PairedSeriesJob:
                 "table_hash": self.table_hash,
                 "result": res,
             }
+            if live:
+                interim_comparison, seed_pairs = self._build_live_paired_views()
+                payload["summary_partial"] = (
+                    self.status in ("pending", "running", "cancelled", "interrupted")
+                    and res is None
+                )
+                payload["interim_comparison"] = interim_comparison
+                payload["seed_pairs"] = seed_pairs
+                payload["observed_at"] = now_utc()
+                payload["run_started_at"] = self.run_started_at
+                payload["games_played_at_run_start"] = (
+                    self._played_at_run_start if self.run_started_at is not None else None
+                )
+            return payload
 
     def run(self) -> None:
         try:
@@ -1134,7 +1303,9 @@ class PairedSeriesJob:
             self._ensure_progress_newline()
             with self._lock:
                 self.status = "running"
-                self.started_at = now_utc()
+                self.started_at = self.started_at or now_utc()
+                self.run_started_at = now_utc()
+                self._played_at_run_start = len(self._games_played)
                 self.error = None
             self.persist()
 
@@ -1236,7 +1407,7 @@ class PairedSeriesJob:
                             if final_error is not None:
                                 self.error = final_error
                             self.ended_at = final_ended_at or now_utc()
-                        payload = self.to_dict()
+                        payload = self.to_dict(live=False)
                         payload["status"] = final_status
                         try:
                             _write_json_atomic(self.series_file(), payload)
@@ -1686,6 +1857,25 @@ class PairedSeriesManager:
         out["validity_block"] = vb
         if res_dict is not None and not isinstance(res_dict.get("validity_block"), dict):
             out["result"] = {**res_dict, "validity_block": vb}
+        if (
+            res_dict is not None
+            and isinstance(res_dict.get("pairs"), list)
+            and "seed_pairs" not in out
+        ):
+            out["seed_pairs"] = [
+                {
+                    "seed": p.get("seed"),
+                    "seat": int(p["seat"]) + 1 if type(p.get("seat")) is int else None,
+                    "base_game_id": p.get("base_game_id"),
+                    "variant_game_id": p.get("variant_game_id"),
+                    "base_credit": p.get("base_credit"),
+                    "variant_credit": p.get("variant_credit"),
+                    "difference": p.get("difference"),
+                    "status": "paired",
+                }
+                for p in res_dict["pairs"]
+                if isinstance(p, Mapping)
+            ]
         return out
 
     @staticmethod
