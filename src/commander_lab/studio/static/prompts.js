@@ -78,16 +78,20 @@ const StudioPrompts = (() => {
 
     if (decisionClass === "mana_payment") {
       const unpaidRaw = ctx && typeof ctx.unpaid_mana === "string" ? stripHtmlAndNormalize(ctx.unpaid_mana) : "";
+      const sym = "\\d+|[WUBRGCSX]|[WUBRGC2]\\/[WUBRGCP](?:\\/P)?";
+      const singlePat = new RegExp(`\\{(${sym})\\}`, "gi");
+      const leadingPat = new RegExp(`^\\s*((?:\\{(${sym})\\})+)`, "i");
+      const groupPat = new RegExp(`((?:\\{(${sym})\\})+)`, "i");
       let tokenText = "";
       if (unpaidRaw) {
-        const fromCtx = unpaidRaw.match(/\{(\d+|[WUBRGCSX]|[WUBRGC2]\/[WUBRGCP])\}/gi);
+        const fromCtx = unpaidRaw.match(singlePat);
         tokenText = fromCtx ? fromCtx.join("") : "";
       } else {
-        const leadingMatch = /^\s*((?:\{(\d+|[WUBRGCSX]|[WUBRGC2]\/[WUBRGCP])\})+)/i.exec(clean);
+        const leadingMatch = leadingPat.exec(clean);
         if (leadingMatch) {
           tokenText = leadingMatch[1];
         } else {
-          const firstGroupMatch = /((?:\{(\d+|[WUBRGCSX]|[WUBRGC2]\/[WUBRGCP])\})+)/i.exec(clean);
+          const firstGroupMatch = groupPat.exec(clean);
           tokenText = firstGroupMatch ? firstGroupMatch[1] : "";
         }
       }
@@ -304,7 +308,7 @@ const StudioPrompts = (() => {
     const clean = stripHtmlAndNormalize(rawText);
     if (!clean) return [];
     const nodes = [];
-    const pattern = /\{(\d+|[WUBRGCSXPTQ]|[WUBRGC2]\/[WUBRGCP])\}/gi;
+    const pattern = /\{(\d+|[WUBRGCSXPTQ]|[WUBRGC2]\/[WUBRGCP](?:\/P)?)\}/gi;
     let cursor = 0;
     let match;
     while ((match = pattern.exec(clean)) !== null) {

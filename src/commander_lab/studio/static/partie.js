@@ -1154,8 +1154,12 @@ function renderHumanDecision() {
       });
       input.addEventListener("input", updateJointState);
       legEntries.push({ input, min: lMin, max: lMax });
+      const legText = `${legLabel} (${lMin}..${lMax}) `;
+      const legNodes = typeof StudioPrompts !== "undefined" && StudioPrompts.renderRichGameText
+        ? StudioPrompts.renderRichGameText(h, legText)
+        : [legText];
       legsBox.append(h("div", { class: "human-numeric" },
-        h("label", null, `${legLabel} (${lMin}..${lMax}) `, input)));
+        h("label", null, ...legNodes, input)));
     });
     panel.append(totalStatusEl, legsBox);
     updateJointState();
@@ -1308,9 +1312,18 @@ function renderOwnCombat(frame, atLiveTail) {
   }
   box.append(
     h("div", { class: "own-combat-title" }, state.ownCombat.label),
-    h("ul", { class: "own-combat-list" }, state.ownCombat.entries.map((entry) => h("li", null, ...(typeof StudioPrompts !== "undefined"
-      ? StudioPrompts.renderRichGameText(h, localizeActionText(entry.text))
-      : [localizeActionText(entry.text)]))))
+    h("ul", { class: "own-combat-list" }, state.ownCombat.entries.map((entry) => {
+      let txt = String(entry.text || "");
+      if (txt.endsWith(": nicht geblockt") && typeof StudioPrompts !== "undefined" && StudioPrompts.localizePrompt) {
+        const prefix = txt.slice(0, -": nicht geblockt".length);
+        txt = `${StudioPrompts.localizePrompt(prefix, "declare_blockers")}: nicht geblockt`;
+      } else {
+        txt = localizeActionText(txt);
+      }
+      return h("li", null, ...(typeof StudioPrompts !== "undefined"
+        ? StudioPrompts.renderRichGameText(h, txt)
+        : [txt]));
+    }))
   );
   box.hidden = false;
 }
@@ -1490,9 +1503,13 @@ function renderView() {
   const askNodes = typeof StudioPrompts !== "undefined" && StudioPrompts.renderRichGameText
     ? StudioPrompts.renderRichGameText(h, askSummary)
     : [askSummary];
+  const whatText = atLiveTail ? "Wartet auf deine Entscheidung" : answer(frame);
+  const whatNodes = typeof StudioPrompts !== "undefined" && StudioPrompts.renderRichGameText
+    ? StudioPrompts.renderRichGameText(h, whatText)
+    : [whatText];
   now.append(
     h("div", { class: "who" }, h("span", { class: `s${frame.seat}` }, seatName(frame.seat)), ` · ${seatLabel(frame.seat)}`),
-    h("div", { class: "what" }, atLiveTail ? "Wartet auf deine Entscheidung" : answer(frame)),
+    h("div", { class: "what" }, ...whatNodes),
     h("div", { class: "ask" }, ...askNodes),
     h("div", { class: "hint" }, "Der Spielstand zeigt den Tisch zum Zeitpunkt der Frage; das Ergebnis der gewählten Aktion wird im nächsten Schritt sichtbar."));
   renderOwnCombat(frame, atLiveTail);
