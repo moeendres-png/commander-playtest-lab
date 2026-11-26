@@ -1267,6 +1267,23 @@ function viewState() {
     playing: state.playing
   };
 }
+function buildResultErrorCard(result) {
+  if (typeof StudioUI !== "undefined" && StudioUI.renderErrorCard && StudioUI.classifyError) {
+    return StudioUI.renderErrorCard(
+      StudioUI.classifyError(result, { context: "game" }),
+      {
+        newGame: () => { const b = $("new-btn"); if (b) b.click(); },
+        retry: () => { if (state.gameId) openGame(state.gameId); },
+        gamesList: async () => {
+          await listGames(state.gameId);
+          const s = $("game-select");
+          if (s) s.focus();
+        },
+      }
+    );
+  }
+  return h("div", { class: "banner" }, endText());
+}
 function renderView() {
   renderBridgeBanner();
   if (state.ff.on && !state.running) endFastForward("die Partie ist zu Ende");
@@ -1280,9 +1297,10 @@ function renderView() {
   const table = $("table");
   if (!frame) {
     table.textContent = ""; state.seatKeys = [];
-    table.append(h("div", { class: "empty" }, state.running ? "Die Engine startet und mischt die Decks. Gleich geht es los." : `Diese Partie hat keine Entscheidung aufgezeichnet. ${endText()}`));
-    if (state.result && state.result.stdout && state.result.status !== "finished") {
-      table.append(h("pre", { class: "error-out" }, state.result.stdout));
+    if (state.result && state.result.status !== "finished" && !state.running) {
+      table.append(buildResultErrorCard(state.result));
+    } else {
+      table.append(h("div", { class: "empty" }, state.running ? "Die Engine startet und mischt die Decks. Gleich geht es los." : `Diese Partie hat keine Entscheidung aufgezeichnet. ${endText()}`));
     }
     $("where").textContent = "";
     return;
@@ -1294,9 +1312,10 @@ function renderView() {
   if (table.dataset.banner !== banner || keys.length !== state.seatKeys.length) {
     table.textContent = ""; state.seatKeys = []; table.dataset.banner = banner;
     if (finished) {
-      table.append(h("div", { class: "banner" }, endText()));
-      if (state.result && state.result.stdout && state.result.status !== "finished") {
-        table.append(h("pre", { class: "error-out" }, state.result.stdout));
+      if (state.result && state.result.status !== "finished") {
+        table.append(buildResultErrorCard(state.result));
+      } else {
+        table.append(h("div", { class: "banner" }, endText()));
       }
     }
   }
@@ -1363,8 +1382,17 @@ function endText() {
         ? `${base} (Engine-Sieger, nicht gewertet: ${uncredited.map((seat) => `${seatName(seat)} (${seatLabel(seat)})`).join(", ")})`
         : base;
     }
-    const reason = result.failure_message || result.failure_class || "abgebrochen";
-    if (String(reason).includes("DECISION_TIMEOUT")) return "Die Partie wurde beendet: die Engine hat ein Entscheidungslimit gemeldet (DECISION_TIMEOUT). Im Studio gibt es kein Zeitlimit; bitte die Partie neu starten.";
+    const rawMsg = result.failure_message ? String(result.failure_message) : "";
+    const rawClass = result.failure_class ? String(result.failure_class) : "";
+    if (rawMsg.includes("DECISION_TIMEOUT") || rawClass === "DECISION_TIMEOUT") {
+      return "Die Partie wurde beendet: die Engine hat ein Entscheidungslimit gemeldet. Im Studio gibt es kein Zeitlimit; bitte die Partie neu starten.";
+    }
+    if (rawMsg === "abgebrochen") return "Die Partie wurde nicht zu Ende gespielt (abgebrochen).";
+    if (typeof StudioUI !== "undefined" && StudioUI.classifyError && (rawClass || rawMsg)) {
+      const info = StudioUI.classifyError(result, { context: "game" });
+      return `${info.title}: ${info.sentence}`;
+    }
+    const reason = rawMsg || rawClass || "abgebrochen";
     return `Die Partie wurde nicht zu Ende gespielt (${reason}).`;
   }
   const winners = result.winner_seats || [];
@@ -1603,7 +1631,8 @@ async function openGame(gameId) {
   // The same reading as the pill (the server's cohort), so the two statements never differ.
   const cohort = StudioCohort.cohortOf(state.cohortRecord);
   const modeLabel = cohort === StudioCohort.PLAYED ? "Mensch gegen KI" : cohort === StudioCohort.SIMULATED ? `KI: ${header.pilot || "?"}` : "Herkunft unbekannt";
-  $("game-info").textContent = `Seed ${header.seed} · Regeln: XMage ${String(header.engine_commit || "").slice(0, 10)} · Bridge-JAR: ${jarShort} · Epoche: ${epochLabel} · ${modeLabel} · begonnen ${header.started_at || "?"}`;
+  const seedLabel = header.seed !== undefined && header.seed !== null ? `Seed ${header.seed}` : "Seed unbekannt";
+  $("game-info").textContent = `${seedLabel} · Regeln: XMage ${String(header.engine_commit || "").slice(0, 10) || "–"} · Bridge-JAR: ${jarShort} · Epoche: ${epochLabel} · ${modeLabel} · begonnen ${header.started_at || "–"}`;
   $("table").classList.toggle("one", (header.seats || []).length <= 1);
   if (state.interactive && state.frames.length) state.index = state.frames.length - 1;
   render();
@@ -1611,12 +1640,45 @@ async function openGame(gameId) {
   // A fast AI delay left behind by an earlier page is replaced by the slider value.
   if (state.interactive && state.running) setAiDelay(Number($("speed").value));
 }
-const POLL_FAILURES_BEFORE_BANNER = 3;
+const POLL_FAILURES_BEFORE_BANNER = 2;
 function showConnectionLost(failures, detail) {
   const banner = $("conn-status");
   if (!banner) return;
   banner.hidden = failures < POLL_FAILURES_BEFORE_BANNER;
-  banner.textContent = banner.hidden ? "" : `Verbindung zum Studio unterbrochen (${failures} Abfragen in Folge fehlgeschlagen: ${detail}). Die Seite versucht es weiter; ob die Partie weiterläuft, ist unbekannt.`;
+  if (banner.hidden) {
+    banner.replaceChildren();
+    return;
+  }
+  const safeDetail = (typeof StudioUI !== "undefined" && StudioUI.sanitizeTechnicalText)
+    ? StudioUI.sanitizeTechnicalText(detail || "")
+    : String(detail || "");
+  banner.replaceChildren(
+    ...StudioUI.kids(
+      h("span", { class: "conn-status-msg" },
+        "Verbindung zum Studio unterbrochen. Die Seite versucht es automatisch weiter — ob die Partie weiterläuft, ist unbekannt."
+      ),
+      h("span", { class: "conn-status-actions" },
+        h("button", {
+          type: "button",
+          class: "primary",
+          onclick: () => { if (state.gameId) openGame(state.gameId); },
+        }, "Erneut versuchen"),
+        h("button", {
+          type: "button",
+          onclick: async () => {
+            await listGames(state.gameId);
+            const sel = $("game-select");
+            if (sel) sel.focus();
+          },
+        }, "Zur Spieleliste")
+      ),
+      safeDetail
+        ? h("details", { class: "conn-status-details" },
+            h("summary", {}, "Technische Details"),
+            h("span", {}, `${failures} Abfragen fehlgeschlagen: ${safeDetail}`))
+        : null
+    )
+  );
 }
 // The follow loop (#1593). While a live game of a human runs, the page asks the server to hold each
 // state request until the game changed, so a new decision shows up as soon as the engine published
@@ -1683,22 +1745,36 @@ async function refreshTitles() {
   }
 }
 function gameTitle(game) {
-  const seats = (game.header.seats || []).map((seat) => (seat.commanders || []).join(" + ") || seat.deck_id).join(" · ");
+  const hdr = game.header || {};
+  const seats = (hdr.seats || []).map((seat) => (seat.commanders || []).join(" + ") || seat.deck_id).filter(Boolean).join(" · ");
   const cohortMark = StudioCohort.mark(game);
   const res = game.result || {};
   const reachedEnd = Boolean(game.game_reached_engine_end || res.game_reached_engine_end);
   const shutdownDisp = game.shutdown_disposition || res.shutdown_disposition || "";
   const finished = res.status === "finished" || game.status === "finished";
-  const end = game.running
-    ? "läuft"
-    : finished
-      ? `Sieger ${(res.winner_seats || []).map(seatName).join(", ") || "keiner"}`
-      : reachedEnd && shutdownDisp
-        ? `nicht gewertet (${shutdownDisp})`
-        : "abgebrochen";
+  const hasFailureReason = Boolean(res.failure_class || (res.failure_message && res.failure_message !== "abgebrochen"));
+  let end = "abgebrochen";
+  if (game.running) {
+    end = "läuft";
+  } else if (finished) {
+    end = `Sieger ${(res.winner_seats || []).map(seatName).join(", ") || "keiner"}`;
+  } else if (reachedEnd && shutdownDisp) {
+    end = `nicht gewertet (${shutdownDisp})`;
+  } else if (hasFailureReason) {
+    const label = (typeof StudioUI !== "undefined" && StudioUI.mapFailureReason)
+      ? StudioUI.mapFailureReason(res.failure_class || res.failure_message)
+      : String(res.failure_class || "Fehler");
+    end = `fehlgeschlagen (${label})`;
+  }
   const skipped = Number(res.forced_decisions_skipped || 0);
   const skippedPart = skipped > 0 ? ` (+ ${skipped} erzwungene Pässe)` : "";
-  return `${cohortMark ? `[${cohortMark.cohort === StudioCohort.PLAYED ? "Mensch" : cohortMark.text}] ` : ""}${seats} · Seed ${game.header.seed} · ${game.frames} Entscheidungen${skippedPart} · ${end}`;
+  const parts = [
+    seats || (res.failure_class === "start_failed" ? "Start fehlgeschlagen" : game.game_id || "Partie"),
+    hdr.seed !== undefined && hdr.seed !== null ? `Seed ${hdr.seed}` : null,
+    `${game.frames ?? 0} Entscheidungen${skippedPart}`,
+    end,
+  ].filter(Boolean);
+  return `${cohortMark ? `[${cohortMark.cohort === StudioCohort.PLAYED ? "Mensch" : cohortMark.text}] ` : ""}${parts.join(" · ")}`;
 }
 // ---- new game ------------------------------------------------------------------------------
 async function newGame(wantedRevision) {
@@ -1790,7 +1866,7 @@ async function newGame(wantedRevision) {
     h("button", { type: "button", onclick: () => applyPod(ids) }, `Pod: ${name}`)) : [];
   const seed = h("input", { type: "number", min: "0", max: "2000000000", value: String(Math.floor(Math.random() * 1000000)) });
   const go = h("button", { type: "button", class: "primary" }, "Partie starten");
-  const note = h("p", { class: "muted" });
+  const note = h("div", { class: "muted" });
   go.addEventListener("click", async () => {
     const opponents = [...seats.querySelectorAll(".opp-deck")].map((el) => el.value);
     const oppStyles = [...seats.querySelectorAll(".opp-style")].map((el) => Number(el.value));
@@ -1814,7 +1890,17 @@ async function newGame(wantedRevision) {
       $("modal").hidden = true;
       await listGames(made.game_id);
       if (!made.interactive) setPlaying(true);
-    } catch (error) { note.textContent = `Start nicht möglich: ${error.message}`; go.disabled = false; }
+    } catch (error) {
+      note.replaceChildren(
+        typeof StudioUI !== "undefined" && StudioUI.renderErrorCard
+          ? StudioUI.renderErrorCard(StudioUI.classifyError(error, { context: "start" }), {
+              build: () => { location.href = "index.html"; },
+              retry: () => { go.click(); },
+            })
+          : `Start nicht möglich: ${formatPlayError(error)}`
+      );
+      go.disabled = false;
+    }
   });
   const qual = table.engine && table.engine.bridge_qualification;
   const qualNotice = qual && qual.status && !qual.covered_by_sealed_epoch

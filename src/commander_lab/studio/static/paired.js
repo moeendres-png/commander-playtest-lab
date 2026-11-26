@@ -385,7 +385,7 @@ function renderPairedMonitor(h, job, deps) {
         ? "Abgeschlossen"
         : job.status === "cancelled"
           ? "Abgebrochen"
-          : `Fehler: ${job.error || "Unbekannt"}`;
+          : "Fehlgeschlagen";
   const maxPairs = Math.max(1, Number(job.budget_pairs) || 1);
   const donePairs = Number(job.pairs_attempted) || 0;
   const pct = Math.min(100, Math.round((donePairs / maxPairs) * 100));
@@ -442,6 +442,12 @@ function renderPairedMonitor(h, job, deps) {
         }
       },
     }, "Serie fortsetzen");
+    if (job.status === "failed") {
+      monitor.append(StudioUI.renderErrorCard(
+        StudioUI.classifyError({ error: job.error || "Serie fehlgeschlagen" }, { context: "batch" }),
+        { retry: () => resumeBtn.click() }
+      ));
+    }
     monitor.append(resumeBtn);
   }
 
