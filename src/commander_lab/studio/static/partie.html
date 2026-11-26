@@ -42,6 +42,24 @@
     <span id="replay-note" class="muted" hidden>KI-Hände aufgedeckt (Partie beendet)</span>
   </span>
   <label>Tempo <select id="speed"></select></label>
+  <label id="response-mode-wrap" hidden>Antwort-Modus
+    <select id="response-mode" aria-label="Antwort-Modus">
+      <option value="full_control">Volle Kontrolle</option>
+      <option value="big_moments" selected>Große Momente halten</option>
+      <option value="auto_pass">Auto-Pass</option>
+    </select>
+  </label>
+  <details id="halt-config-wrap" class="halt-config" hidden>
+    <summary>Halt-Ereignisse</summary>
+    <div class="halt-config-menu" role="group" aria-label="Halt-Ereignisse für Auto-Pass">
+      <label><input id="halt-stack" type="checkbox" checked> Stapel &amp; Auslöser halten</label>
+      <label><input id="halt-combat" type="checkbox" checked> Kampf-Fenster halten</label>
+      <label><input id="halt-own-main" type="checkbox" checked> Eigene Hauptphasen halten</label>
+      <label><input id="halt-opp-end" type="checkbox" checked> Gegner-Endsegment halten</label>
+      <label><input id="halt-playable" type="checkbox" checked> Bei spielbaren Karten halten</label>
+    </div>
+  </details>
+  <label id="hold-confirm-wrap" hidden><input id="hold-confirm-toggle" type="checkbox" checked> Passen schützen (gedrückt halten)</label>
   <label id="auto-pass-wrap" hidden><input id="auto-pass-human" type="checkbox"> Auto-Pass bis eigene Aktion</label>
   <span id="ff-wrap" class="ff-wrap" hidden>
     <button id="ff-btn" type="button" aria-pressed="false" title="Spielt schnell bis zu deiner nächsten Entscheidung: gibt nur die Pass-Option der Engine ab, wenn du nach Priorität gefragt wirst">⏩ Vorspulen bis zu meiner nächsten Entscheidung</button>
@@ -57,6 +75,7 @@
   <span id="where" class="muted"></span>
 </div>
 <div id="ff-status" class="ff-status" role="status" aria-live="polite" hidden></div>
+<section id="phase-bar" class="phase-bar" role="region" aria-label="Phasenleiste und Priorität" hidden></section>
 <div id="board-bar" class="board-bar" role="region" aria-label="Aktion am Brett" hidden></div>
 <main id="game">
   <section id="table"></section>
@@ -71,6 +90,7 @@
     <div id="log"></div>
   </aside>
 </main>
+<section id="decision-bar" class="decision-bar" role="region" aria-label="Primäre Entscheidungsleiste" hidden></section>
 <section id="hand-dock" class="hand-dock" aria-label="Handkarten">
   <div id="mana-stage-bar" class="mana-stage-bar" role="region" aria-label="Mana-Vorschau und Staging" hidden></div>
   <div class="hand-dock-head">
@@ -87,6 +107,7 @@
 <script src="commander.js"></script>
 <script src="prompts.js"></script>
 <script src="hand_ux.js"></script>
+<script src="turn_bar.js"></script>
 <script src="vorspulen.js"></script>
 <script src="boardclick.js"></script>
 <script src="replay.js"></script>

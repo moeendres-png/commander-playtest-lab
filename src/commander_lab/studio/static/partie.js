@@ -30,7 +30,7 @@ function resolvePriorityOptionType(opt) {
   return ot || "activated_ability";
 }
 
-const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
+const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, responseMode: "big_moments", holdToConfirm: true, haltConfig: typeof StudioTurnBar !== "undefined" ? StudioTurnBar.defaultHaltConfig("big_moments") : null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
 
 const $ = (id) => document.getElementById(id);
 function h(tag, props, ...children) {
@@ -688,6 +688,10 @@ function seatPanel(player, frame) {
     })
   );
   const humanPending = Boolean(state.interactive && state.pendingDecision && state.pendingDecision.seat === player.seat);
+  const waitInfo = typeof StudioTurnBar !== "undefined" && StudioTurnBar.buildWaitingInfo
+    ? StudioTurnBar.buildWaitingInfo(frame, state.interactive && state.running ? state.pendingDecision : null, { seatName, classLabelOf: (c) => CLASSES[c] || c, humanSeats: state.humanSeats, running: state.running, interactive: state.interactive })
+    : null;
+  const seatWaiting = Boolean(waitInfo && waitInfo.waitingSeat === player.seat);
   const seatClick = seatEntry(player.seat);
   const seatAnswerable = Boolean(seatClick) && clickAction({ type: "seat", seat: player.seat }) !== "none";
   const inZone = (zone) => state.clickActive && Object.values(state.click.objects).some((entry) => entry.zone === zone && entry.seat === player.seat);
@@ -698,6 +702,7 @@ function seatPanel(player, frame) {
     frame.active_seat === player.seat && "active",
     frame.seat === player.seat && "acting",
     humanPending && "human-turn",
+    seatWaiting && "waiting-decision",
     isTargetSeat && "attacked",
     player.lost && "out",
     last && winners.includes(player.seat) && "winner"
@@ -723,6 +728,7 @@ function seatPanel(player, frame) {
       h("span", { class: "muted" }, info.deck_id || ""),
       info.pilot === "Mensch" && h("span", { class: "pill good", title: "Von dir gesteuert" }, "Mensch"),
       humanPending && h("span", { class: "pill warn" }, "Du bist am Zug!"),
+      seatWaiting && !humanPending && h("span", { class: "pill warn" }, "⏳ Warten auf Entscheidung"),
       frame.active_seat === player.seat && h("span", { class: "pill good" }, "am Zug"),
       isTargetSeat && h("span", { class: "pill bad" }, "⚔️ Ziel"),
       seatAnswerable && h("button", {
@@ -1078,23 +1084,35 @@ function maybeAutoPassHuman(pending) {
     return true;
   }
   const autoBox = $("auto-pass-human");
-  if (!autoBox || !autoBox.checked) return false;
-  if (pending.decision_class !== "priority") return false;
-  const options = Array.isArray(pending.legal_options) ? pending.legal_options : [];
-  const passOpt = options.find((opt) => opt.option_type === "pass_priority");
-  if (!passOpt) return false;
-  const ps = pending.pilot_state || {};
-  const stack = Array.isArray(ps.stack) ? ps.stack : [];
-  const frame = pilotStateToFrame(pending);
-  const onlyPass = options.length === 1;
-  const safeOpponentEmptyStack = frame.active_seat !== pending.seat && stack.length === 0;
-  if (!onlyPass && !safeOpponentEmptyStack) return false;
+  const modeId = state && state.responseMode ? state.responseMode : "big_moments";
+  const wantsAuto = (autoBox && autoBox.checked) || modeId === "auto_pass";
+  if (!wantsAuto) return false;
+  let profilePassId = null;
+  let profileReason = "Auto-Pass bis eigene Aktion";
+  if (typeof StudioTurnBar !== "undefined" && StudioTurnBar.evaluateResponseProfile) {
+    const verdict = StudioTurnBar.evaluateResponseProfile(pending, modeId, state.haltConfig);
+    if (verdict.action !== "pass") return false;
+    profilePassId = verdict.optionId;
+    profileReason = verdict.reason || "Antwort-Modus";
+  } else {
+    if (pending.decision_class !== "priority") return false;
+    const options = Array.isArray(pending.legal_options) ? pending.legal_options : [];
+    const passOpt = options.find((opt) => opt.option_type === "pass_priority");
+    if (!passOpt) return false;
+    const ps = pending.pilot_state || {};
+    const stack = Array.isArray(ps.stack) ? ps.stack : [];
+    const frame = pilotStateToFrame(pending);
+    const onlyPass = options.length === 1;
+    const safeOpponentEmptyStack = frame.active_seat !== pending.seat && stack.length === 0;
+    if (!onlyPass && !safeOpponentEmptyStack) return false;
+    profilePassId = passOpt.option_id;
+  }
   state.autoPassAttempt = pending.decision_id;
   submitHumanChoice({
     decision_id: pending.decision_id,
-    selected_option_ids: [passOpt.option_id],
+    selected_option_ids: [profilePassId],
     ordering: []
-  }, { autoPassReason: "Auto-Pass bis eigene Aktion" });
+  }, { autoPassReason: profileReason });
   return true;
 }
 
@@ -1152,7 +1170,14 @@ function renderHumanDecision() {
     concedebtn.hidden = !(state.interactive && state.running && state.canConcede && !isHumanSpectator());
     concedebtn.disabled = Boolean(state.conceding);
   }
-  if (autoWrap) autoWrap.hidden = !(state.interactive && state.running && !isHumanSpectator());
+  const showLiveHumanCtrls = Boolean(state.interactive && state.running && !isHumanSpectator());
+  if (autoWrap) autoWrap.hidden = !showLiveHumanCtrls;
+  const respWrap = $("response-mode-wrap");
+  if (respWrap) respWrap.hidden = !showLiveHumanCtrls;
+  const haltWrap = $("halt-config-wrap");
+  if (haltWrap) haltWrap.hidden = !showLiveHumanCtrls;
+  const holdWrap = $("hold-confirm-wrap");
+  if (holdWrap) holdWrap.hidden = !showLiveHumanCtrls;
   renderFastForwardButton();
   const pending = state.interactive && state.running ? state.pendingDecision : null;
   if (!pending) {
@@ -1777,6 +1802,132 @@ function renderHandDock(handOwner, handSeat, revealedNote, frame, atLiveTail) {
   });
 }
 
+function bindHoldToConfirmButton(btn, requireHold, onConfirm) {
+  if (!requireHold) {
+    btn.addEventListener("click", () => { if (!state.submitting) onConfirm(); });
+    return;
+  }
+  btn.dataset.holdRequired = "1";
+  let timer = 0;
+  let completed = false;
+  const resetHold = () => {
+    clearTimeout(timer);
+    timer = 0;
+    btn.classList.remove("holding");
+  };
+  btn.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || btn.disabled || state.submitting) return;
+    completed = false;
+    btn.classList.add("holding");
+    timer = setTimeout(() => {
+      completed = true;
+      resetHold();
+      if (!state.submitting) onConfirm();
+    }, 420);
+  });
+  btn.addEventListener("pointerup", resetHold);
+  btn.addEventListener("pointerleave", resetHold);
+  btn.addEventListener("pointercancel", resetHold);
+  btn.addEventListener("click", (event) => {
+    if (completed) {
+      completed = false;
+      return;
+    }
+    event.preventDefault();
+    toast("Kritisches Fenster: Zum Passen kurz gedrückt halten (oder Leertaste).", 2400);
+  });
+}
+
+function renderPhaseBar(frame, atLiveTail) {
+  const bar = $("phase-bar");
+  if (!bar) return;
+  if (typeof StudioTurnBar === "undefined") { bar.hidden = true; return; }
+  bar.textContent = "";
+  const pending = atLiveTail && state.interactive && state.running ? state.pendingDecision : null;
+  const timeline = StudioTurnBar.buildPhaseTimeline(frame);
+  const waitInfo = StudioTurnBar.buildWaitingInfo(frame, pending, {
+    seatName,
+    classLabelOf: (c) => CLASSES[c] || c,
+    humanSeats: state.humanSeats,
+    running: state.running,
+    interactive: state.interactive
+  });
+  const track = h("div", { class: "phase-track", role: "list", "aria-label": "Phasen des Zugs" });
+  for (const phase of timeline.phases) {
+    const activeSub = phase.steps.find((s) => s.active);
+    const subLabel = activeSub && activeSub.label !== phase.label ? activeSub.label : null;
+    track.append(h("div", {
+      class: `phase-node ${phase.state}`,
+      role: "listitem",
+      "aria-current": phase.state === "active" ? "step" : null,
+      title: phase.steps.map((s) => s.label).join(" · ")
+    },
+      h("span", null, phase.label),
+      phase.state === "active" && subLabel ? h("span", { class: "phase-step-badge" }, subLabel) : null));
+  }
+  const waitCls = `waiting-banner ${waitInfo.isHumanWaiting ? "human" : waitInfo.waitingSeat !== null ? "other" : ""}`.trim();
+  const waitBox = h("div", { class: "phase-waiting" },
+    timeline.turn !== null ? h("span", { class: "pill" }, `Zug ${timeline.turn}`) : null,
+    h("span", { class: waitCls, "data-waiting-seat": waitInfo.waitingSeat !== null ? String(waitInfo.waitingSeat) : "" }, waitInfo.bannerText));
+  bar.append(track, waitBox);
+  bar.hidden = false;
+}
+
+function renderDecisionBar(frame, atLiveTail) {
+  const bar = $("decision-bar");
+  if (!bar) return;
+  bar.textContent = "";
+  const pending = atLiveTail && state.interactive && state.running ? state.pendingDecision : null;
+  if (!pending || state.ff.on || typeof StudioTurnBar === "undefined") {
+    bar.hidden = true;
+    return;
+  }
+  const action = StudioTurnBar.buildPrimaryAction(pending, state.selectedOptions, frame, { holdToConfirm: state.holdToConfirm });
+  if (!action) { bar.hidden = true; return; }
+  const btnCls = [
+    "decision-primary-btn",
+    !action.nothingLeft && "primary",
+    action.nothingLeft && "nothing-left",
+    action.requireHold && "critical-hold hold-confirm-btn"
+  ].filter(Boolean).join(" ");
+  const btn = h("button", {
+    type: "button",
+    id: "decision-primary-btn",
+    class: btnCls,
+    disabled: Boolean(state.submitting || action.disabled)
+  }, action.label);
+  const executePrimary = () => {
+    if (action.kind === "pass_priority" || action.kind === "option") {
+      if (action.optionId && offeredOption(action.optionId)) {
+        submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [action.optionId], ordering: [] });
+      }
+      return;
+    }
+    if (action.kind === "confirm_selection") {
+      submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [...state.selectedOptions], ordering: [] });
+      return;
+    }
+    if (action.kind === "confirm_order") {
+      submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [], ordering: [...state.orderList] });
+      return;
+    }
+    if (action.kind === "focus_panel") {
+      const target = $("human-decision") && $("human-decision").querySelector("button:not([disabled])");
+      if (target) target.focus();
+    }
+  };
+  bindHoldToConfirmButton(btn, Boolean(action.requireHold), executePrimary);
+
+  const meta = h("div", { class: "decision-bar-meta" },
+    h("div", { class: "decision-bar-state" },
+      h("span", null, `${seatName(pending.seat)} · ${CLASSES[pending.decision_class] || pending.decision_class}`),
+      action.nothingLeft ? h("span", { class: "pill good", "data-nothing-left": "1" }, "Nichts mehr zu tun") : null,
+      action.requireHold ? h("span", { class: "pill warn" }, "Hold-to-Confirm aktiv") : null),
+    h("div", { class: "decision-bar-hint" }, action.hintText));
+  bar.append(meta, btn);
+  bar.hidden = false;
+}
+
 function renderStackRail(frame, atLiveTail) {
   const stack = $("stack");
   if (!stack) return;
@@ -1909,6 +2060,8 @@ function renderView() {
   const table = $("table");
   if (!frame) {
     state.seatKeys = [];
+    if (typeof renderPhaseBar === "function") renderPhaseBar(null, false);
+    if (typeof renderDecisionBar === "function") renderDecisionBar(null, false);
     if (state.running) {
       const busy = typeof syncEngineStartBusy === "function" ? syncEngineStartBusy(true) : null;
       if (busy) {
@@ -1935,7 +2088,8 @@ function renderView() {
   const banner = finished ? `banner:${JSON.stringify(state.result)}` : "";
   const humanPendingSeat = state.interactive && state.pendingDecision ? state.pendingDecision.seat : null;
   const stagedSourcesSig = state.stagedHand && Array.isArray(state.stagedHand.sourceObjectIds) ? state.stagedHand.sourceObjectIds : [];
-  const keys = frame.players.map((player) => JSON.stringify([player, frame.active_seat, frame.seat, humanPendingSeat, finished, clickSig, stagedSourcesSig]));
+  const waitSeatSig = atLiveTail && state.interactive && state.running && state.pendingDecision ? state.pendingDecision.seat : frame.seat;
+  const keys = frame.players.map((player) => JSON.stringify([player, frame.active_seat, frame.seat, humanPendingSeat, waitSeatSig, finished, clickSig, stagedSourcesSig]));
   if (table.dataset.banner !== banner || keys.length !== state.seatKeys.length) {
     table.textContent = ""; state.seatKeys = []; table.dataset.banner = banner;
     if (finished) {
@@ -2010,6 +2164,8 @@ function renderView() {
     if (owner) { showZone(owner, openName); $("modal-box").dataset.sig = clickSig; }
   }
   drawBlockLinks();
+  if (typeof renderPhaseBar === "function") renderPhaseBar(frame, atLiveTail);
+  if (typeof renderDecisionBar === "function") renderDecisionBar(frame, atLiveTail);
   for (const line of document.querySelectorAll("#log .here")) line.classList.remove("here");
   const line = lineFor(state.index);
   if (line) { line.classList.add("here"); line.scrollIntoView({ block: "nearest" }); }
@@ -2736,6 +2892,41 @@ async function start() {
   $("auto-pass-human").addEventListener("change", () => {
     if ($("auto-pass-human").checked && state.interactive && state.pendingDecision) maybeAutoPassHuman(state.pendingDecision);
   });
+  const syncHaltFromDom = () => {
+    state.haltConfig = {
+      haltStackNonEmpty: Boolean($("halt-stack") && $("halt-stack").checked),
+      haltCombat: Boolean($("halt-combat") && $("halt-combat").checked),
+      haltOwnMain: Boolean($("halt-own-main") && $("halt-own-main").checked),
+      haltOpponentEndStep: Boolean($("halt-opp-end") && $("halt-opp-end").checked),
+      haltPlayableOptions: Boolean($("halt-playable") && $("halt-playable").checked),
+    };
+  };
+  if ($("response-mode") && typeof StudioTurnBar !== "undefined") {
+    $("response-mode").addEventListener("change", () => {
+      const modeId = $("response-mode").value;
+      state.responseMode = modeId;
+      const defaults = StudioTurnBar.defaultHaltConfig(modeId);
+      state.haltConfig = defaults;
+      if ($("halt-stack")) $("halt-stack").checked = defaults.haltStackNonEmpty;
+      if ($("halt-combat")) $("halt-combat").checked = defaults.haltCombat;
+      if ($("halt-own-main")) $("halt-own-main").checked = defaults.haltOwnMain;
+      if ($("halt-opp-end")) $("halt-opp-end").checked = defaults.haltOpponentEndStep;
+      if ($("halt-playable")) $("halt-playable").checked = defaults.haltPlayableOptions;
+      if (modeId === "full_control") $("auto-pass-human").checked = false;
+      else if (modeId === "auto_pass") $("auto-pass-human").checked = true;
+      if (state.interactive && state.pendingDecision) maybeAutoPassHuman(state.pendingDecision);
+    });
+  }
+  for (const id of ["halt-stack", "halt-combat", "halt-own-main", "halt-opp-end", "halt-playable"]) {
+    const el = $(id);
+    if (el) el.addEventListener("change", () => { syncHaltFromDom(); if (state.interactive && state.pendingDecision) maybeAutoPassHuman(state.pendingDecision); });
+  }
+  if ($("hold-confirm-toggle")) {
+    $("hold-confirm-toggle").addEventListener("change", () => {
+      state.holdToConfirm = Boolean($("hold-confirm-toggle").checked);
+      render();
+    });
+  }
   $("concede-btn").addEventListener("click", async () => {
     if (!state.gameId || !state.interactive || !state.running || state.conceding) return;
     const confirmed = await openConfirmModal({
@@ -2823,7 +3014,17 @@ async function start() {
         return;
       }
     }
-    if (!StudioReplay.isReplayAvailable(state)) return;
+    if (!StudioReplay.isReplayAvailable(state)) {
+      if (event.key === " " && !isInteractive(target) && state.interactive && state.running && state.pendingDecision && !state.submitting && !state.ff.on) {
+        const pending = state.pendingDecision;
+        const passOpt = pending.decision_class === "priority" && (pending.legal_options || []).find((o) => o && o.option_type === "pass_priority");
+        if (passOpt) {
+          event.preventDefault();
+          submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [passOpt.option_id], ordering: [] });
+        }
+      }
+      return;
+    }
     // Space belongs to a focused button, link or field (it activates it); only without such a
     // focus does it toggle the playback.
     if (event.key === " ") { if (isInteractive(target)) return; event.preventDefault(); setPlaying(!state.playing); }
