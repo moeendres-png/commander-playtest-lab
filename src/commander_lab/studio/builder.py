@@ -104,6 +104,25 @@ def main_type(type_line: str | None) -> str:
     return "Other"
 
 
+def _parse_keywords(raw: object) -> list[str]:
+    """Parse stored Scryfall keywords (JSON list or comma text) into clean strings."""
+    if isinstance(raw, list):
+        return [str(item).strip() for item in raw if str(item).strip()]
+    if not raw:
+        return []
+    text = str(raw).strip()
+    if not text:
+        return []
+    if text.startswith("["):
+        try:
+            loaded = json.loads(text)
+            if isinstance(loaded, list):
+                return [str(item).strip() for item in loaded if str(item).strip()]
+        except ValueError:
+            pass
+    return [part.strip() for part in text.split(",") if part.strip()]
+
+
 def bound_to(kind: str, column: str, commander_names: Sequence[str]) -> tuple[str, list[str]]:
     """SQL condition (starting with ``AND``) and its parameters: the row whose key is
     ``column`` is bound to every named commander. Source data is never read without it, so
@@ -861,6 +880,7 @@ def _unowned_pool_cards(
                 "type_line": type_line,
                 "group": main_type(type_line),
                 "text": oracle_text,
+                "keywords": _parse_keywords(row["keywords"]),
                 "colors": row["color_identity"],
                 "power": row["power"],
                 "toughness": row["toughness"],
@@ -1025,6 +1045,7 @@ def pool_cards(
                 "type_line": row["type_line"] or "",
                 "group": main_type(row["type_line"]),
                 "text": row["oracle_text"] or "",
+                "keywords": _parse_keywords(row["keywords"]),
                 "colors": row["color_identity"],
                 "power": row["power"],
                 "toughness": row["toughness"],

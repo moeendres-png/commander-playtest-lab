@@ -594,6 +594,9 @@ def _card_evidence(
             "long_tail": record.is_long_tail_candidate,
         }
 
+    raw_keywords = card.get("keywords")
+    keywords = [str(kw) for kw in raw_keywords] if isinstance(raw_keywords, list) else []
+
     return {
         "card_id": card_id,
         "name": card["name"],
@@ -601,6 +604,7 @@ def _card_evidence(
         "mana_value": card["mana_value"],
         "type_line": card["type_line"],
         "text": card.get("text") or "",
+        "keywords": keywords,
         "group": card["group"],
         "colors": card["colors"],
         "has_image": card["has_image"],

@@ -434,7 +434,7 @@ function renderPool() {
     body.append(h("div", { id: "search-syntax-error", class: "empty" },
       h("b", {}, "Hinweis zur Such-Syntax:"),
       ...state.searchErrors.map((msg) => h("p", {}, msg)),
-      h("p", { class: "muted" }, 'Beispiele: t:creature · mv<=2 · r:ramp · c:gu · id<=gwu · -t:land · "draw a card"')));
+      h("p", { class: "muted" }, 'Beispiele: t:creature · subtype:elf · super:legendary · kw:flying · otag:ramp · mv<=2 · sol ring or mana crypt · -(t:land or mv>=4) · "draw a card"')));
     return;
   }
   if (!rows.length) {

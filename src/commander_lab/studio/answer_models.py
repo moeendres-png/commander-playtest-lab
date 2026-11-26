@@ -99,6 +99,7 @@ class PoolCard(_Shape):
     type_line: str
     group: str
     text: str
+    keywords: list[str]
     colors: str
     power: str | None
     toughness: str | None
@@ -256,6 +257,7 @@ class EvidenceCard(_Shape):
     mana_value: float | None
     type_line: str
     text: str
+    keywords: list[str]
     group: str
     colors: str
     has_image: bool
