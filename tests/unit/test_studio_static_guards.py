@@ -3505,3 +3505,218 @@ def test_builder_strength_summary_and_lazy_card_detail_guards() -> None:
 
     tierliste_js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
     assert 'detail: "summary"' not in tierliste_js
+
+
+# --- #1828 Paket 1: the batch interim is honest in words and in numbers -------------------------
+
+_INTERIM_BEGIN = "// BEGIN batch-interim"
+_INTERIM_END = "// END batch-interim"
+
+
+def _interim_source() -> str:
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert app.count(_INTERIM_BEGIN) == 1 and app.count(_INTERIM_END) == 1
+    return app[app.index(_INTERIM_BEGIN) : app.index(_INTERIM_END)]
+
+
+def _interim_js(calls: str) -> object:
+    """Run the interim helper block of app.js (pure text and rate functions) under node."""
+    script = (
+        "const StudioUI = {"
+        "num: (v, d = 0) => (v === null || v === undefined || v === '' || !Number.isFinite(Number(v)))"
+        " ? 'unbekannt' : Number(v).toLocaleString('de-DE', {minimumFractionDigits: d, maximumFractionDigits: d}),"
+        "numFlex: (v, d = 2) => (v === null || v === undefined || v === '' || !Number.isFinite(Number(v)))"
+        " ? 'unbekannt' : Number(v).toLocaleString('de-DE', {maximumFractionDigits: d})};\n"
+        + _interim_source()
+        + f"\nprocess.stdout.write(JSON.stringify({calls}));\n"
+    )
+    return _node_json(script)
+
+
+def _interim_batch(won: int, lost: int, **extra: object) -> dict[str, object]:
+    """A batch payload as the server builds it: the real interim of ``won``/``lost`` games."""
+    from commander_lab.studio.simulations import GameSummary, interim_batch_summary
+
+    games = [
+        GameSummary(f"g{i}", i, "finished", winner_seats=[0 if i < won else 1], table_size=4)
+        for i in range(won + lost)
+    ]
+    interim = interim_batch_summary(
+        games,
+        games_planned=10,
+        table_size=4,
+        seat_labels=["chulane", "opp1", None, "opp3"],
+        origin={"batch_id": "b-1", "deck_id": "chulane", "revision_id": "r1", "pod": "precon"},
+    )
+    batch: dict[str, object] = {
+        "status": "running",
+        "games_planned": 10,
+        "games_played": won + lost,
+        "interim_summary": interim,
+        "execution": {"games_per_jvm": 16},
+        "run_started_at": "2026-11-26T10:00:00Z",
+        "games_played_at_run_start": 0,
+        "observed_at": "2026-11-26T10:06:00Z",
+    }
+    batch.update(extra)
+    return batch
+
+
+def test_batch_interim_shows_rate_wilson_interval_and_n_of_n_as_descriptive() -> None:
+    # Wilson 95 % for 3 of 10 by hand: z^2 = 3.8416, centre (0.3 + 0.19208) / 1.38416 = 0.3555,
+    # half width 1.96 * sqrt(0.021 + 0.096040 / 10) / 1.38416 = 0.2477 -> [10,8 %, 60,3 %]
+    out = _interim_js(f"batchInterimTexts({json.dumps(_interim_batch(3, 7))})")
+    assert isinstance(out, dict)
+    assert out["title"] == "Zwischenstand (beschreibend, kein Entscheid)"
+    assert out["headline"] == (
+        "Siegrate Sitz 1: 30,0 % (3 / 10 abgeschlossene Partien von 10 geplant) · "
+        "95 %-Wilson-Intervall [10,8 %, 60,3 %]"
+    )
+    assert out["seats"] == [
+        {"seat": "Sitz 1 (chulane)", "count": "3/10", "rate": "30,0 %"},
+        {"seat": "Sitz 2 (opp1)", "count": "7/10", "rate": "70,0 %"},
+        {"seat": "Sitz 3", "count": "0/10", "rate": "0,0 %"},
+        {"seat": "Sitz 4 (opp3)", "count": "0/10", "rate": "0,0 %"},
+    ]
+    # the origin and the no-sum rule are said in the block (SR9), the stop rule is not claimed
+    origin = str(out["originText"])
+    assert "SIMULATED_RESULT" in origin and "„precon“ (b-1)" in origin
+    assert "nicht mit anderen Serien oder Deck-Ständen zusammengezählt" in origin
+    assert "keine Stoppregel vorab festgelegt (ungeplanter Stopp)" in str(out["caveat"])
+
+
+def test_batch_interim_without_a_finished_game_is_unknown_never_zero_or_a_fake_interval() -> None:
+    out = _interim_js(f"batchInterimTexts({json.dumps(_interim_batch(0, 0))})")
+    assert isinstance(out, dict)
+    assert out["headline"] == (
+        "Siegrate Sitz 1: unbekannt (noch keine Partie abgeschlossen: 0 von 10 geplant), "
+        "kein Intervall."
+    )
+    assert "Wilson-Intervall [" not in str(out["headline"])
+    assert all(
+        s["count"] == "unbekannt" and s["rate"] == "unbekannt"
+        for s in out["seats"]  # type: ignore[union-attr]
+    )
+    assert _interim_js("batchInterimTexts({status: 'running'})") is None
+    assert _interim_js("batchInterimTexts(null)") is None
+
+
+def test_batch_interim_after_a_stop_is_a_partial_result_with_k_of_n_and_an_unplanned_stop() -> None:
+    batch = _interim_batch(2, 2, status="cancelled")
+    interim = batch["interim_summary"]
+    assert isinstance(interim, dict)
+    interim["games_cancelled"] = 1
+    out = _interim_js(f"batchInterimTexts({json.dumps(batch)})")
+    assert isinstance(out, dict)
+    assert out["title"] == "Teilergebnis: 4 von 10 Partien"
+    assert "95 %-Wilson-Intervall [15,0 %, 85,0 %]" in str(out["headline"])  # 2 of 4, wide
+    assert "ungeplanter Stopp" in str(out["caveat"])
+    assert "Der Teilstand wird nicht gespeichert." in str(out["caveat"])
+    assert out["rest"] == "Ohne Ergebnis: 1 abgebrochen, 0 fehlgeschlagen (von 10 geplant)."
+    # a stopped series has no running pace
+    assert out["tempo"] is None
+
+
+def test_batch_interim_says_when_the_figures_change_by_chunk() -> None:
+    texts = [
+        _interim_js(f"batchInterimTexts({json.dumps(_interim_batch(1, 1, execution=ex))}).chunk")
+        for ex in ({"games_per_jvm": 16}, {"games_per_jvm": 1}, {}, None)
+    ]
+    assert texts[0] == (
+        "Ein Engine-Prozess spielt bis zu 16 Partien hintereinander: der Zwischenstand ändert sich "
+        "erst am Ende eines solchen Abschnitts (Chunk), nicht nach jeder Partie."
+    )
+    assert texts[1] == (
+        "Ein Engine-Prozess je Partie: der Zwischenstand ändert sich, sobald eine Partie "
+        "abgeschlossen ist."
+    )
+    for unknown in texts[2:]:
+        assert unknown == (
+            "Aktualisierung: unbekannt (die Partien je Engine-Prozess wurden nicht gemeldet)."
+        )
+
+
+def test_batch_pace_and_eta_are_computed_over_this_run_and_unknown_stays_unknown() -> None:
+    base = {
+        "run_started_at": "2026-11-26T10:00:00Z",
+        "observed_at": "2026-11-26T10:06:00Z",  # 360 s
+        "games_planned": 30,
+        "games_played": 3,
+        "games_played_at_run_start": 0,
+    }
+
+    def pace(**over: object) -> dict[str, object]:
+        out = _interim_js(f"batchPaceEta({json.dumps({**base, **over})})")
+        assert isinstance(out, dict)
+        return out
+
+    ok = pace()
+    # 3 games in 360 s = 30 per hour; 27 left at 1 per 120 s = 3240 s = 54 min
+    assert (ok["perHour"], ok["etaSeconds"], ok["done"], ok["seconds"]) == (30, 3240, 3, 360)
+    # a resumed series counts only the games of this run: 7 played, 4 of them before the start
+    resumed = pace(games_played=7, games_played_at_run_start=4)
+    assert resumed["perHour"] == 30 and resumed["done"] == 3
+    # nothing played yet, too short a time, a clock that runs backwards, a field that is missing
+    for over in (
+        {"games_played": 0},
+        {"observed_at": "2026-11-26T10:00:05Z"},
+        {"observed_at": "2026-11-26T09:59:00Z"},
+        {"run_started_at": None},
+        {"observed_at": None},
+        {"games_played": None},
+        {"games_played_at_run_start": None},
+        {"games_planned": None},
+        {"observed_at": "kein Datum"},
+    ):
+        got = pace(**over)
+        assert got["perHour"] is None and got["etaSeconds"] is None, over
+    # the last game played: nothing left, the time left is 0 and not negative
+    assert pace(games_played=30)["etaSeconds"] == 0
+    text = _interim_js(
+        "[batchDurationText(null), batchDurationText(20), batchDurationText(3240),"
+        " batchDurationText(5400), batchDurationText(undefined), batchDurationText('x')]"
+    )
+    assert text == [
+        "unbekannt",
+        "weniger als 1 Minute",
+        "etwa 54 Min.",
+        "etwa 1 Std. 30 Min.",
+        "unbekannt",
+        "unbekannt",
+    ]
+    line = _interim_js(f"batchInterimTexts({json.dumps(_interim_batch(3, 0))}).tempo")
+    assert line == (
+        "Tempo: 30,0 Partien/Stunde (3 gespielte Partien in 360 s dieses Laufs) · "
+        "Restzeit: etwa 14 Min. (Schätzung)"  # 7 of 10 left at 120 s each = 840 s
+    )
+    unknown = _interim_js(
+        f"batchInterimTexts({json.dumps(_interim_batch(3, 0, run_started_at=None))}).tempo"
+    )
+    assert unknown == (
+        "Tempo: unbekannt (noch zu wenige gespielte Partien oder keine Zeitangabe) · "
+        "Restzeit: unbekannt"
+    )
+
+
+def test_batch_interim_block_uses_no_forbidden_wording_markup_or_raw_decimals() -> None:
+    source = _interim_source()
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    shown = json.dumps(
+        [
+            _interim_js(f"batchInterimTexts({json.dumps(_interim_batch(3, 7, status=status))})")
+            for status in ("running", "cancelled")
+        ],
+        ensure_ascii=False,
+    )
+    for text in (source, shown):
+        low = text.lower()
+        for word in ("signifikant", "belegt", "bewiesen", "sicher gewinn"):
+            assert word not in low, word
+    assert ".toFixed(" not in source and "innerHTML" not in source and "style=" not in source
+    # the block in the monitor is built with h(): no markup string and no inline style
+    block = app[app.index("const interim = batchInterimTexts(b);") :]
+    block = block[: block.index("const rawFailures")]
+    assert (
+        "innerHTML" not in block and "style" not in block and "<" not in block.replace("=> <", "")
+    )
+    assert 'b.summary_partial ? "Teilergebnis der Serie (abgebrochen)"' in app

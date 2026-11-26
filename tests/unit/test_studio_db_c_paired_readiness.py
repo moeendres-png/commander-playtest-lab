@@ -1069,11 +1069,17 @@ def test_series_progress_text_counts_played_games_and_says_unknown_when_absent()
     )
     assert isinstance(out, dict)
     assert out["batch"] == (
-        "Gespielt: 7 von 10 Partien · abgeschlossen: 4. Das Ergebnis folgt, wenn der "
-        "Engine-Prozess endet."
+        "Gespielt: 7 von 10 Partien · abgeschlossen: 4. Der Zwischenstand der abgeschlossenen "
+        "Partien steht darunter."
     )
     assert out["paired"].startswith("Gespielt: 12 von höchstens 80 Partien.")  # type: ignore[union-attr]
-    # the "result follows" note belongs to a running series only
+    # a paired series says plainly that it shows no interim yet; the missing view is no finding
+    assert out["paired"].endswith(  # type: ignore[union-attr]
+        "Gepaarte Serien zeigen noch keinen Zwischenstand: weder Ergebnis noch Paar-Differenz "
+        "erscheinen, bevor die Serie endet. Das ist eine fehlende Anzeige, kein Befund."
+    )
+    assert "Das Ergebnis folgt" not in out["paired"]  # type: ignore[operator]
+    # the notes belong to a running series only
     assert out["running"] == out["batch"]
     assert out["done"] == "Gespielt: 10 von 10 Partien · abgeschlossen: 10."
     assert out["zero"].startswith("Gespielt: 0 von 10 Partien")  # type: ignore[union-attr]

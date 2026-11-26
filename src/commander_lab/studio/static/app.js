@@ -1553,6 +1553,83 @@ async function renderDiff(body) {
     box.replaceChildren(h("p", { class: "muted" }, "Differenz nicht lesbar: " + StudioUI.germanError(error)));
   }
 }
+// BEGIN batch-interim (#1828): pure text and rate helpers, no DOM; the tests slice this block.
+// The interim of a running or stopped series is descriptive: the figures come from the server
+// (games finished so far, Wilson interval of the shared aggregation); nothing here is a decision.
+const BATCH_PACE_MIN_SECONDS = 10; // a start time of one second resolution says nothing below this
+function batchKnown(v) {
+  return v !== null && v !== undefined && v !== "" && Number.isFinite(Number(v));
+}
+// Games per hour and the time left, over the games this run played since its own start. Anything
+// that is missing, not yet measurable or not plausible is null (shown as "unbekannt"), never 0.
+function batchPaceEta(b) {
+  const none = { perHour: null, etaSeconds: null, done: null, seconds: null };
+  if (!b || !b.run_started_at || !b.observed_at) return none;
+  if (!batchKnown(b.games_played) || !batchKnown(b.games_played_at_run_start) || !batchKnown(b.games_planned)) return none;
+  const seconds = (Date.parse(b.observed_at) - Date.parse(b.run_started_at)) / 1000;
+  const done = Number(b.games_played) - Number(b.games_played_at_run_start);
+  if (!Number.isFinite(seconds) || seconds < BATCH_PACE_MIN_SECONDS || !(done >= 1)) return none;
+  const perSecond = done / seconds;
+  const left = Math.max(0, Number(b.games_planned) - Number(b.games_played));
+  return { perHour: perSecond * 3600, etaSeconds: left / perSecond, done, seconds };
+}
+function batchDurationText(seconds) {
+  if (!batchKnown(seconds)) return "unbekannt";
+  const minutes = Math.round(Number(seconds) / 60);
+  if (minutes < 1) return "weniger als 1 Minute";
+  if (minutes < 60) return `etwa ${StudioUI.num(minutes, 0)} Min.`;
+  return `etwa ${StudioUI.num(Math.floor(minutes / 60), 0)} Std. ${StudioUI.num(minutes % 60, 0)} Min.`;
+}
+function batchRateText(rate) {
+  return batchKnown(rate) ? `${StudioUI.num(100 * Number(rate), 1)} %` : "unbekannt";
+}
+// The words of the interim block; null when the server sent no interim (older server, failed run).
+function batchInterimTexts(b) {
+  const part = b && b.interim_summary;
+  if (!part || typeof part !== "object") return null;
+  const stopped = b.status === "cancelled";
+  const planned = batchKnown(part.games_planned) ? Number(part.games_planned) : null;
+  const n = batchKnown(part.games_completed) ? Number(part.games_completed) : null;
+  const of = planned === null ? "unbekannt vielen" : StudioUI.num(planned, 0);
+  const ci = part.confidence_interval_95 || {};
+  const hasRate = n !== null && n > 0 && batchKnown(part.win_rate) && batchKnown(ci.lower_percent) && batchKnown(ci.upper_percent);
+  const title = stopped
+    ? `Teilergebnis: ${n === null ? "unbekannt" : StudioUI.num(n, 0)} von ${of} Partien`
+    : "Zwischenstand (beschreibend, kein Entscheid)";
+  const headline = hasRate
+    ? `Siegrate Sitz 1: ${StudioUI.num(part.win_rate_percent, 1)} % (${StudioUI.numFlex(part.wins_fractional, 1)} / ${StudioUI.num(n, 0)} abgeschlossene Partien von ${of} geplant) · 95 %-Wilson-Intervall [${StudioUI.num(ci.lower_percent, 1)} %, ${StudioUI.num(ci.upper_percent, 1)} %]`
+    : `Siegrate Sitz 1: unbekannt (noch keine Partie abgeschlossen: 0 von ${of} geplant), kein Intervall.`;
+  const caveat = stopped
+    ? "Das war ein ungeplanter Stopp: eine Abbruchregel wurde vorab nicht festgelegt. Das Intervall ist wegen der kleineren Partienzahl breiter, beschreibt nur diese Partien und ist kein Entscheid. Der Teilstand wird nicht gespeichert."
+    : "Das Intervall gilt für eine vorab festgelegte Partienzahl. Wer die Serie wegen dieses Zwischenstands anhält, hat keine Stoppregel vorab festgelegt (ungeplanter Stopp).";
+  let tempo = null;
+  if (!stopped) {
+    const pace = batchPaceEta(b);
+    tempo = pace.perHour === null
+      ? "Tempo: unbekannt (noch zu wenige gespielte Partien oder keine Zeitangabe) · Restzeit: unbekannt"
+      : `Tempo: ${StudioUI.num(pace.perHour, 1)} Partien/Stunde (${StudioUI.num(pace.done, 0)} gespielte Partien in ${StudioUI.num(pace.seconds, 0)} s dieses Laufs) · Restzeit: ${batchDurationText(pace.etaSeconds)} (Schätzung)`;
+  }
+  const perProcess = b.execution && batchKnown(b.execution.games_per_jvm) ? Number(b.execution.games_per_jvm) : null;
+  const chunk = perProcess === null
+    ? "Aktualisierung: unbekannt (die Partien je Engine-Prozess wurden nicht gemeldet)."
+    : perProcess > 1
+      ? `Ein Engine-Prozess spielt bis zu ${StudioUI.num(perProcess, 0)} Partien hintereinander: der Zwischenstand ändert sich erst am Ende eines solchen Abschnitts (Chunk), nicht nach jeder Partie.`
+      : "Ein Engine-Prozess je Partie: der Zwischenstand ändert sich, sobald eine Partie abgeschlossen ist.";
+  const origin = part.origin || {};
+  const originText = `Herkunft: Simulationsergebnis (SIMULATED_RESULT) nur dieser einen Serie „${origin.pod || "unbekannt"}“ (${origin.batch_id || "unbekannt"}), Deck ${origin.deck_id || "unbekannt"}, Stand ${origin.revision_id || "unbekannt"}; nicht mit anderen Serien oder Deck-Ständen zusammengezählt.`;
+  const cancelled = Number(part.games_cancelled) || 0;
+  const failed = Number(part.games_failed) || 0;
+  const rest = cancelled || failed
+    ? `Ohne Ergebnis: ${StudioUI.num(cancelled, 0)} abgebrochen, ${StudioUI.num(failed, 0)} fehlgeschlagen (von ${of} geplant).`
+    : null;
+  const seats = (Array.isArray(part.by_seat) ? part.by_seat : []).map((seat) => ({
+    seat: `Sitz ${StudioUI.num(seat.seat, 0)}${seat.label ? ` (${seat.label})` : ""}`,
+    count: batchKnown(seat.games) && Number(seat.games) > 0 ? `${seat.n_of_N}` : "unbekannt",
+    rate: batchRateText(batchKnown(seat.games) && Number(seat.games) > 0 ? seat.win_rate : null),
+  }));
+  return { title, headline, caveat, tempo, chunk, originText, rest, seats };
+}
+// END batch-interim
 function pollBatch(batchId) {
   if (state.batchPollTimer) clearTimeout(state.batchPollTimer);
   state.batchPollTimer = setTimeout(async () => {
@@ -1773,6 +1850,25 @@ function renderSimulations(body) {
       h("p", { class: "note note-compact" }, seriesPlayedText(b.games_played, b.games_planned, b.games_completed, false, isRunning))
     );
 
+    // #1828: interim of the finished games while the series runs, the partial result after a stop
+    const interim = batchInterimTexts(b);
+    if (interim) {
+      monitor.append(h("div", { class: "sim-summary sim-interim", id: "sim-interim" },
+        h("h4", {}, interim.title),
+        h("p", { id: "sim-interim-rate" }, interim.headline),
+        interim.rest ? h("p", { class: "note note-compact" }, interim.rest) : null,
+        interim.seats.length
+          ? h("div", { class: "table-wrap" }, h("table", { class: "mt-2" },
+              h("thead", {}, h("tr", {}, h("th", {}, "Sitz"), h("th", { class: "num" }, "Siege / Partien"), h("th", { class: "num" }, "Siegrate"))),
+              h("tbody", {}, interim.seats.map((seat) => h("tr", {}, h("td", {}, seat.seat), h("td", { class: "num" }, seat.count), h("td", { class: "num" }, seat.rate))))))
+          : null,
+        interim.tempo ? h("p", { class: "note note-compact", id: "sim-interim-pace" }, interim.tempo) : null,
+        h("p", { class: "note note-compact", id: "sim-interim-chunk" }, interim.chunk),
+        h("p", { class: "note note-compact", id: "sim-interim-caveat" }, interim.caveat),
+        h("p", { class: "note note-compact", id: "sim-interim-origin" }, interim.originText)
+      ));
+    }
+
     if (b.bridge_qualification && b.bridge_qualification.status === "BRIDGE_AHEAD_OF_QUALIFICATION") {
       monitor.append(h("div", { class: "mt-2" }, h("span", { class: "pill warn pill-inline", title: ["Rohcode: BRIDGE_AHEAD_OF_QUALIFICATION", b.bridge_qualification.reason].filter(Boolean).join(" · ") }, "Bridge: Engine-Stand noch nicht qualifiziert · nicht durch versiegelte Epoche abgedeckt")));
     }
@@ -1819,7 +1915,7 @@ function renderSimulations(body) {
       const bridgeSha = s.bridge_jar_sha256 || b.bridge_jar_sha256 || null;
       const epochLabel = s.covered_by_sealed_epoch ? "versiegelt" : (qualStates.join(", ") || "nicht versiegelt");
       const sumBox = h("div", { class: "sim-summary" },
-        h("h4", {}, "Ergebnis der Serie"),
+        h("h4", {}, b.summary_partial ? "Teilergebnis der Serie (abgebrochen)" : "Ergebnis der Serie"),
         h("div", { class: "sim-grid" },
           h("div", {}, h("span", { class: "muted" }, "Siege: "), h("b", {}, `${StudioUI.numFlex(s.wins_fractional, 1)} / ${StudioUI.num(s.games_completed, 0)}`)),
           h("div", {}, h("span", { class: "muted" }, "Siegrate: "), h("b", {}, s.win_rate !== null && Number(s.games_completed) > 0 ? `${StudioUI.num(s.win_rate_percent, 1)} %` : "–")),

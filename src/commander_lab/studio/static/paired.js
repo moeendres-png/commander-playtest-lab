@@ -271,7 +271,10 @@ function seriesPlayedText(played, planned, closed, atMost, running) {
   if (!known(played)) return "Gespielt: unbekannt (ältere Serie ohne Zählung je Partie).";
   const of = known(planned) ? `${atMost ? "von höchstens" : "von"} ${StudioUI.num(planned, 0)}` : "von unbekannt vielen";
   const tail = known(closed) ? ` · abgeschlossen: ${StudioUI.num(closed, 0)}` : "";
-  const note = running ? " Das Ergebnis folgt, wenn der Engine-Prozess endet." : "";
+  // A batch shows its interim of finished games below this line (app.js); a paired series shows none yet.
+  const note = !running ? ""
+    : atMost ? " Gepaarte Serien zeigen noch keinen Zwischenstand: weder Ergebnis noch Paar-Differenz erscheinen, bevor die Serie endet. Das ist eine fehlende Anzeige, kein Befund."
+      : " Der Zwischenstand der abgeschlossenen Partien steht darunter.";
   return `Gespielt: ${StudioUI.num(played, 0)} ${of} Partien${tail}.${note}`;
 }
 
