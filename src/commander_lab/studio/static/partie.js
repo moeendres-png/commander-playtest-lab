@@ -2094,7 +2094,11 @@ function renderStackRail(frame, atLiveTail) {
       role: "listitem",
       "data-stack-order": String(item.orderNumber || ""),
       onclick: cardZoomName && typeof showCardZoom === "function"
-        ? () => showCardZoom(cardZoomName, { zoneLabel: "Stapel" })
+        ? (event) => {
+            if (event && event.shiftKey) return;
+            if (event && event.target && event.target.closest && event.target.closest("button")) return;
+            showCardZoom(cardZoomName, { zoneLabel: "Stapel" });
+          }
         : null
     }, tile, body);
     if (cardZoomName && typeof bindCardZoom === "function") bindCardZoom(rowEl, cardZoomName, () => ({ zoneLabel: "Stapel" }));
@@ -2325,8 +2329,11 @@ function renderView() {
   if (line) {
     line.classList.add("here");
     const logEl = $("log");
-    if (logEl && typeof line.offsetTop === "number" && typeof logEl.clientHeight === "number") {
-      logEl.scrollTop = Math.max(0, line.offsetTop - Math.round(logEl.clientHeight / 3));
+    const closedGroup = line.closest ? line.closest("details.log-group-tile:not([open])") : null;
+    const targetEl = closedGroup || line;
+    if (logEl && typeof targetEl.offsetTop === "number" && typeof logEl.clientHeight === "number") {
+      const baseTop = typeof logEl.offsetTop === "number" && targetEl.offsetParent !== logEl ? logEl.offsetTop : 0;
+      logEl.scrollTop = Math.max(0, (targetEl.offsetTop - baseTop) - Math.round(logEl.clientHeight / 3));
     }
   }
 }
@@ -2406,6 +2413,9 @@ function filterLog() {
   if (!log) return;
   const q = (state.logQuery || "").trim().toLowerCase();
   for (const node of [...log.children]) {
+    if (node.classList && node.classList.contains("log-group-tile") && node.querySelectorAll) {
+      for (const inner of node.querySelectorAll(".log-tile")) inner.hidden = false;
+    }
     if (!q) { node.hidden = false; continue; }
     const hay = (node.textContent || "").toLowerCase();
     node.hidden = !hay.includes(q);
@@ -2479,7 +2489,10 @@ function appendLog(from) {
         for (let k = 1; k < activeRun.items.length - 1; k += 1) {
           activeRun.items[k].tileEl.remove();
         }
-        for (const item of activeRun.items) itemsBox.append(item.tileEl);
+        for (const item of activeRun.items) {
+          item.tileEl.hidden = false;
+          itemsBox.append(item.tileEl);
+        }
         activeRun.groupEl = detailsEl;
         activeRun.countEl = countEl;
         activeRun.itemsBox = itemsBox;

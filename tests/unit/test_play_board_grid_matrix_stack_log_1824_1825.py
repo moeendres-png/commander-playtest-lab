@@ -161,6 +161,8 @@ def test_partie_js_6_seat_matrix_focus_stack_and_50_event_collapsed_log() -> Non
     assert 'id="log-search"' in html
     assert "#table.seats-5,#table.seats-6{grid-template-columns:repeat(3,minmax(0,1fr))" in css
     assert ".seat.life-critical{" in css and ".cmd-dmg-chip.lethal{" in css
+    assert "#side input.log-search{flex:0 0 auto;min-width:0;" in css
+    assert ".line.here details.log-detail,.line.here .log-detail-body{color:inherit}" in css
 
     # Verify static guards on board_ux.js
     for forbidden in ("innerHTML", "outerHTML", "style=", 'setAttribute("style"', ".toFixed("):
@@ -418,10 +420,27 @@ const fetch = async (path) => {{
   const logChildren = elements.get("log").children;
   const groupedTriggers = logChildren.filter(c => (c.className || "").includes("log-group-tile"));
 
-  // Filter log by Rhystic
+  // Filter log by Rhystic, then clear search and ensure collapsed children stay visible
   elements.get("log-search").value = "Rhystic";
   elements.get("log-search").dispatch("input");
   const visibleAfterFilter = logChildren.filter(c => !c.hidden).length;
+  elements.get("log-search").value = "";
+  elements.get("log-search").dispatch("input");
+  const hiddenChildrenInGroup = groupedTriggers[0]
+    ? groupedTriggers[0].querySelectorAll("input:not([disabled]), button:not([disabled])").filter(() => false).length
+    : 0;
+  const anyCollapsedChildHidden = groupedTriggers[0]
+    ? [...(groupedTriggers[0].children[1]?.children || [])].some((c) => Boolean(c.hidden))
+    : true;
+
+  // Clicking a nested button inside a .stack-item must NOT open Card Zoom
+  elements.get("modal").hidden = true;
+  const firstStackRow = stackNodes[0];
+  const fakeChildBtn = {{ closest: (sel) => (sel === "button" ? {{}} : null) }};
+  if (firstStackRow) {{
+    firstStackRow.dispatch("click", {{ target: fakeChildBtn, shiftKey: false }});
+  }}
+  const stackBtnClickOpenedModal = !elements.get("modal").hidden;
 
   console.log(JSON.stringify({{
     seatCount: seatPanels.length,
@@ -437,7 +456,9 @@ const fetch = async (path) => {{
     logTotalDomNodes: logChildren.length,
     groupedTriggerCount: groupedTriggers.length,
     firstGroupBadge: groupedTriggers[0] ? groupedTriggers[0].dataset.collapseCount : null,
-    visibleAfterFilter
+    visibleAfterFilter,
+    anyCollapsedChildHidden,
+    stackBtnClickOpenedModal
   }}));
 }})();
 """
@@ -455,3 +476,5 @@ const fetch = async (path) => {{
     assert out["groupedTriggerCount"] == 1
     assert out["firstGroupBadge"] == "6"
     assert out["visibleAfterFilter"] >= 1
+    assert out["anyCollapsedChildHidden"] is False
+    assert out["stackBtnClickOpenedModal"] is False
