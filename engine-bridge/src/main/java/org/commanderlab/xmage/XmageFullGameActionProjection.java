@@ -568,7 +568,7 @@ final class XmageFullGameActionProjection {
                     && optionMetadata.has("ability_type")
                     && !optionMetadata.get("ability_type").isJsonNull()
                     ? optionMetadata.get("ability_type").getAsString().trim().toLowerCase() : "";
-            if ("play_land".equals(abilityType)) {
+            if ("play_land".equals(ot) || "play_land".equals(abilityType)) {
                 return "play_land";
             }
             return "activate_ability";

@@ -52,6 +52,8 @@ class XmageFullGameActionProjectionTest {
                     int min, int max, boolean numeric) {}
         List<Case> cases = List.of(
                 new Case("priority", "pass_priority", "pass_priority", 1, 1, false),
+                new Case("priority", "play_land", "play_land", 1, 1, false),
+                new Case("priority", "cast_spell", "activate_ability", 1, 1, false),
                 new Case("priority", "activated_ability", "activate_ability", 1, 1, false),
                 new Case("target", "target", "choose_targets", 1, 1, false),
                 new Case("choose_object", "choice", "choose_targets", 1, 1, false),

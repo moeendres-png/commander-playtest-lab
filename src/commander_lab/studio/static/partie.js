@@ -21,6 +21,14 @@ const SPEEDS = [[2000, "langsam"], [1000, "1 pro Sekunde"], [500, "2 pro Sekunde
 
 const POOL_COLORS = { white: "Weiß", blue: "Blau", black: "Schwarz", red: "Rot", green: "Grün", colorless: "Farblos" };
 const OPTION_TYPES = { pass_priority: "Passen", play_land: "Land spielen", cast_spell: "Zauber wirken", activated_ability: "Fähigkeit aktivieren", mana_ability: "Mana-Fähigkeit", special_action: "Sonderaktion", target: "Ziel", choose_object: "Objekt wählen", attacker: "Angreifer", blocker: "Blocker", mode: "Modus", choice: "Auswahl", mana_payment: "Mana", trigger_order: "Auslöser", yes: "Ja", no: "Nein" };
+const PRIORITY_GROUP_ORDER = ["play_land", "cast_spell", "activated_ability", "mana_ability", "special_action"];
+function resolvePriorityOptionType(opt) {
+  const ot = opt && opt.option_type ? String(opt.option_type) : "";
+  const abilityType = opt && opt.metadata && opt.metadata.ability_type ? String(opt.metadata.ability_type).toLowerCase() : "";
+  if ((!ot || ot === "activated_ability") && abilityType === "play_land") return "play_land";
+  if ((!ot || ot === "activated_ability") && abilityType === "spell") return "cast_spell";
+  return ot || "activated_ability";
+}
 
 const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
 
@@ -90,12 +98,43 @@ function isCreature(name, card) {
   return Boolean(card && (card.power || card.toughness));
 }
 
+function localizeActionSuffix(text) {
+  return String(text || "")
+    .replace(/\bfrom command zone\b/gi, "aus der Kommandozone")
+    .replace(/\bfrom graveyard\b/gi, "aus dem Friedhof")
+    .replace(/\bfrom exile\b/gi, "aus dem Exil")
+    .replace(/\bfrom hand\b/gi, "aus der Hand")
+    .replace(/\busing morph\b/gi, "als Morph")
+    .replace(/\bwith kicker\b/gi, "mit Kicker")
+    .replace(/\busing alternative cost\b/gi, "mit Alternativkosten");
+}
 function localizeActionText(text) {
   if (!text) return "";
   // labels may carry the engine's reminder markup; the page shows text only
   let s = text.replace(/<[^>]*>/g, "").replace(/Full Game Seat (\d)/g, "Sitz $1");
   const pool = /^Spend (\w+) mana from pool$/.exec(s);
-  if (pool) s = `Mana aus dem Pool ausgeben: ${POOL_COLORS[pool[1].toLowerCase()] || pool[1]}`;
+  if (pool) return `Mana aus dem Pool ausgeben: ${POOL_COLORS[pool[1].toLowerCase()] || pool[1]}`;
+  if (s.includes(" — ")) {
+    const idx = s.indexOf(" — ");
+    const sourceName = s.slice(0, idx);
+    const tail = s.slice(idx + 3);
+    if (tail.startsWith("Play ")) {
+      const rest = tail.slice(5);
+      return rest.toLowerCase() === sourceName.toLowerCase()
+        ? `${sourceName} — Land spielen`
+        : `${sourceName} — Spiele ${localizeActionSuffix(rest)}`;
+    }
+    if (tail.startsWith("Cast ")) {
+      const rest = tail.slice(5);
+      return rest.toLowerCase() === sourceName.toLowerCase()
+        ? `${sourceName} — Zauber wirken`
+        : `${sourceName} — Wirke ${localizeActionSuffix(rest)}`;
+    }
+    if (tail.startsWith("Activate: ")) return `${sourceName} — Aktiviere: ${tail.slice(10)}`;
+    if (tail.startsWith("Activate ")) return `${sourceName} — Aktiviere ${tail.slice(9)}`;
+    if (tail.startsWith("Discard ")) return `${sourceName} — Wirf ab: ${tail.slice(8)}`;
+    return s;
+  }
   if (s.startsWith("Play ")) s = "Spiele " + s.slice(5);
   else if (s.startsWith("Cast ")) s = "Wirke " + s.slice(5);
   else if (s.startsWith("Activate: ")) s = "Aktiviere: " + s.slice(10);
@@ -1105,13 +1144,23 @@ function renderHumanDecision() {
     const otherOpts = options.filter((opt) => opt.option_type !== "pass_priority");
     const groups = new Map();
     for (const opt of otherOpts) {
-      const grp = OPTION_TYPES[opt.option_type] || opt.option_type || "Aktion";
-      if (!groups.has(grp)) groups.set(grp, []);
-      groups.get(grp).push(opt);
+      const grpKey = resolvePriorityOptionType(opt);
+      if (!groups.has(grpKey)) groups.set(grpKey, []);
+      groups.get(grpKey).push(opt);
     }
-    for (const [grp, members] of groups) {
-      listEl.append(h("div", { class: "human-opt-group", role: "group", "aria-label": grp },
-        h("div", { class: "human-opt-group-title" }, grp),
+    const orderedKeys = [...groups.keys()].sort((a, b) => {
+      const ia = PRIORITY_GROUP_ORDER.indexOf(a);
+      const ib = PRIORITY_GROUP_ORDER.indexOf(b);
+      if (ia !== -1 && ib !== -1) return ia - ib;
+      if (ia !== -1) return -1;
+      if (ib !== -1) return 1;
+      return 0;
+    });
+    for (const grpKey of orderedKeys) {
+      const members = groups.get(grpKey) || [];
+      const grpTitle = OPTION_TYPES[grpKey] || grpKey || "Aktion";
+      listEl.append(h("div", { class: "human-opt-group", role: "group", "aria-label": grpTitle, "data-option-type": grpKey },
+        h("div", { class: "human-opt-group-title" }, grpTitle),
         members.map((opt) => h("button", {
           type: "button",
           class: "human-opt",

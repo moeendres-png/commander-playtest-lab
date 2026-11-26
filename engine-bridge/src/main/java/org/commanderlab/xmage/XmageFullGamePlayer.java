@@ -37,6 +37,7 @@ import mage.cards.ModalDoubleFacedCard;
 import mage.cards.SplitCard;
 import mage.cards.decks.Deck;
 import mage.choices.Choice;
+import mage.constants.AbilityType;
 import mage.constants.ManaType;
 import mage.constants.MultiAmountType;
 import mage.constants.Outcome;
@@ -842,7 +843,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             options.add(XmageFullGameDecisionController.option(
                     optionId,
                     abilityLabel(ability, game),
-                    ability.isManaAbility() ? "mana_ability" : "activated_ability",
+                    priorityOptionType(ability),
                     metadata
             ));
             abilities.put(optionId, ability);
@@ -4133,6 +4134,23 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 ? "unknown source"
                 : objectLabel(ability.getSourceId(), game);
         return sourceName + " — " + ability.toString();
+    }
+
+    static String priorityOptionType(Ability ability) {
+        if (ability == null) {
+            return "activated_ability";
+        }
+        AbilityType abilityType = ability.getAbilityType();
+        if (ability instanceof PlayLandAbility || abilityType == AbilityType.PLAY_LAND) {
+            return "play_land";
+        }
+        if (ability instanceof SpellAbility || abilityType == AbilityType.SPELL) {
+            return "cast_spell";
+        }
+        if (ability.isManaAbility()) {
+            return "mana_ability";
+        }
+        return "activated_ability";
     }
 
     private String abilityOptionId(String prefix, Ability ability) {
