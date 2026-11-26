@@ -3582,6 +3582,10 @@ def test_batch_interim_shows_rate_wilson_interval_and_n_of_n_as_descriptive() ->
     origin = str(out["originText"])
     assert "SIMULATED_RESULT" in origin and "„precon“ (b-1)" in origin
     assert "nicht mit anderen Serien oder Deck-Ständen zusammengezählt" in origin
+    assert (
+        "Das Intervall gilt streng nur bei der vorab festgelegten Partienzahl N; bei k < N ist es "
+        "nur beschreibend."
+    ) in str(out["caveat"])
     assert "keine Stoppregel vorab festgelegt (ungeplanter Stopp)" in str(out["caveat"])
 
 
@@ -3611,7 +3615,11 @@ def test_batch_interim_after_a_stop_is_a_partial_result_with_k_of_n_and_an_unpla
     assert out["title"] == "Teilergebnis: 4 von 10 Partien"
     assert "95 %-Wilson-Intervall [15,0 %, 85,0 %]" in str(out["headline"])  # 2 of 4, wide
     assert "ungeplanter Stopp" in str(out["caveat"])
-    assert "Der Teilstand wird nicht gespeichert." in str(out["caveat"])
+    assert (
+        "Als Teilstand nicht als Simulationslauf gespeichert, zählt nicht für Reife oder Tierliste."
+        in str(out["caveat"])
+    )
+    assert "wird nicht gespeichert" not in str(out["caveat"])  # the record is kept, see below
     assert out["rest"] == "Ohne Ergebnis: 1 abgebrochen, 0 fehlgeschlagen (von 10 geplant)."
     # a stopped series has no running pace
     assert out["tempo"] is None
@@ -3643,6 +3651,7 @@ def test_batch_pace_and_eta_are_computed_over_this_run_and_unknown_stays_unknown
         "games_planned": 30,
         "games_played": 3,
         "games_played_at_run_start": 0,
+        "games_failed": 0,
     }
 
     def pace(**over: object) -> dict[str, object]:
@@ -3673,6 +3682,12 @@ def test_batch_pace_and_eta_are_computed_over_this_run_and_unknown_stays_unknown
     # the last game played: nothing left, the time left is 0 and not negative
     assert pace(games_played=30)["etaSeconds"] == 0
     assert pace(games_played=31)["etaSeconds"] == 0  # more played than planned: never negative
+    # failed games are not played again: 2 failed leave 25 of 30 (not 27), at 120 s each = 3000 s
+    assert pace(games_failed=2)["etaSeconds"] == 3000
+    assert pace(games_failed=40)["etaSeconds"] == 0  # clamped, never negative
+    assert pace(games_failed=None)["perHour"] is None  # unknown failed games: unknown, not 0
+    from_interim = pace(games_failed=9, interim_summary={"games_failed": 2})
+    assert from_interim["etaSeconds"] == 3000  # the deduplicated count of the interim wins
     text = _interim_js(
         "[batchDurationText(null), batchDurationText(20), batchDurationText(3240),"
         " batchDurationText(5400), batchDurationText(undefined), batchDurationText('x')]"
@@ -3720,4 +3735,36 @@ def test_batch_interim_block_uses_no_forbidden_wording_markup_or_raw_decimals() 
     assert (
         "innerHTML" not in block and "style" not in block and "<" not in block.replace("=> <", "")
     )
-    assert 'b.summary_partial ? "Teilergebnis der Serie (abgebrochen)"' in app
+    assert 'h("h4", {}, batchSummaryTitle(b))' in app and "summary_partial" not in app
+
+
+def test_batch_summary_title_follows_the_status_and_the_seat_table_uses_the_german_format() -> None:
+    # the saved record of a stopped series (served after a restart) has no live-only keys
+    out = _interim_js(
+        "[batchSummaryTitle({status: 'cancelled'}),"
+        " batchSummaryTitle({status: 'cancelled', summary_partial: false}),"
+        " batchSummaryTitle({status: 'completed', summary_partial: true}),"
+        " batchSummaryTitle({status: 'completed'}), batchSummaryTitle(null)]"
+    )
+    assert out == [
+        "Teilergebnis der Serie (abgebrochen)",
+        "Teilergebnis der Serie (abgebrochen)",
+        "Ergebnis der Serie",
+        "Ergebnis der Serie",
+        "Ergebnis der Serie",
+    ]
+    from commander_lab.studio.simulations import GameSummary, interim_batch_summary
+
+    games = [
+        GameSummary("a", 1, "finished", winner_seats=[0, 1], table_size=2),
+        GameSummary("b", 2, "finished", winner_seats=[1], table_size=2),
+    ]
+    batch = _interim_batch(1, 0)
+    batch["interim_summary"] = interim_batch_summary(games, games_planned=8, table_size=2)
+    texts = _interim_js(f"batchInterimTexts({json.dumps(batch)})")
+    assert isinstance(texts, dict)
+    assert [(s["count"], s["rate"]) for s in texts["seats"]] == [  # type: ignore[union-attr]
+        ("0,5/2", "25,0 %"),
+        ("1,5/2", "75,0 %"),
+    ]
+    assert "0.5" not in json.dumps(texts)

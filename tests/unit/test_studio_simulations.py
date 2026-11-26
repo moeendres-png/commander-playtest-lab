@@ -2992,3 +2992,86 @@ def test_a_resumed_series_counts_its_rate_from_the_start_of_this_run(tmp_path: P
     after = batch.to_dict()
     assert after["run_started_at"] is not None
     assert after["games_played_at_run_start"] == 2
+
+
+def _stop_after_four(
+    store: StudioStore, folder: Path
+) -> tuple[SimulationBatchManager, BatchSimulation]:
+    """A series of 10 that is stopped after 4 finished games and one ``Cancelled`` row."""
+    reached, release = threading.Event(), threading.Event()
+
+    def runner(seeds: Sequence[int]) -> Iterator[GameSummary]:
+        yield from _interim_games(list(seeds)[:4], wins=3)
+        yield GameSummary(
+            game_id=f"batch-x-s{list(seeds)[4]}",
+            seed=list(seeds)[4],
+            status="failed",
+            failure_class="Cancelled",
+            failure_message="cancelled",
+        )
+        reached.set()
+        assert release.wait(10)
+
+    manager, batch = _start_interim(store, folder, runner)
+    assert reached.wait(5)
+    assert manager.cancel_batch(batch.batch_id)
+    release.set()
+    _wait(batch)
+    assert batch.worker_done.wait(5) and batch.status == "cancelled"
+    return manager, batch
+
+
+def test_a_stopped_series_record_served_after_a_restart_is_still_a_stopped_one(
+    tmp_path: Path,
+) -> None:
+    """The record of a stopped series is served again after a restart: it has no live-only keys,
+    so only its status tells the page that it is a partial result (#1849 review)."""
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        _, batch = _stop_after_four(store, tmp_path)
+        client = TestClient(create_app(tmp_path))
+        body = client.get(f"/api/simulations/batch/{batch.batch_id}").json()
+        assert body["status"] == "cancelled"
+        assert body["summary"]["games_completed"] == 4
+        assert "summary_partial" not in body and "interim_summary" not in body
+        assert _runs_in_store(store) == 0
+    finally:
+        store.close()
+
+
+def test_a_resumed_series_shows_no_stale_summary_and_counts_the_latest_row_of_a_seed(
+    tmp_path: Path,
+) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    reached, release = threading.Event(), threading.Event()
+
+    def again(seeds: Sequence[int]) -> Iterator[GameSummary]:
+        # the first seed of the rest is the one whose row said ``Cancelled``
+        yield from _interim_games(list(seeds)[:2], wins=2)
+        reached.set()
+        assert release.wait(10)
+        yield from _interim_games(list(seeds)[2:], wins=0)
+
+    try:
+        manager, first = _stop_after_four(store, tmp_path)
+        assert first.to_dict()["summary"] is not None  # the stopped series keeps its result
+        first.chunk_runner = again  # resume of a series in memory keeps its own runner
+        resumed = manager.resume_batch(store, tmp_path, first.batch_id, workers=1)
+        assert reached.wait(5)
+        deadline = time.monotonic() + 5
+        while len(resumed._games) < 7 and time.monotonic() < deadline:
+            time.sleep(0.02)
+        payload = resumed.to_dict()
+        assert payload["status"] == "running"
+        # no stale final result of the stopped run next to the interim of this one
+        assert payload["summary"] is None
+        interim = payload["interim_summary"]
+        assert isinstance(interim, dict)
+        # 4 + 2 finished games; the old ``Cancelled`` row of the replayed seed is gone
+        assert (interim["games_completed"], interim["games_planned"]) == (6, 10)
+        assert (interim["games_cancelled"], interim["games_failed"]) == (0, 0)
+        release.set()
+        _wait(resumed)
+    finally:
+        release.set()
+        store.close()

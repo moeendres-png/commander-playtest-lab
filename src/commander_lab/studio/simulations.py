@@ -1160,6 +1160,12 @@ def interim_batch_summary(
     unknown (``None``), never a 0 % rate or an interval. Games the series stopped itself
     (``Cancelled``) are counted apart from failed games: an aborted run is its own class.
     """
+    # the latest row of a seed counts: a resumed series plays a stopped seed again, and the old
+    # ``Cancelled`` row of it must not stay next to the new result
+    latest: dict[int, GameSummary] = {}
+    for game in games:
+        latest[game.seed] = game
+    games = list(latest.values())
     figures = aggregate_batch_results(games, table_size=table_size)
     finished = [g for g in games if g.status == "finished"]
     completed = len(finished)
@@ -1822,6 +1828,8 @@ class BatchSimulation:
         with self._lock:
             self.run_started_at = now_utc()
             self._played_at_run_start = self._games_played()
+            # a resumed series shows no stale final result next to its interim while it runs
+            self._summary = None
         self.status = "running"
 
         try:
