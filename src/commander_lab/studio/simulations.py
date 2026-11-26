@@ -891,15 +891,17 @@ def censored_round_quartiles(reached_rounds: Sequence[int], games: int) -> dict[
 CANCELLED_CLASS = "Cancelled"
 
 
-def latest_row_per_seed(games: Sequence[GameSummary]) -> list[GameSummary]:
-    """The latest row of each seed, first seen first (#1852).
+def latest_row_per_game(games: Sequence[GameSummary]) -> list[GameSummary]:
+    """The latest row of each game, first seen first (#1852).
 
-    A resumed series plays a stopped seed again; the old ``Cancelled`` row of it is history and
-    must not stay next to the new result in any count.
+    A resumed series plays a stopped seed again; the old ``Cancelled`` row of it must not stay next
+    to the new result in any count. The game id names the seed of a series
+    (``batch-<id>-s<seed>``) and is always set, while the ``seed`` of a failed row can be a
+    default 0 (an unreadable log): keyed by seed, two such failures would count as one.
     """
-    latest: dict[int, GameSummary] = {}
+    latest: dict[str, GameSummary] = {}
     for game in games:
-        latest[game.seed] = game
+        latest[game.game_id] = game
     return list(latest.values())
 
 
@@ -926,14 +928,14 @@ def aggregate_batch_results(
 ) -> dict[str, object]:
     """Aggregate multiple game outcomes into an objective simulation summary.
 
-    Only the latest row of a seed counts (a resumed series replays a stopped seed). Classes, each
+    Only the latest row of a game (a seed) counts (a resumed series replays a stopped seed). Classes, each
     apart from the others (G-SIM point 2): won or lost games (``games_decided``, the base of the
     win rate), draws (finished without a winner: ``games_drawn``, neither a win nor a loss and not
     in the win-rate base, as the seat curve's reference also excludes them), failed games and
     aborted ones (``games_cancelled``). ``games_planned`` is the planned N of the series; without
     it N is the number of rows.
     """
-    games = latest_row_per_seed(games)
+    games = latest_row_per_game(games)
     successful = [g for g in games if g.status == "finished"]
     decided = [g for g in successful if g.winner_seats]
     cancelled_count = sum(1 for g in games if _is_cancelled(g))
@@ -1203,9 +1205,9 @@ def interim_batch_summary(
     (``Cancelled``) are counted apart from failed games, and draws (finished without a winner)
     apart from both: aborted runs and draws are their own classes, never a loss (G-SIM point 2).
     """
-    # the latest row of a seed counts: a resumed series plays a stopped seed again, and the old
+    # the latest row of a game counts: a resumed series plays a stopped seed again, and the old
     # ``Cancelled`` row of it must not stay next to the new result
-    games = latest_row_per_seed(games)
+    games = latest_row_per_game(games)
     figures = aggregate_batch_results(games, table_size=table_size)
     finished = [g for g in games if g.status == "finished"]
     decided = [g for g in finished if g.winner_seats]
@@ -1648,10 +1650,10 @@ class BatchSimulation:
         return len((self._played | finished) - failed_only)
 
     def _games_in_seed_order(self) -> list[GameSummary]:
-        """The latest row of each seed in seed order; ``_games`` keeps the history (#1852)."""
+        """The latest row of each game in seed order; ``_games`` keeps the history (#1852)."""
         order = {self.game_id_of(seed): index for index, seed in enumerate(self.seeds)}
         return sorted(
-            latest_row_per_seed(self._games), key=lambda game: order.get(game.game_id, len(order))
+            latest_row_per_game(self._games), key=lambda game: order.get(game.game_id, len(order))
         )
 
     def _interim_summary(self, games: Sequence[GameSummary]) -> dict[str, object] | None:
@@ -2461,6 +2463,7 @@ class SimulationBatchManager:
             if jar_sha is not None:
                 existing.bridge_jar_sha256 = jar_sha
             existing._cancel_requested = False
+            existing._finalizing = False
             batch = existing
         else:
             batch = BatchSimulation.from_saved_series(

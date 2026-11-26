@@ -3127,15 +3127,39 @@ def test_the_final_aggregation_counts_the_latest_row_of_a_seed() -> None:
     games = [
         GameSummary("a", 1, "finished", winner_seats=[0]),
         GameSummary("b", 2, "failed", failure_class="Cancelled"),
-        GameSummary("b2", 2, "finished", winner_seats=[1]),
+        GameSummary("b", 2, "finished", winner_seats=[1]),
         GameSummary("c", 3, "failed", failure_class="BRIDGE_TIMEOUT"),
-        GameSummary("c2", 3, "failed", failure_class="Cancelled"),
+        GameSummary("c", 3, "failed", failure_class="Cancelled"),
     ]
     summary = simulations_module.aggregate_batch_results(games)
     assert (summary["games_planned"], summary["games_completed"]) == (3, 2)
     assert (summary["games_failed"], summary["games_cancelled"]) == (0, 1)
     assert summary["wins_fractional"] == 1.0 and summary["win_rate"] == 0.5
-    assert simulations_module.latest_row_per_seed(games)[1].game_id == "b2"
+    latest = simulations_module.latest_row_per_game(games)
+    assert [(g.game_id, g.status) for g in latest] == [
+        ("a", "finished"),
+        ("b", "finished"),
+        ("c", "failed"),
+    ]
+    assert latest[2].failure_class == "Cancelled"
+
+
+def test_two_failed_rows_with_the_default_seed_are_two_games_not_one() -> None:
+    """An unreadable log gives a failed row with seed 0 (a default, not a seed): rows are told
+    apart by their game id, so no failure is dropped from the evidence (G-SIM point 2)."""
+    games = [
+        GameSummary("batch-x-s3", 0, "failed", failure_class="ReadGameError"),
+        GameSummary("batch-x-s7", 0, "failed", failure_class="ReadGameError"),
+        GameSummary("batch-x-s0", 0, "finished", winner_seats=[0]),
+    ]
+    summary = simulations_module.aggregate_batch_results(games)
+    assert (summary["games_planned"], summary["games_completed"], summary["games_failed"]) == (
+        3,
+        1,
+        2,
+    )
+    interim = simulations_module.interim_batch_summary(games, games_planned=3, table_size=None)
+    assert (interim["games_completed"], interim["games_failed"]) == (1, 2)
 
 
 def test_a_draw_is_its_own_class_never_a_loss_in_the_aggregation_and_the_interim() -> None:
@@ -3343,7 +3367,7 @@ def test_the_interim_counts_the_latest_row_of_a_seed_in_every_class_and_seat() -
     games = [
         GameSummary("a", 1, "finished", winner_seats=[0], table_size=2),
         GameSummary("b", 2, "failed", failure_class="Cancelled"),
-        GameSummary("b2", 2, "finished", winner_seats=[1], table_size=2),
+        GameSummary("b", 2, "finished", winner_seats=[1], table_size=2),
     ]
     interim = simulations_module.interim_batch_summary(
         games, games_planned=3, table_size=2, seat_labels=["own", None]
@@ -3354,3 +3378,33 @@ def test_the_interim_counts_the_latest_row_of_a_seed_in_every_class_and_seat() -
         0,
     )
     assert [s["n_of_N"] for s in interim["by_seat"]] == ["1/2", "1/2"]  # type: ignore[union-attr]
+
+
+def test_a_resumed_series_takes_a_stop_again_after_it_completed_with_a_failed_row(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A completed series with a failed row is resumable; until its worker has the lock a stop
+    must count, so the resume clears the ``finalizing`` mark of the first run (#1852)."""
+
+    def runner(seeds: Sequence[int]) -> Iterator[GameSummary]:
+        yield from _interim_games(list(seeds)[:-1], wins=1)
+        yield GameSummary(
+            game_id=f"batch-x-s{list(seeds)[-1]}",
+            seed=list(seeds)[-1],
+            status="failed",
+            failure_class="BRIDGE_TIMEOUT",
+        )
+
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        manager, batch = _start_interim(store, tmp_path, runner)
+        _wait(batch)
+        assert batch.worker_done.wait(5) and batch.status == "completed"
+        assert batch._finalizing  # the first run took its result
+        monkeypatch.setattr(batch, "run_worker", lambda **kwargs: None)
+        manager.resume_batch(store, tmp_path, batch.batch_id, workers=1)
+        assert not batch._finalizing
+        batch.cancel()
+        assert batch.is_cancelled
+    finally:
+        store.close()
