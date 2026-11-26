@@ -73,9 +73,7 @@ const mainFrame = {
   players: [player0]
 };
 
-// Case 1: Only Sol Ring is offered by XMage; Forest (land already played), Counterspell (needs {U}{U}),
-// Cultivate (needs {2}{G}, only {W}{G} untapped), and Swords (has {W}, no legal creature target!)
-// are NOT in legal_options. Negative control proves frontend marks ONLY Sol Ring playable.
+// Case 1: Uses real XMage bridge schema (metadata.source_object_id) and ignores graveyard casts on name fallback.
 const hand = ["Sol Ring", "Forest", "Counterspell", "Cultivate", "Swords to Plowshares"];
 const handIds = ["h_sol", "h_forest", "h_counter", "h_cultivate", "h_swords"];
 const decisionMain = {
@@ -83,7 +81,8 @@ const decisionMain = {
   seat: 0,
   decision_class: "priority",
   legal_options: [
-    { option_id: "opt_sol", option_type: "cast_spell", source_object_id: "h_sol", label: "Sol Ring — Cast Sol Ring" },
+    { option_id: "opt_sol", option_type: "cast_spell", metadata: { source_object_id: "h_sol", zone: "HAND" }, label: "Sol Ring — Cast Sol Ring" },
+    { option_id: "opt_gy_cultivate", option_type: "cast_spell", metadata: { zone: "GRAVEYARD" }, label: "Cultivate — Cast Cultivate from graveyard" },
     { option_id: "opt_pass", option_type: "pass_priority", label: "Pass Priority" }
   ]
 };
@@ -105,10 +104,23 @@ assert.strictEqual(byName["Forest"].reasonClass, "land_drop");
 assert.strictEqual(byName["Counterspell"].status, "blocked");
 assert.strictEqual(byName["Counterspell"].reasonClass, "mana");
 assert.ok(byName["Counterspell"].reasonText.includes("{U}"), byName["Counterspell"].reasonText);
+// Graveyard cast must NOT mark hand Cultivate playable
 assert.strictEqual(byName["Cultivate"].status, "blocked");
 assert.strictEqual(byName["Cultivate"].reasonClass, "mana");
 assert.strictEqual(byName["Swords to Plowshares"].status, "blocked");
 assert.strictEqual(byName["Swords to Plowshares"].reasonClass, "target_or_condition");
+
+// Case 2: Phase block outside main phase AND in opponent main phase
+const oppMainFrame = { ...mainFrame, active_seat: 1 };
+const oppClassified = StudioHandUX.classifyHandCards(["Forest", "Cultivate"], ["h_forest", "h_cultivate"], {
+  pendingDecision: { decision_id: "dec_opp", seat: 0, decision_class: "priority", legal_options: [{ option_id: "p", option_type: "pass_priority" }] },
+  frame: oppMainFrame,
+  handSeat: 0,
+  humanSeats: [0],
+  facts
+});
+assert.strictEqual(oppClassified[0].reasonClass, "phase");
+assert.strictEqual(oppClassified[1].reasonClass, "phase");
 
 // Negative control: even with abundant mana and main phase, if legal_options omits Cultivate,
 // status MUST NOT be playable!
@@ -127,30 +139,28 @@ const richClassified = StudioHandUX.classifyHandCards(["Cultivate"], ["h_cultiva
 });
 assert.notStrictEqual(richClassified[0].status, "playable");
 
-// Case 2: Phase block outside main phase / non-empty stack for sorcery/land
-const combatFrame = { ...mainFrame, phase: "combat", step: "declare_attackers", stack: [] };
-const classifiedCombat = StudioHandUX.classifyHandCards(["Cultivate", "Forest"], ["h_cultivate", "h_forest"], {
-  pendingDecision: { decision_id: "dec_c", seat: 0, decision_class: "priority", legal_options: [{ option_id: "p", option_type: "pass_priority" }] },
-  frame: combatFrame,
-  handSeat: 0,
-  humanSeats: [0],
-  facts
-});
-assert.strictEqual(classifiedCombat[0].reasonClass, "phase");
-assert.strictEqual(classifiedCombat[1].reasonClass, "phase");
-
-// Case 3: Persistent playability indicator in own main phase outside active priority prompt (resting state)
+// Case 3: Persistent playability indicator in own main phase outside active priority prompt ONLY when stack matches
 const restingMain = StudioHandUX.classifyHandCards(["Sol Ring", "Counterspell"], ["h_sol", "h_counter"], {
   pendingDecision: null,
   frame: mainFrame,
   handSeat: 0,
   humanSeats: [0],
   facts,
-  lastOwnPriority: { seat: 0, turn: 3, step: "precombat_main", legal_options: decisionMain.legal_options }
+  lastOwnPriority: { seat: 0, turn: 3, step: "precombat_main", stackCount: 0, legal_options: decisionMain.legal_options }
 });
 assert.strictEqual(restingMain[0].status, "playable");
 assert.strictEqual(restingMain[1].status, "blocked");
-assert.strictEqual(restingMain[1].reasonClass, "mana");
+
+// Stack changed (spell on stack): sorcery snapshot must NOT remain playable
+const staleStack = StudioHandUX.classifyHandCards(["Sol Ring"], ["h_sol"], {
+  pendingDecision: null,
+  frame: { ...mainFrame, stack: ["Lightning Bolt"] },
+  handSeat: 0,
+  humanSeats: [0],
+  facts,
+  lastOwnPriority: { seat: 0, turn: 3, step: "precombat_main", stackCount: 0, legal_options: decisionMain.legal_options }
+});
+assert.notStrictEqual(staleStack[0].status, "playable");
 
 console.log(JSON.stringify({ ok: true }));
 """
@@ -188,28 +198,58 @@ const manaDecision = {
   decision_id: "mp_1",
   decision_class: "mana_payment",
   legal_options: [
-    { option_id: "opt_pool", option_type: "spend_pool_mana", label: "Spend colorless mana from pool" },
-    { option_id: "opt_forest", option_type: "mana_ability", source_object_id: "b_forest", label: "Tap Forest" },
+    { option_id: "opt_pool", option_type: "mana_pool", metadata: { advances_payment: true, color: "C" }, label: "Spend colorless mana from pool" },
+    { option_id: "opt_forest", option_type: "mana_ability", metadata: { source_object_id: "b_forest" }, label: "Tap Forest" },
     { option_id: "opt_cancel", option_type: "cancel_mana_payment", label: "Cancel" }
   ]
 };
 assert.strictEqual(StudioHandUX.nextAutoPayOptionId(manaDecision, preview.sourceObjectIds), "opt_pool");
 
+// Ambiguous multiple mana_pool choices -> fail closed (null)
+const ambiguousPool = {
+  decision_id: "mp_ambig_pool",
+  decision_class: "mana_payment",
+  legal_options: [
+    { option_id: "opt_pool_u", option_type: "mana_pool", metadata: { advances_payment: true, color: "U" } },
+    { option_id: "opt_pool_g", option_type: "mana_pool", metadata: { advances_payment: true, color: "G" } },
+    { option_id: "opt_cancel", option_type: "cancel_mana_payment" }
+  ]
+};
+assert.strictEqual(StudioHandUX.nextAutoPayOptionId(ambiguousPool, preview.sourceObjectIds), null);
+
 const noPoolDecision = {
   decision_id: "mp_2",
   decision_class: "mana_payment",
   legal_options: [
-    { option_id: "opt_forest", option_type: "mana_ability", source_object_id: "b_forest", label: "Tap Forest" },
+    { option_id: "opt_forest", option_type: "mana_ability", metadata: { source_object_id: "b_forest" }, label: "Tap Forest" },
     { option_id: "opt_cancel", option_type: "cancel_mana_payment", label: "Cancel" }
   ]
 };
 assert.strictEqual(StudioHandUX.nextAutoPayOptionId(noPoolDecision, preview.sourceObjectIds), "opt_forest");
+
+// Dual-land ambiguity (2 options sharing same planned source_object_id) -> fail closed (null)
+const dualLandDecision = {
+  decision_id: "mp_dual",
+  decision_class: "mana_payment",
+  legal_options: [
+    { option_id: "opt_g", option_type: "mana_ability", metadata: { source_object_id: "b_forest" }, label: "Add {G}" },
+    { option_id: "opt_u", option_type: "mana_ability", metadata: { source_object_id: "b_forest" }, label: "Add {U}" }
+  ]
+};
+assert.strictEqual(StudioHandUX.nextAutoPayOptionId(dualLandDecision, preview.sourceObjectIds), null);
 
 // Fail-closed: if planned sources don't match any offered mana_ability, returns null instead of guessing!
 assert.strictEqual(StudioHandUX.nextAutoPayOptionId(noPoolDecision, ["b_other"]), null);
 
 const cancelOpt = StudioHandUX.findCancelManaOption(manaDecision);
 assert.ok(cancelOpt && cancelOpt.option_id === "opt_cancel");
+assert.strictEqual(
+  StudioHandUX.findCancelManaOption({
+    decision_class: "mana_payment",
+    legal_options: [{ option_id: "x", option_type: "mana_ability", label: "Cancel lookalike" }]
+  }),
+  null
+);
 console.log(JSON.stringify({ ok: true }));
 """
     )

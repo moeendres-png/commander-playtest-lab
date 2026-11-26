@@ -278,6 +278,7 @@ function adoptPendingDecision(nextDecision) {
       decision_id: nextDecision.decision_id,
       turn: ps.turn_number ?? null,
       step: ps.step ?? null,
+      stackCount: Array.isArray(ps.stack) ? ps.stack.length : 0,
       legal_options: Array.isArray(nextDecision.legal_options) ? nextDecision.legal_options : []
     };
   }
@@ -1539,8 +1540,9 @@ function triggerCancelManaPayment() {
   }
   state.autoPayPlan = null;
   state.keepStageOnCancel = true;
+  const sourceTitle = (pending.source_object && pending.source_object.name) || pending.source || "Zauber";
   if (!state.stagedHand) {
-    state.stagedHand = { name: pending.source || "Zauber", objectId: null, optionIds: [], sourceObjectIds: [], manaCost: "", plannedNames: [] };
+    state.stagedHand = { name: sourceTitle, objectId: null, optionIds: [], sourceObjectIds: [], manaCost: "", plannedNames: [] };
   }
   state.stagedHand.cancelNote = typeof StudioHandUX !== "undefined" && StudioHandUX.CANCEL_PAYMENT_HINT
     ? StudioHandUX.CANCEL_PAYMENT_HINT
@@ -1558,7 +1560,8 @@ function renderManaStageBar(frame, atLiveTail) {
     bar.hidden = true;
     return;
   }
-  const titleText = staged ? staged.name : (pending && pending.source ? pending.source : "Mana zahlen");
+  const pendingSrcName = pending && ((pending.source_object && pending.source_object.name) || pending.source);
+  const titleText = staged ? staged.name : (pendingSrcName || "Mana zahlen");
   const costText = staged && staged.manaCost ? ` ${staged.manaCost}` : "";
   const titleNodes = typeof StudioPrompts !== "undefined" && StudioPrompts.renderRichGameText
     ? StudioPrompts.renderRichGameText(h, `${titleText}${costText}`)
@@ -1688,7 +1691,7 @@ function handCardTile(name, index, info, atLiveTail) {
     onPlay: isPlayableNow ? () => onHandCardActivate(info, true) : null,
     playLabel: info && info.actionKind === "play_land" ? "Land spielen" : "In Mana-Vorschau / Wirken"
   });
-  hover(cardEl, name, () => ({ handInfo: info, zoneLabel: "Hand" }));
+  hover(mainBtn, name, () => ({ handInfo: info, zoneLabel: "Hand" }));
   bindCardZoom(mainBtn, name, getZoomMeta);
   bindCardZoom(cardEl, name, getZoomMeta);
   return cardEl;
@@ -1730,7 +1733,7 @@ function renderHandDock(handOwner, handSeat, revealedNote, frame, atLiveTail) {
   const isHumanOwn = state.humanSeats.includes(handSeat);
   const ownTurnNow = Boolean(frame && frame.active_seat === handSeat && isHumanOwn);
   if (dock) dock.classList.toggle("own-turn", ownTurnNow);
-  if (titleEl) titleEl.textContent = `Hand von ${seatName(handSeat)}${revealedNote} (${names.length})`;
+  if (titleEl) titleEl.textContent = `Hand von ${seatName(handSeat)}${revealedNote}`;
   const density = typeof StudioHandUX !== "undefined" && StudioHandUX.fanDensityClass
     ? StudioHandUX.fanDensityClass(names.length)
     : "fan-normal";
@@ -1752,6 +1755,7 @@ function renderHandDock(handOwner, handSeat, revealedNote, frame, atLiveTail) {
 
   if (summaryEl) {
     summaryEl.textContent = "";
+    summaryEl.append(h("span", { class: "pill" }, `${names.length} Karten`));
     const playableCount = classified.filter((c) => c.status === "playable").length;
     const blockedCount = classified.filter((c) => c.status === "blocked").length;
     if (isHumanOwn && names.length) {

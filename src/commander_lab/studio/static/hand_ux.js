@@ -82,6 +82,12 @@ const StudioHandUX = (() => {
     return /\bFlash\b/i.test(text);
   }
 
+  function optionSourceId(opt) {
+    if (!opt || typeof opt !== "object") return null;
+    const meta = opt.metadata && typeof opt.metadata === "object" ? opt.metadata : {};
+    return opt.source_object_id || meta.source_object_id || opt.object_id || meta.object_id || null;
+  }
+
   function resolveOptionKind(opt) {
     if (!opt || typeof opt !== "object") return "activated_ability";
     const ot = typeof opt.option_type === "string" ? opt.option_type : "";
@@ -236,30 +242,37 @@ const StudioHandUX = (() => {
   function findCancelManaOption(pendingDecision) {
     if (!pendingDecision || pendingDecision.decision_class !== "mana_payment") return null;
     const options = Array.isArray(pendingDecision.legal_options) ? pendingDecision.legal_options : [];
-    return (
-      options.find((opt) => opt && opt.option_type === "cancel_mana_payment") ||
-      options.find((opt) => opt && /^cancel\b/i.test(String(opt.label || "").trim())) ||
-      null
-    );
+    return options.find((opt) => opt && opt.option_type === "cancel_mana_payment") || null;
   }
 
-  // Selects one engine-offered mana_payment option matching a planned source or pool spend.
-  // Fails closed with null when no offered option unambiguously fits.
+  // Selects one engine-offered mana_payment option matching a single unambiguous planned source
+  // or single advancing pool spend. Fails closed with null on ambiguity or no fit.
   function nextAutoPayOptionId(pendingDecision, plannedSourceIds) {
     if (!pendingDecision || pendingDecision.decision_class !== "mana_payment") return null;
     const options = Array.isArray(pendingDecision.legal_options) ? pendingDecision.legal_options : [];
-    const poolOpt = options.find((opt) => opt && opt.option_type === "spend_pool_mana");
-    if (poolOpt && poolOpt.option_id) return String(poolOpt.option_id);
+    const poolOpts = options.filter((opt) => {
+      if (!opt || opt.option_type !== "mana_pool") return false;
+      const meta = opt.metadata && typeof opt.metadata === "object" ? opt.metadata : {};
+      return meta.advances_payment !== false;
+    });
+    if (poolOpts.length === 1 && poolOpts[0].option_id) {
+      return String(poolOpts[0].option_id);
+    }
+    if (poolOpts.length > 1) {
+      return null;
+    }
 
-    const plannedSet = new Set(Array.isArray(plannedSourceIds) ? plannedSourceIds.filter(Boolean) : []);
-    if (plannedSet.size > 0) {
-      const matched = options.filter((opt) => {
-        if (!opt || opt.option_type === "cancel_mana_payment") return false;
-        const srcId = opt.source_object_id || opt.object_id;
-        return Boolean(srcId && plannedSet.has(srcId));
+    const plannedList = Array.isArray(plannedSourceIds) ? plannedSourceIds.filter(Boolean) : [];
+    for (const plannedId of plannedList) {
+      const forSource = options.filter((opt) => {
+        if (!opt || opt.option_type === "cancel_mana_payment" || opt.option_type === "mana_pool") return false;
+        return optionSourceId(opt) === plannedId;
       });
-      if (matched.length >= 1 && matched[0].option_id) {
-        return String(matched[0].option_id);
+      if (forSource.length === 1 && forSource[0].option_id) {
+        return String(forSource[0].option_id);
+      }
+      if (forSource.length > 1) {
+        return null;
       }
     }
     return null;
@@ -270,15 +283,18 @@ const StudioHandUX = (() => {
     for (const opt of legalOptions) {
       if (!opt || opt.option_type === "pass_priority") continue;
       const kind = resolveOptionKind(opt);
-      const optSource = opt.source_object_id || opt.object_id || null;
+      const optSource = optionSourceId(opt);
+      const meta = opt.metadata && typeof opt.metadata === "object" ? opt.metadata : {};
       if (objectId && optSource) {
         if (optSource === objectId) out.push({ opt, kind });
         continue;
       }
+      if (meta.zone && String(meta.zone).toUpperCase() !== "HAND") continue;
       if (!optSource && (kind === "play_land" || kind === "cast_spell")) {
         const label = String(opt.label || "").trim();
+        if (/\bfrom\s+(?:graveyard|exile|command zone)\b/i.test(label)) continue;
         let subject = label.includes(" — ") ? label.split(" — ")[0].trim() : label;
-        subject = subject.replace(/^(?:Cast|Play)\s+/i, "").replace(/\s+from\s+(?:hand|graveyard|exile|command zone).*$/i, "").trim();
+        subject = subject.replace(/^(?:Cast|Play)\s+/i, "").replace(/\s+from\s+hand.*$/i, "").trim();
         if (subject.toLowerCase() === String(cardName || "").toLowerCase()) {
           out.push({ opt, kind });
         }
@@ -287,20 +303,22 @@ const StudioHandUX = (() => {
     return out;
   }
 
-  function buildBlockReason(cardName, fact, playerState, frame, factsMap) {
+  function buildBlockReason(cardName, fact, playerState, frame, factsMap, handSeat) {
     const isLand = isLandFact(cardName, fact);
     const step = frame && frame.step ? String(frame.step) : "";
     const phase = frame && frame.phase ? String(frame.phase) : "";
-    const isMainPhase =
-      step === "precombat_main" ||
-      step === "postcombat_main" ||
-      phase === "precombat_main" ||
-      phase === "postcombat_main";
+    const isOwnTurn = Boolean(frame && handSeat !== undefined && frame.active_seat === handSeat);
+    const isOwnMainPhase =
+      isOwnTurn &&
+      (step === "precombat_main" ||
+        step === "postcombat_main" ||
+        phase === "precombat_main" ||
+        phase === "postcombat_main");
     const stackEmpty = !frame || !Array.isArray(frame.stack) || frame.stack.length === 0;
     const instantSpeed = !isLand && hasFlashOrInstant(fact);
 
     if (isLand) {
-      if (!isMainPhase || !stackEmpty) {
+      if (!isOwnMainPhase || !stackEmpty) {
         return {
           reasonClass: "phase",
           badgeIcon: "⏳",
@@ -316,7 +334,7 @@ const StudioHandUX = (() => {
       };
     }
 
-    if (!instantSpeed && (!isMainPhase || !stackEmpty)) {
+    if (!instantSpeed && (!isOwnMainPhase || !stackEmpty)) {
       return {
         reasonClass: "phase",
         badgeIcon: "⏳",
@@ -371,12 +389,15 @@ const StudioHandUX = (() => {
       pending.decision_class === "priority" &&
       Array.isArray(pending.legal_options)
     );
+    const currentStackCount = frame && Array.isArray(frame.stack) ? frame.stack.length : 0;
     const hasSameWindowSnapshot = Boolean(
       !hasLiveOwnPriority &&
+      isOwnTurn &&
       snapshot &&
       snapshot.seat === handSeat &&
       snapshot.turn === (frame ? frame.turn : null) &&
       snapshot.step === step &&
+      (snapshot.stackCount ?? 0) === currentStackCount &&
       Array.isArray(snapshot.legal_options) &&
       snapshot.legal_options.length > 0
     );
@@ -436,7 +457,7 @@ const StudioHandUX = (() => {
           };
         }
 
-        const block = buildBlockReason(name, fact, playerState, frame, facts);
+        const block = buildBlockReason(name, fact, playerState, frame, facts, handSeat);
         return {
           name,
           objectId,
@@ -456,7 +477,7 @@ const StudioHandUX = (() => {
       // No live priority snapshot for this window yet: NEVER invent playability; display honest waiting/blocked hint.
       const manaPreview = buildManaPreview(name, fact, playerState, pending, facts);
       if (isOwnMain) {
-        const block = buildBlockReason(name, fact, playerState, frame, facts);
+        const block = buildBlockReason(name, fact, playerState, frame, facts, handSeat);
         if (block.reasonClass === "mana") {
           return {
             name,
