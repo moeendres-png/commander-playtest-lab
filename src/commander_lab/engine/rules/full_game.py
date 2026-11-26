@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import hashlib
+import io
 import json
 import math
 import os
@@ -659,8 +660,17 @@ class _RawFullGameClient:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
+                # The bridge reads stdin and writes stdout as UTF-8 (Main.java),
+                # whatever the platform charset; the protocol stays strict.
+                encoding="utf-8",
+                errors="strict",
                 bufsize=1,
             )
+            # The JVM writes stderr in its platform charset (windows-1252 on a
+            # German Windows, #1815). stderr is diagnostics only: undecodable
+            # bytes are kept visibly escaped instead of killing the pump.
+            if isinstance(self._process.stderr, io.TextIOWrapper):
+                self._process.stderr.reconfigure(errors="backslashreplace")
         except OSError as exc:
             raise FullGameProtocolError(
                 redacted_summary("BRIDGE_START_FAILED", (str(exc),)),
