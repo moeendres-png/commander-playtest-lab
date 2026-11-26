@@ -1289,17 +1289,24 @@ function buildResultErrorCard(result) {
   return h("div", { class: "banner" }, endText());
 }
 let engineStartBusy = null;
+let engineStartControlsLocked = false;
 function syncEngineStartBusy(waiting) {
-  const ctrls = [$("speed"), $("ff-mode"), $("ff-go")];
+  const ctrls = [$("speed"), $("ff-mode"), $("ff-btn")];
   if (!waiting) {
     if (engineStartBusy) {
       engineStartBusy.stop();
       engineStartBusy = null;
     }
-    if (typeof StudioUI !== "undefined" && StudioUI.setControlsBusy) StudioUI.setControlsBusy(ctrls, false);
+    if (engineStartControlsLocked && typeof StudioUI !== "undefined" && StudioUI.setControlsBusy) {
+      StudioUI.setControlsBusy(ctrls, false);
+      engineStartControlsLocked = false;
+    }
     return null;
   }
-  if (typeof StudioUI !== "undefined" && StudioUI.setControlsBusy) StudioUI.setControlsBusy(ctrls, true);
+  if (!engineStartControlsLocked && typeof StudioUI !== "undefined" && StudioUI.setControlsBusy) {
+    StudioUI.setControlsBusy(ctrls, true);
+    engineStartControlsLocked = true;
+  }
   if (!engineStartBusy && typeof StudioUI !== "undefined" && StudioUI.createBusyView) {
     engineStartBusy = StudioUI.createBusyView({
       id: "engine-start-busy",

@@ -363,6 +363,7 @@ details.error-details pre.error-out{margin:6px 0 0;background:var(--panel);borde
 /* Einheitliches Lade- und Fortschritts-Feedback (#1836) */
 .busy-card{background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--radius);padding:var(--s3);margin:var(--s2) 0;display:flex;flex-direction:column;gap:8px}
 .busy-card.compact{padding:var(--s2) var(--s3);gap:6px}
+.busy-inline{display:inline-flex;align-items:center;gap:6px}
 .busy-head{display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap}
 .busy-title{font-size:13.5px;color:var(--text)}
 .busy-timer{margin-left:auto;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:1px 8px}

@@ -25,12 +25,12 @@ async function renderBuildPlanTab(body, deps) {
       cohort: cohort(),
     });
   } catch (error) {
-    if (busy) busy.stop();
     if (!isCurrent(myToken)) return;
     body.replaceChildren(h("p", { class: "muted" }, "Bauplan nicht lesbar: " + fail(error, true)));
     return;
+  } finally {
+    if (busy) busy.stop();
   }
-  if (busy) busy.stop();
   if (!isCurrent(myToken)) return;
   const nodes = [
     h("h3", {}, `Bauplan · ${cohortName(data.cohort)}`),
@@ -117,12 +117,12 @@ async function renderPackagesUpgradeTab(body, deps) {
       api("/api/upgrade-path", "POST", { commander: deps.commander, cards: entries(), cohort: cohort() }),
     ]);
   } catch (error) {
-    if (busy) busy.stop();
     if (!isCurrent(myToken)) return;
     body.replaceChildren(h("p", { class: "muted" }, "Pakete nicht lesbar: " + fail(error, true)));
     return;
+  } finally {
+    if (busy) busy.stop();
   }
-  if (busy) busy.stop();
   if (!isCurrent(myToken)) return;
 
   const nodes = [

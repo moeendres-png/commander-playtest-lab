@@ -370,13 +370,9 @@ async function loadAll() {
   const commander = $("commander-select").value || StudioCommander.current;
   const ctrls = [$("commander-select"), $("data-refresh")];
   StudioUI.setControlsBusy(ctrls, true);
-  const summaryBusy = StudioUI.createBusyView({
-    title: "Datenlage wird aktualisiert …",
-    subtitle: `Commander: ${StudioCommander.shortName(commander)} · Alle 6 Bereiche werden geprüft.`,
-    lines: 0,
-    compact: true,
-  });
-  $("data-summary").replaceChildren(summaryBusy.el);
+  $("data-summary").replaceChildren(
+    h("span", { class: "busy-inline" }, h("span", { class: "spinner", "aria-hidden": "true" }), ` Datenlage wird aktualisiert (${StudioCommander.shortName(commander)}) …`)
+  );
   const sectionSpecs = [
     ["data-bridge", "Bridge-Qualifikation wird geprüft …"],
     ["data-sources", "Quellschichten & Import-Status laden …"],
@@ -396,6 +392,11 @@ async function loadAll() {
   const stopSection = (id) => {
     const b = sectionBusies.get(id);
     if (b) { b.stop(); sectionBusies.delete(id); }
+  };
+  const showSectionError = (id) => {
+    stopSection(id);
+    const host = $(id);
+    if (host) host.replaceChildren(h("p", { class: "warn" }, "Abschnitt konnte nicht geladen werden."));
   };
   try {
     const statusP = StudioUI.request("/api/status");
@@ -437,12 +438,12 @@ async function loadAll() {
     $("data-summary").textContent = `Stand ${report.generated_on || "–"} · Sammlung ${nf((report.collection || {}).identities)} Karten · Korpus ${nf((report.corpus || {}).decks)} Decks · Alarme: ${nf(alarmCount)}`;
   } catch (err) {
     if (mine !== loadTicket) return;
+    for (const id of [...sectionBusies.keys()]) showSectionError(id);
     $("data-summary").textContent = "Fehler beim Laden der Datenlage.";
     StudioUI.fail(StudioUI.germanError(err));
   } finally {
-    summaryBusy.stop();
     for (const id of [...sectionBusies.keys()]) stopSection(id);
-    if (mine === loadTicket) StudioUI.setControlsBusy(ctrls, false);
+    StudioUI.setControlsBusy(ctrls, false);
   }
 }
 

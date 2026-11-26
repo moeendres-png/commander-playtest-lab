@@ -554,23 +554,31 @@ const StudioUI = (() => {
         : null);
   }
 
-  const busyPrevDisabled = new WeakMap();
+  const busyControlLocks = new WeakMap();
 
   function setControlsBusy(targets, isBusy) {
     const list = (Array.isArray(targets) ? targets : [targets]).flat(Infinity).filter(Boolean);
+    const hasDoc = typeof document !== "undefined";
     for (const target of list) {
-      const node = typeof target === "string" ? document.getElementById(target.replace(/^#/, "")) : target;
+      const node = typeof target === "string" ? (hasDoc ? document.getElementById(target.replace(/^#/, "")) : null) : target;
       if (!node || typeof node !== "object") continue;
       if (isBusy) {
-        if (!busyPrevDisabled.has(node)) busyPrevDisabled.set(node, Boolean(node.disabled));
+        const entry = busyControlLocks.get(node);
+        if (entry) {
+          entry.count += 1;
+        } else {
+          busyControlLocks.set(node, { count: 1, prevDisabled: Boolean(node.disabled) });
+        }
         if ("disabled" in node) node.disabled = true;
         if (node.setAttribute) node.setAttribute("aria-busy", "true");
         if (node.classList && node.classList.add) node.classList.add("is-busy");
       } else {
-        if ("disabled" in node) {
-          node.disabled = busyPrevDisabled.has(node) ? busyPrevDisabled.get(node) : false;
-        }
-        busyPrevDisabled.delete(node);
+        const entry = busyControlLocks.get(node);
+        if (!entry) continue;
+        entry.count -= 1;
+        if (entry.count > 0) continue;
+        busyControlLocks.delete(node);
+        if ("disabled" in node) node.disabled = entry.prevDisabled;
         if (node.removeAttribute) node.removeAttribute("aria-busy");
         if (node.classList && node.classList.remove) node.classList.remove("is-busy");
       }
@@ -608,6 +616,7 @@ const StudioUI = (() => {
     let seconds = 0;
     let manualStage = false;
     let seenConnected = Boolean(node.isConnected);
+    let detachedTicks = 0;
     let stopped = false;
     let timerId = null;
     const stop = () => {
@@ -622,8 +631,13 @@ const StudioUI = (() => {
     if (typeof setInterval === "function") {
       timerId = setInterval(() => {
         if (stopped) return;
-        if (node.isConnected) seenConnected = true;
-        else if (seenConnected) { stop(); return; }
+        if (node.isConnected) {
+          seenConnected = true;
+          detachedTicks = 0;
+        } else if (seenConnected || ++detachedTicks >= 1) {
+          stop();
+          return;
+        }
         seconds += 1;
         timerBadge.textContent = `Läuft seit ${num(seconds, 0)} s`;
         if (!manualStage && stages.length) {

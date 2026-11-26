@@ -16,7 +16,7 @@ const StudioCommander = (() => {
     if (select && typeof StudioUI !== "undefined" && StudioUI.setControlsBusy) {
       StudioUI.setControlsBusy([select], true);
     }
-    const target = typeof document !== "undefined" ? (document.getElementById("pool-body") || document.getElementById("data-summary")) : null;
+    const target = typeof document !== "undefined" ? (document.getElementById("pool-body") || document.getElementById("data-main")) : null;
     if (target && typeof StudioUI !== "undefined" && StudioUI.createBusyView) {
       const busy = StudioUI.createBusyView({
         title: `Wechsle zu ${shortName(name)} …`,

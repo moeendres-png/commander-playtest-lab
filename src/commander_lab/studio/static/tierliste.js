@@ -1647,7 +1647,11 @@ async function refreshStrength() {
     if (busy) busy.stop();
     if (ticket === s.ticket) {
       panel.classList.remove("working");
-      StudioUI.setControlsBusy(busyCtrls, false);
+      const currentCtrls = [
+        ...busyCtrls,
+        ...panel.querySelectorAll("button, select, input"),
+      ];
+      StudioUI.setControlsBusy(currentCtrls, false);
     }
   }
   renderStrengthSummary();
@@ -1754,24 +1758,52 @@ async function applyStrength(settings, remember = true) {
 // settings it used. The page then selects exactly that universe, so the text shown is what was computed.
 async function loadSavedProfile(profile) {
   const s = state.strength, ticket = ++s.ticket;
-  const result = await api("/api/strength", { commander: COMMANDER, profile: profile.name });
-  if (ticket !== s.ticket) return;
-  const wanted = (result.settings && result.settings.universe_profile) || "";
-  s.settings = { ...withDefaults(result.settings), universe_profile: wanted || null };
-  s.draft = { fields: {}, name: profile.name };
-  s.result = result;
-  s.status = "ready";
-  s.map = new Map(result.cards.map((item) => [item.card_id, item]));
-  s.good = clone(s.settings);
-  rememberStrength();
-  if (wanted !== (state.universe.name || "")) {
-    state.universe.profiles = await api("/api/universe/profiles");
-    fillUniverseSelect(wanted);
-    await selectUniverse(wanted).catch((error) => toast(`Universum „${wanted}“ konnte nicht gewählt werden: ${StudioUI.germanError(error)}`));
+  const panel = $("strength-panel");
+  const summaryBox = $("strength-summary");
+  const lockCtrls = [
+    ...(panel ? panel.querySelectorAll("button, select, input") : []),
+    $("commander-select"),
+    $("sort"),
+  ];
+  if (panel) panel.classList.add("working");
+  StudioUI.setControlsBusy(lockCtrls, true);
+  const busy = summaryBox && typeof StudioUI.createBusyView === "function"
+    ? StudioUI.createBusyView({
+        title: `Profil „${profile.name}“ wird geladen und berechnet …`,
+        lines: 2,
+        compact: true,
+      })
+    : null;
+  if (busy && summaryBox) summaryBox.replaceChildren(busy.el);
+  try {
+    const result = await api("/api/strength", { commander: COMMANDER, profile: profile.name });
+    if (ticket !== s.ticket) return;
+    const wanted = (result.settings && result.settings.universe_profile) || "";
+    s.settings = { ...withDefaults(result.settings), universe_profile: wanted || null };
+    s.draft = { fields: {}, name: profile.name };
+    s.result = result;
+    s.status = "ready";
+    s.map = new Map(result.cards.map((item) => [item.card_id, item]));
+    s.good = clone(s.settings);
+    rememberStrength();
+    if (wanted !== (state.universe.name || "")) {
+      state.universe.profiles = await api("/api/universe/profiles");
+      fillUniverseSelect(wanted);
+      await selectUniverse(wanted).catch((error) => toast(`Universum „${wanted}“ konnte nicht gewählt werden: ${StudioUI.germanError(error)}`));
+    }
+    renderStrengthPanel();
+    syncRanking();
+    render();
+  } catch (error) {
+    if (ticket === s.ticket) renderStrengthSummary();
+    throw error;
+  } finally {
+    if (busy) busy.stop();
+    if (ticket === s.ticket) {
+      if (panel) panel.classList.remove("working");
+      StudioUI.setControlsBusy([...lockCtrls, ...(panel ? panel.querySelectorAll("button, select, input") : [])], false);
+    }
   }
-  renderStrengthPanel();
-  syncRanking();
-  render();
 }
 function strengthField(key) {
   const s = state.strength, panel = s.meta.panel, kind = fieldKind(key), id = fieldId(key);
@@ -2220,8 +2252,10 @@ function syncRanking() {
 }
 
 let tierInitBusy = null;
+let tierInitStrengthBusy = null;
 function beginTierInitBusy() {
   if (tierInitBusy) tierInitBusy.stop();
+  if (tierInitStrengthBusy) tierInitStrengthBusy.stop();
   tierInitBusy = StudioUI.createBusyView({
     title: "Tierliste wird berechnet …",
     stages: [
@@ -2231,6 +2265,15 @@ function beginTierInitBusy() {
     lines: 4,
   });
   $("pool-body").replaceChildren(tierInitBusy.el);
+  const sumBox = $("strength-summary");
+  if (sumBox && state.strength && state.strength.status !== "ready") {
+    tierInitStrengthBusy = StudioUI.createBusyView({
+      title: "Stärke-Index wird berechnet …",
+      lines: 2,
+      compact: true,
+    });
+    sumBox.replaceChildren(tierInitStrengthBusy.el);
+  }
   StudioUI.setControlsBusy(
     [$("commander-select"), $("q"), $("type-filter"), $("land-filter"), $("role-filter"), $("spread-filter"), $("sort")],
     true
@@ -2238,6 +2281,7 @@ function beginTierInitBusy() {
 }
 function endTierInitBusy() {
   if (tierInitBusy) { tierInitBusy.stop(); tierInitBusy = null; }
+  if (tierInitStrengthBusy) { tierInitStrengthBusy.stop(); tierInitStrengthBusy = null; }
   StudioUI.setControlsBusy(
     [$("commander-select"), $("q"), $("type-filter"), $("land-filter"), $("role-filter"), $("spread-filter"), $("sort")],
     false

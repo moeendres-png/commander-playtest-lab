@@ -1099,7 +1099,12 @@ function loadLandAdvisor() {
   api("/api/land-advisor", "POST", { cards: entries(), owned_only: true, cohort: state.cohort, min_share: 0.20 }).then((data) => {
     state.landAdvisor = { key, seq: state.changeSeq, cohort: state.cohort, data };
     if (state.tab === "numbers") renderDeck();
-  }, (error) => { state.landAdvisorBusy = null; fail(error); });
+  }, (error) => {
+    state.landAdvisorBusy = null;
+    const waitEl = $("land-advisor-wait");
+    if (waitEl) waitEl.replaceWith(h("p", { class: "warn", id: "land-advisor-wait" }, "Ländervergleich konnte nicht geladen werden."));
+    fail(error);
+  });
 }
 function renderLandAdvisor(body) {
   body.append(h("h3", {}, "Länder im Vergleich zu den Farbsymbolen"));
