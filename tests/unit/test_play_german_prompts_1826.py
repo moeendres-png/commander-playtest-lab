@@ -82,7 +82,25 @@ const pips = collectPips(container);
 assert.strictEqual(pips.length, 1);
 assert.ok(pips[0].cls.includes("mana-g"));
 assert.strictEqual(pips[0].text, "G");
-console.log(JSON.stringify({ localized, pips }));
+const localizedNoCtx = StudioPrompts.localizePrompt(
+  rawAudit24Prompt,
+  "mana_payment"
+);
+assert.strictEqual(
+  localizedNoCtx,
+  "Mana bezahlen — offen: {G}. Wähle eine Mana-Quelle oder Pool-Mana.",
+  "Must not duplicate {G} when context.unpaid_mana is absent: " + localizedNoCtx
+);
+assert.strictEqual(
+  StudioPrompts.localizePrompt("Select target", "target"),
+  "Wähle ein legales Ziel für diesen Zauber oder diese Fähigkeit."
+);
+assert.ok(!/[<>]/.test(StudioPrompts.stripHtmlAndNormalize("<<script>>alert(1)<</script>> &lt;b&gt;Hi&lt;/b&gt; <div title=1")));
+const arbitraryBrace = h("div", {}, ...StudioPrompts.renderRichGameText(h, "Return {this} to hand {2/W}{G/P}{T}"));
+const mixedPips = collectPips(arbitraryBrace);
+assert.deepStrictEqual(mixedPips.map((p) => p.text), ["2/W", "G/P", "⟳"]);
+assert.ok(flattenText(arbitraryBrace).includes("{this}"), "{this} must stay literal text");
+console.log(JSON.stringify({ localized, pips, localizedNoCtx, mixedPips }));
 """
     )
     assert "Mana bezahlen" in str(data["localized"])

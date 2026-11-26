@@ -158,19 +158,6 @@ function localizeActionText(text) {
   }
   return s;
 }
-function renderOptionLabelContent(text) {
-  const localized = localizeActionText(text);
-  if (typeof StudioPrompts !== "undefined" && StudioPrompts.renderRichGameText) {
-    return StudioPrompts.renderRichGameText(h, localized);
-  }
-  return [localized];
-}
-function formatPromptSentence(pendingOrText, decisionClass) {
-  if (typeof StudioPrompts !== "undefined" && StudioPrompts.localizePrompt) {
-    return StudioPrompts.localizePrompt(pendingOrText, decisionClass);
-  }
-  return typeof pendingOrText === "object" && pendingOrText ? String(pendingOrText.prompt || "") : String(pendingOrText || "");
-}
 
 function answer(frame) {
   if (isPass(frame)) return "passt";
@@ -181,7 +168,13 @@ function answer(frame) {
   if (frame.private_selection && !parts.length) return "wählt verdeckt (bis zum Spielende nicht sichtbar)";
   if (frame.decision_class === "declare_blocker" && !parts.length) return "blockt nicht";
   if (frame.decision_class === "declare_attacker" && !parts.length) return "greift nicht an";
-  if (frame.decision_class === "choose_use" && parts.length === 1) return `${frame.prompt} ${parts[0] === "Yes" ? "Ja" : parts[0] === "No" ? "Nein" : parts[0]}`;
+  if (frame.decision_class === "choose_use" && parts.length === 1) {
+    const translatedPrompt = typeof StudioPrompts !== "undefined" && StudioPrompts.localizePrompt
+      ? StudioPrompts.localizePrompt(frame.prompt, "choose_use")
+      : (frame.prompt || "");
+    const ans = parts[0] === "Yes" ? "Ja" : parts[0] === "No" ? "Nein" : parts[0];
+    return translatedPrompt ? `${translatedPrompt} → ${ans}` : ans;
+  }
   if (!parts.length) return "wählt nichts";
   const text = parts.map((part) => {
     const clean = part.includes(" — ") ? part.split(" — ").slice(1).join(" — ").replace("{this}", part.split(" — ")[0]) : part;
@@ -318,7 +311,9 @@ function openBoardMenu(anchor, result, key, title) {
         if (result.mode === "immediate") sendBoardOption(option.optionId);
         else { toggleBoardOption(option.optionId); focusClickKey(key); }
       }
-    }, `${picked ? "✓ " : ""}${localizeActionText(option.label)}`));
+    }, ...(typeof StudioPrompts !== "undefined"
+      ? StudioPrompts.renderRichGameText(h, `${picked ? "✓ " : ""}${localizeActionText(option.label)}`)
+      : [`${picked ? "✓ " : ""}${localizeActionText(option.label)}`])));
   }
   state.menu = { key };
   box.hidden = false;
@@ -393,7 +388,9 @@ function renderBoardBar(pending, model) {
       class: option.option_type === "pass_priority" ? "primary" : "",
       disabled: state.submitting,
       onclick: () => (model.mode === "staged" ? toggleBoardOption(optionId) : sendBoardOption(optionId))
-    }, localizeActionText(option.label || optionId)));
+    }, ...(typeof StudioPrompts !== "undefined"
+      ? StudioPrompts.renderRichGameText(h, localizeActionText(option.label || optionId))
+      : [localizeActionText(option.label || optionId)])));
   }
   if (model.mode === "staged") {
     const count = state.selectedOptions.length;
@@ -961,7 +958,9 @@ function announceDecision(pending) {
   const box = $("sr-announce");
   if (!box) return;
   const count = Array.isArray(pending.legal_options) ? pending.legal_options.length : 0;
-  const promptText = formatPromptSentence(pending, pending.decision_class);
+  const promptText = typeof StudioPrompts !== "undefined" && StudioPrompts.localizePrompt
+    ? StudioPrompts.localizePrompt(pending, pending.decision_class)
+    : (pending.prompt || "");
   box.textContent = `Neue Entscheidung für ${seatName(pending.seat)}: ${CLASSES[pending.decision_class] || pending.decision_class}. ${promptText} ${count} Möglichkeiten.`;
 }
 function isHumanSpectator() {
@@ -1059,7 +1058,9 @@ function renderHumanDecision() {
   const isSingleImmediate = !hasNumeric && !isOrder && minSel === 1 && maxSel === 1;
   const title = CLASSES[dc] || dc;
   const headerText = `${seatName(pending.seat)} · ${title}`;
-  const localizedPrompt = formatPromptSentence(pending, dc);
+  const localizedPrompt = typeof StudioPrompts !== "undefined" && StudioPrompts.localizePrompt
+    ? StudioPrompts.localizePrompt(pending, dc)
+    : (pending.prompt || "");
   const groupLabel = `${title}: ${localizedPrompt || "Optionen"}`;
   panel.append(h("h3", null, headerText));
   if (localizedPrompt) {
@@ -1091,7 +1092,9 @@ function renderHumanDecision() {
         renderHumanDecision();
       } }, "↓");
       listEl.append(h("div", { class: "order-row" },
-        h("span", { class: "order-label" }, `${idx + 1}. ${localizeActionText(opt.label || optId)}`),
+        h("span", { class: "order-label" }, ...(typeof StudioPrompts !== "undefined"
+          ? StudioPrompts.renderRichGameText(h, `${idx + 1}. ${localizeActionText(opt.label || optId)}`)
+          : [`${idx + 1}. ${localizeActionText(opt.label || optId)}`])),
         upBtn, downBtn));
     });
     panel.append(listEl);
@@ -1137,7 +1140,11 @@ function renderHumanDecision() {
     numericLegs.forEach((leg, idx) => {
       const lMin = Number(leg.min ?? 0);
       const lMax = Number(leg.max ?? 99);
-      const legLabel = leg.prompt ? localizeActionText(String(leg.prompt)) : `Teil ${idx + 1}`;
+      const legLabel = leg.prompt
+        ? (typeof StudioPrompts !== "undefined" && StudioPrompts.localizePrompt
+            ? StudioPrompts.localizePrompt(String(leg.prompt), dc)
+            : localizeActionText(String(leg.prompt)))
+        : `Teil ${idx + 1}`;
       const input = h("input", {
         type: "number",
         min: String(lMin),
@@ -1191,12 +1198,18 @@ function renderHumanDecision() {
       const grpTitle = OPTION_TYPES[grpKey] || grpKey || "Aktion";
       listEl.append(h("div", { class: "human-opt-group", role: "group", "aria-label": grpTitle, "data-option-type": grpKey },
         h("div", { class: "human-opt-group-title" }, grpTitle),
-        members.map((opt) => h("button", {
-          type: "button",
-          class: "human-opt",
-          disabled: state.submitting,
-          onclick: () => submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [opt.option_id], ordering: [] })
-        }, ...renderOptionLabelContent(opt.label || opt.option_id)))));
+        members.map((opt) => {
+          const text = localizeActionText(opt.label || opt.option_id);
+          const rich = typeof StudioPrompts !== "undefined" && StudioPrompts.renderRichGameText
+            ? StudioPrompts.renderRichGameText(h, text)
+            : [text];
+          return h("button", {
+            type: "button",
+            class: "human-opt",
+            disabled: state.submitting,
+            onclick: () => submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [opt.option_id], ordering: [] })
+          }, ...rich);
+        })));
     }
     if (otherOpts.length) panel.append(listEl);
     return;
@@ -1208,12 +1221,16 @@ function renderHumanDecision() {
     }
     const listEl = h("div", { class: "human-options", role: "group", "aria-label": groupLabel });
     for (const opt of options) {
+      const text = localizeActionText(opt.label || opt.option_id);
+      const rich = typeof StudioPrompts !== "undefined" && StudioPrompts.renderRichGameText
+        ? StudioPrompts.renderRichGameText(h, text)
+        : [text];
       listEl.append(h("button", {
         type: "button",
         class: "human-opt legal-target",
         disabled: state.submitting,
         onclick: () => submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [opt.option_id], ordering: [] })
-      }, ...renderOptionLabelContent(opt.label || opt.option_id)));
+      }, ...rich));
     }
     panel.append(listEl);
     return;
@@ -1227,13 +1244,17 @@ function renderHumanDecision() {
   for (const opt of options) {
     const optId = String(opt.option_id);
     const active = state.selectedOptions.includes(optId);
+    const text = localizeActionText(opt.label || optId);
+    const rich = typeof StudioPrompts !== "undefined" && StudioPrompts.renderRichGameText
+      ? StudioPrompts.renderRichGameText(h, text)
+      : [text];
     listEl.append(h("button", {
       type: "button",
       class: `human-opt legal-target${active ? " selected" : ""}`,
       "aria-pressed": active ? "true" : "false",
       disabled: state.submitting,
       onclick: () => toggleOption(optId)
-    }, active ? "✓ " : "", ...renderOptionLabelContent(opt.label || optId)));
+    }, active ? "✓ " : "", ...rich));
   }
   if (options.length) panel.append(listEl);
 
@@ -1287,7 +1308,9 @@ function renderOwnCombat(frame, atLiveTail) {
   }
   box.append(
     h("div", { class: "own-combat-title" }, state.ownCombat.label),
-    h("ul", { class: "own-combat-list" }, state.ownCombat.entries.map((entry) => h("li", null, localizeActionText(entry.text))))
+    h("ul", { class: "own-combat-list" }, state.ownCombat.entries.map((entry) => h("li", null, ...(typeof StudioPrompts !== "undefined"
+      ? StudioPrompts.renderRichGameText(h, localizeActionText(entry.text))
+      : [localizeActionText(entry.text)]))))
   );
   box.hidden = false;
 }
@@ -1560,7 +1583,8 @@ function appendLog(from) {
       }
     }
     if (isMinor(frame)) continue;
-    const el = h("div", { class: "line", onclick: () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); go(index); } }, h("span", { class: `tag s${frame.seat}` }, `S${(frame.seat ?? 0) + 1}`), h("span", null, answer(frame)));
+    const ansText = answer(frame);
+    const el = h("div", { class: "line", onclick: () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); go(index); } }, h("span", { class: `tag s${frame.seat}` }, `S${(frame.seat ?? 0) + 1}`), h("span", null, ...(typeof StudioPrompts !== "undefined" ? StudioPrompts.renderRichGameText(h, ansText) : [ansText])));
     log.append(el);
     state.lines.push({ index, el });
   }

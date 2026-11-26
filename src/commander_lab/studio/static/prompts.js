@@ -25,10 +25,13 @@ const StudioPrompts = (() => {
   function stripHtmlAndNormalize(raw) {
     if (raw === null || raw === undefined) return "";
     let text = String(raw);
-    // XMage mana/ability hints embed swing/HTML tags such as <div style='font-size:11pt'><font ...>
-    text = text.replace(/<\s*br\s*\/?>/gi, " ");
-    text = text.replace(/<[^>]*>/g, " ");
+    // XMage mana/ability hints embed Swing/HTML div and font markup.
     text = text.replace(/&(nbsp|amp|lt|gt|quot|#39|#x27);/gi, (match) => ENTITIES[match.toLowerCase()] || " ");
+    text = text.replace(/<+\s*br\s*\/?\s*>+/gi, " ");
+    for (let pass = 0; pass < 8 && /<+\s*\/?[a-zA-Z!][^<>]*>+/.test(text); pass += 1) {
+      text = text.replace(/<+\s*\/?[a-zA-Z!][^<>]*>+/g, " ");
+    }
+    text = text.replace(/<+\s*\/?[a-zA-Z!][^<>]*$/g, " ");
     text = text.replace(/Full Game Seat (\d+)/g, "Sitz $1");
     return text.replace(/\s+/g, " ").trim();
   }
@@ -75,8 +78,19 @@ const StudioPrompts = (() => {
 
     if (decisionClass === "mana_payment") {
       const unpaidRaw = ctx && typeof ctx.unpaid_mana === "string" ? stripHtmlAndNormalize(ctx.unpaid_mana) : "";
-      const tokenMatches = (unpaidRaw || clean).match(/\{[^}]+\}/g);
-      const tokenText = tokenMatches ? tokenMatches.join("") : "";
+      let tokenText = "";
+      if (unpaidRaw) {
+        const fromCtx = unpaidRaw.match(/\{(\d+|[WUBRGCSX]|[WUBRGC2]\/[WUBRGCP])\}/gi);
+        tokenText = fromCtx ? fromCtx.join("") : "";
+      } else {
+        const leadingMatch = /^\s*((?:\{(\d+|[WUBRGCSX]|[WUBRGC2]\/[WUBRGCP])\})+)/i.exec(clean);
+        if (leadingMatch) {
+          tokenText = leadingMatch[1];
+        } else {
+          const firstGroupMatch = /((?:\{(\d+|[WUBRGCSX]|[WUBRGC2]\/[WUBRGCP])\})+)/i.exec(clean);
+          tokenText = firstGroupMatch ? firstGroupMatch[1] : "";
+        }
+      }
       if (tokenText) {
         return `Mana bezahlen — offen: ${tokenText}. Wähle eine Mana-Quelle oder Pool-Mana.`;
       }
@@ -106,7 +120,7 @@ const StudioPrompts = (() => {
     const targetMatch = /^(?:select|choose)\s+target(?:\s+(.+))?$/i.exec(clean);
     if (targetMatch || decisionClass === "target") {
       const what = targetMatch && targetMatch[1] ? cleanSubject(targetMatch[1]) : cleanSubject(clean);
-      if (!what || /^choose target$/i.test(what)) return "Wähle ein legales Ziel für diesen Zauber oder diese Fähigkeit.";
+      if (!what || /^(?:select|choose)\s+target$/i.test(what)) return "Wähle ein legales Ziel für diesen Zauber oder diese Fähigkeit.";
       return `Wähle ein Ziel: ${what}`;
     }
 
@@ -290,7 +304,7 @@ const StudioPrompts = (() => {
     const clean = stripHtmlAndNormalize(rawText);
     if (!clean) return [];
     const nodes = [];
-    const pattern = /\{([^{}]{1,8})\}/g;
+    const pattern = /\{(\d+|[WUBRGCSXPTQ]|[WUBRGC2]\/[WUBRGCP])\}/gi;
     let cursor = 0;
     let match;
     while ((match = pattern.exec(clean)) !== null) {
