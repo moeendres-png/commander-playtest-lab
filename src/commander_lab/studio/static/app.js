@@ -3746,7 +3746,7 @@ function setupControls() {
     $("f-notin").checked = Boolean(cfg.notin);
     $("f-fav").checked = Boolean(cfg.fav);
     $("f-excl").checked = Boolean(cfg.excl);
-    if ($("f-sim")) $("f-sim").checked = Boolean(cfg.sim);
+    if ($("f-sim")) $("f-sim").checked = !$("f-sim").disabled && Boolean(cfg.sim);
     state.superfriendsFilter = cfg.superfriends || "";
     state.colors = new Set(Array.isArray(cfg.colors) ? cfg.colors : []);
     for (const btn of $("color-filter").querySelectorAll("button")) btn.classList.toggle("on", state.colors.has(btn.textContent));
@@ -3817,7 +3817,7 @@ function setupControls() {
       onclick: () => toggleSuperfriends(kind),
     }, label);
     $("quick-filter-presets").replaceChildren(
-      h("button", { type: "button", class: "chip", onclick: () => { applyBuilderFilterPreset({ free: true, resetAll: true }); renderQuickFilterPresets(); } }, "Standardfilter"),
+      h("button", { type: "button", class: "chip", onclick: async () => { await applyBuilderFilterPreset({ free: true, resetAll: true }); renderQuickFilterPresets(); } }, "Standardfilter"),
       h("button", { type: "button", class: "chip", onclick: () => { applyBuilderFilterPreset({ free: true, notin: true }); renderQuickFilterPresets(); } }, "Frei & nicht im Deck"),
       h("button", { type: "button", class: "chip", onclick: () => { applyBuilderFilterPreset({ free: true, mvMax: "2" }); renderQuickFilterPresets(); } }, "Frühe Aktionen (MV ≤ 2)"),
       h("button", { type: "button", class: "chip", onclick: () => { applyBuilderFilterPreset({ free: true, type: "Creature" }); renderQuickFilterPresets(); } }, "Kreaturen (frei)"),
@@ -3847,11 +3847,11 @@ function setupControls() {
         StudioUI.remember("studio.builder.savedPreset", JSON.stringify(snapshot));
         toast("Filteransicht gespeichert.");
       } }, "Ansicht merken"),
-      h("button", { type: "button", class: "chip", onclick: () => {
+      h("button", { type: "button", class: "chip", onclick: async () => {
         try {
           const raw = StudioUI.recall("studio.builder.savedPreset", "");
           if (!raw) { toast("Noch keine Filteransicht gespeichert."); return; }
-          applyBuilderFilterPreset(JSON.parse(raw));
+          await applyBuilderFilterPreset(JSON.parse(raw));
           renderQuickFilterPresets();
         } catch (_) { toast("Gespeicherte Filteransicht konnte nicht geladen werden."); }
       } }, "Gemerkte Ansicht")

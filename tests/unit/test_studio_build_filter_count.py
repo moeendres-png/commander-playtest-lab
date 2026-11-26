@@ -198,6 +198,18 @@ async function run() {{
     sim: $('f-sim').checked,
   }};
 
+  // P3 edge cases: legacy preset missing label/sim, disabled f-sim stays unchecked, and absent DOM controls
+  await applyBuilderFilterPreset({{ q: 'legacy', sim: true }});
+  const legacyWhileEnabled = {{ q: $('q').value, label: $('label-filter').value, sim: $('f-sim').checked }};
+  $('f-sim').disabled = true;
+  await applyBuilderFilterPreset({{ q: 'legacy2', sim: true }});
+  const disabledSimChecked = $('f-sim').checked;
+  elements.delete('label-filter');
+  elements.delete('f-sim');
+  saveBtn.onclick();
+  await loadBtn.onclick();
+  const missingElementsSurvived = true;
+
   console.log(JSON.stringify({{
     initial,
     singleResults,
@@ -205,6 +217,9 @@ async function run() {{
     universeOverridesCohort,
     afterPresetReset,
     afterRestored,
+    legacyWhileEnabled,
+    disabledSimChecked,
+    missingElementsSurvived,
   }}));
 }}
 
@@ -263,3 +278,7 @@ def test_build_filter_count_counts_every_filter_group_and_resets_cleanly() -> No
     assert after_restored["label"] == "blink"
     assert after_restored["sim"] is True
     assert after_restored["chip"]["count"] == 3
+
+    assert res["legacyWhileEnabled"] == {"q": "legacy", "label": "", "sim": True}
+    assert res["disabledSimChecked"] is False
+    assert res["missingElementsSurvived"] is True
