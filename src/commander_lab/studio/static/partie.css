@@ -195,3 +195,20 @@ details.error-details pre.error-out{margin:6px 0 0;color:var(--muted)}
 /* Einheitliches Lade- und Fortschritts-Feedback (#1836, Überschreibung zu app.css) */
 .busy-card{grid-column:1/-1;max-width:740px}
 .busy-skeleton .skeleton{background:linear-gradient(90deg,var(--panel),var(--line),var(--panel));background-size:200% 100%}
+
+/* Mana-Pips & Mana-Pool Farb-Chips (#1826) */
+.mana-pip{display:inline-flex;align-items:center;justify-content:center;min-width:1.25em;height:1.25em;padding:0 3px;margin:0 1px;border-radius:999px;font-size:.82em;font-weight:800;line-height:1;vertical-align:-0.12em;border:1px solid rgba(0,0,0,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.35);font-family:ui-sans-serif,system-ui,sans-serif}
+.mana-pip.mana-w{background:#f8f4d8;color:#2b2615}
+.mana-pip.mana-u{background:#8bd0fa;color:#08273e}
+.mana-pip.mana-b{background:#3c333f;color:#f1e8f7;border-color:#74647a}
+.mana-pip.mana-r{background:#f38b72;color:#3d0d04}
+.mana-pip.mana-g{background:#89d697;color:#0a2d12}
+.mana-pip.mana-c{background:#cad2dc;color:#1e252e}
+.mana-pip.mana-generic{background:#d5dce4;color:#1d242c}
+.mana-pip.mana-tap{background:#d7dde6;color:#1b222a}
+.mana-pip.mana-hybrid{border-style:dashed;padding:0 4px}
+.mana-pool-pips{display:inline-flex;align-items:center;flex-wrap:wrap;gap:4px}
+.mana-pool-chip{display:inline-flex;align-items:center;gap:3px;padding:1px 6px 1px 2px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);font-size:11.5px;font-variant-numeric:tabular-nums;transition:border-color .15s ease,opacity .15s ease}
+.mana-pool-chip.empty{opacity:.55}
+.mana-pool-chip.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,var(--panel2));font-weight:700;opacity:1}
+.mana-pool-count{color:var(--text)}

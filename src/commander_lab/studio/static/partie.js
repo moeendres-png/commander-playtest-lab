@@ -3,8 +3,8 @@
 // and what the pilots chose; it never works out a rule itself.
 
 const PHASES = { beginning: "Beginn", precombat_main: "Hauptphase 1", combat: "Kampf", postcombat_main: "Hauptphase 2", end: "Ende" };
-const STEPS = { untap: "Enttappen", upkeep: "Versorgung", draw: "Ziehen", precombat_main: "Hauptphase 1", begin_combat: "Kampfbeginn", declare_attackers: "Angreifer", declare_blockers: "Blocker", first_combat_damage: "Erstschlagschaden", combat_damage: "Kampfschaden", end_combat: "Kampfende", postcombat_main: "Hauptphase 2", end_turn: "Endsegment", cleanup: "Aufräumen" };
-const CLASSES = { priority: "Aktion", mana_payment: "Mana zahlen", choose_object: "Auswahl", choose_use: "Ja oder Nein", target: "Ziel", declare_attacker: "Angriff", declare_blocker: "Block", mulligan: "Mulligan", choice: "Wahl", trigger_order: "Reihenfolge", announce_x: "Wert für X", amount: "Anzahl", multi_amount: "Verteilung", mode: "Modus", pile: "Stapelwahl", target_amount: "Zielmenge", replacement_effect: "Ersatzeffekt", order: "Reihenfolge" };
+const STEPS = { untap: "Enttappen", upkeep: "Versorgung", draw: "Ziehen", precombat_main: "Hauptphase 1", begin_combat: "Kampfbeginn", declare_attackers: "Angreifer ansagen", declare_blockers: "Blocker ansagen", first_combat_damage: "Erstschlagschaden", combat_damage: "Kampfschaden", end_combat: "Kampfende", postcombat_main: "Hauptphase 2", end_turn: "Endsegment", cleanup: "Aufräumen" };
+const CLASSES = { priority: "Priorität", mana_payment: "Mana zahlen", choose_object: "Auswahl", choose_use: "Ja oder Nein", target: "Ziel wählen", declare_attacker: "Angreifer ansagen", declare_blocker: "Blocker ansagen", mulligan: "Starthand (Mulligan)", choice: "Wahl", trigger_order: "Reihenfolge", announce_x: "Wert für X", amount: "Anzahl", multi_amount: "Verteilung", mode: "Modus", pile: "Stapelwahl", target_amount: "Zielmenge", replacement_effect: "Ersatzeffekt", order: "Reihenfolge" };
 // Table sizes the new-game dialog offers, as numbers of opponents. Two locks, as on the server:
 // a game with a human seat follows launch.MAX_RELEASED_PLAY_SEATS, a game of AI seats only follows
 // launch.MAX_RELEASED_SEATS (the SIMULATE lock, like the series dialog in paired.js), but on this page only
@@ -111,7 +111,9 @@ function localizeActionSuffix(text) {
 function localizeActionText(text) {
   if (!text) return "";
   // labels may carry the engine's reminder markup; the page shows text only
-  let s = text.replace(/<[^>]*>/g, "").replace(/Full Game Seat (\d)/g, "Sitz $1");
+  let s = typeof StudioPrompts !== "undefined"
+    ? StudioPrompts.stripHtmlAndNormalize(text)
+    : text.replace(/<[^>]*>/g, " ").replace(/Full Game Seat (\d+)/g, "Sitz $1").replace(/\s+/g, " ").trim();
   const pool = /^Spend (\w+) mana from pool$/.exec(s);
   if (pool) return `Mana aus dem Pool ausgeben: ${POOL_COLORS[pool[1].toLowerCase()] || pool[1]}`;
   if (s.includes(" — ")) {
@@ -135,6 +137,10 @@ function localizeActionText(text) {
     if (tail.startsWith("Discard ")) return `${sourceName} — Wirf ab: ${tail.slice(8)}`;
     return s;
   }
+  if (typeof StudioPrompts !== "undefined") {
+    const known = StudioPrompts.localizeOptionLabel(s);
+    if (known !== s) return known;
+  }
   if (s.startsWith("Play ")) s = "Spiele " + s.slice(5);
   else if (s.startsWith("Cast ")) s = "Wirke " + s.slice(5);
   else if (s.startsWith("Activate: ")) s = "Aktiviere: " + s.slice(10);
@@ -151,6 +157,19 @@ function localizeActionText(text) {
     s = `${blk} blockt ${att}`;
   }
   return s;
+}
+function renderOptionLabelContent(text) {
+  const localized = localizeActionText(text);
+  if (typeof StudioPrompts !== "undefined" && StudioPrompts.renderRichGameText) {
+    return StudioPrompts.renderRichGameText(h, localized);
+  }
+  return [localized];
+}
+function formatPromptSentence(pendingOrText, decisionClass) {
+  if (typeof StudioPrompts !== "undefined" && StudioPrompts.localizePrompt) {
+    return StudioPrompts.localizePrompt(pendingOrText, decisionClass);
+  }
+  return typeof pendingOrText === "object" && pendingOrText ? String(pendingOrText.prompt || "") : String(pendingOrText || "");
 }
 
 function answer(frame) {
@@ -582,7 +601,11 @@ function seatPanel(player, frame) {
       yard,
       exileStat,
       player.poison ? h("span", { class: "stat" }, `Gift ${player.poison}`) : null,
-      player.mana_pool ? h("span", { class: "stat" }, `Mana ${Object.entries(player.mana_pool).map(([color, amount]) => `${amount} ${color}`).join(", ")}`) : null),
+      player.mana_pool
+        ? (typeof StudioPrompts !== "undefined" && StudioPrompts.renderManaPoolPips
+            ? StudioPrompts.renderManaPoolPips(h, player.mana_pool)
+            : h("span", { class: "stat" }, `Mana ${Object.entries(player.mana_pool).map(([color, amount]) => `${amount} ${POOL_COLORS[color] || color}`).join(", ")}`))
+        : null),
     frame.commanders ? commanderLine(frame.commanders[player.seat] || { commanders: [], received: [] }) : null,
     player.command.length ? h("div", null, h("div", { class: "zone-title" }, "Kommandozone"), h("div", { class: "cards" }, player.command.map((name, at) => cardTile(name, { small: true, objectId: (player.command_ids || [])[at] })))) : null,
     h("div", { class: "zone-title" }, `Spielfeld (${player.battlefield.length})`),
@@ -938,7 +961,8 @@ function announceDecision(pending) {
   const box = $("sr-announce");
   if (!box) return;
   const count = Array.isArray(pending.legal_options) ? pending.legal_options.length : 0;
-  box.textContent = `Neue Entscheidung für ${seatName(pending.seat)}: ${CLASSES[pending.decision_class] || pending.decision_class}. ${pending.prompt || ""} ${count} Möglichkeiten.`;
+  const promptText = formatPromptSentence(pending, pending.decision_class);
+  box.textContent = `Neue Entscheidung für ${seatName(pending.seat)}: ${CLASSES[pending.decision_class] || pending.decision_class}. ${promptText} ${count} Möglichkeiten.`;
 }
 function isHumanSpectator() {
   if (!state.interactive || !state.humanSeats.length || state.concedePendingDecision) return false;
@@ -1035,9 +1059,15 @@ function renderHumanDecision() {
   const isSingleImmediate = !hasNumeric && !isOrder && minSel === 1 && maxSel === 1;
   const title = CLASSES[dc] || dc;
   const headerText = `${seatName(pending.seat)} · ${title}`;
-  const groupLabel = `${title}: ${pending.prompt || "Optionen"}`;
+  const localizedPrompt = formatPromptSentence(pending, dc);
+  const groupLabel = `${title}: ${localizedPrompt || "Optionen"}`;
   panel.append(h("h3", null, headerText));
-  if (pending.prompt) panel.append(h("div", { class: "human-prompt" }, pending.prompt));
+  if (localizedPrompt) {
+    const promptNodes = typeof StudioPrompts !== "undefined" && StudioPrompts.renderRichGameText
+      ? StudioPrompts.renderRichGameText(h, localizedPrompt)
+      : [localizedPrompt];
+    panel.append(h("div", { class: "human-prompt" }, ...promptNodes));
+  }
   if (state.concedePendingDecision) {
     panel.append(h("div", { class: "concede-pending-note", role: "status" }, "Aufgabe vorgemerkt — die Regel-Engine wartet noch auf den Abschluss dieser offenen Entscheidung; danach scheidet dein Sitz aus."));
   }
@@ -1166,7 +1196,7 @@ function renderHumanDecision() {
           class: "human-opt",
           disabled: state.submitting,
           onclick: () => submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [opt.option_id], ordering: [] })
-        }, localizeActionText(opt.label || opt.option_id)))));
+        }, ...renderOptionLabelContent(opt.label || opt.option_id)))));
     }
     if (otherOpts.length) panel.append(listEl);
     return;
@@ -1183,7 +1213,7 @@ function renderHumanDecision() {
         class: "human-opt legal-target",
         disabled: state.submitting,
         onclick: () => submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [opt.option_id], ordering: [] })
-      }, localizeActionText(opt.label || opt.option_id)));
+      }, ...renderOptionLabelContent(opt.label || opt.option_id)));
     }
     panel.append(listEl);
     return;
@@ -1203,7 +1233,7 @@ function renderHumanDecision() {
       "aria-pressed": active ? "true" : "false",
       disabled: state.submitting,
       onclick: () => toggleOption(optId)
-    }, `${active ? "✓ " : ""}${localizeActionText(opt.label || optId)}`));
+    }, active ? "✓ " : "", ...renderOptionLabelContent(opt.label || optId)));
   }
   if (options.length) panel.append(listEl);
 
@@ -1430,10 +1460,17 @@ function renderView() {
   state.seatKeys = keys;
 
   const now = $("now"); now.textContent = "";
+  const rawAskPrompt = typeof StudioPrompts !== "undefined" && StudioPrompts.localizePrompt
+    ? StudioPrompts.localizePrompt(frame.prompt, frame.decision_class)
+    : frame.prompt;
+  const askSummary = [CLASSES[frame.decision_class] || frame.decision_class, rawAskPrompt, frame.source ? `Quelle: ${frame.source}` : null, `${frame.options} Möglichkeiten`].filter(Boolean).join(" · ");
+  const askNodes = typeof StudioPrompts !== "undefined" && StudioPrompts.renderRichGameText
+    ? StudioPrompts.renderRichGameText(h, askSummary)
+    : [askSummary];
   now.append(
     h("div", { class: "who" }, h("span", { class: `s${frame.seat}` }, seatName(frame.seat)), ` · ${seatLabel(frame.seat)}`),
     h("div", { class: "what" }, atLiveTail ? "Wartet auf deine Entscheidung" : answer(frame)),
-    h("div", { class: "ask" }, [CLASSES[frame.decision_class] || frame.decision_class, frame.prompt, frame.source ? `Quelle: ${frame.source}` : null, `${frame.options} Möglichkeiten`].filter(Boolean).join(" · ")),
+    h("div", { class: "ask" }, ...askNodes),
     h("div", { class: "hint" }, "Der Spielstand zeigt den Tisch zum Zeitpunkt der Frage; das Ergebnis der gewählten Aktion wird im nächsten Schritt sichtbar."));
   renderOwnCombat(frame, atLiveTail);
   renderStackRail(frame, atLiveTail);
