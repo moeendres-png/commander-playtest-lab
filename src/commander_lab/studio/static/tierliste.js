@@ -151,6 +151,7 @@ const state = {
   roleAudit: null,
   cohortShapes: [], roleGapOnly: false,
   preset: "detail", funcMode: false, lastFocus: null, lastFocusCard: "",
+  lastScrollTop: null, lastScrollLeft: null,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -796,9 +797,86 @@ function sortCaption() {
   const option = $("sort").selectedOptions && $("sort").selectedOptions[0];
   return `${option ? option.textContent : state.sortKey}, ${state.sortDir > 0 ? "aufsteigend" : "absteigend"}`;
 }
+function previewTierSummary(card) {
+  if (state.view === "global") {
+    const rank = (layer(card, "observed_deck").items || []).find((item) => item.kind === "edhrec_rank_global");
+    return rank ? `Globaler EDHREC-Rang ${nf(rank.rank)} (ohne Commander-Stufe)` : "Globale Ansicht (ohne Commander-Stufe)";
+  }
+  const item = strengthItem(card);
+  if (!item) {
+    return state.strength.status === "loading" && !state.strength.map
+      ? "Stärke-Index wird berechnet …"
+      : "Keine Nutzungsstufe berechnet.";
+  }
+  if (item.tier === "N") return item.note ? `${item.note} (nicht bewertet)` : "Nicht bewertet";
+  const counts = deckCounts(item);
+  const countSuffix = counts ? ` · ${nf(counts.n)}/${nf(counts.N)} Quelldecks (${StudioUI.pct(counts.n / counts.N, 1)})` : "";
+  if (item.tier === "U") {
+    const reason = REASON_SHORT[item.reason] || codeLabel(item.reason || "TOO_LITTLE_DATA");
+    return `Zu wenig Daten (${reason})${countSuffix}`;
+  }
+  return `Stufe ${item.tier} (Index ${StudioUI.num(item.index, 1)})${countSuffix}`;
+}
+function hideRowPreview() {
+  const box = $("preview");
+  if (!box || box.hidden) return;
+  box.hidden = true;
+  box.replaceChildren();
+}
+function moveRowPreview(event) {
+  const box = $("preview");
+  if (!box || box.hidden) return;
+  const pad = 16;
+  const w = box.offsetWidth || 300;
+  const hgt = box.offsetHeight || 220;
+  const vw = window.innerWidth || 1280;
+  const vh = window.innerHeight || 800;
+  const left = event.clientX + pad + w <= vw - 8 ? event.clientX + pad : Math.max(8, event.clientX - w - pad);
+  const top = Math.max(8, Math.min(vh - hgt - 8, event.clientY - 24));
+  box.style.left = `${left}px`;
+  box.style.top = `${top}px`;
+}
+function showRowPreview(card, event) {
+  const box = $("preview");
+  const modal = $("modal");
+  if (!box || (modal && !modal.hidden)) return;
+  const img = card.has_image
+    ? h("img", { class: "preview-img", referrerpolicy: "no-referrer", alt: "", src: cardImageUrl(card, "front"), onerror: (ev) => ev.currentTarget.remove() })
+    : null;
+  const head = h("div", { class: "preview-head" },
+    img,
+    h("div", { class: "preview-meta" },
+      h("div", { class: "preview-name" }, card.name),
+      h("div", { class: "preview-type" }, card.type_line || "Unbekannter Typ")));
+  const oracle = h("div", { class: "preview-oracle" }, card.text ? card.text : "Kein Regeltext.");
+  const tier = h("div", { class: "preview-tier" }, previewTierSummary(card));
+  box.replaceChildren(head, oracle, tier);
+  box.hidden = false;
+  moveRowPreview(event);
+}
+function cardRowProps(card) {
+  return {
+    class: "card-row",
+    "data-card-id": card.card_id,
+    tabindex: "0",
+    onclick: (event) => {
+      if (event.target && event.target.closest && event.target.closest("button, a, input, select, label, td.name")) return;
+      openCard(card);
+    },
+    onkeydown: (event) => {
+      if ((event.key === "Enter" || event.key === " ") && event.target === event.currentTarget) {
+        event.preventDefault();
+        openCard(card);
+      }
+    },
+    onmouseenter: (event) => showRowPreview(card, event),
+    onmousemove: (event) => moveRowPreview(event),
+    onmouseleave: hideRowPreview,
+  };
+}
 function cardsTable(cards) {
   const columns = tableColumns();
-  const rows = cards.slice(0, state.shown).map((card) => h("tr", {}, columns.map((column) => column.cell(card))));
+  const rows = cards.slice(0, state.shown).map((card) => h("tr", cardRowProps(card), columns.map((column) => column.cell(card))));
   return h("div", { class: "table-wrap" }, h("table", { id: "tier-table" },
     h("caption", { class: "visually-hidden" }, `Tierliste für ${VIEW_NAMES.commander}: ${countLine(cards.length)}, sortiert nach ${sortCaption()}`),
     h("thead", {}, h("tr", {}, columns.map((column) => column.head()))),
@@ -808,7 +886,7 @@ function researchTable(cards) {
   const wanted = state.need || "";
   const rows = cards.filter((card) => card.coverage.needs.length && (!wanted || card.coverage.needs.includes(wanted))).slice(0, 200).map((card) => {
     const priority = card.coverage.research_priority;
-    return h("tr", {},
+    return h("tr", cardRowProps(card),
       h("td", { class: "cardcell name", "data-card-id": card.card_id, onclick: () => openCard(card) }, thumb(card), card.name),
       h("td", { class: "num", title: "Heuristik für die Reihenfolge der Recherche, keine Kartenstärke" }, priority ? StudioUI.num(priority.score, 2) : unknown("–")),
       h("td", {}, card.coverage.gap_grade ? codeNode(card.coverage.gap_grade) : unknown("–")),
@@ -842,6 +920,7 @@ function resetFilters() {
 
 function render(keepScroll = true) {
   if (!state.data) return;
+  hideRowPreview();
   const body = $("pool-body");
   const top = body.scrollTop, left = body.scrollLeft;
   body.replaceChildren();
@@ -1192,11 +1271,23 @@ function closeModal() {
   if (modal.hidden) return;
   modal.hidden = true;
   document.body.classList.remove("modal-open");
+  const pool = $("pool-body");
   let target = state.lastFocus;
-  if (!target || !target.isConnected) target = state.lastFocusCard ? document.querySelector(`td.name[data-card-id="${CSS.escape(state.lastFocusCard)}"]`) : null;
-  if (!target) target = $("pool-body");
+  if (!target || !target.isConnected) {
+    target = state.lastFocusCard
+      ? document.querySelector(`tr.card-row[data-card-id="${CSS.escape(state.lastFocusCard)}"], td.name[data-card-id="${CSS.escape(state.lastFocusCard)}"]`)
+      : null;
+  }
+  if (!target) target = pool;
+  const savedTop = state.lastScrollTop;
+  const savedLeft = state.lastScrollLeft;
   state.lastFocus = null; state.lastFocusCard = "";
-  target.focus();
+  state.lastScrollTop = null; state.lastScrollLeft = null;
+  if (target && target.focus) {
+    try { target.focus({ preventScroll: true }); } catch (_) { target.focus(); }
+  }
+  if (pool && Number.isFinite(savedTop)) pool.scrollTop = savedTop;
+  if (pool && Number.isFinite(savedLeft)) pool.scrollLeft = savedLeft;
 }
 function trapModalFocus(event) {
   const modal = $("modal");
@@ -1211,11 +1302,14 @@ function trapModalFocus(event) {
   else if (!event.shiftKey && active === last) { event.preventDefault(); first.focus(); }
 }
 async function openCard(card) {
-  const modal = $("modal"), content = $("modal-box");
+  hideRowPreview();
+  const modal = $("modal"), content = $("modal-box"), pool = $("pool-body");
   if (modal.hidden) {
     state.lastFocus = document.activeElement;
-    const owner = state.lastFocus && state.lastFocus.closest ? state.lastFocus.closest("td.name") : null;
-    state.lastFocusCard = owner ? owner.getAttribute("data-card-id") || "" : "";
+    const owner = state.lastFocus && state.lastFocus.closest ? state.lastFocus.closest("tr[data-card-id], td.name[data-card-id]") : null;
+    state.lastFocusCard = owner ? owner.getAttribute("data-card-id") || card.card_id : card.card_id;
+    state.lastScrollTop = pool ? pool.scrollTop : null;
+    state.lastScrollLeft = pool ? pool.scrollLeft : null;
   }
   content.replaceChildren(h("h2", { id: "modal-title" }, card.name), h("p", { class: "muted", role: "status" }, "lädt …"));
   modal.hidden = false;
@@ -1238,6 +1332,7 @@ async function openCard(card) {
       h("div", { class: "actions" }, ...markButtons(card, () => openCard(card)), h("button", { type: "button", id: "modal-close", onclick: closeModal }, "Schließen")),
       h("h2", { id: "modal-title" }, full.name),
       h("p", { class: "muted" }, full.type_line),
+      h("div", { class: "modal-oracle", id: "modal-oracle" }, full.text ? full.text : "Kein Regeltext."),
       whyBox(card),
       picBox,
       h("div", { class: "policy" }, h("b", {}, `${OUTCOME_HEADING}. `), "Es gibt kein geprüftes Modell mit Partiedaten. Fehlende Beobachtung ist nie ein niedriger Tier. Favoriten, Ausschlüsse und Notizen fließen nicht ein."),
@@ -2135,6 +2230,7 @@ async function init() {
     btn.addEventListener("click", () => setQuickRankGroup(btn.getAttribute("data-rank-group")).catch((error) => fail(error)));
   }
   document.addEventListener("keydown", trapModalFocus);
+  if ($("pool-body")) $("pool-body").addEventListener("scroll", hideRowPreview, { passive: true });
   renderTabs();
   $("pool-body").replaceChildren(StudioUI.loading("Tierliste lädt …"));
   await StudioCommander.fill($("commander-select"));
