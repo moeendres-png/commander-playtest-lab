@@ -129,11 +129,14 @@ const unknownStep = basePriority("mystery_step", []);
 assert.strictEqual(StudioTurnBar.evaluateResponseProfile(unknownStep, "auto_pass").action, "stop");
 assert.ok(StudioTurnBar.evaluateResponseProfile(unknownStep, "auto_pass").reason.includes("fail-safe"));
 
-// 5. Non-priority decision ALWAYS halts!
+// 5. Non-priority decision and missing activeSeat MUST fail-safe halt!
 assert.strictEqual(
   StudioTurnBar.evaluateResponseProfile({ decision_class: "target", legal_options: [] }, "auto_pass").action,
   "stop"
 );
+const missingActive = basePriority("precombat_main", []);
+missingActive.pilot_state = { step: "precombat_main", players, stack: [] };
+assert.strictEqual(StudioTurnBar.evaluateResponseProfile(missingActive, "big_moments").action, "stop");
 console.log(JSON.stringify({ ok: true }));
 """
     )
@@ -180,6 +183,12 @@ const blockAct = StudioTurnBar.buildPrimaryAction({ decision_id: "db", seat: 0, 
 assert.strictEqual(blockAct.label, "Nicht blocken (Weiter)");
 const blockPicked = StudioTurnBar.buildPrimaryAction({ decision_id: "db", seat: 0, decision_class: "declare_blocker", legal_options: [] }, ["att1"], null, {});
 assert.strictEqual(blockPicked.label, "Blocker ansagen (1)");
+
+// trigger_order single-selection (1-of-1) must NOT produce confirm_order; numeric must focus_panel
+const singleTrig = StudioTurnBar.buildPrimaryAction({ decision_id: "to1", seat: 0, decision_class: "trigger_order", minimum_selections: 1, maximum_selections: 1, legal_options: [{ option_id: "o1" }] }, [], null, {});
+assert.strictEqual(singleTrig.kind, "option");
+const numAct = StudioTurnBar.buildPrimaryAction({ decision_id: "nx1", seat: 0, decision_class: "announce_x", minimum_selections: 0, maximum_selections: 0, legal_options: [], context: { numeric_min: 0, numeric_max: 5 } }, [], null, {});
+assert.strictEqual(numAct.kind, "focus_panel");
 console.log(JSON.stringify({ ok: true }));
 """
     )
@@ -215,7 +224,7 @@ def test_turn_bar_static_guards_and_vorspulen_compat() -> None:
         ".phase-bar",
         ".decision-bar",
         ".decision-primary-btn.nothing-left",
-        ".decision-primary-btn.hold-confirm-btn.holding",
+        ".hold-confirm-btn.holding",
         ".seat.waiting-decision",
     ):
         assert rule in css, rule

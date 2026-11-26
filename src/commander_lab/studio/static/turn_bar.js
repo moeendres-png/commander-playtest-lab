@@ -90,7 +90,7 @@ const StudioTurnBar = (() => {
       defaultHalts: {
         haltStackNonEmpty: true,
         haltCombat: true,
-        haltOwnMain: true,
+        haltOwnMain: false,
         haltOpponentEndStep: false,
         haltPlayableOptions: true
       }
@@ -153,8 +153,19 @@ const StudioTurnBar = (() => {
     const humanSeats = Array.isArray(opts.humanSeats) ? opts.humanSeats : [];
     const running = Boolean(opts.running);
     const interactive = Boolean(opts.interactive);
+    const atLiveTail = opts.atLiveTail !== false;
 
-    if (interactive && running && pendingDecision) {
+    if (running && !frame && !pendingDecision) {
+      return {
+        waitingSeat: null,
+        activeSeat: null,
+        isHumanWaiting: false,
+        badgeLabel: "Engine startet",
+        bannerText: "XMage-Engine startet …"
+      };
+    }
+
+    if (interactive && running && pendingDecision && atLiveTail) {
       const waitSeat = Number.isInteger(pendingDecision.seat) ? pendingDecision.seat : null;
       const isHuman = waitSeat !== null && humanSeats.includes(waitSeat);
       const clsLabel = classLabelOf(pendingDecision.decision_class);
@@ -166,6 +177,16 @@ const StudioTurnBar = (() => {
         bannerText: isHuman
           ? `Warten auf dich (${seatName(waitSeat)}) · ${clsLabel}`
           : `Warten auf ${seatName(waitSeat)} · ${clsLabel}`
+      };
+    }
+
+    if (running && frame && !atLiveTail) {
+      return {
+        waitingSeat: null,
+        activeSeat: Number.isInteger(frame.active_seat) ? frame.active_seat : null,
+        isHumanWaiting: false,
+        badgeLabel: "Rückblick",
+        bannerText: `Historischer Schritt (Zug ${frame.turn ?? "?"} · Live läuft weiter)`
       };
     }
 
@@ -228,9 +249,12 @@ const StudioTurnBar = (() => {
     }
 
     const activeSeat = activeSeatFromPilotState(ps);
+    if (activeSeat === null) {
+      return { action: "stop", reason: "aktiver Sitz unbekannt (fail-safe Halt)" };
+    }
     const stack = Array.isArray(ps.stack) ? ps.stack : [];
     const halts = Object.assign(defaultHaltConfig(mode), haltConfig && typeof haltConfig === "object" ? haltConfig : {});
-    const isOwnTurn = activeSeat !== null && activeSeat === pending.seat;
+    const isOwnTurn = activeSeat === pending.seat;
     const otherOptions = options.filter((opt) => opt && opt.option_type !== "pass_priority");
 
     // 1. Triggers / spells on the stack (Interrupt-Table top rule)
@@ -258,12 +282,6 @@ const StudioTurnBar = (() => {
     // 5. Opponent End-of-Turn instant window
     if (halts.haltOpponentEndStep && !isOwnTurn && step === "end_turn") {
       return { action: "stop", reason: "Halt im gegnerischen Endsegment" };
-    }
-
-    // Mode guard: "big_moments" still waits on opponent spells / combat / playable cards even if
-    // individual checkboxes weren't set, and passes ONLY routine empty upkeep/draw/opponent cleanup steps.
-    if (mode === "big_moments" && isOwnTurn && stack.length === 0 && (step === "precombat_main" || step === "postcombat_main")) {
-      return { action: "stop", reason: "Große Momente halten: eigene Hauptphase" };
     }
 
     return {
@@ -368,7 +386,7 @@ const StudioTurnBar = (() => {
       };
     }
 
-    if (dc === "trigger_order" || (dc === "order" && !(minSel === 1 && maxSel === 1))) {
+    if ((dc === "trigger_order" || dc === "order") && !(minSel === 1 && maxSel === 1)) {
       return {
         kind: "confirm_order",
         label: "Reihenfolge bestätigen",
@@ -377,6 +395,28 @@ const StudioTurnBar = (() => {
         requireHold: false,
         disabled: false,
         hintText: "Sortiere die Auslöser rechts und bestätige die Reihenfolge."
+      };
+    }
+
+    const ctx = pending.context && typeof pending.context === "object" ? pending.context : {};
+    const hasNumeric = Boolean(
+      (Array.isArray(ctx.numeric_legs) && ctx.numeric_legs.length > 0) ||
+      dc === "announce_x" ||
+      dc === "x_value" ||
+      dc === "amount" ||
+      dc === "multi_amount" ||
+      ctx.numeric_min !== undefined ||
+      ctx.numeric_max !== undefined
+    );
+    if (hasNumeric) {
+      return {
+        kind: "focus_panel",
+        label: "Zahlenwert rechts eingeben",
+        nothingLeft: false,
+        critical: false,
+        requireHold: false,
+        disabled: false,
+        hintText: "Gib die Zahl(en) im Entscheidungsfeld rechts ein und bestätige dort."
       };
     }
 

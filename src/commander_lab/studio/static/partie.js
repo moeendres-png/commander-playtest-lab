@@ -30,7 +30,7 @@ function resolvePriorityOptionType(opt) {
   return ot || "activated_ability";
 }
 
-const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, responseMode: "big_moments", holdToConfirm: true, haltConfig: typeof StudioTurnBar !== "undefined" ? StudioTurnBar.defaultHaltConfig("big_moments") : null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
+const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, responseMode: "full_control", holdToConfirm: true, haltConfig: typeof StudioTurnBar !== "undefined" ? StudioTurnBar.defaultHaltConfig("full_control") : null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
 
 const $ = (id) => document.getElementById(id);
 function h(tag, props, ...children) {
@@ -688,8 +688,11 @@ function seatPanel(player, frame) {
     })
   );
   const humanPending = Boolean(state.interactive && state.pendingDecision && state.pendingDecision.seat === player.seat);
+  const atSeatLiveTail = state.interactive
+    ? Boolean(state.running && state.pendingDecision && state.index >= Math.max(0, state.frames.length - 1))
+    : Boolean(state.running && state.index >= Math.max(0, state.frames.length - 1));
   const waitInfo = typeof StudioTurnBar !== "undefined" && StudioTurnBar.buildWaitingInfo
-    ? StudioTurnBar.buildWaitingInfo(frame, state.interactive && state.running ? state.pendingDecision : null, { seatName, classLabelOf: (c) => CLASSES[c] || c, humanSeats: state.humanSeats, running: state.running, interactive: state.interactive })
+    ? StudioTurnBar.buildWaitingInfo(frame, state.interactive && state.running ? state.pendingDecision : null, { seatName, classLabelOf: (c) => CLASSES[c] || c, humanSeats: state.humanSeats, running: state.running, interactive: state.interactive, atLiveTail: atSeatLiveTail })
     : null;
   const seatWaiting = Boolean(waitInfo && waitInfo.waitingSeat === player.seat);
   const seatClick = seatEntry(player.seat);
@@ -1085,7 +1088,7 @@ function maybeAutoPassHuman(pending) {
   }
   const autoBox = $("auto-pass-human");
   const modeId = state && state.responseMode ? state.responseMode : "big_moments";
-  const wantsAuto = (autoBox && autoBox.checked) || modeId === "auto_pass";
+  const wantsAuto = Boolean(autoBox && autoBox.checked);
   if (!wantsAuto) return false;
   let profilePassId = null;
   let profileReason = "Auto-Pass bis eigene Aktion";
@@ -1344,12 +1347,27 @@ function renderHumanDecision() {
   if (isSingleImmediate && dc === "priority") {
     const passOpt = options.find((opt) => opt.option_type === "pass_priority");
     if (passOpt) {
-      panel.append(h("div", { class: "human-actions", role: "group", "aria-label": "Priorität abgeben" },
-        h("button", { type: "button", class: "primary", disabled: state.submitting, onclick: () => submitHumanChoice({
-          decision_id: pending.decision_id,
-          selected_option_ids: [passOpt.option_id],
-          ordering: []
-        }) }, "Priorität abgeben (Pass)")));
+      const panelPassHold = Boolean(
+        state.holdToConfirm &&
+        typeof StudioTurnBar !== "undefined" &&
+        StudioTurnBar.isCriticalPassWindow &&
+        StudioTurnBar.isCriticalPassWindow(pending)
+      );
+      const onPassClick = () => submitHumanChoice({
+        decision_id: pending.decision_id,
+        selected_option_ids: [passOpt.option_id],
+        ordering: []
+      });
+      const panelPassBtn = h("button", {
+        type: "button",
+        class: `primary${panelPassHold ? " hold-confirm-btn" : ""}`,
+        disabled: state.submitting,
+        onclick: typeof bindHoldToConfirmButton === "function" ? null : onPassClick
+      }, "Priorität abgeben (Pass)");
+      if (typeof bindHoldToConfirmButton === "function") {
+        bindHoldToConfirmButton(panelPassBtn, panelPassHold, onPassClick);
+      }
+      panel.append(h("div", { class: "human-actions", role: "group", "aria-label": "Priorität abgeben" }, panelPassBtn));
     }
     const listEl = h("div", { class: "human-options" });
     const otherOpts = options.filter((opt) => opt.option_type !== "pass_priority");
@@ -1802,7 +1820,12 @@ function renderHandDock(handOwner, handSeat, revealedNote, frame, atLiveTail) {
   });
 }
 
+let lastKeyActivateAt = 0;
 function bindHoldToConfirmButton(btn, requireHold, onConfirm) {
+  if (!btn || typeof btn.addEventListener !== "function") {
+    if (btn) btn.onclick = () => { if (!state.submitting) onConfirm(); };
+    return;
+  }
   if (!requireHold) {
     btn.addEventListener("click", () => { if (!state.submitting) onConfirm(); });
     return;
@@ -1828,9 +1851,18 @@ function bindHoldToConfirmButton(btn, requireHold, onConfirm) {
   btn.addEventListener("pointerup", resetHold);
   btn.addEventListener("pointerleave", resetHold);
   btn.addEventListener("pointercancel", resetHold);
+  btn.addEventListener("contextmenu", (event) => {
+    if (btn.classList.contains("holding")) event.preventDefault();
+  });
   btn.addEventListener("click", (event) => {
     if (completed) {
       completed = false;
+      return;
+    }
+    // Keyboard activation (Enter / Space on focused button after recent keydown) passes directly.
+    if (event.detail === 0 && Date.now() - lastKeyActivateAt < 1000) {
+      lastKeyActivateAt = 0;
+      if (!state.submitting) onConfirm();
       return;
     }
     event.preventDefault();
@@ -1843,6 +1875,7 @@ function renderPhaseBar(frame, atLiveTail) {
   if (!bar) return;
   if (typeof StudioTurnBar === "undefined") { bar.hidden = true; return; }
   bar.textContent = "";
+  const isAtLive = frame ? (state.interactive ? Boolean(atLiveTail) : state.index >= Math.max(0, state.frames.length - 1)) : true;
   const pending = atLiveTail && state.interactive && state.running ? state.pendingDecision : null;
   const timeline = StudioTurnBar.buildPhaseTimeline(frame);
   const waitInfo = StudioTurnBar.buildWaitingInfo(frame, pending, {
@@ -1850,7 +1883,8 @@ function renderPhaseBar(frame, atLiveTail) {
     classLabelOf: (c) => CLASSES[c] || c,
     humanSeats: state.humanSeats,
     running: state.running,
-    interactive: state.interactive
+    interactive: state.interactive,
+    atLiveTail: isAtLive
   });
   const track = h("div", { class: "phase-track", role: "list", "aria-label": "Phasen des Zugs" });
   for (const phase of timeline.phases) {
@@ -1877,7 +1911,7 @@ function renderDecisionBar(frame, atLiveTail) {
   const bar = $("decision-bar");
   if (!bar) return;
   bar.textContent = "";
-  const pending = atLiveTail && state.interactive && state.running ? state.pendingDecision : null;
+  const pending = atLiveTail && state.interactive && state.running && !isHumanSpectator() ? state.pendingDecision : null;
   if (!pending || state.ff.on || typeof StudioTurnBar === "undefined") {
     bar.hidden = true;
     return;
@@ -1904,6 +1938,10 @@ function renderDecisionBar(frame, atLiveTail) {
       return;
     }
     if (action.kind === "confirm_selection") {
+      if (!state.selectedOptions.every((id) => offeredOption(id))) {
+        toast("Diese Auswahl bietet die Engine gerade nicht an.");
+        return;
+      }
       submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [...state.selectedOptions], ordering: [] });
       return;
     }
@@ -2834,6 +2872,7 @@ async function listGames(wanted) {
     state.cohortRecord = null;
     renderCohortPill();
     state.interactive = false;
+    state.running = false;
     state.pendingDecision = null;
     state.canConcede = false;
     state.forcedPasses = null;
@@ -2851,6 +2890,8 @@ async function listGames(wanted) {
     $("where").textContent = "";
     renderHumanDecision();
     renderReplayControls();
+    if (typeof renderPhaseBar === "function") renderPhaseBar(null, false);
+    if (typeof renderDecisionBar === "function") renderDecisionBar(null, false);
     return false;
   }
   const first = state.games.some((game) => game.game_id === wanted) ? wanted : state.games[0].game_id;
@@ -2889,9 +2930,6 @@ async function start() {
   $("position").addEventListener("input", () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); go(Number($("position").value)); });
   $("game-select").addEventListener("change", () => openGame($("game-select").value));
   $("modal").addEventListener("click", (event) => { if (event.target === $("modal")) closeActiveModal(false); });
-  $("auto-pass-human").addEventListener("change", () => {
-    if ($("auto-pass-human").checked && state.interactive && state.pendingDecision) maybeAutoPassHuman(state.pendingDecision);
-  });
   const syncHaltFromDom = () => {
     state.haltConfig = {
       haltStackNonEmpty: Boolean($("halt-stack") && $("halt-stack").checked),
@@ -2901,19 +2939,50 @@ async function start() {
       haltPlayableOptions: Boolean($("halt-playable") && $("halt-playable").checked),
     };
   };
+  const applyModeCheckboxes = (modeId) => {
+    if (typeof StudioTurnBar === "undefined") return;
+    const defaults = StudioTurnBar.defaultHaltConfig(modeId);
+    state.haltConfig = defaults;
+    if ($("halt-stack")) $("halt-stack").checked = defaults.haltStackNonEmpty;
+    if ($("halt-combat")) $("halt-combat").checked = defaults.haltCombat;
+    if ($("halt-own-main")) $("halt-own-main").checked = defaults.haltOwnMain;
+    if ($("halt-opp-end")) $("halt-opp-end").checked = defaults.haltOpponentEndStep;
+    if ($("halt-playable")) $("halt-playable").checked = defaults.haltPlayableOptions;
+  };
+  // Synchronize response profile, halt checkboxes, Hold-to-Confirm, and Auto-Pass from DOM on startup (soft-reload safe).
+  const syncControlsFromDomOnLoad = () => {
+    if ($("hold-confirm-toggle")) state.holdToConfirm = Boolean($("hold-confirm-toggle").checked);
+    const modeEl = $("response-mode");
+    const autoEl = $("auto-pass-human");
+    if (modeEl && autoEl) {
+      if (autoEl.checked && modeEl.value === "full_control") modeEl.value = "big_moments";
+      else if (!autoEl.checked) modeEl.value = "full_control";
+      state.responseMode = modeEl.value;
+    } else if (modeEl) {
+      state.responseMode = modeEl.value;
+    }
+    syncHaltFromDom();
+  };
+  syncControlsFromDomOnLoad();
+  $("auto-pass-human").addEventListener("change", () => {
+    if ($("auto-pass-human").checked) {
+      if ($("response-mode") && $("response-mode").value === "full_control") {
+        $("response-mode").value = "big_moments";
+        state.responseMode = "big_moments";
+        applyModeCheckboxes("big_moments");
+      }
+      if (state.interactive && state.pendingDecision) maybeAutoPassHuman(state.pendingDecision);
+    } else if ($("response-mode")) {
+      $("response-mode").value = "full_control";
+      state.responseMode = "full_control";
+    }
+  });
   if ($("response-mode") && typeof StudioTurnBar !== "undefined") {
     $("response-mode").addEventListener("change", () => {
       const modeId = $("response-mode").value;
       state.responseMode = modeId;
-      const defaults = StudioTurnBar.defaultHaltConfig(modeId);
-      state.haltConfig = defaults;
-      if ($("halt-stack")) $("halt-stack").checked = defaults.haltStackNonEmpty;
-      if ($("halt-combat")) $("halt-combat").checked = defaults.haltCombat;
-      if ($("halt-own-main")) $("halt-own-main").checked = defaults.haltOwnMain;
-      if ($("halt-opp-end")) $("halt-opp-end").checked = defaults.haltOpponentEndStep;
-      if ($("halt-playable")) $("halt-playable").checked = defaults.haltPlayableOptions;
-      if (modeId === "full_control") $("auto-pass-human").checked = false;
-      else if (modeId === "auto_pass") $("auto-pass-human").checked = true;
+      applyModeCheckboxes(modeId);
+      $("auto-pass-human").checked = modeId !== "full_control";
       if (state.interactive && state.pendingDecision) maybeAutoPassHuman(state.pendingDecision);
     });
   }
@@ -2991,6 +3060,7 @@ async function start() {
   });
   document.addEventListener("keydown", (event) => {
     if (event.ctrlKey || event.metaKey || event.altKey) return;
+    if (event.key === "Enter" || event.key === " ") lastKeyActivateAt = Date.now();
     if (event.key === "Escape") { if (closeBoardMenu(true)) return; $("modal").hidden = true; finishConfirmModal(false); return; }
     if (event.key === "Tab" && $("modal") && !$("modal").hidden && $("modal-box") && $("modal-box").dataset.confirmOpen === "1") {
       const items = [...$("modal-box").querySelectorAll("button:not([disabled])")];
@@ -3015,7 +3085,8 @@ async function start() {
       }
     }
     if (!StudioReplay.isReplayAvailable(state)) {
-      if (event.key === " " && !isInteractive(target) && state.interactive && state.running && state.pendingDecision && !state.submitting && !state.ff.on) {
+      const modalOpen = Boolean($("modal") && !$("modal").hidden);
+      if (!modalOpen && event.key === " " && !isInteractive(target) && state.interactive && state.running && state.pendingDecision && !state.submitting && !state.ff.on) {
         const pending = state.pendingDecision;
         const passOpt = pending.decision_class === "priority" && (pending.legal_options || []).find((o) => o && o.option_type === "pass_priority");
         if (passOpt) {
