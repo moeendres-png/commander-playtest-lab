@@ -684,7 +684,6 @@ def _read_orphaned_out(data_folder: str | Path, game_id: str) -> dict[str, objec
         raise KeyError(game_id)
     text = out_path.read_text(encoding="utf-8", errors="replace").strip()
     mtime = time.strftime("%Y-%m-%d %H:%M:%SZ", time.gmtime(out_path.stat().st_mtime))
-    tail = "\n".join(text.splitlines()[-10:]) if text else "Keine Ausgabe erfasst."
     header = {
         "kind": "header",
         "schema": LOG_SCHEMA,
@@ -695,11 +694,28 @@ def _read_orphaned_out(data_folder: str | Path, game_id: str) -> dict[str, objec
         "started_at": mtime,
         "seats": [],
     }
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    has_traceback = any(
+        line.startswith("Traceback (most recent call last):") or line.startswith('File "')
+        for line in lines
+    )
+    summary_line = ""
+    if not has_traceback and lines:
+        summary_line = lines[-1][:200]
+    elif has_traceback and lines:
+        last_line = lines[-1]
+        if not last_line.startswith('File "') and "/" not in last_line and "\\" not in last_line:
+            summary_line = last_line[:200]
+    failure_msg = (
+        f"Start fehlgeschlagen: {summary_line}"
+        if summary_line
+        else "Der Engine-Prozess konnte vor Spielbeginn nicht gestartet werden."
+    )
     result = {
         "kind": "result",
         "status": "failed",
         "failure_class": "start_failed",
-        "failure_message": f"Start fehlgeschlagen:\n{tail}",
+        "failure_message": failure_msg,
         "stdout": text,
         "ended_at": mtime,
         "frames": 0,

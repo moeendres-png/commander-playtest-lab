@@ -69,7 +69,16 @@ function h(tag, props, ...children) {
 // One row of "Aufgezeichnete Einzelpartien" (SIMULATE).
 function recordedGameRow(g) {
   const hdr = g.header || {};
-  const end = g.running ? "läuft" : g.result && g.result.status === "finished" ? `Sieger Sitz ${((g.result.winner_seats || []).map((s) => s + 1)).join(", ") || "keiner"}` : "abgebrochen";
+  const res = g.result || {};
+  let end = "abgebrochen";
+  if (g.running) {
+    end = "läuft";
+  } else if (res.status === "finished") {
+    end = `Sieger Sitz ${((res.winner_seats || []).map((s) => s + 1)).join(", ") || "keiner"}`;
+  } else if (res.failure_class || (res.failure_message && res.failure_message !== "abgebrochen")) {
+    const label = StudioUI.mapFailureReason ? StudioUI.mapFailureReason(res.failure_class || res.failure_message) : "Fehler";
+    end = `fehlgeschlagen (${label})`;
+  }
   const jarShort = hdr.bridge_jar_sha256 ? String(hdr.bridge_jar_sha256).slice(0, 12) : "–";
   const jarTitle = [hdr.bridge_jar_sha256 ? `SHA-256: ${hdr.bridge_jar_sha256}` : null, hdr.bridge_qualification_state ? `Stand: ${hdr.bridge_qualification_state}` : null].filter(Boolean).join(" · ");
   // The cohort comes from the server (game log header); a game a human played, or one whose
@@ -1523,6 +1532,7 @@ function pollBatch(batchId) {
     try {
       const batch = await api("/api/simulations/batch/" + encodeURIComponent(batchId));
       state.activeBatch = batch;
+      if (state.activeBatch && state.activeBatch.batch_id === batchId) delete state.activeBatch.pollError;
       if (batch.status === "completed" || batch.status === "cancelled" || batch.status === "failed") {
         const [sims, recordedGames] = await Promise.all([
           api("/api/simulations?" + StudioCommander.query).catch(() => []),
@@ -1536,7 +1546,10 @@ function pollBatch(batchId) {
         if (state.tab === "sim") renderDeck();
       }
     } catch (err) {
-      console.warn("Poll batch error:", err);
+      if (state.activeBatch && state.activeBatch.batch_id === batchId) {
+        state.activeBatch.pollError = fail(err, true) || "Verbindung unterbrochen";
+        if (state.tab === "sim") renderDeck();
+      }
     }
   }, 1200);
 }
@@ -1554,6 +1567,7 @@ function pairedDeps() {
     fail,
     toast,
     openCard,
+    goBuild: () => { state.tab = "list"; renderDeck(); },
     poolCardById: (id) => state.byId.get(id),
     commander: COMMANDER,
     commanderQuery: StudioCommander.query,
@@ -1662,6 +1676,7 @@ function renderSimulations(body) {
     class: "sim-form",
     onsubmit: async (e) => {
       e.preventDefault();
+      state.batchStartError = null;
       startBtn.disabled = true;
       try {
         const res = await api("/api/simulations/batch", "POST", {
@@ -1682,8 +1697,10 @@ function renderSimulations(body) {
         pollBatch(res.batch_id);
         renderDeck();
       } catch (err) {
+        state.batchStartError = err;
         fail(err);
         startBtn.disabled = false;
+        renderDeck();
       }
     }
   },
@@ -1694,17 +1711,35 @@ function renderSimulations(body) {
     startBtn
   );
   bBox.append(form);
+  if (state.batchStartError) {
+    bBox.append(StudioUI.renderErrorCard(
+      StudioUI.classifyError(state.batchStartError, { context: "batch" }),
+      { retry: () => startBtn.click(), build: () => { state.tab = "list"; renderDeck(); } }
+    ));
+  }
 
   if (state.activeBatch) {
     const b = state.activeBatch;
     const isRunning = b.status === "running" || b.status === "pending";
-    const statusText = isRunning ? "Läuft..." : b.status === "completed" ? "Abgeschlossen" : b.status === "cancelled" ? "Abgebrochen" : "Fehler: " + (b.error || "Unbekannt");
+    const completed = Number(b.games_completed) || 0;
+    const failedCount = Number(b.games_failed) || 0;
+    const allFailed = !isRunning && b.status !== "cancelled" && completed === 0 && (failedCount > 0 || b.status === "failed");
+    const statusText = isRunning
+      ? "Läuft..."
+      : allFailed
+        ? "Fehlgeschlagen"
+        : b.status === "completed"
+          ? (failedCount > 0 ? `Abgeschlossen (${StudioUI.num(failedCount, 0)} fehlgeschlagen)` : "Abgeschlossen")
+          : b.status === "cancelled"
+            ? "Abgebrochen"
+            : "Fehlgeschlagen";
+    const badgeCls = isRunning ? "warn" : (b.status === "completed" && !allFailed) ? "good" : "bad";
     const pct = b.games_planned > 0 ? Math.round((b.games_completed / b.games_planned) * 100) : 0;
 
     const monitor = h("div", { class: "sim-monitor" },
       h("div", { class: "sim-monitor-head" },
         h("b", {}, `Serie „${b.pod}“: ${StudioUI.num(b.games_completed, 0)} von ${StudioUI.num(b.games_planned, 0)} Partien abgeschlossen (${StudioUI.num(pct, 0)} %)`),
-        h("span", { class: "pill " + (isRunning ? "warn" : b.status === "completed" ? "good" : "bad") }, statusText)
+        h("span", { class: `pill ${badgeCls}` }, statusText)
       ),
       // the bar follows the games the engine has played (plus failed ones); the headline counts finished results
       h("progress", { value: b.games_played !== null && b.games_played !== undefined && Number.isFinite(Number(b.games_played)) ? Math.min(b.games_planned, Number(b.games_played) + Number(b.games_failed || 0)) : b.games_completed, max: b.games_planned, title: "Fortschrittsbalken: gespielte plus gescheiterte Partien" }),
@@ -1732,9 +1767,27 @@ function renderSimulations(body) {
       monitor.append(cancelBtn);
     }
 
+    const rawFailures = (() => {
+      if (b.summary && Array.isArray(b.summary.failure_summary) && b.summary.failure_summary.length) {
+        return b.summary.failure_summary;
+      }
+      return Object.entries((Array.isArray(b.games) ? b.games : []).reduce((acc, g) => {
+        if (g && g.status !== "finished") {
+          const key = g.failure_class || "Unbekannt";
+          acc[key] = (acc[key] || 0) + 1;
+        }
+        return acc;
+      }, {})).map(([reason, count]) => ({ reason, count }));
+    })();
+    const failText = rawFailures.length
+      ? rawFailures.map((f) => `${StudioUI.num(f.count, 0)} × ${StudioUI.mapFailureReason(f.reason)}`).join(", ")
+      : (failedCount > 0 ? `${StudioUI.num(failedCount, 0)} fehlgeschlagen` : "");
+    const rawFailTitle = rawFailures.map((f) => `${f.count} × ${f.reason}`).join(", ");
+
     if (b.summary) {
       const s = b.summary;
       const ci = s.confidence_interval_95 || {};
+      const hasCi = Number(s.games_completed) > 0 && ci.lower_percent !== null && ci.lower_percent !== undefined && ci.upper_percent !== null && ci.upper_percent !== undefined;
       const qualStates = s.bridge_qualification_states || (b.bridge_qualification && b.bridge_qualification.status ? [b.bridge_qualification.status] : []);
       const bridgeSha = s.bridge_jar_sha256 || b.bridge_jar_sha256 || null;
       const epochLabel = s.covered_by_sealed_epoch ? "versiegelt" : (qualStates.join(", ") || "nicht versiegelt");
@@ -1742,15 +1795,37 @@ function renderSimulations(body) {
         h("h4", {}, "Ergebnis der Serie"),
         h("div", { class: "sim-grid" },
           h("div", {}, h("span", { class: "muted" }, "Siege: "), h("b", {}, `${StudioUI.numFlex(s.wins_fractional, 1)} / ${StudioUI.num(s.games_completed, 0)}`)),
-          h("div", {}, h("span", { class: "muted" }, "Siegrate: "), h("b", {}, s.win_rate !== null ? `${StudioUI.num(s.win_rate_percent, 1)} %` : "–")),
-          h("div", {}, h("span", { class: "muted" }, "95 %-CI (Wilson): "), h("b", {}, ci.lower_percent !== undefined ? `[${StudioUI.num(ci.lower_percent, 1)} %, ${StudioUI.num(ci.upper_percent, 1)} %]` : "–")),
+          h("div", {}, h("span", { class: "muted" }, "Siegrate: "), h("b", {}, s.win_rate !== null && Number(s.games_completed) > 0 ? `${StudioUI.num(s.win_rate_percent, 1)} %` : "–")),
+          h("div", {}, h("span", { class: "muted" }, "95 %-CI (Wilson): "), h("b", {}, hasCi ? `[${StudioUI.num(ci.lower_percent, 1)} %, ${StudioUI.num(ci.upper_percent, 1)} %]` : "–")),
           h("div", {}, h("span", { class: "muted" }, "Ø Runden: "), h("b", {}, s.mean_rounds == null ? "–" : StudioUI.numFlex(s.mean_rounds, 1))),
           h("div", {}, h("span", { class: "muted" }, "Bridge-JAR: "), h("code", { title: bridgeSha || "" }, bridgeSha ? String(bridgeSha).slice(0, 12) : "–")),
           h("div", {}, h("span", { class: "muted" }, "Epoche: "), h("b", {}, epochLabel))
         ),
+        (failedCount > 0 || rawFailures.length > 0)
+          ? h("div", { class: "sim-failures", title: rawFailTitle },
+              h("strong", {}, `${StudioUI.num(failedCount || rawFailures.reduce((n, f) => n + f.count, 0), 0)} fehlgeschlagen: `),
+              h("span", {}, failText))
+          : null,
         b.run_id ? h("p", { class: "note note-compact" }, `Dauerhaft im Store hinterlegt unter ID: `, h("code", {}, b.run_id)) : null
       );
       monitor.append(sumBox);
+    }
+
+    if (allFailed || b.status === "failed" || b.pollError) {
+      const errInput = b.pollError
+        ? { error: b.pollError }
+        : {
+            failure_class: rawFailures[0] ? rawFailures[0].reason : (b.error ? "" : "BRIDGE_TIMEOUT"),
+            error: b.error || failText,
+            stdout: rawFailTitle ? `Fehlerklassen: ${rawFailTitle}${b.error ? `\n${b.error}` : ""}` : (b.error || ""),
+          };
+      monitor.append(StudioUI.renderErrorCard(
+        StudioUI.classifyError(errInput, { context: b.pollError ? "network" : "batch" }),
+        {
+          retry: () => (b.pollError ? pollBatch(b.batch_id) : startBtn.click()),
+          build: () => { state.tab = "list"; renderDeck(); },
+        }
+      ));
     }
 
     if (b.games && b.games.length) {

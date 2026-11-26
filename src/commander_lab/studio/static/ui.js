@@ -357,6 +357,203 @@ const StudioUI = (() => {
       el("p", { class: "note" }, `Ein Aufruf mit allen Dateien: ${overview.doc}. Unter Windows kommt vor „import-all“ die Option --data "$env:LOCALAPPDATA\\CommanderStudio".`)));
   }
 
-  return { recall, remember, el, h: el, kids, toast, fail, germanError, request, api: request, clearSharedCache, busy, loading, skeleton, num, pct, numFlex, numSig, simStatusLabel, limitNumber, dataState, effectiveTheme, applyTheme };
+  function sanitizeTechnicalText(raw) {
+    if (raw === null || raw === undefined) return "";
+    let text = String(raw).trim();
+    text = text.replace(/\s*\(diagnostics sha256:[^)]+\)/gi, "");
+    text = text.replace(/\bsha256:[0-9a-f]{12,64}\b/gi, "");
+    return text.trim();
+  }
+
+  function mapFailureReason(codeOrMessage) {
+    const text = String(codeOrMessage || "").trim();
+    if (!text) return "unbekannter Grund";
+    if (/DECISION_TIMEOUT/i.test(text)) return "Entscheidungs-Zeitlimit";
+    if (/BRIDGE_TIMEOUT|TimeLimit/i.test(text)) return "Engine-Zeitlimit";
+    if (/BRIDGE_ERROR|ENGINE_FAILURE|BRIDGE_CLOSED|BRIDGE_EXITED|BRIDGE_UNUSABLE|XMAGE_FULL_GAME_FAILED|EngineError|WorkerExited/i.test(text)) return "Engine-Fehler";
+    if (/start_failed|Start fehlgeschlagen/i.test(text)) return "Start fehlgeschlagen";
+    if (/100 Karten|Commander-Deck|deck_size|commander_count/i.test(text)) return "Deck-Validierung";
+    if (/abgebrochen|cancelled/i.test(text)) return "abgebrochen";
+    if (/^unbekannt$/i.test(text)) return "unbekannter Grund";
+    return sanitizeTechnicalText(text).split(/\r?\n/)[0].slice(0, 80) || "Fehler";
+  }
+
+  function classifyError(input, opts = {}) {
+    const context = opts && opts.context ? opts.context : "generic";
+    let rawCode = "";
+    let rawMessage = "";
+    let rawDetails = "";
+    let cancelled = false;
+    if (input && typeof input === "object" && !(input instanceof Error)) {
+      rawCode = String(input.failure_class || input.code || input.status || "").trim();
+      rawMessage = String(input.failure_message || input.error || input.detail || input.message || "").trim();
+      rawDetails = String(input.stdout || input.traceback || "").trim();
+      cancelled = input.status === "cancelled";
+    } else if (input instanceof Error) {
+      rawMessage = String(input.detail !== undefined ? input.detail : input.message || "").trim();
+      rawCode = input.status ? `HTTP ${input.status}` : "";
+    } else {
+      rawMessage = String(input || "").trim();
+    }
+    const sanitizedMsg = sanitizeTechnicalText(rawMessage);
+    const combined = [rawCode, rawMessage, rawDetails].filter(Boolean).join("\n");
+    const looksLikeTrace = /Traceback \(most recent call last\):|\.py", line \d+|\/home\/|[A-Z]:\\|\(diagnostics sha256:/i.test(combined);
+    const detailsText = rawDetails || (looksLikeTrace || rawCode ? [rawCode ? `Code: ${rawCode}` : "", rawMessage].filter(Boolean).join("\n") : "");
+    const stepPrimary = context === "batch"
+      ? { action: "retry", label: "Serie erneut starten", primary: true }
+      : { action: "newGame", label: "Neue Partie starten", primary: true };
+    const stepSecondary = context === "batch"
+      ? { action: "build", label: "Zum Deckbau" }
+      : { action: "gamesList", label: "Zur Spieleliste" };
+
+    if (input && typeof input === "object" && input.game_reached_engine_end === true && input.shutdown_disposition) {
+      const uncredited = Array.isArray(input.uncredited_winner_seats) ? input.uncredited_winner_seats : [];
+      const extra = uncredited.length ? ` (nicht gewertete Sieger-Plätze: ${uncredited.map((s) => `Sitz ${s + 1}`).join(", ")})` : "";
+      return {
+        code: "UNCLEAN_SHUTDOWN",
+        title: "Ergebnis nicht gewertet",
+        sentence: `Die Partie lief bis zum Ende, aber der Engine-Prozess endete danach nicht sauber.${extra}`,
+        consequence: "Das Ergebnis wird zur Sicherheit nicht gewertet.",
+        nextSteps: [stepPrimary, stepSecondary],
+        details: detailsText || `shutdown_disposition: ${input.shutdown_disposition}`,
+      };
+    }
+
+    if (/DECISION_TIMEOUT/i.test(combined)) {
+      return {
+        code: "DECISION_TIMEOUT",
+        title: "Entscheidungs-Zeitlimit überschritten",
+        sentence: "Die Regeln-Engine hat auf eine Entscheidung gewartet und das Zeitlimit erreicht.",
+        consequence: context === "batch" ? "Betroffene Partien wurden beendet." : "Die laufende Partie wurde beendet.",
+        nextSteps: [stepPrimary, stepSecondary],
+        details: detailsText,
+      };
+    }
+
+    if (/BRIDGE_TIMEOUT|TimeLimit/i.test(combined)) {
+      return {
+        code: "BRIDGE_TIMEOUT",
+        title: "Engine hat nicht rechtzeitig geantwortet",
+        sentence: "Die XMage-Bridge hat das Zeitlimit einer Anfrage überschritten.",
+        consequence: context === "batch" ? "Betroffene Partien wurden abgebrochen und zählen nicht in die Siegrate." : "Diese Partie konnte nicht fortgesetzt werden.",
+        nextSteps: [
+          { action: "retry", label: "Erneut versuchen", primary: true },
+          stepSecondary,
+        ],
+        details: detailsText,
+      };
+    }
+
+    if (/BRIDGE_ERROR|ENGINE_FAILURE|BRIDGE_CLOSED|BRIDGE_EXITED|BRIDGE_UNUSABLE|XMAGE_FULL_GAME_FAILED|EngineError|WorkerExited/i.test(combined)) {
+      return {
+        code: "BRIDGE_ERROR",
+        title: "Engine-Verbindung unterbrochen",
+        sentence: "Die Regeln-Engine (XMage) wurde unerwartet beendet oder hat einen internen Fehler gemeldet.",
+        consequence: context === "batch" ? "Die betroffenen Partien wurden nicht zu Ende gespielt." : "Die Partie wurde beendet und nicht gewertet.",
+        nextSteps: [stepPrimary, stepSecondary],
+        details: detailsText,
+      };
+    }
+
+    if (/Ungültiges Commander-Deck|100 Karten|Commander-Deck braucht|unterstützt diese Karten noch nicht|kennt diese Karten noch nicht/i.test(combined)) {
+      const cleanSentence = sanitizeTechnicalText(rawMessage.split(/Traceback/i)[0]).trim();
+      return {
+        code: "VALIDATION",
+        title: "Deck oder Startvorgabe ungültig",
+        sentence: cleanSentence || "Das ausgewählte Deck erfüllt noch nicht alle Commander-Regeln (genau 100 Karten, 1–2 Commander).",
+        consequence: "Es wurde keine Engine gestartet.",
+        nextSteps: [
+          { action: "build", label: "Zum Deckbau", primary: true },
+        ],
+        details: "",
+      };
+    }
+
+    if (/start_failed|Start fehlgeschlagen/i.test(rawCode) || (/Traceback/i.test(combined) && context !== "network")) {
+      return {
+        code: "START_FAILED",
+        title: "Start fehlgeschlagen",
+        sentence: "Die Engine konnte diese Partie nicht starten (häufige Ursache: Deckgröße ungleich 100 Karten oder fehlende Engine-Dateien).",
+        consequence: "Es wurden keine Spielzüge aufgezeichnet.",
+        nextSteps: [
+          { action: "build", label: "Deck im Deckbau prüfen", primary: true },
+          stepSecondary,
+        ],
+        details: detailsText || sanitizedMsg,
+      };
+    }
+
+    if (/Failed to fetch|NetworkError|Load failed|Verbindung zum Studio|timeout/i.test(combined) || context === "network") {
+      return {
+        code: "NETWORK",
+        title: "Verbindung zum Studio unterbrochen",
+        sentence: "Der lokale Studio-Server antwortet aktuell nicht.",
+        consequence: context === "batch"
+          ? "Die Aktualisierung wurde angehalten; auf Wunsch erneut abfragen."
+          : "Die Seite versucht es automatisch weiter — ob eine laufende Partie weiterläuft, ist derzeit unbekannt.",
+        nextSteps: [
+          { action: "retry", label: "Erneut versuchen", primary: true },
+          stepSecondary,
+        ],
+        details: detailsText || sanitizedMsg,
+      };
+    }
+
+    if (cancelled || /^cancelled$/i.test(rawCode) || /^abgebrochen$/i.test(sanitizedMsg)) {
+      return {
+        code: "CANCELLED",
+        title: "Vorgang abgebrochen",
+        sentence: "Die Ausführung wurde abgebrochen.",
+        consequence: context === "batch" ? "Unfertige Partien zählen nicht in die Auswertung." : "Die Partie wurde vorzeitig beendet.",
+        nextSteps: [stepPrimary, stepSecondary],
+        details: detailsText,
+      };
+    }
+
+    let fallbackMsg = "Während der Ausführung ist ein unerwarteter Fehler aufgetreten.";
+    if (!looksLikeTrace && sanitizedMsg && !/^unbekannter fehler$/i.test(sanitizedMsg)) {
+      fallbackMsg = /[äöüß]|Wähle|Teilmenge|Diese Karte|Gib ein|im Deck|Sammlung|nicht erlaubt|Ungültig|Fehlgeschlagen/i.test(sanitizedMsg)
+        ? sanitizedMsg
+        : germanError(sanitizedMsg);
+    }
+    return {
+      code: rawCode || "UNKNOWN",
+      title: "Aktion nicht abgeschlossen",
+      sentence: fallbackMsg,
+      consequence: context === "batch" ? "Die Serie konnte nicht vollständig ausgewertet werden." : "Die Partie wurde nicht zu Ende gespielt.",
+      nextSteps: [
+        { action: "retry", label: "Erneut versuchen", primary: true },
+        stepSecondary,
+      ],
+      details: detailsText,
+    };
+  }
+
+  function renderErrorCard(spec, handlers = {}) {
+    const info = spec && typeof spec === "object" && spec.sentence ? spec : classifyError(spec);
+    const actions = [];
+    for (const step of info.nextSteps || []) {
+      const fn = handlers && typeof handlers[step.action] === "function" ? handlers[step.action] : null;
+      if (!fn && step.action === "build") {
+        actions.push(el("a", { class: `btn${step.primary ? " primary" : ""}`, href: "index.html" }, step.label));
+      } else if (fn) {
+        actions.push(el("button", { type: "button", class: step.primary ? "primary" : "", onclick: fn }, step.label));
+      }
+    }
+    return el("div", { class: "error-card", role: "alert" },
+      el("div", { class: "error-card-head" },
+        el("span", { class: "pill bad" }, "Fehler"),
+        el("strong", { class: "error-card-title" }, info.title)),
+      el("p", { class: "error-card-sentence" }, info.sentence),
+      info.consequence ? el("p", { class: "error-card-consequence" }, info.consequence) : null,
+      actions.length ? el("div", { class: "error-card-actions" }, actions) : null,
+      info.details
+        ? el("details", { class: "error-details" },
+            el("summary", {}, "Technische Details"),
+            el("pre", { class: "error-out" }, info.details))
+        : null);
+  }
+
+  return { recall, remember, el, h: el, kids, toast, fail, germanError, classifyError, renderErrorCard, mapFailureReason, sanitizeTechnicalText, request, api: request, clearSharedCache, busy, loading, skeleton, num, pct, numFlex, numSig, simStatusLabel, limitNumber, dataState, effectiveTheme, applyTheme };
 })();
 

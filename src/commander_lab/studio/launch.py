@@ -18,12 +18,12 @@ import shutil
 import subprocess
 import sys
 import time
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
-from .decks import lab_snapshot
+from .decks import DECK_SIZE, lab_snapshot
 from .games import free_game_id, games_folder
 from .store import StudioStore
 
@@ -887,6 +887,39 @@ def resolve_opponent_paths(
     return paths
 
 
+def validate_commander_snapshot_size(snapshot: Mapping[str, object]) -> None:
+    """Reject non-100-card or invalid-commander snapshots cleanly before starting an engine."""
+    raw_cards = snapshot.get("cards")
+    total_cards = 0
+    commander_count = 0
+    if isinstance(raw_cards, list):
+        for entry in raw_cards:
+            if not isinstance(entry, Mapping):
+                continue
+            raw_qty = entry.get("quantity")
+            qty = (
+                int(raw_qty)
+                if isinstance(raw_qty, (int, float)) and not isinstance(raw_qty, bool)
+                else 0
+            )
+            if qty <= 0:
+                continue
+            total_cards += qty
+            if str(entry.get("zone") or "") == "commander":
+                commander_count += qty
+    commander_meta = snapshot.get("commander")
+    if commander_count == 0 and isinstance(commander_meta, Mapping):
+        raw_cmdrs = commander_meta.get("commanders")
+        if isinstance(raw_cmdrs, list):
+            commander_count = len([name for name in raw_cmdrs if name])
+    if total_cards != DECK_SIZE or not (1 <= commander_count <= 2):
+        raise ValueError(
+            f"Ungültiges Commander-Deck: {total_cards} von {DECK_SIZE} Karten "
+            f"und {commander_count} Commander (erforderlich: genau {DECK_SIZE} Karten "
+            "und 1 bis 2 Commander). Bitte vor dem Start im Deckbau anpassen."
+        )
+
+
 def prepare_table_deck_paths(
     store: StudioStore,
     data_folder: str | Path,
@@ -926,6 +959,8 @@ def prepare_table_deck_paths(
         raise ValueError(
             "Das Kartenwissen der KI kennt diese Karten noch nicht: " + ", ".join(unknown[:8])
         )
+    if snapshot.get("cards") or "studio_revision_id" in snapshot:
+        validate_commander_snapshot_size(snapshot)
     deck_folder = games_folder(data_folder) / "decks"
     deck_folder.mkdir(exist_ok=True)
     own = deck_folder / (revision_id.replace("@", "-").replace("/", "-") + ".json")

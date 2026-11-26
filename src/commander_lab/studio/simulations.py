@@ -17,6 +17,7 @@ import subprocess
 import sys
 import threading
 import time
+from collections import Counter
 from collections.abc import Callable, Iterator, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -33,7 +34,7 @@ from commander_lab.qualification.current_boundary.bridge_launcher import (
 )
 
 from . import cache, series_reservation
-from .decks import lab_snapshot
+from .decks import DECK_SIZE, lab_snapshot
 from .games import COHORT_PLAYED, COHORT_SIMULATED, game_cohort, games_folder, read_game
 from .launch import (
     ENGINE_COMMAND_ENV,
@@ -44,6 +45,7 @@ from .launch import (
     engine_state,
     resolve_opponent_paths,
     series_engine,
+    validate_commander_snapshot_size,
 )
 from .launch import (
     bridge_jar_sha256 as command_bridge_jar_sha256,
@@ -904,9 +906,24 @@ def aggregate_batch_results(
     )
     completed_count = len(successful)
     win_rate = round(wins / completed_count, 4) if completed_count > 0 else None
-    ci_lower, ci_upper = (
-        wilson_score_interval(wins, completed_count) if completed_count > 0 else (0.0, 0.0)
+    ci_lower: float | None
+    ci_upper: float | None
+    if completed_count > 0:
+        ci_lower, ci_upper = wilson_score_interval(wins, completed_count)
+    else:
+        ci_lower, ci_upper = None, None
+    failure_counts = Counter(
+        (
+            g.failure_class.strip()
+            if isinstance(g.failure_class, str) and g.failure_class.strip()
+            else "Unbekannt"
+        )
+        for g in failed
     )
+    failure_summary = [
+        {"reason": reason, "count": count}
+        for reason, count in sorted(failure_counts.items(), key=lambda item: (-item[1], item[0]))
+    ]
 
     mean_rounds = (
         round(sum(g.rounds for g in successful) / completed_count, 2)
@@ -1065,7 +1082,7 @@ def aggregate_batch_results(
             "ci95": [ci_lower, ci_upper] if completed_count > 0 else None,
             "display": (
                 f"{round(win_rate * 100.0, 1)} % [{round(ci_lower * 100.0, 1)} %; {round(ci_upper * 100.0, 1)} %]"
-                if win_rate is not None
+                if win_rate is not None and ci_lower is not None and ci_upper is not None
                 else "unbekannt"
             ),
             "is_time_to_event": False,
@@ -1107,9 +1124,10 @@ def aggregate_batch_results(
         "confidence_interval_95": {
             "lower": ci_lower,
             "upper": ci_upper,
-            "lower_percent": round(ci_lower * 100.0, 1),
-            "upper_percent": round(ci_upper * 100.0, 1),
+            "lower_percent": round(ci_lower * 100.0, 1) if ci_lower is not None else None,
+            "upper_percent": round(ci_upper * 100.0, 1) if ci_upper is not None else None,
         },
+        "failure_summary": failure_summary,
         "mean_rounds": mean_rounds,
         "pilot_fingerprint": resolved_fp,
         "bridge_jar_sha256": bridge_shas[0] if len(bridge_shas) == 1 else None,
@@ -2127,6 +2145,23 @@ class SimulationBatchManager:
 
         # Snapshot the candidate deck
         snapshot = lab_snapshot(store, revision_id)
+        raw_cards = snapshot.get("cards")
+        real_engine = (
+            game_executor is None
+            and chunk_runner is None
+            and (engine is None or len(engine.command) > 1)
+        )
+        total_cards = (
+            sum(
+                int(entry.get("quantity") or 0)
+                for entry in raw_cards
+                if isinstance(entry, Mapping) and not isinstance(entry.get("quantity"), bool)
+            )
+            if isinstance(raw_cards, list)
+            else 0
+        )
+        if real_engine or total_cards > DECK_SIZE:
+            validate_commander_snapshot_size(snapshot)
         deck_id = str(snapshot.get("deck_id") or "chulane")
         deck_folder = games_folder(data_path) / "decks"
         deck_folder.mkdir(parents=True, exist_ok=True)
