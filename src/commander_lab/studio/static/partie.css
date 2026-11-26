@@ -160,3 +160,14 @@ button.stat:hover:not(:disabled){background:none;border:0;color:var(--text)}
 .own-combat-title{font-weight:700;color:var(--warn);font-size:12px}
 .own-combat-list{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:2px}
 .line.auto-pass{color:var(--muted);font-style:italic}
+
+/* Concede feedback, spectator status, and theme-safe in-app confirmation modal (#1829). */
+.spectator-status{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;line-height:1.35;background:var(--panel2);color:var(--text)}
+.spectator-status[hidden]{display:none}
+.spectator-status.pending{border-color:var(--warn);background:color-mix(in srgb,var(--panel2) 86%,var(--warn) 14%)}
+.spectator-status.eliminated{border-color:var(--bad);background:color-mix(in srgb,var(--panel2) 86%,var(--bad) 14%)}
+.concede-pending-note{border:1px solid var(--warn);border-radius:6px;padding:6px 8px;margin:6px 0;font-size:12px;line-height:1.35;background:color-mix(in srgb,var(--panel) 84%,var(--warn) 16%);color:var(--text)}
+.confirm-dialog{display:flex;flex-direction:column;gap:12px}
+.confirm-dialog-title{margin:0;font-size:17px;color:var(--text)}
+.confirm-dialog-text{margin:0;color:var(--muted);line-height:1.45}
+.confirm-dialog-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:4px}

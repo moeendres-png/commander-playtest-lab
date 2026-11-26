@@ -720,6 +720,8 @@ class InteractiveGameSession:
         self._pending_raw_decision: dict[str, object] | None = None
         self._player_ids_by_seat: dict[int, str] = {}
         self._can_concede_by_seat: dict[int, bool] = {}
+        self._conceded_seats: set[int] = set()
+        self._eliminated_seats: set[int] = set()
         self._running = True
         self._discard_on_exit = False
         self._shutdown_event = threading.Event()
@@ -759,7 +761,16 @@ class InteractiveGameSession:
                 pid = entry.get("player_id")
                 if type(seat) is int and isinstance(pid, str) and pid:
                     self._player_ids_by_seat[seat] = pid
-                    self._can_concede_by_seat[seat] = bool(entry.get("can_concede"))
+                    self._can_concede_by_seat[seat] = (
+                        bool(entry.get("can_concede")) and seat not in self._conceded_seats
+                    )
+                if type(seat) is int:
+                    if entry.get("conceded"):
+                        self._conceded_seats.add(seat)
+                        self._can_concede_by_seat[seat] = False
+                        self._eliminated_seats.add(seat)
+                    if entry.get("lost") or entry.get("left"):
+                        self._eliminated_seats.add(seat)
 
     def _sanitize_decision(self, decision: Mapping[str, object]) -> dict[str, object]:
         sanitized: dict[str, object] = {
@@ -807,11 +818,13 @@ class InteractiveGameSession:
                         with contextlib.suppress(Exception):
                             offer = match.concede_offer(actor_id)
                             if isinstance(offer, Mapping):
-                                self._can_concede_by_seat[seat] = bool(
-                                    offer.get("concede_available")
+                                self._can_concede_by_seat[seat] = (
+                                    bool(offer.get("concede_available"))
+                                    and seat not in self._conceded_seats
                                 )
                     sanitized["can_concede"] = any(
-                        self._can_concede_by_seat.get(s, False) for s in self.human_seats
+                        self._can_concede_by_seat.get(s, False) and s not in self._conceded_seats
+                        for s in self.human_seats
                     )
                     self._pending_decision = sanitized
                     self._pending_raw_decision = copy.deepcopy(dict(decision))
@@ -848,8 +861,12 @@ class InteractiveGameSession:
             return current_status
         with self._lock:
             actor_id = self._player_ids_by_seat.get(seat)
+            already_conceded = seat in self._conceded_seats
         if not actor_id:
             cmd.reject(RuntimeError("concede unavailable before player identity is known"))
+            return current_status
+        if already_conceded:
+            cmd.reject(ValueError("Aufgeben ist für diesen Platz derzeit nicht möglich"))
             return current_status
         try:
             offer = match.concede_offer(actor_id)
@@ -858,8 +875,33 @@ class InteractiveGameSession:
             next_status = match.concede(actor_id, raise_on_failure=False)
             if not isinstance(next_status, dict):
                 raise RuntimeError("invalid submit_concede response")
+            if (
+                not bool(next_status.get("terminal"))
+                and next_status.get("decision") is None
+                and not isinstance(next_status.get("failure"), dict)
+            ):
+                with contextlib.suppress(FullGameProtocolError):
+                    probed = match.next_decision(raise_on_failure=False)
+                    if isinstance(probed, dict):
+                        next_status = probed
+            dec = next_status.get("decision")
+            pending_decision_remains = isinstance(dec, Mapping) and dec.get("seat") == seat
+            with self._lock:
+                self._conceded_seats.add(seat)
+                self._can_concede_by_seat[seat] = False
+                if not pending_decision_remains or bool(next_status.get("terminal")):
+                    self._eliminated_seats.add(seat)
             self._publish_status(next_status, match)
-            cmd.resolve({"conceded": True, "seat": seat})
+            with self._lock:
+                eliminated = seat in self._eliminated_seats
+            cmd.resolve(
+                {
+                    "conceded": True,
+                    "seat": seat,
+                    "concede_pending_decision": pending_decision_remains,
+                    "eliminated": eliminated,
+                }
+            )
             return next_status
         except FullGameConformanceError as exc:
             cmd.reject(exc)
@@ -1035,6 +1077,15 @@ class InteractiveGameSession:
                                 raise
                             self._record_decision(decision, response_payload)
                             status = next_status
+                            next_dec = next_status.get("decision")
+                            still_pending = (
+                                isinstance(next_dec, Mapping) and next_dec.get("seat") == seat
+                            )
+                            with self._lock:
+                                if seat in self._conceded_seats and (
+                                    not still_pending or bool(next_status.get("terminal"))
+                                ):
+                                    self._eliminated_seats.add(seat)
                             self._publish_status(status, match)
                             cmd.resolve({"accepted": True})
                             break
@@ -1196,9 +1247,18 @@ class InteractiveGameSession:
                 "decision_timeout_seconds": self.decision_timeout_seconds,
                 "ai_delay_ms": self.ai_delay_ms,
                 "can_concede": any(
-                    self._can_concede_by_seat.get(s, False) for s in self.human_seats
+                    self._can_concede_by_seat.get(s, False) and s not in self._conceded_seats
+                    for s in self.human_seats
                 )
                 and self._running,
+                "conceded_seats": sorted(self._conceded_seats),
+                "eliminated_seats": sorted(self._eliminated_seats),
+                "concede_pending_decision": bool(
+                    pending is not None
+                    and type(pending.get("seat")) is int
+                    and pending.get("seat") in self._conceded_seats
+                    and self._running
+                ),
                 "pending_decision": pending,
                 "frames": sliced,
                 "start": start,

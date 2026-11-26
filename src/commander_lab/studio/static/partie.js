@@ -22,7 +22,7 @@ const SPEEDS = [[2000, "langsam"], [1000, "1 pro Sekunde"], [500, "2 pro Sekunde
 const POOL_COLORS = { white: "Weiß", blue: "Blau", black: "Schwarz", red: "Rot", green: "Grün", colorless: "Farblos" };
 const OPTION_TYPES = { pass_priority: "Passen", play_land: "Land spielen", cast_spell: "Zauber wirken", activated_ability: "Fähigkeit aktivieren", mana_ability: "Mana-Fähigkeit", special_action: "Sonderaktion", target: "Ziel", choose_object: "Objekt wählen", attacker: "Angreifer", blocker: "Blocker", mode: "Modus", choice: "Auswahl", mana_payment: "Mana", trigger_order: "Auslöser", yes: "Ja", no: "Nein" };
 
-const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
+const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
 
 const $ = (id) => document.getElementById(id);
 function h(tag, props, ...children) {
@@ -58,6 +58,12 @@ let toastTimer = 0;
 function toast(text, milliseconds = 3500) {
   const box = $("toast"); box.textContent = text; box.hidden = false;
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { box.hidden = true; }, milliseconds);
+}
+function formatPlayError(error) {
+  if (typeof StudioUI !== "undefined" && StudioUI.germanError) return StudioUI.germanError(error);
+  const msg = error && error.message ? String(error.message) : String(error || "Unbekannter Fehler");
+  if (/Failed to fetch|NetworkError/i.test(msg)) return "Server nicht erreichbar.";
+  return msg;
 }
 
 const seatName = (seat) => (seat === null || seat === undefined ? "?" : `Sitz ${seat + 1}`);
@@ -893,12 +899,48 @@ function announceDecision(pending) {
   const count = Array.isArray(pending.legal_options) ? pending.legal_options.length : 0;
   box.textContent = `Neue Entscheidung für ${seatName(pending.seat)}: ${CLASSES[pending.decision_class] || pending.decision_class}. ${pending.prompt || ""} ${count} Möglichkeiten.`;
 }
+function isHumanSpectator() {
+  if (!state.interactive || !state.humanSeats.length || state.concedePendingDecision) return false;
+  const elim = new Set(Array.isArray(state.eliminatedSeats) ? state.eliminatedSeats : []);
+  const frame = state.frames && state.frames.length ? state.frames[state.frames.length - 1] : null;
+  const players = frame && Array.isArray(frame.players) ? frame.players : [];
+  return state.humanSeats.every((seat) => {
+    if (elim.has(seat)) return true;
+    const p = players.find((pl) => pl.seat === seat);
+    return Boolean(p && (p.lost || p.left));
+  });
+}
+function renderSpectatorStatus() {
+  const box = $("spectator-status");
+  if (!box) return;
+  if (state.interactive && state.running && state.concedePendingDecision) {
+    box.hidden = false;
+    box.className = "spectator-status pending";
+    box.textContent = "Aufgabe vorgemerkt — wirksam nach Abschluss dieser offenen Entscheidung.";
+    return;
+  }
+  if (state.interactive && isHumanSpectator()) {
+    box.hidden = false;
+    box.className = "spectator-status eliminated";
+    box.textContent = state.running
+      ? "Du bist ausgeschieden — Zuschauer-Modus"
+      : "Du hast aufgegeben — Partie beendet (Zuschauer-Ansicht)";
+    return;
+  }
+  box.hidden = true;
+  box.className = "spectator-status";
+  box.textContent = "";
+}
 function renderHumanDecision() {
   const panel = $("human-decision");
   const concedebtn = $("concede-btn");
   const autoWrap = $("auto-pass-wrap");
-  if (concedebtn) concedebtn.hidden = !(state.interactive && state.running && state.canConcede);
-  if (autoWrap) autoWrap.hidden = !(state.interactive && state.running);
+  renderSpectatorStatus();
+  if (concedebtn) {
+    concedebtn.hidden = !(state.interactive && state.running && state.canConcede && !isHumanSpectator());
+    concedebtn.disabled = Boolean(state.conceding);
+  }
+  if (autoWrap) autoWrap.hidden = !(state.interactive && state.running && !isHumanSpectator());
   renderFastForwardButton();
   const pending = state.interactive && state.running ? state.pendingDecision : null;
   if (!pending) {
@@ -929,7 +971,7 @@ function renderHumanDecision() {
   if (!state.click || state.click.decisionId !== pending.decision_id) state.click = StudioBoardClick.build(pending);
   // The poll renders again every moment: an unchanged decision keeps its panel, so a typed number,
   // an open menu and the keyboard focus survive.
-  const panelSig = JSON.stringify([pending.decision_id, state.selectedOptions, state.orderList, state.submitting]);
+  const panelSig = JSON.stringify([pending.decision_id, state.selectedOptions, state.orderList, state.submitting, state.concedePendingDecision]);
   if (!panel.hidden && panel.dataset.sig === panelSig) return;
   panel.dataset.sig = panelSig;
   panel.hidden = false;
@@ -951,6 +993,9 @@ function renderHumanDecision() {
   const groupLabel = `${title}: ${pending.prompt || "Optionen"}`;
   panel.append(h("h3", null, headerText));
   if (pending.prompt) panel.append(h("div", { class: "human-prompt" }, pending.prompt));
+  if (state.concedePendingDecision) {
+    panel.append(h("div", { class: "concede-pending-note", role: "status" }, "Aufgabe vorgemerkt — die Regel-Engine wartet noch auf den Abschluss dieser offenen Entscheidung; danach scheidet dein Sitz aus."));
+  }
 
   if (isOrder) {
     const byId = new Map(options.map((o) => [String(o.option_id), o]));
@@ -1510,11 +1555,17 @@ async function loadMoreOnce(hold, prefetched) {
       state.humanSeats = Array.isArray(page.human_seats) ? page.human_seats : [];
       adoptPendingDecision(page.pending_decision || null);
       state.canConcede = Boolean(page.can_concede);
+      state.concededSeats = Array.isArray(page.conceded_seats) ? page.conceded_seats : [];
+      state.eliminatedSeats = Array.isArray(page.eliminated_seats) ? page.eliminated_seats : [];
+      state.concedePendingDecision = Boolean(page.concede_pending_decision);
       state.handsRevealed = Boolean(page.hands_revealed);
     } else {
       state.humanSeats = [];
       state.pendingDecision = null;
       state.canConcede = false;
+      state.concededSeats = [];
+      state.eliminatedSeats = [];
+      state.concedePendingDecision = false;
       state.handsRevealed = false;
     }
     if (page.frames.length) {
@@ -1536,7 +1587,7 @@ async function openGame(gameId) {
   restoreAiDelayOnLeave(state.gameId);
   const listed = state.games.find((entry) => entry.game_id === gameId);
   const listedInteractive = Boolean(listed && listed.header && Array.isArray(listed.header.human_seats) && listed.header.human_seats.length);
-  Object.assign(state, { gameId, cohortRecord: null, frames: [], lines: [], index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, pollFailures: 0, revision: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
+  Object.assign(state, { gameId, cohortRecord: null, frames: [], lines: [], index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, pollFailures: 0, revision: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
   ffStatus(""); showConnectionLost(0, ""); renderCohortPill();
   $("log").textContent = ""; $("table").textContent = ""; delete $("table").dataset.banner;
   await loadMore();
@@ -1780,6 +1831,48 @@ async function newGame(wantedRevision) {
     ...(typeof wantedRevision === "string" && !preselected ? [h("p", { class: "pill warn" }, "Der gewünschte Stand ist nicht mehr gespeichert. Bitte ein Deck wählen.")] : []),
     note, h("p", null, go, " ", close));
 }
+let activeConfirmResolve = null;
+let modalReturnFocus = null;
+function finishConfirmModal(confirmed = false) {
+  const box = $("modal-box");
+  if (box) delete box.dataset.confirmOpen;
+  const resolve = activeConfirmResolve;
+  activeConfirmResolve = null;
+  const ret = modalReturnFocus;
+  modalReturnFocus = null;
+  if (ret && ret.isConnected && ret.focus) {
+    try { ret.focus({ preventScroll: true }); } catch (_) { ret.focus(); }
+  }
+  if (resolve) resolve(Boolean(confirmed));
+}
+function closeActiveModal(confirmed = false) {
+  const modal = $("modal");
+  if (modal && !modal.hidden) modal.hidden = true;
+  finishConfirmModal(confirmed);
+}
+function openConfirmModal({ title, message, confirmLabel = "Bestätigen", cancelLabel = "Abbrechen", danger = false }) {
+  if (activeConfirmResolve) closeActiveModal(false);
+  const modal = $("modal");
+  const box = $("modal-box");
+  if (!modal || !box) return Promise.resolve(false);
+  modalReturnFocus = (typeof document !== "undefined" && document.activeElement) ? document.activeElement : null;
+  box.textContent = "";
+  box.dataset.zone = "";
+  box.dataset.sig = "";
+  box.dataset.confirmOpen = "1";
+  return new Promise((resolve) => {
+    activeConfirmResolve = resolve;
+    const cancelBtn = h("button", { type: "button", id: "confirm-cancel", onclick: () => closeActiveModal(false) }, cancelLabel);
+    const okBtn = h("button", { type: "button", id: "confirm-ok", class: danger ? "danger" : "primary", onclick: () => closeActiveModal(true) }, confirmLabel);
+    box.append(
+      h("div", { class: "confirm-dialog", role: "dialog", "aria-modal": "true", "aria-labelledby": "confirm-modal-title" },
+        h("h2", { id: "confirm-modal-title", class: "confirm-dialog-title" }, title),
+        h("p", { class: "confirm-dialog-text" }, message),
+        h("div", { class: "confirm-dialog-actions" }, cancelBtn, okBtn)));
+    modal.hidden = false;
+    if (cancelBtn.focus) cancelBtn.focus();
+  });
+}
 async function listGames(wanted) {
   state.games = await api("/api/games");
   const select = $("game-select"); select.textContent = "";
@@ -1843,25 +1936,57 @@ async function start() {
   $("play").addEventListener("click", () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(!state.playing); });
   $("position").addEventListener("input", () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); go(Number($("position").value)); });
   $("game-select").addEventListener("change", () => openGame($("game-select").value));
-  $("modal").addEventListener("click", (event) => { if (event.target === $("modal")) $("modal").hidden = true; });
+  $("modal").addEventListener("click", (event) => { if (event.target === $("modal")) closeActiveModal(false); });
   $("auto-pass-human").addEventListener("change", () => {
     if ($("auto-pass-human").checked && state.interactive && state.pendingDecision) maybeAutoPassHuman(state.pendingDecision);
   });
   $("concede-btn").addEventListener("click", async () => {
-    if (!state.gameId || !state.interactive || !state.running) return;
-    if (!confirm("Möchtest du diese Partie wirklich aufgeben?")) return;
+    if (!state.gameId || !state.interactive || !state.running || state.conceding) return;
+    const confirmed = await openConfirmModal({
+      title: "Partie aufgeben?",
+      message: "Möchtest du diese Partie wirklich aufgeben? Dein Sitz scheidet aus und du wechselst in den Zuschauer-Modus.",
+      confirmLabel: "Partie aufgeben",
+      danger: true,
+    });
+    if (!confirmed) return;
+    state.conceding = true;
+    render();
     try {
-      await api(`/api/play/${encodeURIComponent(state.gameId)}/concede`, "POST", {});
+      const res = await api(`/api/play/${encodeURIComponent(state.gameId)}/concede`, "POST", {});
+      state.canConcede = false;
+      if (res && typeof res.seat === "number" && !state.concededSeats.includes(res.seat)) {
+        state.concededSeats = [...state.concededSeats, res.seat];
+      }
+      state.concedePendingDecision = Boolean(res && res.concede_pending_decision);
+      if (res && res.eliminated && typeof res.seat === "number" && !state.eliminatedSeats.includes(res.seat)) {
+        state.eliminatedSeats = [...state.eliminatedSeats, res.seat];
+      }
+      toast(
+        state.concedePendingDecision
+          ? "Aufgabe vorgemerkt — wirksam nach dieser offenen Entscheidung."
+          : "Partie aufgegeben — du bist ausgeschieden (Zuschauer-Modus).",
+        5000
+      );
+      render();
       await loadMore();
       render();
       refreshTitles();
     } catch (error) {
-      toast(`Aufgeben fehlgeschlagen: ${error.message}`);
+      toast(`Aufgeben fehlgeschlagen: ${formatPlayError(error)}`);
+    } finally {
+      state.conceding = false;
+      render();
     }
   });
   $("delete-game").addEventListener("click", async () => {
     if (!state.gameId) return;
-    if (!confirm(`Soll die Partie „${state.gameId}“ wirklich gelöscht werden?`)) return;
+    const confirmed = await openConfirmModal({
+      title: "Partie löschen?",
+      message: `Soll die Partie „${state.gameId}“ wirklich dauerhaft gelöscht werden?`,
+      confirmLabel: "Partie löschen",
+      danger: true,
+    });
+    if (!confirmed) return;
     try {
       await api(`/api/games/${encodeURIComponent(state.gameId)}`, "DELETE");
       toast("Partie gelöscht.");
@@ -1874,12 +1999,21 @@ async function start() {
           h("p", null, "Eine Partie wird von der Regel-Engine XMage gespielt, mit einer KI auf jedem Platz, und dabei mitgeschrieben. Starte eine mit „Neue Partie“.")));
       }
     } catch (error) {
-      toast(`Fehler beim Löschen: ${error.message}`);
+      toast(`Fehler beim Löschen: ${formatPlayError(error)}`);
     }
   });
   document.addEventListener("keydown", (event) => {
     if (event.ctrlKey || event.metaKey || event.altKey) return;
-    if (event.key === "Escape") { if (closeBoardMenu(true)) return; $("modal").hidden = true; return; }
+    if (event.key === "Escape") { if (closeBoardMenu(true)) return; $("modal").hidden = true; finishConfirmModal(false); return; }
+    if (event.key === "Tab" && $("modal") && !$("modal").hidden && $("modal-box") && $("modal-box").dataset.confirmOpen === "1") {
+      const items = [...$("modal-box").querySelectorAll("button:not([disabled])")];
+      if (items.length) {
+        event.preventDefault();
+        const at = items.indexOf(document.activeElement);
+        items[(at + (event.shiftKey ? -1 : 1) + items.length) % items.length].focus();
+      }
+      return;
+    }
     const target = event.target;
     const field = target && target.closest ? target.closest("input, select, textarea") : null;
     if (field && field.type !== "range") return;
