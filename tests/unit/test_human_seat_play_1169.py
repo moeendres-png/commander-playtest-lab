@@ -1342,7 +1342,7 @@ def _scripted_human_answer(pending: dict[str, object]) -> dict[str, object]:
     elif cls == "priority":
         land = [
             o
-            for o in of_type("play_land_ability", "activated_ability")
+            for o in of_type("play_land", "play_land_ability", "activated_ability")
             if (o.get("metadata") or {}).get("ability_type") == "play_land"
         ]  # type: ignore[attr-defined]
         chosen = (land or of_type("pass_priority"))[:1]

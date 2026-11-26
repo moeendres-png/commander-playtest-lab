@@ -261,6 +261,8 @@ def option_fingerprint(
     elif option_type == "mana_pool":
         semantic["mana_type"] = str(meta.get("mana_type", "")).lower()
     elif option_type in {
+        "play_land",
+        "cast_spell",
         "mana_ability",
         "activated_ability",
         "cast_ability",
