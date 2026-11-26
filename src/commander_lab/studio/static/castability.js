@@ -197,7 +197,15 @@ function castabilityNodes(h, data, open, roleName) {
 // deps: { h, api, entries, fail, open(card_id), token(), isCurrent(token) }
 async function renderCastability(body, deps) {
   const { h } = deps;
-  const box = h("div", { id: "castability-box" }, h("p", { class: "muted" }, "Farben auf Kurve werden berechnet …"));
+  const busy = typeof StudioUI !== "undefined" && StudioUI.createBusyView
+    ? StudioUI.createBusyView({
+        title: "Farben auf Kurve werden berechnet …",
+        subtitle: "Hypergeometrische Zieh-Wahrscheinlichkeiten je Landzug.",
+        lines: 2,
+        compact: true,
+      })
+    : null;
+  const box = h("div", { id: "castability-box" }, busy ? busy.el : h("p", { class: "muted" }, "Farben auf Kurve werden berechnet …"));
   const handSection = h("div", { id: "sample-hand-section" });
   body.append(box, handSection);
   const token = deps.token();
@@ -209,6 +217,8 @@ async function renderCastability(body, deps) {
     if (!deps.isCurrent(token)) return;
     box.replaceChildren(h("p", { class: "warn" }, "Die Farb-Wahrscheinlichkeiten konnten nicht berechnet werden."));
     deps.fail(error);
+  } finally {
+    if (busy) busy.stop();
   }
   const st = { seed: 1, mulligans: 0, drawSteps: 0, bottom: [] };
   async function loadSampleHand() {

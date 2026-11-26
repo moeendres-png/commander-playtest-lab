@@ -1610,8 +1610,26 @@ async function refreshStrength() {
   const s = state.strength, ticket = ++s.ticket;
   if (!s.settings) return;
   const panel = $("strength-panel");
+  const summaryBox = $("strength-summary");
   panel.classList.add("working");
-  for (const button of panel.querySelectorAll("button")) button.disabled = true;
+  const busyCtrls = [
+    ...panel.querySelectorAll("button, select, input"),
+    $("commander-select"),
+    $("sort"),
+  ];
+  StudioUI.setControlsBusy(busyCtrls, true);
+  const busy = summaryBox && typeof StudioUI.createBusyView === "function"
+    ? StudioUI.createBusyView({
+        title: "Stärke-Index wird neu berechnet …",
+        stages: [
+          { afterSec: 0, text: "Gewichte und Kohorten werden auf den Pool angewendet …" },
+          { afterSec: 3, text: "Stufen und Grenzfälle werden eingeteilt …" },
+        ],
+        lines: 2,
+        compact: true,
+      })
+    : null;
+  if (busy && summaryBox) summaryBox.replaceChildren(busy.el);
   try {
     const result = await api("/api/strength", { commander: COMMANDER, settings: s.settings });
     if (ticket !== s.ticket) return;
@@ -1626,7 +1644,11 @@ async function refreshStrength() {
     if (s.good) { s.settings = clone(s.good); rememberStrength(); renderStrengthPanel(); }
     else { s.result = null; s.map = null; s.status = "error"; }
   } finally {
-    if (ticket === s.ticket) { panel.classList.remove("working"); for (const button of panel.querySelectorAll("button")) button.disabled = false; }
+    if (busy) busy.stop();
+    if (ticket === s.ticket) {
+      panel.classList.remove("working");
+      StudioUI.setControlsBusy(busyCtrls, false);
+    }
   }
   renderStrengthSummary();
   syncRankGroupToggle();
@@ -2197,6 +2219,30 @@ function syncRanking() {
   renderCoreLine();
 }
 
+let tierInitBusy = null;
+function beginTierInitBusy() {
+  if (tierInitBusy) tierInitBusy.stop();
+  tierInitBusy = StudioUI.createBusyView({
+    title: "Tierliste wird berechnet …",
+    stages: [
+      { afterSec: 0, text: "Commander-Pool, Markierungen und Universen werden geladen …" },
+      { afterSec: 3, text: "Stärke-Index und Decklisten-Zuordnung werden berechnet …" },
+    ],
+    lines: 4,
+  });
+  $("pool-body").replaceChildren(tierInitBusy.el);
+  StudioUI.setControlsBusy(
+    [$("commander-select"), $("q"), $("type-filter"), $("land-filter"), $("role-filter"), $("spread-filter"), $("sort")],
+    true
+  );
+}
+function endTierInitBusy() {
+  if (tierInitBusy) { tierInitBusy.stop(); tierInitBusy = null; }
+  StudioUI.setControlsBusy(
+    [$("commander-select"), $("q"), $("type-filter"), $("land-filter"), $("role-filter"), $("spread-filter"), $("sort")],
+    false
+  );
+}
 async function init() {
   $("view").replaceChildren(...Object.entries(VIEW_NAMES).map(([key, label]) => h("option", { value: key }, label)));
   $("sort").replaceChildren(...SORTS.map(([key, label]) => h("option", { value: key }, label)));
@@ -2273,7 +2319,7 @@ async function init() {
   if ($("pool-body")) $("pool-body").addEventListener("scroll", hideRowPreview, { passive: true });
   window.addEventListener("scroll", hideRowPreview, { passive: true });
   renderTabs();
-  $("pool-body").replaceChildren(StudioUI.loading("Tierliste lädt …"));
+  beginTierInitBusy();
   await StudioCommander.fill($("commander-select"));
   dataBanner().catch(() => {});
   api(`/api/cohorts?commander=${encodeURIComponent(COMMANDER)}`).then((shapes) => {
@@ -2296,4 +2342,4 @@ async function init() {
     initStrength(),
   ]);
 }
-init().catch((error) => fail(error));
+init().catch((error) => fail(error)).finally(endTierInitBusy);

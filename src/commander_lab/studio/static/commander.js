@@ -12,6 +12,20 @@ const StudioCommander = (() => {
   const shortName = (name) => name.split(",")[0];
   function choose(name) {
     try { localStorage.setItem(KEY, name); } catch (error) { /* view setting only */ }
+    const select = typeof document !== "undefined" ? document.getElementById("commander-select") : null;
+    if (select && typeof StudioUI !== "undefined" && StudioUI.setControlsBusy) {
+      StudioUI.setControlsBusy([select], true);
+    }
+    const target = typeof document !== "undefined" ? (document.getElementById("pool-body") || document.getElementById("data-summary")) : null;
+    if (target && typeof StudioUI !== "undefined" && StudioUI.createBusyView) {
+      const busy = StudioUI.createBusyView({
+        title: `Wechsle zu ${shortName(name)} …`,
+        subtitle: "Deckdaten und Kartenpool für den neuen Commander werden geöffnet.",
+        lines: 2,
+        compact: true,
+      });
+      target.prepend(busy.el);
+    }
     const address = new URL(location.href);
     address.searchParams.set("commander", name);
     location.href = address.toString();

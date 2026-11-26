@@ -554,6 +554,99 @@ const StudioUI = (() => {
         : null);
   }
 
-  return { recall, remember, el, h: el, kids, toast, fail, germanError, classifyError, renderErrorCard, mapFailureReason, sanitizeTechnicalText, request, api: request, clearSharedCache, busy, loading, skeleton, num, pct, numFlex, numSig, simStatusLabel, limitNumber, dataState, effectiveTheme, applyTheme };
+  const busyPrevDisabled = new WeakMap();
+
+  function setControlsBusy(targets, isBusy) {
+    const list = (Array.isArray(targets) ? targets : [targets]).flat(Infinity).filter(Boolean);
+    for (const target of list) {
+      const node = typeof target === "string" ? document.getElementById(target.replace(/^#/, "")) : target;
+      if (!node || typeof node !== "object") continue;
+      if (isBusy) {
+        if (!busyPrevDisabled.has(node)) busyPrevDisabled.set(node, Boolean(node.disabled));
+        if ("disabled" in node) node.disabled = true;
+        if (node.setAttribute) node.setAttribute("aria-busy", "true");
+        if (node.classList && node.classList.add) node.classList.add("is-busy");
+      } else {
+        if ("disabled" in node) {
+          node.disabled = busyPrevDisabled.has(node) ? busyPrevDisabled.get(node) : false;
+        }
+        busyPrevDisabled.delete(node);
+        if (node.removeAttribute) node.removeAttribute("aria-busy");
+        if (node.classList && node.classList.remove) node.classList.remove("is-busy");
+      }
+    }
+  }
+
+  function createBusyView(opts = {}) {
+    const title = opts.title || "Wird geladen …";
+    const stages = Array.isArray(opts.stages) ? opts.stages.filter((s) => s && s.text) : [];
+    const compact = Boolean(opts.compact);
+    const lines = Number.isInteger(opts.lines) ? opts.lines : (compact ? 1 : 3);
+    const initialStage = (stages[0] && stages[0].text) || opts.subtitle || "";
+    const timerBadge = el("span", { class: "busy-timer" }, "Läuft seit 0 s");
+    const stageEl = el("div", { class: "busy-stage" }, initialStage);
+    const cardAttrs = {
+      class: `busy-card${compact ? " compact" : ""}`,
+      role: "status",
+      "aria-live": "polite",
+      "aria-busy": "true",
+    };
+    if (opts.id) cardAttrs.id = opts.id;
+    const skel = lines > 0
+      ? el("div", { class: "busy-skeleton" }, Array.from({ length: lines }, (_, i) =>
+          el("div", { class: `skeleton${i === lines - 1 && lines > 1 ? " short" : ""}` })))
+      : null;
+    const node = el("div", cardAttrs,
+      el("div", { class: "busy-head" },
+        el("span", { class: "spinner", "aria-hidden": "true" }),
+        el("strong", { class: "busy-title" }, title),
+        timerBadge),
+      stageEl,
+      el("div", { class: "busy-bar", "aria-hidden": "true" }, el("div", { class: "busy-bar-fill" })),
+      skel);
+
+    let seconds = 0;
+    let manualStage = false;
+    let seenConnected = Boolean(node.isConnected);
+    let stopped = false;
+    let timerId = null;
+    const stop = () => {
+      if (stopped) return;
+      stopped = true;
+      if (timerId !== null) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+      if (node.removeAttribute) node.removeAttribute("aria-busy");
+    };
+    if (typeof setInterval === "function") {
+      timerId = setInterval(() => {
+        if (stopped) return;
+        if (node.isConnected) seenConnected = true;
+        else if (seenConnected) { stop(); return; }
+        seconds += 1;
+        timerBadge.textContent = `Läuft seit ${num(seconds, 0)} s`;
+        if (!manualStage && stages.length) {
+          let active = stages[0];
+          for (const st of stages) {
+            if ((Number(st.afterSec) || 0) <= seconds) active = st;
+          }
+          if (active && active.text && stageEl.textContent !== active.text) {
+            stageEl.textContent = active.text;
+          }
+        }
+      }, 1000);
+    }
+    return {
+      el: node,
+      setStage(text) {
+        manualStage = true;
+        stageEl.textContent = String(text || "");
+      },
+      stop,
+    };
+  }
+
+  return { recall, remember, el, h: el, kids, toast, fail, germanError, classifyError, renderErrorCard, mapFailureReason, sanitizeTechnicalText, request, api: request, clearSharedCache, busy, loading, skeleton, createBusyView, setControlsBusy, num, pct, numFlex, numSig, simStatusLabel, limitNumber, dataState, effectiveTheme, applyTheme };
 })();
 

@@ -27,13 +27,28 @@ function renderDuelBox(into, card, deps) {
   const candidates = deps.pool().filter((other) => other.card_id !== card.card_id && !other.basic);
   const listId = "duel-list";
   const input = h("input", { type: "search", list: listId, placeholder: "Karte zum Vergleich", "aria-label": "Karte für das Karten-Duell" });
+  const runBtn = h("button", { type: "button", id: "duel-run" }, "Vergleichen");
   const out = h("div", { id: "duel-result" });
   let request = 0; // only the newest comparison may fill the box
   const run = async () => {
     const mine = ++request;
     const other = candidates.find((entry) => entry.name === input.value);
     if (!other) { out.replaceChildren(h("p", { class: "muted" }, "Bitte eine Karte aus dem Pool wählen.")); return; }
-    out.replaceChildren(h("p", { class: "muted" }, "Wird verglichen …"));
+    const busy = typeof StudioUI !== "undefined" && StudioUI.createBusyView
+      ? StudioUI.createBusyView({
+          title: `Karten-Duell (${card.name} vs. ${other.name}) wird berechnet …`,
+          stages: [
+            { afterSec: 0, text: "Quelldecks und gemeinsame Rollen werden verglichen …" },
+            { afterSec: 3, text: "Passung zu deinen übrigen Karten wird ausgewertet …" },
+          ],
+          lines: 2,
+          compact: true,
+        })
+      : null;
+    if (typeof StudioUI !== "undefined" && StudioUI.setControlsBusy) {
+      StudioUI.setControlsBusy([input, runBtn], true);
+    }
+    out.replaceChildren(busy ? busy.el : h("p", { class: "muted" }, "Wird verglichen …"));
     try {
       const data = await deps.api("/api/card-duel", "POST", { commander: deps.commander, deck_card_ids: deps.deckCardIds(), card_a: card.card_id, card_b: other.card_id, cohort: deps.cohort() });
       if (mine !== request) return;
@@ -41,11 +56,21 @@ function renderDuelBox(into, card, deps) {
         duelTable(h, data, deps),
         h("p", { class: "note" }, `Grundwert: Ø ${duelPct(data.baseline)} deiner ${StudioUI.num(data.other_cards, 0)} übrigen Karten je Quelldeck in „${deps.cohortLabel()}“ (${StudioUI.num(data.cohort.decks, 0)} Decks${data.cohort.small ? ", kleine Gruppe" : ""}).` + (data.shared_roles.length ? ` Gemeinsame Rollen: ${data.shared_roles.map(deps.roleName).join(", ")}.` : " Keine gemeinsame Rolle.")),
         h("p", { class: "note" }, data.meaning));
-    } catch (error) { if (mine !== request) return; out.replaceChildren(h("p", { class: "warn" }, "Das Duell konnte nicht berechnet werden.")); deps.fail(error); }
+    } catch (error) {
+      if (mine !== request) return;
+      out.replaceChildren(h("p", { class: "warn" }, "Das Duell konnte nicht berechnet werden."));
+      deps.fail(error);
+    } finally {
+      if (busy) busy.stop();
+      if (mine === request && typeof StudioUI !== "undefined" && StudioUI.setControlsBusy) {
+        StudioUI.setControlsBusy([input, runBtn], false);
+      }
+    }
   };
+  runBtn.addEventListener("click", run);
   into.replaceChildren(
     h("h3", {}, "Karten-Duell"),
     h("datalist", { id: listId }, candidates.slice(0, 1500).map((entry) => h("option", { value: entry.name }))),
-    h("div", { class: "actions" }, input, h("button", { type: "button", id: "duel-run", onclick: run }, "Vergleichen")),
+    h("div", { class: "actions" }, input, runBtn),
     out);
 }

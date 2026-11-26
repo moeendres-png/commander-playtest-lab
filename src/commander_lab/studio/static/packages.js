@@ -6,7 +6,17 @@
 async function renderBuildPlanTab(body, deps) {
   const { h, api, entries, fail, roleName, openCard, add, poolCardById, cohort, cohortName, token, isCurrent } = deps;
   const myToken = token();
-  body.append(h("h3", {}, `Bauplan (${cohortName(cohort())})`), h("p", { class: "muted" }, "6-Schritte-Bauplan wird berechnet …"));
+  const busy = typeof StudioUI !== "undefined" && StudioUI.createBusyView
+    ? StudioUI.createBusyView({
+        title: `6-Schritte-Bauplan (${cohortName(cohort())}) wird berechnet …`,
+        stages: [
+          { afterSec: 0, text: "Rollen und Kennzahlen des Decks werden geprüft …" },
+          { afterSec: 3, text: "Vergleichsspannen und freie Pool-Kandidaten werden ermittelt …" },
+        ],
+        lines: 3,
+      })
+    : null;
+  body.append(h("h3", {}, `Bauplan (${cohortName(cohort())})`), busy ? busy.el : h("p", { class: "muted" }, "6-Schritte-Bauplan wird berechnet …"));
   let data;
   try {
     data = await api("/api/build-plan", "POST", {
@@ -15,10 +25,12 @@ async function renderBuildPlanTab(body, deps) {
       cohort: cohort(),
     });
   } catch (error) {
+    if (busy) busy.stop();
     if (!isCurrent(myToken)) return;
     body.replaceChildren(h("p", { class: "muted" }, "Bauplan nicht lesbar: " + fail(error, true)));
     return;
   }
+  if (busy) busy.stop();
   if (!isCurrent(myToken)) return;
   const nodes = [
     h("h3", {}, `Bauplan · ${cohortName(data.cohort)}`),
@@ -87,7 +99,17 @@ async function renderBuildPlanTab(body, deps) {
 async function renderPackagesUpgradeTab(body, deps) {
   const { h, api, entries, fail, roleName, openCard, add, remove, poolCardById, cohort, cohortName, token, isCurrent } = deps;
   const myToken = token();
-  body.append(h("h3", {}, `Pakete & Upgrade-Pfad (${cohortName(cohort())})`), h("p", { class: "muted" }, "Lädt Synergie-Pakete und Vergleichskandidaten …"));
+  const busy = typeof StudioUI !== "undefined" && StudioUI.createBusyView
+    ? StudioUI.createBusyView({
+        title: `Pakete & Upgrade-Pfad (${cohortName(cohort())}) werden geladen …`,
+        stages: [
+          { afterSec: 0, text: "Synergie-Pakete im Korpus werden gesucht …" },
+          { afterSec: 3, text: "Upgrade-Kandidaten werden gegen dein Deck bewertet …" },
+        ],
+        lines: 3,
+      })
+    : null;
+  body.append(h("h3", {}, `Pakete & Upgrade-Pfad (${cohortName(cohort())})`), busy ? busy.el : h("p", { class: "muted" }, "Lädt Synergie-Pakete und Vergleichskandidaten …"));
   let pkgData, upgData;
   try {
     [pkgData, upgData] = await Promise.all([
@@ -95,10 +117,12 @@ async function renderPackagesUpgradeTab(body, deps) {
       api("/api/upgrade-path", "POST", { commander: deps.commander, cards: entries(), cohort: cohort() }),
     ]);
   } catch (error) {
+    if (busy) busy.stop();
     if (!isCurrent(myToken)) return;
     body.replaceChildren(h("p", { class: "muted" }, "Pakete nicht lesbar: " + fail(error, true)));
     return;
   }
+  if (busy) busy.stop();
   if (!isCurrent(myToken)) return;
 
   const nodes = [
