@@ -444,8 +444,11 @@ function renderPairedMonitor(h, job, deps) {
     }, "Serie fortsetzen");
     if (job.status === "failed") {
       monitor.append(StudioUI.renderErrorCard(
-        StudioUI.classifyError({ error: job.error || "Serie fehlgeschlagen" }, { context: "batch" }),
-        { retry: () => resumeBtn.click() }
+        StudioUI.classifyError({ error: job.error || "Serie fehlgeschlagen", failure_class: job.failure_class }, { context: "batch" }),
+        {
+          retry: () => resumeBtn.click(),
+          build: () => { if (typeof deps.goBuild === "function") deps.goBuild(); },
+        }
       ));
     }
     monitor.append(resumeBtn);

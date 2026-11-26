@@ -2146,12 +2146,22 @@ class SimulationBatchManager:
         # Snapshot the candidate deck
         snapshot = lab_snapshot(store, revision_id)
         raw_cards = snapshot.get("cards")
-        if isinstance(raw_cards, list):
-            total_cards = sum(
-                int(entry.get("quantity") or 0) for entry in raw_cards if isinstance(entry, Mapping)
+        real_engine = (
+            game_executor is None
+            and chunk_runner is None
+            and (engine is None or len(engine.command) > 1)
+        )
+        total_cards = (
+            sum(
+                int(entry.get("quantity") or 0)
+                for entry in raw_cards
+                if isinstance(entry, Mapping) and not isinstance(entry.get("quantity"), bool)
             )
-            if total_cards > DECK_SIZE:
-                validate_commander_snapshot_size(snapshot)
+            if isinstance(raw_cards, list)
+            else 0
+        )
+        if real_engine or total_cards > DECK_SIZE:
+            validate_commander_snapshot_size(snapshot)
         deck_id = str(snapshot.get("deck_id") or "chulane")
         deck_folder = games_folder(data_path) / "decks"
         deck_folder.mkdir(parents=True, exist_ok=True)

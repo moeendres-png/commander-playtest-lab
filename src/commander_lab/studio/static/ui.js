@@ -374,6 +374,7 @@ const StudioUI = (() => {
     if (/start_failed|Start fehlgeschlagen/i.test(text)) return "Start fehlgeschlagen";
     if (/100 Karten|Commander-Deck|deck_size|commander_count/i.test(text)) return "Deck-Validierung";
     if (/abgebrochen|cancelled/i.test(text)) return "abgebrochen";
+    if (/^unbekannt$/i.test(text)) return "unbekannter Grund";
     return sanitizeTechnicalText(text).split(/\r?\n/)[0].slice(0, 80) || "Fehler";
   }
 
@@ -382,19 +383,28 @@ const StudioUI = (() => {
     let rawCode = "";
     let rawMessage = "";
     let rawDetails = "";
+    let cancelled = false;
     if (input && typeof input === "object" && !(input instanceof Error)) {
       rawCode = String(input.failure_class || input.code || input.status || "").trim();
       rawMessage = String(input.failure_message || input.error || input.detail || input.message || "").trim();
       rawDetails = String(input.stdout || input.traceback || "").trim();
+      cancelled = input.status === "cancelled";
     } else if (input instanceof Error) {
       rawMessage = String(input.detail !== undefined ? input.detail : input.message || "").trim();
       rawCode = input.status ? `HTTP ${input.status}` : "";
     } else {
       rawMessage = String(input || "").trim();
     }
+    const sanitizedMsg = sanitizeTechnicalText(rawMessage);
     const combined = [rawCode, rawMessage, rawDetails].filter(Boolean).join("\n");
-    const looksLikeTrace = /Traceback \(most recent call last\):|\.py", line \d+|\/home\/|C:\\\\|\(diagnostics sha256:/i.test(combined);
+    const looksLikeTrace = /Traceback \(most recent call last\):|\.py", line \d+|\/home\/|[A-Z]:\\|\(diagnostics sha256:/i.test(combined);
     const detailsText = rawDetails || (looksLikeTrace || rawCode ? [rawCode ? `Code: ${rawCode}` : "", rawMessage].filter(Boolean).join("\n") : "");
+    const stepPrimary = context === "batch"
+      ? { action: "retry", label: "Serie erneut starten", primary: true }
+      : { action: "newGame", label: "Neue Partie starten", primary: true };
+    const stepSecondary = context === "batch"
+      ? { action: "build", label: "Zum Deckbau" }
+      : { action: "gamesList", label: "Zur Spieleliste" };
 
     if (input && typeof input === "object" && input.game_reached_engine_end === true && input.shutdown_disposition) {
       const uncredited = Array.isArray(input.uncredited_winner_seats) ? input.uncredited_winner_seats : [];
@@ -404,10 +414,7 @@ const StudioUI = (() => {
         title: "Ergebnis nicht gewertet",
         sentence: `Die Partie lief bis zum Ende, aber der Engine-Prozess endete danach nicht sauber.${extra}`,
         consequence: "Das Ergebnis wird zur Sicherheit nicht gewertet.",
-        nextSteps: [
-          { action: "newGame", label: "Neue Partie starten", primary: true },
-          { action: "gamesList", label: "Zur Spieleliste" },
-        ],
+        nextSteps: [stepPrimary, stepSecondary],
         details: detailsText || `shutdown_disposition: ${input.shutdown_disposition}`,
       };
     }
@@ -417,11 +424,8 @@ const StudioUI = (() => {
         code: "DECISION_TIMEOUT",
         title: "Entscheidungs-Zeitlimit überschritten",
         sentence: "Die Regeln-Engine hat auf eine Entscheidung gewartet und das Zeitlimit erreicht.",
-        consequence: "Die laufende Partie wurde beendet.",
-        nextSteps: [
-          { action: "newGame", label: "Neue Partie starten", primary: true },
-          { action: "gamesList", label: "Zur Spieleliste" },
-        ],
+        consequence: context === "batch" ? "Betroffene Partien wurden beendet." : "Die laufende Partie wurde beendet.",
+        nextSteps: [stepPrimary, stepSecondary],
         details: detailsText,
       };
     }
@@ -434,7 +438,7 @@ const StudioUI = (() => {
         consequence: context === "batch" ? "Betroffene Partien wurden abgebrochen und zählen nicht in die Siegrate." : "Diese Partie konnte nicht fortgesetzt werden.",
         nextSteps: [
           { action: "retry", label: "Erneut versuchen", primary: true },
-          { action: "newGame", label: "Neue Partie starten" },
+          stepSecondary,
         ],
         details: detailsText,
       };
@@ -446,10 +450,7 @@ const StudioUI = (() => {
         title: "Engine-Verbindung unterbrochen",
         sentence: "Die Regeln-Engine (XMage) wurde unerwartet beendet oder hat einen internen Fehler gemeldet.",
         consequence: context === "batch" ? "Die betroffenen Partien wurden nicht zu Ende gespielt." : "Die Partie wurde beendet und nicht gewertet.",
-        nextSteps: [
-          { action: "newGame", label: "Neue Partie starten", primary: true },
-          { action: "gamesList", label: "Zur Spieleliste" },
-        ],
+        nextSteps: [stepPrimary, stepSecondary],
         details: detailsText,
       };
     }
@@ -476,9 +477,9 @@ const StudioUI = (() => {
         consequence: "Es wurden keine Spielzüge aufgezeichnet.",
         nextSteps: [
           { action: "build", label: "Deck im Deckbau prüfen", primary: true },
-          { action: "newGame", label: "Neue Partie starten" },
+          stepSecondary,
         ],
-        details: detailsText || rawMessage,
+        details: detailsText || sanitizedMsg,
       };
     }
 
@@ -487,18 +488,34 @@ const StudioUI = (() => {
         code: "NETWORK",
         title: "Verbindung zum Studio unterbrochen",
         sentence: "Der lokale Studio-Server antwortet aktuell nicht.",
-        consequence: "Die Seite versucht es automatisch weiter — ob eine laufende Partie weiterläuft, ist derzeit unbekannt.",
+        consequence: context === "batch"
+          ? "Die Aktualisierung wurde angehalten; auf Wunsch erneut abfragen."
+          : "Die Seite versucht es automatisch weiter — ob eine laufende Partie weiterläuft, ist derzeit unbekannt.",
         nextSteps: [
           { action: "retry", label: "Erneut versuchen", primary: true },
-          { action: "gamesList", label: "Zur Spieleliste" },
+          stepSecondary,
         ],
-        details: detailsText || sanitizeTechnicalText(rawMessage),
+        details: detailsText || sanitizedMsg,
       };
     }
 
-    const fallbackMsg = looksLikeTrace
-      ? "Während der Ausführung ist ein unerwarteter Fehler aufgetreten."
-      : (sanitizeTechnicalText(rawMessage) || germanError(rawMessage || "Unbekannter Fehler"));
+    if (cancelled || /^cancelled$/i.test(rawCode) || /^abgebrochen$/i.test(sanitizedMsg)) {
+      return {
+        code: "CANCELLED",
+        title: "Vorgang abgebrochen",
+        sentence: "Die Ausführung wurde abgebrochen.",
+        consequence: context === "batch" ? "Unfertige Partien zählen nicht in die Auswertung." : "Die Partie wurde vorzeitig beendet.",
+        nextSteps: [stepPrimary, stepSecondary],
+        details: detailsText,
+      };
+    }
+
+    let fallbackMsg = "Während der Ausführung ist ein unerwarteter Fehler aufgetreten.";
+    if (!looksLikeTrace && sanitizedMsg && !/^unbekannter fehler$/i.test(sanitizedMsg)) {
+      fallbackMsg = /[äöüß]|Wähle|Teilmenge|Diese Karte|Gib ein|im Deck|Sammlung|nicht erlaubt|Ungültig|Fehlgeschlagen/i.test(sanitizedMsg)
+        ? sanitizedMsg
+        : germanError(sanitizedMsg);
+    }
     return {
       code: rawCode || "UNKNOWN",
       title: "Aktion nicht abgeschlossen",
@@ -506,7 +523,7 @@ const StudioUI = (() => {
       consequence: context === "batch" ? "Die Serie konnte nicht vollständig ausgewertet werden." : "Die Partie wurde nicht zu Ende gespielt.",
       nextSteps: [
         { action: "retry", label: "Erneut versuchen", primary: true },
-        { action: "gamesList", label: "Zur Spieleliste" },
+        stepSecondary,
       ],
       details: detailsText,
     };

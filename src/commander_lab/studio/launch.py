@@ -897,7 +897,11 @@ def validate_commander_snapshot_size(snapshot: Mapping[str, object]) -> None:
             if not isinstance(entry, Mapping):
                 continue
             raw_qty = entry.get("quantity")
-            qty = int(raw_qty) if isinstance(raw_qty, (int, float)) else 0
+            qty = (
+                int(raw_qty)
+                if isinstance(raw_qty, (int, float)) and not isinstance(raw_qty, bool)
+                else 0
+            )
             if qty <= 0:
                 continue
             total_cards += qty

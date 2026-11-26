@@ -188,5 +188,6 @@ details.error-details pre.error-out{margin:6px 0 0;color:var(--muted)}
 .conn-status[hidden]{display:none}
 .conn-status-msg{flex:1 1 280px;line-height:1.35}
 .conn-status-actions{display:inline-flex;gap:8px;flex-wrap:wrap;align-items:center}
+.conn-status-actions button:not(.primary){color:var(--text)}
 .conn-status-details{font-size:11.5px;font-weight:400;opacity:.9}
 .conn-status-details summary{cursor:pointer}

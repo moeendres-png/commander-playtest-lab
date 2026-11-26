@@ -116,6 +116,26 @@ global.document = {{
   documentElement: {{ dataset: {{}}, setAttribute: () => {{}} }},
   addEventListener: () => {{}},
   getElementById: () => null,
+  createTextNode: (t) => String(t),
+  createElement: (tag) => {{
+    const node = {{
+      tag,
+      nodeType: 1,
+      tagName: String(tag).toUpperCase(),
+      attrs: {{}},
+      children: [],
+      hasAttribute(k) {{ return k in this.attrs; }},
+      setAttribute(k, v) {{ this.attrs[k] = v; }},
+      append(...args) {{
+        for (const a of args) {{
+          if (Array.isArray(a)) this.children.push(...a);
+          else if (a !== null && a !== undefined && a !== false) this.children.push(a);
+        }}
+      }},
+      addEventListener() {{}},
+    }};
+    return node;
+  }},
 }};
 function mkEl(tag, attrs, ...children) {{
   const flat = children.flat(Infinity).filter((c) => c !== null && c !== undefined && c !== false);
@@ -154,6 +174,34 @@ const startSpec = StudioUI.classifyError({{
   failure_message: 'Der Engine-Prozess konnte vor Spielbeginn nicht gestartet werden.',
   stdout: 'Traceback (most recent call last):\\n  File "/secret/path.py"',
 }}, {{ context: 'game' }});
+const shaOnlySpec = StudioUI.classifyError({{
+  status: 'failed',
+  failure_message: 'sha256:0123456789abcdef0123456789abcdef',
+}});
+const winPathSpec = StudioUI.classifyError({{
+  status: 'failed',
+  failure_message: 'File C:\\\\Users\\\\demo\\\\run.py crashed',
+}});
+const englishSpec = StudioUI.classifyError({{
+  status: 'failed',
+  failure_message: 'unknown revision',
+}});
+const batchCard = StudioUI.renderErrorCard(
+  StudioUI.classifyError({{ failure_class: 'BRIDGE_ERROR', error: 'ENGINE_FAILURE' }}, {{ context: 'batch' }}),
+  {{ retry: () => {{}}, build: () => {{}} }}
+);
+const connEl = {{
+  hidden: true,
+  children: [],
+  replaceChildren(...args) {{ this.children = args; }},
+}};
+let retried = 0;
+let followed = 0;
+const connState = {{ gameId: 'g-1', pollFailures: 2, running: true }};
+const showConn = new Function('StudioUI', 'h', '$', 'state', 'loadMore', 'openGame', 'listGames', 'render', 'follow', 'toast', 'formatPlayError', 'POLL_FAILURES_BEFORE_BANNER',
+  grab(partieCode, 'showConnectionLost') + '; return showConnectionLost;'
+)(StudioUI, mkEl, (id) => (id === 'conn-status' ? connEl : null), connState, async () => {{ retried++; throw new Error('still down'); }}, () => {{}}, async () => {{}}, () => {{}}, () => {{ followed++; }}, () => {{}}, (e) => String(e), 2);
+showConn(2, 'Failed to fetch');
 const orphanedTitle = titleFn({{
   game_id: 'orphan-1',
   header: {{ seats: [] }},
@@ -170,7 +218,18 @@ const cancelledTitle = titleFn({{
   cohort: 'PLAYED_GAME',
   result: {{ status: 'cancelled' }},
 }});
-console.log(JSON.stringify({{ bridgeSpec, startSpec, orphanedTitle, cancelledTitle }}));
+console.log(JSON.stringify({{
+  bridgeSpec,
+  startSpec,
+  shaOnlySpec,
+  winPathSpec,
+  englishSpec,
+  batchCardVis: textOnly(batchCard),
+  connHiddenBeforeClick: connEl.hidden,
+  connBtnsCount: connEl.children[1]?.children?.length || 0,
+  orphanedTitle,
+  cancelledTitle,
+}}));
 """
     raw = subprocess.check_output([node, "-e", script], text=True)
     out = json.loads(raw)
@@ -179,6 +238,13 @@ console.log(JSON.stringify({{ bridgeSpec, startSpec, orphanedTitle, cancelledTit
     assert len(out["bridgeSpec"]["nextSteps"]) >= 1
     assert "Traceback" not in out["startSpec"]["sentence"]
     assert "Traceback" in out["startSpec"]["details"]
+    assert "sha256" not in out["shaOnlySpec"]["sentence"]
+    assert "Users" not in out["winPathSpec"]["sentence"]
+    assert "Revision" in out["englishSpec"]["sentence"] or "nicht" in out["englishSpec"]["sentence"]
+    assert "Serie erneut starten" in out["batchCardVis"]
+    assert "Neue Partie starten" not in out["batchCardVis"]
+    assert out["connHiddenBeforeClick"] is False
+    assert out["connBtnsCount"] == 2
     assert "undefined" not in out["orphanedTitle"].lower()
     assert "fehlgeschlagen" in out["orphanedTitle"]
     assert out["cancelledTitle"].endswith("abgebrochen")

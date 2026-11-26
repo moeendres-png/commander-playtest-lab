@@ -1532,6 +1532,7 @@ function pollBatch(batchId) {
     try {
       const batch = await api("/api/simulations/batch/" + encodeURIComponent(batchId));
       state.activeBatch = batch;
+      if (state.activeBatch && state.activeBatch.batch_id === batchId) delete state.activeBatch.pollError;
       if (batch.status === "completed" || batch.status === "cancelled" || batch.status === "failed") {
         const [sims, recordedGames] = await Promise.all([
           api("/api/simulations?" + StudioCommander.query).catch(() => []),
@@ -1545,7 +1546,10 @@ function pollBatch(batchId) {
         if (state.tab === "sim") renderDeck();
       }
     } catch (err) {
-      console.warn("Poll batch error:", err);
+      if (state.activeBatch && state.activeBatch.batch_id === batchId) {
+        state.activeBatch.pollError = fail(err, true) || "Verbindung unterbrochen";
+        if (state.tab === "sim") renderDeck();
+      }
     }
   }, 1200);
 }
@@ -1563,6 +1567,7 @@ function pairedDeps() {
     fail,
     toast,
     openCard,
+    goBuild: () => { state.tab = "list"; renderDeck(); },
     poolCardById: (id) => state.byId.get(id),
     commander: COMMANDER,
     commanderQuery: StudioCommander.query,
@@ -1671,6 +1676,7 @@ function renderSimulations(body) {
     class: "sim-form",
     onsubmit: async (e) => {
       e.preventDefault();
+      state.batchStartError = null;
       startBtn.disabled = true;
       try {
         const res = await api("/api/simulations/batch", "POST", {
@@ -1691,8 +1697,10 @@ function renderSimulations(body) {
         pollBatch(res.batch_id);
         renderDeck();
       } catch (err) {
+        state.batchStartError = err;
         fail(err);
         startBtn.disabled = false;
+        renderDeck();
       }
     }
   },
@@ -1703,6 +1711,12 @@ function renderSimulations(body) {
     startBtn
   );
   bBox.append(form);
+  if (state.batchStartError) {
+    bBox.append(StudioUI.renderErrorCard(
+      StudioUI.classifyError(state.batchStartError, { context: "batch" }),
+      { retry: () => startBtn.click(), build: () => { state.tab = "list"; renderDeck(); } }
+    ));
+  }
 
   if (state.activeBatch) {
     const b = state.activeBatch;
@@ -1753,6 +1767,23 @@ function renderSimulations(body) {
       monitor.append(cancelBtn);
     }
 
+    const rawFailures = (() => {
+      if (b.summary && Array.isArray(b.summary.failure_summary) && b.summary.failure_summary.length) {
+        return b.summary.failure_summary;
+      }
+      return Object.entries((Array.isArray(b.games) ? b.games : []).reduce((acc, g) => {
+        if (g && g.status !== "finished") {
+          const key = g.failure_class || "Unbekannt";
+          acc[key] = (acc[key] || 0) + 1;
+        }
+        return acc;
+      }, {})).map(([reason, count]) => ({ reason, count }));
+    })();
+    const failText = rawFailures.length
+      ? rawFailures.map((f) => `${StudioUI.num(f.count, 0)} × ${StudioUI.mapFailureReason(f.reason)}`).join(", ")
+      : (failedCount > 0 ? `${StudioUI.num(failedCount, 0)} fehlgeschlagen` : "");
+    const rawFailTitle = rawFailures.map((f) => `${f.count} × ${f.reason}`).join(", ");
+
     if (b.summary) {
       const s = b.summary;
       const ci = s.confidence_interval_95 || {};
@@ -1760,18 +1791,6 @@ function renderSimulations(body) {
       const qualStates = s.bridge_qualification_states || (b.bridge_qualification && b.bridge_qualification.status ? [b.bridge_qualification.status] : []);
       const bridgeSha = s.bridge_jar_sha256 || b.bridge_jar_sha256 || null;
       const epochLabel = s.covered_by_sealed_epoch ? "versiegelt" : (qualStates.join(", ") || "nicht versiegelt");
-      const rawFailures = Array.isArray(s.failure_summary) && s.failure_summary.length
-        ? s.failure_summary
-        : Object.entries((Array.isArray(b.games) ? b.games : []).reduce((acc, g) => {
-            if (g && g.status !== "finished") {
-              const key = g.failure_class || "Unbekannt";
-              acc[key] = (acc[key] || 0) + 1;
-            }
-            return acc;
-          }, {})).map(([reason, count]) => ({ reason, count }));
-      const failText = rawFailures.length
-        ? rawFailures.map((f) => `${StudioUI.num(f.count, 0)} × ${StudioUI.mapFailureReason(f.reason)} (${f.reason})`).join(", ")
-        : (failedCount > 0 ? `${StudioUI.num(failedCount, 0)} fehlgeschlagen` : "");
       const sumBox = h("div", { class: "sim-summary" },
         h("h4", {}, "Ergebnis der Serie"),
         h("div", { class: "sim-grid" },
@@ -1783,22 +1802,30 @@ function renderSimulations(body) {
           h("div", {}, h("span", { class: "muted" }, "Epoche: "), h("b", {}, epochLabel))
         ),
         (failedCount > 0 || rawFailures.length > 0)
-          ? h("div", { class: "sim-failures" },
+          ? h("div", { class: "sim-failures", title: rawFailTitle },
               h("strong", {}, `${StudioUI.num(failedCount || rawFailures.reduce((n, f) => n + f.count, 0), 0)} fehlgeschlagen: `),
               h("span", {}, failText))
-          : null,
-        (allFailed || b.status === "failed")
-          ? StudioUI.renderErrorCard(
-              StudioUI.classifyError({
-                failure_class: rawFailures[0] ? rawFailures[0].reason : (b.error ? "" : "BRIDGE_TIMEOUT"),
-                error: b.error || failText,
-              }, { context: "batch" }),
-              { retry: () => startBtn.click(), newGame: () => startBtn.click() }
-            )
           : null,
         b.run_id ? h("p", { class: "note note-compact" }, `Dauerhaft im Store hinterlegt unter ID: `, h("code", {}, b.run_id)) : null
       );
       monitor.append(sumBox);
+    }
+
+    if (allFailed || b.status === "failed" || b.pollError) {
+      const errInput = b.pollError
+        ? { error: b.pollError }
+        : {
+            failure_class: rawFailures[0] ? rawFailures[0].reason : (b.error ? "" : "BRIDGE_TIMEOUT"),
+            error: b.error || failText,
+            stdout: rawFailTitle ? `Fehlerklassen: ${rawFailTitle}${b.error ? `\n${b.error}` : ""}` : (b.error || ""),
+          };
+      monitor.append(StudioUI.renderErrorCard(
+        StudioUI.classifyError(errInput, { context: b.pollError ? "network" : "batch" }),
+        {
+          retry: () => (b.pollError ? pollBatch(b.batch_id) : startBtn.click()),
+          build: () => { state.tab = "list"; renderDeck(); },
+        }
+      ));
     }
 
     if (b.games && b.games.length) {

@@ -1272,12 +1272,16 @@ function buildResultErrorCard(result) {
     return StudioUI.renderErrorCard(
       StudioUI.classifyError(result, { context: "game" }),
       {
-        newGame: () => { const b = $("new-btn"); if (b) b.click(); },
-        retry: () => { if (state.gameId) openGame(state.gameId); },
+        newGame: () => { void newGame(); },
+        retry: () => { if (state.gameId) void openGame(state.gameId); },
         gamesList: async () => {
-          await listGames(state.gameId);
-          const s = $("game-select");
-          if (s) s.focus();
+          try {
+            await listGames(state.gameId);
+            const s = $("game-select");
+            if (s) s.focus();
+          } catch (error) {
+            toast(`Spieleliste nicht erreichbar: ${formatPlayError(error)}`);
+          }
         },
       }
     );
@@ -1661,14 +1665,30 @@ function showConnectionLost(failures, detail) {
         h("button", {
           type: "button",
           class: "primary",
-          onclick: () => { if (state.gameId) openGame(state.gameId); },
+          onclick: async () => {
+            if (!state.gameId) return;
+            try {
+              await loadMore({ hold: false });
+              state.pollFailures = 0;
+              showConnectionLost(0, "");
+              render();
+              if (state.running) follow();
+            } catch (error) {
+              state.pollFailures += 1;
+              showConnectionLost(state.pollFailures, error.message);
+            }
+          },
         }, "Erneut versuchen"),
         h("button", {
           type: "button",
           onclick: async () => {
-            await listGames(state.gameId);
-            const sel = $("game-select");
-            if (sel) sel.focus();
+            try {
+              await listGames(state.gameId);
+              const sel = $("game-select");
+              if (sel) sel.focus();
+            } catch (error) {
+              toast(`Spieleliste nicht erreichbar: ${formatPlayError(error)}`);
+            }
           },
         }, "Zur Spieleliste")
       ),
