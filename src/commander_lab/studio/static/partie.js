@@ -562,6 +562,7 @@ function seatClickText(entry) {
   return entryPicked(entry) ? "✓ Ziel" : "🎯 Ziel wählen";
 }
 function showList(title, names, ids, zoneKey) {
+  finishConfirmModal(false);
   const box = $("modal-box"); box.textContent = "";
   box.dataset.zone = zoneKey || "";
   box.append(h("h2", null, title), names.length ? h("div", { class: "cards" }, names.map((name, at) => cardTile(name, { objectId: (ids || [])[at] }))) : h("p", { class: "muted" }, "leer"), h("p", null, h("button", { type: "button", onclick: () => { $("modal").hidden = true; } }, "Schließen")));
@@ -572,6 +573,7 @@ function showZone(player, zone) {
   showList(`${graveyard ? "Friedhof" : "Exil"} von ${seatName(player.seat)}`, graveyard ? player.graveyard : (player.exile || []), player[`${zone}_ids`], `${player.seat}:${zone}`);
 }
 function showDeckPlan(title, plan) {
+  finishConfirmModal(false);
   const box = $("modal-box"); box.textContent = ""; box.dataset.zone = "";
   const combos = Array.isArray(plan.combos) ? plan.combos : [];
   const winAxes = Array.isArray(plan.win_axes) ? plan.win_axes : [];
@@ -804,7 +806,7 @@ function syncFastForwardControls() {
 function renderFastForwardButton() {
   const button = $("ff-btn");
   if (!button) return;
-  const available = state.interactive && state.running;
+  const available = state.interactive && state.running && !isHumanSpectator();
   $("ff-wrap").hidden = !available;
   button.setAttribute("aria-pressed", state.ff.on ? "true" : "false");
   button.textContent = state.ff.on ? "⏹ Vorspulen beenden" : "⏩ Vorspulen bis zu meiner nächsten Entscheidung";
@@ -920,11 +922,15 @@ function renderSpectatorStatus() {
     return;
   }
   if (state.interactive && isHumanSpectator()) {
+    const concededSet = new Set(Array.isArray(state.concededSeats) ? state.concededSeats : []);
+    const hasConceded = state.humanSeats.some((seat) => concededSet.has(seat));
     box.hidden = false;
     box.className = "spectator-status eliminated";
     box.textContent = state.running
       ? "Du bist ausgeschieden — Zuschauer-Modus"
-      : "Du hast aufgegeben — Partie beendet (Zuschauer-Ansicht)";
+      : hasConceded
+        ? "Du hast aufgegeben — Partie beendet (Zuschauer-Ansicht)"
+        : "Du bist ausgeschieden — Partie beendet (Zuschauer-Ansicht)";
     return;
   }
   box.hidden = true;
@@ -1698,6 +1704,7 @@ function gameTitle(game) {
 async function newGame(wantedRevision) {
   let table;
   try { table = await api("/api/table"); } catch (error) { toast(`Fehler: ${error.message}`); return; }
+  finishConfirmModal(false);
   const box = $("modal-box"); box.textContent = ""; box.dataset.zone = "";
   const close = h("button", { type: "button", onclick: () => { $("modal").hidden = true; } }, "Schließen");
   box.append(h("h2", null, "Neue Partie"));
@@ -2010,7 +2017,8 @@ async function start() {
       if (items.length) {
         event.preventDefault();
         const at = items.indexOf(document.activeElement);
-        items[(at + (event.shiftKey ? -1 : 1) + items.length) % items.length].focus();
+        const nextIdx = at < 0 ? (event.shiftKey ? items.length - 1 : 0) : (at + (event.shiftKey ? -1 : 1) + items.length) % items.length;
+        items[nextIdx].focus();
       }
       return;
     }

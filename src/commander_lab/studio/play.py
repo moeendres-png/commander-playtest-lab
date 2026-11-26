@@ -884,6 +884,9 @@ class InteractiveGameSession:
                     probed = match.next_decision(raise_on_failure=False)
                     if isinstance(probed, dict):
                         next_status = probed
+            if isinstance(next_status.get("failure"), Mapping):
+                self._publish_status(next_status, match)
+                raise FullGameConformanceError("XMage full-game engine failed")
             dec = next_status.get("decision")
             pending_decision_remains = isinstance(dec, Mapping) and dec.get("seat") == seat
             with self._lock:

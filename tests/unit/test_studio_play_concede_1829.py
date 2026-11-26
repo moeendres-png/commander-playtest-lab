@@ -15,6 +15,7 @@ from commander_lab.engine.rules.full_game import (
     FULL_GAME_DECISION_PROTOCOL_VERSION,
     FULL_GAME_EVIDENCE_CLASS,
     FULL_GAME_LANE,
+    FullGameConformanceError,
 )
 from commander_lab.models import RulesDeckInput
 from commander_lab.qualification.current_boundary.bridge_launcher import canonical_xmage_engine_pin
@@ -102,8 +103,9 @@ class _ConcedeFakeClient:
     exited = False
     killed = False
 
-    def __init__(self, *, pending_after_concede: bool) -> None:
+    def __init__(self, *, pending_after_concede: bool, fail_on_concede: bool = False) -> None:
         self.pending_after_concede = pending_after_concede
+        self.fail_on_concede = fail_on_concede
         self.conceded = False
         self.answered_final = False
         self.submitted_responses: list[dict[str, object]] = []
@@ -241,6 +243,8 @@ class _ConcedeFakeClient:
         if method == "get_concede_offer":
             return {"concede_available": not self.conceded}
         if method == "submit_concede":
+            if self.fail_on_concede:
+                return {"terminal": False, "failure": {"message": "boom"}, "decision": None}
             self.conceded = True
             # When immediate elimination returns decision=None, terminal=False transiently,
             # play.py must probe next_decision once so state updates immediately.
@@ -393,6 +397,34 @@ def test_interactive_concede_immediate_vs_pending_decision_and_duplicate_guard(
     finally:
         sess2.shutdown()
 
+    # 3. Bridge failure payload on submit_concede fails closed without recording conceded: True
+    client_fail = _ConcedeFakeClient(pending_after_concede=False, fail_on_concede=True)
+    prep3 = play.prepare_game(
+        decks,
+        seed=42,
+        game_id="g-fail",
+        human_seats=[0],
+        decision_timeout_seconds=0,
+        jar_sha256="abc",
+    )
+    sess3 = play.InteractiveGameSession(
+        tmp_path / "s3",
+        prep3,
+        human_seats=[0],
+        decision_timeout_seconds=0,
+        ai_delay_ms=0,
+        command=["fake"],
+        client_factory=lambda *a, **k: client_fail,
+    )
+    sess3.start()
+    try:
+        _wait_ready_decision(sess3, "dec-h-1")
+        with pytest.raises(FullGameConformanceError):
+            sess3.concede(0)
+        assert sess3.snapshot()["conceded_seats"] == []
+    finally:
+        sess3.shutdown()
+
 
 def test_partie_frontend_replaces_native_confirm_and_shows_concede_feedback() -> None:
     html = (STATIC / "partie.html").read_text(encoding="utf-8")
@@ -414,6 +446,10 @@ def test_partie_frontend_replaces_native_confirm_and_shows_concede_feedback() ->
         pytest.skip("node is not installed")
 
     format_slice = js[js.index("function toast(") : js.index("const seatName =")]
+    ff_slice = js[
+        js.index("function renderFastForwardButton()") : js.index("async function setAiDelay(")
+    ]
+    show_list_slice = js[js.index("function showList(") : js.index("function showZone(")]
     human_slice = js[
         js.index("function isHumanSpectator()") : js.index("function renderBridgeBanner()")
     ]
@@ -455,7 +491,7 @@ function makeEl(tag, id) {{
   if (el.id) elements.set(el.id, el);
   return el;
 }}
-for (const id of ["toast", "modal", "modal-box", "spectator-status", "human-decision", "concede-btn", "auto-pass-wrap"]) {{
+for (const id of ["toast", "modal", "modal-box", "spectator-status", "human-decision", "concede-btn", "auto-pass-wrap", "ff-btn", "ff-wrap"]) {{
   const el = makeEl("div", id);
   if (id === "modal" || id === "spectator-status" || id === "human-decision") el.hidden = true;
 }}
@@ -505,13 +541,14 @@ const OPTION_TYPES = {{ pass_priority: "Passen" }};
 const seatName = (s) => `Sitz ${{s + 1}}`;
 const localizeActionText = (t) => String(t);
 const maybeAutoPassHuman = () => false;
-const renderFastForwardButton = () => {{}};
 const closeBoardMenu = () => {{}};
 const renderBoardBar = () => {{}};
 const announceDecision = () => {{}};
 const StudioBoardClick = {{ build: () => ({{}}) }};
 
 {format_slice}
+{ff_slice}
+{show_list_slice}
 {modal_slice}
 {human_slice}
 
@@ -524,10 +561,14 @@ async function run() {{
   assert.strictEqual(elements.get("modal").hidden, true);
   assert.strictEqual(document.activeElement, elements.get("concede-btn"));
 
-  // 2. Backdrop/Escape cancels modal cleanly
+  // 2. Backdrop/Escape cancels modal cleanly; showList resolves pending modal false
   const pEsc = openConfirmModal({{ title: "Löschen?", message: "Wirklich?" }});
   closeActiveModal(false);
   assert.strictEqual(await pEsc, false);
+  const pHijack = openConfirmModal({{ title: "Offen?", message: "Test" }});
+  showList("Friedhof", [], [], "0:graveyard");
+  assert.strictEqual(await pHijack, false);
+  elements.get("modal").hidden = true;
 
   // 3. Confirm resolves true
   const pOk = openConfirmModal({{ title: "Aufgeben?", message: "Ja", danger: true }});
@@ -544,7 +585,7 @@ async function run() {{
   assert.ok(elements.get("human-decision").textContent.includes("Aufgabe vorgemerkt"));
   assert.strictEqual(elements.get("concede-btn").hidden, true);
 
-  // 5. After elimination, #spectator-status switches to Zuschauer-Modus
+  // 5. After elimination, #spectator-status switches to Zuschauer-Modus and #ff-wrap hides
   state.concedePendingDecision = false;
   state.eliminatedSeats = [0];
   state.pendingDecision = null;
@@ -552,8 +593,18 @@ async function run() {{
   assert.strictEqual(elements.get("spectator-status").hidden, false);
   assert.ok(elements.get("spectator-status").textContent.includes("Zuschauer-Modus"));
   assert.strictEqual(elements.get("concede-btn").hidden, true);
+  assert.strictEqual(elements.get("ff-wrap").hidden, true);
 
-  // 6. formatPlayError maps network errors cleanly without English raw message
+  // 6. Ended game distinguishes natural loss vs. conceded seat in spectator banner
+  state.running = false;
+  state.concededSeats = [];
+  renderSpectatorStatus();
+  assert.ok(elements.get("spectator-status").textContent.includes("Du bist ausgeschieden — Partie beendet"));
+  state.concededSeats = [0];
+  renderSpectatorStatus();
+  assert.ok(elements.get("spectator-status").textContent.includes("Du hast aufgegeben — Partie beendet"));
+
+  // 7. formatPlayError maps network errors cleanly without English raw message
   assert.strictEqual(formatPlayError(new Error("Failed to fetch")), "Server nicht erreichbar.");
 }}
 
