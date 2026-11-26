@@ -886,6 +886,33 @@ def censored_round_quartiles(reached_rounds: Sequence[int], games: int) -> dict[
     return quartiles
 
 
+#: ``failure_class`` of a row the series itself wrote when the user stopped it: an aborted game,
+#: its own class (G-SIM point 2), never a failed one.
+CANCELLED_CLASS = "Cancelled"
+
+
+def latest_row_per_seed(games: Sequence[GameSummary]) -> list[GameSummary]:
+    """The latest row of each seed, first seen first (#1852).
+
+    A resumed series plays a stopped seed again; the old ``Cancelled`` row of it is history and
+    must not stay next to the new result in any count.
+    """
+    latest: dict[int, GameSummary] = {}
+    for game in games:
+        latest[game.seed] = game
+    return list(latest.values())
+
+
+def _is_cancelled(game: GameSummary) -> bool:
+    return game.status != "finished" and game.failure_class == CANCELLED_CLASS
+
+
+def _is_draw(game: GameSummary) -> bool:
+    """A game the engine finished without a winner. Whether the engine ever does that is UNKNOWN
+    (no log or test shows it); the class exists so that it is never counted as a loss."""
+    return game.status == "finished" and not game.winner_seats
+
+
 def aggregate_batch_results(
     games: Sequence[GameSummary],
     deck_card_names: Sequence[str] | None = None,
@@ -895,21 +922,32 @@ def aggregate_batch_results(
     pod_name: str | None = None,
     engine_version: str | None = None,
     pilot_omissions: Mapping[str, object] | None = None,
+    games_planned: int | None = None,
 ) -> dict[str, object]:
-    """Aggregate multiple game outcomes into an objective simulation summary."""
-    successful = [g for g in games if g.status == "finished"]
-    failed = [g for g in games if g.status != "finished"]
+    """Aggregate multiple game outcomes into an objective simulation summary.
 
-    wins = sum(
-        (1.0 / len(g.winner_seats)) if g.winner_seats and 0 in g.winner_seats else 0.0
-        for g in successful
-    )
+    Only the latest row of a seed counts (a resumed series replays a stopped seed). Classes, each
+    apart from the others (G-SIM point 2): won or lost games (``games_decided``, the base of the
+    win rate), draws (finished without a winner: ``games_drawn``, neither a win nor a loss and not
+    in the win-rate base, as the seat curve's reference also excludes them), failed games and
+    aborted ones (``games_cancelled``). ``games_planned`` is the planned N of the series; without
+    it N is the number of rows.
+    """
+    games = latest_row_per_seed(games)
+    successful = [g for g in games if g.status == "finished"]
+    decided = [g for g in successful if g.winner_seats]
+    cancelled_count = sum(1 for g in games if _is_cancelled(g))
+    failed = [g for g in games if g.status != "finished" and not _is_cancelled(g)]
+
+    wins = sum((1.0 / len(g.winner_seats)) if 0 in g.winner_seats else 0.0 for g in decided)
     completed_count = len(successful)
-    win_rate = round(wins / completed_count, 4) if completed_count > 0 else None
+    decided_count = len(decided)
+    drawn_count = completed_count - decided_count
+    win_rate = round(wins / decided_count, 4) if decided_count > 0 else None
     ci_lower: float | None
     ci_upper: float | None
-    if completed_count > 0:
-        ci_lower, ci_upper = wilson_score_interval(wins, completed_count)
+    if decided_count > 0:
+        ci_lower, ci_upper = wilson_score_interval(wins, decided_count)
     else:
         ci_lower, ci_upper = None, None
     failure_counts = Counter(
@@ -977,7 +1015,7 @@ def aggregate_batch_results(
                 "seed": g.seed,
                 "starting_player_seat": g.starting_player_seat,
             }
-            for g in successful
+            for g in decided
         ],
         table_size=resolved_table_size,
     )
@@ -1037,7 +1075,7 @@ def aggregate_batch_results(
             }
         )
 
-    planned_count = len(games)
+    planned_count = games_planned if games_planned is not None else len(games)
     rounds_quartiles = censored_round_quartiles(
         [g.rounds for g in successful],
         planned_count,
@@ -1063,7 +1101,8 @@ def aggregate_batch_results(
             "n_of_N": f"{completed_count}/{planned_count}" if planned_count > 0 else "unbekannt",
             "value": round(completed_count / planned_count, 4) if planned_count > 0 else None,
             "display": (
-                f"{completed_count}/{planned_count} abgeschlossen, {len(failed)} fehlgeschlagen"
+                f"{completed_count}/{planned_count} abgeschlossen, {len(failed)} fehlgeschlagen, "
+                f"{cancelled_count} abgebrochen, {drawn_count} unentschieden"
                 if planned_count > 0
                 else "unbekannt"
             ),
@@ -1074,12 +1113,12 @@ def aggregate_batch_results(
             "label": "Siegrate (95 %-Wilson-CI)",
             "origin_class": CONSISTENCY_ORIGIN_ENGINE_PILOT_DEPENDENT,
             "n": round(wins, 4),
-            "N": completed_count,
-            "n_of_N": f"{_fmt_win_count(wins)}/{completed_count}"
-            if completed_count > 0
+            "N": decided_count,
+            "n_of_N": f"{_fmt_win_count(wins)}/{decided_count}"
+            if decided_count > 0
             else "unbekannt",
             "value": win_rate,
-            "ci95": [ci_lower, ci_upper] if completed_count > 0 else None,
+            "ci95": [ci_lower, ci_upper] if decided_count > 0 else None,
             "display": (
                 f"{round(win_rate * 100.0, 1)} % [{round(ci_lower * 100.0, 1)} %; {round(ci_upper * 100.0, 1)} %]"
                 if win_rate is not None and ci_lower is not None and ci_upper is not None
@@ -1097,15 +1136,15 @@ def aggregate_batch_results(
             "value": rounds_quartiles,
             "quartiles": rounds_quartiles,
             "reached": completed_count,
-            "not_reached": len(failed),
+            "not_reached": max(0, planned_count - completed_count),
             "not_reached_label": "nicht erreicht",
             "display": (
                 "unbekannt"
                 if planned_count == 0
                 else (
-                    f"Median Runde {rounds_quartiles['median']} ({completed_count}/{planned_count} erreicht, {len(failed)} nicht erreicht)"
+                    f"Median Runde {rounds_quartiles['median']} ({completed_count}/{planned_count} erreicht, {max(0, planned_count - completed_count)} nicht erreicht)"
                     if rounds_quartiles.get("median") is not None
-                    else f"nicht erreicht ({completed_count}/{planned_count} erreicht, {len(failed)} nicht erreicht)"
+                    else f"nicht erreicht ({completed_count}/{planned_count} erreicht, {max(0, planned_count - completed_count)} nicht erreicht)"
                 )
             ),
             "is_time_to_event": True,
@@ -1117,7 +1156,10 @@ def aggregate_batch_results(
         "data_class": DataClass.SIMULATED_RESULT.value,
         "games_planned": planned_count,
         "games_completed": completed_count,
+        "games_decided": decided_count,
+        "games_drawn": drawn_count,
         "games_failed": len(failed),
+        "games_cancelled": cancelled_count,
         "wins_fractional": round(wins, 2),
         "win_rate": win_rate,
         "win_rate_percent": round(win_rate * 100.0, 1) if win_rate is not None else None,
@@ -1158,36 +1200,35 @@ def interim_batch_summary(
     ``games_planned`` and the 95 % Wilson interval of the shared aggregation. It has no pilot
     audit, no card table and no consistency table, and it is never stored. ``n == 0`` is
     unknown (``None``), never a 0 % rate or an interval. Games the series stopped itself
-    (``Cancelled``) are counted apart from failed games: an aborted run is its own class.
+    (``Cancelled``) are counted apart from failed games, and draws (finished without a winner)
+    apart from both: aborted runs and draws are their own classes, never a loss (G-SIM point 2).
     """
     # the latest row of a seed counts: a resumed series plays a stopped seed again, and the old
     # ``Cancelled`` row of it must not stay next to the new result
-    latest: dict[int, GameSummary] = {}
-    for game in games:
-        latest[game.seed] = game
-    games = list(latest.values())
+    games = latest_row_per_seed(games)
     figures = aggregate_batch_results(games, table_size=table_size)
     finished = [g for g in games if g.status == "finished"]
+    decided = [g for g in finished if g.winner_seats]
     completed = len(finished)
-    cancelled = sum(1 for g in games if g.status != "finished" and g.failure_class == "Cancelled")
+    decided_count = len(decided)
+    cancelled = sum(1 for g in games if _is_cancelled(g))
     failed = sum(1 for g in games if g.status != "finished") - cancelled
     by_seat: list[dict[str, object]] = []
     if type(table_size) is int and table_size >= 2:
         for seat in range(table_size):
             wins = sum(
-                (1.0 / len(g.winner_seats)) if g.winner_seats and seat in g.winner_seats else 0.0
-                for g in finished
+                (1.0 / len(g.winner_seats)) if seat in g.winner_seats else 0.0 for g in decided
             )
             by_seat.append(
                 {
                     "seat": seat + 1,
                     "label": seat_labels[seat] if seat < len(seat_labels) else None,
                     "wins": round(wins, 2),
-                    "games": completed,
-                    "n_of_N": f"{_fmt_win_count(wins)}/{completed}"
-                    if completed > 0
+                    "games": decided_count,
+                    "n_of_N": f"{_fmt_win_count(wins)}/{decided_count}"
+                    if decided_count > 0
                     else "unbekannt",
-                    "win_rate": round(wins / completed, 4) if completed > 0 else None,
+                    "win_rate": round(wins / decided_count, 4) if decided_count > 0 else None,
                 }
             )
     return {
@@ -1195,6 +1236,8 @@ def interim_batch_summary(
         "origin": dict(origin) if origin is not None else {},
         "games_planned": games_planned,
         "games_completed": completed,
+        "games_decided": decided_count,
+        "games_drawn": completed - decided_count,
         "games_failed": failed,
         "games_cancelled": cancelled,
         "wins_fractional": figures["wins_fractional"],
@@ -1515,6 +1558,10 @@ class BatchSimulation:
         self.worker_done = threading.Event()
 
         self._cancel_requested = False
+        #: Set under the lock once ``run_worker`` has taken the result (no cancel is pending): the
+        #: series then ends as ``completed``; a cancel that comes later is too late and ignored,
+        #: so the status never stays ``running`` (#1852).
+        self._finalizing = False
         #: Log ids of games the engine has played to their end (a progress signal that comes
         #: before the result: the log is closed after the engine process ends).
         self._played: set[str] = set()
@@ -1540,6 +1587,7 @@ class BatchSimulation:
             omissions = aggregate_series_omissions(self.data_folder, finished_ids)
         return aggregate_batch_results(
             games,
+            games_planned=len(self.seeds),
             table_size=self._resolved_table_size(),
             pilot_fingerprint=self.pilot_fingerprint,
             pod_name=self.pod_name,
@@ -1569,6 +1617,8 @@ class BatchSimulation:
     def cancel(self) -> None:
         """Gracefully request cancellation and terminate the active engine processes."""
         with self._lock:
+            if self._finalizing:
+                return  # the result is taken: the series completes, a late cancel changes nothing
             self._cancel_requested = True
             for process in self._processes:
                 with contextlib.suppress(OSError):
@@ -1598,8 +1648,11 @@ class BatchSimulation:
         return len((self._played | finished) - failed_only)
 
     def _games_in_seed_order(self) -> list[GameSummary]:
+        """The latest row of each seed in seed order; ``_games`` keeps the history (#1852)."""
         order = {self.game_id_of(seed): index for index, seed in enumerate(self.seeds)}
-        return sorted(self._games, key=lambda game: order.get(game.game_id, len(order)))
+        return sorted(
+            latest_row_per_seed(self._games), key=lambda game: order.get(game.game_id, len(order))
+        )
 
     def _interim_summary(self, games: Sequence[GameSummary]) -> dict[str, object] | None:
         """The interim figures of a running or cancelled series; caller holds the lock."""
@@ -1649,7 +1702,7 @@ class BatchSimulation:
                                 "starting_player_seat": g.starting_player_seat,
                             }
                             for g in games
-                            if g.status == "finished"
+                            if g.status == "finished" and g.winner_seats
                         ],
                         table_size=self._resolved_table_size(),
                     ),
@@ -1674,7 +1727,11 @@ class BatchSimulation:
                 "status": self.status,
                 "games_planned": len(self.seeds),
                 "games_completed": sum(1 for g in games if g.status == "finished"),
-                "games_failed": sum(1 for g in games if g.status != "finished"),
+                "games_failed": sum(
+                    1 for g in games if g.status != "finished" and not _is_cancelled(g)
+                ),
+                "games_cancelled": sum(1 for g in games if _is_cancelled(g)),
+                "games_drawn": sum(1 for g in games if _is_draw(g)),
                 "games_played": self._games_played(),
                 "current_index": self.current_index,
                 "current_game_id": self.current_game_id,
@@ -1830,6 +1887,7 @@ class BatchSimulation:
             self._played_at_run_start = self._games_played()
             # a resumed series shows no stale final result next to its interim while it runs
             self._summary = None
+            self._finalizing = False
         self.status = "running"
 
         try:
@@ -1849,16 +1907,20 @@ class BatchSimulation:
                         future.result()
 
             # Finish batch
+            # One decision under the lock: a stop requested by now ends the series as cancelled; a
+            # later one is ignored by ``cancel``, so the series ends as completed (#1852).
             with self._lock:
-                if self._cancel_requested:
+                cancelled = self._cancel_requested
+                if cancelled:
                     self.status = "cancelled"
+                else:
+                    self._finalizing = True
                 self.ended_at = now_utc()
-                self._games = self._games_in_seed_order()
-                self._summary = self._aggregate_games(self._games)
+                self._summary = self._aggregate_games(self._games_in_seed_order())
 
             # Persist into StudioStore if available
             if (
-                not self._cancel_requested
+                not cancelled
                 and store_factory is not None
                 and _as_int(self._summary.get("games_completed"), 0) > 0
             ):
@@ -1871,7 +1933,7 @@ class BatchSimulation:
                     store.close()
 
             with self._lock:
-                if not self._cancel_requested:
+                if not cancelled:
                     self.status = "completed"
             self._write_record()
 
