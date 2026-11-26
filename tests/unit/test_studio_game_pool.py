@@ -2524,27 +2524,65 @@ def test_close_recorded_game_propagates_semantic_transcript_hash_for_series_guar
     tmp_path: Path,
 ) -> None:
     """S1 (#1660): pool worker summaries must carry semantic_transcript_sha256 so the guard runs."""
-    from types import SimpleNamespace
-
+    from commander_lab.candidates.models import FutureXmageScenario
+    from commander_lab.engine.rules.full_game import FullGameHiddenInformationAudit
+    from commander_lab.engine.rules.full_game_series import (
+        SERIES_RESULT_BASIS,
+        FullGameSeriesResult,
+        ShutdownGameAck,
+    )
     from commander_lab.studio.play import GameRecorder, close_recorded_game
 
     transcript_hash = "a" * 64
+    commit = "0" * 40
+    scenario = FutureXmageScenario(
+        candidate_id="own",
+        deck_hash="d" * 64,
+        opponent_deck_ids=("o1", "o2", "o3"),
+        player_count=4,
+        seat=1,
+        scenario_id="g-hash",
+        seed=1,
+        xmage_commit=commit,
+        bridge_version="xmage-engine-bridge-0.1.0-SNAPSHOT",
+        pilot_identity="GenericCommanderPilot",
+        pilot_version="1.0.0",
+        decision_policy_version="xmage-full-game-policy-1.0.0",
+    )
+
+    def _series_outcome(game_id: str, thash: str) -> FullGameSeriesResult:
+        return FullGameSeriesResult(
+            scenario=scenario,
+            engine_version="1.4.62",
+            xmage_commit=commit,
+            decision_protocol_version="xmage-full-game-decision-v1",
+            decision_count=42,
+            winner_seats=(1,),
+            result_payload={"forced_decisions_skipped": 3},
+            semantic_transcript_sha256=thash,
+            raw_result_sha256="b" * 64,
+            shutdown_game_ack=ShutdownGameAck(
+                game_id=game_id,
+                shut_down=True,
+                engine_thread_alive=False,
+                game_over=True,
+                shutdown_unwind="none",
+            ),
+            jvm_life_id="life-1",
+            position_in_jvm=1,
+            hidden_information_audit=FullGameHiddenInformationAudit(),
+        )
+
     recorder = GameRecorder(
         tmp_path,
         "g-hash",
         header={"game_id": "g-hash", "seats": [{"seat": 0}, {"seat": 1}]},
     )
-    outcome = SimpleNamespace(
-        status="finished",
-        winner_seats=(1,),
-        decision_count=42,
-        forced_decisions_skipped=3,
-        engine_version="1.4.62",
-        semantic_transcript_sha256=transcript_hash,
-        result_payload={"forced_decisions_skipped": 3},
-    )
-    summary = close_recorded_game(recorder, outcome)  # type: ignore[arg-type]
+    summary = close_recorded_game(recorder, _series_outcome("g-hash", transcript_hash))
     assert summary["semantic_transcript_sha256"] == transcript_hash
+    assert summary["result_basis"] == SERIES_RESULT_BASIS
+    assert summary["jvm_life_id"] == "life-1"
+    assert summary["position_in_jvm"] == 1
 
     key = "k" * 64
     rec = series_record.SeriesRecord.open(
@@ -2560,6 +2598,28 @@ def test_close_recorded_game_propagates_semantic_transcript_hash_for_series_guar
     assert guard["finished"] == 1
     assert guard["unguarded"] == 0
     assert guard["violation"] is False
+
+    # Same game_key with a different semantic transcript hash via close_recorded_game trips violation
+    rec_conflict = series_record.SeriesRecord.open(
+        tmp_path / "conflict",
+        "s-conflict",
+        games=[
+            {"game_id": "g-1", "game_key": key, "seed": 1},
+            {"game_id": "g-2", "game_key": key, "seed": 1},
+        ],
+        table_hash=None,
+        table=None,
+    )
+    r1 = GameRecorder(tmp_path / "conflict", "g-1", header={"game_id": "g-1", "seats": []})
+    r2 = GameRecorder(tmp_path / "conflict", "g-2", header={"game_id": "g-2", "seats": []})
+    s1 = close_recorded_game(r1, _series_outcome("g-1", "a" * 64))
+    s2 = close_recorded_game(r2, _series_outcome("g-2", "c" * 64))
+    rec_conflict.record("g-1", s1)
+    with pytest.raises(series_record.DeterminismViolation):
+        rec_conflict.record("g-2", s2)
+    conflict_guard = series_record.series_guard(tmp_path / "conflict", "s-conflict")
+    assert conflict_guard is not None
+    assert conflict_guard["violation"] is True
 
 
 def test_hard_kill_mid_jvm_life_keeps_earlier_finished_game_logs_closed(

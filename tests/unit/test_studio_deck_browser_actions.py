@@ -61,7 +61,7 @@ def _seed_source_deck_store(tmp_path: Path) -> tuple[StudioStore, list[tuple[str
             ),
         )
 
-        # Pick 10 owned pool cards + Forest (qty 10) + 1 unowned card = 22 cards cleanly
+        # Pick 8 owned pool cards + Forest (qty 10) + Test Commander + 1 unowned card = 20 cards cleanly
         owned_rows = db.execute(
             "SELECT c.oracle_name FROM card_fact c JOIN inventory i USING (card_id) "
             "WHERE c.commander_legal = 1 AND c.oracle_name != 'Test Commander' "
@@ -238,6 +238,64 @@ def test_copy_browser_deck_reports_unresolved_cards_and_404_on_unknown(tmp_path:
     assert missing.status_code == 404
 
 
+def test_copy_browser_deck_binding_fallback_zero_owned_and_slug_collisions(
+    tmp_path: Path,
+) -> None:
+    """Follow-ups (#1835): owned_lower_bound=0 commander stays unowned, commander_binding
+    promotes/adds missing commander rows, and collisions / punctuation titles slugify cleanly."""
+    store, _ = _seed_source_deck_store(tmp_path)
+    with store.connection as db:
+        # 1. Mark commander inventory row with owned_lower_bound = 0
+        db.execute(
+            "UPDATE inventory SET owned_lower_bound = 0 "
+            "WHERE card_id = (SELECT card_id FROM card_fact WHERE oracle_name = 'Test Commander')"
+        )
+        # 2. Source deck without section='commander' row relying on commander_binding
+        db.execute(
+            "INSERT INTO corpus_deck("
+            "deck_id, source_id, url, platform, cohort, play_group, deck_date, tags, "
+            "fingerprint, legality_audit"
+            ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                "cd_bound_02",
+                db.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0],
+                "https://example.invalid/cd_bound_02",
+                "moxfield",
+                "community",
+                "",
+                "2026-10-02",
+                "[]",
+                "fp-cd-bound-02",
+                "checked",
+            ),
+        )
+        db.execute(
+            "INSERT INTO commander_binding(kind, key, commander_name, basis) VALUES (?, ?, ?, ?)",
+            ("corpus_deck", "cd_bound_02", "Test Commander", "COMMANDER_ROW"),
+        )
+        db.execute(
+            "INSERT INTO corpus_deck_card("
+            "deck_id, card_name, quantity, section, normalization_status"
+            ") VALUES (?, ?, ?, ?, ?)",
+            ("cd_bound_02", "Ajani Unowned Ally", 1, "main", "RESOLVED"),
+        )
+
+    zero_owned_copy = similar_decks.copy_browser_deck(
+        store, "source:cd_browser_01", name="Test Deck"
+    )
+    assert zero_owned_copy["commander_in_collection"] is False
+
+    # Second copy with same name gets -2 suffix
+    dup_copy = similar_decks.copy_browser_deck(store, "source:cd_browser_01", name="Test Deck")
+    assert dup_copy["deck_id"] == "test-deck-2"
+
+    # Punctuation-only name falls back to slug 'deck'
+    punct_copy = similar_decks.copy_browser_deck(store, "source:cd_bound_02", name="!!!")
+    assert punct_copy["deck_id"] == "deck"
+    assert punct_copy["commanders"] == ["Test Commander"]
+    store.close()
+
+
 def test_decks_builder_and_partie_js_wiring_for_browser_actions() -> None:
     decks_js = (STATIC_DIR / "decks.js").read_text(encoding="utf-8")
     app_js = (STATIC_DIR / "app.js").read_text(encoding="utf-8")
@@ -335,6 +393,21 @@ const sandbox = {
     toast: (msg) => { toasts.push(msg); },
     api: async (url, method, body) => {
       if (url === '/api/deck-browser/copy') {
+        if (body && body.item_id === 'source:cd_02') {
+          return {
+            deck_id: 'kopie-unowned-cmd',
+            name: 'Kopie: Unowned',
+            branch: 'main',
+            revision_id: 'kopie-unowned-cmd@5678',
+            commanders: ['Missing Commander'],
+            commander_in_collection: false,
+            source_total_cards: 100,
+            copied_total_cards: 99,
+            owned_cards: 40,
+            unowned_cards: 59,
+            unresolved_cards: [{ name: 'Unknown Card', quantity: 1 }],
+          };
+        }
         return {
           deck_id: 'kopie-test',
           name: 'Kopie: Test Deck',
@@ -347,6 +420,17 @@ const sandbox = {
           owned_cards: 40,
           unowned_cards: 60,
           unresolved_cards: [],
+        };
+      }
+      if (url.includes('source:cd_02') || url.includes('source%3Acd_02')) {
+        return {
+          id: 'source:cd_02',
+          origin: 'source',
+          name: 'Unowned Cmd Deck',
+          platform: 'moxfield',
+          url: '',
+          commanders: ['Missing Commander'],
+          cards: [],
         };
       }
       if (url.startsWith('/api/deck-browser/source:')) {
@@ -391,11 +475,95 @@ vm.runInNewContext(fs.readFileSync('decks.js', 'utf8'), sandbox);
   const afterCopyHref = navigated;
   await playBtn.listeners.click[0]();
   const afterPlayHref = navigated;
+  const copyToastCount = toasts.length;
+  const pendingToastVal = sessionMap.get('studio.pendingToast');
+
+  // Also test commander_in_collection === false path in decks.js (no navigation, warning statusNote)
+  toasts.length = 0;
+  navigated = null;
+  await sandbox.openDeckDetail({ id: 'source:cd_02', name: 'Unowned Cmd Deck' });
+  const modalNodes = [];
+  const flatWalk = (n, acc) => {
+    if (!n || typeof n !== 'object') return;
+    acc.push(n);
+    for (const c of n.children || []) flatWalk(c, acc);
+  };
+  flatWalk(elements['modal-box'], modalNodes);
+  const copyBtn2 = modalNodes.find((n) => n.id === 'deck-detail-copy-builder');
+  const note2 = modalNodes.find((n) => n.id === 'deck-detail-action-status');
+  await copyBtn2.listeners.click[0]();
+  const unownedCmdNavigated = navigated;
+  const unownedCmdNote = note2 ? note2.textContent : '';
+  const unownedCmdNoteHidden = note2 ? note2.hidden : true;
+
+  // Test app.js ?deck=&branch= query selection and history.replaceState cleanup
+  const appJs = fs.readFileSync('app.js', 'utf8');
+  const loadDecksSrc = appJs.slice(
+    appJs.indexOf('async function loadDecks()'),
+    appJs.indexOf('function renderDeckSelects()')
+  );
+  let replacedUrl = null;
+  const appSandbox = {
+    COMMANDER: 'Test Commander',
+    URLSearchParams,
+    location: { search: '?commander=Test%20Commander&deck=kopie-test&branch=alt', pathname: '/index.html' },
+    history: { replaceState: (_s, _t, url) => { replacedUrl = url; } },
+    state: {
+      decks: [],
+      deckId: null,
+      branch: 'main',
+      commanderIds: [],
+      autoDeck: null,
+    },
+    StudioCommander: { shortName: (c) => c },
+    StudioUI: { recall: () => '', num: (v) => String(v) },
+    api: async (url) => {
+      if (url === '/api/decks') {
+        return [{
+          deck_id: 'kopie-test',
+          name: 'Kopie: Test',
+          commanders: ['Test Commander'],
+          branches: [{ branch: 'main', cards: 100 }, { branch: 'alt', cards: 99 }],
+        }];
+      }
+      return [];
+    },
+    loadAllocation: async () => ({}),
+    renderPool: () => {},
+    renderDeckSelects: () => {},
+    variantKey: (k) => k,
+  };
+  vm.runInNewContext(loadDecksSrc + '\\nthis._loadDecks = loadDecks;', appSandbox);
+  await appSandbox._loadDecks();
+
+  // Test partie.js pendingToast consumption
+  const partieJs = fs.readFileSync('partie.js', 'utf8');
+  const pStart = partieJs.indexOf('const pendingToast = sessionStorage.getItem("studio.pendingToast");');
+  const pEnd = partieJs.indexOf('} catch (error) { /* private mode: no session storage */ }', pStart) + 60;
+  const partieToastSnippet = 'try {\\n  ' + partieJs.slice(pStart, pEnd);
+  const pSession = new Map([['studio.pendingToast', 'Partie-Hinweis aktiv']]);
+  const pToasts = [];
+  vm.runInNewContext(partieToastSnippet, {
+    sessionStorage: {
+      getItem: (k) => pSession.get(k) || null,
+      removeItem: (k) => pSession.delete(k),
+    },
+    toast: (m, dur) => pToasts.push({ m, dur }),
+  });
+
   console.log(JSON.stringify({
     afterCopyHref,
     afterPlayHref,
-    toastCount: toasts.length,
-    pendingToast: sessionMap.get('studio.pendingToast'),
+    toastCount: copyToastCount,
+    pendingToast: pendingToastVal,
+    unownedCmdNavigated,
+    unownedCmdNote,
+    unownedCmdNoteHidden,
+    appSelectedDeck: appSandbox.state.deckId,
+    appSelectedBranch: appSandbox.state.branch,
+    appReplacedUrl: replacedUrl,
+    partieToasts: pToasts,
+    partiePendingRemaining: pSession.size,
   }));
 })();
 """
@@ -403,9 +571,10 @@ vm.runInNewContext(fs.readFileSync('decks.js', 'utf8'), sandbox);
         [node, "-e", script],
         capture_output=True,
         text=True,
-        check=True,
+        check=False,
         cwd=STATIC_DIR,
     )
+    assert done.returncode == 0, done.stderr or done.stdout
     out = json.loads(done.stdout.strip())
     assert (
         out["afterCopyHref"] == "index.html?commander=Test%20Commander&deck=kopie-test&branch=main"
@@ -413,3 +582,11 @@ vm.runInNewContext(fs.readFileSync('decks.js', 'utf8'), sandbox);
     assert out["afterPlayHref"] == "partie.html?neu=1&revision=kopie-test%401234"
     assert out["toastCount"] == 2
     assert "100/100" in out["pendingToast"]
+    assert out["unownedCmdNavigated"] is None
+    assert out["unownedCmdNoteHidden"] is False
+    assert "Der Commander steht nicht in deiner Sammlung" in out["unownedCmdNote"]
+    assert out["appSelectedDeck"] == "kopie-test"
+    assert out["appSelectedBranch"] == "alt"
+    assert out["appReplacedUrl"] == "/index.html?commander=Test+Commander"
+    assert out["partieToasts"] == [{"m": "Partie-Hinweis aktiv", "dur": 5500}]
+    assert out["partiePendingRemaining"] == 0
