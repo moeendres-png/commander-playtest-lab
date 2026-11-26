@@ -3182,17 +3182,19 @@ async function loadDecks() {
     state.autoDeck = { deckId: created.deck_id }; // not asked for by the person: renderAutoDeckNote says so
   }
   if (!state.deckId) { // first load after opening the page: honor explicit ?deck= link, else reopen last variant
-    const urlParams = new URLSearchParams(location.search);
-    const urlDeck = urlParams.get("deck");
-    const urlBranch = urlParams.get("branch");
+    const urlParams = typeof location !== "undefined" ? new URLSearchParams(location.search) : null;
+    const urlDeck = urlParams ? urlParams.get("deck") : null;
+    const urlBranch = urlParams ? urlParams.get("branch") : null;
     if (urlDeck && state.decks.some((deck) => deck.deck_id === urlDeck)) {
       state.deckId = urlDeck;
       const wanted = state.decks.find((deck) => deck.deck_id === urlDeck);
       if (urlBranch && wanted.branches.some((item) => item.branch === urlBranch)) state.branch = urlBranch;
-      urlParams.delete("deck");
-      urlParams.delete("branch");
-      const rest = urlParams.toString();
-      history.replaceState(null, "", location.pathname + (rest ? "?" + rest : ""));
+      if (typeof history !== "undefined" && typeof history.replaceState === "function") {
+        urlParams.delete("deck");
+        urlParams.delete("branch");
+        const rest = urlParams.toString();
+        history.replaceState(null, "", location.pathname + (rest ? "?" + rest : ""));
+      }
     } else {
       const wantedDeck = StudioUI.recall(variantKey("deck"), "");
       if (state.decks.some((deck) => deck.deck_id === wantedDeck)) {
