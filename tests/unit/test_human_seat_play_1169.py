@@ -4446,9 +4446,18 @@ def _snapshot_as_before(
             "decision_timeout_seconds": session.decision_timeout_seconds,
             "ai_delay_ms": session.ai_delay_ms,
             "can_concede": any(
-                session._can_concede_by_seat.get(s, False) for s in session.human_seats
+                session._can_concede_by_seat.get(s, False) and s not in session._conceded_seats
+                for s in session.human_seats
             )
             and session._running,
+            "conceded_seats": sorted(session._conceded_seats),
+            "eliminated_seats": sorted(session._eliminated_seats),
+            "concede_pending_decision": bool(
+                pending is not None
+                and type(pending.get("seat")) is int
+                and pending.get("seat") in session._conceded_seats
+                and session._running
+            ),
             "pending_decision": pending,
             "frames": [copy.deepcopy(f) for f in source[start : start + count]],
             "start": start,
