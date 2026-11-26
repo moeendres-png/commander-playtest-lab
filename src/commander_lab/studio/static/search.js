@@ -269,7 +269,7 @@ const StudioSearch = (() => {
     return s;
   }
 
-  function parseTermToken(tok, errors, clauses, positiveWords) {
+  function parseTermToken(tok, errors, clauses, positiveWords, suppressWords = false) {
     const t = tok.text;
 
     if (!tok.hadQuotes && (t === "||" || t === "|" || t === "&&" || t === "&" || t === "!")) {
@@ -289,7 +289,7 @@ const StudioSearch = (() => {
       }
       const clause = { kind: "phrase", negated: false, value: fold(inner), rawValue: inner };
       clauses.push(clause);
-      positiveWords.push(inner);
+      if (!suppressWords) positiveWords.push(inner);
       return { type: "clause", clause };
     }
 
@@ -441,7 +441,7 @@ const StudioSearch = (() => {
 
     // Plain freetext word
     const wordRaw = stripQuotes(t);
-    positiveWords.push(wordRaw);
+    if (!suppressWords) positiveWords.push(wordRaw);
     return { type: "word", value: fold(wordRaw), rawValue: wordRaw };
   }
 
@@ -470,8 +470,8 @@ const StudioSearch = (() => {
       return tok;
     };
 
-    function parseOr() {
-      const first = parseAnd();
+    function parseOr(suppressWords = false) {
+      const first = parseAnd(suppressWords);
       if (!first) return null;
       const branches = [first];
       while (peek() && peek().type === "OR") {
@@ -490,23 +490,23 @@ const StudioSearch = (() => {
           errors.push("Fehlendes Suchkriterium vor „)“ nach „or“.");
           break;
         }
-        const right = parseAnd();
+        const right = parseAnd(suppressWords);
         if (right) branches.push(right);
       }
       return branches.length === 1 ? branches[0] : { type: "or", children: branches };
     }
 
-    function parseAnd() {
+    function parseAnd(suppressWords = false) {
       const factors = [];
       while (peek() && peek().type !== "OR" && peek().type !== "RPAREN") {
-        const item = parsePrimary();
+        const item = parsePrimary(suppressWords);
         if (item) factors.push(item);
       }
       if (!factors.length) return null;
       return factors.length === 1 ? factors[0] : { type: "and", children: factors };
     }
 
-    function parsePrimary() {
+    function parsePrimary(suppressWords = false) {
       const tok = peek();
       if (!tok) return null;
       if (tok.type === "OR") {
@@ -528,7 +528,7 @@ const StudioSearch = (() => {
           errors.push("Unerwartetes „or“ direkt nach öffnender Klammer „(“.");
           next();
         }
-        const inner = parseOr();
+        const inner = parseOr(suppressWords || negatedGroup);
         if (!peek() || peek().type !== "RPAREN") {
           errors.push("Fehlende schließende Klammer „)“ in der Suchanfrage.");
           return inner;
@@ -544,7 +544,7 @@ const StudioSearch = (() => {
         return null;
       }
       next();
-      return parseTermToken(tok, errors, clauses, positiveWords);
+      return parseTermToken(tok, errors, clauses, positiveWords, suppressWords);
     }
 
     const branches = [];

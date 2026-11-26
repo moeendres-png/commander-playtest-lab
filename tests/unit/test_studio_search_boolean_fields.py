@@ -169,6 +169,7 @@ console.log(JSON.stringify({
   withParensPrecedence: q('(t:artifact or t:creature) mv<=1'),
   groupNegation: q('-(t:land or mv>=3)'),
   nestedGroupNegation: q('t:creature -(subtype:elf or kw:flying)'),
+  negatedWordTextQuery: S.parseQuery('t:creature -(elf)').textQuery,
   quotedLiteralOr: S.sortByRank([
     { name: 'Choice', type_line: 'Sorcery', text: 'Draw a card or gain 2 life.', keywords: [] },
     { name: 'Single', type_line: 'Sorcery', text: 'Draw a card.', keywords: [] },
@@ -205,6 +206,7 @@ console.log(JSON.stringify({
     ]
     # Only Chulane is Creature without Elf subtype and without Flying keyword
     assert res["nestedGroupNegation"] == ["Chulane, Teller of Tales"]
+    assert res["negatedWordTextQuery"] == ""
     assert res["quotedLiteralOr"] == ["Choice"]
 
 
