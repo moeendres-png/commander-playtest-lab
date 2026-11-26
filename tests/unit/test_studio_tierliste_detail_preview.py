@@ -195,6 +195,7 @@ const state = {{
   lastScrollTop: null,
   lastScrollLeft: null,
   modalTicket: 0,
+  suppressFocusPreview: false,
 }};
 
 {helpers_src}
@@ -261,12 +262,28 @@ async function run() {{
   assert.ok(modalBox.textContent.includes("Tap: Add two colorless mana."));
   assert.ok(modalBox.textContent.includes("Begründung für Sol Ring"));
 
-  // Escape preserves #pool-body scroll position and uses preventScroll focus restore
+  // Escape preserves #pool-body scroll position and uses preventScroll focus restore without spurious preview
   trapModalFocus({{ key: "Escape" }});
   assert.strictEqual(modal.hidden, true);
+  assert.strictEqual(preview.hidden, true);
   assert.strictEqual(poolBody.scrollTop, 315);
   assert.strictEqual(poolBody.scrollLeft, 12);
   assert.deepStrictEqual(tr.focusOpts, {{ preventScroll: true }});
+
+  // Verify suppressFocusPreview stays respected when target.focus fires synchronous onfocus handler
+  tr.focus = (opts) => {{
+    tr.focusOpts = opts || null;
+    document.activeElement = tr;
+    if (tr.onfocus) tr.onfocus({{ target: tr, currentTarget: tr }});
+  }};
+  rowTwo.focus = (opts) => {{
+    rowTwo.focusOpts = opts || null;
+    document.activeElement = rowTwo;
+    if (rowTwo.onfocus) rowTwo.onfocus({{ target: rowTwo, currentTarget: rowTwo }});
+  }};
+  await openCard(cardTwo);
+  closeModal();
+  assert.strictEqual(preview.hidden, true);
 
   // Space opens modal; child keydown is ignored
   let preventCalled = false;

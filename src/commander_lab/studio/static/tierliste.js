@@ -151,7 +151,7 @@ const state = {
   roleAudit: null,
   cohortShapes: [], roleGapOnly: false,
   preset: "detail", funcMode: false, lastFocus: null, lastFocusCard: "",
-  lastScrollTop: null, lastScrollLeft: null, modalTicket: 0,
+  lastScrollTop: null, lastScrollLeft: null, modalTicket: 0, suppressFocusPreview: false,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -887,7 +887,10 @@ function cardRowProps(card) {
     onmouseenter: (event) => showRowPreview(card, event),
     onmousemove: (event) => moveRowPreview(event),
     onmouseleave: hideRowPreview,
-    onfocus: (event) => { if (event.target === event.currentTarget) showRowPreview(card, event); },
+    onfocus: (event) => {
+      if (state.suppressFocusPreview) { state.suppressFocusPreview = false; return; }
+      if (event.target === event.currentTarget) showRowPreview(card, event);
+    },
     onblur: hideRowPreview,
   };
 }
@@ -1302,7 +1305,9 @@ function closeModal() {
   state.lastFocus = null; state.lastFocusCard = "";
   state.lastScrollTop = null; state.lastScrollLeft = null;
   if (target && target.focus) {
+    state.suppressFocusPreview = true;
     try { target.focus({ preventScroll: true }); } catch (_) { target.focus(); }
+    finally { state.suppressFocusPreview = false; }
   }
   if (pool && Number.isFinite(savedTop)) pool.scrollTop = savedTop;
   if (pool && Number.isFinite(savedLeft)) pool.scrollLeft = savedLeft;
