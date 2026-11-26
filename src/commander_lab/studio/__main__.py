@@ -522,6 +522,14 @@ def _parser() -> argparse.ArgumentParser:
         help="check local prerequisites (Python, packages, Java 17+, bridge JAR, pin, card catalog, data dir)",
     )
     doctor_cmd.add_argument("--json", action="store_true", help="print diagnostics as JSON")
+    doctor_cmd.add_argument(
+        "--bridge-smoke",
+        action="store_true",
+        help=(
+            "run a local live bridge start_engine + import_deck smoke check and show "
+            "plaintext stderr diagnostics locally on failure"
+        ),
+    )
     appcds_cmd = commands.add_parser(
         "build-appcds",
         help="build a companion AppCDS archive (<jar>.jsa) for faster bridge JVM startup",
@@ -1250,7 +1258,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "doctor":
         from .doctor import format_doctor_report, run_doctor
 
-        doctor_report = run_doctor(args.data)
+        doctor_report = run_doctor(args.data, bridge_smoke=bool(args.bridge_smoke))
         if args.json:
             print(json.dumps(doctor_report, indent=2, ensure_ascii=False))
         else:

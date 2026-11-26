@@ -10,6 +10,7 @@ from __future__ import annotations
 import codecs
 import contextlib
 import dataclasses
+import io
 import json
 import os
 import re
@@ -638,8 +639,12 @@ def launch(plan: LaunchPlan, *, timeout_s: float = 60.0) -> BridgeProcess:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
+            encoding="utf-8",
+            errors="strict",
             bufsize=1,
         )
+        if isinstance(popen.stderr, io.TextIOWrapper):
+            popen.stderr.reconfigure(errors="backslashreplace")
     except OSError as exc:
         raise BridgeLaunchError(f"cannot launch {plan.candidate}: {exc}") from exc
     return BridgeProcess(plan=plan, popen=popen)

@@ -1938,6 +1938,8 @@ class BatchSimulation:
                 stderr=err,
                 stdin=subprocess.DEVNULL,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 env=env,
             )
             with self._lock:

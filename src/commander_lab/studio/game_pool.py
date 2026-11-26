@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import contextlib
 import hashlib
+import io
 import json
 import os
 import queue
@@ -731,9 +732,13 @@ class _ProcessWorker:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
+            encoding="utf-8",
+            errors="strict",
             env=dict(env),
             start_new_session=not _WINDOWS,
         )
+        if isinstance(self.proc.stderr, io.TextIOWrapper):
+            self.proc.stderr.reconfigure(errors="backslashreplace")
         self._events = events
         self._out = threading.Thread(target=self._read_stdout, daemon=True)
         self._err = threading.Thread(target=self._read_stderr, daemon=True)
