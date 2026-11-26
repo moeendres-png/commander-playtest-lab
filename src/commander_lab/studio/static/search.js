@@ -13,15 +13,32 @@ const StudioSearch = (() => {
     t: "type",
     type: "type",
     typ: "type",
+    sub: "subtype",
+    subtype: "subtype",
+    untertyp: "subtype",
+    super: "supertype",
+    supertype: "supertype",
+    uebertyp: "supertype",
+    "übertyp": "supertype",
     o: "oracle",
     oracle: "oracle",
     text: "oracle",
+    kw: "keyword",
+    keyword: "keyword",
+    keywords: "keyword",
+    schluesselwort: "keyword",
+    "schlüsselwort": "keyword",
     n: "name",
     name: "name",
     r: "role",
     role: "role",
     rolle: "role",
     fn: "role",
+    otag: "otag",
+    oracletag: "otag",
+    cat: "otag",
+    category: "otag",
+    kategorie: "otag",
     l: "label",
     label: "label",
     tag: "label",
@@ -39,6 +56,49 @@ const StudioSearch = (() => {
     manawert: "mv",
     is: "is",
     has: "is",
+  };
+
+  const SUPERTYPES = new Set(["basic", "legendary", "ongoing", "snow", "world"]);
+
+  const SUPERTYPE_ALIASES = {
+    legende: "legendary",
+    legendaer: "legendary",
+    "legendär": "legendary",
+    standard: "basic",
+    standardland: "basic",
+    schnee: "snow",
+  };
+
+  const SUBTYPE_ALIASES = {
+    elfen: "elf",
+    drache: "dragon",
+    drachen: "dragon",
+    mensch: "human",
+    menschen: "human",
+    engel: "angel",
+    zauberer: "wizard",
+    magier: "wizard",
+    krieger: "warrior",
+    soldat: "soldier",
+    druide: "druid",
+    druiden: "druid",
+    bestie: "beast",
+    bestien: "beast",
+    vogel: "bird",
+    "vögel": "bird",
+    voegel: "bird",
+    geist: "spirit",
+    geister: "spirit",
+    riese: "giant",
+    riesen: "giant",
+    daemon: "demon",
+    "dämon": "demon",
+    schlange: "snake",
+    schlangen: "snake",
+    vampir: "vampire",
+    vampire: "vampire",
+    goblin: "goblin",
+    zombie: "zombie",
   };
 
   const TYPE_ALIASES = {
@@ -143,36 +203,59 @@ const StudioSearch = (() => {
     let startedWithQuote = false;
     let endedWithQuote = false;
 
+    const flushCurrent = () => {
+      if (current.length === 0) return;
+      const standaloneQuoted = !inQuotes && startedWithQuote && endedWithQuote && current.startsWith('"') && current.endsWith('"');
+      const isOr = !hadQuotes && fold(current) === "or";
+      tokens.push({
+        type: isOr ? "OR" : "TERM",
+        text: current,
+        hadQuotes,
+        standaloneQuoted,
+      });
+      current = "";
+      hadQuotes = false;
+      startedWithQuote = false;
+      endedWithQuote = false;
+    };
+
     for (let i = 0; i < raw.length; i += 1) {
       const ch = raw[i];
       if (ch === '"') {
         if (!inQuotes && current.length === 0) startedWithQuote = true;
         inQuotes = !inQuotes;
         hadQuotes = true;
-        endedWithQuote = !inQuotes && (i + 1 === raw.length || /\s/.test(raw[i + 1]));
+        endedWithQuote = !inQuotes && (i + 1 === raw.length || /\s|\)/.test(raw[i + 1]));
         current += ch;
       } else if (!inQuotes && /\s/.test(ch)) {
-        if (current.length > 0) {
-          tokens.push({
-            text: current,
-            hadQuotes,
-            standaloneQuoted: startedWithQuote && endedWithQuote && current.startsWith('"') && current.endsWith('"'),
-          });
+        flushCurrent();
+      } else if (!inQuotes && ch === "(") {
+        if (current === "-" && !hadQuotes) {
+          tokens.push({ type: "NOT_LPAREN", text: "-(", hadQuotes: false, standaloneQuoted: false });
           current = "";
           hadQuotes = false;
           startedWithQuote = false;
           endedWithQuote = false;
+        } else {
+          flushCurrent();
+          tokens.push({ type: "LPAREN", text: "(", hadQuotes: false, standaloneQuoted: false });
         }
+      } else if (!inQuotes && ch === ")") {
+        flushCurrent();
+        tokens.push({ type: "RPAREN", text: ")", hadQuotes: false, standaloneQuoted: false });
       } else {
         current += ch;
         endedWithQuote = false;
       }
     }
     if (current.length > 0) {
+      const standaloneQuoted = !inQuotes && startedWithQuote && current.startsWith('"') && current.endsWith('"');
+      const isOr = !hadQuotes && fold(current) === "or";
       tokens.push({
+        type: isOr ? "OR" : "TERM",
         text: current,
         hadQuotes,
-        standaloneQuoted: !inQuotes && startedWithQuote && current.startsWith('"') && current.endsWith('"'),
+        standaloneQuoted,
       });
     }
     return { tokens, unclosedQuote: inQuotes };
@@ -186,164 +269,310 @@ const StudioSearch = (() => {
     return s;
   }
 
+  function parseTermToken(tok, errors, clauses, positiveWords, suppressWords = false) {
+    const t = tok.text;
+
+    if (!tok.hadQuotes && (t === "||" || t === "|" || t === "&&" || t === "&" || t === "!")) {
+      const hint = t === "!" ? "Nutze „-“ vor einem Ausdruck oder einer Klammer (z. B. -t:land oder -(t:land or mv>=4))."
+        : (t === "|" || t === "||") ? "Nutze „or“ statt „" + t + "“ (z. B. t:artifact or t:creature)."
+        : "Leerzeichen verknüpfen automatisch mit UND; „" + t + "“ ist nicht nötig.";
+      errors.push(`Nicht unterstützter Operator „${t}“. ${hint}`);
+      return null;
+    }
+
+    // Standalone quoted phrase: "Sol Ring" or "draw a card"
+    if (tok.standaloneQuoted) {
+      const inner = stripQuotes(t).trim();
+      if (!inner) {
+        errors.push('Leere Phrasensuche ("") — bitte Suchbegriff zwischen den Anführungszeichen angeben.');
+        return null;
+      }
+      const clause = { kind: "phrase", negated: false, value: fold(inner), rawValue: inner };
+      clauses.push(clause);
+      if (!suppressWords) positiveWords.push(inner);
+      return { type: "clause", clause };
+    }
+
+    // Negated quoted phrase: -"Sol Ring"
+    if (t.startsWith('-"') && t.endsWith('"') && t.length >= 3) {
+      const inner = stripQuotes(t.slice(1)).trim();
+      if (!inner) {
+        errors.push('Leere negierte Phrasensuche (-"") — bitte Suchbegriff angeben.');
+        return null;
+      }
+      const clause = { kind: "phrase", negated: true, value: fold(inner), rawValue: inner };
+      clauses.push(clause);
+      return { type: "clause", clause };
+    }
+
+    // Unsupported "!field:..." prefix
+    if (!tok.hadQuotes && /^!(?:[a-zA-Z_äöüÄÖÜ]+[:=<>]|\(|")/.test(t)) {
+      errors.push(`Nicht unterstütztes Negationszeichen „!“ in „${t}“ (nutze „-“ statt „!“).`);
+      return null;
+    }
+
+    // Leading operator without field name (e.g. ":creature" or ">=3")
+    const leadingOp = t.match(/^(-)?(:|!=|<=|>=|=|<|>)(.*)$/);
+    if (leadingOp) {
+      errors.push(`Ungültiger Operator am Wortanfang „${t}“ (Feldname vor „${leadingOp[2]}“ erwartet, z. B. mv${leadingOp[2]}2).`);
+      return null;
+    }
+
+    // Field + operator expression: [-]<field>(:|!=|<=|>=|=|<|> value)
+    const opMatch = t.match(/^(-)?([a-zA-Z_äöüÄÖÜ]+)(:|!=|<=|>=|=|<|>)(.*)$/);
+    if (opMatch) {
+      let negated = Boolean(opMatch[1]);
+      const fieldNameRaw = opMatch[2];
+      const fieldKey = fold(fieldNameRaw);
+      const op = opMatch[3];
+      const valPart = stripQuotes(opMatch[4]).trim();
+
+      if (!Object.prototype.hasOwnProperty.call(FIELD_ALIASES, fieldKey)) {
+        errors.push(`Unbekanntes Suchfeld „${fieldNameRaw}“ (erlaubt: t, subtype, super, o, kw, r, otag, c, id, mv, l, n, is).`);
+        return null;
+      }
+      const canonical = FIELD_ALIASES[fieldKey];
+      if (!valPart) {
+        errors.push(`Fehlender Wert nach „${fieldNameRaw}${op}“.`);
+        return null;
+      }
+
+      if (canonical === "mv") {
+        const vFold = fold(valPart);
+        if (vFold === "even" || vFold === "gerade" || vFold === "odd" || vFold === "ungerade") {
+          if (op !== ":" && op !== "=" && op !== "!=") {
+            errors.push(`Operator „${op}“ ist bei ${fieldNameRaw}:${valPart} nicht erlaubt (nutze : oder =).`);
+            return null;
+          }
+          if (op === "!=") negated = !negated;
+          const parity = vFold === "even" || vFold === "gerade" ? "even" : "odd";
+          const clause = { kind: "mv_parity", negated, parity };
+          clauses.push(clause);
+          return { type: "clause", clause };
+        }
+        const normalizedNum = valPart.replace(",", ".");
+        if (!/^\d+(?:\.\d+)?$/.test(normalizedNum)) {
+          errors.push(`Ungültiger Zahlenwert „${valPart}“ bei ${fieldNameRaw}${op} (Zahl oder even/odd erwartet).`);
+          return null;
+        }
+        const clause = {
+          kind: "mv",
+          negated,
+          op: op === ":" ? "=" : op,
+          number: Number(normalizedNum),
+        };
+        clauses.push(clause);
+        return { type: "clause", clause };
+      }
+
+      if (canonical === "color" || canonical === "identity") {
+        const parsedCol = parseColors(valPart);
+        if (!parsedCol) {
+          errors.push(`Unbekannte Farbangabe „${valPart}“ bei ${fieldNameRaw}${op} (erlaubt: W, U, B, R, G, C).`);
+          return null;
+        }
+        const clause = {
+          kind: canonical,
+          negated,
+          op,
+          colorless: parsedCol.colorless,
+          letters: parsedCol.letters,
+        };
+        clauses.push(clause);
+        return { type: "clause", clause };
+      }
+
+      // Text / categorical fields: only :, =, != allowed
+      if (op !== ":" && op !== "=" && op !== "!=") {
+        errors.push(`Operator „${op}“ wird für Feld „${fieldNameRaw}“ nicht unterstützt (nutze : oder =).`);
+        return null;
+      }
+      if (op === "!=") negated = !negated;
+
+      if (canonical === "is") {
+        const isVal = fold(valPart);
+        if (!IS_VALUES.has(isVal)) {
+          errors.push(`Unbekannte Eigenschaft „${valPart}“ bei ${fieldNameRaw}${op} (erlaubt: legendary, basic, gamechanger, fav, free, excluded).`);
+          return null;
+        }
+        const clause = { kind: "is", negated, value: isVal };
+        clauses.push(clause);
+        return { type: "clause", clause };
+      }
+
+      if (canonical === "type") {
+        const mapped = TYPE_ALIASES[fold(valPart)] || fold(valPart);
+        const clause = { kind: "type", negated, value: mapped, rawValue: fold(valPart) };
+        clauses.push(clause);
+        return { type: "clause", clause };
+      }
+
+      if (canonical === "subtype") {
+        const mapped = SUBTYPE_ALIASES[fold(valPart)] || fold(valPart);
+        const clause = { kind: "subtype", negated, value: mapped, rawValue: fold(valPart) };
+        clauses.push(clause);
+        return { type: "clause", clause };
+      }
+
+      if (canonical === "supertype") {
+        const rawSub = fold(valPart);
+        const mapped = SUPERTYPE_ALIASES[rawSub] || rawSub;
+        const clause = { kind: "supertype", negated, value: mapped, rawValue: rawSub };
+        clauses.push(clause);
+        return { type: "clause", clause };
+      }
+
+      const clause = { kind: canonical, negated, value: fold(valPart) };
+      clauses.push(clause);
+      return { type: "clause", clause };
+    }
+
+    // Negated freetext word: -island
+    if (t.startsWith("-")) {
+      const inner = stripQuotes(t.slice(1)).trim();
+      if (!inner) {
+        errors.push("Fehlender Suchbegriff nach „-“.");
+        return null;
+      }
+      const clause = { kind: "phrase", negated: true, value: fold(inner) };
+      clauses.push(clause);
+      return { type: "clause", clause };
+    }
+
+    // Plain freetext word
+    const wordRaw = stripQuotes(t);
+    if (!suppressWords) positiveWords.push(wordRaw);
+    return { type: "word", value: fold(wordRaw), rawValue: wordRaw };
+  }
+
   function parseQuery(rawQuery) {
     const raw = String(rawQuery || "");
     const trimmed = raw.trim();
     if (!trimmed) {
-      return { raw: "", isPlainFreetext: true, textQuery: "", clauses: [], errors: [] };
+      return { raw: "", isPlainFreetext: true, textQuery: "", clauses: [], ast: null, errors: [] };
     }
 
     const { tokens, unclosedQuote } = tokenize(trimmed);
     const errors = [];
     const clauses = [];
     const positiveWords = [];
+    let hasBooleanSyntax = false;
 
     if (unclosedQuote) {
       errors.push('Nicht geschlossenes Anführungszeichen (") in der Suchanfrage.');
     }
 
-    for (const tok of tokens) {
-      const t = tok.text;
+    let pos = 0;
+    const peek = () => tokens[pos] || null;
+    const next = () => {
+      const tok = tokens[pos] || null;
+      pos += 1;
+      return tok;
+    };
 
-      // Standalone quoted phrase: "Sol Ring" or "draw a card"
-      if (tok.standaloneQuoted) {
-        const inner = stripQuotes(t).trim();
-        if (!inner) {
-          errors.push('Leere Phrasensuche ("") — bitte Suchbegriff zwischen den Anführungszeichen angeben.');
-        } else {
-          clauses.push({ kind: "phrase", negated: false, value: fold(inner) });
-          positiveWords.push(inner);
+    function parseOr(suppressWords = false) {
+      const first = parseAnd(suppressWords);
+      if (!first) return null;
+      const branches = [first];
+      while (peek() && peek().type === "OR") {
+        hasBooleanSyntax = true;
+        next();
+        if (!peek()) {
+          errors.push("Fehlendes Suchkriterium nach „or“.");
+          break;
         }
-        continue;
+        if (peek().type === "OR") {
+          errors.push("Unerwartetes „or“ direkt nach „or“.");
+          next();
+          continue;
+        }
+        if (peek().type === "RPAREN") {
+          errors.push("Fehlendes Suchkriterium vor „)“ nach „or“.");
+          break;
+        }
+        const right = parseAnd(suppressWords);
+        if (right) branches.push(right);
       }
-
-      // Negated quoted phrase: -"Sol Ring"
-      if (t.startsWith('-"') && t.endsWith('"') && t.length >= 3) {
-        const inner = stripQuotes(t.slice(1)).trim();
-        if (!inner) {
-          errors.push('Leere negierte Phrasensuche (-"") — bitte Suchbegriff angeben.');
-        } else {
-          clauses.push({ kind: "phrase", negated: true, value: fold(inner) });
-        }
-        continue;
-      }
-
-      // Leading operator without field name (e.g. ":creature" or ">=3")
-      const leadingOp = t.match(/^(-)?(:|!=|<=|>=|=|<|>)(.*)$/);
-      if (leadingOp) {
-        errors.push(`Ungültiger Operator am Wortanfang „${t}“ (Feldname vor „${leadingOp[2]}“ erwartet, z. B. mv${leadingOp[2]}2).`);
-        continue;
-      }
-
-      // Field + operator expression: [-]<field>(:|!=|<=|>=|=|<|> value)
-      const opMatch = t.match(/^(-)?([a-zA-Z_äöüÄÖÜ]+)(:|!=|<=|>=|=|<|>)(.*)$/);
-      if (opMatch) {
-        let negated = Boolean(opMatch[1]);
-        const fieldNameRaw = opMatch[2];
-        const fieldKey = fold(fieldNameRaw);
-        const op = opMatch[3];
-        const valPart = stripQuotes(opMatch[4]).trim();
-
-        if (!Object.prototype.hasOwnProperty.call(FIELD_ALIASES, fieldKey)) {
-          errors.push(`Unbekanntes Suchfeld „${fieldNameRaw}“ (erlaubt: t, o, r, c, id, mv, l, n, is).`);
-          continue;
-        }
-        const canonical = FIELD_ALIASES[fieldKey];
-        if (!valPart) {
-          errors.push(`Fehlender Wert nach „${fieldNameRaw}${op}“.`);
-          continue;
-        }
-
-        if (canonical === "mv") {
-          const vFold = fold(valPart);
-          if (vFold === "even" || vFold === "gerade" || vFold === "odd" || vFold === "ungerade") {
-            if (op !== ":" && op !== "=" && op !== "!=") {
-              errors.push(`Operator „${op}“ ist bei ${fieldNameRaw}:${valPart} nicht erlaubt (nutze : oder =).`);
-              continue;
-            }
-            if (op === "!=") negated = !negated;
-            const parity = vFold === "even" || vFold === "gerade" ? "even" : "odd";
-            clauses.push({ kind: "mv_parity", negated, parity });
-            continue;
-          }
-          const normalizedNum = valPart.replace(",", ".");
-          if (!/^\d+(?:\.\d+)?$/.test(normalizedNum)) {
-            errors.push(`Ungültiger Zahlenwert „${valPart}“ bei ${fieldNameRaw}${op} (Zahl oder even/odd erwartet).`);
-            continue;
-          }
-          clauses.push({
-            kind: "mv",
-            negated,
-            op: op === ":" ? "=" : op,
-            number: Number(normalizedNum),
-          });
-          continue;
-        }
-
-        if (canonical === "color" || canonical === "identity") {
-          const parsedCol = parseColors(valPart);
-          if (!parsedCol) {
-            errors.push(`Unbekannte Farbangabe „${valPart}“ bei ${fieldNameRaw}${op} (erlaubt: W, U, B, R, G, C).`);
-            continue;
-          }
-          clauses.push({
-            kind: canonical,
-            negated,
-            op,
-            colorless: parsedCol.colorless,
-            letters: parsedCol.letters,
-          });
-          continue;
-        }
-
-        // Text / categorical fields: only :, =, != allowed
-        if (op !== ":" && op !== "=" && op !== "!=") {
-          errors.push(`Operator „${op}“ wird für Feld „${fieldNameRaw}“ nicht unterstützt (nutze : oder =).`);
-          continue;
-        }
-        if (op === "!=") negated = !negated;
-
-        if (canonical === "is") {
-          const isVal = fold(valPart);
-          if (!IS_VALUES.has(isVal)) {
-            errors.push(`Unbekannte Eigenschaft „${valPart}“ bei ${fieldNameRaw}${op} (erlaubt: legendary, basic, gamechanger, fav, free, excluded).`);
-            continue;
-          }
-          clauses.push({ kind: "is", negated, value: isVal });
-          continue;
-        }
-
-        if (canonical === "type") {
-          const mapped = TYPE_ALIASES[fold(valPart)] || fold(valPart);
-          clauses.push({ kind: "type", negated, value: mapped, rawValue: fold(valPart) });
-          continue;
-        }
-
-        clauses.push({ kind: canonical, negated, value: fold(valPart) });
-        continue;
-      }
-
-      // Negated freetext word: -island
-      if (t.startsWith("-")) {
-        const inner = stripQuotes(t.slice(1)).trim();
-        if (!inner) {
-          errors.push("Fehlender Suchbegriff nach „-“.");
-        } else {
-          clauses.push({ kind: "phrase", negated: true, value: fold(inner) });
-        }
-        continue;
-      }
-
-      // Plain freetext word
-      positiveWords.push(stripQuotes(t));
+      return branches.length === 1 ? branches[0] : { type: "or", children: branches };
     }
 
-    const isPlainFreetext = clauses.length === 0 && errors.length === 0;
+    function parseAnd(suppressWords = false) {
+      const factors = [];
+      while (peek() && peek().type !== "OR" && peek().type !== "RPAREN") {
+        const item = parsePrimary(suppressWords);
+        if (item) factors.push(item);
+      }
+      if (!factors.length) return null;
+      return factors.length === 1 ? factors[0] : { type: "and", children: factors };
+    }
+
+    function parsePrimary(suppressWords = false) {
+      const tok = peek();
+      if (!tok) return null;
+      if (tok.type === "OR") {
+        hasBooleanSyntax = true;
+        errors.push("Unerwartetes „or“ ohne linken Suchausdruck.");
+        next();
+        return null;
+      }
+      if (tok.type === "NOT_LPAREN" || tok.type === "LPAREN") {
+        hasBooleanSyntax = true;
+        const negatedGroup = tok.type === "NOT_LPAREN";
+        next();
+        if (peek() && peek().type === "RPAREN") {
+          next();
+          errors.push(negatedGroup ? "Leere negierte Klammergruppe „-()“ ist nicht erlaubt." : "Leere Klammergruppe „()“ ist nicht erlaubt.");
+          return null;
+        }
+        if (peek() && peek().type === "OR") {
+          errors.push("Unerwartetes „or“ direkt nach öffnender Klammer „(“.");
+          next();
+        }
+        const inner = parseOr(suppressWords || negatedGroup);
+        if (!peek() || peek().type !== "RPAREN") {
+          errors.push("Fehlende schließende Klammer „)“ in der Suchanfrage.");
+          return inner;
+        }
+        next();
+        if (!inner) return null;
+        return negatedGroup ? { type: "not", child: inner } : inner;
+      }
+      if (tok.type === "RPAREN") {
+        hasBooleanSyntax = true;
+        errors.push("Unerwartete schließende Klammer „)“ ohne öffnende Klammer.");
+        next();
+        return null;
+      }
+      next();
+      return parseTermToken(tok, errors, clauses, positiveWords, suppressWords);
+    }
+
+    const branches = [];
+    while (peek()) {
+      if (peek().type === "OR") {
+        hasBooleanSyntax = true;
+        errors.push("Unerwartetes „or“ ohne linken Suchausdruck.");
+        next();
+        continue;
+      }
+      if (peek().type === "RPAREN") {
+        hasBooleanSyntax = true;
+        errors.push("Unerwartete schließende Klammer „)“ ohne öffnende Klammer.");
+        next();
+        continue;
+      }
+      const expr = parseOr();
+      if (expr) branches.push(expr);
+    }
+
+    const ast = branches.length === 0 ? null : branches.length === 1 ? branches[0] : { type: "and", children: branches };
+    const isPlainFreetext = clauses.length === 0 && !hasBooleanSyntax && errors.length === 0;
     return {
       raw: trimmed,
       isPlainFreetext,
       textQuery: positiveWords.join(" ").trim(),
       clauses,
+      ast,
       errors,
     };
   }
@@ -363,6 +592,61 @@ const StudioSearch = (() => {
       return card.labels.map((l) => fold(l));
     }
     return [];
+  }
+
+  function cardKeywordsList(card) {
+    if (Array.isArray(card.keywords)) {
+      return card.keywords.map((k) => fold(k)).filter(Boolean);
+    }
+    if (typeof card.keywords === "string") {
+      const raw = card.keywords.trim();
+      if (!raw) return [];
+      if (raw.startsWith("[")) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed.map((k) => fold(k)).filter(Boolean);
+        } catch (error) {
+          // ignore malformed JSON string and fall back to comma split
+        }
+      }
+      return raw.split(",").map((k) => fold(k.trim())).filter(Boolean);
+    }
+    return [];
+  }
+
+  function cardOtagList(card) {
+    const out = [...cardRolesList(card)];
+    if (card.layers && card.layers.fact && Array.isArray(card.layers.fact.roles)) {
+      for (const r of card.layers.fact.roles) {
+        if (r && r.original_tag) out.push(fold(r.original_tag));
+      }
+    }
+    if (Array.isArray(card.oracle_tags)) {
+      for (const t of card.oracle_tags) out.push(fold(t));
+    }
+    if (Array.isArray(card.categories)) {
+      for (const c of card.categories) out.push(fold(c));
+    }
+    return out.filter(Boolean);
+  }
+
+  function cardTypeParts(typeLine) {
+    const folded = fold(typeLine);
+    const faces = folded.split(/\s*\/\/\s*/);
+    const supertypes = [];
+    const subtypes = [];
+    for (const face of faces) {
+      const parts = face.split(/\s*[—–]\s*|\s+-\s+/);
+      if (parts[0]) {
+        for (const word of parts[0].trim().split(/\s+/).filter(Boolean)) {
+          if (SUPERTYPES.has(word)) supertypes.push(word);
+        }
+      }
+      for (let i = 1; i < parts.length; i += 1) {
+        subtypes.push(...parts[i].trim().split(/\s+/).filter(Boolean));
+      }
+    }
+    return { supertypes, subtypes };
   }
 
   function cardColorsString(card) {
@@ -422,6 +706,46 @@ const StudioSearch = (() => {
           || group.includes(clause.value)
           || (clause.rawValue ? typeLine.includes(clause.rawValue) || group.includes(clause.rawValue) : false);
         break;
+      case "subtype": {
+        const { subtypes } = cardTypeParts(typeLine);
+        if (clause.value === "none" || clause.value === "keine" || clause.value === "-") {
+          result = subtypes.length === 0;
+        } else {
+          result = subtypes.some((st) => st === clause.value || st.includes(clause.value)
+            || (clause.rawValue && (st === clause.rawValue || st.includes(clause.rawValue))));
+        }
+        break;
+      }
+      case "supertype": {
+        const { supertypes } = cardTypeParts(typeLine);
+        if (clause.value === "none" || clause.value === "keine" || clause.value === "-") {
+          result = supertypes.length === 0;
+        } else {
+          result = supertypes.some((sup) => sup === clause.value
+            || (clause.rawValue && sup === clause.rawValue));
+        }
+        break;
+      }
+      case "keyword": {
+        const keywords = cardKeywordsList(card);
+        if (clause.value === "none" || clause.value === "keine" || clause.value === "-") {
+          result = keywords.length === 0;
+        } else {
+          result = keywords.some((kw) => kw === clause.value || kw.includes(clause.value));
+        }
+        break;
+      }
+      case "otag": {
+        const otags = cardOtagList(card);
+        if (clause.value === "none" || clause.value === "keine" || clause.value === "-") {
+          result = otags.length === 0;
+        } else {
+          const normTarget = clause.value.replace(/[-_]+/g, " ");
+          result = otags.some((tag) => tag === clause.value || tag.includes(clause.value)
+            || tag.replace(/[-_]+/g, " ").includes(normTarget));
+        }
+        break;
+      }
       case "oracle":
         result = text.includes(clause.value);
         break;
@@ -543,13 +867,67 @@ const StudioSearch = (() => {
     return null;
   }
 
+  function evalAstRank(card, node) {
+    if (!node) return 0;
+    if (node.type === "word") {
+      return baseRank(card, node.rawValue);
+    }
+    if (node.type === "clause") {
+      if (!matchClause(card, node.clause)) return null;
+      if (node.clause.kind === "phrase" && !node.clause.negated) {
+        const r = baseRank(card, node.clause.rawValue || node.clause.value);
+        return r !== null ? r : 4;
+      }
+      return 0;
+    }
+    if (node.type === "not") {
+      return evalAstRank(card, node.child) === null ? 0 : null;
+    }
+    if (node.type === "or") {
+      let best = null;
+      for (const child of node.children) {
+        const r = evalAstRank(card, child);
+        if (r !== null && (best === null || r < best)) best = r;
+      }
+      return best;
+    }
+    if (node.type === "and") {
+      const wordParts = [];
+      let nonWordBest = 0;
+      let hasNonWord = false;
+      for (const child of node.children) {
+        if (child.type === "word") {
+          wordParts.push(child.rawValue);
+          if (baseRank(card, child.rawValue) === null) return null;
+        } else {
+          const r = evalAstRank(card, child);
+          if (r === null) return null;
+          hasNonWord = true;
+          if (r > nonWordBest) nonWordBest = r;
+        }
+      }
+      if (wordParts.length > 0) {
+        const combinedRank = baseRank(card, wordParts.join(" "));
+        const wordRank = combinedRank !== null
+          ? combinedRank
+          : Math.max(...wordParts.map((w) => baseRank(card, w) ?? 4));
+        return hasNonWord ? Math.max(wordRank, nonWordBest) : wordRank;
+      }
+      return nonWordBest;
+    }
+    return null;
+  }
+
   function rank(card, queryOrParsed) {
     const parsed = typeof queryOrParsed === "object" && queryOrParsed !== null && Array.isArray(queryOrParsed.clauses)
       ? queryOrParsed
       : parseQuery(queryOrParsed);
-    if (parsed.errors.length > 0) return null;
+    if (parsed.errors && parsed.errors.length > 0) return null;
     if (parsed.isPlainFreetext) {
       return baseRank(card, parsed.textQuery);
+    }
+    if (parsed.ast) {
+      return evalAstRank(card, parsed.ast);
     }
     for (const clause of parsed.clauses) {
       if (!matchClause(card, clause)) return null;
@@ -564,7 +942,7 @@ const StudioSearch = (() => {
     const parsed = typeof queryOrParsed === "object" && queryOrParsed !== null && Array.isArray(queryOrParsed.clauses)
       ? queryOrParsed
       : parseQuery(queryOrParsed);
-    if (parsed.errors.length > 0) return [];
+    if (parsed.errors && parsed.errors.length > 0) return [];
     const scored = [];
     for (const card of cards) {
       const r = rank(card, parsed);
@@ -576,10 +954,16 @@ const StudioSearch = (() => {
 
   const SYNTAX_EXAMPLES = [
     { op: "t:creature", label: "Kreaturen" },
+    { op: "subtype:elf", label: "Untertyp Elf" },
+    { op: "super:legendary", label: "Legendär" },
+    { op: "kw:flying", label: "Schlüsselwort Fliegend" },
+    { op: "otag:ramp", label: "Kategorie / Rolle Ramp" },
     { op: "mv<=2", label: "Manawert ≤ 2" },
     { op: "r:ramp", label: "Rolle Ramp" },
     { op: "c:gu", label: "Farbe GU" },
     { op: "id<=gwu", label: "Identität Bant" },
+    { op: "t:artifact or t:enchantment", label: "ODER-Verknüpfung" },
+    { op: "-(t:land or mv>=4)", label: "Gruppen-Negation" },
     { op: "-t:land", label: "ohne Länder" },
     { op: 'o:"draw a card"', label: "Regeltext" },
     { op: "is:fav", label: "Favoriten" },

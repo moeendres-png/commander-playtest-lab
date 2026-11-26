@@ -37,6 +37,7 @@
   "tests/unit/test_required_test_ownership.py",
   "tests/unit/test_studio_docs_commands.py",
   "tests/unit/test_studio_oneclick_static.py",
+  "tests/unit/test_studio_search_boolean_fields.py",
   "tests/unit/test_studio_search_syntax.py",
   "tests/unit/test_studio_tam_prices.py",
   "tests/unit/test_studio_tierliste_h_pooled.py",
