@@ -257,6 +257,12 @@ class SimilarDecksBody(BaseModel):
     include_unowned: bool = False
 
 
+class BrowserDeckCopyBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    item_id: str = Field(min_length=1, max_length=240)
+    name: str | None = Field(default=None, max_length=120)
+
+
 class LabelsBody(BaseModel):
     model_config = ConfigDict(extra="forbid")
     labels: list[str] = Field(max_length=100)
@@ -2914,6 +2920,28 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                     limit_cards=limit_cards,
                 ),
             )
+        finally:
+            store.close()
+
+    @app.post("/api/deck-browser/copy")
+    def deck_browser_copy_route(body: BrowserDeckCopyBody) -> dict[str, object]:
+        """Create a new editable Studio deck copy from a saved or source deck in the browser."""
+        store = open_store()
+        try:
+            with cache.write(store, _DECKS | _CATALOG):
+                return similar_decks.copy_browser_deck(store, body.item_id, name=body.name)
+        except KeyError as error:
+            raise HTTPException(404, f"unknown deck: {error}") from error
+        except StaleParent as error:
+            raise HTTPException(
+                409, "Das Deck wurde gleichzeitig angelegt; bitte erneut kopieren."
+            ) from error
+        except sqlite3.OperationalError as error:
+            if _store_busy(error):
+                raise HTTPException(503, STORE_BUSY_MESSAGE) from error
+            raise
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
         finally:
             store.close()
 

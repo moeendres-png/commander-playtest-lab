@@ -13,13 +13,16 @@ non-basic maindeck cards, and card frequencies across filtered deck sets).
 from __future__ import annotations
 
 import json
+import re
 import statistics
 from collections.abc import Mapping, Sequence
 from typing import TypedDict
 
 from . import builder, cache, universe
-from .decks import color_set
+from .decks import RevisionCard, color_set, create_revision
 from .store import COUNTED_SECTIONS, StudioStore
+
+_SLUG = re.compile(r"[^a-z0-9]+")
 
 _BASIC_NAMES = frozenset(
     {
@@ -790,7 +793,7 @@ def get_browser_deck_detail(store: StudioStore, item_id: str) -> dict[str, objec
                 "quantity": int(r["quantity"]),
                 "section": str(r["zone"]),
                 "card_id": str(r["card_id"]),
-                "in_collection": True,
+                "in_collection": int(r["owned_lower_bound"] or 0) > 0,
                 "owned": int(r["owned_lower_bound"] or 0),
                 "available": int(r["available_lower_bound"] or 0),
             }
@@ -799,7 +802,7 @@ def get_browser_deck_detail(store: StudioStore, item_id: str) -> dict[str, objec
                 "i.owned_lower_bound, i.available_lower_bound "
                 "FROM deck_revision_card rc "
                 "JOIN card_fact f USING (card_id) "
-                "JOIN inventory i USING (card_id) "
+                "LEFT JOIN inventory i USING (card_id) "
                 "WHERE rc.revision_id = ? ORDER BY rc.zone ASC, f.oracle_name ASC",
                 (str(row["revision_id"]),),
             )
@@ -807,7 +810,11 @@ def get_browser_deck_detail(store: StudioStore, item_id: str) -> dict[str, objec
         return {
             "id": item_id,
             "origin": "saved",
+            "deck_id": did,
+            "branch": branch,
+            "revision_id": str(row["revision_id"]),
             "name": f"{row['name']} ({branch})" if branch != "main" else str(row["name"]),
+            "commanders": [str(c["name"]) for c in cards if c["section"] == "commander"],
             "cards": cards,
         }
 
@@ -852,5 +859,174 @@ def get_browser_deck_detail(store: StudioStore, item_id: str) -> dict[str, objec
         "platform": str(drow["platform"] or ""),
         "url": str(drow["url"] or ""),
         "deck_date": drow["deck_date"],
+        "commanders": [
+            str(c["name"]) for c in cards if str(c["section"]).strip().lower() == "commander"
+        ],
         "cards": cards,
+    }
+
+
+def _resolve_card_id_lookup(
+    store: StudioStore,
+) -> tuple[dict[str, str], dict[str, str], dict[str, int]]:
+    """Build case-insensitive name->card_id maps (collection first, then Scryfall) and ownership."""
+    db = store.connection
+    owned_by_id: dict[str, int] = {
+        str(r["card_id"]): int(r["owned_lower_bound"] or 0)
+        for r in db.execute("SELECT card_id, owned_lower_bound FROM inventory")
+    }
+    fact_by_cf: dict[str, str] = {}
+    for row in db.execute("SELECT card_id, oracle_name, engine_name FROM card_fact"):
+        cid = str(row["card_id"])
+        fact_by_cf.setdefault(str(row["oracle_name"]).casefold(), cid)
+        if row["engine_name"]:
+            fact_by_cf.setdefault(str(row["engine_name"]).casefold(), cid)
+    scry_by_name_cf: dict[str, str] = {}
+    scry_by_front_cf: dict[str, str] = {}
+    for row in db.execute(
+        "SELECT s.oracle_id, s.name, s.front_name, x.existing_card_id "
+        "FROM scryfall_card s "
+        "LEFT JOIN (SELECT oracle_id, MIN(card_id) AS existing_card_id FROM card "
+        "WHERE oracle_id IS NOT NULL GROUP BY oracle_id) x ON x.oracle_id = s.oracle_id"
+    ):
+        cid = str(row["existing_card_id"] or f"scryfall:{row['oracle_id']}")
+        scry_by_name_cf.setdefault(str(row["name"]).casefold(), cid)
+        if row["front_name"]:
+            scry_by_front_cf.setdefault(str(row["front_name"]).casefold(), cid)
+    scry_by_cf = {**scry_by_front_cf, **scry_by_name_cf}
+    return fact_by_cf, scry_by_cf, owned_by_id
+
+
+def copy_browser_deck(
+    store: StudioStore, item_id: str, *, name: str | None = None
+) -> dict[str, object]:
+    """Create a new editable Studio deck copy from a Deck-Browser entry (#1835).
+
+    Never mutates ``corpus_deck``, ``corpus_deck_card`` or ``inventory``. Unowned cards are
+    materialized via ``ensure_scryfall_cards`` inside ``create_revision`` with 0 inventory.
+    """
+    detail = get_browser_deck_detail(store, item_id)
+    raw_cards = detail.get("cards")
+    if not isinstance(raw_cards, list):
+        raise KeyError(item_id)
+
+    fact_by_cf, scry_by_cf, owned_by_id = _resolve_card_id_lookup(store)
+    db = store.connection
+
+    def resolve_id(card_name: str, given_id: object) -> str | None:
+        if isinstance(given_id, str) and given_id:
+            return given_id
+        cf = card_name.casefold()
+        return fact_by_cf.get(cf) or scry_by_cf.get(cf)
+
+    revision_cards: list[RevisionCard] = []
+    unresolved_cards: list[dict[str, object]] = []
+    source_total = 0
+    copied_total = 0
+    owned_total = 0
+    unowned_total = 0
+    commander_names: list[str] = []
+
+    for entry in raw_cards:
+        if not isinstance(entry, dict):
+            continue
+        cname = str(entry.get("name") or "").strip()
+        qty = max(1, int(entry.get("quantity") or 1))
+        section = str(entry.get("section") or "main").strip().lower()
+        zone = "commander" if section == "commander" else "main"
+        source_total += qty
+        cid = resolve_id(cname, entry.get("card_id"))
+        if cid is None:
+            unresolved_cards.append({"name": cname, "quantity": qty, "section": section})
+            continue
+        revision_cards.append(RevisionCard(cid, qty, zone))
+        copied_total += qty
+        if owned_by_id.get(cid, 0) > 0:
+            owned_total += qty
+        else:
+            unowned_total += qty
+        if zone == "commander" and cname and cname not in commander_names:
+            commander_names.append(cname)
+
+    if not commander_names and detail.get("origin") == "source":
+        src_did = item_id.removeprefix("source:")
+        bound_rows = db.execute(
+            "SELECT commander_name FROM commander_binding "
+            "WHERE kind = 'corpus_deck' AND key = ? ORDER BY commander_name",
+            (src_did,),
+        ).fetchall()
+        for brow in bound_rows:
+            bname = str(brow["commander_name"])
+            bcid = resolve_id(bname, None)
+            if bcid is None:
+                continue
+            promoted = False
+            for idx, rc in enumerate(revision_cards):
+                if rc.zone == "main" and rc.card_id == bcid:
+                    if rc.quantity > 1:
+                        revision_cards[idx] = RevisionCard(rc.card_id, rc.quantity - 1, "main")
+                    else:
+                        revision_cards.pop(idx)
+                    revision_cards.append(RevisionCard(bcid, 1, "commander"))
+                    promoted = True
+                    break
+            if not promoted:
+                revision_cards.append(RevisionCard(bcid, 1, "commander"))
+                copied_total += 1
+                source_total += 1
+                if owned_by_id.get(bcid, 0) > 0:
+                    owned_total += 1
+                else:
+                    unowned_total += 1
+            if bname not in commander_names:
+                commander_names.append(bname)
+
+    if not revision_cards:
+        raise ValueError("Keine bekannten Karten im Quelldeck gefunden.")
+
+    raw_title = (
+        name.strip() if isinstance(name, str) and name.strip() else f"Kopie: {detail['name']}"
+    )
+    copy_name = raw_title[:120]
+    base = (_SLUG.sub("-", copy_name.casefold()).strip("-") or "deck")[:80].strip("-") or "deck"
+    deck_id = base
+    number = 2
+    while db.execute("SELECT 1 FROM deck WHERE deck_id = ?", (deck_id,)).fetchone():
+        deck_id = f"{base}-{number}"
+        number += 1
+
+    revision_id = create_revision(
+        store,
+        deck_id=deck_id,
+        name=copy_name,
+        cards=revision_cards,
+        note=f"Kopie aus Deck-Browser ({item_id})",
+        branch="main",
+        expected_parent=None,
+    )
+
+    in_collection_commanders = {
+        str(r[0]).casefold()
+        for r in db.execute(
+            "SELECT c.oracle_name FROM card_fact c JOIN inventory i USING (card_id)"
+        )
+    }
+    commander_in_collection = bool(commander_names) and all(
+        cmd.casefold() in in_collection_commanders for cmd in commander_names
+    )
+
+    return {
+        "deck_id": deck_id,
+        "name": copy_name,
+        "branch": "main",
+        "revision_id": revision_id,
+        "source_item_id": item_id,
+        "source_name": str(detail["name"]),
+        "commanders": commander_names,
+        "commander_in_collection": commander_in_collection,
+        "source_total_cards": source_total,
+        "copied_total_cards": copied_total,
+        "owned_cards": owned_total,
+        "unowned_cards": unowned_total,
+        "unresolved_cards": unresolved_cards,
     }
