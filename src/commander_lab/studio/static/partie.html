@@ -67,19 +67,26 @@
     <section id="own-combat" class="own-combat" role="region" aria-label="Eigener Kampf-Zwischenstand" hidden></section>
     <h3>Stapel</h3>
     <div id="stack" class="stack-rail" role="list" aria-label="Stapel-Schiene"></div>
-    <h3 id="hand-title">Hand</h3>
-    <div id="hand" class="cards"></div>
     <h3>Verlauf</h3>
     <div id="log"></div>
   </aside>
 </main>
-<div id="preview" hidden><img alt="" referrerpolicy="no-referrer"></div>
+<section id="hand-dock" class="hand-dock" aria-label="Handkarten">
+  <div id="mana-stage-bar" class="mana-stage-bar" role="region" aria-label="Mana-Vorschau und Staging" hidden></div>
+  <div class="hand-dock-head">
+    <h3 id="hand-title">Hand</h3>
+    <div id="hand-summary" class="hand-summary"></div>
+  </div>
+  <div id="hand" class="cards hand-fan"></div>
+</section>
+<div id="preview" class="card-preview" hidden><img alt="" referrerpolicy="no-referrer"><div id="preview-info" class="card-preview-info"></div></div>
 <div id="board-menu" class="board-menu" role="menu" aria-label="Möglichkeiten" hidden></div>
 <svg id="board-links" class="board-links" aria-hidden="true" focusable="false"></svg>
 <div id="modal" hidden><div id="modal-box" class="plain"></div></div>
 <div id="toast" role="status" aria-live="polite" hidden></div>
 <script src="commander.js"></script>
 <script src="prompts.js"></script>
+<script src="hand_ux.js"></script>
 <script src="vorspulen.js"></script>
 <script src="boardclick.js"></script>
 <script src="replay.js"></script>
