@@ -30,7 +30,7 @@ function resolvePriorityOptionType(opt) {
   return ot || "activated_ability";
 }
 
-const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
+const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
 
 const $ = (id) => document.getElementById(id);
 function h(tag, props, ...children) {
@@ -266,6 +266,32 @@ function adoptPendingDecision(nextDecision) {
     state.clickActive = false;
   }
   state.pendingDecision = nextDecision;
+  if (!nextDecision) {
+    state.autoPayPlan = null;
+    if (!state.keepStageOnCancel) state.stagedHand = null;
+    return;
+  }
+  const ps = nextDecision.pilot_state || {};
+  if (nextDecision.decision_class === "priority" && state.humanSeats.includes(nextDecision.seat)) {
+    state.lastOwnPriority = {
+      seat: nextDecision.seat,
+      decision_id: nextDecision.decision_id,
+      turn: ps.turn_number ?? null,
+      step: ps.step ?? null,
+      legal_options: Array.isArray(nextDecision.legal_options) ? nextDecision.legal_options : []
+    };
+  }
+  if (nextDecision.decision_class === "mana_payment") {
+    return;
+  }
+  state.autoPayPlan = null;
+  if (nextDecision.decision_class === "priority" && state.keepStageOnCancel && state.stagedHand) {
+    state.keepStageOnCancel = false;
+    return;
+  }
+  if (nextDecision.decision_class === "priority" && !state.keepStageOnCancel) {
+    state.stagedHand = null;
+  }
 }
 function toggleBoardOption(optionId) {
   if (boardDecision()) toggleOption(optionId);
@@ -407,38 +433,152 @@ function cardFace(name) {
   img.addEventListener("error", () => { state.noImage.add(name); img.replaceWith(h("div", { class: "nocard" }, name)); });
   return img;
 }
-function showPreview(name, event) {
-  if (state.noImage.has(name) || name === "(verdeckt)") return;
-  const box = $("preview");
-  const img = box.firstChild;
-  img.referrerPolicy = "no-referrer";
-  img.onerror = () => { box.hidden = true; };
-  img.src = `/img-name?name=${encodeURIComponent(name)}`;
-  box.hidden = false; move(event);
+function fillCardMetaNodes(container, name, meta, compact) {
+  container.textContent = "";
+  const fact = state.facts[name] || null;
+  const costText = fact && typeof fact.mana_cost === "string" ? fact.mana_cost : "";
+  const costNodes = costText && typeof StudioPrompts !== "undefined" && StudioPrompts.renderRichGameText
+    ? StudioPrompts.renderRichGameText(h, costText)
+    : (costText ? [costText] : []);
+  const titleCls = compact ? "card-preview-title" : "card-zoom-header";
+  container.append(h("div", { class: titleCls },
+    h("span", null, name),
+    costNodes.length ? h("span", { class: "card-zoom-cost" }, ...costNodes) : null));
+  const typeText = fact && fact.type_line ? fact.type_line : "Öffentliche Kartendetails nicht im Cache";
+  const ptText = fact && (fact.power !== null && fact.power !== undefined || fact.toughness !== null && fact.toughness !== undefined)
+    ? `${fact.power ?? "?"}/${fact.toughness ?? "?"}`
+    : null;
+  container.append(h("div", { class: compact ? "card-preview-type" : "card-zoom-meta" },
+    h("span", null, typeText),
+    ptText ? h("span", { class: "pill" }, ptText) : null,
+    meta && meta.zoneLabel ? h("span", { class: "pill" }, meta.zoneLabel) : null));
+  const handInfo = meta && meta.handInfo ? meta.handInfo : null;
+  if (handInfo) {
+    const rCls = handInfo.status === "playable" || handInfo.status === "staged" ? "playable" : handInfo.status === "blocked" ? "blocked" : "";
+    const reasonNodes = handInfo.reasonText && typeof StudioPrompts !== "undefined" && StudioPrompts.renderRichGameText
+      ? StudioPrompts.renderRichGameText(h, `${handInfo.badgeIcon || ""} ${handInfo.badgeLabel}: ${handInfo.reasonText}`.trim())
+      : [`${handInfo.badgeIcon || ""} ${handInfo.badgeLabel}: ${handInfo.reasonText || ""}`.trim()];
+    container.append(h("div", { class: `${compact ? "card-preview-reason" : "card-zoom-reason"} ${rCls}`.trim() }, ...reasonNodes));
+  }
+  const oracle = fact && typeof fact.oracle_text === "string" ? fact.oracle_text.trim() : "";
+  if (oracle) {
+    const oracleNodes = typeof StudioPrompts !== "undefined" && StudioPrompts.renderRichGameText
+      ? StudioPrompts.renderRichGameText(h, oracle)
+      : [oracle];
+    container.append(h("div", { class: compact ? "card-preview-oracle" : "card-zoom-oracle" }, ...oracleNodes));
+  }
 }
-function hover(el, name) {
-  el.addEventListener("mouseenter", (event) => showPreview(name, event));
+function showPreview(name, event, meta) {
+  if (name === "(verdeckt)") return;
+  const box = $("preview");
+  const img = box.querySelector("img") || box.firstChild;
+  const info = $("preview-info");
+  if (state.noImage.has(name)) {
+    if (img) img.hidden = true;
+  } else if (img) {
+    img.hidden = false;
+    img.referrerPolicy = "no-referrer";
+    img.onerror = () => {
+      state.noImage.add(name);
+      img.hidden = true;
+    };
+    img.src = `/img-name?name=${encodeURIComponent(name)}`;
+  }
+  if (info) fillCardMetaNodes(info, name, meta, true);
+  box.hidden = false;
+  move(event);
+}
+function hover(el, name, getMeta) {
+  const resolveMeta = () => (typeof getMeta === "function" ? getMeta() : (getMeta || null));
+  el.addEventListener("mouseenter", (event) => showPreview(name, event, resolveMeta()));
   el.addEventListener("mousemove", move);
   el.addEventListener("mouseleave", () => { $("preview").hidden = true; });
   // keyboard focus shows the same enlarged preview next to the card
   el.addEventListener("focus", () => {
     if (!el.matches(":focus-visible")) return;
     const rect = el.getBoundingClientRect();
-    showPreview(name, { clientX: rect.right, clientY: rect.top + rect.height / 2 });
+    showPreview(name, { clientX: rect.right, clientY: rect.top + rect.height / 2 }, resolveMeta());
   });
   el.addEventListener("blur", () => { $("preview").hidden = true; });
+}
+function showCardZoom(name, meta) {
+  if (!name || name === "(verdeckt)") return;
+  $("preview").hidden = true;
+  finishConfirmModal(false);
+  const box = $("modal-box");
+  box.textContent = "";
+  box.className = "card-zoom-modal";
+  box.dataset.zone = "";
+  const art = h("div", { class: "card-zoom-art" });
+  if (state.noImage.has(name)) {
+    art.append(h("div", { class: "nocard zoom-fallback" }, name));
+  } else {
+    const img = h("img", { alt: name, referrerpolicy: "no-referrer", src: `/img-name?name=${encodeURIComponent(name)}` });
+    img.addEventListener("error", () => {
+      state.noImage.add(name);
+      img.replaceWith(h("div", { class: "nocard zoom-fallback" }, name));
+    });
+    art.append(img);
+  }
+  const details = h("div", { class: "card-zoom-details" });
+  fillCardMetaNodes(details, name, meta, false);
+  const handInfo = meta && meta.handInfo ? meta.handInfo : null;
+  if (handInfo && handInfo.manaPreview && handInfo.manaPreview.hasCost) {
+    const mp = handInfo.manaPreview;
+    const srcText = mp.plannedSources.length
+      ? mp.plannedSources.map((s) => s.name).join(", ")
+      : "keine freien Quellen auf dem Brett";
+    details.append(h("div", { class: "card-zoom-reason" }, `Geplante Mana-Quellen (Vorschau): ${srcText}`));
+  }
+  const actions = h("div", { class: "card-zoom-actions" });
+  if (meta && typeof meta.onPlay === "function") {
+    actions.append(h("button", {
+      type: "button",
+      class: "primary",
+      onclick: () => { $("modal").hidden = true; meta.onPlay(); }
+    }, meta.playLabel || "Aktion wählen"));
+  }
+  actions.append(h("button", { type: "button", onclick: () => { $("modal").hidden = true; } }, "Schließen (Esc)"));
+  details.append(actions);
+  box.append(art, details);
+  $("modal").hidden = false;
+  const closeBtn = actions.querySelector("button");
+  if (closeBtn) closeBtn.focus();
+}
+const zoomMetaRegistry = new WeakMap();
+function bindCardZoom(el, name, getMeta) {
+  if (!el || !name || name === "(verdeckt)") return;
+  const resolveMeta = () => (typeof getMeta === "function" ? getMeta() : (getMeta || null));
+  zoomMetaRegistry.set(el, { name, resolveMeta });
+  el.dataset.zoomName = name;
+  const openZoom = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    showCardZoom(name, resolveMeta());
+  };
+  el.addEventListener("contextmenu", openZoom);
+  el.addEventListener("click", (event) => {
+    if (event.shiftKey) openZoom(event);
+  });
 }
 function move(event) {
   const box = $("preview");
   // beside the pointer: to its right, or to its left when the right edge of the window is too close
+  const previewW = Math.min(520, box.offsetWidth || 440);
+  const previewH = Math.min(390, box.offsetHeight || 350);
   const right = event.clientX + 18;
-  box.style.left = `${Math.max(8, right + 270 > window.innerWidth ? event.clientX - 18 - 270 : right)}px`;
-  box.style.top = `${Math.max(8, Math.min(event.clientY - 120, window.innerHeight - 380))}px`;
+  box.style.left = `${Math.max(8, right + previewW > window.innerWidth ? event.clientX - 18 - previewW : right)}px`;
+  box.style.top = `${Math.max(8, Math.min(event.clientY - 120, window.innerHeight - previewH - 10))}px`;
+}
+function isStagedManaSource(objectId) {
+  if (!objectId || !state.stagedHand || !Array.isArray(state.stagedHand.sourceObjectIds)) return false;
+  return state.stagedHand.sourceObjectIds.includes(objectId);
 }
 function cardTile(name, options = {}) {
   const entry = clickEntry(options.objectId);
   const answerable = Boolean(entry) && clickAction({ type: "object", id: options.objectId }) !== "none";
   const picked = Boolean(entry) && entry.optionIds.some((id) => state.selectedOptions.includes(id));
+  const manaPreviewSrc = isStagedManaSource(options.objectId);
   const classes = [
     "card",
     options.tapped && "tapped",
@@ -446,6 +586,7 @@ function cardTile(name, options = {}) {
     options.attacking && "attacking",
     options.blocking && "blocking",
     options.targeted && "targeted",
+    manaPreviewSrc && "mana-preview-source",
     entry && "legal",
     entry && `role-${entry.role}`,
     answerable && "clickable",
@@ -456,7 +597,7 @@ function cardTile(name, options = {}) {
   if (options.objectId) props["data-object-id"] = options.objectId;
   let el;
   if (answerable) {
-    Object.assign(props, { type: "button", "data-click-key": `obj:${options.objectId}`, "aria-label": clickAria(name, entry), onclick: (event) => boardClick({ type: "object", id: options.objectId }, event.currentTarget) });
+    Object.assign(props, { type: "button", "data-click-key": `obj:${options.objectId}`, "aria-label": clickAria(name, entry), onclick: (event) => { if (event.shiftKey) return; boardClick({ type: "object", id: options.objectId }, event.currentTarget); } });
     el = h("button", props, cardFace(name));
   } else {
     el = h("div", props, cardFace(name));
@@ -464,12 +605,14 @@ function cardTile(name, options = {}) {
   if (options.count > 1) el.append(h("span", { class: "badge count" }, `×${options.count}`));
   if (options.pt) el.append(h("span", { class: `badge pt${options.damage ? " hurt" : ""}` }, options.pt));
   if (options.counters) el.append(h("span", { class: "badge counter" }, options.counters));
+  if (manaPreviewSrc) el.append(h("span", { class: "badge mana-src", title: "Geplante Mana-Quelle (Vorschau)" }, "💧"));
   const badge = options.combatBadge || clickBadge(options.objectId, entry);
   if (badge) {
     const bClass = `badge combat${options.blocking ? " blocking" : ""}${options.targeted ? " targeted" : ""}`;
     el.append(h("span", { class: bClass, title: badge }, badge));
   }
   hover(el, name);
+  bindCardZoom(el, name);
   return el;
 }
 function grouped(cards) {
@@ -622,7 +765,7 @@ function seatClickText(entry) {
 }
 function showList(title, names, ids, zoneKey) {
   finishConfirmModal(false);
-  const box = $("modal-box"); box.textContent = "";
+  const box = $("modal-box"); box.textContent = ""; box.className = "plain";
   box.dataset.zone = zoneKey || "";
   box.append(h("h2", null, title), names.length ? h("div", { class: "cards" }, names.map((name, at) => cardTile(name, { objectId: (ids || [])[at] }))) : h("p", { class: "muted" }, "leer"), h("p", null, h("button", { type: "button", onclick: () => { $("modal").hidden = true; } }, "Schließen")));
   $("modal").hidden = false;
@@ -633,7 +776,7 @@ function showZone(player, zone) {
 }
 function showDeckPlan(title, plan) {
   finishConfirmModal(false);
-  const box = $("modal-box"); box.textContent = ""; box.dataset.zone = "";
+  const box = $("modal-box"); box.textContent = ""; box.className = "plain"; box.dataset.zone = "";
   const combos = Array.isArray(plan.combos) ? plan.combos : [];
   const winAxes = Array.isArray(plan.win_axes) ? plan.win_axes : [];
   const tutors = Array.isArray(plan.tutor_priorities) ? plan.tutor_priorities : [];
@@ -1028,6 +1171,7 @@ function renderHumanDecision() {
     closeBoardMenu(false);
   }
   if (maybeAutoPassHuman(pending)) return;
+  if (typeof maybeAutoPayMana === "function" && maybeAutoPayMana(pending)) return;
   if (state.ff.on) {
     panel.hidden = true; panel.textContent = ""; panel.dataset.sig = "";
     state.click = null;
@@ -1328,6 +1472,307 @@ function renderOwnCombat(frame, atLiveTail) {
   box.hidden = false;
 }
 
+function clearStagedHand() {
+  state.stagedHand = null;
+  state.autoPayPlan = null;
+  state.keepStageOnCancel = false;
+  render();
+}
+function startStagedCast(info, useAutoPay) {
+  const pending = state.pendingDecision;
+  if (!pending || state.submitting) return;
+  const optId = info && info.primaryOptionId;
+  if (!optId || !offeredOption(optId)) {
+    toast("Diese Karte ist in der aktuellen Entscheidung nicht als legale Option angeboten.");
+    return;
+  }
+  const sourceObjectIds = info.manaPreview && Array.isArray(info.manaPreview.sourceObjectIds)
+    ? info.manaPreview.sourceObjectIds
+    : [];
+  state.stagedHand = {
+    name: info.name,
+    objectId: info.objectId,
+    optionIds: info.optionIds || [optId],
+    sourceObjectIds,
+    manaCost: info.manaPreview ? info.manaPreview.manaCost : "",
+    plannedNames: info.manaPreview ? info.manaPreview.plannedSources.map((s) => s.name) : [],
+    cancelNote: null
+  };
+  state.autoPayPlan = useAutoPay
+    ? { active: true, stagedName: info.name, stagedObjectId: info.objectId, sourceObjectIds, stepCount: 0 }
+    : null;
+  state.autoPayAttempt = null;
+  submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [optId], ordering: [] });
+}
+function maybeAutoPayMana(pending) {
+  if (!pending || pending.decision_class !== "mana_payment") return false;
+  const plan = state.autoPayPlan;
+  if (!plan || !plan.active || state.submitting) return false;
+  if (pending.decision_id === state.autoPayAttempt) return false;
+  if (plan.stepCount >= 16) {
+    plan.active = false;
+    toast("Auto-Mana gestoppt (Schrittlimit) — bitte verbleibendes Mana manuell wählen.");
+    return false;
+  }
+  const nextId = typeof StudioHandUX !== "undefined" && StudioHandUX.nextAutoPayOptionId
+    ? StudioHandUX.nextAutoPayOptionId(pending, plan.sourceObjectIds)
+    : null;
+  if (!nextId || !offeredOption(nextId)) {
+    plan.active = false;
+    toast("Auto-Mana benötigt deine Wahl unter den angebotenen Mana-Quellen.");
+    return false;
+  }
+  plan.stepCount += 1;
+  state.autoPayAttempt = pending.decision_id;
+  submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [nextId], ordering: [] });
+  return true;
+}
+function triggerCancelManaPayment() {
+  const pending = state.pendingDecision;
+  if (!pending || state.submitting) return;
+  const cancelOpt = typeof StudioHandUX !== "undefined" && StudioHandUX.findCancelManaOption
+    ? StudioHandUX.findCancelManaOption(pending)
+    : null;
+  if (!cancelOpt || !cancelOpt.option_id) {
+    toast("Kein Abbruch dieser Zahlung von der Engine angeboten.");
+    return;
+  }
+  state.autoPayPlan = null;
+  state.keepStageOnCancel = true;
+  if (!state.stagedHand) {
+    state.stagedHand = { name: pending.source || "Zauber", objectId: null, optionIds: [], sourceObjectIds: [], manaCost: "", plannedNames: [] };
+  }
+  state.stagedHand.cancelNote = typeof StudioHandUX !== "undefined" && StudioHandUX.CANCEL_PAYMENT_HINT
+    ? StudioHandUX.CANCEL_PAYMENT_HINT
+    : "Zahlung zurückgenommen — Zauber bleibt im Staging; Quellen können neu gewählt werden.";
+  submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [cancelOpt.option_id], ordering: [] });
+}
+function renderManaStageBar(frame, atLiveTail) {
+  const bar = $("mana-stage-bar");
+  if (!bar) return;
+  bar.textContent = "";
+  const pending = atLiveTail && state.interactive && state.running ? state.pendingDecision : null;
+  const inManaPay = Boolean(pending && pending.decision_class === "mana_payment");
+  const staged = state.stagedHand;
+  if (!staged && !inManaPay) {
+    bar.hidden = true;
+    return;
+  }
+  const titleText = staged ? staged.name : (pending && pending.source ? pending.source : "Mana zahlen");
+  const costText = staged && staged.manaCost ? ` ${staged.manaCost}` : "";
+  const titleNodes = typeof StudioPrompts !== "undefined" && StudioPrompts.renderRichGameText
+    ? StudioPrompts.renderRichGameText(h, `${titleText}${costText}`)
+    : [`${titleText}${costText}`];
+  let sourceSummary = "Wähle eine von der Engine angebotene Zahlung oder breche sauber ab.";
+  if (staged && staged.cancelNote && !inManaPay) {
+    sourceSummary = staged.cancelNote;
+  } else if (staged && staged.plannedNames && staged.plannedNames.length) {
+    sourceSummary = `Mana-Vorschau (ungedappte Quellen): ${staged.plannedNames.join(", ")}`;
+  }
+  const actions = h("div", { class: "mana-stage-actions" });
+  if (inManaPay) {
+    const cancelOpt = typeof StudioHandUX !== "undefined" && StudioHandUX.findCancelManaOption
+      ? StudioHandUX.findCancelManaOption(pending)
+      : null;
+    const autoStepId = typeof StudioHandUX !== "undefined" && StudioHandUX.nextAutoPayOptionId
+      ? StudioHandUX.nextAutoPayOptionId(pending, staged ? staged.sourceObjectIds : [])
+      : null;
+    if (autoStepId && offeredOption(autoStepId)) {
+      actions.append(h("button", {
+        type: "button",
+        class: "primary",
+        disabled: state.submitting,
+        onclick: () => submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [autoStepId], ordering: [] })
+      }, "Auto-Mana Schritt zahlen"));
+    }
+    if (cancelOpt) {
+      const cancelBtnLabel = typeof StudioHandUX !== "undefined" && StudioHandUX.CANCEL_PAYMENT_LABEL
+        ? StudioHandUX.CANCEL_PAYMENT_LABEL
+        : "Zahlung zurücknehmen";
+      actions.append(h("button", {
+        type: "button",
+        disabled: state.submitting,
+        onclick: triggerCancelManaPayment
+      }, cancelBtnLabel));
+    }
+  } else if (staged && pending && pending.decision_class === "priority" && state.humanSeats.includes(pending.seat)) {
+    const liveInfo = (frame && frame.handClassified || []).find((c) => (staged.objectId && c.objectId === staged.objectId) || c.name === staged.name);
+    if (liveInfo && liveInfo.primaryOptionId && offeredOption(liveInfo.primaryOptionId)) {
+      actions.append(
+        h("button", {
+          type: "button",
+          class: "primary",
+          disabled: state.submitting,
+          onclick: () => startStagedCast(liveInfo, true)
+        }, "Zauber wirken (Auto-Mana)"),
+        h("button", {
+          type: "button",
+          disabled: state.submitting,
+          onclick: () => startStagedCast(liveInfo, false)
+        }, "Manuell zahlen")
+      );
+    }
+    actions.append(h("button", { type: "button", onclick: clearStagedHand }, "Staging schließen"));
+  }
+  bar.append(
+    h("span", { class: "mana-stage-title" }, "Staging:", ...titleNodes),
+    h("span", { class: "mana-stage-sources" }, sourceSummary),
+    actions
+  );
+  bar.hidden = false;
+}
+function handCardTile(name, index, info, atLiveTail) {
+  const fact = state.facts[name] || null;
+  const costText = fact && typeof fact.mana_cost === "string" ? fact.mana_cost : "";
+  const costNodes = costText && typeof StudioPrompts !== "undefined" && StudioPrompts.renderRichGameText
+    ? StudioPrompts.renderRichGameText(h, costText)
+    : (costText ? [costText] : []);
+  const typeText = fact && fact.type_line ? fact.type_line.split("//")[0].trim() : "";
+  const ptText = fact && (fact.power !== null && fact.power !== undefined || fact.toughness !== null && fact.toughness !== undefined)
+    ? `${fact.power ?? "?"}/${fact.toughness ?? "?"}`
+    : null;
+  const playability = info ? info.status : "waiting";
+  const isPlayableNow = Boolean(atLiveTail && info && info.playableNow && !state.submitting && !state.ff.on);
+  const badgeCls = `hand-play-badge ${playability}`;
+  const zoomBtn = h("button", {
+    type: "button",
+    class: "hand-zoom-btn",
+    title: `${name} vergrößern (Rechtsklick / Z)`,
+    "aria-label": `${name} vergrößern`,
+    onclick: (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      showCardZoom(name, {
+        handInfo: info,
+        zoneLabel: "Hand",
+        onPlay: isPlayableNow ? () => onHandCardActivate(info, true) : null,
+        playLabel: info && info.actionKind === "play_land" ? "Land spielen" : "In Mana-Vorschau / Wirken"
+      });
+    }
+  }, "🔍");
+  const artFace = state.noImage.has(name) || name === "(verdeckt)"
+    ? h("div", { class: "nocard" }, name)
+    : (() => {
+        const img = h("img", { alt: name, loading: "eager", referrerpolicy: "no-referrer", src: `/img-name?name=${encodeURIComponent(name)}` });
+        img.addEventListener("error", () => { state.noImage.add(name); img.replaceWith(h("div", { class: "nocard" }, name)); });
+        return img;
+      })();
+  const art = h("div", { class: "hand-card-art" }, artFace);
+  const body = h("div", { class: "hand-card-body" },
+    h("div", { class: "hand-card-head" },
+      h("span", { class: "hand-card-name" }, name),
+      costNodes.length ? h("span", { class: "hand-card-cost" }, ...costNodes) : null),
+    typeText ? h("div", { class: "hand-card-type" }, typeText) : null,
+    h("div", { class: "hand-card-state" },
+      h("span", { class: badgeCls, title: info ? info.reasonText : "" }, `${info ? info.badgeIcon : ""} ${info ? info.badgeLabel : ""}`.trim()),
+      ptText ? h("span", { class: "hand-card-pt" }, ptText) : null));
+  const mainBtn = h("button", {
+    type: "button",
+    class: "hand-card-main",
+    "aria-label": `${name} — ${info ? `${info.badgeLabel}: ${info.reasonText}` : "Handkarte"}`,
+    title: info ? `${name}: ${info.reasonText}` : name,
+    onclick: (event) => {
+      if (event.shiftKey) return;
+      onHandCardActivate(info, atLiveTail);
+    }
+  }, art, body);
+  const cardEl = h("div", {
+    class: "hand-card",
+    "data-object-id": info && info.objectId ? info.objectId : null,
+    "data-playability": playability,
+    "data-reason-class": info && info.reasonClass ? info.reasonClass : null
+  }, mainBtn, zoomBtn);
+  const getZoomMeta = () => ({
+    handInfo: info,
+    zoneLabel: "Hand",
+    onPlay: isPlayableNow ? () => onHandCardActivate(info, true) : null,
+    playLabel: info && info.actionKind === "play_land" ? "Land spielen" : "In Mana-Vorschau / Wirken"
+  });
+  hover(cardEl, name, () => ({ handInfo: info, zoneLabel: "Hand" }));
+  bindCardZoom(mainBtn, name, getZoomMeta);
+  bindCardZoom(cardEl, name, getZoomMeta);
+  return cardEl;
+}
+function onHandCardActivate(info, atLiveTail) {
+  if (!info) return;
+  if (atLiveTail && info.playableNow && info.primaryOptionId && offeredOption(info.primaryOptionId)) {
+    if (info.actionKind === "play_land") {
+      submitHumanChoice({ decision_id: state.pendingDecision.decision_id, selected_option_ids: [info.primaryOptionId], ordering: [] });
+      return;
+    }
+    const preview = info.manaPreview;
+    if (info.actionKind === "cast_spell" && preview && preview.hasCost) {
+      state.stagedHand = {
+        name: info.name,
+        objectId: info.objectId,
+        optionIds: info.optionIds,
+        sourceObjectIds: preview.sourceObjectIds || [],
+        manaCost: preview.manaCost || "",
+        plannedNames: (preview.plannedSources || []).map((s) => s.name),
+        cancelNote: null
+      };
+      render();
+      return;
+    }
+    submitHumanChoice({ decision_id: state.pendingDecision.decision_id, selected_option_ids: [info.primaryOptionId], ordering: [] });
+    return;
+  }
+  toast(`${info.name}: ${info.reasonText}`);
+}
+function renderHandDock(handOwner, handSeat, revealedNote, frame, atLiveTail) {
+  const dock = $("hand-dock");
+  const titleEl = $("hand-title");
+  const summaryEl = $("hand-summary");
+  const handEl = $("hand");
+  if (!handEl) return;
+  const names = handOwner && Array.isArray(handOwner.hand) ? handOwner.hand : [];
+  const ids = handOwner && Array.isArray(handOwner.hand_ids) ? handOwner.hand_ids : [];
+  const isHumanOwn = state.humanSeats.includes(handSeat);
+  const ownTurnNow = Boolean(frame && frame.active_seat === handSeat && isHumanOwn);
+  if (dock) dock.classList.toggle("own-turn", ownTurnNow);
+  if (titleEl) titleEl.textContent = `Hand von ${seatName(handSeat)}${revealedNote} (${names.length})`;
+  const density = typeof StudioHandUX !== "undefined" && StudioHandUX.fanDensityClass
+    ? StudioHandUX.fanDensityClass(names.length)
+    : "fan-normal";
+  handEl.className = `cards hand-fan ${density}`;
+  handEl.textContent = "";
+
+  const classified = typeof StudioHandUX !== "undefined" && StudioHandUX.classifyHandCards
+    ? StudioHandUX.classifyHandCards(names, ids, {
+        pendingDecision: atLiveTail ? state.pendingDecision : null,
+        frame,
+        handSeat,
+        humanSeats: state.humanSeats,
+        facts: state.facts,
+        lastOwnPriority: atLiveTail ? state.lastOwnPriority : null,
+        stagedObjectId: state.stagedHand ? state.stagedHand.objectId : null
+      })
+    : [];
+  if (frame) frame.handClassified = classified;
+
+  if (summaryEl) {
+    summaryEl.textContent = "";
+    const playableCount = classified.filter((c) => c.status === "playable").length;
+    const blockedCount = classified.filter((c) => c.status === "blocked").length;
+    if (isHumanOwn && names.length) {
+      if (playableCount > 0) summaryEl.append(h("span", { class: "pill good" }, `${playableCount} spielbar`));
+      if (blockedCount > 0) summaryEl.append(h("span", { class: "pill warn" }, `${blockedCount} gesperrt`));
+    }
+    summaryEl.append(h("span", { class: "muted" }, "Rechtsklick / Umschalt+Klick / Z = Karten-Zoom"));
+  }
+
+  renderManaStageBar(frame, atLiveTail);
+
+  if (!names.length) {
+    handEl.append(h("span", { class: "muted" }, handOwner && handOwner.hand ? "leer" : "nicht sichtbar"));
+    return;
+  }
+  names.forEach((name, at) => {
+    const info = classified[at] || { name, objectId: ids[at] || null, status: "waiting", badgeIcon: "", badgeLabel: "Hand", reasonText: "Handkarte" };
+    handEl.append(handCardTile(name, at, info, atLiveTail));
+  });
+}
+
 function renderStackRail(frame, atLiveTail) {
   const stack = $("stack");
   if (!stack) return;
@@ -1348,20 +1793,30 @@ function renderStackRail(frame, atLiveTail) {
     return;
   }
   for (const item of rail) {
+    const cardZoomName = !item.faceDown && !item.isAbility && item.name ? item.name : null;
     const body = h("div", { class: "stack-item-body" },
       h("div", { class: "stack-item-head" },
         item.isTop && h("span", { class: "pill warn" }, "oben"),
-        h("span", { class: "stack-item-name" }, item.displayName)),
+        h("span", { class: "stack-item-name" }, item.displayName),
+        cardZoomName && h("button", {
+          type: "button",
+          class: "zoom-mini-btn",
+          title: `${cardZoomName} vergrößern`,
+          "aria-label": `${cardZoomName} vergrößern`,
+          onclick: (event) => { event.stopPropagation(); showCardZoom(cardZoomName, { zoneLabel: "Stapel" }); }
+        }, "🔍")),
       item.controllerLabel && h("div", { class: "stack-item-meta" }, `Kontrolle: ${item.controllerLabel}`),
       item.targetsPublished && h("div", { class: "stack-item-targets" }, `Ziel: ${item.targets.join(", ")}`)
     );
     const tile = item.isAbility
       ? null
       : cardTile(item.faceDown ? "(verdeckt)" : item.name, { small: true, objectId: item.objectId });
-    stack.append(h("div", {
+    const rowEl = h("div", {
       class: `stack-item${item.isTop ? " top" : ""}`,
       role: "listitem"
-    }, tile, body));
+    }, tile, body);
+    if (cardZoomName) bindCardZoom(rowEl, cardZoomName, () => ({ zoneLabel: "Stapel" }));
+    stack.append(rowEl);
   }
 }
 
@@ -1475,7 +1930,8 @@ function renderView() {
   const finished = state.index === state.frames.length - 1 && !state.running;
   const banner = finished ? `banner:${JSON.stringify(state.result)}` : "";
   const humanPendingSeat = state.interactive && state.pendingDecision ? state.pendingDecision.seat : null;
-  const keys = frame.players.map((player) => JSON.stringify([player, frame.active_seat, frame.seat, humanPendingSeat, finished, clickSig]));
+  const stagedSourcesSig = state.stagedHand && Array.isArray(state.stagedHand.sourceObjectIds) ? state.stagedHand.sourceObjectIds : [];
+  const keys = frame.players.map((player) => JSON.stringify([player, frame.active_seat, frame.seat, humanPendingSeat, finished, clickSig, stagedSourcesSig]));
   if (table.dataset.banner !== banner || keys.length !== state.seatKeys.length) {
     table.textContent = ""; state.seatKeys = []; table.dataset.banner = banner;
     if (finished) {
@@ -1522,10 +1978,14 @@ function renderView() {
         : actor);
   const handSeat = handOwner ? handOwner.seat : frame.seat;
   const revealedNote = state.handsRevealed && !state.humanSeats.includes(handSeat) ? " (nach Spielende aufgedeckt)" : "";
-  $("hand-title").textContent = `Hand von ${seatName(handSeat)}${revealedNote}`;
-  const hand = $("hand"); hand.textContent = "";
-  if (handOwner && handOwner.hand && handOwner.hand.length) handOwner.hand.forEach((name, at) => hand.append(cardTile(name, { small: !state.humanSeats.includes(handSeat), objectId: (handOwner.hand_ids || [])[at] })));
-  else hand.append(h("span", { class: "muted" }, handOwner && handOwner.hand ? "leer" : "nicht sichtbar"));
+  if (typeof renderHandDock === "function") {
+    renderHandDock(handOwner, handSeat, revealedNote, frame, atLiveTail);
+  } else {
+    $("hand-title").textContent = `Hand von ${seatName(handSeat)}${revealedNote}`;
+    const hand = $("hand"); hand.textContent = "";
+    if (handOwner && handOwner.hand && handOwner.hand.length) handOwner.hand.forEach((name, at) => hand.append(cardTile(name, { small: !state.humanSeats.includes(handSeat), objectId: (handOwner.hand_ids || [])[at] })));
+    else hand.append(h("span", { class: "muted" }, handOwner && handOwner.hand ? "leer" : "nicht sichtbar"));
+  }
 
   $("position").value = String(state.index);
   const phase = frame.phase ? (STEPS[frame.step] || PHASES[frame.phase] || frame.phase) : "Spielbeginn";
@@ -1601,7 +2061,20 @@ function appendLog(from) {
     }
     if (isMinor(frame)) continue;
     const ansText = answer(frame);
-    const el = h("div", { class: "line", onclick: () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); go(index); } }, h("span", { class: `tag s${frame.seat}` }, `S${(frame.seat ?? 0) + 1}`), h("span", null, ...(typeof StudioPrompts !== "undefined" ? StudioPrompts.renderRichGameText(h, ansText) : [ansText])));
+    const sourceCardName = frame.source && frame.source !== "(verdeckt)" && !String(frame.source).startsWith("stack ability")
+      ? String(frame.source)
+      : null;
+    const zoomLogBtn = sourceCardName
+      ? h("button", {
+          type: "button",
+          class: "zoom-mini-btn",
+          title: `${sourceCardName} vergrößern`,
+          "aria-label": `${sourceCardName} vergrößern`,
+          onclick: (event) => { event.stopPropagation(); if (typeof showCardZoom === "function") showCardZoom(sourceCardName, { zoneLabel: "Verlauf" }); }
+        }, "🔍")
+      : null;
+    const el = h("div", { class: "line", onclick: (event) => { if (event.shiftKey) return; if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); go(index); } }, h("span", { class: `tag s${frame.seat}` }, `S${(frame.seat ?? 0) + 1}`), h("span", null, ...(typeof StudioPrompts !== "undefined" ? StudioPrompts.renderRichGameText(h, ansText) : [ansText])), zoomLogBtn);
+    if (sourceCardName && typeof bindCardZoom === "function") bindCardZoom(el, sourceCardName, () => ({ zoneLabel: "Verlauf" }));
     log.append(el);
     state.lines.push({ index, el });
   }
@@ -1679,17 +2152,42 @@ function tick() {
 }
 
 // ---- loading -------------------------------------------------------------------------------
-async function loadFacts(from) {
-  const names = new Set();
-  for (const frame of state.frames.slice(from)) {
-    for (const player of frame.players) {
-      for (const card of player.battlefield) names.add(card.name);
-    }
-  }
-  const missing = [...names].filter((name) => !(name in state.facts));
+async function ensureCardFacts(names) {
+  const missing = [...new Set(names)].filter((name) => name && name !== "(verdeckt)" && !(name in state.facts));
   if (!missing.length) return;
   try { Object.assign(state.facts, await api("/api/public-cards", "POST", { names: missing.slice(0, 2000) })); } catch (error) { /* without card data the board is shown unsorted */ }
   for (const name of missing) if (!(name in state.facts)) state.facts[name] = null;
+}
+function collectPilotStateCardNames(ps) {
+  const names = [];
+  if (!ps || typeof ps !== "object") return names;
+  for (const player of ps.players || []) {
+    for (const zone of ["battlefield", "hand", "command", "graveyard", "exile"]) {
+      for (const item of player[zone] || []) {
+        const n = typeof item === "string" ? item : (item && item.name);
+        if (n && n !== "(verdeckt)") names.push(n);
+      }
+    }
+  }
+  for (const item of ps.stack || []) {
+    const n = typeof item === "string" ? item : (item && !item.face_down && item.name);
+    if (n && n !== "(verdeckt)") names.push(n);
+  }
+  return names;
+}
+async function loadFacts(from) {
+  const names = [];
+  for (const frame of state.frames.slice(from)) {
+    for (const player of frame.players || []) {
+      for (const card of player.battlefield || []) if (card && card.name) names.push(card.name);
+      for (const zone of ["hand", "command", "graveyard", "exile"]) {
+        for (const n of player[zone] || []) if (typeof n === "string" && n) names.push(n);
+      }
+    }
+    for (const n of frame.stack || []) if (typeof n === "string" && n) names.push(n);
+    if (frame.source) names.push(String(frame.source));
+  }
+  await ensureCardFacts(names);
 }
 // One load at a time: loads run one after the other, so two calls never ask for the same frames
 // and an older answer can never overwrite a newer pending decision.
@@ -1767,6 +2265,10 @@ async function loadMoreOnce(hold, prefetched) {
     if (state.interactive) {
       state.humanSeats = Array.isArray(page.human_seats) ? page.human_seats : [];
       adoptPendingDecision(page.pending_decision || null);
+      if (typeof ensureCardFacts === "function" && typeof collectPilotStateCardNames === "function" && page.pending_decision && page.pending_decision.pilot_state) {
+        await ensureCardFacts(collectPilotStateCardNames(page.pending_decision.pilot_state));
+        if (state.gameId !== gameId) return false;
+      }
       state.canConcede = Boolean(page.can_concede);
       state.concededSeats = Array.isArray(page.conceded_seats) ? page.conceded_seats : [];
       state.eliminatedSeats = Array.isArray(page.eliminated_seats) ? page.eliminated_seats : [];
@@ -1801,7 +2303,7 @@ async function openGame(gameId) {
   restoreAiDelayOnLeave(state.gameId);
   const listed = state.games.find((entry) => entry.game_id === gameId);
   const listedInteractive = Boolean(listed && listed.header && Array.isArray(listed.header.human_seats) && listed.header.human_seats.length);
-  Object.assign(state, { gameId, cohortRecord: null, frames: [], lines: [], index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, pollFailures: 0, revision: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
+  Object.assign(state, { gameId, cohortRecord: null, frames: [], lines: [], index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, pollFailures: 0, revision: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
   ffStatus(""); showConnectionLost(0, ""); renderCohortPill();
   $("log").textContent = ""; $("table").textContent = ""; delete $("table").dataset.banner;
   await loadMore();
@@ -1977,7 +2479,7 @@ async function newGame(wantedRevision) {
   let table;
   try { table = await api("/api/table"); } catch (error) { toast(`Fehler: ${error.message}`); return; }
   finishConfirmModal(false);
-  const box = $("modal-box"); box.textContent = ""; box.dataset.zone = "";
+  const box = $("modal-box"); box.textContent = ""; box.className = "plain"; box.dataset.zone = "";
   const close = h("button", { type: "button", onclick: () => { $("modal").hidden = true; } }, "Schließen");
   box.append(h("h2", null, "Neue Partie"));
   $("modal").hidden = false;
@@ -2146,6 +2648,7 @@ function openConfirmModal({ title, message, confirmLabel = "Bestätigen", cancel
   if (!modal || !box) return Promise.resolve(false);
   modalReturnFocus = (typeof document !== "undefined" && document.activeElement) ? document.activeElement : null;
   box.textContent = "";
+  box.className = "plain";
   box.dataset.zone = "";
   box.dataset.sig = "";
   box.dataset.confirmOpen = "1";
@@ -2307,6 +2810,15 @@ async function start() {
     const target = event.target;
     const field = target && target.closest ? target.closest("input, select, textarea") : null;
     if (field && field.type !== "range") return;
+    if (event.key === "z" || event.key === "Z") {
+      const zoomEl = target && target.closest ? target.closest("[data-zoom-name]") : null;
+      if (zoomEl) {
+        event.preventDefault();
+        const entry = zoomMetaRegistry.get(zoomEl);
+        showCardZoom(zoomEl.dataset.zoomName, entry ? entry.resolveMeta() : null);
+        return;
+      }
+    }
     if (!StudioReplay.isReplayAvailable(state)) return;
     // Space belongs to a focused button, link or field (it activates it); only without such a
     // focus does it toggle the playback.
