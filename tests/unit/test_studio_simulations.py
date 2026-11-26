@@ -2733,3 +2733,262 @@ def test_batch_and_paired_opt_in_pilot_audit_integration(
     assert p_om["display"] == "1/1"
     assert p_om["games_audited"] == 1
     assert p_om["games_requested"] == 2
+
+
+# --- #1828 Paket 1: the interim of a running or stopped series is honest -----------------------
+
+
+def _interim_games(seeds: Sequence[int], *, wins: int) -> Iterator[GameSummary]:
+    """``wins`` games won by seat 0, the rest by seat 1: the shape the interim counts."""
+    for index, seed in enumerate(seeds):
+        won = index < wins
+        yield GameSummary(
+            game_id=f"batch-x-s{seed}",
+            seed=seed,
+            status="finished",
+            winner_seats=[0] if won else [1],
+            rounds=6,
+            candidate_won=won,
+            table_size=4,
+            starting_player_seat=0,
+        )
+
+
+def _gated_runner(
+    played: int, reached: threading.Event, release: threading.Event, *, wins: int
+) -> object:
+    """Yields ``played`` games, tells the test, then holds the series until ``release``."""
+
+    def run(seeds: Sequence[int]) -> Iterator[GameSummary]:
+        yield from _interim_games(list(seeds)[:played], wins=wins)
+        reached.set()
+        assert release.wait(10), "the series was never released"
+
+    return run
+
+
+def _runs_in_store(store: StudioStore) -> int:
+    return int(store.connection.execute("SELECT COUNT(*) FROM simulation_run").fetchone()[0])
+
+
+def _start_interim(
+    store: StudioStore, folder: Path, runner: object, **kwargs: object
+) -> tuple[SimulationBatchManager, BatchSimulation]:
+    manager = SimulationBatchManager()
+    batch = manager.start_batch(
+        store,
+        folder,
+        revision_id=_seed_test_deck(store),
+        pod="precon",
+        games_count=10,
+        base_seed=700,
+        workers=1,
+        chunk_runner=runner,  # type: ignore[arg-type]
+        **kwargs,  # type: ignore[arg-type]
+    )
+    return manager, batch
+
+
+def test_a_running_series_shows_the_interim_of_its_finished_games(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    reached, release = threading.Event(), threading.Event()
+    try:
+        _, batch = _start_interim(
+            store, tmp_path, _gated_runner(4, reached, release, wins=3), record_pilot_audit=True
+        )
+        assert reached.wait(5)
+        deadline = time.monotonic() + 5
+        while len(batch._games) < 4 and time.monotonic() < deadline:
+            time.sleep(0.02)
+        # the pilot audit is a scan of the game logs: the interim must never start it
+        original = simulations_module.BatchSimulation._aggregate_games
+
+        def forbidden(*args: object, **kwargs: object) -> dict[str, object]:
+            raise AssertionError("the interim must not call the final aggregation")
+
+        simulations_module.BatchSimulation._aggregate_games = forbidden  # type: ignore[method-assign]
+        try:
+            payload = batch.to_dict()
+        finally:
+            simulations_module.BatchSimulation._aggregate_games = original  # type: ignore[method-assign]
+        # the final summary is still absent while the series runs
+        assert payload["summary"] is None
+        assert payload["status"] == "running"
+        assert payload["summary_partial"] is True
+        assert payload["games_planned"] == 10
+        assert payload["games_completed"] == 4
+        interim = payload["interim_summary"]
+        assert isinstance(interim, dict)
+        assert interim["data_class"] == "SIMULATED_RESULT"
+        assert (interim["games_completed"], interim["games_planned"]) == (4, 10)
+        assert interim["wins_fractional"] == 3.0
+        assert interim["win_rate"] == 0.75
+        # Wilson 95 % for 3 of 4, by hand: z = 1.96, centre (0.75 + 3.8416/8) / (1 + 3.8416/4)
+        # = 0.6275, half width 1.96 * sqrt(0.046875 + 0.060025) / 1.9604 = 0.3269
+        interval = interim["confidence_interval_95"]
+        assert isinstance(interval, dict)
+        assert interval["lower"] == pytest.approx(0.3006, abs=5e-4)
+        assert interval["upper"] == pytest.approx(0.9544, abs=5e-4)
+        assert (interval["lower"], interval["upper"]) == wilson_score_interval(3, 4)
+        seats = interim["by_seat"]
+        assert isinstance(seats, list) and len(seats) == 4
+        assert [s["n_of_N"] for s in seats] == ["3/4", "1/4", "0/4", "0/4"]
+        assert seats[0]["label"] == "chulane"
+        # key figures only: no card table, no audit, no consistency table, no validity block
+        assert not {"cards", "validity_block", "consistency_table", "plan_summary"} & set(interim)
+        # it is not stored anywhere while the series runs
+        assert _runs_in_store(store) == 0
+        assert batch.run_id is None
+        assert not list((tmp_path).rglob("*.series.json"))
+        release.set()
+        _wait(batch)
+    finally:
+        release.set()
+        store.close()
+
+
+def test_a_series_without_a_finished_game_has_an_unknown_interim_not_zero(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    reached, release = threading.Event(), threading.Event()
+    try:
+        _, batch = _start_interim(store, tmp_path, _gated_runner(0, reached, release, wins=0))
+        assert reached.wait(5)
+        payload = batch.to_dict()
+        interim = payload["interim_summary"]
+        assert isinstance(interim, dict)
+        assert interim["games_completed"] == 0 and interim["games_planned"] == 10
+        assert interim["win_rate"] is None and interim["win_rate_percent"] is None
+        assert interim["confidence_interval_95"] == {
+            "lower": None,
+            "upper": None,
+            "lower_percent": None,
+            "upper_percent": None,
+        }
+        seats = interim["by_seat"]
+        assert isinstance(seats, list)
+        assert all(s["win_rate"] is None and s["n_of_N"] == "unbekannt" for s in seats)
+        assert payload["summary"] is None
+        release.set()
+        _wait(batch)
+    finally:
+        release.set()
+        store.close()
+
+
+def test_a_stopped_series_keeps_its_partial_flagged_and_is_never_stored(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    reached, release = threading.Event(), threading.Event()
+
+    def runner(seeds: Sequence[int]) -> Iterator[GameSummary]:
+        yield from _interim_games(list(seeds)[:4], wins=3)
+        yield GameSummary(
+            game_id=f"batch-x-s{list(seeds)[4]}",
+            seed=list(seeds)[4],
+            status="failed",
+            failure_class="Cancelled",
+            failure_message="cancelled",
+        )
+        reached.set()
+        assert release.wait(10)
+
+    try:
+        manager, batch = _start_interim(store, tmp_path, runner)
+        assert reached.wait(5)
+        assert manager.cancel_batch(batch.batch_id)
+        release.set()
+        _wait(batch)
+        assert batch.status == "cancelled"
+        payload = batch.to_dict()
+        assert payload["summary_partial"] is True
+        # "k von N": k from the finished games, N from the plan, never from the rows so far
+        assert (payload["games_completed"], payload["games_planned"]) == (4, 10)
+        interim = payload["interim_summary"]
+        assert isinstance(interim, dict)
+        assert (interim["games_completed"], interim["games_planned"]) == (4, 10)
+        # an aborted game is its own class, not a failure of the engine
+        assert (interim["games_cancelled"], interim["games_failed"]) == (1, 0)
+        assert interim["win_rate"] == 0.75
+        summary = payload["summary"]
+        assert isinstance(summary, dict) and summary["games_completed"] == 4
+        assert summary["win_rate"] == interim["win_rate"]
+        # never persisted: no run row, no id, and the saved record has no interim keys
+        assert batch.run_id is None
+        assert _runs_in_store(store) == 0
+        records = list(tmp_path.rglob("*.series.json"))
+        assert len(records) == 1
+        saved = json.loads(records[0].read_text(encoding="utf-8"))
+        assert saved["status"] == "cancelled"
+        for key in ("interim_summary", "summary_partial", "observed_at", "run_started_at"):
+            assert key not in saved, key
+    finally:
+        release.set()
+        store.close()
+
+
+def test_a_finished_series_is_not_partial_and_its_summary_is_the_final_one(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    reached, release = threading.Event(), threading.Event()
+    try:
+        _, batch = _start_interim(store, tmp_path, _gated_runner(10, reached, release, wins=6))
+        assert reached.wait(5)
+        release.set()
+        _wait(batch)
+        batch.worker_done.wait(5)
+        payload = batch.to_dict()
+        assert payload["status"] == "completed"
+        assert payload["summary_partial"] is False
+        assert payload["interim_summary"] is None
+        summary = payload["summary"]
+        assert isinstance(summary, dict)
+        assert (summary["games_completed"], summary["games_planned"]) == (10, 10)
+        assert summary["win_rate"] == 0.6
+        assert _runs_in_store(store) == 1 and batch.run_id is not None
+        record = json.loads(next(tmp_path.rglob("*.series.json")).read_text(encoding="utf-8"))
+        assert "interim_summary" not in record and "summary_partial" not in record
+    finally:
+        release.set()
+        store.close()
+
+
+def test_the_interim_counts_ties_as_shares_and_failed_games_apart_from_aborted_ones() -> None:
+    games = [
+        GameSummary("a", 1, "finished", winner_seats=[0, 1], table_size=2),
+        GameSummary("b", 2, "finished", winner_seats=[1], table_size=2),
+        GameSummary("c", 3, "failed", failure_class="BRIDGE_TIMEOUT"),
+        GameSummary("d", 4, "failed", failure_class="Cancelled"),
+    ]
+    interim = simulations_module.interim_batch_summary(
+        games, games_planned=8, table_size=2, seat_labels=["own", None]
+    )
+    assert interim["wins_fractional"] == 0.5 and interim["win_rate"] == 0.25
+    assert (interim["games_completed"], interim["games_planned"]) == (2, 8)
+    assert (interim["games_failed"], interim["games_cancelled"]) == (1, 1)
+    seats = interim["by_seat"]
+    assert isinstance(seats, list)
+    assert [(s["n_of_N"], s["label"]) for s in seats] == [("0.5/2", "own"), ("1.5/2", None)]
+    # no table size: the per-seat table is unknown (empty), never made up
+    unknown = simulations_module.interim_batch_summary(games, games_planned=8, table_size=None)
+    assert unknown["by_seat"] == []
+
+
+def test_a_resumed_series_counts_its_rate_from_the_start_of_this_run(tmp_path: Path) -> None:
+    batch = BatchSimulation(
+        batch_id="b-resume",
+        data_folder=tmp_path,
+        deck_id="d",
+        revision_id="r",
+        pod_name="precon",
+        opponent_paths=[],
+        seeds=[1, 2, 3, 4],
+        initial_games=[
+            GameSummary("batch-b-resume-s1", 1, "finished", winner_seats=[0]),
+            GameSummary("batch-b-resume-s2", 2, "finished", winner_seats=[1]),
+        ],
+        chunk_runner=lambda seeds: iter(()),
+    )
+    before = batch.to_dict()
+    assert before["run_started_at"] is None and before["games_played_at_run_start"] is None
+    batch.run_worker()
+    after = batch.to_dict()
+    assert after["run_started_at"] is not None
+    assert after["games_played_at_run_start"] == 2
