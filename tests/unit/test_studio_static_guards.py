@@ -3672,6 +3672,7 @@ def test_batch_pace_and_eta_are_computed_over_this_run_and_unknown_stays_unknown
         assert got["perHour"] is None and got["etaSeconds"] is None, over
     # the last game played: nothing left, the time left is 0 and not negative
     assert pace(games_played=30)["etaSeconds"] == 0
+    assert pace(games_played=31)["etaSeconds"] == 0  # more played than planned: never negative
     text = _interim_js(
         "[batchDurationText(null), batchDurationText(20), batchDurationText(3240),"
         " batchDurationText(5400), batchDurationText(undefined), batchDurationText('x')]"
