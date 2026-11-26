@@ -1008,7 +1008,8 @@ def copy_browser_deck(
     in_collection_commanders = {
         str(r[0]).casefold()
         for r in db.execute(
-            "SELECT c.oracle_name FROM card_fact c JOIN inventory i USING (card_id)"
+            "SELECT c.oracle_name FROM card_fact c JOIN inventory i USING (card_id) "
+            "WHERE i.owned_lower_bound > 0"
         )
     }
     commander_in_collection = bool(commander_names) and all(

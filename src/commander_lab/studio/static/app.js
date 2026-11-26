@@ -398,7 +398,8 @@ function activeFilters() {
     if ($(id) && $(id).checked) active.push(label);
   }
   if (state.superfriendsFilter) active.push(`Schnellfilter (${state.superfriendsFilter})`);
-  if (state.cohort && state.cohort !== "all") active.push(`Kohorte (${cohortName(state.cohort)})`);
+  // Choosing a stored #universe disables #cohort and #bracket-bar in pool filtering via activeScope().
+  if (state.cohort && state.cohort !== "all" && !state.universe) active.push(`Kohorte (${cohortName(state.cohort)})`);
   if (state.gcBand) active.push("Game-Changer-Band");
   if (state.universe) active.push(`Universum (${state.universe})`);
   if (state.subset) active.push("Teilmenge");
@@ -3828,7 +3829,21 @@ function setupControls() {
       sfChip("fixing5c", "5C-Fixierung", "Filtert nach Karten, deren erzeugtes Mana (Scryfall „produced_mana“) alle fünf Farben W, U, B, R und G enthält."),
       sfChip("missing", "Nur Zukauf (fehlt)", "Zeigt nur fehlende Karten außerhalb deiner Sammlung (aktiviert den Zukauf-Pool)."),
       h("button", { type: "button", class: "chip", onclick: () => {
-        const snapshot = { q: $("q").value, type: $("type-filter").value, role: $("role-filter").value, mvMin: $("mv-min").value, mvMax: $("mv-max").value, free: $("f-free").checked, notin: $("f-notin").checked, fav: $("f-fav").checked, excl: $("f-excl").checked, superfriends: state.superfriendsFilter, colors: [...state.colors] };
+        const snapshot = {
+          q: $("q").value,
+          type: $("type-filter").value,
+          role: $("role-filter").value,
+          label: $("label-filter") ? $("label-filter").value : "",
+          mvMin: $("mv-min").value,
+          mvMax: $("mv-max").value,
+          free: $("f-free").checked,
+          notin: $("f-notin").checked,
+          fav: $("f-fav").checked,
+          excl: $("f-excl").checked,
+          sim: $("f-sim") ? $("f-sim").checked : false,
+          superfriends: state.superfriendsFilter,
+          colors: [...state.colors],
+        };
         StudioUI.remember("studio.builder.savedPreset", JSON.stringify(snapshot));
         toast("Filteransicht gespeichert.");
       } }, "Ansicht merken"),

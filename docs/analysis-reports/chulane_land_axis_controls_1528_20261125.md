@@ -61,7 +61,7 @@ Die Engine teilt die erste Hand für alle geprüften Arme konsistent mit der exa
 
 ### Sitzkurven (4 Sitze, alle `160` Partien je Serie; Playgroup-Referenz `29,1 / 25,7 / 23,6 / 21,5 %`, `n = 300.240`)
 - **`N36` (`160/160` Partien):** Sitz 1 `32/160` (`20,0 %`), Sitz 2 `40/160` (`25,0 %`), Sitz 3 `42/160` (`26,2 %`), Sitz 4 `44/160` (`27,5 %`). *(Hinweis: `32+40+42+44 = 158/160`; `2/160` Partien ohne eindeutigen Einzelsieger/Unentschieden bzw. Auswertung gemäß `seat_curve`.)*
-- **`P27` (`160/160` Partien):** Sitz 1 `47/160` (`29,4 %`), Sitz 2 `35/160` (`21,9 %`), Sitz 3 `43/160` (`26,9 %`), Sitz 4 `33/160` (`20,6 %`).
+- **`P27` (`160/160` Partien):** Sitz 1 `47/160` (`29,4 %`), Sitz 2 `35/160` (`21,9 %`), Sitz 3 `43/160` (`26,9 %`), Sitz 4 `33/160` (`20,6 %`). *(Hinweis: `47+35+43+33 = 158/160`; `2/160` Partien ohne eindeutigen Einzelsieger/Unentschieden bzw. Auswertung gemäß `seat_curve`.)*
 
 ### Objektive Pilot-Auslassungen (`#1524`, `320/320` Partien mitgezeichnet, `740.250` Entscheidungen)
 - **`N36` (`160/160` Partien, `400.028` Entscheidungen):** **`110/6.704`** (`1,64 %`) — davon `land_play`: `98/6.114` (`1,60 %`), `cast_commander` (`T <= 6`): `12/590` (`2,03 %`).
