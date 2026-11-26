@@ -1288,6 +1288,40 @@ function buildResultErrorCard(result) {
   }
   return h("div", { class: "banner" }, endText());
 }
+let engineStartBusy = null;
+let engineStartControlsLocked = false;
+function syncEngineStartBusy(waiting) {
+  const ctrls = [$("speed"), $("ff-mode"), $("ff-btn")];
+  if (!waiting) {
+    if (engineStartBusy) {
+      engineStartBusy.stop();
+      engineStartBusy = null;
+    }
+    if (engineStartControlsLocked && typeof StudioUI !== "undefined" && StudioUI.setControlsBusy) {
+      StudioUI.setControlsBusy(ctrls, false);
+      engineStartControlsLocked = false;
+    }
+    return null;
+  }
+  if (!engineStartControlsLocked && typeof StudioUI !== "undefined" && StudioUI.setControlsBusy) {
+    StudioUI.setControlsBusy(ctrls, true);
+    engineStartControlsLocked = true;
+  }
+  if (!engineStartBusy && typeof StudioUI !== "undefined" && StudioUI.createBusyView) {
+    engineStartBusy = StudioUI.createBusyView({
+      id: "engine-start-busy",
+      title: "XMage-Engine startet …",
+      stages: [
+        { afterSec: 0, text: "Java-Prozess und Brücke werden initialisiert …" },
+        { afterSec: 3, text: "Decks werden geladen, geprüft und gemischt …" },
+        { afterSec: 12, text: "Starthände und erste Priorität werden vorbereitet …" },
+        { afterSec: 25, text: "Der Kaltstart braucht einen Moment länger — die Engine arbeitet …" },
+      ],
+      lines: 3,
+    });
+  }
+  return engineStartBusy;
+}
 function renderView() {
   renderBridgeBanner();
   if (state.ff.on && !state.running) endFastForward("die Partie ist zu Ende");
@@ -1300,15 +1334,29 @@ function renderView() {
   const clickSig = state.clickActive ? JSON.stringify([state.click.decisionId, state.selectedOptions]) : "";
   const table = $("table");
   if (!frame) {
-    table.textContent = ""; state.seatKeys = [];
-    if (state.result && state.result.status !== "finished" && !state.running) {
-      table.append(buildResultErrorCard(state.result));
+    state.seatKeys = [];
+    if (state.running) {
+      const busy = typeof syncEngineStartBusy === "function" ? syncEngineStartBusy(true) : null;
+      if (busy) {
+        if (table.firstElementChild !== busy.el || table.children.length !== 1) {
+          table.replaceChildren(busy.el);
+        }
+      } else {
+        table.replaceChildren(h("div", { class: "empty" }, "Die Engine startet und mischt die Decks. Gleich geht es los."));
+      }
     } else {
-      table.append(h("div", { class: "empty" }, state.running ? "Die Engine startet und mischt die Decks. Gleich geht es los." : `Diese Partie hat keine Entscheidung aufgezeichnet. ${endText()}`));
+      if (typeof syncEngineStartBusy === "function") syncEngineStartBusy(false);
+      table.textContent = "";
+      if (state.result && state.result.status !== "finished") {
+        table.append(buildResultErrorCard(state.result));
+      } else {
+        table.append(h("div", { class: "empty" }, `Diese Partie hat keine Entscheidung aufgezeichnet. ${endText()}`));
+      }
     }
     $("where").textContent = "";
     return;
   }
+  if (typeof syncEngineStartBusy === "function") syncEngineStartBusy(false);
   const finished = state.index === state.frames.length - 1 && !state.running;
   const banner = finished ? `banner:${JSON.stringify(state.result)}` : "";
   const humanPendingSeat = state.interactive && state.pendingDecision ? state.pendingDecision.seat : null;
@@ -1621,6 +1669,7 @@ async function loadMoreOnce(hold, prefetched) {
   return added;
 }
 async function openGame(gameId) {
+  if (typeof syncEngineStartBusy === "function") syncEngineStartBusy(false);
   setPlaying(false); clearTimeout(state.poll); abortHeldRequest(); state.followGen += 1;
   restoreAiDelayOnLeave(state.gameId);
   const listed = state.games.find((entry) => entry.game_id === gameId);

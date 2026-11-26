@@ -1032,7 +1032,17 @@ function renderNumbers(body) {
   renderDeckStatusBox(body);
   body.append(deckFilterControl());
   const shape = state.shape;
-  if (!shape) { body.append(h("p", { class: "muted" }, "Wird berechnet.")); return; }
+  if (!shape) {
+    body.append(StudioUI.createBusyView({
+      title: "Deck-Kennzahlen werden berechnet …",
+      stages: [
+        { afterSec: 0, text: "Manakurve, Farbverteilung und Rollen werden ausgewertet …" },
+        { afterSec: 3, text: "Referenzkohorten und Land-Wahrscheinlichkeiten werden geladen …" },
+      ],
+      lines: 3,
+    }).el);
+    return;
+  }
   body.append(h("h3", {}, "Manakurve (ohne Länder)"), ...bars([0, 1, 2, 3, 4, 5, 6, 7].map((key) => shape.curve[String(key)] || 0), ["0", "1", "2", "3", "4", "5", "6", "7+"]),
     h("p", {}, `Durchschnittlicher Manawert der Nichtland-Karten: ${StudioUI.num(shape.mana_value, 2)}`));
   const types = h("div", { class: "table-wrap" }, h("table", {}, h("tbody", {}, GROUPS.filter((group) => shape.types[group]).map((group) => h("tr", {}, h("td", {}, GROUP_NAMES[group]), h("td", { class: "num" }, StudioUI.num(shape.types[group], 0)))))));
@@ -1089,14 +1099,31 @@ function loadLandAdvisor() {
   api("/api/land-advisor", "POST", { cards: entries(), owned_only: true, cohort: state.cohort, min_share: 0.20 }).then((data) => {
     state.landAdvisor = { key, seq: state.changeSeq, cohort: state.cohort, data };
     if (state.tab === "numbers") renderDeck();
-  }, (error) => { state.landAdvisorBusy = null; fail(error); });
+  }, (error) => {
+    state.landAdvisorBusy = null;
+    const waitEl = $("land-advisor-wait");
+    if (waitEl) waitEl.replaceWith(h("p", { class: "warn", id: "land-advisor-wait" }, "Ländervergleich konnte nicht geladen werden."));
+    fail(error);
+  });
 }
 function renderLandAdvisor(body) {
   body.append(h("h3", {}, "Länder im Vergleich zu den Farbsymbolen"));
   loadLandAdvisor();
   const key = `${state.deckId || ""}|${state.branch || ""}|${state.changeSeq}|${state.cohort}`;
   const found = state.landAdvisor && state.landAdvisor.key === key ? state.landAdvisor : null;
-  if (!found) { body.append(h("p", { class: "muted", id: "land-advisor-wait" }, "Wird berechnet.")); return; }
+  if (!found) {
+    body.append(StudioUI.createBusyView({
+      id: "land-advisor-wait",
+      title: "Länder & Farbsymbole werden verglichen …",
+      stages: [
+        { afterSec: 0, text: "Manaquellen und Farbsymbole im Deck werden gezählt …" },
+        { afterSec: 3, text: "Vergleichswerte der Gruppe werden geladen …" },
+      ],
+      lines: 2,
+      compact: true,
+    }).el);
+    return;
+  }
   const deck = found.data.deck;
   const group = found.data.groups.find((item) => item.cohort === state.cohort);
   const spanText = (entry, digits = 1) => entry ? `${StudioUI.num(entry.median, digits)} (${StudioUI.num(entry.p25, digits)}–${StudioUI.num(entry.p75, digits)})` : "unbekannt";
@@ -2887,6 +2914,7 @@ async function loadStrength() {
   if (state.strength) return state.strength;
   if (state.strengthPromise) return state.strengthPromise;
   state.strengthLoading = true;
+  if (typeof StudioUI.setControlsBusy === "function") StudioUI.setControlsBusy([$("sort")], true);
   state.strengthPromise = (async () => {
     try {
       const early = state.strengthPrefetch; // started by start() beside the pool request
@@ -2903,7 +2931,11 @@ async function loadStrength() {
       renderPool(); if (state.deckId) renderDeck();
       return state.strength;
     } catch (error) { fail(error); return null; }
-    finally { state.strengthLoading = false; state.strengthPromise = null; }
+    finally {
+      state.strengthLoading = false;
+      state.strengthPromise = null;
+      if (typeof StudioUI.setControlsBusy === "function") StudioUI.setControlsBusy([$("sort")], false);
+    }
   })();
   return state.strengthPromise;
 }
@@ -2913,6 +2945,7 @@ async function loadCardTrend() {
   const query = `${StudioCommander.query}&recent_days=${encodeURIComponent(state.cardTrendDays)}`
     + `&source=${encodeURIComponent(state.cardTrendSource)}`
     + (state.cardTrendBracket ? `&bracket=${encodeURIComponent(state.cardTrendBracket)}` : "");
+  if (typeof StudioUI.setControlsBusy === "function") StudioUI.setControlsBusy([$("sort")], true);
   state.cardTrendReq = (async () => {
     try {
       const result = await api("/api/card-trend?" + query);
@@ -2921,6 +2954,7 @@ async function loadCardTrend() {
       return state.cardTrend;
     } finally {
       state.cardTrendReq = null;
+      if (typeof StudioUI.setControlsBusy === "function") StudioUI.setControlsBusy([$("sort")], false);
     }
   })();
   return state.cardTrendReq;
@@ -3976,18 +4010,28 @@ function setupControls() {
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeModal(); });
 }
 async function start() {
-  $("pool-body").replaceChildren(StudioUI.loading("Kartenpool lädt …"));
-  await StudioCommander.fill($("commander-select"));
-  // The layer figures and the data-state box ask side by side (the server computes them once and
-  // shares the answer), not one after the other.
-  api(`/api/layers?commander=${encodeURIComponent(COMMANDER)}`).then((layers) => { state.layers = layers; if (state.tab === "compare") renderDeck(); }).catch(() => {});
-  StudioUI.dataState($("data-state"), COMMANDER).catch(() => {});
+  const startBusy = StudioUI.createBusyView({
+    title: "Kartenpool und Deckdaten werden geladen …",
+    stages: [
+      { afterSec: 0, text: "Commander-Auswahl und Sammlung werden geladen …" },
+      { afterSec: 3, text: "Vergleichsdaten, Decklisten und Simulationen werden vorbereitet …" },
+    ],
+    lines: 4,
+  });
+  $("pool-body").replaceChildren(startBusy.el);
+  const startCtrls = [$("commander-select"), $("universe"), $("sort")];
+  StudioUI.setControlsBusy(startCtrls, true);
   try {
-    const stored = JSON.parse(localStorage.getItem("studio-columns") || "null");
-    if (Array.isArray(stored)) state.columns = new Set(stored);
-  } catch (error) { /* view setting only */ }
-  if (state.columns.has("trend")) loadCardTrend().catch(() => {});
-  try {
+    await StudioCommander.fill($("commander-select"));
+    // The layer figures and the data-state box ask side by side (the server computes them once and
+    // shares the answer), not one after the other.
+    api(`/api/layers?commander=${encodeURIComponent(COMMANDER)}`).then((layers) => { state.layers = layers; if (state.tab === "compare") renderDeck(); }).catch(() => {});
+    StudioUI.dataState($("data-state"), COMMANDER).catch(() => {});
+    try {
+      const stored = JSON.parse(localStorage.getItem("studio-columns") || "null");
+      if (Array.isArray(stored)) state.columns = new Set(stored);
+    } catch (error) { /* view setting only */ }
+    if (state.columns.has("trend")) loadCardTrend().catch(() => {});
     let remembered = "";
     try { remembered = localStorage.getItem("studio.universe.profile") || ""; } catch (error) { /* view setting only */ }
     state.universeProfiles = await api("/api/universe/profiles").catch(() => []);
@@ -4025,6 +4069,9 @@ async function start() {
     } catch (error) { /* private mode: no session storage */ }
   } catch (error) {
     $("pool-body").replaceChildren(h("p", {}, "Das Studio konnte die Daten nicht laden: " + StudioUI.germanError(error)), h("p", { class: "muted" }, `Gewählter Commander: ${COMMANDER}. Er muss in der Sammlung stehen; sonst oben einen anderen Commander wählen. Sind Sammlung und Kartendaten importiert?`));
+  } finally {
+    startBusy.stop();
+    StudioUI.setControlsBusy(startCtrls, false);
   }
 }
 start();

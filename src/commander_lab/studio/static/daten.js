@@ -364,16 +364,70 @@ function renderLayersAndRecipes(commander, layersPayload) {
   ].filter(Boolean));
 }
 
+let loadTicket = 0;
 async function loadAll() {
+  const mine = ++loadTicket;
   const commander = $("commander-select").value || StudioCommander.current;
-  $("data-summary").textContent = "Lade Datenlage …";
+  const ctrls = [$("commander-select"), $("data-refresh")];
+  StudioUI.setControlsBusy(ctrls, true);
+  $("data-summary").replaceChildren(
+    h("span", { class: "busy-inline" }, h("span", { class: "spinner", "aria-hidden": "true" }), ` Datenlage wird aktualisiert (${StudioCommander.shortName(commander)}) …`)
+  );
+  const sectionSpecs = [
+    ["data-bridge", "Bridge-Qualifikation wird geprüft …"],
+    ["data-sources", "Quellschichten & Import-Status laden …"],
+    ["data-collection", "Sammlungsbestand wird gezählt …"],
+    ["data-roles", "Rollenabdeckung & Audit laden …"],
+    ["data-corpus", "Korpus, Universen & Signal-Alarme laden …"],
+    ["data-layers", "Schichten & Rezepte werden geladen …"],
+  ];
+  const sectionBusies = new Map();
+  for (const [id, title] of sectionSpecs) {
+    const host = $(id);
+    if (!host) continue;
+    const b = StudioUI.createBusyView({ title, lines: 2, compact: true });
+    sectionBusies.set(id, b);
+    host.replaceChildren(b.el);
+  }
+  const stopSection = (id) => {
+    const b = sectionBusies.get(id);
+    if (b) { b.stop(); sectionBusies.delete(id); }
+  };
+  const showSectionError = (id) => {
+    stopSection(id);
+    const host = $(id);
+    if (host) host.replaceChildren(h("p", { class: "warn" }, "Abschnitt konnte nicht geladen werden."));
+  };
   try {
-    const [status, report, layersPayload, roleAudit] = await Promise.all([
-      StudioUI.request("/api/status"),
-      StudioUI.request("/api/data-report"),
-      StudioUI.request(`/api/layers?commander=${encodeURIComponent(commander)}`).catch(() => null),
-      StudioUI.request(`/api/roles/audit?commander=${encodeURIComponent(commander)}`).catch(() => null),
-    ]);
+    const statusP = StudioUI.request("/api/status");
+    const reportP = StudioUI.request("/api/data-report");
+    const layersP = StudioUI.request(`/api/layers?commander=${encodeURIComponent(commander)}`).catch(() => null);
+    const auditP = StudioUI.request(`/api/roles/audit?commander=${encodeURIComponent(commander)}`).catch(() => null);
+
+    layersP.then((layersPayload) => {
+      if (mine !== loadTicket) return;
+      stopSection("data-layers");
+      renderLayersAndRecipes(commander, layersPayload);
+    }).catch(() => {});
+
+    reportP.then((report) => {
+      if (mine !== loadTicket) return;
+      stopSection("data-bridge"); renderBridge(report);
+      stopSection("data-collection"); renderCollection(report);
+      stopSection("data-corpus"); renderCorpus(report);
+      statusP.then((status) => {
+        if (mine !== loadTicket) return;
+        stopSection("data-sources"); renderSources(status, report);
+      }).catch(() => {});
+      auditP.then((roleAudit) => {
+        if (mine !== loadTicket) return;
+        stopSection("data-roles"); renderRoles(report, roleAudit);
+      }).catch(() => {});
+    }).catch(() => {});
+
+    const [status, report, layersPayload, roleAudit] = await Promise.all([statusP, reportP, layersP, auditP]);
+    if (mine !== loadTicket) return;
+    for (const id of [...sectionBusies.keys()]) stopSection(id);
     renderBridge(report);
     renderSources(status, report);
     renderCollection(report);
@@ -383,8 +437,13 @@ async function loadAll() {
     const alarmCount = Array.isArray(report.signal_rate_alarms) ? report.signal_rate_alarms.length : 0;
     $("data-summary").textContent = `Stand ${report.generated_on || "–"} · Sammlung ${nf((report.collection || {}).identities)} Karten · Korpus ${nf((report.corpus || {}).decks)} Decks · Alarme: ${nf(alarmCount)}`;
   } catch (err) {
+    if (mine !== loadTicket) return;
+    for (const id of [...sectionBusies.keys()]) showSectionError(id);
     $("data-summary").textContent = "Fehler beim Laden der Datenlage.";
     StudioUI.fail(StudioUI.germanError(err));
+  } finally {
+    for (const id of [...sectionBusies.keys()]) stopSection(id);
+    StudioUI.setControlsBusy(ctrls, false);
   }
 }
 
