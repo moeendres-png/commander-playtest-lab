@@ -76,6 +76,7 @@
 </div>
 <div id="ff-status" class="ff-status" role="status" aria-live="polite" hidden></div>
 <section id="phase-bar" class="phase-bar" role="region" aria-label="Phasenleiste und Priorität" hidden></section>
+<div id="table-mode-bar" class="table-mode-bar" hidden></div>
 <div id="board-bar" class="board-bar" role="region" aria-label="Aktion am Brett" hidden></div>
 <main id="game">
   <section id="table"></section>
@@ -84,9 +85,10 @@
     <section id="human-decision" class="human-decision" role="region" aria-label="Deine Entscheidung" hidden></section>
     <div id="now"></div>
     <section id="own-combat" class="own-combat" role="region" aria-label="Eigener Kampf-Zwischenstand" hidden></section>
-    <h3>Stapel</h3>
+    <h3>Stapel <span id="stack-count" class="muted"></span></h3>
     <div id="stack" class="stack-rail" role="list" aria-label="Stapel-Schiene"></div>
     <h3>Verlauf</h3>
+    <input id="log-search" type="search" class="log-search" placeholder="Verlauf filtern (Karte, Sitz, Ereignis) …" aria-label="Verlauf durchsuchen">
     <div id="log"></div>
   </aside>
 </main>
@@ -108,6 +110,7 @@
 <script src="prompts.js"></script>
 <script src="hand_ux.js"></script>
 <script src="turn_bar.js"></script>
+<script src="board_ux.js"></script>
 <script src="vorspulen.js"></script>
 <script src="boardclick.js"></script>
 <script src="replay.js"></script>
