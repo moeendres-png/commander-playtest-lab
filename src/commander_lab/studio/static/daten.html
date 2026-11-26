@@ -4,23 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Commander Studio · Datenlage &amp; Quellen</title>
+<link rel="icon" href="data:,">
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="tierliste.css">
+<script src="ui.js"></script>
 </head>
 <body>
+<header id="brand">
+  <h1 class="brand-h1"><a class="logo" href="index.html">Commander Studio</a><span class="visually-hidden"> – Datenlage &amp; Quellen</span></h1>
+  <nav id="areas" aria-label="Bereiche"><a href="index.html">Deckbau</a><a href="tierliste.html">Tierliste</a><a href="decks.html">Deck-Browser</a><a href="partie.html">Partien</a><a href="daten.html" aria-current="page">Daten</a></nav>
+  <span class="spacer"></span>
+  <label>Commander <select id="commander-select" aria-label="Commander wählen"></select></label>
+  <button id="theme-toggle" type="button" class="ghost"></button>
+</header>
 <header id="top">
-  <div id="brand">
-    <span class="title">Commander Studio</span>
-    <span class="commander-pick">
-      <label class="muted" for="commander-select">Commander</label>
-      <select id="commander-select" aria-label="Commander wählen"></select>
-    </span>
-    <nav id="areas" aria-label="Bereiche"><a href="index.html">Deckbau</a><a href="tierliste.html">Tierliste</a><a href="decks.html">Deck-Browser</a><a href="partie.html">Partien</a><a href="daten.html" aria-current="page">Daten</a></nav>
-  </div>
-  <div class="summary-bar">
-    <span id="data-summary" class="muted" role="status">Datenlage lädt …</span>
-    <button id="data-refresh" type="button" class="chip">Aktualisieren</button>
-  </div>
+  <span id="data-summary" class="muted" role="status">Datenlage lädt …</span>
+  <span class="spacer"></span>
+  <button id="data-refresh" type="button" class="chip">Aktualisieren</button>
 </header>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <main id="data-main" class="data-page">
@@ -31,7 +31,6 @@
   <section id="data-corpus" class="layer"><h2>Korpus, Universen &amp; Signal-Alarme</h2></section>
   <section id="data-layers" class="layer"><h2>Schichten je Commander &amp; Offline-Befehle</h2></section>
 </main>
-<script src="ui.js"></script>
 <script src="commander.js"></script>
 <script src="daten.js"></script>
 </body>

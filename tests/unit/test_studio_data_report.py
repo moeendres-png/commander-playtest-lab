@@ -10,7 +10,11 @@ import pytest
 
 from commander_lab.studio import StudioStore, roles
 from commander_lab.studio.__main__ import main
-from commander_lab.studio.data_report import data_report, role_fingerprint
+from commander_lab.studio.data_report import (
+    data_report,
+    role_fingerprint,
+    role_fingerprint_digest,
+)
 from commander_lab.studio.store import DataClass
 from tests.unit.test_studio_builder import _fill
 from tests.unit.test_studio_roles_import import FILLER, FOREST, RAT, _file
@@ -115,7 +119,10 @@ def test_role_fingerprint_shows_an_import_and_ignores_a_repeat(
     roles.import_roles(studio, full)
     assert role_fingerprint(studio.connection) == after_first
     report_roles = _section(data_report(studio, today=TODAY), "roles")
-    assert report_roles["fingerprint"] == after_first
+    assert isinstance(report_roles["fingerprint"], str)
+    assert len(report_roles["fingerprint"]) == 64
+    assert report_roles["fingerprint"] == role_fingerprint_digest(after_first)
+    assert report_roles["fingerprint_parts"] == after_first
     assert report_roles["by_origin"] == {roles.ORIGIN_TAGGER: {"claims": 3, "cards": 3}}
     assert report_roles["collection_with_tagger_based_role"]["count"] == 3  # type: ignore[index]
     partial = _file(
@@ -128,6 +135,10 @@ def test_role_fingerprint_shows_an_import_and_ignores_a_repeat(
     roles.import_roles(studio, partial)
     after_partial = role_fingerprint(studio.connection)
     assert after_partial != after_first
+    after_report_roles = _section(data_report(studio, today=TODAY), "roles")
+    assert after_report_roles["fingerprint"] != report_roles["fingerprint"]
+    assert after_report_roles["fingerprint"] == role_fingerprint_digest(after_partial)
+    assert after_report_roles["fingerprint_parts"] == after_partial
     scopes_before = after_first["card_role_claim_by_scope"]
     scopes_after = after_partial["card_role_claim_by_scope"]
     assert isinstance(scopes_before, dict)
@@ -153,7 +164,8 @@ def test_command_prints_json_and_changes_nothing(
     assert main(["--data", str(data), "data-report"]) == 0
     report = json.loads(capsys.readouterr().out)
     assert report["schema"] == "studio-data-report-1"
-    assert report["roles"]["fingerprint"] == before
+    assert report["roles"]["fingerprint"] == role_fingerprint_digest(before)
+    assert report["roles"]["fingerprint_parts"] == before
 
 
 def test_report_counts_universes_without_naming_profiles_or_cards(

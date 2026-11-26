@@ -3,20 +3,53 @@
 // Strictly counts-only (n / N, UNKNOWN never 0, no private card-name or deck-URL leakage).
 
 const $ = (id) => document.getElementById(id);
-const h = (tag, props, ...children) => StudioUI.h(tag, props, ...children);
-const nf = (value) => (value === null || value === undefined ? "unbekannt" : StudioUI.num(value, 0));
+const unknown = (text = "unbekannt") => h("span", { class: "unknown" }, text);
+
+function isRenderNode(value) {
+  return Boolean(
+    value
+    && typeof value === "object"
+    && (value.nodeType || (typeof value.tag === "string" && Array.isArray(value.children)))
+  );
+}
+
+function safeCell(value) {
+  if (value === null || value === undefined) return "–";
+  if (isRenderNode(value)) return value;
+  if (Array.isArray(value)) return value.map(safeCell);
+  if (typeof value === "object") return "unbekannt";
+  return value;
+}
+
+const h = (tag, props, ...children) => StudioUI.h(tag, props, ...children.map(safeCell));
+const nf = (value) => (value === null || value === undefined || typeof value === "object" ? "unbekannt" : StudioUI.num(value, 0));
 const shareText = (obj) => {
   if (!obj || obj.count === null || obj.count === undefined || obj.of === null || obj.of === undefined) {
     return "unbekannt";
   }
   return obj.of ? `${nf(obj.count)} / ${nf(obj.of)} (${StudioUI.pct(obj.count / obj.of, 1)})` : `${nf(obj.count)} / 0`;
 };
-const unknown = (text = "unbekannt") => h("span", { class: "unknown" }, text);
+
+function formatFingerprint(fp) {
+  if (typeof fp === "string" && fp.trim()) {
+    const clean = fp.trim();
+    return h("code", { title: clean }, clean.slice(0, 16));
+  }
+  if (fp && typeof fp === "object") {
+    for (const candidate of [fp.digest, fp.card_role, fp.card_role_claim]) {
+      if (typeof candidate === "string" && candidate.trim()) {
+        const clean = candidate.trim();
+        return h("code", { title: clean }, clean.slice(0, 16));
+      }
+    }
+  }
+  return "–";
+}
 
 function simpleTable(heads, rows) {
   return h("div", { class: "table-wrap" }, h("table", {},
     h("thead", {}, h("tr", {}, heads.map((label) => h("th", { scope: "col" }, label)))),
-    h("tbody", {}, rows.map((row) => h("tr", {}, row.map((cell) => h("td", {}, cell)))))
+    h("tbody", {}, rows.map((row) => h("tr", {}, row.map((cell) => h("td", {}, safeCell(cell))))))
   ));
 }
 
@@ -213,7 +246,7 @@ function renderRoles(report, roleAudit) {
       ["Sammlung ohne Rolle", shareText(roles.collection_without_any_role)],
       ["Tagger-basierte Rollen in Sammlung", shareText(roles.collection_with_tagger_based_role)],
       ["Korpus-Decks mit Rollen-Zählung", shareText(roles.corpus_decks_with_role_counts)],
-      ["Rollen-Fingerprint", roles.fingerprint ? String(roles.fingerprint).slice(0, 16) : "–"],
+      ["Rollen-Fingerprint", formatFingerprint(roles.fingerprint)],
     ]),
     originRows.length ? simpleTable(["Herkunft (role_origin)", "Claims", "Karten"], originRows) : null,
     ...auditNodes,

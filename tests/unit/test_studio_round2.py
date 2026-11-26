@@ -314,7 +314,7 @@ console.log(JSON.stringify([cards.map(c => S.rank(c, 'sol r')), S.sortByRank(car
 def test_pages_load_the_shared_files_and_keep_inline_code_out() -> None:
     from commander_lab.studio.web import STATIC
 
-    for page in ("index.html", "tierliste.html", "partie.html"):
+    for page in ("index.html", "tierliste.html", "decks.html", "partie.html", "daten.html"):
         html = (STATIC / page).read_text(encoding="utf-8")
         assert 'src="ui.js"' in html and 'id="areas"' in html and 'id="theme-toggle"' in html
         assert "Deckbau" in html and "Tierliste" in html and "Partien" in html

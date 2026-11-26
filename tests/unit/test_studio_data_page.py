@@ -85,6 +85,8 @@ def test_daten_js_renders_counts_only_without_unsafe_html_or_pricing(tmp_path: P
     report = client.get("/api/data-report").json()
     assert "identities" in report["collection"]
     assert "inventory_rows" in report["collection"]
+    assert isinstance(report["roles"]["fingerprint"], str)
+    assert len(report["roles"]["fingerprint"]) == 64
     for key in ("identities", "inventory_rows", "ALIGNED_WITH_SEALED_EPOCH"):
         assert key in js
     # #1545: the per-source status is shown on the page, not only in the JSON report
@@ -193,3 +195,107 @@ console.log(flat(load()(report)));
         "10 Tage",
     ):
         assert expected in out, expected
+
+
+def test_daten_page_renders_all_six_sections_with_string_fingerprint_and_no_object_object(
+    tmp_path: Path,
+) -> None:
+    """#1830: render all six sections from live API payloads; fingerprint renders as 16 chars
+    and never '[object Object]', including when a defensive object fallback is triggered."""
+    import json
+    import shutil
+    import subprocess
+
+    import pytest
+
+    from tests.unit.test_studio_builder import _fill
+
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("node is not installed")
+
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    store.close()
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+
+    status = client.get("/api/status").json()
+    report = client.get("/api/data-report").json()
+    layers = client.get("/api/layers?commander=Chulane,%20Teller%20of%20Tales").json()
+    audit = client.get("/api/roles/audit?commander=Chulane,%20Teller%20of%20Tales").json()
+
+    fp = report["roles"]["fingerprint"]
+    assert isinstance(fp, str) and len(fp) == 64
+
+    script = """
+const fs = require('fs');
+const src = fs.readFileSync('daten.js', 'utf8').replace(/^init\\(\\)[^\\n]*$/m, '');
+const flat = (n) => (n === null || n === undefined ? '' : typeof n !== 'object' ? String(n)
+  : Array.isArray(n) ? n.map(flat).join(' ') : [flat(n.children)].join(' '));
+const hosts = new Map();
+const makeHost = (id) => {
+  const node = { id, children: [], replaceChildren(...kids) { this.children = kids; } };
+  hosts.set(id, node);
+  return node;
+};
+globalThis.StudioUI = {
+  h: (tag, props, ...kids) => ({ tag, props: props || {}, children: kids }),
+  num: (v) => String(v),
+  pct: (v) => String(v),
+};
+globalThis.StudioCommander = { shortName: (c) => String(c || '') };
+globalThis.document = { getElementById: (id) => hosts.get(id) || makeHost(id) };
+const load = new Function(src + '; return { renderBridge, renderSources, renderCollection, renderRoles, renderCorpus, renderLayersAndRecipes, safeCell, isRenderNode };');
+const mod = load();
+const [status, report, layers, audit] = JSON.parse(process.argv[1]);
+mod.renderBridge(report);
+mod.renderSources(status, report);
+mod.renderCollection(report);
+mod.renderRoles(report, audit);
+mod.renderCorpus(report);
+mod.renderLayersAndRecipes('Chulane, Teller of Tales', layers);
+const sectionTexts = {};
+for (const id of ['data-bridge', 'data-sources', 'data-collection', 'data-roles', 'data-corpus', 'data-layers']) {
+  sectionTexts[id] = flat(hosts.get(id).children);
+}
+mod.renderRoles({ roles: { ...report.roles, fingerprint: { card_role: '0123456789abcdef0123456789abcdef' } } }, audit);
+const objCompat = flat(hosts.get('data-roles').children);
+mod.renderRoles({ roles: { ...report.roles, fingerprint: { unexpected: 1 }, by_origin: { tagger: { claims: { bad: 1 }, cards: 1 } } } }, audit);
+const objBlocked = flat(hosts.get('data-roles').children);
+const directSafeObj = mod.safeCell({ bad: 1 });
+const domNodeCheck = mod.isRenderNode({ nodeType: 1 }) && mod.safeCell({ nodeType: 1 }).nodeType === 1;
+console.log(JSON.stringify({ sectionTexts, objCompat, objBlocked, directSafeObj, domNodeCheck }));
+"""
+    done = subprocess.run(
+        [node, "-e", script, json.dumps([status, report, layers, audit])],
+        capture_output=True,
+        text=True,
+        check=True,
+        cwd=STATIC,
+    )
+    payload = json.loads(done.stdout)
+    texts = payload["sectionTexts"]
+    assert fp[:16] in texts["data-roles"]
+    for sid, text in texts.items():
+        assert "[object Object]" not in text, f"[object Object] leaked into {sid}: {text}"
+    assert "0123456789abcdef" in payload["objCompat"]
+    assert "[object Object]" not in payload["objCompat"]
+    assert "[object Object]" not in payload["objBlocked"]
+    assert "unbekannt" in payload["objBlocked"]
+    assert payload["directSafeObj"] == "unbekannt"
+    assert payload["domNodeCheck"] is True
+
+
+def test_daten_page_has_theme_toggle_and_dark_surface_token() -> None:
+    """#1831: daten.html uses theme-aware panel surface tokens, loads ui.js early in <head>,
+    and includes #theme-toggle in #brand."""
+    html = (STATIC / "daten.html").read_text(encoding="utf-8")
+    head, _, body = html.partition("</head>")
+    assert '<script src="ui.js"></script>' in head
+    assert '<script src="ui.js"></script>' not in body
+    assert 'id="brand"' in body
+    assert 'id="theme-toggle"' in body
+
+    css = (STATIC / "app.css").read_text(encoding="utf-8")
+    assert ".data-page>section.layer{background:var(--panel);" in css
+    assert ".data-page>section.layer{background:var(--surface,#fff);" not in css
