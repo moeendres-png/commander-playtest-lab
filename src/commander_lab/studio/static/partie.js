@@ -30,7 +30,7 @@ function resolvePriorityOptionType(opt) {
   return ot || "activated_ability";
 }
 
-const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, responseMode: "full_control", holdToConfirm: true, haltConfig: typeof StudioTurnBar !== "undefined" ? StudioTurnBar.defaultHaltConfig("full_control") : null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
+const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, focusSeat: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, responseMode: "full_control", holdToConfirm: true, haltConfig: typeof StudioTurnBar !== "undefined" ? StudioTurnBar.defaultHaltConfig("full_control") : null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], logRuns: [], logQuery: "", seatKeys: [], poll: 0 };
 
 const $ = (id) => document.getElementById(id);
 function h(tag, props, ...children) {
@@ -410,14 +410,30 @@ function renderBoardBar(pending, model) {
   for (const optionId of model.loose) {
     const option = offeredOption(optionId);
     if (!option) continue;
-    bar.append(h("button", {
+    const passPriorityOpt = option.option_type === "pass_priority";
+    const needsHold = Boolean(
+      passPriorityOpt &&
+      typeof StudioTurnBar !== "undefined" &&
+      StudioTurnBar.shouldRequireHoldToConfirm &&
+      StudioTurnBar.shouldRequireHoldToConfirm(pending, null, { holdToConfirm: state.holdToConfirm })
+    );
+    const activateLoose = () => {
+      if (!boardDecision()) return;
+      if (model.mode === "staged") toggleBoardOption(optionId);
+      else sendBoardOption(optionId);
+    };
+    const btn = h("button", {
       type: "button",
-      class: option.option_type === "pass_priority" ? "primary" : "",
+      class: `${passPriorityOpt ? "primary" : ""}${needsHold ? " hold-confirm-btn" : ""}`.trim(),
       disabled: state.submitting,
-      onclick: () => (model.mode === "staged" ? toggleBoardOption(optionId) : sendBoardOption(optionId))
+      onclick: needsHold && typeof bindHoldToConfirmButton === "function" ? null : activateLoose,
     }, ...(typeof StudioPrompts !== "undefined"
       ? StudioPrompts.renderRichGameText(h, localizeActionText(option.label || optionId))
-      : [localizeActionText(option.label || optionId)])));
+      : [localizeActionText(option.label || optionId)]));
+    if (needsHold && typeof bindHoldToConfirmButton === "function") {
+      bindHoldToConfirmButton(btn, true, activateLoose);
+    }
+    bar.append(btn);
   }
   if (model.mode === "staged") {
     const count = state.selectedOptions.length;
@@ -668,6 +684,12 @@ function permanentTile({ card, count }, frame) {
 }
 
 // ---- table ---------------------------------------------------------------------------------
+function toggleFocusSeat(seat) {
+  const next = Number.isInteger(seat) && state.focusSeat !== seat ? seat : null;
+  state.focusSeat = next;
+  closeBoardMenu(false);
+  render();
+}
 function seatPanel(player, frame) {
   const info = seatInfo(player.seat);
   const winners = (state.result && state.result.winner_seats) || [];
@@ -695,6 +717,20 @@ function seatPanel(player, frame) {
     ? StudioTurnBar.buildWaitingInfo(frame, state.interactive && state.running ? state.pendingDecision : null, { seatName, classLabelOf: (c) => CLASSES[c] || c, humanSeats: state.humanSeats, running: state.running, interactive: state.interactive, atLiveTail: atSeatLiveTail })
     : null;
   const seatWaiting = Boolean(waitInfo && waitInfo.waitingSeat === player.seat);
+  const lifeInfo = typeof StudioBoardUX !== "undefined"
+    ? StudioBoardUX.lifeStatus(player)
+    : {
+        displayLife: player.lost ? 0 : (player.life === null ? "?" : player.life),
+        dangerLevel: player.lost ? "eliminated" : (player.life !== null && player.life <= 5 ? "critical" : (player.life !== null && player.life <= 10 ? "warn" : "ok")),
+        eliminated: Boolean(player.lost),
+      };
+  const castingInfo = typeof StudioBoardUX !== "undefined"
+    ? StudioBoardUX.detectCastingSeat(frame, atSeatLiveTail ? state.pendingDecision : null)
+    : null;
+  const seatCasting = Boolean(castingInfo && castingInfo.seat === player.seat && !player.lost);
+  const isFocused = state.focusSeat === player.seat;
+  const isCompactTile = state.focusSeat !== null && state.focusSeat !== player.seat;
+  const boardEmpty = !player.battlefield || player.battlefield.length === 0;
   const seatClick = seatEntry(player.seat);
   const seatAnswerable = Boolean(seatClick) && clickAction({ type: "seat", seat: player.seat }) !== "none";
   const inZone = (zone) => state.clickActive && Object.values(state.click.objects).some((entry) => entry.zone === zone && entry.seat === player.seat);
@@ -706,7 +742,13 @@ function seatPanel(player, frame) {
     frame.seat === player.seat && "acting",
     humanPending && "human-turn",
     seatWaiting && "waiting-decision",
+    seatCasting && "casting-spotlight",
+    lifeInfo.dangerLevel === "warn" && "life-warn",
+    lifeInfo.dangerLevel === "critical" && "life-critical",
     isTargetSeat && "attacked",
+    boardEmpty && "board-empty",
+    isFocused && "focused",
+    isCompactTile && "compact-tile",
     player.lost && "out",
     last && winners.includes(player.seat) && "winner"
   ].filter(Boolean).join(" ");
@@ -723,15 +765,25 @@ function seatPanel(player, frame) {
         onclick: () => showZone(player, "exile")
       }, `Exil ${exileCount}`)
     : null;
-  return h("div", { class: classes },
+  const lifeCls = [
+    "life",
+    lifeInfo.dangerLevel === "warn" && "warn low",
+    lifeInfo.dangerLevel === "critical" && "critical low",
+    lifeInfo.eliminated && "eliminated"
+  ].filter(Boolean).join(" ");
+  const cmdMatrix = typeof StudioBoardUX !== "undefined"
+    ? StudioBoardUX.buildCommanderMatrix(frame, player.seat, seatName)
+    : null;
+  return h("div", { class: classes, "data-seat": String(player.seat) },
     h("div", { class: "seat-head" },
-      h("span", { class: `life${player.life !== null && player.life <= 10 ? " low" : ""}` }, player.life === null ? "?" : player.life),
+      h("span", { class: lifeCls, "data-danger": lifeInfo.dangerLevel }, String(lifeInfo.displayLife)),
       h("b", { class: `s${player.seat}` }, seatName(player.seat)),
       h("span", null, seatLabel(player.seat)),
       h("span", { class: "muted" }, info.deck_id || ""),
       info.pilot === "Mensch" && h("span", { class: "pill good", title: "Von dir gesteuert" }, "Mensch"),
       humanPending && h("span", { class: "pill warn" }, "Du bist am Zug!"),
       seatWaiting && !humanPending && h("span", { class: "pill warn" }, "⏳ Warten auf Entscheidung"),
+      seatCasting && h("span", { class: "pill casting" }, castingInfo.label),
       frame.active_seat === player.seat && h("span", { class: "pill good" }, "am Zug"),
       isTargetSeat && h("span", { class: "pill bad" }, "⚔️ Ziel"),
       seatAnswerable && h("button", {
@@ -744,7 +796,14 @@ function seatPanel(player, frame) {
       info.style !== undefined && info.pilot !== "Mensch" && h("span", { class: "pill", title: `KI-Stil: ${info.style} (${info.style_name || ""})` }, `Stil ${info.style}`),
       info.deck_plan && h("span", { class: "pill link", title: "Spielplan ansehen (abgeleitet)", onclick: () => showDeckPlan(seatName(player.seat), info.deck_plan) }, "Plan"),
       player.lost && h("span", { class: "pill bad" }, "ausgeschieden"),
-      last && winners.includes(player.seat) && h("span", { class: "pill warn" }, "Sieger")),
+      last && winners.includes(player.seat) && h("span", { class: "pill warn" }, "Sieger"),
+      h("button", {
+        type: "button",
+        class: "seat-focus-btn",
+        "aria-pressed": isFocused ? "true" : "false",
+        title: isFocused ? "Zurück zum Tisch-Raster" : `Sitz ${player.seat + 1} groß im Fokus anzeigen`,
+        onclick: () => toggleFocusSeat(player.seat)
+      }, isFocused ? "⊞ Raster" : "🔍 Fokus")),
     h("div", { class: "seat-head" },
       h("span", { class: "stat" }, `Hand ${player.hand_count ?? "?"}`),
       h("span", { class: "stat" }, `Bibliothek ${player.library_count ?? "?"}`),
@@ -756,7 +815,7 @@ function seatPanel(player, frame) {
             ? StudioPrompts.renderManaPoolPips(h, player.mana_pool)
             : h("span", { class: "stat" }, `Mana ${Object.entries(player.mana_pool).map(([color, amount]) => `${amount} ${POOL_COLORS[color] || color}`).join(", ")}`))
         : null),
-    frame.commanders ? commanderLine(frame.commanders[player.seat] || { commanders: [], received: [] }) : null,
+    frame.commanders ? commanderLine(frame.commanders[player.seat] || { commanders: [], received: [] }, cmdMatrix) : null,
     player.command.length ? h("div", null, h("div", { class: "zone-title" }, "Kommandozone"), h("div", { class: "cards" }, player.command.map((name, at) => cardTile(name, { small: true, objectId: (player.command_ids || [])[at] })))) : null,
     h("div", { class: "zone-title" }, `Spielfeld (${player.battlefield.length})`),
     h("div", { class: "cards" }, others.map((item) => permanentTile(item, frame))),
@@ -847,14 +906,25 @@ function commanderRows(ps) {
   }
   return bySeat;
 }
-function commanderLine(info) {
+function commanderLine(info, matrix) {
   if (!info) return null;
   const owned = info.commanders.map((c) => h("span", { class: "stat", title: "Die Engine meldet die Casts aus der Kommandozone, aber keine Commander-Steuer: die Seite rechnet sie nicht aus." },
     `${c.name}: ${c.casts === null ? "Casts unbekannt" : `${c.casts}× aus der Kommandozone`} · Steuer unbekannt`));
-  const taken = info.received.length
-    ? info.received.map((r) => h("span", { class: "stat", title: "Kampfschaden dieses Kommandanten an diesem Spieler, Wert der Engine" }, `${r.total} von ${r.fromName} (${seatName(r.fromSeat)})`))
-    : [h("span", { class: "stat", title: "Die Engine meldet keinen Kommandantenschaden an diesem Spieler" }, "keiner")];
-  return h("div", { class: "commander-line" }, ...owned, h("span", { class: "muted" }, "Kommandantenschaden erhalten:"), ...taken);
+  let matrixNodes;
+  if (matrix && Array.isArray(matrix.rows)) {
+    matrixNodes = matrix.rows.length
+      ? matrix.rows.map((r) => h("span", {
+          class: `cmd-dmg-chip${r.level === "lethal" ? " lethal" : r.level === "warn" ? " warn" : ""}`,
+          "data-dmg-level": r.level,
+          title: "Kampfschaden dieses Kommandanten an diesem Spieler, Wert der Engine (nie über verschiedene Kommandanten summiert)"
+        }, `${r.total} von ${r.fromName} (${r.seatLabel})`, r.badgeText ? ` ${r.badgeText}` : null))
+      : [h("span", { class: "cmd-dmg-chip", title: "Die Engine meldet keinen Kommandantenschaden an diesem Spieler" }, "keiner")];
+  } else {
+    matrixNodes = info.received.length
+      ? info.received.map((r) => h("span", { class: "stat", title: "Kampfschaden dieses Kommandanten an diesem Spieler, Wert der Engine" }, `${r.total} von ${r.fromName} (${seatName(r.fromSeat)})`))
+      : [h("span", { class: "stat", title: "Die Engine meldet keinen Kommandantenschaden an diesem Spieler" }, "keiner")];
+  }
+  return h("div", { class: "commander-line" }, ...owned, h("div", { class: "cmd-dmg-matrix" }, h("span", { class: "muted" }, "Kommandantenschaden erhalten:"), ...matrixNodes));
 }
 function pilotStateToFrame(pending) {
   const ps = (pending && pending.pilot_state) || {};
@@ -910,6 +980,11 @@ function pilotStateToFrame(pending) {
   });
   const stack = (ps.stack || []).map((s) => (s && s.face_down ? "(verdeckt)" : (s && s.name) || "?"));
   const stackIds = (ps.stack || []).map((s) => (s && typeof s.object_id === "string" ? s.object_id : null));
+  const stackControllers = (ps.stack || []).map((s) => {
+    const cid = s && typeof s.controller_id === "string" ? s.controller_id : null;
+    const found = cid ? playersRaw.find((p) => p && p.player_id === cid) : null;
+    return found && Number.isInteger(found.seat) ? found.seat : null;
+  });
   const commanders = commanderRows(ps);
   return {
     n: state.frames.length + 1,
@@ -925,7 +1000,8 @@ function pilotStateToFrame(pending) {
     chosen: [],
     players,
     stack,
-    stack_ids: stackIds
+    stack_ids: stackIds,
+    stack_controllers: stackControllers
   };
 }
 
@@ -1950,7 +2026,7 @@ function renderDecisionBar(frame, atLiveTail) {
       return;
     }
     if (action.kind === "focus_panel") {
-      const target = $("human-decision") && $("human-decision").querySelector("button:not([disabled])");
+      const target = $("human-decision") && $("human-decision").querySelector("input:not([disabled]), button:not([disabled])");
       if (target) target.focus();
     }
   };
@@ -1970,45 +2046,62 @@ function renderStackRail(frame, atLiveTail) {
   const stack = $("stack");
   if (!stack) return;
   stack.textContent = "";
+  const countBadge = $("stack-count");
   const pilotState = atLiveTail && state.pendingDecision && state.pendingDecision.pilot_state
     ? state.pendingDecision.pilot_state
     : {
-        players: [],
+        players: (frame.players || []).map((p, idx) => ({ seat: p.seat, player_id: `s${p.seat}` })),
         stack: (frame.stack || []).map((name, at) => ({
           name: name === "(verdeckt)" ? null : name,
           face_down: name === "(verdeckt)",
-          object_id: (frame.stack_ids || [])[at] || null
+          object_id: (frame.stack_ids || [])[at] || null,
+          controller_id: Array.isArray(frame.stack_controllers) && Number.isInteger(frame.stack_controllers[at])
+            ? `s${frame.stack_controllers[at]}`
+            : null,
         }))
       };
-  const rail = StudioPlayP1a.buildStackRail(pilotState, seatName);
+  const rawRail = StudioPlayP1a.buildStackRail(pilotState, seatName);
+  const rail = typeof StudioBoardUX !== "undefined" && StudioBoardUX.annotateStackRail
+    ? StudioBoardUX.annotateStackRail(rawRail, state.facts)
+    : rawRail;
+  if (countBadge) countBadge.textContent = rail.length ? `(${rail.length})` : "";
   if (!rail.length) {
     stack.append(h("span", { class: "muted" }, "leer"));
     return;
   }
   for (const item of rail) {
-    const cardZoomName = !item.faceDown && !item.isAbility && item.name ? item.name : null;
+    const cardZoomName = item.zoomCardName || (!item.faceDown && !item.isAbility && item.name ? item.name : null);
     const body = h("div", { class: "stack-item-body" },
       h("div", { class: "stack-item-head" },
-        item.isTop && h("span", { class: "pill warn" }, "oben"),
+        item.orderLabel ? h("span", { class: "stack-order-badge" }, item.orderLabel) : (item.isTop && h("span", { class: "pill warn" }, "oben")),
+        item.kindLabel ? h("span", { class: "pill" }, item.kindLabel) : null,
         h("span", { class: "stack-item-name" }, item.displayName),
-        cardZoomName && h("button", {
+        cardZoomName && typeof showCardZoom === "function" && h("button", {
           type: "button",
           class: "zoom-mini-btn",
           title: `${cardZoomName} vergrößern`,
           "aria-label": `${cardZoomName} vergrößern`,
           onclick: (event) => { event.stopPropagation(); showCardZoom(cardZoomName, { zoneLabel: "Stapel" }); }
         }, "🔍")),
-      item.controllerLabel && h("div", { class: "stack-item-meta" }, `Kontrolle: ${item.controllerLabel}`),
-      item.targetsPublished && h("div", { class: "stack-item-targets" }, `Ziel: ${item.targets.join(", ")}`)
+      item.controllerLabel && h("div", { class: "stack-item-meta" }, `Quelle / Kontrolle: ${item.controllerLabel}`),
+      h("div", { class: "stack-item-targets" }, `Ziel: ${item.targetSummary || (item.targetsPublished ? item.targets.join(", ") : "kein Ziel veröffentlicht")}`)
     );
     const tile = item.isAbility
       ? null
       : cardTile(item.faceDown ? "(verdeckt)" : item.name, { small: true, objectId: item.objectId });
     const rowEl = h("div", {
       class: `stack-item${item.isTop ? " top" : ""}`,
-      role: "listitem"
+      role: "listitem",
+      "data-stack-order": String(item.orderNumber || ""),
+      onclick: cardZoomName && typeof showCardZoom === "function"
+        ? (event) => {
+            if (event && event.shiftKey) return;
+            if (event && event.target && event.target.closest && event.target.closest("button")) return;
+            showCardZoom(cardZoomName, { zoneLabel: "Stapel" });
+          }
+        : null
     }, tile, body);
-    if (cardZoomName) bindCardZoom(rowEl, cardZoomName, () => ({ zoneLabel: "Stapel" }));
+    if (cardZoomName && typeof bindCardZoom === "function") bindCardZoom(rowEl, cardZoomName, () => ({ zoneLabel: "Stapel" }));
     stack.append(rowEl);
   }
 }
@@ -2027,7 +2120,7 @@ function viewState() {
     handsRevealed: state.handsRevealed, canConcede: state.canConcede,
     resultStatus: state.result ? state.result.status || "?" : null,
     fastForward: state.ff.on, autoPassAttempt: state.autoPassAttempt, submitting: state.submitting,
-    playing: state.playing
+    playing: state.playing, focusSeat: state.focusSeat
   };
 }
 function buildResultErrorCard(result) {
@@ -2098,6 +2191,7 @@ function renderView() {
   const table = $("table");
   if (!frame) {
     state.seatKeys = [];
+    if ($("table-mode-bar")) $("table-mode-bar").hidden = true;
     if (typeof renderPhaseBar === "function") renderPhaseBar(null, false);
     if (typeof renderDecisionBar === "function") renderDecisionBar(null, false);
     if (state.running) {
@@ -2122,12 +2216,38 @@ function renderView() {
     return;
   }
   if (typeof syncEngineStartBusy === "function") syncEngineStartBusy(false);
+  if (state.focusSeat !== null && !frame.players.some((p) => p.seat === state.focusSeat)) {
+    state.focusSeat = null;
+  }
+  if (typeof StudioBoardUX !== "undefined" && StudioBoardUX.gridModeClass) {
+    table.className = StudioBoardUX.gridModeClass(frame.players.length, state.focusSeat).join(" ");
+  } else if (table.classList && typeof table.classList.toggle === "function") {
+    table.classList.toggle("one", frame.players.length <= 1);
+  } else {
+    table.className = frame.players.length <= 1 ? "one" : "";
+  }
+  const modeBar = $("table-mode-bar");
+  if (modeBar) {
+    modeBar.textContent = "";
+    if (state.focusSeat !== null) {
+      modeBar.append(
+        h("span", null, "Fokus-Ansicht: ", h("b", { class: `s${state.focusSeat}` }, seatName(state.focusSeat)), ` · ${seatLabel(state.focusSeat)}`),
+        h("button", { type: "button", class: "seat-focus-btn", onclick: () => toggleFocusSeat(null) }, "⊞ Zurück zum Raster (Esc)")
+      );
+      modeBar.hidden = false;
+    } else {
+      modeBar.hidden = true;
+    }
+  }
   const finished = state.index === state.frames.length - 1 && !state.running;
   const banner = finished ? `banner:${JSON.stringify(state.result)}` : "";
   const humanPendingSeat = state.interactive && state.pendingDecision ? state.pendingDecision.seat : null;
   const stagedSourcesSig = state.stagedHand && Array.isArray(state.stagedHand.sourceObjectIds) ? state.stagedHand.sourceObjectIds : [];
   const waitSeatSig = atLiveTail && state.interactive && state.running && state.pendingDecision ? state.pendingDecision.seat : frame.seat;
-  const keys = frame.players.map((player) => JSON.stringify([player, frame.active_seat, frame.seat, humanPendingSeat, waitSeatSig, finished, clickSig, stagedSourcesSig]));
+  const castingSig = typeof StudioBoardUX !== "undefined" && StudioBoardUX.detectCastingSeat
+    ? StudioBoardUX.detectCastingSeat(frame, atLiveTail ? state.pendingDecision : null)
+    : null;
+  const keys = frame.players.map((player) => JSON.stringify([player, frame.active_seat, frame.seat, humanPendingSeat, waitSeatSig, castingSig, frame.commanders, state.focusSeat, finished, clickSig, stagedSourcesSig]));
   if (table.dataset.banner !== banner || keys.length !== state.seatKeys.length) {
     table.textContent = ""; state.seatKeys = []; table.dataset.banner = banner;
     if (finished) {
@@ -2206,7 +2326,16 @@ function renderView() {
   if (typeof renderDecisionBar === "function") renderDecisionBar(frame, atLiveTail);
   for (const line of document.querySelectorAll("#log .here")) line.classList.remove("here");
   const line = lineFor(state.index);
-  if (line) { line.classList.add("here"); line.scrollIntoView({ block: "nearest" }); }
+  if (line) {
+    line.classList.add("here");
+    const logEl = $("log");
+    const closedGroup = line.closest ? line.closest("details.log-group-tile:not([open])") : null;
+    const targetEl = closedGroup || line;
+    if (logEl && typeof targetEl.offsetTop === "number" && typeof logEl.clientHeight === "number") {
+      const baseTop = typeof logEl.offsetTop === "number" && targetEl.offsetParent !== logEl ? logEl.offsetTop : 0;
+      logEl.scrollTop = Math.max(0, (targetEl.offsetTop - baseTop) - Math.round(logEl.clientHeight / 3));
+    }
+  }
 }
 function endText() {
   const result = state.result || {};
@@ -2241,41 +2370,150 @@ function lineFor(index) {
   for (const entry of state.lines) { if (entry.index > index) break; found = entry.el; }
   return found;
 }
+function buildLogTile(index, frame, info, ansText) {
+  const shortNodes = typeof StudioPrompts !== "undefined" ? StudioPrompts.renderRichGameText(h, info.shortText) : [info.shortText];
+  const fullNodes = typeof StudioPrompts !== "undefined" ? StudioPrompts.renderRichGameText(h, info.fullText) : [info.fullText];
+  const cardBtn = info.cardName && typeof showCardZoom === "function"
+    ? h("button", {
+        type: "button",
+        class: "log-card-btn",
+        title: `${info.cardName} vergrößern`,
+        "aria-label": `${info.cardName} vergrößern`,
+        onclick: (event) => { event.stopPropagation(); showCardZoom(info.cardName, { zoneLabel: "Verlauf" }); }
+      }, `🃏 ${info.cardName}`)
+    : null;
+  const mainRow = h("div", {
+    class: "log-tile-main",
+    title: info.fullText,
+    onclick: (event) => {
+      if (event.shiftKey) return;
+      if (StudioReplay.isReplayAvailable(state)) { setPlaying(false); go(index); return; }
+      if (info.cardName && typeof showCardZoom === "function") showCardZoom(info.cardName, { zoneLabel: "Verlauf" });
+    }
+  },
+    h("span", { class: "log-icon", "aria-hidden": "true" }, info.icon),
+    h("span", { class: `tag s${frame.seat}` }, `S${(frame.seat ?? 0) + 1}`),
+    h("span", { class: "log-short" }, ...shortNodes),
+    cardBtn);
+  const detailBox = info.hasExtraDetail
+    ? h("details", { class: "log-detail" },
+        h("summary", null, "Volltext / Regeldetails anzeigen"),
+        h("div", { class: "log-detail-body" }, ...fullNodes, info.promptText ? ` (${info.promptText})` : ""))
+    : null;
+  const el = h("div", {
+    class: "line log-tile",
+    "data-log-kind": info.kind,
+    "data-card-name": info.cardName || ""
+  }, mainRow, detailBox);
+  if (info.cardName && typeof bindCardZoom === "function") bindCardZoom(el, info.cardName, () => ({ zoneLabel: "Verlauf" }));
+  return el;
+}
+function filterLog() {
+  const log = $("log");
+  if (!log) return;
+  const q = (state.logQuery || "").trim().toLowerCase();
+  for (const node of [...log.children]) {
+    if (node.classList && node.classList.contains("log-group-tile") && node.querySelectorAll) {
+      for (const inner of node.querySelectorAll(".log-tile")) inner.hidden = false;
+    }
+    if (!q) { node.hidden = false; continue; }
+    const hay = (node.textContent || "").toLowerCase();
+    node.hidden = !hay.includes(q);
+  }
+}
 function appendLog(from) {
   const log = $("log");
+  const threshold = typeof StudioBoardUX !== "undefined" ? StudioBoardUX.TRIGGER_COLLAPSE_THRESHOLD : 5;
+  const breakRun = () => {
+    if (Array.isArray(state.logRuns) && state.logRuns.length) {
+      const last = state.logRuns[state.logRuns.length - 1];
+      if (!last.closed) last.closed = true;
+    }
+  };
   for (let index = from; index < state.frames.length; index += 1) {
     const frame = state.frames[index];
     const before = index > 0 ? state.frames[index - 1] : null;
     if (frame.turn !== null && (!before || before.turn !== frame.turn) && frame.active_seat !== null) {
+      breakRun();
       log.append(h("div", { class: "line turn" }, `Zug ${frame.turn}: `, h("span", { class: `s${frame.active_seat}` }, `${seatName(frame.active_seat)} · ${seatLabel(frame.active_seat)}`)));
     }
     if (before) {
       for (const player of frame.players) {
         const old = before.players.find((entry) => entry.seat === player.seat);
         if (!old) continue;
-        if (old.life !== player.life && old.life !== null && player.life !== null) log.append(h("div", { class: "line event" }, `${seatName(player.seat)}: Leben ${old.life} auf ${player.life}`));
-        if (!old.lost && player.lost) log.append(h("div", { class: "line event" }, `${seatName(player.seat)} scheidet aus`));
+        if (old.life !== player.life && old.life !== null && player.life !== null) {
+          breakRun();
+          const shownOld = old.lost && old.life < 0 ? 0 : old.life;
+          const shownNew = player.lost && player.life < 0 ? 0 : player.life;
+          log.append(h("div", { class: "line event" }, `${seatName(player.seat)}: Leben ${shownOld} auf ${shownNew}`));
+        }
+        if (!old.lost && player.lost) {
+          breakRun();
+          log.append(h("div", { class: "line event" }, `${seatName(player.seat)} scheidet aus`));
+        }
       }
     }
     if (isMinor(frame)) continue;
     const ansText = answer(frame);
-    const sourceCardName = frame.source && frame.source !== "(verdeckt)" && !String(frame.source).startsWith("stack ability")
-      ? String(frame.source)
-      : null;
-    const zoomLogBtn = sourceCardName
-      ? h("button", {
-          type: "button",
-          class: "zoom-mini-btn",
-          title: `${sourceCardName} vergrößern`,
-          "aria-label": `${sourceCardName} vergrößern`,
-          onclick: (event) => { event.stopPropagation(); if (typeof showCardZoom === "function") showCardZoom(sourceCardName, { zoneLabel: "Verlauf" }); }
-        }, "🔍")
-      : null;
-    const el = h("div", { class: "line", onclick: (event) => { if (event.shiftKey) return; if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); go(index); } }, h("span", { class: `tag s${frame.seat}` }, `S${(frame.seat ?? 0) + 1}`), h("span", null, ...(typeof StudioPrompts !== "undefined" ? StudioPrompts.renderRichGameText(h, ansText) : [ansText])), zoomLogBtn);
-    if (sourceCardName && typeof bindCardZoom === "function") bindCardZoom(el, sourceCardName, () => ({ zoneLabel: "Verlauf" }));
-    log.append(el);
-    state.lines.push({ index, el });
+    if (typeof StudioBoardUX === "undefined" || !StudioBoardUX.classifyLogEntry) {
+      const el = h("div", { class: "line", onclick: () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); go(index); } }, h("span", { class: `tag s${frame.seat}` }, `S${(frame.seat ?? 0) + 1}`), ansText);
+      log.append(el);
+      state.lines.push({ index, el });
+      continue;
+    }
+    const info = StudioBoardUX.classifyLogEntry(frame, ansText, state.facts);
+    const tileEl = buildLogTile(index, frame, info, ansText);
+    const runs = state.logRuns || (state.logRuns = []);
+    const activeRun = runs.length ? runs[runs.length - 1] : null;
+    if (info.collapseKey && activeRun && !activeRun.closed && activeRun.key === info.collapseKey) {
+      activeRun.items.push({ index, tileEl });
+      if (activeRun.items.length === threshold) {
+        const itemsBox = h("div", { class: "log-group-items" });
+        const countEl = h("span", { class: "log-group-count" }, `×${activeRun.items.length}`);
+        const cardBtn = info.cardName && typeof showCardZoom === "function"
+          ? h("button", {
+              type: "button",
+              class: "log-card-btn",
+              onclick: (event) => { event.stopPropagation(); showCardZoom(info.cardName, { zoneLabel: "Verlauf" }); }
+            }, `🃏 ${info.cardName}`)
+          : null;
+        const detailsEl = h("details", { class: "log-group-tile", "data-collapse-count": String(activeRun.items.length) },
+          h("summary", null,
+            h("span", { class: "log-icon", "aria-hidden": "true" }, info.icon),
+            h("span", { class: `tag s${frame.seat}` }, `S${(frame.seat ?? 0) + 1}`),
+            countEl,
+            h("span", null, info.collapseTitle),
+            cardBtn),
+          itemsBox);
+        activeRun.items[0].tileEl.replaceWith(detailsEl);
+        for (let k = 1; k < activeRun.items.length - 1; k += 1) {
+          activeRun.items[k].tileEl.remove();
+        }
+        for (const item of activeRun.items) {
+          item.tileEl.hidden = false;
+          itemsBox.append(item.tileEl);
+        }
+        activeRun.groupEl = detailsEl;
+        activeRun.countEl = countEl;
+        activeRun.itemsBox = itemsBox;
+      } else if (activeRun.items.length > threshold && activeRun.groupEl) {
+        activeRun.countEl.textContent = `×${activeRun.items.length}`;
+        activeRun.groupEl.dataset.collapseCount = String(activeRun.items.length);
+        activeRun.itemsBox.append(tileEl);
+      } else {
+        log.append(tileEl);
+      }
+      state.lines.push({ index, el: tileEl });
+    } else {
+      breakRun();
+      log.append(tileEl);
+      state.lines.push({ index, el: tileEl });
+      if (info.collapseKey) {
+        runs.push({ key: info.collapseKey, closed: false, items: [{ index, tileEl }], groupEl: null, countEl: null, itemsBox: null });
+      }
+    }
   }
+  if (state.logQuery) filterLog();
 }
 
 // ---- playback (finished games only; replay.js navigates loaded frames without extra requests) --
@@ -2408,7 +2646,7 @@ function abortHeldRequest() {
   if (state.pollAbort) { state.pollAbort.abort(); state.pollAbort = null; }
 }
 function resetFrames() {
-  Object.assign(state, { frames: [], lines: [], seatKeys: [] });
+  Object.assign(state, { frames: [], lines: [], logRuns: [], seatKeys: [] });
   $("log").textContent = ""; $("table").textContent = ""; delete $("table").dataset.banner;
 }
 async function loadMoreOnce(hold, prefetched) {
@@ -2501,7 +2739,9 @@ async function openGame(gameId) {
   restoreAiDelayOnLeave(state.gameId);
   const listed = state.games.find((entry) => entry.game_id === gameId);
   const listedInteractive = Boolean(listed && listed.header && Array.isArray(listed.header.human_seats) && listed.header.human_seats.length);
-  Object.assign(state, { gameId, cohortRecord: null, frames: [], lines: [], index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, pollFailures: 0, revision: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
+  Object.assign(state, { gameId, cohortRecord: null, focusSeat: null, frames: [], lines: [], logRuns: [], logQuery: "", index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, pollFailures: 0, revision: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
+  if ($("log-search")) $("log-search").value = "";
+  if ($("table-mode-bar")) $("table-mode-bar").hidden = true;
   ffStatus(""); showConnectionLost(0, ""); renderCohortPill();
   $("log").textContent = ""; $("table").textContent = ""; delete $("table").dataset.banner;
   await loadMore();
@@ -2878,6 +3118,10 @@ async function listGames(wanted) {
     state.forcedPasses = null;
     state.frames = [];
     state.lines = [];
+    state.logRuns = [];
+    state.focusSeat = null;
+    if ($("table-mode-bar")) $("table-mode-bar").hidden = true;
+    if ($("stack-count")) $("stack-count").textContent = "";
     state.ownCombat = StudioPlayP1a.emptyCombatLedger();
     $("game-info").textContent = "";
     $("now").textContent = "";
@@ -3061,7 +3305,7 @@ async function start() {
   document.addEventListener("keydown", (event) => {
     if (event.ctrlKey || event.metaKey || event.altKey) return;
     if (event.key === "Enter" || event.key === " ") lastKeyActivateAt = Date.now();
-    if (event.key === "Escape") { if (closeBoardMenu(true)) return; $("modal").hidden = true; finishConfirmModal(false); return; }
+    if (event.key === "Escape") { if (closeBoardMenu(true)) return; if (!$("modal").hidden) { $("modal").hidden = true; finishConfirmModal(false); return; } if (state.focusSeat !== null) { toggleFocusSeat(null); return; } return; }
     if (event.key === "Tab" && $("modal") && !$("modal").hidden && $("modal-box") && $("modal-box").dataset.confirmOpen === "1") {
       const items = [...$("modal-box").querySelectorAll("button:not([disabled])")];
       if (items.length) {
@@ -3117,8 +3361,14 @@ async function start() {
   });
   $("table").addEventListener("scroll", () => { closeBoardMenu(false); drawBlockLinks(); }, { passive: true });
   window.addEventListener("resize", () => { closeBoardMenu(false); drawBlockLinks(); });
+  if ($("log-search")) {
+    $("log-search").addEventListener("input", () => {
+      state.logQuery = $("log-search").value || "";
+      if (typeof filterLog === "function") filterLog();
+    });
+  }
   let any = false;
-  try { any = await listGames(new URLSearchParams(location.search).get("partie")); } catch (error) { toast(`Partien konnten nicht geladen werden: ${error.message}`); return; }
+  try { any = await listGames(new URLSearchParams(location.search).get("partie") || new URLSearchParams(location.search).get("game")); } catch (error) { toast(`Partien konnten nicht geladen werden: ${error.message}`); return; }
   const query = new URLSearchParams(location.search);
   if (query.get("neu") === "1") {
     history.replaceState(null, "", location.pathname); // a reload must not reopen the dialog
