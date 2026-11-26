@@ -307,13 +307,16 @@ function pairedTruthBadge(summary, isPartial) {
       n > 0 ? `Vorläufiger Zwischenstand (kein Entscheid · ${StudioUI.num(n, 0)} Paare)` : "Vorläufig (noch kein Paar abgeschlossen)",
     ];
   }
+  if (summary.status === "NO_PAIRS") {
+    return ["warn", "Keine auswertbaren Paare (0 Paare · keine Aussage möglich)"];
+  }
   if (summary.status === "DECIDED" && summary.answer === "ABOVE") {
-    return ["good", "Hinweis auf echten Unterschied (B > A · CI schließt Schwelle aus)"];
+    return ["good", "Hinweis auf echten Unterschied (B > A · 95 %-CI / Look-CI schließt Schwelle aus)"];
   }
   if (summary.status === "DECIDED" && summary.answer === "NOT_ABOVE") {
-    return ["bad", "Hinweis auf echten Unterschied (A ≥ B · CI überschreitet Schwelle nicht)"];
+    return ["bad", "Kein ausreichender Vorteil für B (Vorteil unterhalb Schwelle · 95 %-CI / Look-CI)"];
   }
-  return ["warn", "Zufall nicht ausgeschlossen (KI enthält 0 · kein eindeutiger Unterschied)"];
+  return ["warn", "Zufall nicht ausgeschlossen (95 %-CI umfasst Schwelle · kein eindeutiger Unterschied)"];
 }
 
 // The determinism guard of a series that was played on the worker pool (S1 Rest, #1660), in words.
@@ -514,8 +517,12 @@ function renderPairedMonitor(h, job, deps) {
       const txt = d > 0 ? `+${StudioUI.numFlex(d, 2)} B` : d < 0 ? `${StudioUI.numFlex(d, 2)} A` : "0 Gleich";
       return h("span", { class: cls }, txt);
     };
+    const shownRows = rows.slice(0, 60);
+    const countLabel = rows.length > shownRows.length
+      ? `erste ${StudioUI.num(shownRows.length, 0)} von ${StudioUI.num(rows.length, 0)} Paaren`
+      : `${StudioUI.num(rows.length, 0)} Paare`;
     return h("details", { class: "paired-seed-pairs mt-2", id: "paired-seed-pairs", open: rows.length <= 20 },
-      h("summary", {}, `Seed-Paartabelle (${StudioUI.num(rows.length, 0)} Paare · Einzelspiel-Drilldown ins Replay)`),
+      h("summary", {}, `Seed-Paartabelle (${countLabel} · Einzelspiel-Drilldown ins Replay)`),
       h("div", { class: "table-wrap mt-2" }, h("table", {},
         h("thead", {}, h("tr", {},
           h("th", { class: "num" }, "Seed"),
@@ -523,12 +530,15 @@ function renderPairedMonitor(h, job, deps) {
           h("th", {}, "Basis (A)"),
           h("th", {}, "Variante (B)"),
           h("th", {}, "Paar-Delta"))),
-        h("tbody", {}, rows.slice(0, 60).map((row) => h("tr", {},
+        h("tbody", {}, shownRows.map((row) => h("tr", {},
           h("td", { class: "num" }, row.seed !== null && row.seed !== undefined ? StudioUI.num(row.seed, 0) : "–"),
           h("td", { class: "num" }, row.seat !== null && row.seat !== undefined ? `Sitz ${StudioUI.num(row.seat, 0)}` : "–"),
           h("td", {}, fmtSide(row.base_credit, row.base_error, row.base_game_id, "A")),
           h("td", {}, fmtSide(row.variant_credit, row.variant_error, row.variant_game_id, "B")),
-          h("td", {}, fmtDelta(row))))))));
+          h("td", {}, fmtDelta(row))))))),
+      rows.length > shownRows.length
+        ? h("p", { class: "note note-compact" }, `Anzeige auf die ersten ${StudioUI.num(shownRows.length, 0)} von ${StudioUI.num(rows.length, 0)} Paaren begrenzt.`)
+        : null);
   };
 
   const interim = job.interim_comparison;

@@ -705,11 +705,20 @@ def _derive_seat_placements(
                 first_lost_frame[seat] = frame_idx
     if not first_lost_frame:
         return placements
-    # Longest survival (highest frame index where lost=True first appears) gets best rank after winners
+    if not winners and (type(table_size) is not int or table_size < 2):
+        # Draw without known table size: survival count of non-lost seats is unknown
+        return placements
+    unobserved_non_winners = (
+        max(0, table_size - len(winners) - len(first_lost_frame))
+        if type(table_size) is int and table_size >= 2
+        else 0
+    )
+    # Longest survival (highest frame index where lost=True first appears) gets best rank after
+    # winners and any seats whose loss was not observed (survived to end/draw).
     grouped_by_frame: dict[int, list[int]] = {}
     for seat, lost_idx in first_lost_frame.items():
         grouped_by_frame.setdefault(lost_idx, []).append(seat)
-    next_rank = (len(winners) + 1) if winners else 2
+    next_rank = (len(winners) + 1 if winners else 1) + unobserved_non_winners
     for lost_idx in sorted(grouped_by_frame, reverse=True):
         group = grouped_by_frame[lost_idx]
         for seat in group:
@@ -993,6 +1002,7 @@ def aggregate_batch_results(
     deck_card_names: Sequence[str] | None = None,
     *,
     table_size: int | None = None,
+    seat_labels: Sequence[str | None] = (),
     pilot_fingerprint: str | None = None,
     pod_name: str | None = None,
     engine_version: str | None = None,
@@ -1216,7 +1226,9 @@ def aggregate_batch_results(
     consistency_table = build_consistency_table(consistency_rows)
 
     draws = sum(1 for g in successful if not g.winner_seats)
-    placements_modeled = aggregate_placements(successful, resolved_table_size)
+    placements_modeled = aggregate_placements(
+        successful, resolved_table_size, seat_labels=seat_labels
+    )
     result_payload: dict[str, object] = {
         "data_class": DataClass.SIMULATED_RESULT.value,
         "games_planned": planned_count,
@@ -1272,7 +1284,7 @@ def interim_batch_summary(
     for game in games:
         latest[game.seed] = game
     games = list(latest.values())
-    figures = aggregate_batch_results(games, table_size=table_size)
+    figures = aggregate_batch_results(games, table_size=table_size, seat_labels=seat_labels)
     finished = [g for g in games if g.status == "finished"]
     completed = len(finished)
     cancelled = sum(1 for g in games if g.status != "finished" and g.failure_class == "Cancelled")
@@ -1309,7 +1321,7 @@ def interim_batch_summary(
         "win_rate_percent": figures["win_rate_percent"],
         "confidence_interval_95": figures["confidence_interval_95"],
         "by_seat": by_seat,
-        "placements_modeled": aggregate_placements(finished, table_size, seat_labels=seat_labels),
+        "placements_modeled": figures["placements_modeled"],
     }
 
 
@@ -1639,6 +1651,13 @@ class BatchSimulation:
             return 1 + len(self.opponent_ids)
         return None
 
+    def _seat_labels(self, table_size: int | None) -> list[str | None]:
+        labels: list[str | None] = [self.deck_id]
+        if table_size is not None:
+            ids = self.opponent_ids or []
+            labels += [ids[i] if i < len(ids) else None for i in range(table_size - 1)]
+        return labels
+
     def _aggregate_games(self, games: Sequence[GameSummary]) -> dict[str, object]:
         omissions: Mapping[str, object] | None = None
         if self.record_pilot_audit:
@@ -1646,9 +1665,11 @@ class BatchSimulation:
 
             finished_ids = [g.game_id for g in games if g.status == "finished"]
             omissions = aggregate_series_omissions(self.data_folder, finished_ids)
+        table_size = self._resolved_table_size()
         return aggregate_batch_results(
             games,
-            table_size=self._resolved_table_size(),
+            table_size=table_size,
+            seat_labels=self._seat_labels(table_size),
             pilot_fingerprint=self.pilot_fingerprint,
             pod_name=self.pod_name,
             engine_version=canonical_xmage_engine_pin(),
@@ -1714,15 +1735,11 @@ class BatchSimulation:
         if self.status not in ("pending", "running", "cancelled"):
             return None
         table_size = self._resolved_table_size()
-        labels: list[str | None] = [self.deck_id]
-        if table_size is not None:
-            ids = self.opponent_ids or []
-            labels += [ids[i] if i < len(ids) else None for i in range(table_size - 1)]
         return interim_batch_summary(
             games,
             games_planned=len(self.seeds),
             table_size=table_size,
-            seat_labels=labels,
+            seat_labels=self._seat_labels(table_size),
             origin={
                 "batch_id": self.batch_id,
                 "deck_id": self.deck_id,
@@ -2498,16 +2515,20 @@ class SimulationBatchManager:
         )
 
         if existing is not None:
-            completed_seeds = {g.seed for g in existing._games if g.status == "finished"}
+            completed_games = [g for g in existing._games if g.status == "finished"]
+            completed_seeds = {g.seed for g in completed_games}
             remaining_seeds = [s for s in existing.seeds if s not in completed_seeds]
-            existing.chunks = plan_chunks(remaining_seeds, used_workers, used_games_per_jvm)
-            existing.workers = used_workers
-            existing.games_per_jvm = used_games_per_jvm
-            existing.engine = engine
-            existing.bridge_qualification = dict(qual)
-            if jar_sha is not None:
-                existing.bridge_jar_sha256 = jar_sha
-            existing._cancel_requested = False
+            with existing._lock:
+                existing._games = completed_games
+                existing._played = {g.game_id for g in completed_games}
+                existing.chunks = plan_chunks(remaining_seeds, used_workers, used_games_per_jvm)
+                existing.workers = used_workers
+                existing.games_per_jvm = used_games_per_jvm
+                existing.engine = engine
+                existing.bridge_qualification = dict(qual)
+                if jar_sha is not None:
+                    existing.bridge_jar_sha256 = jar_sha
+                existing._cancel_requested = False
             batch = existing
         else:
             batch = BatchSimulation.from_saved_series(

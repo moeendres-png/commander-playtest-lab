@@ -1909,7 +1909,7 @@ function renderSimulations(body) {
               h("thead", {}, h("tr", {}, h("th", {}, "Sitz"), h("th", { class: "num" }, "Siege / Partien"), h("th", { class: "num" }, "Siegrate"))),
               h("tbody", {}, interim.seats.map((seat) => h("tr", {}, h("td", {}, seat.seat), h("td", { class: "num" }, seat.count), h("td", { class: "num" }, seat.rate))))))
           : null,
-        renderPlacementsBlock(interim.placements),
+        !b.summary ? renderPlacementsBlock(interim.placements) : null,
         interim.tempo ? h("p", { class: "note note-compact", id: "sim-interim-pace" }, interim.tempo) : null,
         h("p", { class: "note note-compact", id: "sim-interim-chunk" }, interim.chunk),
         h("p", { class: "note note-compact", id: "sim-interim-caveat" }, interim.caveat),

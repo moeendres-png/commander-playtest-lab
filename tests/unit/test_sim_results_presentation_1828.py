@@ -157,10 +157,14 @@ def test_modeled_placements_and_draws_in_telemetry_and_summary(tmp_path: Path) -
 
     assert g1.seat_placements == {0: 1, 1: 2, 3: 3, 2: 4}
     assert g2.seat_placements == {0: 1, 2: 2, 3: 2, 1: 4}
-    # Game 3 had no winner and only seat 1 lost -> seats 0, 2, 3 must NOT be guessed
-    assert g3.seat_placements == {1: 2}
+    # Game 3 was a 4-seat draw where only seat 1 lost -> seats 0, 2, 3 outlived seat 1 (rank 4) and stay unknown
+    assert g3.seat_placements == {1: 4}
 
-    agg = simulations.aggregate_batch_results([g1, g2, g3], table_size=4)
+    agg = simulations.aggregate_batch_results(
+        [g1, g2, g3],
+        table_size=4,
+        seat_labels=["chulane", "opp1", "opp2", "opp3"],
+    )
     assert agg["draws"] == 1
     pm = agg["placements_modeled"]
     assert isinstance(pm, dict)
@@ -169,6 +173,7 @@ def test_modeled_placements_and_draws_in_telemetry_and_summary(tmp_path: Path) -
     assert pm["games"] == 3
     by_seat = pm["by_seat"]
     assert isinstance(by_seat, list) and len(by_seat) == 4
+    assert by_seat[0]["label"] == "chulane"
     # Seat 1 (index 0): 1st twice, unknown once (in draw)
     assert by_seat[0]["ranks"]["1"] == 2
     assert by_seat[0]["unknown"] == 1
@@ -399,13 +404,17 @@ const mon = renderPairedMonitor(makeNode, {{
 
 const notDecidedFlag = pairedTruthBadge({{ status: "NOT_DECIDED" }}, false);
 const decidedAboveFlag = pairedTruthBadge({{ status: "DECIDED", answer: "ABOVE" }}, false);
+const decidedNotAboveFlag = pairedTruthBadge({{ status: "DECIDED", answer: "NOT_ABOVE" }}, false);
+const noPairsFlag = pairedTruthBadge({{ status: "NO_PAIRS" }}, false);
 
 console.log(JSON.stringify({{
   etaSeconds: Math.round(eta.etaSeconds),
   perHour: Math.round(eta.perHour),
   monText: mon.textContent,
   notDecidedFlag,
-  decidedAboveFlag
+  decidedAboveFlag,
+  decidedNotAboveFlag,
+  noPairsFlag
 }}));
 """
     )
@@ -419,6 +428,8 @@ console.log(JSON.stringify({{
     assert "Replay A" in out["monText"] and "Replay B" in out["monText"]
     assert "Zufall nicht ausgeschlossen" in out["notDecidedFlag"][1]
     assert "Hinweis auf echten Unterschied" in out["decidedAboveFlag"][1]
+    assert "Kein ausreichender Vorteil" in out["decidedNotAboveFlag"][1]
+    assert "Keine auswertbaren Paare" in out["noPairsFlag"][1]
 
 
 def test_simulation_tierlist_weight_remains_zero() -> None:
