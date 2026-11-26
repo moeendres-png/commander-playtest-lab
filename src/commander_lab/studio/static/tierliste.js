@@ -151,7 +151,7 @@ const state = {
   roleAudit: null,
   cohortShapes: [], roleGapOnly: false,
   preset: "detail", funcMode: false, lastFocus: null, lastFocusCard: "",
-  lastScrollTop: null, lastScrollLeft: null,
+  lastScrollTop: null, lastScrollLeft: null, modalTicket: 0,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -760,7 +760,7 @@ function tableColumns() {
     { head: () => sortHead("Stufe", "strength", "stick-1", "Stufe aus dem Stärke-Index: Schätzung aus Nutzungsdaten in Commander-Decks, keine Spielstärke. Klick sortiert."), cell: cell("stick-1", strengthCell) },
     { head: () => sortHead("Karte", "name", "stick-2"), cell: (card) => {
       const mark = state.marks.get(card.card_id) || {};
-      return h("td", { class: "cardcell name stick-2", "data-card-id": card.card_id, title: card.name, onclick: () => openCard(card) }, thumb(card), mark.favorite ? h("span", { class: "star" }, "★ ") : null, card.name);
+      return h("td", { class: "cardcell name stick-2", tabindex: "-1", "data-card-id": card.card_id, title: card.name, onclick: () => openCard(card) }, thumb(card), mark.favorite ? h("span", { class: "star" }, "★ ") : null, card.name);
     } },
     ...(commander ? understandingColumns() : []),
     { head: () => plainHead("Favorit / Deck"), cell: cell("acts", markButtons) },
@@ -813,7 +813,8 @@ function previewTierSummary(card) {
   const countSuffix = counts ? ` · ${nf(counts.n)}/${nf(counts.N)} Quelldecks (${StudioUI.pct(counts.n / counts.N, 1)})` : "";
   if (item.tier === "U") {
     const reason = REASON_SHORT[item.reason] || codeLabel(item.reason || "TOO_LITTLE_DATA");
-    return `Zu wenig Daten (${reason})${countSuffix}`;
+    const same = !reason || reason.toLowerCase() === "zu wenig daten";
+    return same ? `Zu wenig Daten${countSuffix}` : `Zu wenig Daten (${reason})${countSuffix}`;
   }
   return `Stufe ${item.tier} (Index ${StudioUI.num(item.index, 1)})${countSuffix}`;
 }
@@ -823,6 +824,17 @@ function hideRowPreview() {
   box.hidden = true;
   box.replaceChildren();
 }
+function previewAnchorPoint(event) {
+  if (event && Number.isFinite(event.clientX) && Number.isFinite(event.clientY)) {
+    return { x: event.clientX, y: event.clientY, fromFocus: false };
+  }
+  const target = event && event.currentTarget;
+  if (target && target.getBoundingClientRect) {
+    const r = target.getBoundingClientRect();
+    return { x: Math.round(r.left + Math.min(180, r.width * 0.4)), y: Math.round(r.bottom + 4), fromFocus: true };
+  }
+  return { x: 24, y: 24, fromFocus: true };
+}
 function moveRowPreview(event) {
   const box = $("preview");
   if (!box || box.hidden) return;
@@ -831,8 +843,11 @@ function moveRowPreview(event) {
   const hgt = box.offsetHeight || 220;
   const vw = window.innerWidth || 1280;
   const vh = window.innerHeight || 800;
-  const left = event.clientX + pad + w <= vw - 8 ? event.clientX + pad : Math.max(8, event.clientX - w - pad);
-  const top = Math.max(8, Math.min(vh - hgt - 8, event.clientY - 24));
+  const pt = previewAnchorPoint(event);
+  const preferredLeft = pt.x + pad + w <= vw - 8 ? pt.x + pad : pt.x - w - pad;
+  const preferredTop = pt.fromFocus ? pt.y : pt.y - 24;
+  const left = Math.max(8, Math.min(vw - w - 8, preferredLeft));
+  const top = Math.max(8, Math.min(vh - hgt - 8, preferredTop));
   box.style.left = `${left}px`;
   box.style.top = `${top}px`;
 }
@@ -860,7 +875,7 @@ function cardRowProps(card) {
     "data-card-id": card.card_id,
     tabindex: "0",
     onclick: (event) => {
-      if (event.target && event.target.closest && event.target.closest("button, a, input, select, label, td.name")) return;
+      if (event.target && event.target.closest && event.target.closest("button, a, input, select, label, td.name, td.acts")) return;
       openCard(card);
     },
     onkeydown: (event) => {
@@ -872,6 +887,8 @@ function cardRowProps(card) {
     onmouseenter: (event) => showRowPreview(card, event),
     onmousemove: (event) => moveRowPreview(event),
     onmouseleave: hideRowPreview,
+    onfocus: (event) => { if (event.target === event.currentTarget) showRowPreview(card, event); },
+    onblur: hideRowPreview,
   };
 }
 function cardsTable(cards) {
@@ -887,7 +904,7 @@ function researchTable(cards) {
   const rows = cards.filter((card) => card.coverage.needs.length && (!wanted || card.coverage.needs.includes(wanted))).slice(0, 200).map((card) => {
     const priority = card.coverage.research_priority;
     return h("tr", cardRowProps(card),
-      h("td", { class: "cardcell name", "data-card-id": card.card_id, onclick: () => openCard(card) }, thumb(card), card.name),
+      h("td", { class: "cardcell name", tabindex: "-1", "data-card-id": card.card_id, onclick: () => openCard(card) }, thumb(card), card.name),
       h("td", { class: "num", title: "Heuristik für die Reihenfolge der Recherche, keine Kartenstärke" }, priority ? StudioUI.num(priority.score, 2) : unknown("–")),
       h("td", {}, card.coverage.gap_grade ? codeNode(card.coverage.gap_grade) : unknown("–")),
       h("td", {}, needBadges(card)),
@@ -1269,6 +1286,7 @@ const FOCUSABLE = 'button:not([disabled]), a[href], input:not([disabled]), selec
 function closeModal() {
   const modal = $("modal");
   if (modal.hidden) return;
+  state.modalTicket += 1;
   modal.hidden = true;
   document.body.classList.remove("modal-open");
   const pool = $("pool-body");
@@ -1304,13 +1322,15 @@ function trapModalFocus(event) {
 async function openCard(card) {
   hideRowPreview();
   const modal = $("modal"), content = $("modal-box"), pool = $("pool-body");
+  const ticket = ++state.modalTicket;
   if (modal.hidden) {
     state.lastFocus = document.activeElement;
-    const owner = state.lastFocus && state.lastFocus.closest ? state.lastFocus.closest("tr[data-card-id], td.name[data-card-id]") : null;
-    state.lastFocusCard = owner ? owner.getAttribute("data-card-id") || card.card_id : card.card_id;
     state.lastScrollTop = pool ? pool.scrollTop : null;
     state.lastScrollLeft = pool ? pool.scrollLeft : null;
+  } else if (state.lastFocusCard && state.lastFocusCard !== card.card_id) {
+    state.lastFocus = null;
   }
+  state.lastFocusCard = card.card_id;
   content.replaceChildren(h("h2", { id: "modal-title" }, card.name), h("p", { class: "muted", role: "status" }, "lädt …"));
   modal.hidden = false;
   document.body.classList.add("modal-open");
@@ -1318,6 +1338,7 @@ async function openCard(card) {
   try {
     const query = state.view === "global" ? "view=global" : `view=commander&commander=${encodeURIComponent(COMMANDER)}`;
     const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}/evidence?${query}`);
+    if (ticket !== state.modalTicket || modal.hidden) return;
     const full = detail.card;
     const strengthSection = strengthBox(card);
     // T2: the single ratings of "Kartenverständnis (Modellurteil)", only while the column is shown (Chulane, Bracket 3)
@@ -1340,9 +1361,23 @@ async function openCard(card) {
       understandingSection,
       ...drawer(full));
     if (!hadFocus) content.focus();
-    try { content.append(await universeBox(full)); } catch (error) { content.append(h("p", {}, `Verbreitung nicht ladbar: ${StudioUI.germanError(error)}`)); }
-    if (state.view !== "global") content.append(await alternativesBox(full));
-  } catch (error) { content.append(h("p", {}, `Fehler: ${StudioUI.germanError(error)}`)); }
+    try {
+      const ubox = await universeBox(full);
+      if (ticket !== state.modalTicket || modal.hidden) return;
+      content.append(ubox);
+    } catch (error) {
+      if (ticket !== state.modalTicket || modal.hidden) return;
+      content.append(h("p", {}, `Verbreitung nicht ladbar: ${StudioUI.germanError(error)}`));
+    }
+    if (state.view !== "global") {
+      const abox = await alternativesBox(full);
+      if (ticket !== state.modalTicket || modal.hidden) return;
+      content.append(abox);
+    }
+  } catch (error) {
+    if (ticket !== state.modalTicket || modal.hidden) return;
+    content.append(h("p", {}, `Fehler: ${StudioUI.germanError(error)}`));
+  }
 }
 
 // ---------- deck universe ----------
@@ -2231,6 +2266,7 @@ async function init() {
   }
   document.addEventListener("keydown", trapModalFocus);
   if ($("pool-body")) $("pool-body").addEventListener("scroll", hideRowPreview, { passive: true });
+  window.addEventListener("scroll", hideRowPreview, { passive: true });
   renderTabs();
   $("pool-body").replaceChildren(StudioUI.loading("Tierliste lädt …"));
   await StudioCommander.fill($("commander-select"));

@@ -202,9 +202,9 @@ td.spread{min-width:160px}
 
 /* Clickable card rows, fixed non-shifting hover preview, and Oracle text in modal (#1832). */
 tbody tr.card-row{cursor:pointer}
-tbody tr.card-row:hover td{background:#182132}
+tbody tr.card-row:hover td{background:color-mix(in srgb,var(--panel) 92%,var(--accent))}
 tbody tr.card-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
-#preview.tier-preview{position:fixed;z-index:45;pointer-events:none;width:300px;max-width:calc(100vw - 24px);background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 12px 28px rgba(0,0,0,.6);padding:10px;display:flex;flex-direction:column;gap:8px;font-size:12px}
+#preview.tier-preview{position:fixed;z-index:45;pointer-events:none;width:300px;max-width:calc(100vw - 24px);background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);padding:10px;display:flex;flex-direction:column;gap:8px;font-size:12px}
 #preview[hidden]{display:none}
 #preview .preview-head{display:flex;gap:10px;align-items:flex-start}
 #preview .preview-img{width:110px;aspect-ratio:488/680;border-radius:5px;flex:0 0 auto;display:block}
@@ -213,4 +213,4 @@ tbody tr.card-row:focus-visible{outline:2px solid var(--accent);outline-offset:-
 #preview .preview-type{color:var(--muted);font-size:11px;margin-top:2px}
 #preview .preview-oracle{white-space:pre-line;line-height:1.35;color:var(--text);display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
 #preview .preview-tier{border-top:1px solid var(--line);padding-top:6px;color:var(--muted);font-size:11px;line-height:1.35}
-.modal-oracle{white-space:pre-line;background:#0d131d;border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin:8px 0 10px;font-size:13px;line-height:1.45}
+.modal-oracle{white-space:pre-line;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin:8px 0 10px;font-size:13px;line-height:1.45}

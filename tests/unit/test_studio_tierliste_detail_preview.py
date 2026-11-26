@@ -28,12 +28,19 @@ def test_tierliste_static_markup_and_styles_for_row_preview_and_oracle() -> None
     assert '<div id="preview" class="tier-preview" hidden></div>' in html
     assert "#preview.tier-preview{position:fixed;" in css
     assert "pointer-events:none;" in css
-    assert ".modal-oracle{" in css
-    assert "tbody tr.card-row{cursor:pointer}" in css
+    assert "box-shadow:var(--shadow);" in css
+    assert ".modal-oracle{white-space:pre-line;background:var(--panel2);" in css
+    assert (
+        "tbody tr.card-row:hover td{background:color-mix(in srgb,var(--panel) 92%,var(--accent))}"
+        in css
+    )
+    assert "#0d131d" not in css and "#182132" not in css
     assert '"data-card-id": card.card_id, title: card.name, onclick: () => openCard(card)' in js
+    assert 'tabindex: "-1", "data-card-id": card.card_id' in js
     assert 'id: "modal-oracle"' in js
     assert "preventScroll: true" in js
     assert "state.lastScrollTop" in js
+    assert 'window.addEventListener("scroll", hideRowPreview' in js
 
 
 def test_tierliste_row_click_preview_and_scroll_preservation_in_node() -> None:
@@ -69,6 +76,8 @@ function makeEl(tag, props, kids) {{
     offsetHeight: 220,
     focusOpts: null,
     textContent: "",
+    rect: {{ left: 40, top: 120, bottom: 148, width: 500 }},
+    getBoundingClientRect() {{ return this.rect; }},
     setAttribute(k, v) {{ this.attributes[k] = String(v); }},
     getAttribute(k) {{ return this.attributes[k] ?? null; }},
     addEventListener(type, fn) {{ (this.listeners[type] = this.listeners[type] || []).push(fn); }},
@@ -126,12 +135,15 @@ global.document = {{
   activeElement: null,
   body: {{ classList: makeEl("div", {{}}, []).classList }},
   getElementById: (id) => elements.get(id) || null,
-  querySelector: () => null,
+  querySelector: (sel) => {{
+    if (sel.includes("c-two")) return rowTwo;
+    return null;
+  }},
 }};
 const $ = (id) => elements.get(id) || null;
 const COMMANDER = "Chulane, Teller of Tales";
 const OUTCOME_HEADING = "Ergebnis";
-const REASON_SHORT = {{ TOO_LITTLE_DATA: "zu wenig Daten" }};
+const REASON_SHORT = {{ TOO_LITTLE_DATA: "zu wenig Daten", NO_COMMANDER_SIGNAL: "kein Commander-Signal" }};
 const codeLabel = (x) => x;
 const nf = (v) => String(v);
 const StudioUI = {{
@@ -144,75 +156,110 @@ const understandingShown = () => false;
 const h = (tag, props, ...children) => makeEl(tag, props, children);
 const strengthItem = (c) => state.strength.map.get(c.card_id) || null;
 const deckCounts = (item) => item && item.counts ? item.counts : null;
-const layer = () => ({{ items: [] }});
+const layer = (c) => ({{ items: c._globalRank ? [{{ kind: "edhrec_rank_global", rank: c._globalRank }}] : [] }});
 const cardImageUrl = (c, f) => `/api/card-image?name=${{encodeURIComponent(c.name)}}&face=${{f}}`;
-const whyBox = () => h("div", {{ class: "why" }}, "Begründung: 60/100 Quelldecks");
+const whyBox = (c) => h("div", {{ class: "why" }}, `Begründung für ${{c.name}}`);
 const strengthBox = () => h("div", {{}}, "Stärkebox");
 const markButtons = () => [];
 const drawer = () => [];
+let resolveSlowApi = null;
+let slowNext = false;
+const api = async (url) => {{
+  const id = url.includes("c-two") ? "c-two" : url.includes("c-empty") ? "c-empty" : "c-sol";
+  const byId = {{
+    "c-sol": {{ card_id: "c-sol", name: "Sol Ring", type_line: "Artifact", text: "Tap: Add two colorless mana.", has_image: true, has_back: false }},
+    "c-two": {{ card_id: "c-two", name: "Cultivate", type_line: "Sorcery", text: "Search your library for up to two basic land cards.", has_image: true, has_back: false }},
+    "c-empty": {{ card_id: "c-empty", name: "Wastes", type_line: "Basic Land", text: "", has_image: false, has_back: false }},
+  }};
+  if (slowNext) {{
+    slowNext = false;
+    await new Promise((r) => {{ resolveSlowApi = r; }});
+  }}
+  return {{ card: byId[id] }};
+}};
 const universeBox = async () => h("div", {{}}, "Uni");
 const alternativesBox = async () => h("div", {{}}, "Alt");
-const api = async () => ({{
-  card: {{
-    card_id: "c-sol",
-    name: "Sol Ring",
-    type_line: "Artifact",
-    text: "Tap: Add two colorless mana.",
-    has_image: true,
-    has_back: false,
-  }},
-}});
 
 const state = {{
   view: "commander",
   strength: {{
     status: "ready",
-    map: new Map([["c-sol", {{ tier: "S", index: 92.4, counts: {{ n: 60, N: 100 }} }}]]),
+    map: new Map([
+      ["c-sol", {{ tier: "S", index: 92.4, counts: {{ n: 60, N: 100 }} }}],
+      ["c-u", {{ tier: "U", reason: "TOO_LITTLE_DATA", counts: {{ n: 1, N: 100 }} }}],
+      ["c-n", {{ tier: "N", note: "Standardland" }}],
+    ]),
   }},
   lastFocus: null,
   lastFocusCard: "",
   lastScrollTop: null,
   lastScrollLeft: null,
+  modalTicket: 0,
 }};
 
 {helpers_src}
 {modal_src}
 
-const card = {{
-  card_id: "c-sol",
-  name: "Sol Ring",
-  type_line: "Artifact",
-  text: "Tap: Add two colorless mana.",
-  has_image: true,
-}};
+const card = {{ card_id: "c-sol", name: "Sol Ring", type_line: "Artifact", text: "Tap: Add two colorless mana.", has_image: true }};
+const cardTwo = {{ card_id: "c-two", name: "Cultivate", type_line: "Sorcery", text: "Search lands.", has_image: true }};
+const cardEmpty = {{ card_id: "c-empty", name: "Wastes", type_line: "Basic Land", text: "", has_image: false }};
+const rowTwo = h("tr", cardRowProps(cardTwo), []);
 
 async function run() {{
   const rowProps = cardRowProps(card);
   const tr = h("tr", rowProps, []);
   tr.focus();
 
-  // Hover shows fixed preview with image, Oracle text, and tier/denominator context
-  rowProps.onmouseenter({{ clientX: 200, clientY: 180 }});
+  // previewTierSummary checks (S, U without duplicate wording, N, global, missing Oracle text)
+  assert.ok(!previewTierSummary({{ card_id: "c-u" }}).includes("(zu wenig Daten)"));
+  assert.strictEqual(previewTierSummary({{ card_id: "c-u" }}), "Zu wenig Daten · 1/100 Quelldecks (1,0 %)");
+  assert.strictEqual(previewTierSummary({{ card_id: "c-n" }}), "Standardland (nicht bewertet)");
+  state.view = "global";
+  assert.strictEqual(previewTierSummary({{ card_id: "g", _globalRank: 42 }}), "Globaler EDHREC-Rang 42 (ohne Commander-Stufe)");
+  state.view = "commander";
+
+  // Hover shows fixed preview; mouseleave & blur hide it
+  rowProps.onmouseenter({{ clientX: 200, clientY: 180, currentTarget: tr }});
   assert.strictEqual(preview.hidden, false);
   assert.ok(preview.textContent.includes("Sol Ring"));
   assert.ok(preview.textContent.includes("Tap: Add two colorless mana."));
   assert.ok(preview.textContent.includes("Stufe S"));
   assert.ok(preview.textContent.includes("60/100 Quelldecks"));
 
-  // Clicking an interactive button inside the row must NOT open the card modal
-  const favBtn = {{ closest: (sel) => (sel.includes("button") ? {{}} : null) }};
-  rowProps.onclick({{ target: favBtn }});
-  assert.strictEqual(modal.hidden, true);
+  // Viewport clamping when clientX exceeds viewport width
+  rowProps.onmousemove({{ clientX: 5000, clientY: 5000, currentTarget: tr }});
+  const clampedLeft = parseInt(preview.style.left, 10);
+  const clampedTop = parseInt(preview.style.top, 10);
+  assert.ok(clampedLeft >= 8 && clampedLeft <= 1280 - 300 - 8, preview.style.left);
+  assert.ok(clampedTop >= 8 && clampedTop <= 800 - 220 - 8, preview.style.top);
 
-  // Clicking a non-button, non-name cell triggers row onclick -> opens modal and hides preview
+  rowProps.onmouseleave();
+  assert.strictEqual(preview.hidden, true);
+
+  // Keyboard focus shows preview via rect fallback; blur hides it; empty text falls back cleanly
+  const emptyProps = cardRowProps(cardEmpty);
+  emptyProps.onfocus({{ target: tr, currentTarget: tr }});
+  assert.strictEqual(preview.hidden, false);
+  assert.ok(preview.textContent.includes("Kein Regeltext."));
+  emptyProps.onblur();
+  assert.strictEqual(preview.hidden, true);
+
+  // Interactive button, disabled button in td.acts, and td.name are ignored by tr.onclick
+  for (const selHit of ["button", "a", "input", "td.acts", "td.name"]) {{
+    const fakeTarget = {{ closest: (sel) => (sel.includes(selHit) ? {{}} : null) }};
+    rowProps.onclick({{ target: fakeTarget }});
+    assert.strictEqual(modal.hidden, true, selHit);
+  }}
+
+  // Clicking a non-button, non-name cell opens modal and hides preview
   const tierCell = {{ closest: () => null }};
   document.activeElement = tr;
   rowProps.onclick({{ target: tierCell }});
-  await new Promise((resolve) => setTimeout(resolve, 10));
+  await new Promise((r) => setTimeout(r, 10));
   assert.strictEqual(preview.hidden, true);
   assert.strictEqual(modal.hidden, false);
   assert.ok(modalBox.textContent.includes("Tap: Add two colorless mana."));
-  assert.ok(modalBox.textContent.includes("Begründung: 60/100 Quelldecks"));
+  assert.ok(modalBox.textContent.includes("Begründung für Sol Ring"));
 
   // Escape preserves #pool-body scroll position and uses preventScroll focus restore
   trapModalFocus({{ key: "Escape" }});
@@ -221,10 +268,32 @@ async function run() {{
   assert.strictEqual(poolBody.scrollLeft, 12);
   assert.deepStrictEqual(tr.focusOpts, {{ preventScroll: true }});
 
-  // Keyboard Enter on focused row also opens modal
-  await rowProps.onkeydown({{ key: "Enter", target: tr, currentTarget: tr, preventDefault() {{}} }});
+  // Space opens modal; child keydown is ignored
+  let preventCalled = false;
+  await rowProps.onkeydown({{ key: " ", target: tr, currentTarget: tr, preventDefault() {{ preventCalled = true; }} }});
+  assert.strictEqual(preventCalled, true);
   assert.strictEqual(modal.hidden, false);
   closeModal();
+
+  await rowProps.onkeydown({{ key: "Enter", target: {{}}, currentTarget: tr, preventDefault() {{ throw new Error("should not fire"); }} }});
+  assert.strictEqual(modal.hidden, true);
+
+  // Stale-async race: open Card 1 slowly, immediately Escape -> late resolve must NOT reopen/overwrite modal
+  slowNext = true;
+  const slowOpen = openCard(card);
+  assert.strictEqual(modal.hidden, false);
+  trapModalFocus({{ key: "Escape" }});
+  assert.strictEqual(modal.hidden, true);
+  resolveSlowApi();
+  await slowOpen;
+  assert.strictEqual(modal.hidden, true);
+  assert.ok(!modalBox.textContent.includes("Begründung für Sol Ring"));
+
+  // Switching directly from Card 1 to Card 2 updates lastFocusCard to Card 2 cleanly
+  await openCard(card);
+  await openCard(cardTwo);
+  closeModal();
+  assert.strictEqual(document.activeElement, rowTwo);
   assert.strictEqual(poolBody.scrollTop, 315);
 }}
 
@@ -236,6 +305,6 @@ run().then(() => console.log(JSON.stringify({{ ok: true }}))).catch((err) => {{
     res = subprocess.run([node, "-e", script], check=False, capture_output=True, text=True)
     assert res.returncode == 0, res.stderr or res.stdout
     assert json.loads(res.stdout.strip()) == {"ok": True}
-    assert re.search(
-        r"function\s+openCard\b", (STATIC / "tierliste.js").read_text(encoding="utf-8")
-    )
+    src = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    assert re.search(r"function\s+openCard\b", src)
+    assert 'return h("tr", cardRowProps(card)' in src or 'h("tr", cardRowProps(card)' in src
