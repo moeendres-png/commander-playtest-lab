@@ -98,6 +98,16 @@ function isCreature(name, card) {
   return Boolean(card && (card.power || card.toughness));
 }
 
+function localizeActionSuffix(text) {
+  return String(text || "")
+    .replace(/\bfrom command zone\b/gi, "aus der Kommandozone")
+    .replace(/\bfrom graveyard\b/gi, "aus dem Friedhof")
+    .replace(/\bfrom exile\b/gi, "aus dem Exil")
+    .replace(/\bfrom hand\b/gi, "aus der Hand")
+    .replace(/\busing morph\b/gi, "als Morph")
+    .replace(/\bwith kicker\b/gi, "mit Kicker")
+    .replace(/\busing alternative cost\b/gi, "mit Alternativkosten");
+}
 function localizeActionText(text) {
   if (!text) return "";
   // labels may carry the engine's reminder markup; the page shows text only
@@ -112,13 +122,13 @@ function localizeActionText(text) {
       const rest = tail.slice(5);
       return rest.toLowerCase() === sourceName.toLowerCase()
         ? `${sourceName} — Land spielen`
-        : `${sourceName} — Spiele ${rest}`;
+        : `${sourceName} — Spiele ${localizeActionSuffix(rest)}`;
     }
     if (tail.startsWith("Cast ")) {
       const rest = tail.slice(5);
       return rest.toLowerCase() === sourceName.toLowerCase()
         ? `${sourceName} — Zauber wirken`
-        : `${sourceName} — Wirke ${rest}`;
+        : `${sourceName} — Wirke ${localizeActionSuffix(rest)}`;
     }
     if (tail.startsWith("Activate: ")) return `${sourceName} — Aktiviere: ${tail.slice(10)}`;
     if (tail.startsWith("Activate ")) return `${sourceName} — Aktiviere ${tail.slice(9)}`;

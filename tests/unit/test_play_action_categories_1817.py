@@ -8,6 +8,7 @@ import os
 import shutil
 import subprocess
 import time
+from collections.abc import Sequence
 from pathlib import Path
 
 import pytest
@@ -90,6 +91,7 @@ def test_partie_js_groups_and_localizes_priority_actions() -> None:
     )
     resolve_fn = _extract_js_body(src, "function resolvePriorityOptionType(")
     localize_fn = _extract_js_body(src, "function localizeActionText(")
+    suffix_fn = _extract_js_body(src, "function localizeActionSuffix(")
 
     script = "\n".join(
         [
@@ -97,12 +99,21 @@ def test_partie_js_groups_and_localizes_priority_actions() -> None:
             types_line,
             order_line,
             resolve_fn,
+            suffix_fn,
             localize_fn,
             """
 const assert = require("assert");
 
 assert.strictEqual(localizeActionText("Forest — Play Forest"), "Forest — Land spielen");
 assert.strictEqual(localizeActionText("Crop Rotation — Cast Crop Rotation"), "Crop Rotation — Zauber wirken");
+assert.strictEqual(
+  localizeActionText("Forest — Play Forest from graveyard"),
+  "Forest — Spiele Forest aus dem Friedhof"
+);
+assert.strictEqual(
+  localizeActionText("Chulane, Teller of Tales — Cast Chulane, Teller of Tales from command zone"),
+  "Chulane, Teller of Tales — Wirke Chulane, Teller of Tales aus der Kommandozone"
+);
 assert.strictEqual(localizeActionText("Play Island"), "Spiele Island");
 assert.strictEqual(localizeActionText("Cast Sol Ring"), "Wirke Sol Ring");
 assert.strictEqual(localizeActionText("Mind Stone — {1}, {T}: Draw a card"), "Mind Stone — {1}, {T}: Draw a card");
@@ -151,7 +162,9 @@ console.log(JSON.stringify({ orderedKeys, titles: orderedKeys.map((k) => OPTION_
     assert parsed["orderedKeys"] == ["play_land", "cast_spell", "activated_ability", "mana_ability"]
 
 
-def _scripted_choice_for_1817(pending: dict[str, object], chosen_ids: list[str]) -> dict[str, object]:
+def _scripted_choice_for_1817(
+    pending: dict[str, object], chosen: Sequence[dict[str, object]]
+) -> dict[str, object]:
     cls = str(pending["decision_class"])
     options = list(pending.get("legal_options") or pending.get("options") or [])  # type: ignore[arg-type]
     min_sel = int(pending.get("minimum_selections") or pending.get("min_selections") or 0)
@@ -163,8 +176,8 @@ def _scripted_choice_for_1817(pending: dict[str, object], chosen_ids: list[str])
         )
 
     selected: list[dict[str, object]] = []
-    if chosen_ids:
-        selected = chosen_ids  # type: ignore[assignment]
+    if chosen:
+        selected = list(chosen)
     elif cls == "mulligan":
         selected = by_types("keep")[:1]
     elif cls == "priority":
@@ -258,7 +271,7 @@ def test_real_engine_4p_priority_payload_exposes_play_land_and_cast_spell_types(
                         observed_cast_spell = True
                     if ab_type in {"play_land", "spell"} and opt_type == "activated_ability":
                         mislabeled.append(opt)
-                # Ensure land plays happen early so castable spells become affordable on turns 1-4
+                # Ensure land plays happen early so castable spells become affordable before turn limit
                 turn = (pending.get("pilot_state") or {}).get("turn_number", 1)
                 if isinstance(turn, int) and turn >= TURN_LIMIT:
                     break
@@ -266,13 +279,21 @@ def test_real_engine_4p_priority_payload_exposes_play_land_and_cast_spell_types(
             if cls == "priority":
                 lands = [o for o in options if o.get("option_type") == "play_land"]
                 spells = [o for o in options if o.get("option_type") == "cast_spell"]
-                chosen = (lands or spells or [o for o in options if o.get("option_type") == "pass_priority"])[:1]
-            body = _scripted_choice_for_1817(pending, chosen)  # type: ignore[arg-type]
+                chosen = (
+                    lands
+                    or spells
+                    or [o for o in options if o.get("option_type") == "pass_priority"]
+                )[:1]
+            body = _scripted_choice_for_1817(pending, chosen)
             reply = client.post(f"/api/play/{game_id}/decision", json=body)
             assert reply.status_code == 200, (cls, body, reply.text)
     finally:
         client.app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
 
-    assert not mislabeled, f"Found play_land/spell options mislabeled as activated_ability: {mislabeled}"
-    assert observed_play_land, f"Expected option_type='play_land' in 4p real game (os.environ={os.environ.get(ENGINE_ENV)})"
+    assert not mislabeled, (
+        f"Found play_land/spell options mislabeled as activated_ability: {mislabeled}"
+    )
+    assert observed_play_land, (
+        f"Expected option_type='play_land' in 4p real game (os.environ={os.environ.get(ENGINE_ENV)})"
+    )
     assert observed_cast_spell, "Expected option_type='cast_spell' in 4p real game"
