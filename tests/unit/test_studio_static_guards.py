@@ -3865,7 +3865,7 @@ def test_the_result_box_counts_aborted_games_apart_from_failures_and_shows_the_d
         None,
     ]
     app = (STATIC / "app.js").read_text(encoding="utf-8")
-    box = app[app.index("const sumBox = h("):]
+    box = app[app.index("const sumBox = h(") :]
     box = box[: box.index("monitor.append(sumBox);")]
     assert 'h("div", { id: "sim-drawn" }, classLines.drawn)' in box
     assert 'id: "sim-aborted" }, classLines.aborted' in box

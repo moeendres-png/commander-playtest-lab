@@ -3114,7 +3114,9 @@ def test_a_resumed_series_counts_one_row_per_seed_in_the_final_result_and_the_ev
             "SELECT games_planned, games_completed, games_failed FROM simulation_run"
         ).fetchall()
         assert [tuple(r) for r in row] == [(10, 10, 0)]
-        record = json.loads((tmp_path / "games" / f"{first.batch_id}.series.json").read_text("utf-8"))
+        record = json.loads(
+            (tmp_path / "games" / f"{first.batch_id}.series.json").read_text("utf-8")
+        )
         assert record["status"] == "completed" and record["games_failed"] == 0
         assert len(record["games"]) == 10
     finally:
@@ -3242,9 +3244,11 @@ def test_a_cancel_between_the_final_result_and_the_completed_status_is_too_late_
         ready.set()
         _wait(batch)
         assert batch.worker_done.wait(5)
-        assert batch.status == "completed"
+        assert batch.status == "completed" and not batch.is_cancelled
         assert batch.run_id == f"batch-{batch.batch_id}"
-        record = json.loads((tmp_path / "games" / f"{batch.batch_id}.series.json").read_text("utf-8"))
+        record = json.loads(
+            (tmp_path / "games" / f"{batch.batch_id}.series.json").read_text("utf-8")
+        )
         assert record["status"] == "completed" and record["run_id"] == batch.run_id
         assert _runs_in_store(store) == 1
     finally:
@@ -3280,7 +3284,9 @@ def test_a_cancel_before_the_result_is_taken_ends_the_series_as_cancelled_withou
         _wait(batch)
         assert batch.worker_done.wait(5)
         assert batch.status == "cancelled" and batch.run_id is None
-        record = json.loads((tmp_path / "games" / f"{batch.batch_id}.series.json").read_text("utf-8"))
+        record = json.loads(
+            (tmp_path / "games" / f"{batch.batch_id}.series.json").read_text("utf-8")
+        )
         assert record["status"] == "cancelled"
         assert _runs_in_store(store) == 0
     finally:
@@ -3312,7 +3318,9 @@ def test_a_stopped_series_summary_names_the_planned_n_and_counts_aborted_apart(
         )
         assert rows["rounds_to_finish"]["n_of_N"] == "4/10"
         assert rows["rounds_to_finish"]["not_reached"] == 6
-        record = json.loads((tmp_path / "games" / f"{batch.batch_id}.series.json").read_text("utf-8"))
+        record = json.loads(
+            (tmp_path / "games" / f"{batch.batch_id}.series.json").read_text("utf-8")
+        )
         assert record["summary"]["games_planned"] == 10
         assert record["games_cancelled"] == 1 and record["games_failed"] == 0
     finally:
@@ -3329,3 +3337,20 @@ def test_a_failed_game_stays_a_failure_next_to_an_aborted_one() -> None:
     assert (summary["games_failed"], summary["games_cancelled"]) == (1, 1)
     assert summary["failure_summary"] == [{"reason": "BRIDGE_TIMEOUT", "count": 1}]
     assert summary["games_planned"] == 5
+
+
+def test_the_interim_counts_the_latest_row_of_a_seed_in_every_class_and_seat() -> None:
+    games = [
+        GameSummary("a", 1, "finished", winner_seats=[0], table_size=2),
+        GameSummary("b", 2, "failed", failure_class="Cancelled"),
+        GameSummary("b2", 2, "finished", winner_seats=[1], table_size=2),
+    ]
+    interim = simulations_module.interim_batch_summary(
+        games, games_planned=3, table_size=2, seat_labels=["own", None]
+    )
+    assert (interim["games_completed"], interim["games_cancelled"], interim["games_failed"]) == (
+        2,
+        0,
+        0,
+    )
+    assert [s["n_of_N"] for s in interim["by_seat"]] == ["1/2", "1/2"]  # type: ignore[union-attr]
