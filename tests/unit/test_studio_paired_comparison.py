@@ -2273,3 +2273,201 @@ def test_compare_logs_excludes_foreign_and_violated_series_logs(tmp_path: Path) 
     assert viol_res["status"] == "NO_PAIRS"
     assert viol_res["pairs_completed"] == 0
     assert any("DETERMINISM_VIOLATION" in w for w in viol_res["warnings"])
+
+
+# --- the planned looks as a read-only observer (#1828 Paket 3) -----------------------------
+
+
+def _even_split(arm: str, seed: int, seat: int) -> int:
+    """The variant wins the even seeds, the base the odd ones: every pair is discordant."""
+    variant_won = seed % 2 == 0
+    return seat if (arm == "variant") == variant_won else (seat + 1) % 3
+
+
+def _series_with_observer(
+    folder: Path,
+    on_look: Callable[[paired_comparison.LookSnapshot], None] | None,
+    *,
+    winner: Callable[[str, int, int], int] = _variant_sweeps,
+    fail: Callable[[str, int, int], str | None] | None = None,
+    budget: int = 40,
+    look_every: int = 10,
+    max_censored_share: float = 0.05,
+) -> paired_comparison.PairedComparison:
+    return run_comparison_series(
+        base_deck_id=BASE,
+        variant_deck_id=VARIANT,
+        seeds=list(range(1, budget + 1)),
+        tested_seats=[0],
+        budget_pairs=budget,
+        look_every_pairs=look_every,
+        max_censored_share=max_censored_share,
+        play=_ScriptedPlayer(folder, winner, fail),
+        execution={"series_id": "observer-test"},
+        on_look=on_look,
+    )
+
+
+def test_on_look_is_called_once_per_planned_look_with_the_look_level(tmp_path: Path) -> None:
+    from commander_lab.engine.rules.full_game_comparison import (
+        sequential_look_alphas,
+        sequential_look_seed_counts,
+    )
+
+    seen: list[paired_comparison.LookSnapshot] = []
+    result = _series_with_observer(tmp_path, seen.append, winner=_even_split)
+    counts = sequential_look_seed_counts(40, 10)
+    alphas = sequential_look_alphas(0.05, counts)
+    assert list(counts) == [10, 20, 30, 40] and len(seen) == 4
+    assert [look["look_index"] for look in seen] == [1, 2, 3, 4]
+    assert [look["pairs_attempted"] for look in seen] == [10, 20, 30, 40]
+    assert [look["pairs_completed"] for look in seen] == [10, 20, 30, 40]
+    assert all(look["looks_planned"] == 4 for look in seen)
+    assert [look["looks_used"] for look in seen] == [1, 2, 3, 4]
+    # the level of a look is its own spent level, never the plain 0.05
+    assert [look["look_alpha"] for look in seen] == list(alphas)
+    assert [look["decision_alpha"] for look in seen] == [round(a, 6) for a in alphas]
+    assert [look["decision_level_pct"] for look in seen] == [
+        round((1.0 - a) * 100.0, 4) for a in alphas
+    ]
+    assert seen[0]["look_alpha"] < seen[-1]["look_alpha"] < 0.05
+    # an even split decides nothing at any look, and every look says it is not the series result
+    assert not any(look["look_decides"] for look in seen)
+    assert all(look["stop_reason"] == "LOOK_INTERIM" for look in seen)
+    assert all(look["censoring_blocker"] is None for look in seen)
+    assert result["status"] == "NOT_DECIDED" and result["looks_used"] == 4
+
+
+def test_look_snapshot_counts_by_hand_for_the_clear_sweep(tmp_path: Path) -> None:
+    seen: list[paired_comparison.LookSnapshot] = []
+    result = _series_with_observer(tmp_path, seen.append)
+    # the sweep stops at look 2 (see test_clear_sweep_stops_at_the_second_look)
+    assert [look["look_index"] for look in seen] == [1, 2]
+    first, second = seen
+    # look 1: 10 pairs, all discordant for the variant: difference 1.0 each, sign test
+    # p = 2 * 0.5**10 = 0.001953125 -> 0.001953; the zero-spread look has no t interval
+    assert first["difference_pp"] == 100.0 and first["variant_only_wins"] == 10
+    assert first["baseline_only_wins"] == 0 and first["tied_pairs"] == 0
+    assert first["sign_test_p_value"] == 0.001953
+    assert first["decision_ci_pp"] is None and first["look_decides"] is False
+    assert first["status"] == "NOT_DECIDED" and first["answer"] is None
+    # look 2: 20 pairs, p = 2 * 0.5**20 -> 0.000002; decides, series ends at this look
+    assert second["pairs_completed"] == 20 and second["sign_test_p_value"] == 0.000002
+    assert second["look_decides"] is True and second["answer"] == "ABOVE"
+    # the observer's last look is the series result's own decision figures
+    for key in ("difference_pp", "decision_level_pct", "sign_test_p_value", "pairs_completed"):
+        assert second[key] == result[key]  # type: ignore[literal-required]
+
+
+def test_look_snapshot_carries_the_series_censoring_not_the_single_look_defaults(
+    tmp_path: Path,
+) -> None:
+    seen: list[paired_comparison.LookSnapshot] = []
+    _series_with_observer(
+        tmp_path,
+        seen.append,
+        fail=lambda arm, seed, seat: "EngineError" if (arm, seed) == ("variant", 3) else None,
+        budget=10,
+        look_every=5,
+        max_censored_share=0.2,
+    )
+    first = seen[0]
+    # five pairs attempted at look 1, one censored: 4 completed; _summarize alone says 0 censored
+    assert first["pairs_attempted"] == 5 and first["pairs_completed"] == 4
+    assert first["pairs_censored"] == 1 and first["games_failed_variant"] == 1
+    assert first["games_failed_base"] == 0
+    assert first["failure_classes"]["variant"] == {"EngineError": 1}
+    assert first["pairs_played"] == 5
+
+
+def test_a_look_that_would_decide_but_is_blocked_by_censoring_says_so(tmp_path: Path) -> None:
+    seen: list[paired_comparison.LookSnapshot] = []
+    result = _series_with_observer(
+        tmp_path,
+        seen.append,
+        fail=lambda arm, seed, seat: "EngineError" if (arm, seed) == ("variant", 3) else None,
+        budget=10,
+        look_every=10,
+    )
+    (look,) = seen
+    # 9 discordant pairs, p = 2 * 0.5**9 = 0.003906 < 0.05: the look has an answer, but 1 of 10
+    # censored (10 % > 5 %) blocks it; the look is not a decision and names the blocker
+    assert look["status"] == "DECIDED" and look["answer"] == "ABOVE"
+    assert look["censoring_blocker"] is not None and look["look_decides"] is False
+    assert result["status"] == "NOT_DECIDED" and result["stop_reason"] == look["censoring_blocker"]
+
+
+def _result_bytes(result: paired_comparison.PairedComparison) -> bytes:
+    return json.dumps(result, sort_keys=True, default=str).encode("utf-8")
+
+
+def test_the_series_result_is_byte_identical_with_and_without_an_observer(tmp_path: Path) -> None:
+    def mutating(look: paired_comparison.LookSnapshot) -> None:
+        look["pairs"].clear()
+        look["difference_pp"] = 999.0
+        look["decision_ci_pp"] = [0.0, 0.0]
+        look["seeds_completed"].append(12345)
+        look["consistency_table"].clear()
+        look["validity_block"].clear()
+        look["warnings"].append("tampered")
+        look["failure_classes"]["base"]["X"] = 7
+
+    calls: list[int] = []
+
+    def raising(look: paired_comparison.LookSnapshot) -> None:
+        calls.append(look["look_index"])
+        raise RuntimeError("observer failure")
+
+    for name, winner, fail in (
+        ("sweep", _variant_sweeps, None),
+        ("even", _even_split, None),
+        (
+            "censored",
+            _variant_sweeps,
+            lambda arm, seed, seat: "EngineError" if (arm, seed) == ("variant", 3) else None,
+        ),
+    ):
+        outputs = {}
+        for label, observer in (("none", None), ("mutating", mutating), ("raising", raising)):
+            folder = tmp_path / f"{name}-{label}"
+            outputs[label] = _result_bytes(
+                _series_with_observer(
+                    folder, observer, winner=winner, fail=fail, max_censored_share=0.2
+                )
+            )
+        assert outputs["none"] == outputs["mutating"] == outputs["raising"], name
+    # the raising observer was still called at every look (the series did not stop calling it)
+    assert calls[:2] == [1, 2] and 4 in calls
+
+
+def test_the_observer_gets_a_copy_it_cannot_use_to_reach_the_series(tmp_path: Path) -> None:
+    seen: list[paired_comparison.LookSnapshot] = []
+    result = _series_with_observer(tmp_path, seen.append, winner=_even_split)
+    assert len(seen) == 4
+    # distinct objects per look, none of them the pair records of the finished result
+    assert len({id(look["pairs"]) for look in seen}) == 4
+    assert all(look["pairs"] is not result["pairs"] for look in seen)
+    assert all(a is not b for look in seen for a in look["pairs"] for b in result["pairs"])
+    # the first look still holds exactly its 10 pairs after the series went on to 40
+    assert len(seen[0]["pairs"]) == 10 and len(result["pairs"]) == 40
+
+
+def test_an_observer_that_raises_a_base_exception_is_not_swallowed(tmp_path: Path) -> None:
+    def interrupt(_look: paired_comparison.LookSnapshot) -> None:
+        raise KeyboardInterrupt
+
+    with pytest.raises(KeyboardInterrupt):
+        _series_with_observer(tmp_path, interrupt)
+
+
+def test_an_observer_cannot_stop_the_series_with_the_cancellation_error(
+    tmp_path: Path,
+) -> None:
+    from commander_lab.studio import paired_series
+
+    def cancelling(_look: paired_comparison.LookSnapshot) -> None:
+        raise paired_series.SeriesCancelledError("observer cancel")
+
+    with_observer = _series_with_observer(tmp_path / "cancel", cancelling, winner=_even_split)
+    without = _series_with_observer(tmp_path / "plain", None, winner=_even_split)
+    assert _result_bytes(with_observer) == _result_bytes(without)
