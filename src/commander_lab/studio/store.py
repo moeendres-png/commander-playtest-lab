@@ -632,6 +632,36 @@ CREATE TABLE IF NOT EXISTS tam_cardmarket_guide_snapshot (
     name_check INTEGER NOT NULL CHECK (name_check IN (0, 1)),
     cards_with_value INTEGER NOT NULL
 );
+-- PLAY v1 postgame session summary and deck/card play notes (#1662 part 4): additive tables
+-- without bumping SCHEMA_VERSION (22 is reserved for #1703 K-2).
+CREATE TABLE IF NOT EXISTS play_session (
+    game_id TEXT PRIMARY KEY,
+    deck_id TEXT,
+    revision_id TEXT,
+    deck_hash TEXT,
+    table_json TEXT,
+    seed INTEGER,
+    human_seat INTEGER,
+    outcome TEXT,
+    duration_seconds REAL,
+    human_clicks INTEGER,
+    bridge_jar_sha256 TEXT,
+    bridge_qualification_state TEXT,
+    data_class TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS play_note (
+    note_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    game_id TEXT NOT NULL,
+    deck_id TEXT,
+    revision_id TEXT,
+    card_name TEXT,
+    note_text TEXT NOT NULL,
+    action_hint TEXT,
+    created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS play_note_game ON play_note(game_id);
+CREATE INDEX IF NOT EXISTS play_note_deck ON play_note(deck_id, revision_id);
 CREATE VIEW IF NOT EXISTS card_fact AS
 SELECT c.card_id,
        c.oracle_name,
@@ -1270,7 +1300,7 @@ class StudioStore:
             "source_capture_event", "playgroup_card_atlas", "playgroup_top_commander", "playgroup_final_zone",
             "universe_profile", "commander_binding", "card_signal", "strength_profile", "tier_snapshot",
             "card_ruling", "card_ruling_source", "card_label", "deck_label", "card_printing",
-            "experiment", "experiment_arm",
+            "experiment", "experiment_arm", "play_session", "play_note",
         }:  # fmt: skip
             raise ValueError(table)
         return int(self.connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])

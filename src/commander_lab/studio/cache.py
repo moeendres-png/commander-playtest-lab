@@ -101,7 +101,7 @@ _IMPORT_TABLES = (
 )  # fmt: skip
 _DECK_TABLES = (
     "deck", "deck_revision", "deck_revision_card", "deck_branch", "deck_draft", "deck_label",
-    "deck_primer", "deck_module", "deck_module_card",
+    "deck_primer", "deck_module", "deck_module_card", "play_session", "play_note",
 )  # fmt: skip
 
 # Every table of the schema in exactly one group (a test fails for a table without one).
