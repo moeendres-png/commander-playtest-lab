@@ -204,6 +204,7 @@ def test_a_proven_window_raises_only_the_groups_it_wrote(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _probe_kinds(monkeypatch)
+    monkeypatch.setattr(cache, "CHECK", False)
     store = _store(tmp_path)
     held = _held(store)
     with cache.write(store, {cache.Group.MARKS}):
@@ -220,6 +221,7 @@ def test_a_window_that_writes_an_undeclared_group_drops_everything(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _probe_kinds(monkeypatch)
+    monkeypatch.setattr(cache, "CHECK", False)
     store = _store(tmp_path)
     held = _held(store)
     with cache.write(store, {cache.Group.DECKS}):
@@ -236,10 +238,59 @@ def test_a_window_that_writes_an_undeclared_group_drops_everything(
     assert _kept(store, held) == set()  # dropped before the error is raised
 
 
+def test_sqlite_trigger_write_inside_window_is_observed_by_authorizer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """#1612 D-1 P3 (review #1649): a SQLite trigger inside a write window triggers the authorizer
+    for the target table's group too — undeclared trigger writes drop everything (and raise
+    CacheCheckError when CHECK=True), while declaring both groups proves the window."""
+    _probe_kinds(monkeypatch)
+    monkeypatch.setattr(cache, "CHECK", False)
+    store = _store(tmp_path)
+    store.connection.execute(
+        """
+        CREATE TRIGGER trg_mark_touches_meta AFTER INSERT ON card_mark
+        BEGIN
+            INSERT OR REPLACE INTO meta(key, value) VALUES ('trigger_mark', NEW.card_id);
+        END;
+        """
+    )
+    store.connection.commit()
+
+    held = _held(store)
+    with cache.write(store, {cache.Group.MARKS}):
+        _mark(store, "card:project:0103")
+    assert _kept(store, held) == set()
+    assert cache.counters()["* window_undeclared"] == 1
+
+    held = _held(store)
+    monkeypatch.setattr(cache, "CHECK", True)
+    with (
+        pytest.raises(cache.CacheCheckError, match="meta"),
+        cache.write(store, {cache.Group.MARKS}),
+    ):
+        _mark(store, "card:project:0104")
+    assert _kept(store, held) == set()
+
+    monkeypatch.setattr(cache, "CHECK", False)
+    held = _held(store)
+    with cache.write(store, {cache.Group.MARKS, cache.Group.META}):
+        _mark(store, "card:project:0105")
+    assert _kept(store, held) == {
+        "probe_import",
+        "probe_decks",
+        "probe_profiles",
+        "probe_simulation",
+        "probe_snapshot",
+    }
+    assert cache.counters()["* window_proven"] == 1
+
+
 def test_a_foreign_commit_drops_everything_and_so_does_a_write_outside_a_window(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _probe_kinds(monkeypatch)
+    monkeypatch.setattr(cache, "CHECK", False)
     store = _store(tmp_path)
     held = _held(store)
     other = sqlite3.connect(tmp_path / "studio" / "studio.sqlite3")
@@ -262,6 +313,7 @@ def test_the_counter_rule_alone_catches_a_foreign_commit_in_the_window(
     """The second probe: with ``data_version`` blinded, a file counter that rose by more than
     the window's own commits still drops everything."""
     _probe_kinds(monkeypatch)
+    monkeypatch.setattr(cache, "CHECK", False)
     store = _store(tmp_path)
     held = _held(store)
     monkeypatch.setattr(cache, "_data_version", lambda _store: 0)
@@ -301,6 +353,7 @@ def test_the_writing_thread_computes_directly_inside_its_window(tmp_path: Path) 
 
 def test_nested_windows_join_the_outer_one(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     _probe_kinds(monkeypatch)
+    monkeypatch.setattr(cache, "CHECK", False)
     store = _store(tmp_path)
     held = _held(store)
     with cache.write(store, {cache.Group.DECKS}), cache.write(store, {cache.Group.MARKS}):
@@ -313,6 +366,7 @@ def test_a_reader_waits_for_a_running_window_instead_of_dropping_everything(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _probe_kinds(monkeypatch)
+    monkeypatch.setattr(cache, "CHECK", False)
     store = _store(tmp_path)
     held = _held(store)
     committed = threading.Event()
@@ -342,6 +396,7 @@ def test_a_figure_in_flight_survives_a_write_to_a_group_it_does_not_read(
     """The flight key keeps its generations over a write to another group: concurrent callers
     keep sharing the computation and its value is remembered."""
     _probe_kinds(monkeypatch)
+    monkeypatch.setattr(cache, "CHECK", False)
     store = _store(tmp_path)
     started, written = threading.Event(), threading.Event()
     calls: list[int] = []
@@ -383,6 +438,7 @@ def test_a_figure_in_flight_is_not_kept_over_a_write_to_a_group_it_reads(
     is being computed. The value of the old state is handed to its caller but not remembered:
     the next call computes again (only the raised generation of the written group can tell)."""
     _probe_kinds(monkeypatch)
+    monkeypatch.setattr(cache, "CHECK", False)
     store = _store(tmp_path)
     started, written = threading.Event(), threading.Event()
 
