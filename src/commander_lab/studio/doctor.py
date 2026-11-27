@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import importlib
 import os
 import re
 import shlex
+import sqlite3
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -430,6 +432,23 @@ def _check_card_knowledge() -> dict[str, object]:
     }
 
 
+def _check_sqlite_database(db_path: Path) -> str | None:
+    """Verify an existing Studio SQLite database is readable without modifying it."""
+    conn: sqlite3.Connection | None = None
+    try:
+        conn = sqlite3.connect(f"file:{db_path.resolve()}?mode=ro", uri=True)
+        row = conn.execute("PRAGMA quick_check(1)").fetchone()
+        if row is None or row[0] != "ok":
+            return f"Unerwartetes Prüfergebnis: {row!r}"
+        return None
+    except sqlite3.Error as exc:
+        return str(exc)
+    finally:
+        if conn is not None:
+            with contextlib.suppress(sqlite3.Error):
+                conn.close()
+
+
 def _check_studio_data(
     data_dir: Path, configured: bool, data_err: str | None = None
 ) -> dict[str, object]:
@@ -458,6 +477,20 @@ def _check_studio_data(
             "detail": f"Studio-Datenordner nicht beschreibbar: {data_dir}",
             "remediation": f"Schreibrechte prüfen oder {STUDIO_DATA_ENV} auf einen beschreibbaren Pfad setzen.",
         }
+    if has_db:
+        db_error = _check_sqlite_database(db_path)
+        if db_error is not None:
+            return {
+                "name": "studio_data",
+                "status": "FAIL",
+                "required": True,
+                "data_dir": str(data_dir),
+                "configured": configured,
+                "database_exists": True,
+                "database_valid": False,
+                "detail": f"Studio-Datenbank beschädigt oder nicht lesbar ({db_path}): {db_error}",
+                "remediation": "Beschädigte studio.sqlite3 sichern/prüfen oder einen gültigen Datenordner angeben.",
+            }
     if not configured:
         return {
             "name": "studio_data",

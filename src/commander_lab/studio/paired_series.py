@@ -41,6 +41,7 @@ from commander_lab.engine.rules.full_game_comparison import (
 )
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
 from commander_lab.models import RulesDeckInput
+from commander_lab.storage.atomic import replace_file_atomic
 
 from . import builder, decks, launch, paired_comparison, series_reservation, strength_view
 from .card_outcomes import pilot_identity, wilson_unrounded
@@ -831,7 +832,7 @@ def _write_json_atomic(path: Path, payload: Mapping[str, object]) -> None:
     tmp = path.with_suffix(f"{path.suffix}.{os.getpid()}.{threading.get_ident()}.tmp")
     try:
         tmp.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-        tmp.replace(path)
+        replace_file_atomic(tmp, path)
     finally:
         with contextlib.suppress(OSError):
             if tmp.exists():
