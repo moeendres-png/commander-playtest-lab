@@ -3722,14 +3722,21 @@ def test_the_history_survives_a_restart_in_the_record_and_in_the_route(tmp_path:
 
         restarted = SimulationBatchManager()  # a new process: nothing in memory
         holder: list[BatchSimulation] = []
+        ready = threading.Event()
+
+        def replay(seeds: Sequence[int]) -> Iterator[GameSummary]:
+            assert ready.wait(5)  # the runner needs the resumed batch for its game ids
+            yield from _replay_rows(holder[0], plan, seeds)
+
         resumed = restarted.resume_batch(
             store,
             tmp_path,
             batch.batch_id,
             workers=1,
-            chunk_runner=lambda seeds: _replay_rows(holder[0], plan, seeds),
+            chunk_runner=replay,
         )
         holder.append(resumed)
+        ready.set()
         _wait(resumed)
         assert resumed.worker_done.wait(5)
         # the record's failed row was dropped once more: 2 attempts, the game fails again (Boom)
@@ -3920,14 +3927,21 @@ def test_a_stopped_series_resumed_after_a_restart_keeps_the_stop_apart_from_fail
         assert batch.worker_done.wait(5) and batch.status == "cancelled"
         restarted = SimulationBatchManager()
         again: list[BatchSimulation] = []
+        ready_again = threading.Event()
+
+        def replay_again(seeds: Sequence[int]) -> Iterator[GameSummary]:
+            assert ready_again.wait(5)
+            yield from _replay_rows(again[0], {}, seeds)
+
         resumed = restarted.resume_batch(
             store,
             tmp_path,
             batch.batch_id,
             workers=1,
-            chunk_runner=lambda seeds: _replay_rows(again[0], {}, seeds),
+            chunk_runner=replay_again,
         )
         again.append(resumed)
+        ready_again.set()
         _wait(resumed)
         assert resumed.worker_done.wait(5) and resumed.status == "completed"
         assert [
