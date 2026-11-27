@@ -411,4 +411,32 @@ details.log-group-tile summary{display:flex;align-items:center;gap:6px;cursor:po
 .board-arrow-origin.block{fill:var(--good)}
 .board-arrow-origin.spell,.board-arrow-origin.land,.board-arrow-origin.action{fill:var(--warn)}
 .target-mode-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:999px;background:color-mix(in srgb,var(--accent) 20%,var(--panel2));border:1px solid var(--accent);color:var(--accent);font-size:12px;font-weight:700}
+
+/* Oracle's-Eye Kampf-Ergebnis-Vorschau (#1827) */
+.combat-preview{margin:6px 0 8px;padding:8px 10px;border-radius:8px;background:color-mix(in srgb,var(--panel2) 92%,var(--bg));border:1px solid var(--line);font-size:12px;display:flex;flex-direction:column;gap:6px}
+.combat-preview[hidden]{display:none}
+.combat-preview.certain{border-left:3px solid var(--good)}
+.combat-preview.uncertain{border-left:3px solid var(--warn)}
+.combat-preview-head{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+.combat-preview-title{font-weight:700;color:var(--text)}
+.combat-preview-badge{padding:2px 7px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+.combat-preview-badge.certain{background:color-mix(in srgb,var(--good) 20%,var(--panel2));color:var(--good);border:1px solid color-mix(in srgb,var(--good) 50%,transparent)}
+.combat-preview-badge.uncertain{background:color-mix(in srgb,var(--warn) 22%,var(--panel2));color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 55%,transparent)}
+.combat-preview-warn{margin:0;padding:4px 7px;border-radius:6px;background:color-mix(in srgb,var(--warn) 14%,var(--panel2));color:var(--warn);font-size:11.5px;line-height:1.35}
+.combat-preview-seats{display:flex;flex-wrap:wrap;gap:5px}
+.combat-life-chip{padding:2px 7px;border-radius:6px;background:var(--panel);border:1px solid var(--line);font-size:11.5px;font-variant-numeric:tabular-nums;color:var(--text)}
+.combat-life-chip.gain{border-color:color-mix(in srgb,var(--good) 55%,transparent);color:var(--good)}
+.combat-life-chip.loss{border-color:color-mix(in srgb,var(--warn) 55%,transparent);color:var(--warn)}
+.combat-life-chip.lethal{background:var(--bad);border-color:var(--bad);color:#fff;font-weight:700}
+.combat-preview-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.combat-preview-row{padding:4px 7px;border-radius:6px;background:var(--panel);border:1px solid var(--line);display:flex;flex-direction:column;gap:2px}
+.combat-preview-row.staged{border-style:dashed;border-color:color-mix(in srgb,var(--accent) 65%,var(--line))}
+.combat-preview-row-note{font-size:11px;color:var(--muted)}
+.seat-life-preview{padding:1px 6px;border-radius:999px;font-size:11px;font-weight:700;background:color-mix(in srgb,var(--warn) 18%,var(--panel2));color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 45%,transparent);font-variant-numeric:tabular-nums}
+.seat-life-preview.gain{background:color-mix(in srgb,var(--good) 18%,var(--panel2));color:var(--good);border-color:color-mix(in srgb,var(--good) 45%,transparent)}
+.seat-life-preview.lethal{background:var(--bad);color:#fff;border-color:var(--bad)}
+.card .badge.preview-dies,.card .badge.preview-survives,.card .badge.preview-uncertain{top:2px;left:2px;right:auto;bottom:auto;font-size:9.5px;padding:1px 4px;line-height:1.2;font-weight:700;border:1px solid rgba(255,255,255,.18)}
+.card .badge.preview-dies{background:var(--bad);color:#fff}
+.card .badge.preview-survives{background:color-mix(in srgb,var(--good) 85%,#0b1a12);color:#fff}
+.card .badge.preview-uncertain{background:color-mix(in srgb,var(--warn) 88%,#231807);color:#fff}
 @media (prefers-reduced-motion:reduce){.dragging-source,.card.drop-target-hover,.card.target-aimed,.seat.drop-target-hover,.seat.target-aimed{transform:none}}

@@ -202,12 +202,16 @@ const StudioPlayP1a = (() => {
         });
       } else {
         for (const option of matched) {
-          nextEntries.push({
+          const meta = option && option.metadata && typeof option.metadata === "object" ? option.metadata : null;
+          const entry = {
             kind: option.option_type === "hold_attacker" ? "hold_attacker" : "attacker",
             decisionId,
             optionId: text(option.option_id),
             text: stripMarkup(text(option.label) || text(option.option_id) || "?")
-          });
+          };
+          if (meta && meta.object_id) entry.objectId = text(meta.object_id);
+          if (meta && meta.defender_id) entry.defenderId = text(meta.defender_id);
+          nextEntries.push(entry);
         }
       }
     } else if (cls === "declare_blocker") {
@@ -221,12 +225,16 @@ const StudioPlayP1a = (() => {
         });
       } else {
         for (const option of matched) {
-          nextEntries.push({
+          const meta = option && option.metadata && typeof option.metadata === "object" ? option.metadata : null;
+          const entry = {
             kind: "blocker",
             decisionId,
             optionId: text(option.option_id),
             text: stripMarkup(text(option.label) || text(option.option_id) || "?")
-          });
+          };
+          if (meta && meta.attacker_id) entry.attackerId = text(meta.attacker_id);
+          if (meta && meta.blocker_id) entry.blockerId = text(meta.blocker_id);
+          nextEntries.push(entry);
         }
       }
     }
