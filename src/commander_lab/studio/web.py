@@ -757,8 +757,12 @@ def _rewarm_strength(
             warm.close()
 
     thread = threading.Thread(target=run, name="studio-strength-rewarm", daemon=True)
+    try:
+        thread.start()
+    except RuntimeError as error:  # no thread available: the write stands, the re-warm is skipped
+        print(f"strength re-warm: {type(error).__name__}", file=sys.stderr)
+        return
     app.state.strength_rewarm = thread
-    thread.start()
 
 
 def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]:
