@@ -1601,16 +1601,21 @@ function batchInterimTexts(b) {
   if (!part || typeof part !== "object") return null;
   const stopped = b.status === "cancelled";
   const planned = batchKnown(part.games_planned) ? Number(part.games_planned) : null;
-  const n = batchKnown(part.games_completed) ? Number(part.games_completed) : null;
+  const completed = batchKnown(part.games_completed) ? Number(part.games_completed) : null;
+  // the rate counts the games that have a winner; a draw is its own class, never a loss (#1852)
+  const n = batchKnown(part.games_decided) ? Number(part.games_decided) : completed;
+  const drawn = batchKnown(part.games_drawn) ? Number(part.games_drawn) : 0;
   const of = planned === null ? "unbekannt vielen" : StudioUI.num(planned, 0);
   const ci = part.confidence_interval_95 || {};
   const hasRate = n !== null && n > 0 && batchKnown(part.win_rate) && batchKnown(ci.lower_percent) && batchKnown(ci.upper_percent);
   const title = stopped
-    ? `Teilergebnis: ${n === null ? "unbekannt" : StudioUI.num(n, 0)} von ${of} Partien`
+    ? `Teilergebnis: ${completed === null ? "unbekannt" : StudioUI.num(completed, 0)} von ${of} Partien`
     : "Zwischenstand (beschreibend, kein Entscheid)";
   const headline = hasRate
-    ? `Siegrate Sitz 1: ${StudioUI.num(part.win_rate_percent, 1)} % (${StudioUI.numFlex(part.wins_fractional, 2)} / ${StudioUI.num(n, 0)} abgeschlossene Partien von ${of} geplant) · 95 %-Wilson-Intervall [${StudioUI.num(ci.lower_percent, 1)} %, ${StudioUI.num(ci.upper_percent, 1)} %]`
-    : `Siegrate Sitz 1: unbekannt (noch keine Partie abgeschlossen: 0 von ${of} geplant), kein Intervall.`;
+    ? `Siegrate Sitz 1: ${StudioUI.num(part.win_rate_percent, 1)} % (${StudioUI.numFlex(part.wins_fractional, 2)} / ${StudioUI.num(n, 0)} ${drawn > 0 ? "entschiedene" : "abgeschlossene"} Partien von ${of} geplant) · 95 %-Wilson-Intervall [${StudioUI.num(ci.lower_percent, 1)} %, ${StudioUI.num(ci.upper_percent, 1)} %]`
+    : (completed !== null && completed > 0 && !(n > 0)
+      ? `Siegrate Sitz 1: unbekannt (keine entschiedene Partie: ${StudioUI.num(drawn, 0)} Unentschieden von ${StudioUI.num(completed, 0)} abgeschlossenen, von ${of} geplant), kein Intervall.`
+      : `Siegrate Sitz 1: unbekannt (noch keine Partie abgeschlossen: 0 von ${of} geplant), kein Intervall.`);
   const caveat = stopped
     ? "Das war ein ungeplanter Stopp: eine Abbruchregel wurde vorab nicht festgelegt. Das Intervall ist wegen der kleineren Partienzahl breiter, beschreibt nur diese Partien und ist kein Entscheid. Als Teilstand nicht als Simulationslauf gespeichert, zählt nicht für Reife oder Tierliste."
     : "Das Intervall gilt streng nur bei der vorab festgelegten Partienzahl N; bei k < N ist es nur beschreibend. Wer die Serie wegen dieses Zwischenstands anhält, hat keine Stoppregel vorab festgelegt (ungeplanter Stopp).";
@@ -1631,11 +1636,11 @@ function batchInterimTexts(b) {
   const originText = `Herkunft: Simulationsergebnis (SIMULATED_RESULT) nur dieser einen Serie „${origin.pod || "unbekannt"}“ (${origin.batch_id || "unbekannt"}), Deck ${origin.deck_id || "unbekannt"}, Stand ${origin.revision_id || "unbekannt"}; nicht mit anderen Serien oder Deck-Ständen zusammengezählt.`;
   const cancelled = Number(part.games_cancelled) || 0;
   const failed = Number(part.games_failed) || 0;
-  const draws = Number(part.draws) || 0;
   const rest = cancelled || failed
     ? `Ohne Ergebnis: ${StudioUI.num(cancelled, 0)} abgebrochen, ${StudioUI.num(failed, 0)} fehlgeschlagen (von ${of} geplant).`
     : null;
-  const drawsText = draws > 0 ? `Unentschieden (ohne Sieger): ${StudioUI.num(draws, 0)} / ${StudioUI.num(n ?? 0, 0)}.` : null;
+  // a draw is neither a win nor a loss and not in the rate base; shown as its own class (#1852)
+  const drawsText = drawn > 0 ? `Unentschieden (ohne Sieger): ${StudioUI.num(drawn, 0)} / ${StudioUI.num(completed ?? 0, 0)}, nicht als Niederlage gezählt und nicht in der Siegrate.` : null;
   const placements = part.placements_modeled || null;
   const seats = (Array.isArray(part.by_seat) ? part.by_seat : []).map((seat) => ({
     seat: `Sitz ${StudioUI.num(seat.seat, 0)}${seat.label ? ` (${seat.label})` : ""}`,
@@ -1643,6 +1648,71 @@ function batchInterimTexts(b) {
     rate: batchRateText(batchKnown(seat.games) && Number(seat.games) > 0 ? seat.win_rate : null),
   }));
   return { title, headline, caveat, tempo, chunk, originText, rest, drawsText, placements, seats };
+}
+// The classes of a batch's games, each apart from the others (G-SIM point 2, #1852): a failed game,
+// an aborted one (stopped by the user) and a draw (finished without a winner) are never one number,
+// and a draw is never a loss. What is not known stays null, never 0.
+function batchGameClass(g) {
+  if (!g || typeof g !== "object") return null;
+  if (g.status !== "finished") return g.failure_class === "Cancelled" ? "cancelled" : "failed";
+  if (g.candidate_won) return "won";
+  return Array.isArray(g.winner_seats) && g.winner_seats.length ? "lost" : "draw";
+}
+function batchGameOutcome(g) {
+  const kind = batchGameClass(g);
+  if (kind === "won") return "Sieg Sitz 1";
+  if (kind === "lost") return `Niederlage (Sieger: Sitz ${g.winner_seats.map((x) => x + 1).join(", ")})`;
+  if (kind === "draw") return "Unentschieden";
+  if (kind === "cancelled") return "Abgebrochen";
+  return kind === "failed" ? "Fehlgeschlagen" : "unbekannt";
+}
+function batchResultClasses(b) {
+  if (b && batchKnown(b.games_failed) && batchKnown(b.games_cancelled) && batchKnown(b.games_drawn)) {
+    return { failed: Number(b.games_failed), cancelled: Number(b.games_cancelled), drawn: Number(b.games_drawn) };
+  }
+  // a saved record from before #1852 counts an aborted game as failed: its rows tell the classes
+  if (!b || !Array.isArray(b.games)) return { failed: null, cancelled: null, drawn: null };
+  const count = (kind) => b.games.filter((g) => batchGameClass(g) === kind).length;
+  return { failed: count("failed"), cancelled: count("cancelled"), drawn: count("draw") };
+}
+function batchFailureRows(b) {
+  const sums = b && b.summary && Array.isArray(b.summary.failure_summary) ? b.summary.failure_summary.filter((f) => f && f.reason !== "Cancelled") : [];
+  if (sums.length) return sums;
+  const acc = {};
+  for (const g of (b && Array.isArray(b.games) ? b.games : [])) {
+    if (batchGameClass(g) === "failed") {
+      const key = g.failure_class || "Unbekannt";
+      acc[key] = (acc[key] || 0) + 1;
+    }
+  }
+  return Object.entries(acc).map(([reason, count]) => ({ reason, count }));
+}
+// The lines of the result box for the classes apart from the rate: "Unentschieden: n" and, only when
+// games were stopped, "abgebrochen: k".
+function batchClassLines(b) {
+  const c = batchResultClasses(b);
+  const drawn = batchKnown(b && b.summary && b.summary.games_drawn) ? Number(b.summary.games_drawn) : c.drawn;
+  return {
+    drawn: `Unentschieden: ${drawn === null ? "unbekannt" : StudioUI.num(drawn, 0)}`,
+    aborted: c.cancelled ? `abgebrochen: ${StudioUI.num(c.cancelled, 0)}` : null,
+  };
+}
+// A stored run has no column for draws (#1856): its win rate is wins / games with a winner, while the
+// pod matrix divides by all finished games. Where the two differ beyond rounding the run had draws
+// (a draw next to only lost games shows no difference and cannot be told apart here).
+function runHasHiddenDraws(run) {
+  if (!run || !batchKnown(run.win_rate) || !batchKnown(run.games_completed) || !batchKnown(run.wins_fractional)) return false;
+  const n = Number(run.games_completed);
+  if (!(n > 0)) return false;
+  return Math.abs(Number(run.win_rate) - Number(run.wins_fractional) / n) > 0.005 / n + 0.0001;
+}
+const RUN_DRAWS_NOTE_POD = "* Enthält Läufe mit Unentschieden: hier Siege / alle abgeschlossenen Partien (ein Unentschieden steht im Nenner und wirkt wie eine Niederlage); die Laufliste unten zeigt Siege / Partien mit Sieger. Der Store hat noch keine Spalte für Unentschieden (#1856).";
+const RUN_DRAWS_NOTE_RUN = "* Lauf mit Unentschieden: die Siegrate zählt nur Partien mit Sieger, die Spalte „Spiele“ alle abgeschlossenen Partien; der Store hat noch keine Spalte für Unentschieden (#1856).";
+// The games the win rate is based on: those with a winner (older records: all finished ones).
+function batchDecided(summary) {
+  if (!summary) return null;
+  if (batchKnown(summary.games_decided)) return Number(summary.games_decided);
+  return batchKnown(summary.games_completed) ? Number(summary.games_completed) : null;
 }
 // END batch-interim
 function pollBatch(batchId) {
@@ -1841,14 +1911,16 @@ function renderSimulations(body) {
     const b = state.activeBatch;
     const isRunning = b.status === "running" || b.status === "pending";
     const completed = Number(b.games_completed) || 0;
-    const failedCount = Number(b.games_failed) || 0;
+    const classes = batchResultClasses(b);
+    const failedCount = classes.failed || 0;
+    const classLines = batchClassLines(b);
     const allFailed = !isRunning && b.status !== "cancelled" && completed === 0 && (failedCount > 0 || b.status === "failed");
     const statusText = isRunning
       ? "Läuft..."
       : allFailed
         ? "Fehlgeschlagen"
         : b.status === "completed"
-          ? (failedCount > 0 ? `Abgeschlossen (${StudioUI.num(failedCount, 0)} fehlgeschlagen)` : "Abgeschlossen")
+          ? (classes.failed === null ? "Abgeschlossen (Fehlschläge: unbekannt)" : failedCount > 0 ? `Abgeschlossen (${StudioUI.num(failedCount, 0)} fehlgeschlagen)` : "Abgeschlossen")
           : b.status === "cancelled"
             ? (completed > 0 ? "Gestoppt (Teilergebnis)" : "Abgebrochen")
             : "Fehlgeschlagen";
@@ -1861,7 +1933,7 @@ function renderSimulations(body) {
         h("span", { class: `pill ${badgeCls}` }, statusText)
       ),
       // the bar follows the games the engine has played (plus failed ones); the headline counts finished results
-      h("progress", { value: b.games_played !== null && b.games_played !== undefined && Number.isFinite(Number(b.games_played)) ? Math.min(b.games_planned, Number(b.games_played) + Number(b.games_failed || 0)) : b.games_completed, max: b.games_planned, title: "Fortschrittsbalken: gespielte plus gescheiterte Partien" }),
+      h("progress", { value: b.games_played !== null && b.games_played !== undefined && Number.isFinite(Number(b.games_played)) ? Math.min(b.games_planned, Number(b.games_played) + Number(b.games_failed || 0) + Number(b.games_cancelled || 0)) : b.games_completed, max: b.games_planned, title: "Fortschrittsbalken: gespielte plus gescheiterte Partien" }),
       h("p", { class: "note note-compact" }, seriesPlayedText(b.games_played, b.games_planned, b.games_completed, false, isRunning))
     );
 
@@ -1938,18 +2010,7 @@ function renderSimulations(body) {
       monitor.append(cancelBtn);
     }
 
-    const rawFailures = (() => {
-      if (b.summary && Array.isArray(b.summary.failure_summary) && b.summary.failure_summary.length) {
-        return b.summary.failure_summary.filter((f) => !(b.status === "cancelled" && f.reason === "Cancelled"));
-      }
-      return Object.entries((Array.isArray(b.games) ? b.games : []).reduce((acc, g) => {
-        if (g && g.status !== "finished" && !(b.status === "cancelled" && g.failure_class === "Cancelled")) {
-          const key = g.failure_class || "Unbekannt";
-          acc[key] = (acc[key] || 0) + 1;
-        }
-        return acc;
-      }, {})).map(([reason, count]) => ({ reason, count }));
-    })();
+    const rawFailures = batchFailureRows(b);
     const failCountNonCancelled = rawFailures.reduce((n, f) => n + f.count, 0);
     const failText = rawFailures.length
       ? rawFailures.map((f) => `${StudioUI.num(f.count, 0)} × ${StudioUI.mapFailureReason(f.reason)}`).join(", ")
@@ -1959,11 +2020,11 @@ function renderSimulations(body) {
     if (b.summary) {
       const s = b.summary;
       const ci = s.confidence_interval_95 || {};
-      const hasCi = Number(s.games_completed) > 0 && ci.lower_percent !== null && ci.lower_percent !== undefined && ci.upper_percent !== null && ci.upper_percent !== undefined;
+      const decidedN = batchDecided(s);
+      const hasCi = decidedN !== null && decidedN > 0 && ci.lower_percent !== null && ci.lower_percent !== undefined && ci.upper_percent !== null && ci.upper_percent !== undefined;
       const qualStates = s.bridge_qualification_states || (b.bridge_qualification && b.bridge_qualification.status ? [b.bridge_qualification.status] : []);
       const bridgeSha = s.bridge_jar_sha256 || b.bridge_jar_sha256 || null;
       const epochLabel = s.covered_by_sealed_epoch ? "versiegelt" : (qualStates.join(", ") || "nicht versiegelt");
-      const drawsFinal = Number(s.draws) || 0;
       const sumBox = h("div", { class: "sim-summary" },
         h("h4", {}, batchSummaryTitle(b)),
         b.status === "cancelled" && !b.interim_summary
@@ -1971,10 +2032,10 @@ function renderSimulations(body) {
               `Teilergebnis: ${StudioUI.num(s.games_completed ?? 0, 0)} von ${StudioUI.num(b.games_planned ?? s.games_planned ?? 0, 0)} Partien (ungeplanter Stopp · breiteres CI, nicht als abgeschlossener Lauf gespeichert).`)
           : null,
         h("div", { class: "sim-grid" },
-          h("div", {}, h("span", { class: "muted" }, "Siege: "), h("b", {}, `${StudioUI.numFlex(s.wins_fractional, 1)} / ${StudioUI.num(s.games_completed, 0)}`)),
-          h("div", {}, h("span", { class: "muted" }, "Siegrate: "), h("b", {}, s.win_rate !== null && Number(s.games_completed) > 0 ? `${StudioUI.num(s.win_rate_percent, 1)} %` : "–")),
+          h("div", {}, h("span", { class: "muted" }, "Siege: "), h("b", {}, `${StudioUI.numFlex(s.wins_fractional, 1)} / ${StudioUI.num(decidedN, 0)}`)),
+          h("div", { id: "sim-drawn" }, classLines.drawn),
+          h("div", {}, h("span", { class: "muted" }, "Siegrate: "), h("b", {}, s.win_rate !== null && decidedN !== null && decidedN > 0 ? `${StudioUI.num(s.win_rate_percent, 1)} %` : "–")),
           h("div", {}, h("span", { class: "muted" }, "95 %-CI (Wilson): "), h("b", {}, hasCi ? `[${StudioUI.num(ci.lower_percent, 1)} %, ${StudioUI.num(ci.upper_percent, 1)} %]` : "–")),
-          drawsFinal > 0 ? h("div", {}, h("span", { class: "muted" }, "Unentschieden: "), h("b", {}, `${StudioUI.num(drawsFinal, 0)} / ${StudioUI.num(s.games_completed, 0)}`)) : null,
           h("div", {}, h("span", { class: "muted" }, "Ø Runden: "), h("b", {}, s.mean_rounds == null ? "–" : StudioUI.numFlex(s.mean_rounds, 1))),
           h("div", {}, h("span", { class: "muted" }, "Bridge-JAR: "), h("code", { title: bridgeSha || "" }, bridgeSha ? String(bridgeSha).slice(0, 12) : "–")),
           h("div", {}, h("span", { class: "muted" }, "Epoche: "), h("b", {}, epochLabel))
@@ -1985,6 +2046,7 @@ function renderSimulations(body) {
               h("strong", {}, `${StudioUI.num(failCountNonCancelled || failedCount, 0)} fehlgeschlagen: `),
               h("span", {}, failText))
           : null,
+        classLines.aborted ? h("p", { class: "note note-compact", id: "sim-aborted" }, classLines.aborted) : null,
         b.run_id ? h("p", { class: "note note-compact" }, `Dauerhaft im Store hinterlegt unter ID: `, h("code", {}, b.run_id)) : null
       );
       monitor.append(sumBox);
@@ -2011,7 +2073,7 @@ function renderSimulations(body) {
       const bTable = h("div", { class: "table-wrap" }, h("table", { class: "mt-2" },
         h("thead", {}, h("tr", {}, h("th", {}, "Partie"), h("th", { class: "num" }, "Seed"), h("th", { class: "num" }, "Runden"), h("th", {}, "Ergebnis"), h("th", {}, ""))),
         h("tbody", {}, b.games.map((g) => {
-          const outcome = g.status === "finished" ? (g.candidate_won ? "Sieg Sitz 1" : `Niederlage (Sieger: Sitz ${(g.winner_seats || []).map((x) => x + 1).join(", ") || "–"})`) : "Fehlgeschlagen";
+          const outcome = batchGameOutcome(g);
           return h("tr", {},
             h("td", {}, h("code", {}, g.game_id)),
             h("td", { class: "num" }, StudioUI.num(g.seed, 0)),
@@ -2044,19 +2106,20 @@ function renderSimulations(body) {
     const pod = String(run.pod || "unbekannt");
     const pKey = JSON.stringify([pod, run.opponent_set_hash || null, run.table_size ?? null]);
     const table = run.opponent_set_hash ? `${(run.opponent_ids || []).join(", ")} · ${run.table_size ?? "?"} Sitze` : null;
-    if (!byPod.has(pKey)) byPod.set(pKey, { pod, table, known: Boolean(run.opponent_set_hash), runs: 0, planned: 0, completed: 0, wins: 0, roundsNum: 0, roundsDen: 0, allSealed: true, states: new Set() });
+    if (!byPod.has(pKey)) byPod.set(pKey, { pod, table, known: Boolean(run.opponent_set_hash), runs: 0, planned: 0, completed: 0, wins: 0, roundsNum: 0, roundsDen: 0, allSealed: true, states: new Set(), drawsHidden: false });
     const agg = byPod.get(pKey);
     agg.runs += 1;
     agg.planned += Number(run.games_planned || 0);
     const gc = Number(run.games_completed || 0);
     agg.completed += gc;
     agg.wins += Number(run.wins_fractional || 0);
+    if (runHasHiddenDraws(run)) agg.drawsHidden = true;
     if (run.mean_rounds != null && gc > 0) { agg.roundsNum += Number(run.mean_rounds) * gc; agg.roundsDen += gc; }
     if (!run.covered_by_sealed_epoch) agg.allSealed = false;
     agg.states.add(String(run.bridge_qualification_state || "UNKNOWN"));
   }
   const podRows = [...byPod.values()].sort((a, b) => a.pod.localeCompare(b.pod, "de") || Number(b.known) - Number(a.known) || String(a.table || "").localeCompare(String(b.table || ""), "de")).map((agg) => {
-    const wr = agg.completed > 0 ? `${StudioUI.num((100 * agg.wins) / agg.completed, 1)} %` : "unbekannt";
+    const wr = agg.completed > 0 ? `${StudioUI.num((100 * agg.wins) / agg.completed, 1)} %${agg.drawsHidden ? " *" : ""}` : "unbekannt";
     const mr = agg.roundsDen > 0 ? StudioUI.numFlex(agg.roundsNum / agg.roundsDen, 1) : "unbekannt";
     const ep = agg.allSealed ? "versiegelt" : (agg.states.has("BRIDGE_AHEAD_OF_QUALIFICATION") ? "Engine-Stand noch nicht qualifiziert" : [...agg.states].join(", "));
     return h("tr", {},
@@ -2072,6 +2135,7 @@ function renderSimulations(body) {
     h("thead", {}, h("tr", {}, h("th", {}, "Pod / Tisch"), h("th", { class: "num" }, "Läufe"), h("th", { class: "num" }, "Spiele (n / N)"), h("th", { class: "num" }, "Siege"), h("th", { class: "num" }, "Siegrate"), h("th", { class: "num" }, "Ø Runden"), h("th", {}, "Epochen-Stand"))),
     h("tbody", {}, podRows)));
   body.append(h("h3", {}, "Pod-Matchup-Übersicht (aggregiert je Tisch)"), podMatrixTable,
+    [...byPod.values()].some((agg) => agg.drawsHidden) ? h("p", { class: "note", id: "pod-draws-note" }, RUN_DRAWS_NOTE_POD) : null,
     h("p", { class: "note" }, "Eine Zeile je Pod, Gegnersatz und Tischgröße: Läufe gegen verschiedene Tische werden nie zusammengezählt. Läufe ohne gespeicherten Gegnersatz (vor #1688) stehen in einer eigenen Zeile „Gegnersatz unbekannt“: das ist keine Kohorte, ihre Läufe können gegen verschiedene Gegner gespielt haben; Läufe vor #1658 spielten möglicherweise gegen einen Ersatz-Tisch."));
   const runTable = h("div", { class: "table-wrap" }, h("table", {},
     h("thead", {}, h("tr", {}, h("th", {}, "Pod"), h("th", {}, "Engine-Pin"), h("th", {}, "Bridge-JAR"), h("th", {}, "Epoche"), h("th", {}, "Pilot"), h("th", { class: "num" }, "Spiele"), h("th", { class: "num" }, "Siege"), h("th", { class: "num" }, "Siegrate"), h("th", { class: "num" }, "Ø Runden"))),
@@ -2083,9 +2147,10 @@ function renderSimulations(body) {
       h("td", {}, run.pilot_policy),
       h("td", { class: "num" }, `${StudioUI.num(run.games_completed, 0)}/${StudioUI.num(run.games_planned, 0)}`),
       h("td", { class: "num" }, StudioUI.numFlex(run.wins_fractional, 1)),
-      h("td", { class: "num" }, run.win_rate === null ? "unbekannt" : `${StudioUI.num(100 * run.win_rate, 1)} %`),
+      h("td", { class: "num" }, run.win_rate === null ? "unbekannt" : `${StudioUI.num(100 * run.win_rate, 1)} %${runHasHiddenDraws(run) ? " *" : ""}`),
       h("td", { class: "num" }, run.mean_rounds == null ? "unbekannt" : StudioUI.numFlex(run.mean_rounds, 1)))))));
   body.append(h("h3", {}, "4P-Simulationsläufe"), runTable,
+    state.simulations.some(runHasHiddenDraws) ? h("p", { class: "note", id: "run-draws-note" }, RUN_DRAWS_NOTE_RUN) : null,
     h("p", { class: "note" }, "Ergebnisse aus echten XMage-Regelkern-Spielen, gebunden an Deck, Engine-Pin, Bridge-JAR, Pilot-Policy und Seeds. Läufe mit BRIDGE_AHEAD_OF_QUALIFICATION oder UNKNOWN sind nicht von der versiegelten Epoche abgedeckt. Kein Beleg für reale Tisch-Siegraten. Exakte Handverweildauer: unbekannt (nicht gemessen)."));
   for (const run of state.simulations) {
     const inDeckCards = (run.cards || []).filter((c) => !c.card_id || qty(c.card_id) > 0 || state.commanderIds.includes(c.card_id));

@@ -3768,3 +3768,182 @@ def test_batch_summary_title_follows_the_status_and_the_seat_table_uses_the_germ
         ("1,5/2", "75,0 %"),
     ]
     assert "0.5" not in json.dumps(texts)
+
+
+# --- #1852: draws and aborted games are their own classes in the result box and the games table --
+
+
+def test_the_games_table_calls_a_draw_a_draw_and_an_abort_an_abort_never_a_loss() -> None:
+    rows = [
+        {"status": "finished", "candidate_won": True, "winner_seats": [0]},
+        {"status": "finished", "candidate_won": False, "winner_seats": [2]},
+        {"status": "finished", "candidate_won": False, "winner_seats": []},
+        {"status": "finished", "candidate_won": False},
+        {"status": "failed", "failure_class": "Cancelled"},
+        {"status": "failed", "failure_class": "BRIDGE_TIMEOUT"},
+        None,
+    ]
+    out = _interim_js(f"{json.dumps(rows)}.map(batchGameOutcome)")
+    assert out == [
+        "Sieg Sitz 1",
+        "Niederlage (Sieger: Sitz 3)",
+        "Unentschieden",
+        "Unentschieden",
+        "Abgebrochen",
+        "Fehlgeschlagen",
+        "unbekannt",
+    ]
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert "Niederlage (Sieger: Sitz ${(g.winner_seats || [])" not in app
+    assert "const outcome = batchGameOutcome(g);" in app
+
+
+def test_the_result_box_counts_aborted_games_apart_from_failures_and_shows_the_draws() -> None:
+    games = [
+        {"status": "finished", "winner_seats": [0], "candidate_won": True},
+        {"status": "finished", "winner_seats": []},
+        {"status": "finished", "winner_seats": []},
+        {"status": "failed", "failure_class": "Cancelled"},
+        {"status": "failed", "failure_class": "Cancelled"},
+        {"status": "failed", "failure_class": "NotPlayed"},
+    ]
+    batch = {
+        "status": "cancelled",
+        "games": games,
+        "games_failed": 1,
+        "games_cancelled": 2,
+        "games_drawn": 2,
+        "summary": {
+            "games_completed": 3,
+            "games_decided": 1,
+            "games_drawn": 2,
+            "failure_summary": [{"reason": "NotPlayed", "count": 1}],
+        },
+    }
+    out = _interim_js(
+        f"(function (b) {{ return [batchResultClasses(b), batchClassLines(b), batchFailureRows(b),"
+        f" batchDecided(b.summary)]; }})({json.dumps(batch)})"
+    )
+    assert out == [
+        {"failed": 1, "cancelled": 2, "drawn": 2},
+        {"drawn": "Unentschieden: 2", "aborted": "abgebrochen: 2"},
+        [{"reason": "NotPlayed", "count": 1}],
+        1,
+    ]
+    # a record saved before #1852 counts the aborted rows as failed: the rows tell the classes
+    old = {
+        "status": "cancelled",
+        "games": games,
+        "games_failed": 3,
+        "summary": {
+            "games_completed": 3,
+            "failure_summary": [
+                {"reason": "Cancelled", "count": 2},
+                {"reason": "NotPlayed", "count": 1},
+            ],
+        },
+    }
+    out = _interim_js(
+        f"(function (b) {{ return [batchResultClasses(b), batchClassLines(b), batchFailureRows(b),"
+        f" batchDecided(b.summary)]; }})({json.dumps(old)})"
+    )
+    assert out == [
+        {"failed": 1, "cancelled": 2, "drawn": 2},
+        {"drawn": "Unentschieden: 2", "aborted": "abgebrochen: 2"},
+        [{"reason": "NotPlayed", "count": 1}],
+        3,
+    ]
+    # no abort: no "abgebrochen" line; unknown classes stay text, never 0
+    none = _interim_js(
+        "[batchClassLines({games_failed: 0, games_cancelled: 0, games_drawn: 0}),"
+        " batchClassLines({status: 'running'}), batchResultClasses(null), batchDecided(null)]"
+    )
+    assert none == [
+        {"drawn": "Unentschieden: 0", "aborted": None},
+        {"drawn": "Unentschieden: unbekannt", "aborted": None},
+        {"failed": None, "cancelled": None, "drawn": None},
+        None,
+    ]
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    box = app[app.index("const sumBox = h(") :]
+    box = box[: box.index("monitor.append(sumBox);")]
+    assert 'h("div", { id: "sim-drawn" }, classLines.drawn)' in box
+    assert 'id: "sim-aborted" }, classLines.aborted' in box
+    assert "StudioUI.num(decidedN, 0)" in box and "s.games_completed, 0)}`)),\n" not in box
+    assert "const rawFailures = batchFailureRows(b);" in app
+    assert "const failedCount = classes.failed || 0;" in app
+
+
+def test_the_interim_leaves_draws_out_of_the_rate_and_says_so() -> None:
+    from commander_lab.studio.simulations import GameSummary, interim_batch_summary
+
+    games = [
+        GameSummary("a", 1, "finished", winner_seats=[0], table_size=2),
+        GameSummary("b", 2, "finished", winner_seats=[1], table_size=2),
+        GameSummary("c", 3, "finished", winner_seats=[], table_size=2),
+    ]
+    batch = _interim_batch(1, 0, status="cancelled")
+    batch["interim_summary"] = interim_batch_summary(games, games_planned=8, table_size=2)
+    texts = _interim_js(f"batchInterimTexts({json.dumps(batch)})")
+    assert isinstance(texts, dict)
+    assert texts["title"] == "Teilergebnis: 3 von 8 Partien"
+    assert str(texts["headline"]).startswith(
+        "Siegrate Sitz 1: 50,0 % (1 / 2 entschiedene Partien von 8 geplant)"
+    )
+    assert texts["rest"] is None
+    assert texts["drawsText"] == (
+        "Unentschieden (ohne Sieger): 1 / 3, nicht als Niederlage gezählt und nicht in der "
+        "Siegrate."
+    )
+    assert [s["count"] for s in texts["seats"]] == ["1/2", "1/2"]  # type: ignore[union-attr]
+
+
+def test_an_interim_of_only_draws_says_no_game_was_decided_not_that_none_finished() -> None:
+    from commander_lab.studio.simulations import GameSummary, interim_batch_summary
+
+    games = [GameSummary(f"g{i}", i, "finished", winner_seats=[], table_size=2) for i in range(3)]
+    batch = _interim_batch(0, 0, status="cancelled")
+    batch["interim_summary"] = interim_batch_summary(games, games_planned=10, table_size=2)
+    texts = _interim_js(f"batchInterimTexts({json.dumps(batch)})")
+    assert isinstance(texts, dict)
+    assert texts["title"] == "Teilergebnis: 3 von 10 Partien"
+    assert texts["headline"] == (
+        "Siegrate Sitz 1: unbekannt (keine entschiedene Partie: 3 Unentschieden von 3 "
+        "abgeschlossenen, von 10 geplant), kein Intervall."
+    )
+    assert "noch keine Partie abgeschlossen" not in str(texts["headline"])
+    assert [s["count"] for s in texts["seats"]] == ["unbekannt", "unbekannt"]  # type: ignore[union-attr]
+
+
+def test_the_status_text_keeps_an_unknown_failure_count_as_text_never_zero() -> None:
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert 'classes.failed === null ? "Abgeschlossen (Fehlschläge: unbekannt)"' in app
+    out = _interim_js(
+        "[batchResultClasses({status: 'completed'}).failed,"
+        " batchResultClasses({status: 'completed', games: []}).failed]"
+    )
+    assert out == [None, 0]
+
+
+def test_a_stored_run_with_draws_is_marked_in_the_pod_matrix_and_the_run_list() -> None:
+    """The store has no draw column (#1856): where the stored rate (wins / decided) and wins /
+    completed differ beyond rounding, the views say so; a plain run is not marked."""
+    runs = [
+        {"win_rate": 0.5, "wins_fractional": 1.5, "games_completed": 4},  # one draw
+        {"win_rate": 0.5, "wins_fractional": 2.0, "games_completed": 4},  # no draw
+        {"win_rate": 0.3333, "wins_fractional": 0.33, "games_completed": 1},  # share rounding
+        {"win_rate": None, "wins_fractional": 0.0, "games_completed": 2},
+        {"win_rate": 0.5, "wins_fractional": None, "games_completed": 4},
+        {"win_rate": 0.5, "wins_fractional": 1.0, "games_completed": 0},
+    ]
+    out = _interim_js(f"{json.dumps(runs)}.map(runHasHiddenDraws)")
+    assert out == [True, False, False, False, False, False]
+    assert _interim_js("runHasHiddenDraws(null)") is False
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert 'id: "pod-draws-note" }, RUN_DRAWS_NOTE_POD' in app
+    assert 'id: "run-draws-note" }, RUN_DRAWS_NOTE_RUN' in app
+    assert 'agg.drawsHidden ? " *" : ""' in app and 'runHasHiddenDraws(run) ? " *" : ""' in app
+    note = _interim_js("[RUN_DRAWS_NOTE_POD, RUN_DRAWS_NOTE_RUN]")
+    assert isinstance(note, list) and all(
+        "#1856" in str(n) and "Unentschieden" in str(n) for n in note
+    )

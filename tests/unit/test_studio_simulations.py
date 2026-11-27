@@ -3075,3 +3075,400 @@ def test_a_resumed_series_shows_no_stale_summary_and_counts_the_latest_row_of_a_
     finally:
         release.set()
         store.close()
+
+
+# --- #1852: batch result integrity (resume row, draws, late cancel, planned N, aborted class) ---
+
+
+def _rest_runner(seeds: Sequence[int]) -> Iterator[GameSummary]:
+    """The replay of a resumed series: every seed it is asked for is won by seat 0."""
+    yield from _interim_games(seeds, wins=len(list(seeds)))
+
+
+def test_a_resumed_series_counts_one_row_per_seed_in_the_final_result_and_the_evidence(
+    tmp_path: Path,
+) -> None:
+    """Stop at 4 of 10, resume, finish: the old ``Cancelled`` row of the replayed seed is history,
+    not a game: 10 planned, no failure, and the stored run says the same (#1852 point 1)."""
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        manager, first = _stop_after_four(store, tmp_path)
+        first.chunk_runner = _rest_runner
+        resumed = manager.resume_batch(store, tmp_path, first.batch_id, workers=1)
+        _wait(resumed)
+        assert resumed.worker_done.wait(5) and resumed.status == "completed"
+        payload = resumed.to_dict()
+        summary = payload["summary"]
+        assert isinstance(summary, dict)
+        assert (payload["games_planned"], payload["games_failed"]) == (10, 0)
+        assert (summary["games_planned"], summary["games_completed"]) == (10, 10)
+        assert (summary["games_failed"], summary["games_cancelled"]) == (0, 0)
+        assert summary["failure_summary"] == []
+        games = payload["games"]
+        assert isinstance(games, list) and len(games) == 10
+        assert {g["status"] for g in games} == {"finished"}
+        assert payload["run_id"] == f"batch-{first.batch_id}"
+        # the resume drops the old row of a replayed seed (the history is not kept, #1852)
+        assert sum(1 for g in resumed._games if g.failure_class == "Cancelled") == 0
+        row = store.connection.execute(
+            "SELECT games_planned, games_completed, games_failed FROM simulation_run"
+        ).fetchall()
+        assert [tuple(r) for r in row] == [(10, 10, 0)]
+        record = json.loads(
+            (tmp_path / "games" / f"{first.batch_id}.series.json").read_text("utf-8")
+        )
+        assert record["status"] == "completed" and record["games_failed"] == 0
+        assert len(record["games"]) == 10
+    finally:
+        store.close()
+
+
+def test_the_final_aggregation_counts_the_latest_row_of_a_seed() -> None:
+    games = [
+        GameSummary("a", 1, "finished", winner_seats=[0]),
+        GameSummary("b", 2, "failed", failure_class="Cancelled"),
+        GameSummary("b", 2, "finished", winner_seats=[1]),
+        GameSummary("c", 3, "failed", failure_class="BRIDGE_TIMEOUT"),
+        GameSummary("c", 3, "failed", failure_class="Cancelled"),
+    ]
+    summary = simulations_module.aggregate_batch_results(games)
+    assert (summary["games_planned"], summary["games_completed"]) == (3, 2)
+    assert (summary["games_failed"], summary["games_cancelled"]) == (0, 1)
+    assert summary["wins_fractional"] == 1.0 and summary["win_rate"] == 0.5
+    latest = simulations_module.latest_row_per_game(games)
+    assert [(g.game_id, g.status) for g in latest] == [
+        ("a", "finished"),
+        ("b", "finished"),
+        ("c", "failed"),
+    ]
+    assert latest[2].failure_class == "Cancelled"
+
+
+def test_two_failed_rows_with_the_default_seed_are_two_games_not_one() -> None:
+    """An unreadable log gives a failed row with seed 0 (a default, not a seed): rows are told
+    apart by their game id, so no failure is dropped from the evidence (G-SIM point 2)."""
+    games = [
+        GameSummary("batch-x-s3", 0, "failed", failure_class="ReadGameError"),
+        GameSummary("batch-x-s7", 0, "failed", failure_class="ReadGameError"),
+        GameSummary("batch-x-s0", 0, "finished", winner_seats=[0]),
+    ]
+    summary = simulations_module.aggregate_batch_results(games)
+    assert (summary["games_planned"], summary["games_completed"], summary["games_failed"]) == (
+        3,
+        1,
+        2,
+    )
+    interim = simulations_module.interim_batch_summary(games, games_planned=3, table_size=None)
+    assert (interim["games_completed"], interim["games_failed"]) == (1, 2)
+
+
+def test_a_draw_is_its_own_class_never_a_loss_in_the_aggregation_and_the_interim() -> None:
+    """A finished game without a winner is neither won nor lost (G-SIM point 2). Real wins keep
+    their share rule (1/k); the win rate base is the games with a winner. Whether the engine ever
+    ends a game without a winner is UNKNOWN."""
+    games = [
+        GameSummary("a", 1, "finished", winner_seats=[0], table_size=2),
+        GameSummary("b", 2, "finished", winner_seats=[1], table_size=2),
+        GameSummary("c", 3, "finished", winner_seats=[], table_size=2),
+        GameSummary("d", 4, "finished", winner_seats=[0, 1], table_size=2),
+    ]
+    summary = simulations_module.aggregate_batch_results(games, table_size=2)
+    assert (summary["games_completed"], summary["games_decided"], summary["games_drawn"]) == (
+        4,
+        3,
+        1,
+    )
+    assert summary["games_failed"] == 0 and summary["failure_summary"] == []
+    assert summary["wins_fractional"] == 1.5 and summary["win_rate"] == 0.5
+    table = summary["consistency_table"]
+    assert isinstance(table, dict)
+    rows = {r["metric_id"]: r for r in table["rows"]}  # type: ignore[union-attr]
+    assert rows["win_rate"]["n_of_N"] == "1.5/3"
+    assert "1 unentschieden" in str(rows["games_completed"]["display"])
+    seats = summary["validity_block"]["seat_curve"]["seats"]  # type: ignore[index]
+    assert {s["games"] for s in seats} == {3}
+    interim = simulations_module.interim_batch_summary(
+        games, games_planned=8, table_size=2, seat_labels=["own", None]
+    )
+    assert interim["games_drawn"] == 1 and interim["games_decided"] == 3
+    assert interim["games_completed"] == 4 and interim["win_rate"] == 0.5
+    assert [s["n_of_N"] for s in interim["by_seat"]] == ["1.5/3", "1.5/3"]  # type: ignore[union-attr]
+    # only draws: the rate is unknown, never 0 % and never an interval
+    only = simulations_module.aggregate_batch_results([games[2]], table_size=2)
+    assert only["games_drawn"] == 1 and only["win_rate"] is None
+    assert only["confidence_interval_95"] == {
+        "lower": None,
+        "upper": None,
+        "lower_percent": None,
+        "upper_percent": None,
+    }
+    only_interim = simulations_module.interim_batch_summary(
+        [games[2]], games_planned=2, table_size=2
+    )
+    assert only_interim["win_rate"] is None
+    assert [s["win_rate"] for s in only_interim["by_seat"]] == [None, None]  # type: ignore[union-attr]
+
+
+def test_a_series_with_a_draw_reports_it_in_the_monitor_payload(tmp_path: Path) -> None:
+    def runner(seeds: Sequence[int]) -> Iterator[GameSummary]:
+        for index, seed in enumerate(seeds):
+            yield GameSummary(
+                game_id=f"batch-x-s{seed}",
+                seed=seed,
+                status="finished",
+                winner_seats=[] if index == 0 else [0],
+                table_size=4,
+                starting_player_seat=0,
+            )
+
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        _, batch = _start_interim(store, tmp_path, runner)
+        _wait(batch)
+        assert batch.worker_done.wait(5)
+        payload = batch.to_dict()
+        assert payload["games_drawn"] == 1 and payload["games_failed"] == 0
+        summary = payload["summary"]
+        assert isinstance(summary, dict)
+        assert (summary["games_completed"], summary["games_decided"]) == (10, 9)
+        assert summary["games_drawn"] == 1 and summary["win_rate"] == 1.0
+    finally:
+        store.close()
+
+
+def test_a_cancel_between_the_final_result_and_the_completed_status_is_too_late_not_lost(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The cancel arrives while the result is being stored (after the series took it): the series
+    ends as ``completed`` with its run id, in memory and in the record, never ``running`` (#1852)."""
+    store = StudioStore.open(tmp_path / "studio")
+    holder: dict[str, BatchSimulation] = {}
+    ready = threading.Event()
+    real_save = simulations_module.save_batch_to_store
+
+    def late_cancel(store_: StudioStore, batch: BatchSimulation, summary: dict[str, object]) -> str:
+        assert ready.wait(5)
+        holder["batch"].cancel()  # the user presses stop at this very moment
+        return real_save(store_, batch, summary)
+
+    monkeypatch.setattr(simulations_module, "save_batch_to_store", late_cancel)
+    try:
+        manager = SimulationBatchManager()
+        batch = manager.start_batch(
+            store,
+            tmp_path,
+            revision_id=_seed_test_deck(store),
+            pod="precon",
+            games_count=4,
+            base_seed=900,
+            workers=1,
+            chunk_runner=_rest_runner,
+        )
+        holder["batch"] = batch
+        ready.set()
+        _wait(batch)
+        assert batch.worker_done.wait(5)
+        assert batch.status == "completed" and not batch.is_cancelled
+        assert batch.run_id == f"batch-{batch.batch_id}"
+        record = json.loads(
+            (tmp_path / "games" / f"{batch.batch_id}.series.json").read_text("utf-8")
+        )
+        assert record["status"] == "completed" and record["run_id"] == batch.run_id
+        assert _runs_in_store(store) == 1
+    finally:
+        store.close()
+
+
+def test_a_cancel_before_the_result_is_taken_ends_the_series_as_cancelled_without_a_run(
+    tmp_path: Path,
+) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    holder: dict[str, BatchSimulation] = {}
+    ready = threading.Event()
+
+    def runner(seeds: Sequence[int]) -> Iterator[GameSummary]:
+        yield from _interim_games(list(seeds)[:2], wins=1)
+        assert ready.wait(5)
+        holder["batch"].cancel()
+
+    try:
+        manager = SimulationBatchManager()
+        batch = manager.start_batch(
+            store,
+            tmp_path,
+            revision_id=_seed_test_deck(store),
+            pod="precon",
+            games_count=4,
+            base_seed=910,
+            workers=1,
+            chunk_runner=runner,
+        )
+        holder["batch"] = batch
+        ready.set()
+        _wait(batch)
+        assert batch.worker_done.wait(5)
+        assert batch.status == "cancelled" and batch.run_id is None
+        record = json.loads(
+            (tmp_path / "games" / f"{batch.batch_id}.series.json").read_text("utf-8")
+        )
+        assert record["status"] == "cancelled"
+        assert _runs_in_store(store) == 0
+    finally:
+        store.close()
+
+
+def test_a_stopped_series_summary_names_the_planned_n_and_counts_aborted_apart(
+    tmp_path: Path,
+) -> None:
+    """4 finished games and one aborted row of 10 seeds: the summary says 4/10 (not 5 rows), and
+    the aborted game is its own class, not a failure (#1852 points 4 and 5)."""
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        _, batch = _stop_after_four(store, tmp_path)
+        payload = batch.to_dict()
+        summary = payload["summary"]
+        assert isinstance(summary, dict)
+        assert summary["games_planned"] == 10 and payload["games_planned"] == 10
+        assert (summary["games_completed"], summary["games_failed"]) == (4, 0)
+        assert summary["games_cancelled"] == 1 and summary["failure_summary"] == []
+        assert (payload["games_failed"], payload["games_cancelled"]) == (0, 1)
+        table = summary["consistency_table"]
+        assert isinstance(table, dict)
+        rows = {r["metric_id"]: r for r in table["rows"]}  # type: ignore[union-attr]
+        assert rows["games_completed"]["n_of_N"] == "4/10"
+        assert rows["games_completed"]["N"] == 10
+        assert rows["games_completed"]["display"] == (
+            "4/10 abgeschlossen, 0 fehlgeschlagen, 1 abgebrochen, 0 unentschieden"
+        )
+        assert rows["rounds_to_finish"]["n_of_N"] == "4/5"  # the games that started, see below
+        assert rows["rounds_to_finish"]["not_reached"] == 1
+        record = json.loads(
+            (tmp_path / "games" / f"{batch.batch_id}.series.json").read_text("utf-8")
+        )
+        assert record["summary"]["games_planned"] == 10
+        assert record["games_cancelled"] == 1 and record["games_failed"] == 0
+    finally:
+        store.close()
+
+
+def test_a_failed_game_stays_a_failure_next_to_an_aborted_one() -> None:
+    games = [
+        GameSummary("a", 1, "finished", winner_seats=[0]),
+        GameSummary("b", 2, "failed", failure_class="BRIDGE_TIMEOUT"),
+        GameSummary("c", 3, "failed", failure_class="Cancelled"),
+    ]
+    summary = simulations_module.aggregate_batch_results(games, games_planned=5)
+    assert (summary["games_failed"], summary["games_cancelled"]) == (1, 1)
+    assert summary["failure_summary"] == [{"reason": "BRIDGE_TIMEOUT", "count": 1}]
+    assert summary["games_planned"] == 5
+
+
+def test_the_interim_counts_the_latest_row_of_a_seed_in_every_class_and_seat() -> None:
+    games = [
+        GameSummary("a", 1, "finished", winner_seats=[0], table_size=2),
+        GameSummary("b", 2, "failed", failure_class="Cancelled"),
+        GameSummary("b", 2, "finished", winner_seats=[1], table_size=2),
+    ]
+    interim = simulations_module.interim_batch_summary(
+        games, games_planned=3, table_size=2, seat_labels=["own", None]
+    )
+    assert (interim["games_completed"], interim["games_cancelled"], interim["games_failed"]) == (
+        2,
+        0,
+        0,
+    )
+    assert [s["n_of_N"] for s in interim["by_seat"]] == ["1/2", "1/2"]  # type: ignore[union-attr]
+
+
+def test_a_resumed_series_takes_a_stop_again_after_it_completed_with_a_failed_row(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A completed series with a failed row is resumable; until its worker has the lock a stop
+    must count, so the resume clears the ``finalizing`` mark of the first run (#1852)."""
+
+    def runner(seeds: Sequence[int]) -> Iterator[GameSummary]:
+        yield from _interim_games(list(seeds)[:-1], wins=1)
+        yield GameSummary(
+            game_id=f"batch-x-s{list(seeds)[-1]}",
+            seed=list(seeds)[-1],
+            status="failed",
+            failure_class="BRIDGE_TIMEOUT",
+        )
+
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        manager, batch = _start_interim(store, tmp_path, runner)
+        _wait(batch)
+        assert batch.worker_done.wait(5) and batch.status == "completed"
+        assert batch._finalizing  # the first run took its result
+        monkeypatch.setattr(batch, "run_worker", lambda **kwargs: None)
+        manager.resume_batch(store, tmp_path, batch.batch_id, workers=1)
+        assert not batch._finalizing
+        batch.cancel()
+        assert batch.is_cancelled
+    finally:
+        store.close()
+
+
+def test_a_batch_that_holds_two_rows_of_one_game_counts_the_latest_in_every_view(
+    tmp_path: Path,
+) -> None:
+    """Defence in depth: whatever puts a second row of a game into the series (the resume drops
+    the old one), the monitor payload, the summary and the games list read the latest row."""
+    batch = BatchSimulation(
+        batch_id="dup",
+        data_folder=tmp_path,
+        deck_id="d",
+        revision_id="r",
+        pod_name="precon",
+        opponent_paths=[],
+        seeds=[1, 2],
+        chunk_runner=lambda seeds: iter(()),
+    )
+    batch._add_game(batch._failed(1, "Cancelled", "stopped"))
+    batch._add_game(GameSummary("batch-dup-s1", 1, "finished", winner_seats=[0]))
+    batch._add_game(GameSummary("batch-dup-s2", 2, "finished", winner_seats=[1]))
+    payload = batch.to_dict()
+    assert (payload["games_completed"], payload["games_failed"], payload["games_cancelled"]) == (
+        2,
+        0,
+        0,
+    )
+    assert [g["status"] for g in payload["games"]] == ["finished", "finished"]  # type: ignore[union-attr]
+    interim = payload["interim_summary"]
+    assert isinstance(interim, dict) and interim["games_cancelled"] == 0
+    summary = batch._aggregate_games(batch._games_in_seed_order())
+    assert (summary["games_completed"], summary["games_cancelled"], summary["games_planned"]) == (
+        2,
+        0,
+        2,
+    )
+
+
+def test_the_rounds_statistic_of_a_stopped_series_censors_over_the_games_that_started(
+    tmp_path: Path,
+) -> None:
+    """Stop at 4 finished games (6 rounds each) and one aborted game of 10: the median is
+    computed over the 5 games that started; the 5 that never started are missing data, not
+    censored games, and the text says so (#1854 review P2-1, G-SIM point 2)."""
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        _, batch = _stop_after_four(store, tmp_path)
+        summary = batch.to_dict()["summary"]
+        assert isinstance(summary, dict)
+        table = summary["consistency_table"]
+        assert isinstance(table, dict)
+        rows = {r["metric_id"]: r for r in table["rows"]}  # type: ignore[union-attr]
+        rounds = rows["rounds_to_finish"]
+        assert rounds["quartiles"]["median"] == 6  # not None: the 5 never-started games do not rank
+        assert (rounds["n"], rounds["N"], rounds["n_of_N"]) == (4, 5, "4/5")
+        assert (rounds["reached"], rounds["not_reached"]) == (4, 1)
+        assert (rounds["started"], rounds["not_started"]) == (5, 5)
+        assert rounds["display"] == (
+            "Median Runde 6 (4/5 erreicht, 1 nicht erreicht; 5 von 10 geplanten nie gestartet "
+            "(fehlend, nicht zensiert))"
+        )
+        # the planned N stays in the counts row and the summary
+        assert rows["games_completed"]["n_of_N"] == "4/10" and summary["games_planned"] == 10
+    finally:
+        store.close()

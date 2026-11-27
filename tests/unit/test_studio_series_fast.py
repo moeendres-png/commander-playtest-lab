@@ -585,8 +585,10 @@ def test_a_played_game_that_ends_as_a_failed_row_is_not_counted_twice(tmp_path: 
     for seed in range(1, 7):  # the five announced games and the one in progress
         batch._add_game(batch._failed(seed, "Cancelled", "The series was cancelled"))
     data = batch.to_dict()
-    assert data["games_played"] == 0 and data["games_failed"] == 6
-    assert data["games_played"] + data["games_failed"] <= data["games_planned"]  # type: ignore[operator]
+    # aborted rows are their own class since #1852, not failures (G-SIM point 2)
+    assert data["games_played"] == 0 and data["games_failed"] == 0 and data["games_cancelled"] == 6
+    played_and_stopped = data["games_played"] + data["games_failed"] + data["games_cancelled"]  # type: ignore[operator]
+    assert played_and_stopped <= data["games_planned"]
     # a game that has a finished row stays played even if an id also has a failed row
     batch.mark_played(batch.game_id_of(7))
     batch._add_game(_finished(batch, 7, [0]))
