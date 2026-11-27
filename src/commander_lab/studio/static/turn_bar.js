@@ -305,6 +305,15 @@ const StudioTurnBar = (() => {
     return otherCount > 0;
   }
 
+  // The board bar's pass button asks this before it binds a plain click (#1822): a pass in a
+  // critical window needs Hold-to-Confirm unless the player switched the setting off — the
+  // same rule the decision bar applies in buildPrimaryAction (requireHold).
+  function shouldRequireHoldToConfirm(pending, frame, opts) {
+    const cfg = opts && typeof opts === "object" ? opts : {};
+    if (cfg.holdToConfirm === false) return false;
+    return isCriticalPassWindow(pending, frame);
+  }
+
   function buildPrimaryAction(pending, selectedOptions, frame, opts) {
     if (!pending || typeof pending !== "object") return null;
     const cfg = opts && typeof opts === "object" ? opts : {};
@@ -476,6 +485,7 @@ const StudioTurnBar = (() => {
     buildWaitingInfo,
     evaluateResponseProfile,
     isCriticalPassWindow,
+    shouldRequireHoldToConfirm,
     buildPrimaryAction
   };
 })();
