@@ -1714,6 +1714,40 @@ function batchDecided(summary) {
   if (batchKnown(summary.games_decided)) return Number(summary.games_decided);
   return batchKnown(summary.games_completed) ? Number(summary.games_completed) : null;
 }
+// #1857: games a resume played again after a failed or stopped row (the record's replayed_failures).
+// The figures count only the latest row of a game; this is what they do not show. A record without
+// the key (older) shows nothing, never 0. A game stopped by the user is not a failure: apart.
+function batchReplayInfo(b) {
+  const list = b && Array.isArray(b.replayed_failures) ? b.replayed_failures : null;
+  if (!list) return null;
+  let failed = 0;
+  let timeouts = 0;
+  let stopped = 0;
+  const reasons = [];
+  for (const entry of list) {
+    if (!entry || typeof entry !== "object") continue;
+    if (entry.class === "cancelled") stopped += 1;
+    else {
+      failed += 1;
+      if (entry.class === "timeout") timeouts += 1;
+    }
+    reasons.push(`${entry.game_id || "unbekannt"}: letzter Fehler: ${entry.last_error_class || "Unbekannt"}, Versuche: ${batchKnown(entry.attempts) ? StudioUI.num(entry.attempts, 0) : "unbekannt"}`);
+  }
+  if (!failed && !stopped) return null;
+  const parts = [];
+  // while the series still runs the games are not played again yet: no claim that it is done
+  const running = Boolean(b) && (b.status === "running" || b.status === "pending");
+  const games = (n) => `${StudioUI.num(n, 0)} ${n === 1 ? "Partie" : "Partien"}`;
+  if (failed) parts.push(`${games(failed)} nach Fehlschlag ${running ? (failed === 1 ? "wird" : "werden") + " wiederholt" : "wiederholt"} (davon Timeout: ${StudioUI.num(timeouts, 0)})`);
+  if (stopped) parts.push(`${games(stopped)} nach Abbruch ${running ? (stopped === 1 ? "wird" : "werden") + " fortgesetzt" : "fortgesetzt"}`);
+  return { failed, timeouts, stopped, text: parts.join(" · "), cls: failed ? "warn" : "", title: reasons.join(", ") };
+}
+// The status word of a finished series: an unknown failure count stays text, and a series whose
+// final rows have no failure but that replayed failed games says so (never a bare "0 Fehlschläge").
+function batchCompletedStatus(b, classes) {
+  const replay = batchReplayInfo(b);
+  return classes.failed === null ? "Abgeschlossen (Fehlschläge: unbekannt)" : classes.failed > 0 ? `Abgeschlossen (${StudioUI.num(classes.failed, 0)} fehlgeschlagen)` : replay && replay.failed > 0 ? `Abgeschlossen (0 Fehlschläge in den Endergebnissen; ${StudioUI.num(replay.failed, 0)} ${replay.failed === 1 ? "Partie" : "Partien"} erst nach Fehlschlag wiederholt)` : "Abgeschlossen";
+}
 // END batch-interim
 function pollBatch(batchId) {
   if (state.batchPollTimer) clearTimeout(state.batchPollTimer);
@@ -1920,11 +1954,11 @@ function renderSimulations(body) {
       : allFailed
         ? "Fehlgeschlagen"
         : b.status === "completed"
-          ? (classes.failed === null ? "Abgeschlossen (Fehlschläge: unbekannt)" : failedCount > 0 ? `Abgeschlossen (${StudioUI.num(failedCount, 0)} fehlgeschlagen)` : "Abgeschlossen")
+          ? batchCompletedStatus(b, classes)
           : b.status === "cancelled"
             ? (completed > 0 ? "Gestoppt (Teilergebnis)" : "Abgebrochen")
             : "Fehlgeschlagen";
-    const badgeCls = isRunning ? "warn" : (b.status === "completed" && !allFailed) ? "good" : b.status === "cancelled" ? "warn" : "bad";
+    const badgeCls = isRunning ? "warn" : (b.status === "completed" && !allFailed) ? ((batchReplayInfo(b) || {}).failed > 0 ? "warn" : "good") : b.status === "cancelled" ? "warn" : "bad";
     const pct = b.games_planned > 0 ? Math.round((b.games_completed / b.games_planned) * 100) : 0;
 
     const monitor = h("div", { class: "sim-monitor" },
@@ -1936,6 +1970,11 @@ function renderSimulations(body) {
       h("progress", { value: b.games_played !== null && b.games_played !== undefined && Number.isFinite(Number(b.games_played)) ? Math.min(b.games_planned, Number(b.games_played) + Number(b.games_failed || 0) + Number(b.games_cancelled || 0)) : b.games_completed, max: b.games_planned, title: "Fortschrittsbalken: gespielte plus gescheiterte Partien" }),
       h("p", { class: "note note-compact" }, seriesPlayedText(b.games_played, b.games_planned, b.games_completed, false, isRunning))
     );
+    const replayInfo = batchReplayInfo(b);
+    if (replayInfo) {
+      monitor.append(h("p", { class: "note note-compact", id: "sim-replayed" },
+        h("span", { class: `pill pill-inline ${replayInfo.cls}`.trim(), title: replayInfo.title }, replayInfo.text)));
+    }
 
     const renderPlacementsBlock = (pm) => {
       if (!pm || !Array.isArray(pm.by_seat) || !pm.by_seat.length) return null;
