@@ -446,9 +446,7 @@ def test_partie_frontend_replaces_native_confirm_and_shows_concede_feedback() ->
         pytest.skip("node is not installed")
 
     format_slice = js[js.index("function toast(") : js.index("const seatName =")]
-    ff_slice = js[
-        js.index("function renderPassElement()") : js.index("function currentTurn()")
-    ]
+    ff_slice = js[js.index("function renderPassElement()") : js.index("function currentTurn()")]
     show_list_slice = js[js.index("function showList(") : js.index("function showZone(")]
     human_slice = js[
         js.index("function isHumanSpectator()") : js.index("function renderBridgeBanner()")
