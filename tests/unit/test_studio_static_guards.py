@@ -3985,20 +3985,26 @@ def test_the_replay_line_counts_failures_and_timeouts_and_keeps_a_stop_apart() -
     assert "\u00d7" not in str(out["title"])
     # while the series still runs nothing is claimed as done; singular and plural
     for status in ("running", "pending"):
+        entries = [
+            _replay_entry("timeout"),
+            _replay_entry("failed", game_id="x"),
+            _replay_entry("cancelled"),
+        ]
         run = _interim_js(
-            "batchReplayInfo({status: '%s', replayed_failures: [%s, %s, %s]})"
-            % (
-                status,
-                json.dumps(_replay_entry("timeout")),
-                json.dumps(_replay_entry("failed", game_id="x")),
-                json.dumps(_replay_entry("cancelled")),
-            )
+            f"batchReplayInfo({json.dumps({'status': status, 'replayed_failures': entries})})"
         )
         assert isinstance(run, dict)
         assert run["text"] == (
             "2 Partien nach Fehlschlag werden wiederholt (davon Timeout: 1) · "
             "1 Partie nach Abbruch wird fortgesetzt"
         )
+    one_run = _interim_js(
+        "batchReplayInfo("
+        + json.dumps({"status": "running", "replayed_failures": [_replay_entry("timeout")]})
+        + ")"
+    )
+    assert isinstance(one_run, dict)
+    assert one_run["text"] == "1 Partie nach Fehlschlag wird wiederholt (davon Timeout: 1)"
     one = _interim_js(
         f"batchReplayInfo({json.dumps({'replayed_failures': [_replay_entry('timeout')]})})"
     )
