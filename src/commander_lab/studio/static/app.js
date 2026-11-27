@@ -303,14 +303,36 @@ function wishlistBadge(card) {
     reasons ? `Zukauf (0 im Besitz) · ${reasons}` : "Zukauf (0 im Besitz)"
   );
 }
+function hudDeps() {
+  return { h, state, qty, deckCards, deckTotal, maxCopies, add, remove, openCard, cardImageUrl, mana, hoverPreview, GROUPS, GROUP_NAMES, toast };
+}
 function tile(card) {
   const count = qty(card.card_id);
   const face = cardFace(card, () => openCard(card));
   const f = displayFreq(card);
   const subsetTitle = state.subset ? ` (${state.subset.info.label})` : "";
   const unownedBadge = wishlistBadge(card);
-  return h("div", { class: "tile" + (count ? " in" : "") + (card.available < 1 ? " none" : "") },
-    face, card.favorite && h("span", { class: "star" }, "★"), tierMark(card, " corner"),
+  return h("div", {
+    class: "tile" + (count ? " in" : "") + (card.available < 1 ? " none" : ""),
+    draggable: "true",
+    dataset: { cardId: card.card_id },
+    ondragstart: (event) => {
+      if (typeof StudioDeckHud !== "undefined") {
+        StudioDeckHud.setDraggingSource("pool");
+        if (event.dataTransfer) {
+          event.dataTransfer.setData(StudioDeckHud.MIME, card.card_id);
+          event.dataTransfer.effectAllowed = "move";
+        }
+      }
+    },
+    ondragend: () => {
+      if (typeof StudioDeckHud !== "undefined") StudioDeckHud.setDraggingSource("");
+    },
+  },
+    h("div", { class: "tile-media" },
+      face,
+      count ? h("span", { class: "qty-badge", title: `${count}× im Deck` }, `${count}×`) : null,
+      card.favorite && h("span", { class: "star" }, "★"), tierMark(card, " corner")),
     h("div", { class: "bar" },
       h("button", { class: "small", type: "button", title: "ins Deck", "aria-label": `${card.name} ins Deck`, disabled: count >= maxCopies(card), onclick: () => add(card) }, "+"),
       h("b", { class: "count", title: "Kopien im Deck" }, count ? count + "×" : "0×"),
@@ -628,6 +650,7 @@ function renderHeader() {
   $("save").disabled = !state.dirty;
   renderPlayButton();
   renderAutoDeckNote();
+  if (typeof StudioDeckHud !== "undefined") StudioDeckHud.render(hudDeps());
 }
 // Choosing a commander without a deck creates a saved deck of just the commander (the deck list,
 // the variants and the draft all need a deck to belong to). That is not an action the person
@@ -735,6 +758,20 @@ function renderList(body) {
           ? h("button", { type: "button", class: "small", id: "tam-zukauf-open", onclick: () => openTamPurchase(ownership) }, "Zukauf-Liste mit Richtwerten (TAM)")
           : null));
     }
+  }
+  const listModes = [["list", "Liste"], ["stack", "Stapel"], ["curve", "Kurve"]];
+  const storedMode = StudioUI.recall("studio.builder.list-view", "stack");
+  const activeMode = listModes.some(([k]) => k === storedMode) ? storedMode : "stack";
+  body.append(h("div", { id: "list-view-toggle", class: "chips", role: "group", "aria-label": "Deck-Ansicht" },
+    listModes.map(([key, label]) => h("button", {
+      type: "button",
+      class: "chip" + (activeMode === key ? " on" : ""),
+      "aria-pressed": activeMode === key,
+      onclick: () => { StudioUI.remember("studio.builder.list-view", key); renderDeck(); },
+    }, label))));
+  if (activeMode !== "list" && typeof StudioDeckHud !== "undefined") {
+    StudioDeckHud.renderStacks(body, hudDeps(), activeMode);
+    return;
   }
   const cards = deckCards();
   if (!cards.length) body.append(h("p", { class: "muted" }, "Noch keine Karten. Wähle links Karten aus deiner Sammlung aus."));
@@ -4405,7 +4442,9 @@ async function start() {
     state.pairedHistory = pairedList || [];
     const runningPaired = state.pairedHistory.find((j) => j.status === "running" || j.status === "pending");
     if (runningPaired) { state.activePaired = runningPaired; pollPaired(runningPaired.series_id); }
-    setupControls(); await loadDecks(); await loadBranch();
+    setupControls();
+    if (typeof StudioDeckHud !== "undefined") StudioDeckHud.setup(hudDeps());
+    await loadDecks(); await loadBranch();
     try {
       const pendingToast = sessionStorage.getItem("studio.pendingToast");
       if (pendingToast) {
