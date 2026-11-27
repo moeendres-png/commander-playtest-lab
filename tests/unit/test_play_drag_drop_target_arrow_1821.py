@@ -104,6 +104,25 @@ const atkDragAsked = StudioDragTargetUX.classifyPermanentDrag("atk-1", "Chulane,
 const atkDragOther = StudioDragTargetUX.classifyPermanentDrag("other-1", "Llanowar Elves", pendingAttack, atkModel, true, false, false);
 const blkDragAsked = StudioDragTargetUX.classifyPermanentDrag("blk-1", "Wall of Omens", pendingBlock, blkModel, true, false, false);
 
+const pendingPriorityAction = {{
+  decision_id: "dec-prio-act",
+  decision_class: "priority",
+  seat: 0,
+  minimum_selections: 1,
+  maximum_selections: 1,
+  pilot_state: {{
+    players: [{{ seat: 0, battlefield: [{{ object_id: "b-sol", name: "Sol Ring" }}], hand: [], command: [], graveyard: [], exile: [] }}],
+    stack: []
+  }},
+  legal_options: [
+    {{ option_id: "opt-sol", option_type: "activated_ability", label: "Activate Sol Ring", metadata: {{ source_object_id: "b-sol" }} }}
+  ]
+}};
+const prioActionModel = StudioBoardClick.build(pendingPriorityAction);
+const prioDragAction = StudioDragTargetUX.classifyPermanentDrag("b-sol", "Sol Ring", pendingPriorityAction, prioActionModel, true, false, false);
+const prioBoardDrop = StudioDragTargetUX.isLegalDropTarget(prioDragAction, {{ type: "board" }}, prioActionModel);
+const prioTargetDropRejected = StudioDragTargetUX.isLegalDropTarget(prioDragAction, {{ type: "seat", seat: 1 }}, prioActionModel);
+
 const legalSeat5Atk = StudioDragTargetUX.isLegalDropTarget(atkDragAsked, {{ type: "seat", seat: 5 }}, atkModel);
 const illegalSeat3Atk = StudioDragTargetUX.isLegalDropTarget(atkDragAsked, {{ type: "seat", seat: 3 }}, atkModel);
 const legalPw4Atk = StudioDragTargetUX.isLegalDropTarget(atkDragAsked, {{ type: "object", id: "pw-4" }}, atkModel);
@@ -125,6 +144,9 @@ console.log(JSON.stringify({{
   atkDragAsked,
   atkDragOther,
   blkDragAsked,
+  prioDragAction,
+  prioBoardDrop,
+  prioTargetDropRejected,
   legalSeat5Atk,
   illegalSeat3Atk,
   legalPw4Atk,
@@ -152,6 +174,12 @@ console.log(JSON.stringify({{
     assert out["atkDragOther"]["draggable"] is False
     assert out["blkDragAsked"]["draggable"] is True
     assert out["blkDragAsked"]["kind"] == "blocker"
+
+    assert out["prioDragAction"]["draggable"] is True
+    assert out["prioDragAction"]["kind"] == "permanent_action"
+    assert out["prioDragAction"]["dropMode"] == "board"
+    assert out["prioBoardDrop"] is True
+    assert out["prioTargetDropRejected"] is False
 
     assert out["legalSeat5Atk"] is True
     assert out["illegalSeat3Atk"] is False
@@ -198,3 +226,50 @@ def test_drag_target_html_css_js_hygiene_and_hooks() -> None:
     assert "bindPointerDrag" in js
     assert "dismissTargetMode" in js
     assert "appendCurvedArrow" in js
+    assert '$("side").addEventListener("scroll"' in js
+
+
+def test_dismiss_target_mode_preserves_staged_selected_options() -> None:
+    partie_js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    start = partie_js.index("function dismissTargetMode(")
+    depth = 0
+    idx = partie_js.index("{", start)
+    for i in range(idx, len(partie_js)):
+        if partie_js[i] == "{":
+            depth += 1
+        elif partie_js[i] == "}":
+            depth -= 1
+            if depth == 0:
+                fn_src = partie_js[start : i + 1]
+                break
+    else:
+        raise AssertionError("unterminated dismissTargetMode")
+
+    out = _run_node(
+        f"""
+const state = {{
+  pendingDecision: {{ decision_id: "dec-multi-tgt" }},
+  selectedOptions: ["t-1", "t-2"],
+  hoveredTarget: {{ type: "object", id: "t-1" }},
+  targetPointer: {{ x: 10, y: 20 }},
+  targetModeDismissedId: null,
+}};
+const currentTargetMode = () => ({{ active: true }});
+let renders = 0;
+const render = () => {{ renders += 1; }};
+const syncHoverHighlights = () => {{}};
+const toast = () => {{}};
+{fn_src}
+const dismissed = dismissTargetMode();
+console.log(JSON.stringify({{
+  dismissed,
+  dismissedId: state.targetModeDismissedId,
+  selectedOptions: state.selectedOptions,
+  renders
+}}));
+"""
+    )
+    assert out["dismissed"] is True
+    assert out["dismissedId"] == "dec-multi-tgt"
+    assert out["selectedOptions"] == ["t-1", "t-2"]
+    assert out["renders"] == 1

@@ -507,6 +507,24 @@ function cancelActiveDrag(notifyUser) {
   const hadDrag = Boolean(state.drag);
   state.drag = null;
   state.hoveredTarget = null;
+  if (hadDrag && notifyUser) {
+    state.suppressNextClickUntil = Date.now() + 400;
+    const armClickSuppressOnRelease = () => {
+      state.suppressNextClickUntil = Date.now() + 250;
+      document.removeEventListener("pointerup", armClickSuppressOnRelease, true);
+      document.removeEventListener("pointercancel", armClickSuppressOnRelease, true);
+      document.removeEventListener("pointerdown", clearSuppress, true);
+    };
+    const clearSuppress = () => {
+      state.suppressNextClickUntil = 0;
+      document.removeEventListener("pointerup", armClickSuppressOnRelease, true);
+      document.removeEventListener("pointercancel", armClickSuppressOnRelease, true);
+      document.removeEventListener("pointerdown", clearSuppress, true);
+    };
+    document.addEventListener("pointerup", armClickSuppressOnRelease, true);
+    document.addEventListener("pointercancel", armClickSuppressOnRelease, true);
+    document.addEventListener("pointerdown", clearSuppress, true);
+  }
   const ghost = $("drag-ghost");
   if (ghost) {
     ghost.hidden = true;
@@ -596,7 +614,7 @@ function bindPointerDrag(el, configFn) {
           if (dragSnapshot.actionKind === "cast_spell" && state.stagedHand && state.stagedHand.objectId === dragSnapshot.objectId) {
             startStagedCast(info, true);
           } else {
-            onHandCardActivate(info, isAtLiveTail(), true);
+            onHandCardActivate(info, isAtLiveTail());
           }
           return;
         }
@@ -626,7 +644,6 @@ function dismissTargetMode() {
   state.targetModeDismissedId = String(state.pendingDecision.decision_id);
   state.hoveredTarget = null;
   state.targetPointer = null;
-  if (state.selectedOptions.length) state.selectedOptions = [];
   syncHoverHighlights();
   render();
   toast("Ziel-Modus ausgeblendet (Zauber bleibt in Auswahl).", 2200);
@@ -2123,7 +2140,7 @@ function handCardTile(name, index, info, atLiveTail) {
     title: handDragCfg.draggable ? `${name}: ${info.reasonText} (oder aufs Brett ziehen)` : (info ? `${name}: ${info.reasonText}` : name),
     onclick: (event) => {
       if (event.shiftKey || Date.now() < state.suppressNextClickUntil) return;
-      onHandCardActivate(info, atLiveTail, false);
+      onHandCardActivate(info, atLiveTail);
     }
   }, art, body);
   const cardEl = h("div", {
@@ -3784,6 +3801,7 @@ async function start() {
     if (!$("board-menu").hidden && !event.target.closest("#board-menu, .clickable, .seat-pick")) closeBoardMenu(false);
   });
   $("table").addEventListener("scroll", () => { closeBoardMenu(false); drawBlockLinks(); }, { passive: true });
+  if ($("side")) $("side").addEventListener("scroll", () => { closeBoardMenu(false); drawBlockLinks(); }, { passive: true });
   window.addEventListener("resize", () => { closeBoardMenu(false); drawBlockLinks(); });
   if ($("log-search")) {
     $("log-search").addEventListener("input", () => {
