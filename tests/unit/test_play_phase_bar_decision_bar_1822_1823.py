@@ -263,6 +263,9 @@ console.log(JSON.stringify({ ok: true }));
     # the call site in the board bar must stay: if it goes, this test stops covering the path
     partie_js = PARTIE_JS.read_text(encoding="utf-8")
     assert "StudioTurnBar.shouldRequireHoldToConfirm(pending, null" in partie_js
+    # and in staged mode the hold must stay off: there a loose option only toggles the
+    # selection, the commit is the separate confirm button (review P3 on the #1822 fix)
+    assert 'model.mode !== "staged"' in partie_js
 
 
 def test_turn_bar_static_guards_and_vorspulen_compat() -> None:

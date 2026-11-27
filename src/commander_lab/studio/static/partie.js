@@ -746,8 +746,11 @@ function renderBoardBar(pending, model) {
     const option = offeredOption(optionId);
     if (!option) continue;
     const passPriorityOpt = option.option_type === "pass_priority";
+    // In staged mode a loose option only toggles the selection — the commit is the separate
+    // confirm button, which is never hold-guarded; the hold protects the immediate pass only.
     const needsHold = Boolean(
       passPriorityOpt &&
+      model.mode !== "staged" &&
       typeof StudioTurnBar !== "undefined" &&
       StudioTurnBar.shouldRequireHoldToConfirm &&
       StudioTurnBar.shouldRequireHoldToConfirm(pending, null, { holdToConfirm: state.holdToConfirm })
