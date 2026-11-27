@@ -311,13 +311,169 @@ function pairedTruthBadge(summary, isPartial) {
     return ["warn", "Keine auswertbaren Paare (0 Paare · keine Aussage möglich)"];
   }
   if (summary.status === "DECIDED" && summary.answer === "ABOVE") {
-    return ["good", "Hinweis auf echten Unterschied (B > A · 95 %-CI / Look-CI schließt Schwelle aus)"];
+    return ["good", "Hinweis auf echten Unterschied (B > A · Look-Intervall schließt Schwelle aus)"];
   }
   if (summary.status === "DECIDED" && summary.answer === "NOT_ABOVE") {
-    return ["bad", "Kein ausreichender Vorteil für B (Vorteil unterhalb Schwelle · 95 %-CI / Look-CI)"];
+    return ["bad", "Kein ausreichender Vorteil für B (Vorteil unterhalb Schwelle · Look-Intervall)"];
   }
-  return ["warn", "Zufall nicht ausgeschlossen (95 %-CI umfasst Schwelle · kein eindeutiger Unterschied)"];
+  return ["warn", "Zufall nicht ausgeschlossen (Look-Intervall umfasst Schwelle · kein eindeutiger Unterschied)"];
 }
+
+// BEGIN paired-interim
+// The interim of a running paired series, its partial result after a stop and the seed pair table
+// (#1828). Pure text and count helpers: the server computes every figure (paired_series.
+// look_interim_view from the last planned look, paired_comparison.run_comparison_series), nothing is
+// recomputed here. A look is a planned interim at the level the series spent for it: never a
+// 95 % interval that shrinks with every pair, never a decision. A figure the server does not send
+// stays text ("unbekannt"), never 0.
+const PAIRED_SEED_PAIR_ROWS_SHOWN = 60;
+
+function pairedKnown(value) {
+  return value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));
+}
+
+function pairedNum(value, digits = 0) {
+  return pairedKnown(value) ? StudioUI.num(value, digits) : "unbekannt";
+}
+
+function pairedPpText(value) {
+  return pairedKnown(value) ? fmtPp(value) : "unbekannt";
+}
+
+// The level one look spent: "Look-Niveau 99,9 % (α = 0,0001 für diesen Look)". The level is that of
+// the look's own interval, not the 95 % of a single look; α is the share of the overall error budget.
+function pairedLevelText(view) {
+  const alphaRaw = pairedKnown(view.look_alpha) ? view.look_alpha : view.decision_alpha;
+  let level = pairedKnown(view.decision_level_pct) ? StudioUI.numFlex(view.decision_level_pct, 4) : null;
+  if (level === null && pairedKnown(alphaRaw)) level = StudioUI.numFlex((1 - Number(alphaRaw)) * 100, 4);
+  let alpha = "unbekannt";
+  if (pairedKnown(alphaRaw)) {
+    alpha = Number(alphaRaw) < 0.000001 ? "weniger als 0,000001" : StudioUI.numFlex(alphaRaw, 6);
+  }
+  return `Look-Niveau ${level === null ? "unbekannt" : `${level} %`} (α = ${alpha} für diesen Look)`;
+}
+
+function pairedLookTitle(view) {
+  const look = pairedKnown(view.look_index) && pairedKnown(view.looks_planned)
+    ? `Look ${StudioUI.num(view.look_index, 0)} von ${StudioUI.num(view.looks_planned, 0)}`
+    : "Look unbekannt";
+  return `Zwischenstand (${look}, kein Entscheid)`;
+}
+
+// "Teilergebnis: k von N Paaren": k = pairs evaluated at the last look, N = the planned budget.
+function pairedPartialTitle(view) {
+  return `Teilergebnis: ${pairedNum(view.pairs_completed)} von ${pairedNum(view.pairs_budget)} Paaren, ungeplanter Stopp: nur beschreibend`;
+}
+
+// Delta B - A with the interval of the look at its stated level. No interval (no spread between the
+// seeds, or fewer than two seeds): the text says so; "kein Intervall" is not an interval [0; 0].
+function pairedLookDeltaText(view) {
+  if (!pairedKnown(view.pairs_completed) || Number(view.pairs_completed) < 1) {
+    return "Delta (B − A): unbekannt (noch kein Paar abgeschlossen).";
+  }
+  const ci = view.decision_ci_pp;
+  const interval = Array.isArray(ci) && ci.length === 2 && pairedKnown(ci[0]) && pairedKnown(ci[1])
+    ? `Look-Intervall [${fmtPp(ci[0])}; ${fmtPp(ci[1])}] bei ${pairedLevelText(view)}`
+    : `kein Look-Intervall (zu wenige Seeds oder keine Streuung zwischen den Seeds: dann entscheidet bei ${pairedLevelText(view)} nur der Vorzeichentest über die Seeds)`;
+  return `Delta (B − A): ${pairedPpText(view.difference_pp)} · ${interval}`;
+}
+
+function pairedLookCountsText(view) {
+  const n = pairedNum(view.pairs_completed);
+  const budget = pairedNum(view.pairs_budget);
+  const attempted = pairedNum(view.pairs_attempted);
+  const censored = pairedNum(view.pairs_censored);
+  return `Paare: ${n}/${budget} ausgewertet · zensiert: ${censored} von ${attempted} gespielten Paaren (ein zensiertes Paar zählt nie als Niederlage).`;
+}
+
+function pairedLookSignText(view) {
+  const b = view.variant_only_wins;
+  const a = view.baseline_only_wins;
+  const discordant = pairedKnown(b) && pairedKnown(a) ? Number(b) + Number(a) : null;
+  return `Vorzeichentest: B besser in ${pairedNum(b)}, A besser in ${pairedNum(a)}, gleich in ${pairedNum(view.tied_pairs)} Paaren; diskordante Paare ${pairedNum(discordant)}/${pairedNum(view.pairs_completed)}; exaktes p = ${pairedKnown(view.sign_test_p_value) ? StudioUI.numFlex(view.sign_test_p_value, 6) : "unbekannt"}.`;
+}
+
+const PAIRED_BLOCKER_WORDS = {
+  CENSORING_LIMIT: "zu viele zensierte Paare",
+  ASYMMETRIC_CENSORING: "einseitig zensierte Paare zwischen den beiden Armen",
+};
+
+// What the look means for the stop rule. Never "entschieden": the series result decides.
+function pairedLookRuleText(view) {
+  if (view.censoring_blocker) {
+    const why = PAIRED_BLOCKER_WORDS[view.censoring_blocker] || String(view.censoring_blocker);
+    return `Die Stoppregel ist an diesem Look durch Zensierung gesperrt (${why}); die Serie entscheidet hier nicht.`;
+  }
+  if (view.look_decides === true) {
+    return "Dieser Look erfüllt die Stoppregel; die Serie endet mit ihrem Ergebnis, dieser Zwischenstand ist nicht das Ergebnis.";
+  }
+  if (view.look_decides === false) {
+    return "Dieser Look entscheidet nicht; die Serie läuft bis zum nächsten Look oder zum Budget.";
+  }
+  return "Ob dieser Look die Stoppregel erfüllt: unbekannt.";
+}
+
+// The line "echt vs. Zufall". Only the finished series answers it: a look is no decision and an
+// unplanned stop is descriptive. "nicht unterscheidbar von Zufall" is said for an exhausted budget
+// only (a series that ended on censoring says "nicht beurteilbar"), and never means the card is
+// irrelevant. kind: "interim" (running), "partial" (stopped), "final" (series result).
+function pairedChanceLine(res, kind) {
+  const label = "Echt vs. Zufall: ";
+  if (kind === "interim") {
+    return `${label}offen; erst das Ergebnis der Serie beantwortet das, ein Zwischenstand sagt dazu nichts.`;
+  }
+  if (kind === "partial") {
+    return `${label}keine Aussage; ein ungeplanter Stopp ist nur beschreibend und kein Ergebnis der Serie.`;
+  }
+  if (!res || res.status === "NO_PAIRS" || !res.status) {
+    return `${label}keine Aussage möglich (keine auswertbaren Paare).`;
+  }
+  const level = pairedLevelText(res);
+  if (res.status === "DECIDED" && res.answer === "ABOVE") {
+    return `${label}Hinweis auf einen echten Unterschied: B liegt über der Schwelle, mit Zufall allein bei ${level} nicht erklärbar (diese Piloten, dieser Tisch, SIMULATED_RESULT).`;
+  }
+  if (res.status === "DECIDED" && res.answer === "NOT_ABOVE") {
+    return `${label}B liegt nicht über der Schwelle (${level}); das heißt nicht, dass B schlechter ist.`;
+  }
+  if (res.stop_reason === "BUDGET_EXHAUSTED") {
+    return `${label}nicht unterscheidbar von Zufall bei dieser Stichprobe (heißt nicht, dass die Karte egal ist). ${pairedVerdictInfo(res)[1]}; die nachweisbare Differenz steht darunter.`;
+  }
+  const why = PAIRED_BLOCKER_WORDS[res.stop_reason] || String(res.stop_reason || "unbekannt");
+  return `${label}nicht beurteilbar: die Serie endete ohne Entscheid wegen Zensierung (${why}), nicht mit einem ausgeschöpften Budget.`;
+}
+
+// PairRecord (0-based seat) of a stored result as a table row (1-based seat).
+function pairedPairRows(pairs) {
+  if (!Array.isArray(pairs)) return [];
+  return pairs.map((p) => ({ ...p, seat: typeof p.seat === "number" ? p.seat + 1 : p.seat, status: "paired" }));
+}
+
+// n/N over ALL rows, also those the table does not show.
+function pairedSeedPairCounts(rows) {
+  const out = { total: rows.length, withDiff: 0, bBetter: 0, aBetter: 0, same: 0, censored: 0, open: 0 };
+  for (const row of rows) {
+    if (row.status === "censored") { out.censored += 1; continue; }
+    if (!pairedKnown(row.difference)) { out.open += 1; continue; }
+    out.withDiff += 1;
+    const d = Number(row.difference);
+    if (d > 0) out.bBetter += 1; else if (d < 0) out.aBetter += 1; else out.same += 1;
+  }
+  return out;
+}
+
+function pairedSeedPairSummaryText(rows, shown) {
+  const c = pairedSeedPairCounts(rows);
+  const more = rows.length - shown;
+  const window = more > 0
+    ? `${StudioUI.num(shown, 0)} von ${StudioUI.num(rows.length, 0)} Paaren angezeigt, ${StudioUI.num(more, 0)} weitere nicht`
+    : `${StudioUI.num(rows.length, 0)} Paare`;
+  return {
+    summary: `Seed-Paartabelle (${window} · Einzelspiel-Drilldown ins Replay)`,
+    counts: `Differenz bekannt in ${StudioUI.num(c.withDiff, 0)}/${StudioUI.num(c.total, 0)} Paaren: B besser ${StudioUI.num(c.bBetter, 0)}, A besser ${StudioUI.num(c.aBetter, 0)}, gleich ${StudioUI.num(c.same, 0)}; zensiert ${StudioUI.num(c.censored, 0)}, offen ${StudioUI.num(c.open, 0)}.`,
+    more: more > 0 ? `${StudioUI.num(more, 0)} weitere Paare nicht angezeigt (angezeigt ${StudioUI.num(shown, 0)}/${StudioUI.num(rows.length, 0)}).` : null,
+  };
+}
+// END paired-interim
 
 // The determinism guard of a series that was played on the worker pool (S1 Rest, #1660), in words.
 // "unbewacht n/N": n of the N finished games have no transcript hash or no game key, so the guard
@@ -418,6 +574,71 @@ function renderConsistencyTable(h, ct) {
       h("tbody", {}, bodyRows))));
 }
 
+// The seed pair table (one row per pair, its seed, the outcome of A and of B, the difference), built
+// from the PairRecords of a result or the live rows; long tables show the first rows and say how many
+// more there are (n/N over all rows in the line above the table).
+function renderPairedSeedPairs(h, rows) {
+  if (!Array.isArray(rows) || !rows.length) return null;
+  const gameLink = (gid, label) => gid
+    ? h("a", { href: `partie.html?partie=${encodeURIComponent(gid)}` }, `${label} →`)
+    : h("span", { class: "muted" }, "–");
+  const fmtSide = (credit, err, gid, sideLabel) => {
+    if (err) return h("span", { class: "muted" }, `Fehler (${err})`);
+    if (credit === null || credit === undefined) return h("span", { class: "muted" }, "läuft / offen");
+    const label = credit >= 1 ? "Sieg" : credit > 0 ? `Split (${StudioUI.num(credit, 2)})` : "Niederlage";
+    return h("span", {}, `${label} · `, gameLink(gid, `Replay ${sideLabel}`));
+  };
+  const fmtDelta = (row) => {
+    if (row.status === "censored") return h("span", { class: "pill warn" }, "zensiert");
+    if (row.difference === null || row.difference === undefined) return h("span", { class: "muted" }, "–");
+    const d = Number(row.difference);
+    const cls = d > 0 ? "seed-delta pos" : d < 0 ? "seed-delta neg" : "seed-delta zero";
+    const txt = d > 0 ? `+${StudioUI.numFlex(d, 2)} B` : d < 0 ? `${StudioUI.numFlex(d, 2)} A` : "0 Gleich";
+    return h("span", { class: cls }, txt);
+  };
+  const shownRows = rows.slice(0, PAIRED_SEED_PAIR_ROWS_SHOWN);
+  const text = pairedSeedPairSummaryText(rows, shownRows.length);
+  return h("details", { class: "paired-seed-pairs mt-2", id: "paired-seed-pairs", open: rows.length <= 20 },
+    h("summary", {}, text.summary),
+    h("p", { class: "note note-compact", id: "paired-seed-pairs-counts" }, text.counts),
+    h("div", { class: "table-wrap mt-2" }, h("table", {},
+      h("thead", {}, h("tr", {},
+        h("th", { class: "num" }, "Seed"),
+        h("th", { class: "num" }, "Sitz"),
+        h("th", {}, "Basis (A)"),
+        h("th", {}, "Variante (B)"),
+        h("th", {}, "Paar-Delta"))),
+      h("tbody", {}, shownRows.map((row) => h("tr", {},
+        h("td", { class: "num" }, row.seed !== null && row.seed !== undefined ? StudioUI.num(row.seed, 0) : "–"),
+        h("td", { class: "num" }, row.seat !== null && row.seat !== undefined ? `Sitz ${StudioUI.num(row.seat, 0)}` : "–"),
+        h("td", {}, fmtSide(row.base_credit, row.base_error, row.base_game_id, "A")),
+        h("td", {}, fmtSide(row.variant_credit, row.variant_error, row.variant_game_id, "B")),
+        h("td", {}, fmtDelta(row))))))),
+    text.more ? h("p", { class: "note note-compact", id: "paired-seed-pairs-more" }, text.more) : null);
+}
+
+// The interim card of one look (a running series) or the partial result of a stopped one: the same
+// look figures, a different title and chance line. view: paired_series.look_interim_view or a partial.
+function renderPairedLookCard(h, view, kind, extraLines, seedRows) {
+  const stopped = kind === "partial";
+  const badge = stopped
+    ? ["warn", "ungeplanter Stopp · nur beschreibend · kein Ergebnis der Serie"]
+    : ["warn", "Zwischenstand · kein Entscheid"];
+  return h("div", { class: "sim-summary sim-interim paired-ab-card", id: stopped ? "paired-partial" : "paired-look-interim" },
+    h("div", { class: "sim-monitor-head" },
+      h("h4", { class: "mt-0", id: stopped ? "paired-partial-title" : "paired-look-title" }, stopped ? pairedPartialTitle(view) : pairedLookTitle(view)),
+      h("span", { class: `pill ${badge[0]}` }, badge[1])),
+    stopped ? h("p", { class: "note note-compact" }, pairedLookTitle(view) + ": letzter geplanter Look dieser Serie.") : null,
+    h("p", { id: "paired-look-delta" }, pairedLookDeltaText(view)),
+    h("p", { class: "note note-compact", id: "paired-look-counts" }, pairedLookCountsText(view)),
+    h("p", { class: "note note-compact", id: "paired-look-sign" }, pairedLookSignText(view)),
+    h("p", { class: "note note-compact", id: "paired-look-rule" }, pairedLookRuleText(view)),
+    h("p", { class: "note note-compact", id: "paired-chance-line" }, pairedChanceLine(null, kind)),
+    ...(extraLines || []).map((line) => h("p", { class: "note note-compact" }, line)),
+    renderPairedSeedPairs(h, seedRows),
+    h("p", { class: "note note-compact" }, "SIMULATED_RESULT (Zwischenstand, nicht zusammengezählt mit anderen Serien oder Deck-Ständen): der Stopp ist vorab durch Looks mit geplantem α-Verbrauch festgelegt; ein früherer Stopp ist nur beschreibend. Simulationsergebnisse fließen nie in die Tierliste ein (Gewicht 0)."));
+}
+
 function renderPairedMonitor(h, job, deps) {
   const isRunning = job.status === "running" || job.status === "pending";
   const isInterrupted = job.status === "interrupted";
@@ -498,58 +719,36 @@ function renderPairedMonitor(h, job, deps) {
     monitor.append(resumeBtn);
   }
 
-  const renderSeedPairsTable = (rows) => {
-    if (!Array.isArray(rows) || !rows.length) return null;
-    const gameLink = (gid, label) => gid
-      ? h("a", { href: `partie.html?partie=${encodeURIComponent(gid)}` }, `${label} →`)
-      : h("span", { class: "muted" }, "–");
-    const fmtSide = (credit, err, gid, sideLabel) => {
-      if (err) return h("span", { class: "muted" }, `Fehler (${err})`);
-      if (credit === null || credit === undefined) return h("span", { class: "muted" }, "läuft / offen");
-      const label = credit >= 1 ? "Sieg" : credit > 0 ? `Split (${StudioUI.num(credit, 2)})` : "Niederlage";
-      return h("span", {}, `${label} · `, gameLink(gid, `Replay ${sideLabel}`));
-    };
-    const fmtDelta = (row) => {
-      if (row.status === "censored") return h("span", { class: "pill warn" }, "zensiert");
-      if (row.difference === null || row.difference === undefined) return h("span", { class: "muted" }, "–");
-      const d = Number(row.difference);
-      const cls = d > 0 ? "seed-delta pos" : d < 0 ? "seed-delta neg" : "seed-delta zero";
-      const txt = d > 0 ? `+${StudioUI.numFlex(d, 2)} B` : d < 0 ? `${StudioUI.numFlex(d, 2)} A` : "0 Gleich";
-      return h("span", { class: cls }, txt);
-    };
-    const shownRows = rows.slice(0, 60);
-    const countLabel = rows.length > shownRows.length
-      ? `erste ${StudioUI.num(shownRows.length, 0)} von ${StudioUI.num(rows.length, 0)} Paaren`
-      : `${StudioUI.num(rows.length, 0)} Paare`;
-    return h("details", { class: "paired-seed-pairs mt-2", id: "paired-seed-pairs", open: rows.length <= 20 },
-      h("summary", {}, `Seed-Paartabelle (${countLabel} · Einzelspiel-Drilldown ins Replay)`),
-      h("div", { class: "table-wrap mt-2" }, h("table", {},
-        h("thead", {}, h("tr", {},
-          h("th", { class: "num" }, "Seed"),
-          h("th", { class: "num" }, "Sitz"),
-          h("th", {}, "Basis (A)"),
-          h("th", {}, "Variante (B)"),
-          h("th", {}, "Paar-Delta"))),
-        h("tbody", {}, shownRows.map((row) => h("tr", {},
-          h("td", { class: "num" }, row.seed !== null && row.seed !== undefined ? StudioUI.num(row.seed, 0) : "–"),
-          h("td", { class: "num" }, row.seat !== null && row.seat !== undefined ? `Sitz ${StudioUI.num(row.seat, 0)}` : "–"),
-          h("td", {}, fmtSide(row.base_credit, row.base_error, row.base_game_id, "A")),
-          h("td", {}, fmtSide(row.variant_credit, row.variant_error, row.variant_game_id, "B")),
-          h("td", {}, fmtDelta(row))))))),
-      rows.length > shownRows.length
-        ? h("p", { class: "note note-compact" }, `Anzeige auf die ersten ${StudioUI.num(shownRows.length, 0)} von ${StudioUI.num(rows.length, 0)} Paaren begrenzt.`)
-        : null);
-  };
-
+  const stopped = job.status === "cancelled" || job.status === "interrupted";
+  const look = job.interim && typeof job.interim === "object" && !job.result ? job.interim : null;
+  const partial = stopped && !job.result && job.result_partial && typeof job.result_partial === "object" ? job.result_partial : null;
   const interim = job.interim_comparison;
-  if (interim && typeof interim === "object" && !job.result) {
-    const stopped = job.status === "cancelled" || job.status === "interrupted";
-    const pairsDone = Number(interim.pairs_completed) || 0;
-    const pairsBudget = Number(interim.pairs_budget || job.budget_pairs) || 0;
+  const hasDescriptive = Boolean(interim && typeof interim === "object" && !job.result);
+  // The look interval is the only interval shown as the series' own; it comes from the last planned
+  // look. A stopped series keeps that look as a partial result, flagged, never as a finished series.
+  if (partial) {
+    const later = pairedKnown(job.pairs_attempted) && pairedKnown(partial.pairs_attempted)
+      ? Number(job.pairs_attempted) - Number(partial.pairs_attempted)
+      : null;
+    const laterText = later === null
+      ? "Wie viele Paare nach diesem Look noch gespielt wurden: unbekannt."
+      : later > 0
+        ? `Nach diesem Look wurden noch ${StudioUI.num(later, 0)} Paare gespielt; sie sind in diesem Teilergebnis nicht eingerechnet.`
+        : "Nach diesem Look wurde kein weiteres Paar abgeschlossen.";
+    monitor.append(renderPairedLookCard(h, partial, "partial", [laterText], pairedPairRows(partial.pairs)));
+  } else if (look) {
+    monitor.append(renderPairedLookCard(h, look, "interim", [], null));
+  } else if (stopped && !job.result && !hasDescriptive) {
+    monitor.append(h("p", { class: "note", id: "paired-partial-none" },
+      "Teilergebnis: unbekannt (vor dem ersten Look gestoppt, oder der Server wurde neu gestartet: das Teilergebnis liegt nur im Speicher und wird nicht in die Serien-Datei geschrieben). Das ist keine Aussage über die Karten."));
+  }
+  if (hasDescriptive) {
+    const pairsDone = interim.pairs_completed;
+    const pairsBudget = pairedKnown(interim.pairs_budget) ? interim.pairs_budget : job.budget_pairs;
     const truth = pairedTruthBadge(interim, true);
     const pace = pairedPaceEta(job);
     const tempoText = stopped
-      ? `Teilergebnis: ${StudioUI.num(pairsDone, 0)} von ${StudioUI.num(pairsBudget, 0)} Paaren (ungeplanter Stopp · breiteres CI, nicht als abgeschlossene Serie gewertet).`
+      ? `Teilergebnis: ${pairedNum(pairsDone)} von ${pairedNum(pairsBudget)} Paaren (ungeplanter Stopp: nur beschreibend, breiteres Intervall, nicht als abgeschlossene Serie gewertet).`
       : pace.perHour === null
         ? "Tempo: unbekannt (noch zu wenige Partien oder keine Zeitangabe) · Restzeit: unbekannt"
         : `Tempo: ${StudioUI.num(pace.perHour, 1)} Partien/Std. · Restzeit: ${pairedDurationText(pace.etaSeconds)} (Schätzung)`;
@@ -558,18 +757,21 @@ function renderPairedMonitor(h, job, deps) {
       const ciStr = Array.isArray(ci) && ci.length === 2 ? ` [${StudioUI.num(ci[0], 1)} %; ${StudioUI.num(ci[1], 1)} %]` : "";
       return `${fmtRatePct(rate)}${ciStr}`;
     };
+    const descriptiveTitle = stopped
+      ? `Paar-Teilergebnis (${pairedNum(pairsDone)} / ${pairedNum(pairsBudget)} Paare, alle bis zum Stopp fertigen, beschreibend)`
+      : "A/B-Zwischenstand (live, alle bisher fertigen Paare, beschreibend)";
     const abInterim = h("div", { class: "sim-summary sim-interim paired-ab-card", id: "paired-interim" },
       h("div", { class: "sim-monitor-head" },
-        h("h4", { class: "mt-0" }, stopped ? `Paar-Teilergebnis (${StudioUI.num(pairsDone, 0)} / ${StudioUI.num(pairsBudget, 0)} Paare)` : "A/B-Zwischenstand (live, schrumpfendes CI)"),
+        h("h4", { class: "mt-0" }, descriptiveTitle),
         h("span", { class: `pill ${truth[0]}`, id: "paired-truth-flag" }, truth[1])),
       h("div", { class: "sim-grid" },
-        h("div", {}, h("span", { class: "muted" }, "Basis-Siegrate (A, 95 %-CI): "), h("b", {}, fmtRateCi(interim.base_rate, interim.base_ci95_pp))),
-        h("div", {}, h("span", { class: "muted" }, "Varianten-Siegrate (B, 95 %-CI): "), h("b", {}, fmtRateCi(interim.variant_rate, interim.variant_ci95_pp))),
-        h("div", {}, h("span", { class: "muted" }, "Delta (B − A): "), h("b", {}, fmtPp(interim.difference_pp))),
-        h("div", {}, h("span", { class: "muted" }, "95 %-Cluster-CI (Delta): "), h("b", {}, fmtCiPp(interim.difference_ci95_pp))),
-        h("div", {}, h("span", { class: "muted" }, "Diskordante Paare: "), h("b", {}, `${StudioUI.num(interim.variant_only_wins || 0, 0)}B : ${StudioUI.num(interim.baseline_only_wins || 0, 0)}A · ${StudioUI.num(interim.tied_pairs || 0, 0)} gleich (${StudioUI.num(interim.pairs_censored || 0, 0)} zensiert)`))),
+        h("div", {}, h("span", { class: "muted" }, "Basis-Siegrate (A, 95 %-Wilson-CI je Rate): "), h("b", {}, fmtRateCi(interim.base_rate, interim.base_ci95_pp))),
+        h("div", {}, h("span", { class: "muted" }, "Varianten-Siegrate (B, 95 %-Wilson-CI je Rate): "), h("b", {}, fmtRateCi(interim.variant_rate, interim.variant_ci95_pp))),
+        h("div", {}, h("span", { class: "muted" }, "Delta (B − A): "), h("b", {}, pairedPpText(interim.difference_pp))),
+        h("div", { title: "Ein Intervall zu 95 %, das mit jedem Paar schmaler wird: ein Blick bei jedem Paar belegt nichts (Peeking). Das Intervall zum Look-Niveau steht im Block „Zwischenstand (Look k von K)“." }, h("span", { class: "muted" }, "95 %-Cluster-CI (Delta, unadjustiert, nur beschreibend): "), h("b", {}, fmtCiPp(interim.difference_ci95_pp))),
+        h("div", {}, h("span", { class: "muted" }, "Diskordante Paare: "), h("b", {}, `${pairedNum(interim.variant_only_wins)}B : ${pairedNum(interim.baseline_only_wins)}A · ${pairedNum(interim.tied_pairs)} gleich (${pairedNum(interim.pairs_censored)} zensiert)`))),
       h("p", { class: "note note-compact", id: "paired-interim-pace" }, tempoText),
-      renderSeedPairsTable(job.seed_pairs),
+      partial ? null : renderPairedSeedPairs(h, job.seed_pairs),
       h("p", { class: "note note-compact" }, "SIMULATED_RESULT (Teilstand): kein Entscheid vor Erreichen der geplanten Looks. Simulationsergebnisse fließen nie in die Tierliste ein (Gewicht 0)."));
     monitor.append(abInterim);
   }
@@ -589,6 +791,7 @@ function renderPairedMonitor(h, job, deps) {
         vInfo ? h("span", { class: `pill ${vInfo[0]}` }, vInfo[1]) : null,
         h("span", { class: `pill ${truthFlag[0]}`, id: "paired-truth-flag" }, truthFlag[1])),
       h("p", { class: "note" }, res.stop_reason || ""),
+      h("p", { class: "note", id: "paired-chance-line" }, pairedChanceLine(res, "final")),
       res.stop_reason === "BUDGET_EXHAUSTED" ? h("p", { class: "note", id: "paired-not-decided" }, notDecidedText(res)) : null,
       h("div", { class: "sim-grid" },
         h("div", {}, h("span", { class: "muted" }, "Basis-Siegrate (A): "), h("b", {}, fmtRatePct(res.base_rate))),
@@ -611,13 +814,7 @@ function renderPairedMonitor(h, job, deps) {
         : []),
       renderValidityBlock(h, res.validity_block || job.validity_block),
       renderConsistencyTable(h, res.consistency_table || job.consistency_table),
-      renderSeedPairsTable(
-        Array.isArray(job.seed_pairs)
-          ? job.seed_pairs
-          : (Array.isArray(res.pairs)
-              ? res.pairs.map((p) => ({ ...p, seat: typeof p.seat === "number" ? p.seat + 1 : p.seat, status: "paired" }))
-              : [])
-      ),
+      renderPairedSeedPairs(h, Array.isArray(job.seed_pairs) ? job.seed_pairs : pairedPairRows(res.pairs)),
       h("p", { class: "note note-compact" }, "SIMULATED_RESULT: gleiche Seeds, Sitze und Gegner-Tisch. Simulationsergebnisse fließen nie in die Tierliste ein (Gewicht 0)."));
     monitor.append(sumBox);
   }
