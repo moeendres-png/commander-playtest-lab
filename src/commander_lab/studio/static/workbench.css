@@ -332,7 +332,7 @@ body.build-studio.wb-mode-analyze .stack-board {
 }
 
 /* ---------- tab buttons with icon (all modes) ---------- */
-body.build-studio #deck-tabs .chip[data-tab] {
+body.build-studio.wb-mode-analyze #deck-tabs .chip[data-tab] {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -360,13 +360,13 @@ body.build-studio #deck-tabs .chip.on .wb-tab-icon {
   color: #0b0f14;
 }
 
-body.build-studio .wb-tab-text {
+body.build-studio.wb-mode-analyze .wb-tab-text {
   display: inline-flex;
   flex-direction: column;
   min-width: 0;
 }
 
-body.build-studio .wb-tab-label {
+body.build-studio.wb-mode-analyze .wb-tab-label {
   font-weight: 600;
 }
 
@@ -507,7 +507,7 @@ body.build-studio .wb-help-foot {
   }
 }
 
-@media (min-width: 1181px) {
+@media (min-width: 901px) {
   body.build-studio #top {
     flex-wrap: wrap;
     row-gap: 4px;
@@ -521,6 +521,27 @@ body.build-studio .wb-help-foot {
     max-width: 210px;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  body.build-studio #top label {
+    font-size: 0;
+  }
+  body.build-studio #top label select {
+    font-size: 14px;
+  }
+  body.build-studio #save-state {
+    max-width: 120px;
+  }
+  body.build-studio .wb-cluster-status {
+    border: 0;
+    padding: 0;
+  }
+  /* rarely used, and reachable through the command mode (> Neues Deck, > Deckliste einfügen) */
+  body.build-studio #new-deck,
+  body.build-studio #import-text {
+    display: none;
   }
 }
 

@@ -375,7 +375,8 @@ const StudioWorkbench = (() => {
     const modalOpen = byId("modal") && !byId("modal").hidden;
     // The shortcut sheet is modal: Escape closes only it, every other shortcut waits.
     if (helpEl && !helpEl.hidden) {
-      if (event.key === "Escape") { event.preventDefault(); event.stopImmediatePropagation(); closeHelp(); }
+      event.stopImmediatePropagation();
+      if (event.key === "Escape") { event.preventDefault(); closeHelp(); }
       return;
     }
     if ((event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey && event.key.toLowerCase() === "s") {
