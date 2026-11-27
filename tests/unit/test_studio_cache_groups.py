@@ -527,7 +527,9 @@ def test_the_universe_figures_follow_an_import_and_keep_over_a_mark(tmp_path: Pa
         {**_card_row("d3", "Unknown Card"), "oracle_id": ""},
         {**_card_row("d4", "Swarm Rat"), "oracle_id": "oracle-swarm-rat"},
     ]
-    importers.import_corpus_cards(store, _write_csv(tmp_path / "cards.csv", rows))
+    with cache.write(store, {cache.Group.IMPORT}):  # a proven window: only imports rise
+        importers.import_corpus_cards(store, _write_csv(tmp_path / "cards.csv", rows))
+    assert cache.counters()["* window_proven"] == 2
     fresh_options, fresh_decks = read()
     assert fresh_options is not options and fresh_options != options
     assert fresh_decks is not decks and fresh_decks != decks
