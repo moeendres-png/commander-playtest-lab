@@ -303,6 +303,49 @@ class SeriesCancelledError(RuntimeError):
     """Raised internally when an active paired series is cancelled by the user."""
 
 
+def look_interim_view(
+    snapshot: Mapping[str, object], *, budget_pairs: int, observed_at: str
+) -> dict[str, object]:
+    """The interim a running series shows from its last planned look (#1828, AK4).
+
+    Read-only digest of a ``paired_comparison.LookSnapshot``: the interval is the look's own, at
+    the level spent for that look (``decision_level_pct``), never a 95 % interval that shrinks with
+    every pair. A look is not a decision: ``look_decides`` only says whether the stop rule would
+    end the series there; the result of the series is the only decision. Figures a look does not
+    have (no interval at zero spread, no rate without a pair) stay ``None``, never 0.
+    """
+    question = snapshot.get("question")
+    keys = (
+        "look_index",
+        "looks_planned",
+        "look_alpha",
+        "look_decides",
+        "censoring_blocker",
+        "status",
+        "answer",
+        "pairs_completed",
+        "pairs_attempted",
+        "pairs_censored",
+        "base_rate",
+        "variant_rate",
+        "difference_pp",
+        "difference_ci95_pp",
+        "decision_level_pct",
+        "decision_ci_pp",
+        "variant_only_wins",
+        "baseline_only_wins",
+        "tied_pairs",
+        "sign_test_p_value",
+    )
+    view: dict[str, object] = {key: snapshot.get(key) for key in keys}
+    view["data_class"] = DataClass.SIMULATED_RESULT.value
+    view["partial"] = True
+    view["pairs_budget"] = budget_pairs
+    view["threshold_pp"] = question.get("threshold_pp") if isinstance(question, Mapping) else None
+    view["observed_at"] = observed_at
+    return view
+
+
 def validate_series_id(series_id: str) -> str:
     cleaned = series_id.strip()
     if not _SAFE_SERIES_ID.fullmatch(cleaned):
@@ -938,6 +981,13 @@ class PairedSeriesJob:
         self.ended_at: str | None = None
         self.error: str | None = None
         self.result: paired_comparison.PairedComparison | None = None
+        #: The series at its latest planned look (a descriptive interim, #1828); live view only,
+        #: never written to the series file and never read by the deck series or maturity readers.
+        self.interim: dict[str, object] | None = None
+        #: After a cancel: the last look as a partial result ("unplanned stop, descriptive only").
+        #: Live view only like ``interim``; a series that did not end ``completed`` has no result.
+        self.result_partial: dict[str, object] | None = None
+        self._last_look: paired_comparison.LookSnapshot | None = None
         self._cancel_requested = False
         #: Games the engine has played to their end: the ones taken over from disk plus those
         #: announced during this run. A progress count that comes before the pair is complete.
@@ -1033,6 +1083,27 @@ class PairedSeriesJob:
     def is_cancelled(self) -> bool:
         with self._lock:
             return self._cancel_requested
+
+    def on_look(self, snapshot: paired_comparison.LookSnapshot) -> None:
+        """Keep the latest planned look as the live interim (called by the series, read-only)."""
+        observed_at = now_utc()
+        view = look_interim_view(snapshot, budget_pairs=self.budget_pairs, observed_at=observed_at)
+        with self._lock:
+            self._last_look = snapshot
+            self.interim = view
+
+    def _partial_from_last_look(self) -> dict[str, object] | None:
+        """The partial result of a cancelled series: its last look, flagged, or None before any."""
+        with self._lock:
+            look = self._last_look
+        if look is None:
+            return None
+        partial: dict[str, object] = dict(look)
+        partial["partial"] = True
+        partial["partial_reason"] = "cancelled"
+        partial["pairs_budget"] = self.budget_pairs
+        partial["observed_at"] = now_utc()
+        return partial
 
     def persist(self) -> None:
         with self._persist_lock:
@@ -1282,6 +1353,8 @@ class PairedSeriesJob:
                 )
                 payload["interim_comparison"] = interim_comparison
                 payload["seed_pairs"] = seed_pairs
+                payload["interim"] = self.interim if res is None else None
+                payload["result_partial"] = self.result_partial if res is None else None
                 payload["observed_at"] = now_utc()
                 payload["run_started_at"] = self.run_started_at
                 payload["games_played_at_run_start"] = (
@@ -1346,6 +1419,7 @@ class PairedSeriesJob:
             final_pairs_attempted: int | None = None
             final_error: str | None = None
             final_ended_at: str | None = None
+            final_partial: dict[str, object] | None = None
 
             try:
                 result = paired_comparison.run_comparison_series(
@@ -1359,6 +1433,7 @@ class PairedSeriesJob:
                     significance_level=self.significance_level,
                     play=player,
                     audit_data_folder=self.data_folder if self.record_pilot_audit else None,
+                    on_look=self.on_look,
                     execution={
                         "series_id": self.series_id,
                         "command": "studio web paired-series",
@@ -1389,6 +1464,7 @@ class PairedSeriesJob:
                 final_status = "cancelled"
                 final_error = str(exc)
                 final_ended_at = now_utc()
+                final_partial = self._partial_from_last_look()
             except Exception as exc:
                 final_status = "failed"
                 final_error = str(exc)
@@ -1406,6 +1482,8 @@ class PairedSeriesJob:
                                 self.pairs_attempted = final_pairs_attempted
                             if final_error is not None:
                                 self.error = final_error
+                            if final_partial is not None:
+                                self.result_partial = final_partial
                             self.ended_at = final_ended_at or now_utc()
                         payload = self.to_dict(live=False)
                         payload["status"] = final_status
