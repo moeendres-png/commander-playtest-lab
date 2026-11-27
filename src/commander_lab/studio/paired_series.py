@@ -185,6 +185,87 @@ WILSON_RELATIVE_PRECISION = 0.20
 _SD_AT_QUARTER = math.sqrt(2 * 0.25 * 0.75)
 
 
+class MeasuredSpreadSample(NamedTuple):
+    """One measured pair-spread sample for pre-run planning (#1590, SIMULATED_RESULT only)."""
+
+    label: str
+    source: str
+    pairs: int
+    planned: int
+    clusters: int | None
+    sd_pair: float
+    deff: float
+
+
+#: Measured pair-spread samples per table size (#1590): strictly SIMULATED_RESULT, tier-list
+#: weight 0, never pooled across table sizes or cohorts. Table sizes 3, 7, 8 have no measured
+#: pair spread (n = 0, UNKNOWN).
+MEASURED_PAIR_SPREAD_SAMPLES: dict[int, tuple[MeasuredSpreadSample, ...]] = {
+    2: (
+        MeasuredSpreadSample(
+            label="Chulane V38 vs B36",
+            source="#1590 E1 (Kommentar 7221392151)",
+            pairs=20,
+            planned=20,
+            clusters=10,
+            sd_pair=0.5104,
+            deff=1.045,
+        ),
+    ),
+    4: (
+        MeasuredSpreadSample(
+            label="Precon 3-Karten-Tausch (4 Precons, Sitz 0)",
+            source="#1590 Issue-Text",
+            pairs=37,
+            planned=40,
+            clusters=None,
+            sd_pair=0.329,
+            deff=1.0,
+        ),
+        MeasuredSpreadSample(
+            label="Chulane P27 vs B36",
+            source="#1528, PR #1811",
+            pairs=80,
+            planned=80,
+            clusters=20,
+            sd_pair=0.4437,
+            deff=1.217,
+        ),
+        MeasuredSpreadSample(
+            label="Chulane V38 vs B36",
+            source="#1590 E1",
+            pairs=20,
+            planned=20,
+            clusters=5,
+            sd_pair=0.6048,
+            deff=0.478,
+        ),
+    ),
+    5: (
+        MeasuredSpreadSample(
+            label="Chulane V38 vs B36",
+            source="#1590 E1",
+            pairs=25,
+            planned=25,
+            clusters=5,
+            sd_pair=0.2000,
+            deff=1.000,
+        ),
+    ),
+    6: (
+        MeasuredSpreadSample(
+            label="Chulane V38 vs B36",
+            source="#1590 E1",
+            pairs=30,
+            planned=30,
+            clusters=5,
+            sd_pair=0.3651,
+            deff=1.000,
+        ),
+    ),
+}
+
+
 def _de(value: float, digits: int) -> str:
     """A decimal in German notation (comma), for the duration texts."""
     return f"{value:.{digits}f}".replace(".", ",")
@@ -360,6 +441,79 @@ def _planned_detectable(pairs: int, seats_per_seed: int, sd: float = PLANNED_PAI
     return (t95 + t80) * sd / math.sqrt(pairs)
 
 
+def _measured_spread_band(pairs: int, seats: int, table_size: int) -> dict[str, object]:
+    """Empirical pair-spread planning band for ``table_size`` seats (#1590).
+
+    Never pools across table sizes or cohorts and never replaces the conservative planning sd
+    (0.63 / ``planning_pair_sd``). All samples stay ``SIMULATED_RESULT`` with tier-list weight 0;
+    table sizes without measurements report ``UNKNOWN`` (``available=False``).
+    """
+    size = int(table_size)
+    samples = MEASURED_PAIR_SPREAD_SAMPLES.get(size, ())
+    if not samples:
+        return {
+            "available": False,
+            "table_size": size,
+            "data_class": DataClass.UNKNOWN.value,
+            "reason": "keine gemessene Paar-Streuung für diese Tischgröße (n = 0 Paare, UNKNOWN)",
+        }
+    seeds = max(1, math.ceil(pairs / seats))
+    effect = PLANNING_REFERENCE_EFFECT_PP / 100.0
+    sample_rows: list[dict[str, object]] = []
+    detectables: list[float] = []
+    needed_counts: list[int] = []
+    for sample in samples:
+        detectable_pp: float | None = (
+            None
+            if seeds < 2
+            else round(
+                _planned_detectable(pairs, seats, sample.sd_pair) * math.sqrt(sample.deff) * 100.0,
+                1,
+            )
+        )
+        needed_base = pairs_needed(effect, sample.sd_pair)
+        while _planned_detectable(needed_base, seats, sample.sd_pair) > effect:
+            needed_base += 1
+        sample_pairs_needed = math.ceil(needed_base * sample.deff)
+        if detectable_pp is not None:
+            detectables.append(detectable_pp)
+        needed_counts.append(sample_pairs_needed)
+        sample_rows.append(
+            {
+                "label": sample.label,
+                "source": sample.source,
+                "pairs": sample.pairs,
+                "planned": sample.planned,
+                "n_of_N": f"{sample.pairs}/{sample.planned}",
+                "clusters": sample.clusters,
+                "sd_pair": sample.sd_pair,
+                "deff": sample.deff,
+                "detectable_pp": detectable_pp,
+                "pairs_needed": sample_pairs_needed,
+                "data_class": DataClass.SIMULATED_RESULT.value,
+            }
+        )
+    return {
+        "available": True,
+        "table_size": size,
+        "sd_pair_min": min(s.sd_pair for s in samples),
+        "sd_pair_max": max(s.sd_pair for s in samples),
+        "detectable_pp_min": min(detectables) if detectables else None,
+        "detectable_pp_max": max(detectables) if detectables else None,
+        "pairs_needed_min": min(needed_counts),
+        "pairs_needed_max": max(needed_counts),
+        "data_class": DataClass.SIMULATED_RESULT.value,
+        "tier_list_weight": 0,
+        "is_planning_band_only": True,
+        "samples": sample_rows,
+        "caveat": (
+            "Nur Planungs-Bandbreite aus bisher gemessenen SIMULATED_RESULT-Serien dieser "
+            "Tischgröße (Tierlisten-Gewicht 0, keine Kohortenmischung); kein Garantiewert und "
+            "ersetzt nicht den konservativen Planungswert."
+        ),
+    }
+
+
 def planned_detectable_difference_pp(
     budget_pairs: int, seats_per_seed: int, table_size: int = MEASURED_TABLE_SEATS
 ) -> dict[str, object]:
@@ -426,6 +580,7 @@ def planned_detectable_difference_pp(
             "sequential_looks": "not included (O'Brien-Fleming looks cost a little power)",
         },
         "baseline": baseline,
+        "measured_spread_band": _measured_spread_band(pairs, seats, int(table_size)),
     }
 
 
