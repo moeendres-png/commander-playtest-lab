@@ -110,7 +110,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -c "import commander_lab.studio.web, commander_lab.studio.play, commander_lab.studio.paired_series, commander_lab.studio.launch"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python -m pytest -q tests/unit/test_studio_engine_provisioning.py tests/unit/test_studio_simulations.py
+          python -m pytest -q tests/unit/test_studio_engine_provisioning.py tests/unit/test_studio_simulations.py tests/unit/test_studio_store.py tests/unit/test_studio_cache_groups.py tests/unit/test_studio_state_export.py tests/unit/test_studio_backup.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Assert repository remains clean
         shell: pwsh
