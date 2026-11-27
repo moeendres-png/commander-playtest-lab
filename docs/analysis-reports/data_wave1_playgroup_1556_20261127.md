@@ -68,6 +68,8 @@
 
 ## 4. Tests und Prüfungen
 
-- `python -c "import commander_lab; print(commander_lab.__file__)"`: `/home/moeen/code/cpl-analyse/src/commander_lab/__init__.py`
+- `python -c "import commander_lab; print(commander_lab.__file__)"`: `$HOME/code/cpl-analyse/src/commander_lab/__init__.py`
 - `pytest -q tests/unit/test_data_wave1_scripts.py`: `105 passed`
-- `classify_docs.py --check` & `--links`, `ruff check .`, `ruff format --check .`, `mypy src/commander_lab`: ausgeführt vor Push.
+- `classify_docs.py --check` & `--links`: `OK (0 problems)` (`PASS`)
+- `ruff check .` & `ruff format --check .`: `All checks passed` (`PASS`)
+- `mypy src/commander_lab`: `Success: no issues found in 239 source files` (`PASS`)
