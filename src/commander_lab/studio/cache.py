@@ -46,7 +46,7 @@ waiters keep sharing it. A failed computation caches nothing; the next waiter co
 The declared reads are proven in the tests, not trusted: ``tests/unit/test_studio_perf_equivalence.py``
 traces every narrowed kind's computation with the SQLite authorizer and fails when it reads a
 table outside its groups, and runs every write route against the declared write groups (both
-directions). The data epoch of ``memo.py`` is no substitute (see ``builder._corpus_hits``).
+directions).
 
 Check mode (``COMMANDER_LAB_CACHE_CHECK=1`` or ``CHECK = True``): every remembered value gets a
 checksum, compared on every hit; a value changed by a caller raises ``CacheCheckError``, and so
@@ -72,7 +72,6 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Final, Literal, cast
 
-from . import memo
 from .store import StudioStore
 
 
@@ -151,16 +150,23 @@ KIND_LIMITS: dict[str, tuple[int, int | None]] = {
     "answer": (16, 48 * 1024 * 1024),
     "slot_catalog": (8, None),
     "cohort_sizes": (8, None),
+    # the decks behind every card name of one universe: 7.5 MB serialized for the 2,823 Chulane
+    # decks (measured 2026-11-14, the former memo's cap of 8 universes)
+    "universe_decks": (8, None),
 }
 
 _ANSWER = Kind(seal="bytes", limit="answer")
 
 # The register. Narrowed so far, each proven by its tracer in the tests (#1561):
 # ``land_source_groups`` (imports only) and, since ``pool_cards(with_marks=False)``, the strength figures (imports, the
-# universe and strength profiles, the tier snapshot) and the evidence answer (imports, the universe
+# universe and strength profiles) and the evidence answer (imports, the universe
 # profiles the pool's counted universe reads, the simulation tables): none of them reads the marks, so a favorite or mark click keeps them.
+# ``corpus_oracle_ids``, ``universe_decks`` and ``universe_options`` (#1703, the three figures of the
+# former data-epoch memo) read import tables only; they are declared with the groups the memo's epoch covered
+# (imports and universe profiles), so marks, decks and simulations keep them as before.
 # Every other kind reads all groups until its own declaration and tracer exist (P2).
-_STRENGTH_READS = frozenset({Group.IMPORT, Group.PROFILES, Group.SNAPSHOT})
+_STRENGTH_READS = frozenset({Group.IMPORT, Group.PROFILES})
+_IMPORT_PROFILE_READS = frozenset({Group.IMPORT, Group.PROFILES})
 KINDS: Final[Mapping[str, Kind]] = MappingProxyType(
     {
         "card_name_index": Kind(),
@@ -169,6 +175,7 @@ KINDS: Final[Mapping[str, Kind]] = MappingProxyType(
         "cohort_shapes": Kind(),
         "cohort_sizes": Kind(seal="copy", limit="cohort_sizes"),
         "corpus_deck_ids": Kind(),
+        "corpus_oracle_ids": Kind(reads=frozenset({Group.IMPORT})),
         "corpus_deck_sets": Kind(),
         "corpus_groups": Kind(),
         "corpus_hits": Kind(),
@@ -187,6 +194,8 @@ KINDS: Final[Mapping[str, Kind]] = MappingProxyType(
         # the strength answer plus the card-understanding field (only ``card``, an import table)
         "strength_understanding": Kind(reads=_STRENGTH_READS),
         "universe_context": Kind(),
+        "universe_decks": Kind(reads=_IMPORT_PROFILE_READS, limit="universe_decks"),
+        "universe_options": Kind(reads=_IMPORT_PROFILE_READS),
         # One kind per remembered route answer (``answer_cache.json_answer``): a shared kind
         # could never carry one declaration (``pool`` reads the marks, ``deck_browser`` the deck
         # labels). They share one size limit.
@@ -500,13 +509,11 @@ def _apply_kind_limit(full: tuple[Hashable, ...], kind: Kind) -> None:
 
 
 def invalidate() -> None:
-    """Forget every cached figure, this module's (entries, anchors, generations, counters) and
-    the data-epoch memo's (``memo.py``)."""
+    """Forget every cached figure (entries, anchors, generations, counters)."""
     with _lock:
         _entries.clear()
         _states.clear()
         _counters.clear()
-    memo.clear()
 
 
 def snapshot(store: StudioStore | None = None) -> list[tuple[tuple[Hashable, ...], object]]:

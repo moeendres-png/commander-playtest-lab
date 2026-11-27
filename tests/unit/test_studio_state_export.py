@@ -950,3 +950,63 @@ def test_studio_user_state_v1_backward_compat_and_v2_tam_prices(tmp_path: Path) 
     finally:
         dst_bad_v1_missing.close()
     src.close()
+
+
+def _snapshot_rows(db: sqlite3.Connection) -> list[tuple[object, ...]]:
+    return sorted((tuple(row) for row in db.execute("SELECT * FROM tier_snapshot")), key=repr)
+
+
+def test_an_older_store_with_tier_snapshot_rows_opens_exports_and_imports_unchanged(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """#1703 step 1b (E15 Q1/E4): the tier snapshot has no writer and no reader any more, but a
+    store written by an earlier version still holds its rows. It opens, the export is the same
+    file content as without the rows (the table is neither exported nor counted as left out),
+    the import into a fresh store brings none and loses nothing, and the rows stay as they were
+    (no DROP, no deletion, no schema bump)."""
+    from commander_lab.studio.store import SCHEMA_VERSION
+
+    store = _seed(tmp_path / "data")
+    clean = export_state(store, tmp_path / "clean.json.gz")
+    store.connection.executemany(
+        "INSERT INTO tier_snapshot(commander_name, spec_hash, profile_name, spec_version, "
+        "data_epoch, created_at, tier_counts_json, component_denominators_json, payload_json) "
+        "VALUES (?, ?, 'Ausgewogen', 'studio-strength-2:tier-snapshot-2', 'e', "
+        "'2026-11-19T10:00:00Z', '{}', '{}', ?)",
+        [
+            ("Commander A", "a" * 64, json.dumps({"cards": []})),
+            ("Commander A", "b" * 64, json.dumps({"cards": [{"name": "alt"}]})),
+            ("Commander B", "c" * 64, "{}"),
+        ],
+    )
+    store.connection.commit()
+    kept = _snapshot_rows(store.connection)
+    assert len(kept) == 3
+    store.close()
+
+    reopened = StudioStore.open(tmp_path / "data")  # an older store opens
+    assert SCHEMA_VERSION == 21  # no bump: Schema 22 stays with K-2c
+    recorded = reopened.connection.execute(
+        "SELECT value FROM meta WHERE key = 'schema_version'"
+    ).fetchone()
+    assert recorded is not None and recorded[0] == "21"
+    assert reopened.count("tier_snapshot") == 3
+    with_rows = export_state(reopened, tmp_path / "with.json.gz")
+    assert with_rows["content_sha256"] == clean["content_sha256"]
+    assert with_rows["rows"] == clean["rows"]
+    state = read_state(tmp_path / "with.json.gz")
+    assert isinstance(state.content["tables"], dict)
+    assert "tier_snapshot" not in state.content["tables"]
+    assert "tier_snapshot" not in state_export.NOT_EXPORTED
+    assert "tier_snapshot" not in str(with_rows.get("not_exported_rows"))
+    assert studio_cli.main(["import-state", str(tmp_path / "with.json.gz"), "--verify"]) == 0
+    assert "tier_snapshot" not in capsys.readouterr().out
+
+    target = StudioStore.open(tmp_path / "to")
+    import_state(target, tmp_path / "with.json.gz")
+    again = export_state(target, tmp_path / "again.json.gz")
+    assert again["content_sha256"] == clean["content_sha256"]
+    assert target.count("tier_snapshot") == 0  # nothing is carried over, nothing is invented
+    target.close()
+    assert _snapshot_rows(reopened.connection) == kept  # the old rows are untouched
+    reopened.close()

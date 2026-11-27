@@ -136,8 +136,7 @@ def _kinds_in_source() -> tuple[set[str], list[str]]:
                     else None
                 )
                 where = f"{path.name}:{call.lineno}"
-                # ``cache.cached``, or ``cached`` imported from ``.cache`` (``memo.cached`` is the
-                # other memory and stays outside this register until P2)
+                # ``cache.cached``, or ``cached`` imported from ``.cache``
                 direct = owner is None and path.name in _IMPORTS_CACHED
                 if name == "cached" and (owner == "cache" or direct) and len(call.args) >= 2:
                     kind = _first_string(call.args[1], assigned)
@@ -161,7 +160,7 @@ def test_every_cached_call_names_a_registered_kind_and_every_kind_is_used() -> N
     assert unreadable == []
     assert found - set(cache.KINDS) == set()  # no call with an undeclared kind
     assert set(cache.KINDS) - found == set()  # no declaration without a call
-    assert len(found) == 29  # #1738: added corpus_groups (was 28 after Q1-b2 #1677)
+    assert len(found) == 32  # #1703: + corpus_oracle_ids, universe_decks, universe_options (was 29)
 
 
 def test_answer_keys_are_one_kind_per_route_sharing_one_size_limit() -> None:
@@ -472,3 +471,197 @@ def test_the_series_store_write_is_a_proven_window_of_its_declared_groups(
     kept = _kept(store, held)
     store.close()
     assert kept == {"probe_marks", "probe_decks", "probe_profiles", "probe_snapshot", "probe_meta"}
+
+
+# -- the three figures of the former data-epoch memo, now kinds of this cache (#1703) ----------
+
+_MEMO_COMMANDER = ["Test Commander"]
+
+
+def test_the_former_memo_figures_are_declared_with_their_groups_and_the_old_cap() -> None:
+    """``memo.py`` is gone: its three figures are kinds with declared read groups (the proof
+    against the real reads is the tracer of ``test_studio_perf_equivalence``) and the memo's cap
+    of eight universes is the size limit of ``universe_decks``."""
+    imports = frozenset({cache.Group.IMPORT})
+    imports_and_profiles = frozenset({cache.Group.IMPORT, cache.Group.PROFILES})
+    assert cache.KINDS["corpus_oracle_ids"].reads == imports
+    assert cache.KINDS["universe_options"].reads == imports_and_profiles
+    assert cache.KINDS["universe_decks"].reads == imports_and_profiles
+    assert cache.KINDS["universe_decks"].limit == "universe_decks"
+    assert cache.KIND_LIMITS["universe_decks"] == (8, None)
+    # what the memo's epoch ignored (marks, the Owner's decks, simulations) is read by none of them
+    ignored = {cache.Group.MARKS, cache.Group.DECKS, cache.Group.SIMULATION, cache.Group.META}
+    for name in ("corpus_oracle_ids", "universe_options", "universe_decks"):
+        assert not cache.KINDS[name].reads & ignored, name
+    assert not (STUDIO / "memo.py").exists()
+
+
+def test_the_universe_figures_follow_an_import_and_keep_over_a_mark(tmp_path: Path) -> None:
+    """Same invalidation as the memo had: a mark leaves the figures, an import of changed data
+    gives fresh ones (a stale answer after the write would fail the last two assertions)."""
+    from commander_lab.studio import importers, universe
+    from tests.unit.test_studio_store import _card_row, _write_csv
+
+    store = _store(tmp_path)
+
+    def read() -> tuple[object, object]:
+        return (
+            universe.options(store, commander_names=_MEMO_COMMANDER),
+            universe.universe_decks(store, profile=None, commander_names=_MEMO_COMMANDER),
+        )
+
+    options, decks = read()
+    again = read()
+    assert again[0] is options and again[1] is decks  # remembered
+    kinds = {key[0] for key, _ in cache.snapshot(store)}
+    assert {"universe_options", "universe_decks"} <= kinds
+    with cache.write(store, {cache.Group.MARKS}):
+        _mark(store)
+    after_mark = read()
+    assert after_mark[0] is options and after_mark[1] is decks  # a favorite costs nothing
+    rows = [
+        {**_card_row("d1", "Forest", 30), "oracle_id": "oracle-forest"},
+        {**_card_row("d1", "Swarm Rat"), "oracle_id": "oracle-swarm-rat"},
+        {**_card_row("d2", "Swarm Rat"), "oracle_id": "oracle-swarm-rat"},
+        {**_card_row("d3", "Swarm Rat"), "oracle_id": "oracle-swarm-rat"},
+        {**_card_row("d3", "Unknown Card"), "oracle_id": ""},
+        {**_card_row("d4", "Swarm Rat"), "oracle_id": "oracle-swarm-rat"},
+    ]
+    with cache.write(store, {cache.Group.IMPORT}):  # a proven window: only imports rise
+        importers.import_corpus_cards(store, _write_csv(tmp_path / "cards.csv", rows))
+    assert cache.counters()["* window_proven"] == 2
+    fresh_options, fresh_decks = read()
+    assert fresh_options is not options and fresh_options != options
+    assert fresh_decks is not decks and fresh_decks != decks
+    store.close()
+
+
+def test_a_universe_profile_write_drops_the_profile_reading_figures_only(
+    tmp_path: Path,
+) -> None:
+    """``corpus_oracle_ids`` reads imports only; the two universe figures also declare the
+    profiles the memo's epoch covered, so a profile edit drops them and not the first."""
+    store = _store(tmp_path)
+    names = ("corpus_oracle_ids", "universe_options", "universe_decks")
+    held = {name: cache.cached(store, (name,), lambda name=name: [name]) for name in names}
+    with cache.write(store, {cache.Group.PROFILES}):
+        store.connection.execute(
+            "INSERT INTO universe_profile(name, spec, created_at, version, updated_at) "
+            "VALUES ('probe', '{}', 't', 1, 't')"
+        )
+        store.connection.commit()
+    kept = {
+        name
+        for name, value in held.items()
+        if cache.cached(store, (name,), lambda name=name: [name]) is value
+    }
+    assert kept == {"corpus_oracle_ids"}
+    store.close()
+
+
+def test_universe_decks_keeps_eight_entries_and_the_other_figures_are_not_pushed_out(
+    tmp_path: Path,
+) -> None:
+    """The memo's per-kind cap (8 universes of 7.5 MB each) is kept: the oldest universe goes
+    first, and the other kinds are not counted against it."""
+    store = _store(tmp_path)
+    for number in range(12):
+        cache.cached(store, ("universe_decks", f"spec-{number}"), lambda number=number: number)
+        cache.cached(store, ("universe_options", (f"C{number}",)), lambda number=number: number)
+    keys = [key for key, _ in cache.snapshot(store)]
+    assert [key[1] for key in keys if key[0] == "universe_decks"] == [
+        f"spec-{number}" for number in range(4, 12)
+    ]
+    assert len([key for key in keys if key[0] == "universe_options"]) == 12
+    recomputed: list[int] = []
+    cache.cached(store, ("universe_decks", "spec-0"), lambda: recomputed.append(1) or 0)
+    assert recomputed == [1]
+    store.close()
+
+
+def test_a_store_without_a_file_never_remembers_the_universe_figures() -> None:
+    store = StudioStore.in_memory()
+    seen: list[int] = []
+    for _ in range(2):
+        cache.cached(store, ("universe_options", None), lambda: seen.append(1))
+    assert seen == [1, 1]
+    store.close()
+
+
+# -- two tests of the deleted memo test file that guard ``builder._corpus_hits`` (a cache kind) --
+
+
+@pytest.fixture
+def _folder(tmp_path: Path) -> Path:
+    from tests.unit.test_studio_builder import _fill
+
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    store.close()
+    return tmp_path / "studio"
+
+
+def test_an_import_of_changed_data_gives_fresh_corpus_hits(_folder: Path, tmp_path: Path) -> None:
+    """Same number of rows, the import still gives a fresh result (moved from the memo tests)."""
+    from commander_lab.studio import builder, importers
+    from tests.unit.test_studio_store import _card_row, _write_csv
+
+    commander = ["Test Commander"]
+    store = StudioStore.open(_folder)
+    before = builder._corpus_hits(store, commander)
+    assert "Forest" in before
+    assert builder._corpus_hits(store, commander) is before  # remembered
+    store.close()
+    store = StudioStore.open(_folder)
+    rows = [
+        {**_card_row("d1", "Forest", 30), "oracle_id": "oracle-forest"},
+        {**_card_row("d1", "Swarm Rat"), "oracle_id": "oracle-swarm-rat"},
+        {**_card_row("d2", "Swarm Rat"), "oracle_id": "oracle-swarm-rat"},
+        {**_card_row("d3", "Swarm Rat"), "oracle_id": "oracle-swarm-rat"},
+        {**_card_row("d3", "Unknown Card"), "oracle_id": ""},
+        {**_card_row("d4", "Swarm Rat"), "oracle_id": "oracle-swarm-rat"},
+    ]
+    importers.import_corpus_cards(store, _write_csv(tmp_path / "cards.csv", rows))
+    store.close()
+    store = StudioStore.open(_folder)
+    after = builder._corpus_hits(store, commander)
+    assert after is not before
+    assert sum(after["Swarm Rat"].values()) > sum(before["Swarm Rat"].values())
+    assert sum(after["Forest"].values()) < sum(before["Forest"].values())
+    store.close()
+
+
+def test_an_in_place_change_of_a_card_gives_fresh_deck_counts(_folder: Path) -> None:
+    """A relink changes a card row in place: no new row, no new source. The deck counts per
+    card depend on the card names, so they must not be served from before the change."""
+    from commander_lab.studio import builder
+
+    commander = ["Test Commander"]
+    store = StudioStore.open(_folder)
+    before = builder._corpus_hits(store, commander)
+    assert builder._corpus_hits(store, commander) is before
+    row = store.connection.execute("SELECT card_id, oracle_id FROM card LIMIT 1").fetchone()
+    store.connection.execute(
+        "UPDATE card SET oracle_id = ? WHERE card_id = ?", (f"relinked-{row[1]}", row[0])
+    )
+    store.connection.commit()
+    assert builder._corpus_hits(store, commander) is not before
+    store.close()
+
+
+def test_scoped_and_unscoped_universe_options_keep_separate_entries(tmp_path: Path) -> None:
+    """The scope is part of the key: options of one commander and of no scope are two entries
+    with their own answers, and the scope order does not matter."""
+    from commander_lab.studio import universe
+
+    store = _store(tmp_path)
+    scoped = universe.options(store, commander_names=_MEMO_COMMANDER)
+    unscoped = universe.options(store)
+    keys = [key for key, _ in cache.snapshot(store) if key[0] == "universe_options"]
+    assert sorted(keys, key=repr) == sorted(
+        [("universe_options", ("Test Commander",)), ("universe_options", None)], key=repr
+    )
+    assert universe.options(store, commander_names=_MEMO_COMMANDER) is scoped
+    assert universe.options(store) is unscoped
+    assert scoped is not unscoped and scoped != unscoped
+    store.close()
