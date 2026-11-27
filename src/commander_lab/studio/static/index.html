@@ -6,9 +6,10 @@
 <title>Commander Studio</title>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="build.css">
 <script src="ui.js"></script>
 </head>
-<body>
+<body class="build-studio">
 <header id="brand">
   <h1 class="brand-h1"><a class="logo" href="index.html">Commander Studio</a><span class="visually-hidden"> – Deckbau</span></h1>
   <nav id="areas" aria-label="Bereiche"><a href="index.html">Deckbau</a><a href="tierliste.html">Tierliste</a><a href="decks.html">Deck-Browser</a><a href="partie.html">Partien</a><a href="daten.html">Daten</a></nav>
@@ -22,6 +23,7 @@
   <button id="import-text" type="button">Deckliste einfügen</button>
   <label>Variante <select id="branch-select"></select></label>
   <button id="new-branch" type="button">Neue Variante</button>
+  <button id="quick-add-open" type="button" title="Karte per Tastatur suchen und hinzufügen (Strg+K oder /)">Schnell hinzufügen <kbd>Strg K</kbd></button>
   <span id="counter" class="pill">0 / 100</span>
   <span id="check-pill" class="pill">Prüfung</span>
   <span id="save-state" class="muted"></span>
@@ -68,6 +70,7 @@
     <div id="pool-body"></div>
   </section>
   <aside id="deck">
+    <section id="deck-hud" aria-label="Deck-Cockpit" aria-live="polite"></section>
     <div id="play-row"><button id="play-state" type="button" title="Öffnet die Seite Partien mit diesem gespeicherten Stand als Deck auf Sitz 1.">Mit diesem Stand eine Partie spielen</button></div>
     <nav id="deck-tabs" class="chips"></nav>
     <div id="deck-body"></div>
@@ -100,6 +103,7 @@
 <script src="gcband.js"></script>
 <script src="wishlist.js"></script>
 <script src="cohort.js"></script>
+<script src="deckhud.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
