@@ -16,7 +16,7 @@ from statistics import median
 
 import pytest
 
-from commander_lab.studio import StudioStore, builder, cache, land_advisor
+from commander_lab.studio import StudioStore, builder, cache, import_all, land_advisor, universe
 from commander_lab.studio.decks import RevisionCard
 from commander_lab.studio.store import rebuild_corpus_deck_role
 
@@ -460,6 +460,51 @@ def test_the_strength_route_is_remembered_per_settings_and_equals_the_plain_answ
     assert client.post("/api/strength", json={"commander": "Nobody"}).status_code == 404
 
 
+def test_stored_tier_snapshot_rows_are_never_read_and_never_change_the_strength_answer(
+    tmp_path: Path,
+) -> None:
+    """#1703 step 1b: an older store still holds ``tier_snapshot`` rows (here one that looks
+    like a hit for every spec: poisoned payload). The route answer equals the live computation,
+    carries no ``snapshot`` field, never reads the table, and the rows stay as they were."""
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio import strength_view
+    from commander_lab.studio.web import StrengthBody, create_app, strength_answer
+
+    store = _big_store(tmp_path)
+    settings = strength_view.resolve_settings(store, preset=None, profile=None, settings=None)
+    live = json.loads(json.dumps(strength_view.compute(store, COMMANDER, settings)))
+    for spec_hash in ("0" * 64, "1" * 64):
+        store.connection.execute(
+            "INSERT INTO tier_snapshot(commander_name, spec_hash, profile_name, spec_version, "
+            "data_epoch, created_at, tier_counts_json, component_denominators_json, payload_json) "
+            "VALUES (?, ?, 'Ausgewogen', ?, 'e', '2026-11-19T10:00:00Z', '{}', '{}', ?)",
+            (
+                COMMANDER,
+                spec_hash,
+                "studio-strength-2:tier-snapshot-2",
+                json.dumps({"cards": [{"name": "POISON"}], "tier_counts": {"S": 999}}),
+            ),
+        )
+    store.connection.commit()
+    rows = [tuple(row) for row in store.connection.execute("SELECT * FROM tier_snapshot")]
+    assert len(rows) == 2
+    reads = _trace_reads(store, lambda: strength_answer(store, StrengthBody(commander=COMMANDER)))
+    assert reads and "tier_snapshot" not in reads
+    store.close()
+    cache.invalidate()
+    client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
+    for body in ({"commander": COMMANDER}, {"commander": COMMANDER, "preset": "Ausgewogen"}):
+        answer = client.post("/api/strength", json=body)
+        assert answer.status_code == 200
+        assert answer.json() == live
+        assert "POISON" not in answer.text and "snapshot" not in answer.json()
+    assert client.get("/api/strength/snapshot", params={"commander": COMMANDER}).status_code == 404
+    after = StudioStore.open(tmp_path / "studio")
+    assert [tuple(row) for row in after.connection.execute("SELECT * FROM tier_snapshot")] == rows
+    after.close()
+
+
 def test_cohort_shapes_equal_the_plain_computation_across_chunk_boundaries(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -542,10 +587,12 @@ def test_the_warm_up_reports_a_failing_step_in_one_line(
     assert "strength" in {key[0] for key, _ in cache.snapshot()}  # the route's own key is warmed
 
 
-def test_a_preset_and_the_same_settings_typed_in_do_not_share_a_remembered_answer(
+def test_a_preset_and_the_same_settings_typed_in_give_the_same_figures_and_no_snapshot_field(
     tmp_path: Path,
 ) -> None:
-    """The snapshot metadata names the profile (preset or none): the route's cache key must too."""
+    """The tier snapshot is gone (#1703, E15 Q1/E4): the answer no longer names a profile, so a
+    preset and the same figures typed in as plain settings are one request with one answer, and
+    the answer carries no ``snapshot`` field and no snapshot notice."""
     from fastapi.testclient import TestClient
 
     from commander_lab.studio import strength_view
@@ -562,8 +609,9 @@ def test_a_preset_and_the_same_settings_typed_in_do_not_share_a_remembered_answe
     by_preset = client.post("/api/strength", json={"commander": COMMANDER, "preset": name})
     by_settings = client.post("/api/strength", json={"commander": COMMANDER, "settings": preset})
     assert by_preset.status_code == 200 and by_settings.status_code == 200
-    assert by_preset.json()["snapshot"]["profile_name"] == name
-    assert by_settings.json()["snapshot"]["profile_name"] != name
+    assert by_preset.json() == by_settings.json()
+    assert "snapshot" not in by_preset.json()
+    assert "Snapshot veraltet, Neuberechnung läuft" not in by_preset.json()["notices"]
 
 
 def _preset_items(presets: dict[str, object]) -> list[tuple[str, dict[str, object]]]:
@@ -1062,16 +1110,12 @@ def _tables_by_group(tables: Iterable[str]) -> dict[cache.Group | None, set[str]
 def _strength_kind(store: StudioStore) -> object:
     from commander_lab.studio.web import StrengthBody, strength_answer
 
-    # the stored tier snapshot decides which tables a computation reads (a hit reads the
-    # snapshot, a miss computes live from the profiles): trace both, miss first
-    store.connection.execute("DELETE FROM tier_snapshot")
-    store.connection.commit()
     body = StrengthBody(commander=COMMANDER)
     first = strength_answer(store, body), strength_answer(store, body)
     # The same kinds also remember the answer for a stored profile, a path of its own: the
     # settings come from the profile, the notices and the saved weights are read from it
-    # (``profile_notices``, ``profile_saved_weights``) and the figure is computed live, not from
-    # the snapshot. A plain and a profile with a key this version does not know plus a retired
+    # (``profile_notices``, ``profile_saved_weights``) and the figure is computed live. A plain and
+    # a profile with a key this version does not know plus a retired
     # setting hold every notice the path can read for.
     names = _save_profiles(store)
     return first, [
@@ -1118,6 +1162,17 @@ _KIND_TRACERS: dict[str, Callable[[StudioStore], object]] = {
     "strength_understanding": _strength_kind,
     "answer:evidence": _evidence_kind,
     "answer:pool": lambda store: builder.pool_cards(store, [COMMANDER]),
+    # the three figures of the former data-epoch memo (#1703)
+    "universe_options": lambda store: (
+        universe.options(store, commander_names=[COMMANDER]),
+        universe.options(store),
+    ),
+    "universe_decks": lambda store: universe.universe_decks(
+        store, profile=None, commander_names=[COMMANDER]
+    ),
+    "corpus_oracle_ids": lambda store: import_all._repo_layers(
+        store, [], [], None, None, lambda *args, **kwargs: None
+    ),
 }
 
 
@@ -1158,6 +1213,9 @@ def test_every_narrowed_kind_reads_only_its_groups(tmp_path: Path) -> None:
         "strength",
         "strength_understanding",
         "answer:evidence",
+        "corpus_oracle_ids",
+        "universe_decks",
+        "universe_options",
     }
     assert all(cache.Group.MARKS not in cache.KINDS[name].reads for name in narrowed)
     assert _declaration_violations(store, cache.KINDS, _KIND_TRACERS) == {}
@@ -1201,7 +1259,7 @@ def test_a_kind_wrongly_declared_narrow_is_caught(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Mutation counter-tests of the proof: the ``pool`` answer reads the marks (through
-    ``pool_cards``), the strength figures also the profiles and the snapshot, the evidence
+    ``pool_cards``), the strength figures also the profiles, the evidence
     answer the simulation tables; a declaration that leaves one out fails the proof, a
     declaration without a tracer too (#1615), and so does a computation that reads the marks
     again behind a correct declaration."""
@@ -1218,7 +1276,8 @@ def test_a_kind_wrongly_declared_narrow_is_caught(
     violations = _declaration_violations(store, kinds, _KIND_TRACERS)
     assert {"card_mark", "card_label"} <= set(violations["answer:pool"])
     for name in ("strength", "strength_understanding"):
-        assert {"universe_profile", "tier_snapshot"} <= set(violations[name]), name
+        assert "strength_profile" in violations[name], name
+        assert "tier_snapshot" not in violations[name], name  # no longer read (#1703)
         assert "card_mark" not in violations[name], name  # no longer read (#1561)
     assert {"simulation_card", "simulation_run"} <= set(violations["answer:evidence"])
     assert "card_mark" not in violations["answer:evidence"]
@@ -1346,7 +1405,7 @@ def test_a_mark_click_keeps_strength_and_evidence_and_never_serves_a_stale_marke
 
     _big_store(tmp_path).close()
     calls = {"strength": 0, "evidence": 0}
-    real_strength = strength_view.compute_with_snapshot
+    real_strength = strength_view.compute
     real_evidence = evidence.pool_evidence
 
     def counting_strength(*args: object, **kwargs: object) -> object:
@@ -1357,7 +1416,7 @@ def test_a_mark_click_keeps_strength_and_evidence_and_never_serves_a_stale_marke
         calls["evidence"] += 1
         return real_evidence(*args, **kwargs)  # type: ignore[arg-type]
 
-    monkeypatch.setattr(strength_view, "compute_with_snapshot", counting_strength)
+    monkeypatch.setattr(strength_view, "compute", counting_strength)
     monkeypatch.setattr(evidence, "pool_evidence", counting_evidence)
     client = TestClient(create_app(tmp_path / "studio"), headers={"X-Studio": "1"})
 
@@ -1561,6 +1620,8 @@ def _route_writes() -> list[
 _UNOWNED = tuple(f"scryfall:probe-unowned-{n}" for n in range(4))
 # The kinds narrowed by #1561 besides the land figure: held over every write of the matrix too.
 _FIGURE_KINDS = ("strength", "strength_understanding", "answer:evidence")
+# the three figures of the former data-epoch memo (#1703): imports (and the universe profiles)
+_MEMO_KINDS = ("corpus_oracle_ids", "universe_decks", "universe_options")
 
 
 def test_the_write_matrix_keeps_exactly_the_kinds_that_read_no_written_group(
@@ -1667,7 +1728,7 @@ def test_the_write_matrix_keeps_exactly_the_kinds_that_read_no_written_group(
         land = land_advisor.source_deck_groups(reader, [COMMANDER])
         held = {
             kind: cache.cached(reader, (kind,), lambda kind=kind: [kind])
-            for kind in [*probes, "undeclared_probe", *_FIGURE_KINDS]
+            for kind in [*probes, "undeclared_probe", *_FIGURE_KINDS, *_MEMO_KINDS]
         }
         reader.close()
         before = calls["land"]
@@ -1710,13 +1771,21 @@ def test_the_write_matrix_keeps_exactly_the_kinds_that_read_no_written_group(
             assert any(kind not in kept for kept in kept_over.values()), kind
     assert not any("undeclared_probe" in kept for kept in kept_over.values())
     # the strength figures and the evidence answer survive every write of the marks, and only
-    # those groups they read drop them (profiles, snapshot, simulation, imports)
+    # those groups they read drop them (profiles, simulation, imports)
     for name in ("favorite", "mark_excluded", "card_labels"):
         assert set(_FIGURE_KINDS) <= kept_over[name], name
     for name in ("deck_labels", "draft", "revision", "primer"):
         assert set(_FIGURE_KINDS) <= kept_over[name], name  # the Owner's decks: no read either
     for name in ("strength_profile", "universe_profile"):
         assert not set(_FIGURE_KINDS) & kept_over[name], name  # the profiles group
+    # the former memo's figures keep exactly what the memo's epoch ignored (marks, the Owner's
+    # decks, simulations) and are dropped by an import and, for the two that declare it, by a
+    # universe profile write
+    for name in ("favorite", "mark_excluded", "card_labels", "deck_labels", "draft", "revision"):
+        assert set(_MEMO_KINDS) <= kept_over[name], name
+    assert not set(_MEMO_KINDS) & kept_over["favorite_unowned"]  # a catalog write: imports
+    assert "corpus_oracle_ids" in kept_over["universe_profile"]  # imports only
+    assert not {"universe_decks", "universe_options"} & kept_over["universe_profile"]
     assert "answer:evidence" not in kept_over["universe_profile"]  # the counted universe
     assert not set(_FIGURE_KINDS) & kept_over["favorite_unowned"]  # a catalog write: imports
 

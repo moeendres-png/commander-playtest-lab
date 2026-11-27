@@ -1246,7 +1246,7 @@ class StudioStore:
     )
 
     def data_epoch(self) -> tuple[object, ...]:
-        """A cheap fingerprint of the imported data (see ``memo``); it changes when an import,
+        """A cheap fingerprint of the imported data; it changes when an import,
         a relink or a profile edit changes what a derived figure is counted over."""
         # Recomputed only when this connection (total_changes) or another one (data_version)
         # wrote since the last call: one request asks for it many times.

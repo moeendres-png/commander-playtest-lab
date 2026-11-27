@@ -661,7 +661,6 @@ _SWEEP_SKIP = ("/engine", "/games", "/play", "/img", "/table", "/outcomes", "/ta
 # required extra query parameter is not seeded (never silently skipped: exact status checked).
 _SWEEP_EXPECTED_NON_200: dict[str, int] = {
     "/api/cards/{card_id}/evidence": 404,
-    "/api/strength/snapshot": 404,
     "/api/strength/profiles/{name:path}": 404,
     "/api/universe/profiles/{name:path}/summary": 404,
     "/api/universe/spread": 422,
