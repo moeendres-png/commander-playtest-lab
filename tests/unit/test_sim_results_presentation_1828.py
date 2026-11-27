@@ -405,6 +405,7 @@ const mon = renderPairedMonitor(makeNode, {{
 const notDecidedFlag = pairedTruthBadge({{ status: "NOT_DECIDED" }}, false);
 const decidedAboveFlag = pairedTruthBadge({{ status: "DECIDED", answer: "ABOVE" }}, false);
 const decidedNotAboveFlag = pairedTruthBadge({{ status: "DECIDED", answer: "NOT_ABOVE" }}, false);
+const decidedNotAboveThresholdFlag = pairedTruthBadge({{ status: "DECIDED", answer: "NOT_ABOVE", question: {{ threshold_pp: 20 }} }}, false);
 const noPairsFlag = pairedTruthBadge({{ status: "NO_PAIRS" }}, false);
 
 console.log(JSON.stringify({{
@@ -414,6 +415,7 @@ console.log(JSON.stringify({{
   notDecidedFlag,
   decidedAboveFlag,
   decidedNotAboveFlag,
+  decidedNotAboveThresholdFlag,
   noPairsFlag
 }}));
 """
@@ -436,6 +438,11 @@ console.log(JSON.stringify({{
     assert "Zufall nicht ausgeschlossen" in out["notDecidedFlag"][1]
     assert "Hinweis auf echten Unterschied" in out["decidedAboveFlag"][1]
     assert "Kein ausreichender Vorteil" in out["decidedNotAboveFlag"][1]
+    assert "B nicht über A" in out["decidedNotAboveFlag"][1]
+    # NOT_ABOVE at a non-zero threshold names the question it answers, like ABOVE does
+    assert "Kein ausreichender Vorteil" in out["decidedNotAboveThresholdFlag"][1]
+    assert "Frage „größer als" in out["decidedNotAboveThresholdFlag"][1]
+    assert "mit nein beantwortet" in out["decidedNotAboveThresholdFlag"][1]
     assert "Keine auswertbaren Paare" in out["noPairsFlag"][1]
 
 
