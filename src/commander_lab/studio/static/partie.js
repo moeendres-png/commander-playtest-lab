@@ -3535,7 +3535,8 @@ async function rematchLastTable() {
       await newGame();
       return;
     }
-    const ownStyleVal = Number(normalizeStyleOption(saved.ownStyle));
+    const ownStyle = { value: normalizeStyleOption(saved.ownStyle) };
+    const ownStyleVal = Number(ownStyle.value);
     const oppStyleVals = oppList.map((_, idx) => {
       const raw = Array.isArray(saved.oppStyles) ? saved.oppStyles[idx] : undefined;
       return Number(normalizeStyleOption(raw));
@@ -3544,7 +3545,7 @@ async function rematchLastTable() {
       revision_id: saved.revision_id,
       opponent_ids: oppList,
       seed: Math.floor(Math.random() * 1000000),
-      style: ownStyleVal,
+      style: Number(ownStyle.value),
       seat_styles: [ownStyleVal, ...oppStyleVals],
     };
     if (saved.human) {
