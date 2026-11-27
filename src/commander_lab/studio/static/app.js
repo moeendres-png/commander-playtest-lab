@@ -44,6 +44,7 @@ const state = {
   subset: null, subsetNames: [], subsetWanted: null, strength: null, showTier: true, modalCardId: null, changeSeq: 0, savedSeq: 0, layers: null, diffDefault: null,
   includeUnowned: false, unownedSelection: null, superfriendsFilter: "", autoDeck: null,
   cardTrend: null, cardTrendDays: 180, cardTrendBracket: "", cardTrendSource: "edhrec", cardTrendReq: null,
+  playNotes: [], replaceCardHint: null,
   colors: new Set(), columns: new Set(["img", "name", "mana_cost", "type_line", "available", "freq", "edhrec"]),
 };
 
@@ -716,6 +717,55 @@ async function openTamPurchase(ownership) {
   );
   $("modal").hidden = false;
 }
+function findCardByNameOrId(nameOrId) {
+  const query = String(nameOrId || "").trim().toLowerCase();
+  if (!query || !state.byId) return null;
+  for (const id of [...state.list.keys(), ...(state.commanderIds || [])]) {
+    const card = state.byId.get(id);
+    if (card && (String(card.card_id || "").toLowerCase() === query || String(card.name || "").toLowerCase() === query)) return card;
+  }
+  for (const card of state.byId.values()) {
+    if (card && (String(card.card_id || "").toLowerCase() === query || String(card.name || "").toLowerCase() === query)) return card;
+  }
+  return null;
+}
+function renderReplaceCardHint() {
+  const hint = state.replaceCardHint;
+  if (!hint) return null;
+  return h("div", { class: "card-box replace-hint-box", id: "replace-card-hint" },
+    h("h4", {},
+      h("span", {}, `Karte ersetzen (Nachspiel-Blatt): ${hint.cardName}`),
+      h("button", { type: "button", class: "small", onclick: () => { state.replaceCardHint = null; renderDeck(); } }, "Schließen")),
+    hint.revision ? h("p", { class: "note" }, `Stand aus der Partie: ${hint.revision}`) : null,
+    hint.card
+      ? h("div", { class: "actions" },
+          h("button", { type: "button", class: "primary small", onclick: () => openCard(hint.card, "replace") }, "Karte & Tausch-Helfer öffnen"))
+      : h("p", { class: "muted" }, "Diese Karte wurde im aktuellen Deck oder Pool nicht gefunden."));
+}
+function renderPlayNotesBox() {
+  if (!state.playNotes || !state.playNotes.length) return null;
+  return h("div", { class: "card-box play-notes-box", id: "play-notes-box" },
+    h("h4", {},
+      h("span", {}, "Notizen aus gespielten Partien (PLAYED_GAME)"),
+      h("span", { class: "pill good" }, `${StudioUI.num(state.playNotes.length, 0)} Notiz${state.playNotes.length === 1 ? "" : "en"}`)),
+    h("p", { class: "note" }, "Eigene Beobachtungen aus gespielten Partien (PLAYED_GAME) — strikt getrennt von Tierliste, Bewertung und Simulationszahlen."),
+    h("ul", { class: "play-notes-list" }, state.playNotes.map((note) => {
+      const cardName = note.card_name || "Allgemein";
+      const cardObj = note.card_name ? findCardByNameOrId(note.card_name) : null;
+      const hintText = note.action_hint ? `Hinweis: ${note.action_hint}` : "Hinweis: –";
+      const ts = note.created_at ? String(note.created_at).slice(0, 16).replace("T", " ") : "–";
+      return h("li", { class: "play-note-item" },
+        h("div", { class: "play-note-head" },
+          cardObj
+            ? h("button", { type: "button", class: "small", onclick: () => openCard(cardObj, "replace") }, cardName)
+            : h("b", {}, cardName),
+          " ",
+          h("span", { class: "pill" }, hintText),
+          " ",
+          h("span", { class: "muted" }, ts)),
+        h("div", { class: "play-note-text" }, note.note_text || ""));
+    })));
+}
 function renderList(body) {
   const problems = new Set(state.issues.map((issue) => issue.card_id).filter(Boolean));
   for (const id of state.commanderIds) {
@@ -736,6 +786,10 @@ function renderList(body) {
           : null));
     }
   }
+  const replaceHintBox = renderReplaceCardHint();
+  if (replaceHintBox) body.append(replaceHintBox);
+  const playNotesBox = renderPlayNotesBox();
+  if (playNotesBox) body.append(playNotesBox);
   const cards = deckCards();
   if (!cards.length) body.append(h("p", { class: "muted" }, "Noch keine Karten. Wähle links Karten aus deiner Sammlung aus."));
   for (const group of GROUPS) {
@@ -3637,10 +3691,11 @@ async function loadDecks() {
     state.deckId = created.deck_id; state.decks = mine(await api("/api/decks"));
     state.autoDeck = { deckId: created.deck_id }; // not asked for by the person: renderAutoDeckNote says so
   }
-  if (!state.deckId) { // first load after opening the page: honor explicit ?deck= link, else reopen last variant
+  if (!state.deckId) { // first load after opening the page: honor explicit ?deck= or ?revision= link, else reopen last variant
     const urlParams = typeof location !== "undefined" ? new URLSearchParams(location.search) : null;
     const urlDeck = urlParams ? urlParams.get("deck") : null;
     const urlBranch = urlParams ? urlParams.get("branch") : null;
+    const urlRevision = urlParams ? urlParams.get("revision") : null;
     if (urlDeck && state.decks.some((deck) => deck.deck_id === urlDeck)) {
       state.deckId = urlDeck;
       const wanted = state.decks.find((deck) => deck.deck_id === urlDeck);
@@ -3651,6 +3706,11 @@ async function loadDecks() {
         const rest = urlParams.toString();
         history.replaceState(null, "", location.pathname + (rest ? "?" + rest : ""));
       }
+    } else if (urlRevision && state.decks.some((deck) => (deck.branches || []).some((b) => b.revision_id === urlRevision))) {
+      const matchedDeck = state.decks.find((deck) => (deck.branches || []).some((b) => b.revision_id === urlRevision));
+      const matchedBranch = matchedDeck.branches.find((b) => b.revision_id === urlRevision);
+      state.deckId = matchedDeck.deck_id;
+      state.branch = matchedBranch.branch;
     } else {
       const wantedDeck = StudioUI.recall(variantKey("deck"), "");
       if (state.decks.some((deck) => deck.deck_id === wantedDeck)) {
@@ -3868,6 +3928,11 @@ async function loadBranchNow(token, deckId, branchName, seqAtStart) {
     useCards(revision.cards); state.dirty = false; state.issues = revision.issues; state.shape = revision.shape; state.deckRoles = revision.roles || {}; state.combos = revision.combos || null;
   }
   loadFailed = false; failedTarget = null;
+  const playNotesRaw = await api("/api/decks/" + encodeURIComponent(state.deckId) + "/play-notes?revision_id=" + encodeURIComponent(state.baseRevision || "")).catch(() => []);
+  if (token !== loadSeq) return false;
+  state.playNotes = Array.isArray(playNotesRaw)
+    ? playNotesRaw
+    : (playNotesRaw && Array.isArray(playNotesRaw.notes) ? playNotesRaw.notes : []);
   rememberVariant();
   renderDeckSelects();
   renderSaveState();
@@ -4355,6 +4420,27 @@ function setupControls() {
   $("modal").addEventListener("click", (event) => { if (event.target === $("modal")) closeModal(); });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeModal(); });
 }
+function applyReplaceUrlParams() {
+  if (typeof location === "undefined") return;
+  const urlParams = new URLSearchParams(location.search);
+  const replaceName = (urlParams.get("replace") || "").trim();
+  const revParam = (urlParams.get("revision") || "").trim();
+  if (!replaceName) return;
+  const card = findCardByNameOrId(replaceName);
+  state.replaceCardHint = {
+    cardName: card ? card.name : replaceName,
+    revision: revParam || state.baseRevision || "",
+    card: card || null,
+  };
+  if (typeof history !== "undefined" && typeof history.replaceState === "function") {
+    urlParams.delete("replace");
+    urlParams.delete("revision");
+    const rest = urlParams.toString();
+    history.replaceState(null, "", location.pathname + (rest ? "?" + rest : ""));
+  }
+  renderDeck();
+  if (card) openCard(card, "replace");
+}
 async function start() {
   const startBusy = StudioUI.createBusyView({
     title: "Kartenpool und Deckdaten werden geladen …",
@@ -4405,7 +4491,7 @@ async function start() {
     state.pairedHistory = pairedList || [];
     const runningPaired = state.pairedHistory.find((j) => j.status === "running" || j.status === "pending");
     if (runningPaired) { state.activePaired = runningPaired; pollPaired(runningPaired.series_id); }
-    setupControls(); await loadDecks(); await loadBranch();
+    setupControls(); await loadDecks(); await loadBranch(); applyReplaceUrlParams();
     try {
       const pendingToast = sessionStorage.getItem("studio.pendingToast");
       if (pendingToast) {

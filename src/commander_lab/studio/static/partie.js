@@ -31,7 +31,7 @@ function resolvePriorityOptionType(opt) {
   return ot || "activated_ability";
 }
 
-const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, focusSeat: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, responseMode: "full_control", holdToConfirm: true, haltConfig: typeof StudioTurnBar !== "undefined" ? StudioTurnBar.defaultHaltConfig("full_control") : null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), combatPreview: null, ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, drag: null, suppressNextClickUntil: 0, hoveredTarget: null, targetModeDismissedId: null, targetPointer: null, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], logRuns: [], logQuery: "", seatKeys: [], poll: 0 };
+const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, focusSeat: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, responseMode: "full_control", holdToConfirm: true, haltConfig: typeof StudioTurnBar !== "undefined" ? StudioTurnBar.defaultHaltConfig("full_control") : null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, postgame: null, postgameGameId: null, postgameLoadingFor: null, postgameFailedFor: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), combatPreview: null, ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, drag: null, suppressNextClickUntil: 0, hoveredTarget: null, targetModeDismissedId: null, targetPointer: null, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], logRuns: [], logQuery: "", seatKeys: [], poll: 0 };
 
 const $ = (id) => document.getElementById(id);
 function h(tag, props, ...children) {
@@ -2652,11 +2652,204 @@ function syncEngineStartBusy(waiting) {
   }
   return engineStartBusy;
 }
+const POSTGAME_OUTCOMES = {
+  won: "Gewonnen (won)",
+  lost: "Verloren (lost)",
+  draw: "Unentschieden (draw)",
+  incomplete: "Unvollständig (incomplete)",
+};
+function buildReplaceCardHref(cardName, revisionId) {
+  return `index.html?replace=${encodeURIComponent(cardName || "")}&revision=${encodeURIComponent(revisionId || "")}`;
+}
+function formatPostgameDuration(seconds) {
+  if (seconds === null || seconds === undefined || !Number.isFinite(Number(seconds))) return "unbekannt";
+  const total = Math.max(0, Math.round(Number(seconds)));
+  const mins = Math.floor(total / 60);
+  const secs = total % 60;
+  return mins > 0 ? `${mins} min ${secs} s` : `${secs} s`;
+}
+function postgameDataClassBadge(dataClass) {
+  if (dataClass === StudioCohort.PLAYED) {
+    return h("span", {
+      class: "pill good postgame-data-class",
+      title: "Von einem Menschen gespielt (PLAYED_GAME): zählt in keiner Simulationszahl.",
+    }, "PLAYED_GAME · Gespielte Partie");
+  }
+  if (dataClass === StudioCohort.SIMULATED) {
+    return h("span", {
+      class: "pill warn postgame-data-class",
+      title: "Simulierte Partie (SIMULATED_RESULT): KI auf allen Plätzen.",
+    }, "SIMULATED_RESULT · Simuliert");
+  }
+  return h("span", {
+    class: "pill warn postgame-data-class",
+    title: "Herkunft dieser Partie ist unbekannt.",
+  }, dataClass || StudioCohort.UNKNOWN);
+}
+function renderPostgameCardList(title, cards, revisionId) {
+  const list = Array.isArray(cards) ? cards : [];
+  return h("div", { class: "postgame-card-section" },
+    h("h4", null, `${title} (${list.length})`),
+    list.length
+      ? h("ul", { class: "postgame-card-list" },
+          list.map((card) =>
+            h("li", { class: "postgame-card-item" },
+              h("span", { class: "postgame-card-name" }, card),
+              " ",
+              h("a", {
+                class: "postgame-replace-link",
+                href: buildReplaceCardHref(card, revisionId),
+              }, "Diese Karte ersetzen →"))))
+      : h("p", { class: "muted" }, "Keine"));
+}
+function renderPostgameSheet(postgame, container) {
+  const box = container || $("postgame-sheet");
+  if (!box) return;
+  if (!postgame) {
+    box.hidden = true;
+    box.replaceChildren();
+    return;
+  }
+  const gameId = postgame.game_id || state.gameId || "";
+  const dataClass = postgame.data_class || StudioCohort.UNKNOWN;
+  const outcomeKey = postgame.outcome || "incomplete";
+  const outcomeText = POSTGAME_OUTCOMES[outcomeKey] || outcomeKey;
+  const jarFull = postgame.bridge_jar_sha256 ? String(postgame.bridge_jar_sha256) : "";
+  const jarShort = jarFull ? jarFull.slice(0, 12) : "–";
+  const epochText = postgame.bridge_qualification_state
+    || (state.header && state.header.covered_by_sealed_epoch ? "versiegelt" : "unbekannt");
+  const turnsText = postgame.total_turns !== null && postgame.total_turns !== undefined
+    ? String(postgame.total_turns)
+    : "unbekannt";
+  const durationText = formatPostgameDuration(postgame.duration_seconds);
+  const clicksText = postgame.human_clicks !== null && postgame.human_clicks !== undefined
+    ? String(postgame.human_clicks)
+    : "unbekannt";
+
+  const drawn = Array.isArray(postgame.cards_drawn) ? postgame.cards_drawn : [];
+  const cast = Array.isArray(postgame.cards_cast) ? postgame.cards_cast : [];
+  const leftInHand = Array.isArray(postgame.cards_left_in_hand) ? postgame.cards_left_in_hand : [];
+  const cardChoices = [...new Set([...drawn, ...cast, ...leftInHand])];
+  const notes = Array.isArray(postgame.notes) ? postgame.notes : [];
+
+  const cardSelect = h("select", { class: "postgame-note-card", "aria-label": "Karte für Notiz (optional)" },
+    h("option", { value: "" }, "(Allgemeine Notiz ohne Karte)"),
+    cardChoices.map((card) => h("option", { value: card }, card)));
+  const noteInput = h("textarea", {
+    class: "postgame-note-text",
+    rows: "2",
+    placeholder: "Notiz zur Partie oder Karte …",
+    "aria-label": "Notiztext",
+  });
+  const saveBtn = h("button", { type: "submit", class: "primary postgame-note-save" }, "Notiz speichern");
+  const noteForm = h("form", {
+    class: "postgame-note-form",
+    onsubmit: async (event) => {
+      if (event && typeof event.preventDefault === "function") event.preventDefault();
+      const text = String(noteInput.value || "").trim();
+      if (!text) {
+        toast("Bitte zuerst einen Notiztext eingeben.");
+        return;
+      }
+      if (!gameId) return;
+      saveBtn.disabled = true;
+      try {
+        const body = { note_text: text };
+        if (cardSelect.value) body.card_name = cardSelect.value;
+        await api(`/api/games/${encodeURIComponent(gameId)}/notes`, "POST", body);
+        noteInput.value = "";
+        await loadPostgameSheet(gameId, box);
+        toast("Notiz gespeichert.");
+      } catch (error) {
+        toast(`Notiz konnte nicht gespeichert werden: ${formatPlayError(error)}`);
+      } finally {
+        saveBtn.disabled = false;
+      }
+    },
+  },
+    h("div", { class: "postgame-note-fields" }, cardSelect, noteInput, saveBtn));
+
+  const notesList = notes.length
+    ? h("ul", { class: "postgame-notes-list" },
+        notes.map((note) => {
+          const ts = note.created_at ? String(note.created_at).slice(0, 16).replace("T", " ") : "";
+          return h("li", { class: "postgame-note-item" },
+            h("div", { class: "postgame-note-meta" },
+              note.card_name ? h("b", null, note.card_name) : h("span", { class: "muted" }, "Allgemein"),
+              note.action_hint ? h("span", { class: "pill warn" }, note.action_hint) : null,
+              ts ? h("span", { class: "muted" }, ts) : null),
+            h("div", { class: "postgame-note-body" }, note.note_text || ""));
+        }))
+    : h("p", { class: "muted" }, "Noch keine Notizen zu dieser Partie.");
+
+  const children = [
+    h("div", { class: "postgame-head" },
+      h("h3", null, "Nachspiel-Blatt"),
+      postgameDataClassBadge(dataClass)),
+    h("div", { class: "postgame-meta" },
+      h("span", { class: "postgame-stat" }, `Ergebnis: ${outcomeText}`),
+      h("span", { class: "postgame-stat", title: jarFull ? `Bridge-JAR SHA-256: ${jarFull}` : "" }, `Bridge-JAR: ${jarShort}`),
+      h("span", { class: "postgame-stat" }, `Epoche: ${epochText}`),
+      h("span", { class: "postgame-stat" }, `Züge: ${turnsText}`),
+      h("span", { class: "postgame-stat" }, `Dauer: ${durationText}`),
+      h("span", { class: "postgame-stat" }, `Eigene Klicks: ${clicksText}`)),
+    renderPostgameCardList("Gezogen", drawn, postgame.revision_id),
+    renderPostgameCardList("Gewirkt", cast, postgame.revision_id),
+    renderPostgameCardList("Auf der Hand geblieben", leftInHand, postgame.revision_id),
+    h("div", { class: "postgame-notes" },
+      h("h4", null, `Notizen (${notes.length})`),
+      notesList,
+      noteForm),
+  ];
+  const safeChildren = typeof StudioUI !== "undefined" && StudioUI.kids ? StudioUI.kids(...children) : children.filter(Boolean);
+  box.replaceChildren(...safeChildren);
+  if (box.dataset) box.dataset.gameId = gameId;
+  box.hidden = false;
+}
+async function loadPostgameSheet(gameId, targetContainer = null) {
+  const container = targetContainer || $("postgame-sheet");
+  if (!gameId || !container) return null;
+  state.postgameLoadingFor = gameId;
+  state.postgameFailedFor = null;
+  try {
+    const postgame = await api(`/api/games/${encodeURIComponent(gameId)}/postgame`);
+    if (state.gameId && state.gameId !== gameId) return null;
+    if (state.running && !postgame.finished) {
+      container.hidden = true;
+      return null;
+    }
+    state.postgame = postgame;
+    state.postgameGameId = gameId;
+    renderPostgameSheet(postgame, container);
+    return postgame;
+  } catch (error) {
+    if (!state.gameId || state.gameId === gameId) {
+      state.postgameFailedFor = gameId;
+      container.hidden = true;
+    }
+    return null;
+  } finally {
+    if (state.postgameLoadingFor === gameId) state.postgameLoadingFor = null;
+  }
+}
 function renderView() {
   renderBridgeBanner();
   if (state.ff.on && !state.running) endFastForward("die Partie ist zu Ende");
   renderHumanDecision();
   renderReplayControls();
+  const postgameSheet = $("postgame-sheet");
+  if (postgameSheet) {
+    const ended = Boolean(state.gameId && !state.running && state.result);
+    if (!ended) {
+      postgameSheet.hidden = true;
+    } else if (state.postgame && state.postgame.game_id === state.gameId) {
+      if (postgameSheet.hidden || (postgameSheet.dataset && postgameSheet.dataset.gameId !== state.gameId)) {
+        renderPostgameSheet(state.postgame, postgameSheet);
+      }
+    } else if (state.postgameLoadingFor !== state.gameId && state.postgameFailedFor !== state.gameId) {
+      void loadPostgameSheet(state.gameId);
+    }
+  }
   const atLiveTail = state.interactive && state.running && state.pendingDecision && state.index >= Math.max(0, state.frames.length - 1);
   const frame = atLiveTail ? pilotStateToFrame(state.pendingDecision) : state.frames[state.index];
   // board clicks exist only on the live decision of the human, never on a recorded frame
@@ -3282,7 +3475,8 @@ async function openGame(gameId) {
   restoreAiDelayOnLeave(state.gameId);
   const listed = state.games.find((entry) => entry.game_id === gameId);
   const listedInteractive = Boolean(listed && listed.header && Array.isArray(listed.header.human_seats) && listed.header.human_seats.length);
-  Object.assign(state, { gameId, cohortRecord: null, focusSeat: null, frames: [], lines: [], logRuns: [], logQuery: "", index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, pollFailures: 0, revision: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), combatPreview: null, ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
+  Object.assign(state, { gameId, cohortRecord: null, focusSeat: null, frames: [], lines: [], logRuns: [], logQuery: "", index: 0, seatKeys: [], header: null, result: null, postgame: null, postgameGameId: null, postgameLoadingFor: null, postgameFailedFor: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, pollFailures: 0, revision: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), combatPreview: null, ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
+  if ($("postgame-sheet")) { $("postgame-sheet").hidden = true; $("postgame-sheet").replaceChildren(); if ($("postgame-sheet").dataset) delete $("postgame-sheet").dataset.gameId; }
   if ($("log-search")) $("log-search").value = "";
   if ($("table-mode-bar")) $("table-mode-bar").hidden = true;
   ffStatus(""); showConnectionLost(0, ""); renderCohortPill();
@@ -3412,7 +3606,13 @@ async function followTick(generation) {
     if (added && atEnd && !state.playing) go(Math.max(0, state.frames.length - 1));
     else if (StudioFollow.viewKey(viewState()) !== state.renderedKey) render();
   }
-  if (!state.running) { refreshTitles(); return; }
+  if (!state.running) {
+    if (state.gameId && state.result && (!state.postgame || state.postgame.game_id !== state.gameId) && state.postgameLoadingFor !== state.gameId && state.postgameFailedFor !== state.gameId) {
+      void loadPostgameSheet(state.gameId);
+    }
+    refreshTitles();
+    return;
+  }
   if (generation !== state.followGen) return; // a newer follow loop took over
   armFollow(generation, held, failed, performance.now() - startedAt, state.revision !== revisionBefore);
 }
@@ -3812,6 +4012,11 @@ async function listGames(wanted) {
     if ($("stack-count")) $("stack-count").textContent = "";
     state.ownCombat = StudioPlayP1a.emptyCombatLedger();
     state.combatPreview = null;
+    state.postgame = null;
+    state.postgameGameId = null;
+    state.postgameLoadingFor = null;
+    state.postgameFailedFor = null;
+    if ($("postgame-sheet")) { $("postgame-sheet").hidden = true; $("postgame-sheet").replaceChildren(); if ($("postgame-sheet").dataset) delete $("postgame-sheet").dataset.gameId; }
     $("game-info").textContent = "";
     $("now").textContent = "";
     if ($("own-combat")) { $("own-combat").textContent = ""; $("own-combat").hidden = true; }
