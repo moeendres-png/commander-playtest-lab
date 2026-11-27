@@ -211,6 +211,7 @@ const StudioPlayP1a = (() => {
           };
           if (meta && meta.object_id) entry.objectId = text(meta.object_id);
           if (meta && meta.defender_id) entry.defenderId = text(meta.defender_id);
+          if (entry.kind === "attacker" && option.label) entry.defenderLabel = stripMarkup(text(option.label));
           nextEntries.push(entry);
         }
       }

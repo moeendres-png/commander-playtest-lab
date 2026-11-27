@@ -5,10 +5,13 @@
 })(typeof globalThis !== "undefined" ? globalThis : window, function () {
   "use strict";
 
-  const COMBAT_STEPS = new Set([
+  const PRE_DAMAGE_COMBAT_STEPS = new Set([
     "begin_combat",
     "declare_attackers",
-    "declare_blockers",
+    "declare_blockers"
+  ]);
+
+  const POST_DAMAGE_COMBAT_STEPS = new Set([
     "first_combat_damage",
     "combat_damage"
   ]);
@@ -17,7 +20,8 @@
     { re: /\bprevent\b[^.\n]{0,80}\bdamage\b/i, reason: "Schadensverhinderung im Kartentext" },
     { re: /\bverhinder[nt]?\b[^.\n]{0,80}\bschad/i, reason: "Schadensverhinderung im Kartentext" },
     { re: /\bassigns? no combat damage\b/i, reason: "Modifizierte Kampfschadens-Zuweisung" },
-    { re: /\binstead\b[^.\n]{0,80}\bdamage\b/i, reason: "Ersatzeffekt für Kampfschaden" },
+    { re: /\b(?:instead\b[^.\n]{0,80}\bdamage|damage\b[^.\n]{0,120}\binstead)\b/i, reason: "Ersatzeffekt für Kampfschaden" },
+    { re: /\b(?:double|twice|triple)\b[^.\n]{0,50}\bdamage\b/i, reason: "Schadensmultiplikator im Kartentext" },
     { re: /\bwhenever\b[^.\n]{0,100}\b(?:attacks?|blocks?|becomes? blocked|deals? combat damage)\b/i, reason: "Kampf-Auslöser (Trigger) im Kartentext" },
     { re: /\bimmer wenn\b[^.\n]{0,100}\b(?:angreift|blockt|geblockt wird|kampfschaden)\b/i, reason: "Kampf-Auslöser (Trigger) im Kartentext" },
     { re: /\bprotection from\b|\bschutz vor\b/i, reason: "Schutz-Fähigkeit im Kartentext" },
@@ -25,6 +29,8 @@
     { re: /\b(?:damage can't be prevented|combat damage can't be prevented)\b/i, reason: "Spezielle Schadensregel im Kartentext" },
     { re: /\bassign combat damage (?:rather than|using|as though)\b/i, reason: "Abweichende Kampfschadens-Formel" }
   ];
+
+  const NON_SELF_KEYWORD_LINE_RE = /\b(?:other creatures|other \w+ you control|creatures blocking|creatures blocked by|blocking creatures|loses|lose|without|can't have|cannot have)\b/i;
 
   function asText(value) {
     return typeof value === "string" ? value.trim() : "";
@@ -37,15 +43,49 @@
   function cardRulesText(card) {
     if (!card || typeof card !== "object" || isFaceDownCard(card)) return "";
     const parts = [];
-    for (const key of ["oracle_text", "rules_text", "text", "rules"]) {
+    for (const key of ["oracle_text", "rules_text", "text", "rules", "abilities"]) {
       const val = card[key];
       if (typeof val === "string" && val.trim()) parts.push(val.trim());
-      else if (Array.isArray(val) && val.length) parts.push(val.filter((item) => typeof item === "string").join("\n"));
+      else if (Array.isArray(val) && val.length) {
+        parts.push(
+          val
+            .map((item) => (typeof item === "string" ? item : (item && typeof item.text === "string" ? item.text : "")))
+            .filter(Boolean)
+            .join("\n")
+        );
+      }
     }
     if (Array.isArray(card.keywords) && card.keywords.length) {
       parts.push(card.keywords.filter((item) => typeof item === "string").join(", "));
     }
     return parts.join("\n");
+  }
+
+  function selfKeywordText(card) {
+    if (!card || typeof card !== "object" || isFaceDownCard(card)) return "";
+    const lines = [];
+    if (Array.isArray(card.keywords) && card.keywords.length) {
+      lines.push(card.keywords.filter((item) => typeof item === "string").join(", "));
+    }
+    if (Array.isArray(card.abilities) && card.abilities.length) {
+      for (const ab of card.abilities) {
+        const txt = typeof ab === "string" ? ab : (ab && typeof ab.text === "string" ? ab.text : "");
+        if (txt && !NON_SELF_KEYWORD_LINE_RE.test(txt)) lines.push(txt);
+      }
+    }
+    for (const key of ["oracle_text", "rules_text", "text", "rules"]) {
+      const val = card[key];
+      const raw = typeof val === "string"
+        ? val
+        : (Array.isArray(val) ? val.filter((x) => typeof x === "string").join("\n") : "");
+      if (!raw) continue;
+      for (const line of raw.split(/\r?\n/)) {
+        const trimmed = line.trim();
+        if (!trimmed || NON_SELF_KEYWORD_LINE_RE.test(trimmed)) continue;
+        lines.push(trimmed);
+      }
+    }
+    return lines.join("\n").toLowerCase();
   }
 
   function buildPilotStateCardMap(pendingDecision) {
@@ -72,7 +112,7 @@
     }
     const merged = Object.assign({}, card);
     if (psCard) {
-      for (const key of ["oracle_text", "rules_text", "text", "rules", "keywords", "types", "type_line", "is_land", "face_down"]) {
+      for (const key of ["oracle_text", "rules_text", "text", "rules", "abilities", "keywords", "types", "type_line", "is_land", "face_down"]) {
         if (merged[key] === undefined && psCard[key] !== undefined) {
           merged[key] = psCard[key];
         }
@@ -110,7 +150,7 @@
       reach: false
     };
     if (!card || typeof card !== "object" || isFaceDownCard(card)) return empty;
-    const raw = cardRulesText(card).toLowerCase();
+    const raw = selfKeywordText(card);
     if (!raw) return empty;
     return {
       firstStrike: /\bfirst strike\b|\berstschlag\b/.test(raw),
@@ -166,7 +206,7 @@
         continue;
       }
       const txt = cardRulesText(card);
-      if (txt && /(?:\{T\}|tap):?\s*add\b/i.test(txt)) {
+      if (txt && /(?:\{T\}|\btap\b)[^.\n]{0,60}:\s*(?:add\b|erzeuge\b)/i.test(txt)) {
         count += 1;
       }
     }
@@ -190,14 +230,14 @@
     const isLandFn = typeof opts.isLand === "function" ? opts.isLand : null;
     const psCardById = opts.psCardById || null;
     const facts = opts.facts || null;
-    const focusSeats = Array.isArray(opts.defenderSeats) && opts.defenderSeats.length ? new Set(opts.defenderSeats) : null;
+    const focusSeats = Array.isArray(opts.relevantSeats) && opts.relevantSeats.length ? new Set(opts.relevantSeats) : null;
     const risks = [];
 
     for (const player of players) {
       if (!player || player.lost || player.seat === actorSeat) continue;
       if (focusSeats && !focusSeats.has(player.seat)) continue;
-      const handCount = Number.isFinite(Number(player.hand_count))
-        ? Number(player.hand_count)
+      const handCount = (typeof player.hand_count === "number" && Number.isFinite(player.hand_count))
+        ? player.hand_count
         : (Array.isArray(player.hand) ? player.hand.length : 0);
       if (handCount <= 0) continue;
       const openMana = countOpenManaSources(player, isLandFn, psCardById, facts);
@@ -218,14 +258,25 @@
     };
   }
 
-  function resolveDefenderSeat(defenderRef, players, seatNameFn, psPlayers) {
-    if (defenderRef === null || defenderRef === undefined) return null;
-    if (typeof defenderRef === "number" && Number.isInteger(defenderRef)) return defenderRef;
-    const raw = String(defenderRef).trim();
+  function extractAttackLabelTarget(labelText, attackerName) {
+    const label = asText(labelText);
+    if (!label) return "";
+    const cleanAtk = asText(attackerName);
+    if (cleanAtk && label.startsWith(`${cleanAtk} attacks `)) {
+      return label.slice(cleanAtk.length + " attacks ".length).trim();
+    }
+    const match = label.match(/\battacks\s+(.+)$/i);
+    return match ? match[1].trim() : "";
+  }
+
+  function matchSeatFromPlayers(ref, players, seatNameFn, psPlayers) {
+    if (ref === null || ref === undefined) return null;
+    if (typeof ref === "number" && Number.isInteger(ref)) return ref;
+    const raw = String(ref).trim();
     if (!raw) return null;
     const candidates = Array.isArray(psPlayers) && psPlayers.length ? [...players, ...psPlayers] : players;
     for (const player of candidates) {
-      if (!player) continue;
+      if (!player || !Number.isInteger(player.seat)) continue;
       const s = player.seat;
       if (
         (player.player_id && raw === String(player.player_id)) ||
@@ -242,19 +293,53 @@
     return null;
   }
 
-  function findCardAcrossBoard(frame, objectId, fallbackName, psCardById, facts) {
+  function resolveDefenderTarget(defenderRef, labelText, attackerName, frame, players, seatNameFn, psPlayers, psCardById, facts) {
+    const directSeat = matchSeatFromPlayers(defenderRef, players, seatNameFn, psPlayers);
+    if (directSeat !== null) {
+      return { seat: directSeat, objectId: null, label: seatNameFn(directSeat), isPlaneswalker: false };
+    }
+    const labelTarget = extractAttackLabelTarget(labelText, attackerName);
+    if (labelTarget) {
+      const labelSeat = matchSeatFromPlayers(labelTarget, players, seatNameFn, psPlayers);
+      if (labelSeat !== null) {
+        return { seat: labelSeat, objectId: null, label: seatNameFn(labelSeat), isPlaneswalker: false };
+      }
+    }
+    const pwFound = findCardAcrossBoard(frame, defenderRef ? String(defenderRef) : null, labelTarget || null, psCardById, facts);
+    if (pwFound) {
+      return {
+        seat: null,
+        ownerSeat: pwFound.seat,
+        objectId: pwFound.card.object_id || (defenderRef ? String(defenderRef) : null),
+        label: pwFound.card.name || labelTarget || "Planeswalker",
+        isPlaneswalker: true
+      };
+    }
+    return {
+      seat: null,
+      objectId: null,
+      label: labelTarget || "Verteidiger",
+      isPlaneswalker: false
+    };
+  }
+
+  function findCardAcrossBoard(frame, objectId, fallbackName, psCardById, facts, preferredSeat, excludeSeat) {
     const players = Array.isArray(frame && frame.players) ? frame.players : [];
     for (const player of players) {
       if (!player) continue;
       for (const card of (player.battlefield || [])) {
-        if (!card) continue;
-        if (objectId && card.object_id === objectId) {
+        if (card && objectId && card.object_id === objectId) {
           return { card: enrichCard(card, psCardById, facts), seat: player.seat };
         }
       }
     }
     if (fallbackName) {
-      for (const player of players) {
+      const ordered = [...players].sort((a, b) => {
+        const aPref = a && Number.isInteger(preferredSeat) && a.seat === preferredSeat ? -2 : (a && a.seat === excludeSeat ? 1 : 0);
+        const bPref = b && Number.isInteger(preferredSeat) && b.seat === preferredSeat ? -2 : (b && b.seat === excludeSeat ? 1 : 0);
+        return aPref - bPref;
+      });
+      for (const player of ordered) {
         if (!player) continue;
         for (const card of (player.battlefield || [])) {
           if (card && card.name === fallbackName) {
@@ -266,9 +351,9 @@
     return null;
   }
 
-  function isLethalDamage(damageDealt, hasDeathtouch, remainingToughness, isIndestructible) {
+  function isLethalDamage(damageDealt, sawDeathtouchDamage, remainingToughness, isIndestructible) {
     if (isIndestructible || damageDealt <= 0) return false;
-    if (hasDeathtouch) return true;
+    if (sawDeathtouchDamage) return true;
     return damageDealt >= Math.max(0, remainingToughness);
   }
 
@@ -289,6 +374,8 @@
     let attDealtTotal = 0;
     let blkDealtTotal = 0;
     let trampleDamage = 0;
+    let blkTookDeathtouch = false;
+    let attTookDeathtouch = false;
 
     const attHitsFirst = attKw.firstStrike || attKw.doubleStrike;
     const attHitsSecond = !attKw.firstStrike || attKw.doubleStrike;
@@ -311,12 +398,14 @@
       blkTaken += toBlocker;
       attDealtTotal += toBlocker + overflow;
       trampleDamage += overflow;
+      if (toBlocker > 0 && attKw.deathtouch) blkTookDeathtouch = true;
     }
 
     function assignBlockerHit() {
       if (blkP <= 0) return;
       attTaken += blkP;
       blkDealtTotal += blkP;
+      if (blkKw.deathtouch) attTookDeathtouch = true;
     }
 
     function runDamageStep(attStrikes, blkStrikes) {
@@ -324,11 +413,11 @@
       const blkActs = blkStrikes && !blkDies;
       if (attActs) assignAttackerHit();
       if (blkActs) assignBlockerHit();
-      // State-based actions apply after all damage in the step is dealt simultaneously.
-      if (isLethalDamage(blkTaken, attKw.deathtouch, blkT, blkKw.indestructible)) {
+      // State-based actions apply simultaneously after the damage step.
+      if (isLethalDamage(blkTaken, blkTookDeathtouch, blkT, blkKw.indestructible)) {
         blkDies = true;
       }
-      if (isLethalDamage(attTaken, blkKw.deathtouch, attT, attKw.indestructible)) {
+      if (isLethalDamage(attTaken, attTookDeathtouch, attT, attKw.indestructible)) {
         attDies = true;
       }
     }
@@ -363,29 +452,56 @@
     return { outcome: "survives", icon: "🛡️", text: note || (dmgDealt > 0 ? `Überlebt (${dmgDealt} Schaden)` : "Überlebt") };
   }
 
-  function addHoverTargetIfNeeded(attacks, blocks, pending, hoveredTarget, drag, frame, players, seatNameFn, psCardById, facts) {
-    if (!pending) return;
+  function addHoverTargetIfNeeded(attacks, blocks, pending, hoveredTarget, drag, frame, players, seatNameFn, psPlayers, psCardById, facts) {
+    if (!pending || !hoveredTarget) return;
     const cls = pending.decision_class;
-    if (cls === "declare_attacker" && drag && drag.kind === "attacker" && hoveredTarget && hoveredTarget.type === "seat") {
-      const exists = attacks.some((a) => a.attackerId && a.attackerId === drag.objectId);
-      if (!exists) {
-        const found = findCardAcrossBoard(frame, drag.objectId, drag.name, psCardById, facts);
-        attacks.push({
-          attackerId: drag.objectId,
-          attackerName: (found && found.card.name) || drag.name || "Angreifer",
-          attackerSeat: found ? found.seat : pending.seat,
-          defenderSeat: hoveredTarget.seat,
-          defenderLabel: seatNameFn(hoveredTarget.seat),
-          staged: true,
-          hovered: true
+    if (cls === "declare_attacker" && drag && drag.kind === "attacker") {
+      if (hoveredTarget.type === "seat") {
+        const exists = attacks.some((a) => a.attackerId && a.attackerId === drag.objectId);
+        if (!exists) {
+          const found = findCardAcrossBoard(frame, drag.objectId, drag.name, psCardById, facts, pending.seat);
+          attacks.push({
+            attackerId: drag.objectId,
+            attackerName: (found && found.card.name) || drag.name || "Angreifer",
+            attackerSeat: found ? found.seat : pending.seat,
+            defenderSeat: hoveredTarget.seat,
+            defenderLabel: seatNameFn(hoveredTarget.seat),
+            isPlaneswalker: false,
+            staged: true,
+            hovered: true
+          });
+        }
+      } else if (hoveredTarget.type === "object" && hoveredTarget.id) {
+        const pwOpt = (pending.legal_options || []).find((o) => {
+          const m = o && o.metadata;
+          return o.option_type !== "hold_attacker" && m && m.object_id === drag.objectId && m.defender_id === hoveredTarget.id;
         });
+        if (pwOpt && !attacks.some((a) => a.attackerId && a.attackerId === drag.objectId)) {
+          const found = findCardAcrossBoard(frame, drag.objectId, drag.name, psCardById, facts, pending.seat);
+          const def = resolveDefenderTarget(hoveredTarget.id, pwOpt.label, drag.name, frame, players, seatNameFn, psPlayers, psCardById, facts);
+          attacks.push({
+            attackerId: drag.objectId,
+            attackerName: (found && found.card.name) || drag.name || "Angreifer",
+            attackerSeat: found ? found.seat : pending.seat,
+            defenderSeat: def.seat,
+            defenderLabel: def.label,
+            isPlaneswalker: def.isPlaneswalker,
+            staged: true,
+            hovered: true
+          });
+        }
       }
-    } else if (cls === "declare_blocker" && drag && drag.kind === "blocker" && hoveredTarget && hoveredTarget.type === "object") {
+    } else if (cls === "declare_blocker" && drag && drag.kind === "blocker" && hoveredTarget.type === "object") {
       const attackerFound = findCardAcrossBoard(frame, hoveredTarget.id, null, psCardById, facts);
-      const blockerFound = findCardAcrossBoard(frame, drag.objectId, drag.name, psCardById, facts);
+      const blockerFound = findCardAcrossBoard(frame, drag.objectId, drag.name, psCardById, facts, pending.seat);
       if (attackerFound && blockerFound) {
         const dup = blocks.some((b) => b.blockerId === drag.objectId && b.attackerId === hoveredTarget.id);
         if (!dup) {
+          if (Number(pending.maximum_selections ?? 1) <= 1) {
+            for (let i = blocks.length - 1; i >= 0; i -= 1) {
+              if (blocks[i].staged && blocks[i].blockerId === drag.objectId) blocks.splice(i, 1);
+            }
+          }
           blocks.push({
             attackerId: hoveredTarget.id,
             attackerName: attackerFound.card.name,
@@ -426,9 +542,20 @@
     const psCardById = buildPilotStateCardMap(pendingDecision);
     const facts = opts.facts && typeof opts.facts === "object" ? opts.facts : null;
     const step = asText(frame.step);
-    const inCombatStep = COMBAT_STEPS.has(step) || (pendingDecision && (pendingDecision.decision_class === "declare_attacker" || pendingDecision.decision_class === "declare_blocker"));
-    const psCombat = pendingDecision && pendingDecision.pilot_state && pendingDecision.pilot_state.combat ? pendingDecision.pilot_state.combat : null;
-    const combatSrc = (frame.combat && ((frame.combat.attacks || []).length || (frame.combat.blocks || []).length)) ? frame.combat : psCombat;
+    const isActiveCombatDecision = Boolean(
+      pendingDecision && (pendingDecision.decision_class === "declare_attacker" || pendingDecision.decision_class === "declare_blocker")
+    );
+    const isPostDamageStep = POST_DAMAGE_COMBAT_STEPS.has(step) && !isActiveCombatDecision;
+    const inCombatStep = PRE_DAMAGE_COMBAT_STEPS.has(step) || POST_DAMAGE_COMBAT_STEPS.has(step) || isActiveCombatDecision;
+
+    const frameHasCombat = Boolean(frame.combat && ((frame.combat.attacks || []).length || (frame.combat.blocks || []).length));
+    const fallbackCombat = opts.fallbackCombat && ((opts.fallbackCombat.attacks || []).length || (opts.fallbackCombat.blocks || []).length)
+      ? opts.fallbackCombat
+      : null;
+    const psCombat = pendingDecision && pendingDecision.pilot_state && pendingDecision.pilot_state.combat
+      ? pendingDecision.pilot_state.combat
+      : null;
+    const combatSrc = frameHasCombat ? frame.combat : (fallbackCombat || psCombat);
     const committedAttacks = combatSrc && Array.isArray(combatSrc.attacks) ? combatSrc.attacks : [];
     const committedBlocks = combatSrc && Array.isArray(combatSrc.blocks) ? combatSrc.blocks : [];
 
@@ -439,21 +566,23 @@
 
     for (const atk of committedAttacks) {
       if (!atk) continue;
-      const found = findCardAcrossBoard(frame, atk.attacker_id || null, atk.attacker, psCardById, facts);
+      const found = findCardAcrossBoard(frame, atk.attacker_id || null, atk.attacker, psCardById, facts, frame.active_seat);
+      const def = resolveDefenderTarget(atk.target_id || atk.target, null, atk.attacker, frame, players, seatNameFn, psPlayers, psCardById, facts);
       attacks.push({
         attackerId: atk.attacker_id || (found && found.card.object_id) || null,
         attackerName: atk.attacker || (found && found.card.name) || "Angreifer",
         attackerSeat: found ? found.seat : (Number.isInteger(frame.active_seat) ? frame.active_seat : frame.seat),
-        defenderSeat: resolveDefenderSeat(atk.target, players, seatNameFn, psPlayers),
-        defenderLabel: atk.target ? String(atk.target) : "Unbekannt",
+        defenderSeat: def.seat,
+        defenderLabel: def.label,
+        isPlaneswalker: def.isPlaneswalker,
         staged: false
       });
     }
 
     for (const blk of committedBlocks) {
       if (!blk) continue;
-      const blkFound = findCardAcrossBoard(frame, blk.blocker_id || null, blk.blocker, psCardById, facts);
-      const atkFound = findCardAcrossBoard(frame, blk.attacker_id || null, blk.attacker, psCardById, facts);
+      const blkFound = findCardAcrossBoard(frame, blk.blocker_id || null, blk.blocker, psCardById, facts, null, frame.active_seat);
+      const atkFound = findCardAcrossBoard(frame, blk.attacker_id || null, blk.attacker, psCardById, facts, frame.active_seat);
       blocks.push({
         attackerId: blk.attacker_id || (atkFound && atkFound.card.object_id) || null,
         attackerName: blk.attacker || (atkFound && atkFound.card.name) || "Angreifer",
@@ -470,22 +599,24 @@
         if (entry.kind === "attacker" && entry.objectId) {
           const dup = attacks.some((a) => a.attackerId === entry.objectId);
           if (!dup) {
-            const found = findCardAcrossBoard(frame, entry.objectId, null, psCardById, facts);
-            const defSeat = resolveDefenderSeat(entry.defenderId, players, seatNameFn, psPlayers);
+            const found = findCardAcrossBoard(frame, entry.objectId, null, psCardById, facts, frame.active_seat);
+            const atkName = (found && found.card.name) || null;
+            const def = resolveDefenderTarget(entry.defenderId, entry.defenderLabel || entry.text, atkName, frame, players, seatNameFn, psPlayers, psCardById, facts);
             attacks.push({
               attackerId: entry.objectId,
-              attackerName: (found && found.card.name) || entry.text || "Angreifer",
+              attackerName: atkName || entry.text || "Angreifer",
               attackerSeat: found ? found.seat : frame.active_seat,
-              defenderSeat: defSeat,
-              defenderLabel: defSeat !== null ? seatNameFn(defSeat) : (entry.defenderId || "Verteidiger"),
+              defenderSeat: def.seat,
+              defenderLabel: def.label,
+              isPlaneswalker: def.isPlaneswalker,
               staged: false
             });
           }
         } else if (entry.kind === "blocker" && entry.attackerId && entry.blockerId) {
           const dup = blocks.some((b) => b.blockerId === entry.blockerId && b.attackerId === entry.attackerId);
           if (!dup) {
-            const blkFound = findCardAcrossBoard(frame, entry.blockerId, null, psCardById, facts);
-            const atkFound = findCardAcrossBoard(frame, entry.attackerId, null, psCardById, facts);
+            const blkFound = findCardAcrossBoard(frame, entry.blockerId, null, psCardById, facts, null, frame.active_seat);
+            const atkFound = findCardAcrossBoard(frame, entry.attackerId, null, psCardById, facts, frame.active_seat);
             blocks.push({
               attackerId: entry.attackerId,
               attackerName: (atkFound && atkFound.card.name) || "Angreifer",
@@ -508,14 +639,16 @@
           const meta = opt.metadata && typeof opt.metadata === "object" ? opt.metadata : {};
           const objId = meta.object_id || null;
           if (objId && attacks.some((a) => a.attackerId === objId)) continue;
-          const found = findCardAcrossBoard(frame, objId, meta.name, psCardById, facts);
-          const defSeat = resolveDefenderSeat(meta.defender_id, players, seatNameFn, psPlayers);
+          const found = findCardAcrossBoard(frame, objId, meta.name, psCardById, facts, pendingDecision.seat);
+          const atkName = (found && found.card.name) || meta.name || opt.label || "Angreifer";
+          const def = resolveDefenderTarget(meta.defender_id, opt.label, meta.name || atkName, frame, players, seatNameFn, psPlayers, psCardById, facts);
           attacks.push({
             attackerId: objId,
-            attackerName: (found && found.card.name) || meta.name || opt.label || "Angreifer",
+            attackerName: atkName,
             attackerSeat: found ? found.seat : pendingDecision.seat,
-            defenderSeat: defSeat,
-            defenderLabel: defSeat !== null ? seatNameFn(defSeat) : (meta.defender_id ? String(meta.defender_id) : "Verteidiger"),
+            defenderSeat: def.seat,
+            defenderLabel: def.label,
+            isPlaneswalker: def.isPlaneswalker,
             staged: true
           });
         }
@@ -527,8 +660,8 @@
           const meta = opt.metadata && typeof opt.metadata === "object" ? opt.metadata : {};
           const attackerId = meta.attacker_id || opt.option_id || null;
           const blockerId = meta.blocker_id || blkMeta.blocker_id || null;
-          const atkFound = findCardAcrossBoard(frame, attackerId, null, psCardById, facts);
-          const blkFound = findCardAcrossBoard(frame, blockerId, null, psCardById, facts);
+          const atkFound = findCardAcrossBoard(frame, attackerId, null, psCardById, facts, frame.active_seat);
+          const blkFound = findCardAcrossBoard(frame, blockerId, null, psCardById, facts, pendingDecision.seat);
           const dup = blocks.some((b) =>
             (blockerId && b.blockerId === blockerId && attackerId && b.attackerId === attackerId) ||
             (!blockerId && b.attackerName === (atkFound && atkFound.card.name))
@@ -547,16 +680,62 @@
       }
     }
 
-    addHoverTargetIfNeeded(attacks, blocks, pendingDecision, opts.hoveredTarget, opts.drag, frame, players, seatNameFn, psCardById, facts);
+    addHoverTargetIfNeeded(attacks, blocks, pendingDecision, opts.hoveredTarget, opts.drag, frame, players, seatNameFn, psPlayers, psCardById, facts);
+
+    // If XMage declare_blocker payload lacked combat.attacks on frame/fallbackCombat, reconstruct incoming attackers from legal_options and staged/hovered blocks.
+    if (pendingDecision && pendingDecision.decision_class === "declare_blocker" && !attacks.length) {
+      const defSeat = Number.isInteger(pendingDecision.seat) ? pendingDecision.seat : null;
+      const defPlayer = defSeat !== null ? players.find((p) => p && p.seat === defSeat) : null;
+      const defenderControlsPlaneswalker = Boolean(
+        defPlayer && Array.isArray(defPlayer.battlefield) && defPlayer.battlefield.some((rawCard) => {
+          const card = enrichCard(rawCard, psCardById, facts);
+          if (!card || isFaceDownCard(card)) return false;
+          const typeLine = typeof card.type_line === "string" ? card.type_line : "";
+          const typesArr = Array.isArray(card.types) ? card.types.map(String) : [];
+          return /\bPlaneswalker\b/i.test(typeLine) || typesArr.some((t) => /planeswalker/i.test(t));
+        })
+      );
+      const seenAtk = new Set();
+      const pushReconstructedAtk = (attackerId, fallbackLabel) => {
+        if (!attackerId || seenAtk.has(attackerId)) return;
+        seenAtk.add(attackerId);
+        const atkFound = findCardAcrossBoard(frame, attackerId, fallbackLabel, psCardById, facts, frame.active_seat);
+        attacks.push({
+          attackerId,
+          attackerName: (atkFound && atkFound.card.name) || fallbackLabel || "Angreifer",
+          attackerSeat: atkFound ? atkFound.seat : frame.active_seat,
+          defenderSeat: defSeat,
+          defenderLabel: defSeat !== null ? seatNameFn(defSeat) : "Verteidiger",
+          isPlaneswalker: false,
+          reconstructedTargetUncertain: defenderControlsPlaneswalker,
+          staged: false
+        });
+      };
+      for (const opt of (Array.isArray(pendingDecision.legal_options) ? pendingDecision.legal_options : [])) {
+        const meta = opt && opt.metadata && typeof opt.metadata === "object" ? opt.metadata : {};
+        const attackerId = meta.attacker_id || opt.option_id || null;
+        if (attackerId) pushReconstructedAtk(attackerId, null);
+      }
+      for (const b of blocks) {
+        if (b.attackerId) pushReconstructedAtk(b.attackerId, b.attackerName);
+      }
+    }
 
     if (!attacks.length) return empty;
 
-    const actorSeat = Number.isInteger(attacks[0].attackerSeat) ? attacks[0].attackerSeat : (Number.isInteger(frame.active_seat) ? frame.active_seat : frame.seat);
-    const defenderSeats = [...new Set(attacks.map((a) => a.defenderSeat).filter((s) => Number.isInteger(s)))];
-    const trickRisk = detectHiddenCombatTrickRisk(frame, actorSeat, {
+    const perspectiveSeat = pendingDecision && Number.isInteger(pendingDecision.seat)
+      ? pendingDecision.seat
+      : (Number.isInteger(attacks[0].attackerSeat) ? attacks[0].attackerSeat : (Number.isInteger(frame.active_seat) ? frame.active_seat : frame.seat));
+
+    const combatSeats = new Set();
+    for (const a of attacks) {
+      if (Number.isInteger(a.attackerSeat) && a.attackerSeat !== perspectiveSeat) combatSeats.add(a.attackerSeat);
+      if (Number.isInteger(a.defenderSeat) && a.defenderSeat !== perspectiveSeat) combatSeats.add(a.defenderSeat);
+    }
+    const trickRisk = detectHiddenCombatTrickRisk(frame, perspectiveSeat, {
       seatName: seatNameFn,
       isLand: opts.isLand,
-      defenderSeats: defenderSeats.length ? defenderSeats : null,
+      relevantSeats: combatSeats.size ? [...combatSeats] : null,
       psCardById,
       facts
     });
@@ -565,6 +744,9 @@
     const creatureOutcomes = {};
     const seatEffects = {};
     const globalReasons = new Set(trickRisk.reasons);
+    if (isPostDamageStep) {
+      globalReasons.add("Kampfschaden dieses Schritts ist im Verlauf ggf. bereits verbucht");
+    }
 
     function ensureSeatEffect(seat) {
       if (!Number.isInteger(seat)) return null;
@@ -579,14 +761,14 @@
           lifelinkGain: 0,
           newLife: pl && typeof pl.life === "number" ? pl.life : null,
           lethal: false,
-          certain: true
+          certain: !isPostDamageStep
         };
       }
       return seatEffects[seat];
     }
 
     for (const atk of attacks) {
-      const atkFound = findCardAcrossBoard(frame, atk.attackerId, atk.attackerName, psCardById, facts);
+      const atkFound = findCardAcrossBoard(frame, atk.attackerId, atk.attackerName, psCardById, facts, atk.attackerSeat);
       const atkCard = atkFound ? atkFound.card : null;
       const matchedBlocks = blocks.filter((b) =>
         (atk.attackerId && b.attackerId && b.attackerId === atk.attackerId) ||
@@ -595,7 +777,7 @@
 
       const atkCheck = detectComplexCombatText(atkCard);
       const blkChecks = matchedBlocks.map((b) => {
-        const blkFound = findCardAcrossBoard(frame, b.blockerId, b.blockerName, psCardById, facts);
+        const blkFound = findCardAcrossBoard(frame, b.blockerId, b.blockerName, psCardById, facts, b.blockerSeat);
         return {
           block: b,
           card: blkFound ? blkFound.card : null,
@@ -611,6 +793,12 @@
       if (blkChecks.length > 1) {
         clashReasons.push(`Mehrfachblock (${blkChecks.length} Blocker): Schadensaufteilung offen`);
       }
+      if (atk.isPlaneswalker) {
+        clashReasons.push(`Angriffsziel Planeswalker (${atk.defenderLabel}): kein Spieler-Lebensschaden`);
+      }
+      if (atk.reconstructedTargetUncertain) {
+        clashReasons.push("Angriffsziel (Spieler oder Planeswalker) im Live-Payload offen");
+      }
       if (trickRisk.risk) {
         trickRisk.reasons.forEach((r) => clashReasons.push(r));
       }
@@ -619,11 +807,10 @@
 
       const hasKnownStats = !atkCheck.complex && blkChecks.every((bc) => !bc.check.complex);
       const isDeterministicPair = hasKnownStats && blkChecks.length <= 1;
-      const isCertain = isDeterministicPair && !trickRisk.risk;
+      const isCertain = isDeterministicPair && !trickRisk.risk && !isPostDamageStep && !atk.isPlaneswalker && !atk.reconstructedTargetUncertain;
 
       let clashData;
       if (!isDeterministicPair) {
-        const approxDmg = !atkCheck.complex && blkChecks.length === 0 ? Math.max(0, Number(atkCard.power)) : null;
         if (atk.attackerId) {
           creatureOutcomes[atk.attackerId] = makeCreatureOutcome(atkCard, false, true, 0, "Ungewiss");
         }
@@ -632,7 +819,7 @@
             creatureOutcomes[bc.block.blockerId] = makeCreatureOutcome(bc.card, false, true, 0, "Ungewiss");
           }
         }
-        if (Number.isInteger(atk.defenderSeat)) {
+        if (Number.isInteger(atk.defenderSeat) && !atk.isPlaneswalker) {
           const eff = ensureSeatEffect(atk.defenderSeat);
           if (eff) eff.certain = false;
         }
@@ -658,7 +845,7 @@
           staged: Boolean(atk.staged || blkChecks.some((bc) => bc.block.staged)),
           certainty: "uncertain",
           reasons: uniqueClashReasons,
-          playerDamage: approxDmg,
+          playerDamage: null,
           attackerOutcome: makeCreatureOutcome(atkCard, false, true, 0, "Ungewiss"),
           summaryText: blkChecks.length > 1
             ? `${atk.attackerName} vs. ${blkChecks.length} Blocker → ungewiss (Mehrfachblock)`
@@ -668,17 +855,18 @@
         const kw = extractKeywords(atkCard);
         const hits = kw.doubleStrike ? 2 : 1;
         const dmg = Math.max(0, Number(atkCard.power)) * hits;
+        const playerDmg = atk.isPlaneswalker ? 0 : dmg;
         const lifelinkGain = kw.lifelink ? dmg : 0;
 
-        if (Number.isInteger(atk.defenderSeat)) {
+        if (!isPostDamageStep && playerDmg > 0 && Number.isInteger(atk.defenderSeat)) {
           const defEff = ensureSeatEffect(atk.defenderSeat);
           if (defEff) {
-            defEff.incomingDamage += dmg;
-            defEff.delta -= dmg;
+            defEff.incomingDamage += playerDmg;
+            defEff.delta -= playerDmg;
             if (!isCertain) defEff.certain = false;
           }
         }
-        if (lifelinkGain > 0 && Number.isInteger(atk.attackerSeat)) {
+        if (!isPostDamageStep && lifelinkGain > 0 && Number.isInteger(atk.attackerSeat)) {
           const atkEff = ensureSeatEffect(atk.attackerSeat);
           if (atkEff) {
             atkEff.lifelinkGain += lifelinkGain;
@@ -686,7 +874,7 @@
             if (!isCertain) atkEff.certain = false;
           }
         }
-        const atkOut = makeCreatureOutcome(atkCard, false, !isCertain, 0, isCertain ? "Überlebt" : "Überlebt? (offene Tricks möglich)");
+        const atkOut = makeCreatureOutcome(atkCard, false, !isCertain, 0, isCertain ? "Überlebt" : "Überlebt? (offene Unsicherheit)");
         if (atk.attackerId) creatureOutcomes[atk.attackerId] = atkOut;
         const dmgPrefix = isCertain ? "" : "≈ ";
         clashData = {
@@ -701,22 +889,25 @@
           staged: Boolean(atk.staged),
           certainty: isCertain ? "certain" : "uncertain",
           reasons: uniqueClashReasons,
-          playerDamage: dmg,
+          playerDamage: playerDmg,
           attackerOutcome: atkOut,
-          summaryText: `${atk.attackerName} (${atkCard.power}/${atkCard.toughness}) ungeblockt → ${dmgPrefix}${dmg} Schaden an ${atk.defenderLabel}`
+          summaryText: atk.isPlaneswalker
+            ? `${atk.attackerName} (${atkCard.power}/${atkCard.toughness}) ungeblockt → ${dmgPrefix}${dmg} Loyalit.-Schaden an ${atk.defenderLabel}`
+            : `${atk.attackerName} (${atkCard.power}/${atkCard.toughness}) ungeblockt → ${dmgPrefix}${playerDmg} Schaden an ${atk.defenderLabel}`
         };
       } else {
         const blk = blkChecks[0];
         const sim = simulateOneVsOne(atkCard, blk.card);
-        if (sim.trampleDamage > 0 && Number.isInteger(atk.defenderSeat)) {
+        const trampleToSeat = atk.isPlaneswalker ? 0 : sim.trampleDamage;
+        if (!isPostDamageStep && trampleToSeat > 0 && Number.isInteger(atk.defenderSeat)) {
           const defEff = ensureSeatEffect(atk.defenderSeat);
           if (defEff) {
-            defEff.incomingDamage += sim.trampleDamage;
-            defEff.delta -= sim.trampleDamage;
+            defEff.incomingDamage += trampleToSeat;
+            defEff.delta -= trampleToSeat;
             if (!isCertain) defEff.certain = false;
           }
         }
-        if (sim.attackerLifelinkGain > 0 && Number.isInteger(atk.attackerSeat)) {
+        if (!isPostDamageStep && sim.attackerLifelinkGain > 0 && Number.isInteger(atk.attackerSeat)) {
           const atkEff = ensureSeatEffect(atk.attackerSeat);
           if (atkEff) {
             atkEff.lifelinkGain += sim.attackerLifelinkGain;
@@ -724,7 +915,7 @@
             if (!isCertain) atkEff.certain = false;
           }
         }
-        if (sim.blockerLifelinkGain > 0 && Number.isInteger(blk.block.blockerSeat)) {
+        if (!isPostDamageStep && sim.blockerLifelinkGain > 0 && Number.isInteger(blk.block.blockerSeat)) {
           const blkEff = ensureSeatEffect(blk.block.blockerSeat);
           if (blkEff) {
             blkEff.lifelinkGain += sim.blockerLifelinkGain;
@@ -744,14 +935,14 @@
           sim.attackerDies,
           !isCertain,
           sim.damageToAttacker,
-          isCertain ? atkNote : `${atkNote}? (offene Tricks möglich)`
+          isCertain ? atkNote : `${atkNote}? (offene Unsicherheit)`
         );
         const blkOut = makeCreatureOutcome(
           blk.card,
           sim.blockerDies,
           !isCertain,
           sim.damageToBlocker,
-          isCertain ? blkNote : `${blkNote}? (offene Tricks möglich)`
+          isCertain ? blkNote : `${blkNote}? (offene Unsicherheit)`
         );
         if (atk.attackerId) creatureOutcomes[atk.attackerId] = atkOut;
         if (blk.block.blockerId) creatureOutcomes[blk.block.blockerId] = blkOut;
@@ -763,7 +954,7 @@
             : (sim.attackerDies && !sim.blockerDies
               ? `${atk.attackerName} stirbt, ${blk.block.blockerName} überlebt`
               : "Beide überleben"));
-        const trampleTxt = sim.trampleDamage > 0 ? ` + ${sim.trampleDamage} Trampel an ${atk.defenderLabel}` : "";
+        const trampleTxt = trampleToSeat > 0 ? ` + ${trampleToSeat} Trampel an ${atk.defenderLabel}` : "";
         clashData = {
           attackerId: atk.attackerId,
           attackerName: atk.attackerName,
@@ -782,7 +973,7 @@
           staged: Boolean(atk.staged || blk.block.staged),
           certainty: isCertain ? "certain" : "uncertain",
           reasons: uniqueClashReasons,
-          playerDamage: sim.trampleDamage,
+          playerDamage: trampleToSeat,
           attackerOutcome: atkOut,
           summaryText: `${atk.attackerName} (${atkCard.power}/${atkCard.toughness}) vs. ${blk.block.blockerName} (${blk.card.power}/${blk.card.toughness}) → ${outcomeText}${trampleTxt}`
         };
@@ -793,11 +984,11 @@
     for (const eff of Object.values(seatEffects)) {
       if (eff.currentLife !== null) {
         eff.newLife = eff.currentLife + eff.delta;
-        eff.lethal = eff.newLife <= 0;
+        eff.lethal = !isPostDamageStep && eff.newLife <= 0;
       }
     }
 
-    const overallCertainty = clashes.some((c) => c.certainty === "uncertain") || trickRisk.risk ? "uncertain" : "certain";
+    const overallCertainty = clashes.some((c) => c.certainty === "uncertain") || trickRisk.risk || isPostDamageStep ? "uncertain" : "certain";
     return {
       visible: clashes.length > 0,
       certainty: overallCertainty,
@@ -810,7 +1001,7 @@
   }
 
   return {
-    COMBAT_STEPS,
+    COMBAT_STEPS: new Set([...PRE_DAMAGE_COMBAT_STEPS, ...POST_DAMAGE_COMBAT_STEPS]),
     extractKeywords,
     detectComplexCombatText,
     detectHiddenCombatTrickRisk,

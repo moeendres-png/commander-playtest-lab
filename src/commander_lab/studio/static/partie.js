@@ -1131,11 +1131,13 @@ function seatPanel(player, frame) {
   const seatCombatEff = state.combatPreview && state.combatPreview.seatEffects
     ? state.combatPreview.seatEffects[player.seat]
     : null;
-  const seatDeltaPill = seatCombatEff && seatCombatEff.delta !== 0
+  const seatDeltaPill = seatCombatEff && (seatCombatEff.delta !== 0 || !seatCombatEff.certain)
     ? h("span", {
         class: `seat-life-preview${seatCombatEff.lethal ? " lethal" : (seatCombatEff.delta > 0 ? " gain" : "")}`,
         title: seatCombatEff.certain ? "Kampf-Vorschau aus offenen Informationen" : "Kampf-Vorschau (mit Unsicherheiten)"
-      }, `${seatCombatEff.certain ? "" : "≈ "}→ ${seatCombatEff.newLife} (${seatCombatEff.delta > 0 ? `+${seatCombatEff.delta}` : seatCombatEff.delta}${seatCombatEff.lethal ? " 💀" : ""})`)
+      }, seatCombatEff.delta !== 0
+        ? `${seatCombatEff.certain ? "" : "≈ "}→ ${seatCombatEff.newLife} (${seatCombatEff.delta > 0 ? `+${seatCombatEff.delta}` : seatCombatEff.delta}${seatCombatEff.lethal ? " 💀" : ""})`
+        : "≈ offen")
     : null;
   return h("div", { class: classes, "data-seat": String(player.seat) },
     h("div", { class: "seat-head" },
@@ -1961,6 +1963,7 @@ function computeCurrentCombatPreview(frame, atLiveTail) {
     state.combatPreview = null;
     return null;
   }
+  const latestFrame = Array.isArray(state.frames) && state.frames.length ? state.frames[state.frames.length - 1] : null;
   const preview = StudioCombatPreviewUX.evaluateCombatPreview(frame, atLiveTail ? state.pendingDecision : null, {
     selectedOptions: state.selectedOptions,
     ownCombat: state.ownCombat,
@@ -1968,7 +1971,8 @@ function computeCurrentCombatPreview(frame, atLiveTail) {
     drag: state.drag,
     seatName,
     isLand: typeof isLand === "function" ? isLand : null,
-    facts: state.facts
+    facts: state.facts,
+    fallbackCombat: atLiveTail && latestFrame && latestFrame.combat && latestFrame.turn === frame.turn && latestFrame.phase === "combat" ? latestFrame.combat : null
   });
   state.combatPreview = preview;
   return preview;
@@ -2710,7 +2714,11 @@ function renderView() {
     ? computeCurrentCombatPreview(frame, atLiveTail)
     : null;
   const previewSig = previewObj && previewObj.visible
-    ? JSON.stringify(previewObj.clashes.map((c) => [c.attackerId, c.certainty, c.playerDamage, c.blockers.map((b) => [b.blockerId, b.dies])]))
+    ? JSON.stringify([
+        previewObj.certainty,
+        previewObj.clashes.map((c) => [c.attackerId, c.attackerSeat, c.defenderSeat, c.certainty, c.playerDamage, c.blockers.map((b) => [b.blockerId, b.dies])]),
+        Object.entries(previewObj.seatEffects || {}).map(([s, e]) => [s, e.delta, e.newLife, e.certain, e.lethal])
+      ])
     : "";
   const keys = frame.players.map((player) => JSON.stringify([player, frame.active_seat, frame.seat, humanPendingSeat, waitSeatSig, castingSig, frame.commanders, state.focusSeat, finished, clickSig, stagedSourcesSig, previewSig]));
   if (table.dataset.banner !== banner || keys.length !== state.seatKeys.length) {

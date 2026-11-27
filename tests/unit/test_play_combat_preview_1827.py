@@ -378,3 +378,234 @@ def test_combat_preview_enriches_stripped_frame_from_pilot_state_and_facts() -> 
     assert out["uuidDefPv"]["creatureOutcomes"]["blk-1"]["outcome"] == "uncertain"
     assert out["faceDownPv"]["creatureOutcomes"]["hid-1"]["outcome"] == "uncertain"
     assert any("Verdeckte Kreatur" in r for r in out["faceDownPv"]["uncertaintyReasons"])
+
+
+def test_combat_preview_xmage_redactor_real_payloads_and_review_regressions() -> None:
+    out = _node_json(
+        """
+        const CP = require('./combat_preview_ux.js');
+        const P1a = require('./play_p1a.js');
+
+        // 1. P1 #1: masked op-1 player_id vs real UUID defender_id + Full Game Seat N option label + ownCombat ledger
+        const redactorFrame = {
+          turn: 4, phase: 'combat', step: 'declare_attackers', active_seat: 0, seat: 0,
+          players: [
+            { seat: 0, life: 40, hand_count: 0, battlefield: [{ object_id: 'atk-chulane', name: 'Chulane', power: 2, toughness: 4, tapped: false }] },
+            { seat: 1, life: 15, hand_count: 0, battlefield: [] }
+          ]
+        };
+        const redactorAtkDec = {
+          decision_id: 'atk-real',
+          decision_class: 'declare_attacker',
+          seat: 0,
+          legal_options: [{
+            option_id: 'opt-real-1',
+            option_type: 'declare_attacker',
+            label: 'Chulane attacks Full Game Seat 2',
+            metadata: { object_id: 'atk-chulane', name: 'Chulane', defender_id: 'de61be79-real-uuid' }
+          }],
+          pilot_state: {
+            turn_number: 4,
+            step: 'declare_attackers',
+            players: [
+              { seat: 0, player_id: 'you' },
+              { seat: 1, player_id: 'op-1' }
+            ]
+          }
+        };
+        const stagedReal = CP.evaluateCombatPreview(redactorFrame, redactorAtkDec, { selectedOptions: ['opt-real-1'] });
+        const ledgerAfterReal = P1a.recordOwnCombatAnswer(P1a.emptyCombatLedger(), redactorAtkDec, ['opt-real-1']);
+        const ledgerPv = CP.evaluateCombatPreview(
+          { turn: 4, phase: 'combat', step: 'declare_blockers', active_seat: 0, seat: 1, players: redactorFrame.players },
+          null,
+          { ownCombat: ledgerAfterReal }
+        );
+
+        // 2. P1 #2 + P2 #4 + P3 #10/#12: declare_blocker without combat field reconstructs unblocked attackers,
+        // checks attacking opponent's tricks (Treasure + hand_count: null with hand array), ignores own hand
+        const blkNoCombatFrame = {
+          turn: 5, phase: 'combat', step: 'declare_blockers', active_seat: 1, seat: 0,
+          players: [
+            { seat: 0, life: 12, hand_count: 4, battlefield: [
+              { object_id: 'my-blk', name: 'Wall', power: 1, toughness: 4, tapped: false },
+              { object_id: 'my-land', name: 'Island', tapped: false, types: ['Land'] }
+            ] },
+            { seat: 1, life: 30, hand_count: null, hand: ['Secret Card'], battlefield: [
+              { object_id: 'opp-atk', name: 'Beast', power: 5, toughness: 3, tapped: true },
+              { object_id: 'treasure-1', name: 'Treasure Token', tapped: false, oracle_text: '{T}, Sacrifice this artifact: Add one mana of any color.' }
+            ] }
+          ]
+        };
+        const blkNoCombatDec = {
+          decision_id: 'blk-no-combat',
+          decision_class: 'declare_blocker',
+          seat: 0,
+          maximum_selections: 1,
+          metadata: { blocker_id: 'my-blk' },
+          legal_options: [{
+            option_id: 'opp-atk',
+            option_type: 'declare_blocker',
+            label: 'Wall blocks Beast',
+            metadata: { attacker_id: 'opp-atk', blocker_id: 'my-blk' }
+          }]
+        };
+        const blkPreSelect = CP.evaluateCombatPreview(blkNoCombatFrame, blkNoCombatDec, { selectedOptions: [] });
+        const blkFallbackNoTrick = CP.evaluateCombatPreview(
+          {
+            turn: 5, phase: 'combat', step: 'declare_blockers', active_seat: 1, seat: 0,
+            players: [
+              blkNoCombatFrame.players[0],
+              { seat: 1, life: 30, hand_count: 0, battlefield: [{ object_id: 'opp-atk', name: 'Beast', power: 5, toughness: 3, tapped: true }] }
+            ]
+          },
+          blkNoCombatDec,
+          { selectedOptions: [] }
+        );
+        // With defending Planeswalker and no fallbackCombat, reconstructed target warns uncertainty
+        const pwReconstructFrame = {
+          turn: 5, phase: 'combat', step: 'declare_blockers', active_seat: 1, seat: 0,
+          players: [
+            { seat: 0, life: 12, hand_count: 0, battlefield: [
+              { object_id: 'my-blk', name: 'Wall', power: 1, toughness: 4, tapped: false },
+              { object_id: 'my-pw', name: 'Jace', type_line: 'Legendary Planeswalker — Jace' }
+            ] },
+            { seat: 1, life: 30, hand_count: 0, battlefield: [{ object_id: 'opp-atk', name: 'Beast', power: 5, toughness: 3, tapped: true }] }
+          ]
+        };
+        const blkWithPwUncertain = CP.evaluateCombatPreview(pwReconstructFrame, blkNoCombatDec, { selectedOptions: [] });
+
+        // 3. P1 #3: Deathtouch does NOT kill via pre-existing damage when 0 deathtouch combat damage was dealt
+        const dtZero = CP.simulateOneVsOne(
+          { name: 'ZeroDT', power: 0, toughness: 4, oracle_text: 'Deathtouch' },
+          { name: 'Injured', power: 2, toughness: 4, damage: 2 }
+        );
+        const dtVsFirstStrike = CP.simulateOneVsOne(
+          { name: 'BearDT', power: 2, toughness: 2, oracle_text: 'Deathtouch' },
+          { name: 'KnightFS', power: 2, toughness: 4, damage: 1, oracle_text: 'First strike' }
+        );
+
+        // 4. P2 #5: card.abilities, non-self keyword rejection, and double-damage instead pattern
+        const nonSelfKw = CP.extractKeywords({
+          name: 'Elvish Archdruid', power: 2, toughness: 2,
+          oracle_text: 'Other Elves you control have deathtouch and trample.\\nCreatures blocking this lose indestructible.',
+          abilities: ['First strike']
+        });
+        const doublerCheck = CP.detectComplexCombatText({
+          name: 'Furnace Fiend', power: 4, toughness: 4,
+          oracle_text: 'If a source would deal damage, it deals double that damage instead.'
+        });
+
+        // 5. P2 #6: Duplicate card names disambiguated by active_seat
+        const dupFrame = {
+          turn: 3, phase: 'combat', step: 'declare_blockers', active_seat: 1, seat: 0,
+          players: [
+            { seat: 0, life: 20, hand_count: 0, battlefield: [{ object_id: 'b-p0', name: 'Grizzly Bears', power: 2, toughness: 2, tapped: false }] },
+            { seat: 1, life: 20, hand_count: 0, battlefield: [{ object_id: 'b-p1', name: 'Grizzly Bears', power: 4, toughness: 4, tapped: true }] }
+          ],
+          combat: { attacks: [{ attacker: 'Grizzly Bears', target: 'Sitz 1' }], blocks: [] }
+        };
+        const dupPv = CP.evaluateCombatPreview(dupFrame, null, {});
+
+        // 6. P2 #8: Planeswalker defender_id + object hover in declare_attacker
+        const pwAtkFrame = {
+          turn: 4, phase: 'combat', step: 'declare_attackers', active_seat: 0, seat: 0,
+          players: [
+            { seat: 0, life: 40, hand_count: 0, battlefield: [{ object_id: 'a-pw', name: 'Bear', power: 3, toughness: 3, tapped: false }] },
+            { seat: 1, life: 20, hand_count: 0, battlefield: [{ object_id: 'pw-uuid-1', name: 'Nissa, Who Shakes', type_line: 'Planeswalker' }] }
+          ]
+        };
+        const pwAtkDec = {
+          decision_id: 'atk-pw', decision_class: 'declare_attacker', seat: 0,
+          legal_options: [{ option_id: 'opt-pw', option_type: 'declare_attacker', label: 'Bear attacks Nissa', metadata: { object_id: 'a-pw', defender_id: 'pw-uuid-1' } }]
+        };
+        const pwHoverPv = CP.evaluateCombatPreview(pwAtkFrame, pwAtkDec, {
+          selectedOptions: [],
+          drag: { kind: 'attacker', objectId: 'a-pw', name: 'Bear' },
+          hoveredTarget: { type: 'object', id: 'pw-uuid-1' }
+        });
+
+        // 7. P3 #13 & #14: post-damage replay step doesn't re-subtract life; maxSel=1 hover replaces staged block
+        const postDmgPv = CP.evaluateCombatPreview(
+          {
+            turn: 5, phase: 'combat', step: 'combat_damage', active_seat: 0, seat: 1,
+            players: [
+              { seat: 0, life: 20, hand_count: 0, battlefield: [{ object_id: 'a1', name: 'Wurm', power: 6, toughness: 6, tapped: true }] },
+              { seat: 1, life: 14, hand_count: 0, battlefield: [] }
+            ],
+            combat: { attacks: [{ attacker_id: 'a1', attacker: 'Wurm', target: 'Sitz 2' }], blocks: [] }
+          },
+          null,
+          {}
+        );
+        const hoverReplaceDec = {
+          decision_id: 'blk-rep', decision_class: 'declare_blocker', seat: 0, maximum_selections: 1,
+          legal_options: [
+            { option_id: 'atk-a', option_type: 'declare_blocker', metadata: { attacker_id: 'atk-a', blocker_id: 'my-b' } },
+            { option_id: 'atk-b', option_type: 'declare_blocker', metadata: { attacker_id: 'atk-b', blocker_id: 'my-b' } }
+          ]
+        };
+        const hoverReplacePv = CP.evaluateCombatPreview(
+          {
+            turn: 5, phase: 'combat', step: 'declare_blockers', active_seat: 1, seat: 0,
+            players: [
+              { seat: 0, life: 20, hand_count: 0, battlefield: [{ object_id: 'my-b', name: 'Wall', power: 2, toughness: 5, tapped: false }] },
+              { seat: 1, life: 20, hand_count: 0, battlefield: [{ object_id: 'atk-a', name: 'Bear', power: 2, toughness: 2, tapped: true }, { object_id: 'atk-b', name: 'Ogre', power: 4, toughness: 4, tapped: true }] }
+            ],
+            combat: {
+              attacks: [
+                { attacker_id: 'atk-a', attacker: 'Bear', target: 'Sitz 1' },
+                { attacker_id: 'atk-b', attacker: 'Ogre', target: 'Sitz 1' }
+              ],
+              blocks: []
+            }
+          },
+          hoverReplaceDec,
+          {
+            selectedOptions: ['atk-a'],
+            drag: { kind: 'blocker', objectId: 'my-b', name: 'Wall' },
+            hoveredTarget: { type: 'object', id: 'atk-b' }
+          }
+        );
+
+        console.log(JSON.stringify({
+          stagedReal, ledgerPv, blkPreSelect, blkFallbackNoTrick, blkWithPwUncertain,
+          dtZero, dtVsFirstStrike, nonSelfKw, doublerCheck, dupPv, pwHoverPv, postDmgPv, hoverReplacePv
+        }));
+        """
+    )
+    # P1 #1
+    assert out["stagedReal"]["seatEffects"]["1"]["incomingDamage"] == 2
+    assert out["stagedReal"]["clashes"][0]["defenderLabel"] == "Sitz 2"
+    assert out["ledgerPv"]["seatEffects"]["1"]["incomingDamage"] == 2
+    # P1 #2 + P2 #4 + P3 #10/#12
+    assert out["blkPreSelect"]["visible"] is True
+    assert out["blkPreSelect"]["trickRisk"]["risk"] is True
+    assert out["blkPreSelect"]["trickRisk"]["seats"] == [1]
+    assert out["blkPreSelect"]["seatEffects"]["0"]["newLife"] == 7
+    assert out["blkFallbackNoTrick"]["trickRisk"]["risk"] is False
+    assert out["blkWithPwUncertain"]["certainty"] == "uncertain"
+    assert any("Planeswalker" in r for r in out["blkWithPwUncertain"]["uncertaintyReasons"])
+    # P1 #3
+    assert out["dtZero"]["blockerDies"] is False
+    assert out["dtVsFirstStrike"]["blockerDies"] is False
+    assert out["dtVsFirstStrike"]["attackerDies"] is True
+    # P2 #5
+    assert out["nonSelfKw"]["firstStrike"] is True
+    assert out["nonSelfKw"]["deathtouch"] is False
+    assert out["nonSelfKw"]["indestructible"] is False
+    assert out["doublerCheck"]["complex"] is True
+    # P2 #6
+    assert out["dupPv"]["clashes"][0]["attackerSeat"] == 1
+    assert out["dupPv"]["seatEffects"]["0"]["incomingDamage"] == 4
+    # P2 #8
+    pw_clash = out["pwHoverPv"]["clashes"][0]
+    assert pw_clash["defenderLabel"] == "Nissa, Who Shakes"
+    assert pw_clash["playerDamage"] == 0
+    assert "Loyalit." in pw_clash["summaryText"]
+    # P3 #13 & #14
+    assert out["postDmgPv"]["seatEffects"].get("1", {}).get("delta", 0) == 0
+    assert out["postDmgPv"]["certainty"] == "uncertain"
+    atk_a_clash = next(c for c in out["hoverReplacePv"]["clashes"] if c["attackerId"] == "atk-a")
+    atk_b_clash = next(c for c in out["hoverReplacePv"]["clashes"] if c["attackerId"] == "atk-b")
+    assert atk_a_clash["blockers"] == []
+    assert len(atk_b_clash["blockers"]) == 1
