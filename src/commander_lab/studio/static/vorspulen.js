@@ -116,6 +116,29 @@ const StudioFastForward = (() => {
       startTurn: mode === "until_end_of_turn" ? turn : ff.startTurn
     });
   }
-  return { MODES, modeLabel, verdict, stackCheckboxState, retarget };
+
+  // Pure keyboard-shortcut mapping for live human priority / fast-forward (no rules, no DOM).
+  function shortcutAction(key, shiftKey) {
+    if (key === " ") return { kind: "pass_once" };
+    if (key === "Enter") {
+      if (shiftKey) {
+        return {
+          kind: "fast_forward",
+          mode: "until_my_turn",
+          stopOnOpponentStack: false,
+          label: "bis zum eigenen Zug"
+        };
+      }
+      return {
+        kind: "fast_forward",
+        mode: "until_my_turn",
+        stopOnOpponentStack: true,
+        label: "weiter, bis etwas passiert"
+      };
+    }
+    return null;
+  }
+
+  return { MODES, modeLabel, verdict, stackCheckboxState, retarget, shortcutAction };
 })();
 if (typeof module !== "undefined") module.exports = StudioFastForward;
