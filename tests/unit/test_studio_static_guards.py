@@ -4509,3 +4509,27 @@ def test_final_box_and_look_card_show_the_look_level_with_four_digits() -> None:
     source = _paired_source()
     assert "numFlex(res.decision_level_pct, 4)" in source
     assert "numFlex(res.decision_level_pct, 2)" not in source
+
+
+def test_finished_result_loaded_from_disk_counts_censored_pairs_in_the_table_line() -> None:
+    pairs = [
+        {"seed": s, "seat": 0, "base_game_id": f"b{s}", "variant_game_id": f"v{s}",
+         "base_credit": 0.0, "variant_credit": 1.0, "difference": 1.0}
+        for s in range(1, 8)
+    ]  # fmt: skip
+    job = {
+        "series_id": "p1", "pod": "precon", "base_ref": "a", "variant_ref": "b",
+        "budget_pairs": 10, "pairs_attempted": 10, "status": "completed", "games_planned_max": 20,
+        "result": {
+            "status": "NOT_DECIDED", "stop_reason": "BUDGET_EXHAUSTED", "pairs_completed": 7,
+            "pairs_censored": 3, "pairs_played": 10, "pairs": pairs,
+            "question": {"threshold_pp": 0},
+        },
+    }  # fmt: skip
+    deps = (
+        "{api: async () => ({}), fail: () => {}, setActivePaired: () => {}, pollPaired: () => {}}"
+    )
+    text = _paired_js(f"renderPairedMonitor(h, {json.dumps(job)}, {deps}).textContent")
+    assert isinstance(text, str)
+    assert "Differenz bekannt in 7/10 gespielten Paaren" in text
+    assert "zensiert 3 von 10 gespielten Paaren" in text and "zensiert 0" not in text
