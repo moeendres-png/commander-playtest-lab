@@ -1155,6 +1155,63 @@ def _evidence_kind(store: StudioStore) -> object:
     )
 
 
+def _universe_counted_kind(store: StudioStore) -> object:
+    from commander_lab.studio import signals, universe_choice
+
+    known = signals.known_card_names(store)
+    return [
+        (
+            item,
+            signals.unmatched_universe_names(store, COMMANDER, item["signal"], known),
+        )
+        for item in universe_choice.counted_universes(store, COMMANDER)
+    ]
+
+
+def _import_kind_tracers() -> dict[str, Callable[[StudioStore], object]]:
+    import datetime
+
+    from commander_lab.studio import (
+        card_trend,
+        combos,
+        data_report,
+        packages,
+        roles,
+        similar_decks,
+        universe_view,
+        web,
+    )
+
+    return {
+        "card_name_index": lambda store: universe._build_card_name_index(store),
+        "card_trend": lambda store: card_trend.card_trend(store, [COMMANDER]),
+        "cohort_deck_sets": lambda store: builder._cohort_deck_sets(store, [COMMANDER], "all"),
+        "cohort_shapes": lambda store: builder.cohort_shapes(store, [COMMANDER]),
+        "cohort_sizes": lambda store: builder.cohort_sizes(store, [COMMANDER]),
+        "corpus_deck_ids": lambda store: builder._corpus_deck_ids(store, [COMMANDER]),
+        "corpus_deck_sets": lambda store: builder.corpus_deck_sets(store, [COMMANDER]),
+        "corpus_groups": lambda store: builder._corpus_groups(store, [COMMANDER]),
+        "corpus_hits": lambda store: builder._corpus_hits(store, [COMMANDER]),
+        "layer_overview": lambda store: web.layer_overview_cached(store, COMMANDER),
+        "package_candidates": lambda store: packages._cohort_candidates_cached(
+            store, [COMMANDER], "all"
+        ),
+        "package_deck_sets": lambda store: packages._cohort_deck_sets(store, [COMMANDER], "all"),
+        "resolve": lambda store: universe.resolve_universe(store, {"commanders": [COMMANDER]}),
+        "similar_decks_index": lambda store: similar_decks._commander_source_index(
+            store, [COMMANDER]
+        ),
+        "slot_catalog": lambda store: combos._catalog_rows(store, [COMMANDER]),
+        "spelling_owners": lambda store: universe._build_spelling_owners(store),
+        "universe_context": lambda store: universe_view._context(store, None, None, [COMMANDER]),
+        "answer:corpus_audit": lambda store: data_report.corpus_audit(
+            store.connection, today=datetime.date(2026, 11, 27)
+        ),
+        "answer:role_audit": lambda store: roles.role_origin_audit(store, commander=COMMANDER),
+        "answer:universe_counted": _universe_counted_kind,
+    }
+
+
 _KIND_TRACERS: dict[str, Callable[[StudioStore], object]] = {
     "land_source_groups": lambda store: land_advisor.source_deck_groups(store, [COMMANDER]),
     "strength": _strength_kind,
@@ -1173,6 +1230,7 @@ _KIND_TRACERS: dict[str, Callable[[StudioStore], object]] = {
     "corpus_oracle_ids": lambda store: import_all._repo_layers(
         store, [], [], None, None, lambda *args, **kwargs: None
     ),
+    **_import_kind_tracers(),
 }
 
 
@@ -1207,7 +1265,7 @@ def _declaration_violations(
 def test_every_narrowed_kind_reads_only_its_groups(tmp_path: Path) -> None:
     store = _big_store(tmp_path)
     narrowed = {name for name, kind in cache.KINDS.items() if kind.reads != cache.ALL}
-    # the kinds proven so far (#1561); none of them reads the marks
+    # the kinds proven so far (#1561, #1612 D-1 P2); only layer_overview reads marks
     assert narrowed == {
         "land_source_groups",
         "strength",
@@ -1216,8 +1274,30 @@ def test_every_narrowed_kind_reads_only_its_groups(tmp_path: Path) -> None:
         "corpus_oracle_ids",
         "universe_decks",
         "universe_options",
+        "card_name_index",
+        "card_trend",
+        "cohort_deck_sets",
+        "cohort_shapes",
+        "cohort_sizes",
+        "corpus_deck_ids",
+        "corpus_deck_sets",
+        "corpus_groups",
+        "corpus_hits",
+        "layer_overview",
+        "package_candidates",
+        "package_deck_sets",
+        "resolve",
+        "similar_decks_index",
+        "slot_catalog",
+        "spelling_owners",
+        "universe_context",
+        "answer:corpus_audit",
+        "answer:role_audit",
+        "answer:universe_counted",
     }
-    assert all(cache.Group.MARKS not in cache.KINDS[name].reads for name in narrowed)
+    assert all(
+        cache.Group.MARKS not in cache.KINDS[name].reads for name in narrowed - {"layer_overview"}
+    )
     assert _declaration_violations(store, cache.KINDS, _KIND_TRACERS) == {}
 
 
