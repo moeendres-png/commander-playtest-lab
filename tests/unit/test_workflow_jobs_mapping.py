@@ -58,3 +58,30 @@ def test_windows_runtime_job_is_top_level_not_env_nested(repo_root: Path) -> Non
     assert "windows-runtime" not in (workflow.get("env") or {}), (
         "windows-runtime job nested under env (Issue #208 recurrence)"
     )
+
+
+def test_windows_studio_smoke_runs_the_store_cache_export_and_backup_tests(
+    repo_root: Path,
+) -> None:
+    """#1703 step 1b (K-2b inventory 1.2): the Windows lane must run the tests that pin the
+    store file, the cache stamps (``data_version``, file times), the user-state export and the
+    backup before the store is split into files (K-2c). The pytest line is part of the step the
+    smoke runs; dropping one of the four files from it fails here."""
+    text = (repo_root / WORKFLOWS_DIR / "windows-runtime.yml").read_text(encoding="utf-8")
+    workflow = yaml.safe_load(text)
+    steps = workflow["jobs"]["windows-runtime"]["steps"]
+    smoke = next(step for step in steps if "Studio Windows smoke" in str(step.get("name")))
+    pytest_lines = [
+        line.strip() for line in str(smoke["run"]).splitlines() if "python -m pytest" in line
+    ]
+    assert len(pytest_lines) == 1, pytest_lines
+    for name in (
+        "test_studio_engine_provisioning.py",
+        "test_studio_simulations.py",
+        "test_studio_store.py",
+        "test_studio_cache_groups.py",
+        "test_studio_state_export.py",
+        "test_studio_backup.py",
+    ):
+        assert f"tests/unit/{name}" in pytest_lines[0], name
+        assert (repo_root / "tests" / "unit" / name).is_file(), name
