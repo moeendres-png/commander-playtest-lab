@@ -23,6 +23,8 @@ from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
+from commander_lab.storage.command_line import parse_command_text as parse_command_text
+
 from .decks import DECK_SIZE, lab_snapshot
 from .games import free_game_id, games_folder
 from .store import StudioStore
@@ -182,7 +184,7 @@ def engine_command(data_folder: str | Path) -> tuple[str, ...] | None:
     """
     raw = os.environ.get(ENGINE_COMMAND_ENV, "").strip()
     if raw:
-        return tuple(shlex.split(raw, posix=(os.name != "nt")))
+        return parse_command_text(raw)
     jar = Path(data_folder) / ENGINE_JAR
     java = _java_executable()
     if jar.is_file() and java and _java_too_old(java) is None:
