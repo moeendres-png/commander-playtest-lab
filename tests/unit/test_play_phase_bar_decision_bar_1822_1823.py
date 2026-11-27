@@ -195,6 +195,76 @@ console.log(JSON.stringify({ ok: true }));
     assert data["ok"] is True
 
 
+def test_board_bar_hold_predicate_should_require_hold_to_confirm() -> None:
+    """The board bar's pass button asks StudioTurnBar.shouldRequireHoldToConfirm before it
+    binds a plain click (#1822 audit finding: the function was called in partie.js but defined
+    nowhere, so the board bar never required the hold). The predicate must exist and must
+    agree with the decision bar's requireHold for the same windows.
+    """
+    data = _run_node(
+        """
+const assert = require("assert");
+assert.strictEqual(typeof StudioTurnBar.shouldRequireHoldToConfirm, "function");
+
+const passOnly = {
+  decision_id: "d_empty",
+  seat: 0,
+  decision_class: "priority",
+  legal_options: [{ option_id: "opt_pass", option_type: "pass_priority", label: "Pass Priority" }],
+  pilot_state: { active_player_id: "p0", step: "precombat_main", stack: [], players: [{ seat: 0, player_id: "p0" }] }
+};
+const criticalStack = {
+  decision_id: "d_crit",
+  seat: 0,
+  decision_class: "priority",
+  legal_options: [{ option_id: "opt_pass", option_type: "pass_priority", label: "Pass Priority" }],
+  pilot_state: { active_player_id: "p1", step: "precombat_main", stack: [{ object_id: "sp1", name: "Cyclonic Rift" }], players: [{ seat: 0, player_id: "p0" }, { seat: 1, player_id: "p1" }] }
+};
+const combatStep = {
+  decision_id: "d_combat",
+  seat: 0,
+  decision_class: "priority",
+  legal_options: [{ option_id: "opt_pass", option_type: "pass_priority", label: "Pass Priority" }],
+  pilot_state: { active_player_id: "p1", step: "declare_blockers", stack: [], players: [{ seat: 0, player_id: "p0" }, { seat: 1, player_id: "p1" }] }
+};
+const withOtherOption = {
+  decision_id: "d_other",
+  seat: 0,
+  decision_class: "priority",
+  legal_options: [
+    { option_id: "opt_pass", option_type: "pass_priority", label: "Pass Priority" },
+    { option_id: "opt_bolt", option_type: "cast_spell", label: "Lightning Bolt" }
+  ],
+  pilot_state: { active_player_id: "p0", step: "precombat_main", stack: [], players: [{ seat: 0, player_id: "p0" }] }
+};
+
+// the board bar calls it exactly like this: (pending, null, { holdToConfirm })
+assert.strictEqual(StudioTurnBar.shouldRequireHoldToConfirm(criticalStack, null, { holdToConfirm: true }), true);
+assert.strictEqual(StudioTurnBar.shouldRequireHoldToConfirm(combatStep, null, { holdToConfirm: true }), true);
+assert.strictEqual(StudioTurnBar.shouldRequireHoldToConfirm(withOtherOption, null, { holdToConfirm: true }), true);
+assert.strictEqual(StudioTurnBar.shouldRequireHoldToConfirm(passOnly, null, { holdToConfirm: true }), false);
+// the setting wins over the window: switched off, a plain click passes even in a critical window
+assert.strictEqual(StudioTurnBar.shouldRequireHoldToConfirm(criticalStack, null, { holdToConfirm: false }), false);
+// no priority decision, no hold
+assert.strictEqual(StudioTurnBar.shouldRequireHoldToConfirm({ decision_class: "declare_blocker", legal_options: [] }, null, { holdToConfirm: true }), false);
+assert.strictEqual(StudioTurnBar.shouldRequireHoldToConfirm(null, null, { holdToConfirm: true }), false);
+
+// and it must never drift from the decision bar's own rule for the same window
+for (const pending of [passOnly, criticalStack, combatStep, withOtherOption]) {
+  for (const holdToConfirm of [true, false]) {
+    const viaBar = StudioTurnBar.buildPrimaryAction(pending, [], null, { holdToConfirm }).requireHold;
+    assert.strictEqual(StudioTurnBar.shouldRequireHoldToConfirm(pending, null, { holdToConfirm }), viaBar);
+  }
+}
+console.log(JSON.stringify({ ok: true }));
+"""
+    )
+    assert data["ok"] is True
+    # the call site in the board bar must stay: if it goes, this test stops covering the path
+    partie_js = PARTIE_JS.read_text(encoding="utf-8")
+    assert "StudioTurnBar.shouldRequireHoldToConfirm(pending, null" in partie_js
+
+
 def test_turn_bar_static_guards_and_vorspulen_compat() -> None:
     """Zero inline style=, tabindex, or undo in JS/HTML; #1662 vorspulen controls preserved."""
     html = PARTIE_HTML.read_text(encoding="utf-8")
