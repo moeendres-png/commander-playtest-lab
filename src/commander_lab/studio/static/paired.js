@@ -146,11 +146,32 @@ function planPairedLines(plan, thresholdPp) {
     : threshold === 0
     ? `Nachweisbar mit ${StudioUI.num(plan.budget_pairs, 0)} Paaren: erst Unterschiede ab etwa ${range(plan.detectable_pp_low, plan.detectable_pp_high, 1)} Prozentpunkten (95 %, Power 80 %). Kleinere Effekte bleiben „kein Unterschied nachweisbar“ – das heißt nie, dass eine Karte egal ist.`
     : `Mit ${StudioUI.num(plan.budget_pairs, 0)} Paaren entscheidbar: erst Abstände zur Schwelle von ${StudioUI.num(threshold, 1)} pp ab etwa ${range(plan.detectable_pp_low, plan.detectable_pp_high, 1)} Prozentpunkten (95 %, Power 80 %).`;
-  return [
+  const lines = [
     first,
     `Für ${StudioUI.num(plan.reference_effect_pp, 0)} pp bräuchte es etwa ${range(plan.pairs_needed_low, plan.pairs_needed_high, 0)} Paare. ${planPairedReference(plan)}`,
     `Annahmen: Paar-Streuung ${StudioUI.num(a.pair_sd, 2)} als vorsichtiger Planungswert (exakt ${StudioUI.num(a.pair_sd_independent_exact, 3)} für unabhängige Partien mit ${StudioUI.num(sdRate, Number.isInteger(sdRate) ? 0 : 1)} % Siegrate${sdBase}; gepaart: Korrelation ungemessen); Student-t mit ${StudioUI.num(a.degrees_of_freedom, 0)} Freiheitsgraden (Seeds − 1) wie in der Auswertung${a.seats_per_seed > 1 ? `; Sitzrotation mit ${StudioUI.num(a.seats_per_seed, 0)} Sitzen je Seed bis Design-Effekt ${StudioUI.num(a.design_effect, 2)} (Blockkorrelation ${StudioUI.num(a.block_correlation_assumed, 2)} angenommen)` : ""}; Zwischenblicke nicht eingerechnet. Ein Plan, keine Messung.`,
   ];
+  const band = plan.measured_spread_band;
+  if (band && band.available) {
+    const samples = Array.isArray(band.samples) ? band.samples : [];
+    const detKnown = band.detectable_pp_min !== null && band.detectable_pp_min !== undefined && band.detectable_pp_max !== null && band.detectable_pp_max !== undefined;
+    const detText = detKnown
+      ? `ab etwa ${range(band.detectable_pp_min, band.detectable_pp_max, 1)} pp`
+      : "unbekannt (nur ein Seed)";
+    const sdText = band.sd_pair_min === band.sd_pair_max
+      ? StudioUI.num(band.sd_pair_min, 4)
+      : `${StudioUI.num(band.sd_pair_min, 4)}–${StudioUI.num(band.sd_pair_max, 4)}`;
+    const sampleDesc = samples.map((s) => {
+      const clusterPart = s.clusters === null || s.clusters === undefined ? "ungeclustert" : `k = ${StudioUI.num(s.clusters, 0)} Seed-Cluster`;
+      return `${s.label} (${s.source}, n = ${StudioUI.num(s.pairs, 0)}/${StudioUI.num(s.planned, 0)}, ${clusterPart}, DEFF ${StudioUI.num(s.deff, 3)})`;
+    }).join("; ");
+    lines.push(
+      `Gemessene Paar-Streuung (SIMULATED_RESULT, Bandbreite aus ${StudioUI.num(samples.length, 0)} ${samples.length === 1 ? "Stichprobe" : "Stichproben"}): nachweisbar ${detText}, für ${StudioUI.num(plan.reference_effect_pp, 0)} pp etwa ${range(band.pairs_needed_min, band.pairs_needed_max, 0)} Paare (sd_pair ${sdText}${sampleDesc ? `; ${sampleDesc}` : ""}); kein Garantiewert, ersetzt nicht den konservativen Planungswert.`
+    );
+  } else if (band && !band.available) {
+    lines.push("Gemessene Paar-Streuung: unbekannt (n = 0 Paare für diese Tischgröße).");
+  }
+  return lines;
 }
 
 // The plan of a table (also a locked one): the usual plan lines and the table block of the backend.
