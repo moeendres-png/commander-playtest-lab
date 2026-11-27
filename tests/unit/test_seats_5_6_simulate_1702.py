@@ -325,7 +325,7 @@ def test_the_pool_path_refuses_a_table_without_a_wall_limit_before_it_writes_any
     assert lab["calls"] == []
     # the pre-flight is exact: four seats have a limit, and with the pool off nothing is asked
     paired_series._preflight_pool_wall_limit(3)
-    monkeypatch.delenv(SERIES_POOL_ENV)
+    monkeypatch.setenv(SERIES_POOL_ENV, "0")
     paired_series._preflight_pool_wall_limit(seats - 1)
 
 

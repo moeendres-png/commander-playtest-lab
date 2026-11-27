@@ -1081,6 +1081,7 @@ def test_parallel_window_player_announces_each_played_game_before_the_pair_is_do
         look_every_pairs=3,
         workers=1,
         games_per_jvm=6,
+        series_pool=False,
         on_pair_done=on_pair,
         on_game_played=on_played,
     )
@@ -1564,7 +1565,7 @@ def test_the_pool_is_off_by_default_and_a_switch_turns_it_on(
             created.append({"closed": True})
 
     monkeypatch.setattr("commander_lab.studio.game_pool.GamePool", _Recorded)
-    monkeypatch.delenv("COMMANDER_LAB_STUDIO_SERIES_POOL", raising=False)
+    monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", "0")
     tmp_path.joinpath("x.json").write_text("{}", encoding="utf-8")
     tmp_path.joinpath("b.jar").write_bytes(b"jar")  # the pool plans with the JAR's hash
     monkeypatch.chdir(tmp_path)
@@ -1669,7 +1670,7 @@ def test_a_series_with_a_determinism_violation_in_its_journal_is_not_resumable_o
     from commander_lab.studio import paired_series
 
     if pool_switch is None:
-        monkeypatch.delenv("COMMANDER_LAB_STUDIO_SERIES_POOL", raising=False)  # chunked path
+        monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", "0")  # chunked path
     else:
         monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", pool_switch)  # pool path
     manager = paired_series.PairedSeriesManager()
@@ -1879,7 +1880,7 @@ def test_k5_a_real_violation_of_an_old_key_series_is_reported_as_violation_not_a
     from commander_lab.studio import paired_series, series_record
 
     if pool_switch is None:
-        monkeypatch.delenv("COMMANDER_LAB_STUDIO_SERIES_POOL", raising=False)
+        monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", "0")
     else:
         monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", pool_switch)
     manager = paired_series.PairedSeriesManager()
@@ -1910,7 +1911,7 @@ def test_a_series_recorded_with_the_old_key_version_is_not_resumable_and_not_a_v
     from commander_lab.studio import paired_series, series_record
 
     if pool_switch is None:
-        monkeypatch.delenv("COMMANDER_LAB_STUDIO_SERIES_POOL", raising=False)
+        monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", "0")
     else:
         monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", pool_switch)
     manager = paired_series.PairedSeriesManager()

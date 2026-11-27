@@ -49,8 +49,8 @@ from .series_record import DeterminismViolation, SeriesRecord, file_sha256
 from .store import now_utc
 from .table_spec import game_wall_limit_seconds
 
-#: ``1`` (or ``true``) lets a paired series play on long-lived worker JVMs. Unset: the chunked
-#: path of ``play_batch`` stays in use until the pool is measured against the real engine.
+#: ``0`` (or ``false``/``no``/``off``) falls back to the chunked path of ``play_batch``.
+#: Unset or truthy: a paired series plays on long-lived worker JVMs (#1652, #1586).
 SERIES_POOL_ENV = "COMMANDER_LAB_STUDIO_SERIES_POOL"
 
 #: A game that has been in flight this long with no answer is given up: the worker process is
@@ -78,7 +78,10 @@ _EXIT_POLL_SECONDS = 0.05
 
 
 def series_pool_enabled() -> bool:
-    return os.environ.get(SERIES_POOL_ENV, "").strip().lower() in {"1", "true", "yes", "on"}
+    raw = os.environ.get(SERIES_POOL_ENV, "").strip().lower()
+    if not raw:
+        return True
+    return raw not in {"0", "false", "no", "off"}
 
 
 class GamePoolError(RuntimeError):
@@ -344,7 +347,7 @@ def plan_task(
 
 
 def _emit(out: IO[str], message: Mapping[str, object]) -> None:
-    out.write(json.dumps(message, separators=(",", ":"), ensure_ascii=False) + "\n")
+    out.write(json.dumps(message, separators=(",", ":"), ensure_ascii=True) + "\n")
     out.flush()
 
 
@@ -726,6 +729,9 @@ class _ProcessWorker:
         # POSIX: the worker leads a process group of its own, which its bridge JVM joins (the
         # JVM is started without a session of its own), so killing the group ends both (#1584).
         # A worker started this way no longer gets the terminal's Ctrl+C; the supervisor ends it.
+        worker_env = dict(env)
+        worker_env.setdefault("PYTHONUTF8", "1")
+        worker_env.setdefault("PYTHONIOENCODING", "utf-8")
         self.proc = subprocess.Popen(
             list(argv),
             stdin=subprocess.PIPE,
@@ -734,9 +740,11 @@ class _ProcessWorker:
             text=True,
             encoding="utf-8",
             errors="strict",
-            env=dict(env),
+            env=worker_env,
             start_new_session=not _WINDOWS,
         )
+        if isinstance(self.proc.stdout, io.TextIOWrapper):
+            self.proc.stdout.reconfigure(errors="backslashreplace")
         if isinstance(self.proc.stderr, io.TextIOWrapper):
             self.proc.stderr.reconfigure(errors="backslashreplace")
         self._events = events
@@ -783,7 +791,7 @@ class _ProcessWorker:
         if stdin is None:
             return False
         try:
-            stdin.write(json.dumps(message, separators=(",", ":"), ensure_ascii=False) + "\n")
+            stdin.write(json.dumps(message, separators=(",", ":"), ensure_ascii=True) + "\n")
             stdin.flush()
         except (OSError, ValueError):
             return False
