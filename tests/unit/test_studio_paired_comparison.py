@@ -2471,3 +2471,154 @@ def test_an_observer_cannot_stop_the_series_with_the_cancellation_error(
     with_observer = _series_with_observer(tmp_path / "cancel", cancelling, winner=_even_split)
     without = _series_with_observer(tmp_path / "plain", None, winner=_even_split)
     assert _result_bytes(with_observer) == _result_bytes(without)
+
+
+# --- measured spread band in planning (#1590) ---------------------------------------------
+
+
+def test_measured_spread_band_keeps_conservative_plan_and_reports_per_table_size() -> None:
+    from commander_lab.engine.rules.full_game_comparison import difference_quantiles, pairs_needed
+    from commander_lab.studio import paired_series
+
+    def expected_sample_stats(
+        pairs: int, seats: int, sd_pair: float, deff: float
+    ) -> tuple[float | None, int]:
+        seeds = max(1, math.ceil(pairs / seats))
+        if seeds < 2:
+            det = None
+        else:
+            t95, t80 = difference_quantiles(seeds - 1)
+            det = round((t95 + t80) * sd_pair / math.sqrt(pairs) * math.sqrt(deff) * 100.0, 1)
+        effect = paired_series.PLANNING_REFERENCE_EFFECT_PP / 100.0
+        n_base = pairs_needed(effect, sd_pair)
+        while True:
+            s = max(1, math.ceil(n_base / seats))
+            q95, q80 = difference_quantiles(max(1, s - 1))
+            if (q95 + q80) * sd_pair / math.sqrt(n_base) <= effect:
+                break
+            n_base += 1
+        return det, math.ceil(n_base * deff)
+
+    # 4 seats: conservative 0.63 planning stays identical; measured band covers 3 samples
+    plan4 = paired_series.planned_detectable_difference_pp(40, 4, 4)
+    assert (plan4["detectable_pp_low"], plan4["detectable_pp_high"]) == (31.3, 41.5)
+    assert (plan4["pairs_needed_low"], plan4["pairs_needed_high"]) == (1254, 2195)
+    assert plan4["assumptions"]["pair_sd"] == 0.63  # type: ignore[index]
+    band4 = plan4["measured_spread_band"]
+    assert isinstance(band4, dict)
+    assert band4["available"] is True
+    assert band4["table_size"] == 4
+    assert band4["data_class"] == "SIMULATED_RESULT"
+    assert band4["tier_list_weight"] == 0
+    assert band4["is_planning_band_only"] is True
+    assert band4["sd_pair_min"] == 0.329 and band4["sd_pair_max"] == 0.6048
+    samples4 = band4["samples"]
+    assert isinstance(samples4, list) and len(samples4) == 3
+    assert [s["n_of_N"] for s in samples4] == ["37/40", "80/80", "20/20"]
+    assert [s["clusters"] for s in samples4] == [None, 20, 5]
+    assert [s["deff"] for s in samples4] == [1.0, 1.217, 0.478]
+    exp4 = [
+        expected_sample_stats(40, 4, 0.329, 1.0),
+        expected_sample_stats(40, 4, 0.4437, 1.217),
+        expected_sample_stats(40, 4, 0.6048, 0.478),
+    ]
+    assert [s["detectable_pp"] for s in samples4] == [d for d, _ in exp4]
+    assert [s["pairs_needed"] for s in samples4] == [n for _, n in exp4]
+    assert band4["detectable_pp_min"] == min(d for d, _ in exp4 if d is not None)
+    assert band4["detectable_pp_max"] == max(d for d, _ in exp4 if d is not None)
+    assert band4["pairs_needed_min"] == min(n for _, n in exp4)
+    assert band4["pairs_needed_max"] == max(n for _, n in exp4)
+
+    # 2, 5, 6 seats: each uses only its own cohort
+    expected_single = {
+        2: (20, 20, 10, 0.5104, 1.045),
+        5: (25, 25, 5, 0.2000, 1.000),
+        6: (30, 30, 5, 0.3651, 1.000),
+    }
+    for seats, (n, planned, clusters, sd_pair, deff) in expected_single.items():
+        budget = max(20, seats * seats)
+        plan = paired_series.planned_detectable_difference_pp(budget, seats, seats)
+        assert plan["assumptions"]["pair_sd"] == paired_series.planning_pair_sd(seats)  # type: ignore[index]
+        band = plan["measured_spread_band"]
+        assert isinstance(band, dict) and band["available"] is True
+        assert band["table_size"] == seats
+        assert band["data_class"] == "SIMULATED_RESULT"
+        assert band["sd_pair_min"] == band["sd_pair_max"] == sd_pair
+        det, need = expected_sample_stats(budget, seats, sd_pair, deff)
+        assert band["detectable_pp_min"] == band["detectable_pp_max"] == det
+        assert band["pairs_needed_min"] == band["pairs_needed_max"] == need
+        row = band["samples"][0]  # type: ignore[index]
+        assert (row["pairs"], row["planned"], row["clusters"], row["deff"]) == (
+            n,
+            planned,
+            clusters,
+            deff,
+        )
+
+    # 3, 7, 8 seats: no measured pair spread -> UNKNOWN
+    for seats in (3, 7, 8):
+        plan = paired_series.planned_detectable_difference_pp(max(9, seats * seats), seats, seats)
+        band = plan["measured_spread_band"]
+        assert band == {
+            "available": False,
+            "table_size": seats,
+            "data_class": "UNKNOWN",
+            "reason": "keine gemessene Paar-Streuung für diese Tischgröße (n = 0 Paare, UNKNOWN)",
+        }
+
+    # single seed: detectable_pp stays None, pairs_needed is still computed
+    one_seed = paired_series.planned_detectable_difference_pp(4, 4, 4)
+    band_one = one_seed["measured_spread_band"]
+    assert isinstance(band_one, dict)
+    assert band_one["detectable_pp_min"] is None and band_one["detectable_pp_max"] is None
+    assert band_one["pairs_needed_min"] == band4["pairs_needed_min"]
+    assert band_one["pairs_needed_max"] == band4["pairs_needed_max"]
+
+
+def test_paired_js_renders_measured_spread_band_as_fourth_line() -> None:
+    import shutil
+    import subprocess
+
+    from commander_lab.studio import paired_series
+
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("node is not installed")
+    static_dir = Path(__file__).resolve().parents[2] / "src/commander_lab/studio/static"
+    p4 = paired_series.planned_detectable_difference_pp(40, 4, 4)
+    p5 = paired_series.planned_detectable_difference_pp(25, 5, 5)
+    p7 = paired_series.planned_detectable_difference_pp(49, 7, 7)
+    p_one = paired_series.planned_detectable_difference_pp(4, 4, 4)
+    p_legacy = {k: v for k, v in p4.items() if k != "measured_spread_band"}
+    script = (
+        "const StudioUI = {num: (v, d = 0) => Number(v).toLocaleString('de-DE', "
+        "{minimumFractionDigits: d, maximumFractionDigits: d})};\n"
+        + (static_dir / "paired.js").read_text(encoding="utf-8")
+        + "\nprocess.stdout.write(JSON.stringify({"
+        + f"four: planPairedLines({json.dumps(p4)}, 0),"
+        + f"five: planPairedLines({json.dumps(p5)}, 0),"
+        + f"seven: planPairedLines({json.dumps(p7)}, 0),"
+        + f"one: planPairedLines({json.dumps(p_one)}, 0),"
+        + f"legacy: planPairedLines({json.dumps(p_legacy)}, 0)"
+        + "}));\n"
+    )
+    done = subprocess.run(
+        [node, "-e", script], capture_output=True, text=True, check=True, timeout=30
+    )
+    out = json.loads(done.stdout)
+    assert len(out["four"]) == 4 and out["four"][:3] == out["legacy"]
+    line4 = out["four"][3]
+    assert "SIMULATED_RESULT" in line4
+    assert "37/40" in line4 and "80/80" in line4 and "20/20" in line4
+    assert (
+        "ungeclustert" in line4 and "k = 20 Seed-Cluster" in line4 and "k = 5 Seed-Cluster" in line4
+    )
+    assert "DEFF" in line4 and "0,3290\u20130,6048" in line4
+    assert "kein Garantiewert, ersetzt nicht den konservativen Planungswert" in line4
+    assert len(out["five"]) == 4 and "0,2000" in out["five"][3] and "25/25" in out["five"][3]
+    assert len(out["seven"]) == 4
+    assert (
+        out["seven"][3] == "Gemessene Paar-Streuung: unbekannt (n = 0 Paare für diese Tischgröße)."
+    )
+    assert len(out["one"]) == 4 and "unbekannt (nur ein Seed)" in out["one"][3]
+    assert len(out["legacy"]) == 3
