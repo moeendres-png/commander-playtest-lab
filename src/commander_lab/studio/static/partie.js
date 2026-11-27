@@ -30,7 +30,7 @@ function resolvePriorityOptionType(opt) {
   return ot || "activated_ability";
 }
 
-const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, focusSeat: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, responseMode: "full_control", holdToConfirm: true, haltConfig: typeof StudioTurnBar !== "undefined" ? StudioTurnBar.defaultHaltConfig("full_control") : null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], logRuns: [], logQuery: "", seatKeys: [], poll: 0 };
+const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, focusSeat: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, responseMode: "full_control", holdToConfirm: true, haltConfig: typeof StudioTurnBar !== "undefined" ? StudioTurnBar.defaultHaltConfig("full_control") : null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, drag: null, suppressNextClickUntil: 0, hoveredTarget: null, targetModeDismissedId: null, targetPointer: null, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], logRuns: [], logQuery: "", seatKeys: [], poll: 0 };
 
 const $ = (id) => document.getElementById(id);
 function h(tag, props, ...children) {
@@ -261,9 +261,13 @@ function toggleOption(optionId) {
 function adoptPendingDecision(nextDecision) {
   if (!nextDecision || !state.pendingDecision || nextDecision.decision_id !== state.pendingDecision.decision_id) {
     closeBoardMenu(false);
+    if (typeof cancelActiveDrag === "function") cancelActiveDrag(false);
     state.selectedOptions = [];
     state.click = null;
     state.clickActive = false;
+    state.hoveredTarget = null;
+    state.targetModeDismissedId = null;
+    state.targetPointer = null;
   }
   state.pendingDecision = nextDecision;
   if (!nextDecision) {
@@ -312,7 +316,7 @@ function confirmSelection() {
   if (!state.selectedOptions.every((id) => offeredOption(id))) { toast("Diese Auswahl bietet die Engine gerade nicht an."); return; }
   submitHumanChoice({ decision_id: state.click.decisionId, selected_option_ids: [...state.selectedOptions], ordering: [] });
 }
-function boardClick(target, anchor) {
+function dispatchBoardTarget(target, anchor) {
   const pending = boardDecision();
   if (!state.clickActive || !pending || state.submitting) return;
   const result = StudioBoardClick.resolve(pending, state.click, target);
@@ -321,6 +325,10 @@ function boardClick(target, anchor) {
   else if (result.action === "toggle") { closeBoardMenu(false); toggleBoardOption(result.optionId); focusClickKey(key); }
   else if (result.action === "menu") openBoardMenu(anchor, result, key, target.type === "seat" ? seatName(target.seat) : (objectName(target.id) || "Karte"));
   else toast("Dafür bietet die Engine gerade keine Aktion an.");
+}
+function boardClick(target, anchor) {
+  if (Date.now() < state.suppressNextClickUntil || !boardDecision()) return;
+  dispatchBoardTarget(target, anchor);
 }
 function openBoardMenu(anchor, result, key, title) {
   const box = $("board-menu");
@@ -363,26 +371,330 @@ function closeBoardMenu(restoreFocus) {
   if (restoreFocus) focusClickKey(key);
   return true;
 }
-// Lines from the blocker the engine asks about to the attackers chosen so far.
+function isAtLiveTail() {
+  return Boolean(state.interactive && state.running && state.pendingDecision && state.index >= Math.max(0, state.frames.length - 1));
+}
+function currentFrameObj() {
+  const atLiveTail = isAtLiveTail();
+  return atLiveTail ? pilotStateToFrame(state.pendingDecision) : state.frames[state.index];
+}
+function currentTargetMode() {
+  if (!isAtLiveTail() || state.ff.on || state.submitting || typeof StudioDragTargetUX === "undefined") return { active: false, paused: false };
+  return StudioDragTargetUX.resolveTargetMode(state.pendingDecision, state.click, currentFrameObj(), state.targetModeDismissedId);
+}
+function centerOfEl(el) {
+  if (!el || typeof el.getBoundingClientRect !== "function") return null;
+  const r = el.getBoundingClientRect();
+  if (!r || (r.width === 0 && r.height === 0)) return null;
+  return { x: r.left + r.width / 2, y: r.top + r.height / 2, rect: r };
+}
+function elementForBoardTarget(target) {
+  if (!target) return null;
+  if (target.type === "object" && target.id) return document.querySelector(`[data-object-id="${target.id}"]`);
+  if (target.type === "seat" && target.seat !== undefined && target.seat !== null) return document.querySelector(`.seat[data-seat="${target.seat}"]`);
+  return null;
+}
+function visibleCenterOfEl(el) {
+  const c = centerOfEl(el);
+  if (!c) return null;
+  const r = c.rect;
+  const sideEl = el.closest ? el.closest("#side") : null;
+  const tblEl = el.closest ? el.closest("#table") : null;
+  const boundsEl = sideEl || tblEl;
+  if (boundsEl && typeof boundsEl.getBoundingClientRect === "function") {
+    const br = boundsEl.getBoundingClientRect();
+    if (r.bottom < br.top + 4 || r.top > br.bottom - 4) return null;
+  }
+  if (c.y < 0 || c.y > window.innerHeight || c.x < 0 || c.x > window.innerWidth) return null;
+  return c;
+}
+function resolveTargetSourceAnchor(anchor) {
+  if (anchor && anchor.type === "object" && anchor.id) {
+    const onBoard = document.querySelector(`[data-object-id="${anchor.id}"]`) || document.querySelector(`[data-stack-object-id="${anchor.id}"]`);
+    const c = visibleCenterOfEl(onBoard);
+    if (c) return c;
+  }
+  if (anchor && (anchor.type === "stack_top" || anchor.type === "object")) {
+    const topStackEl = document.querySelector('#stack [data-stack-order="1"]');
+    const c = visibleCenterOfEl(topStackEl);
+    if (c) return c;
+  }
+  return centerOfEl($("target-mode-pill")) || centerOfEl($("board-bar")) || centerOfEl($("human-decision")) || { x: Math.round(window.innerWidth / 2), y: 80 };
+}
+function ensureArrowMarkers(svg) {
+  const defs = document.createElementNS(SVG_NS, "defs");
+  const colors = { target: "var(--accent)", attack: "var(--bad)", block: "var(--good)", spell: "var(--warn)", land: "var(--warn)", action: "var(--warn)" };
+  for (const [kind, color] of Object.entries(colors)) {
+    const marker = document.createElementNS(SVG_NS, "marker");
+    marker.setAttribute("id", `arrow-head-${kind}`);
+    marker.setAttribute("viewBox", "0 0 10 10");
+    marker.setAttribute("refX", "8");
+    marker.setAttribute("refY", "5");
+    marker.setAttribute("markerWidth", "5.5");
+    marker.setAttribute("markerHeight", "5.5");
+    marker.setAttribute("orient", "auto-start-reverse");
+    const tri = document.createElementNS(SVG_NS, "path");
+    tri.setAttribute("d", "M 0 1.2 L 9 5 L 0 8.8 z");
+    tri.setAttribute("fill", color);
+    marker.append(tri);
+    defs.append(marker);
+  }
+  svg.append(defs);
+}
+function appendCurvedArrow(svg, x1, y1, x2, y2, kind = "target", preview = false) {
+  const geom = typeof StudioDragTargetUX !== "undefined" && StudioDragTargetUX.computeCurvedArrowPath
+    ? StudioDragTargetUX.computeCurvedArrowPath(x1, y1, x2, y2)
+    : { d: `M ${Math.round(x1)} ${Math.round(y1)} L ${Math.round(x2)} ${Math.round(y2)}` };
+  const dot = document.createElementNS(SVG_NS, "circle");
+  dot.setAttribute("class", `board-arrow-origin ${kind}`);
+  dot.setAttribute("cx", String(Math.round(x1)));
+  dot.setAttribute("cy", String(Math.round(y1)));
+  dot.setAttribute("r", "5");
+  svg.append(dot);
+  const path = document.createElementNS(SVG_NS, "path");
+  path.setAttribute("class", `board-arrow ${kind}${preview ? " preview" : ""}`);
+  path.setAttribute("d", geom.d);
+  path.setAttribute("marker-end", `url(#arrow-head-${kind})`);
+  svg.append(path);
+}
+function syncHoverHighlights() {
+  for (const node of document.querySelectorAll(".drop-target-hover, .target-aimed, .attack-hover")) {
+    node.classList.remove("drop-target-hover", "target-aimed", "attack-hover");
+  }
+  if (!state.hoveredTarget) return;
+  const el = elementForBoardTarget(state.hoveredTarget);
+  if (!el) return;
+  if (state.drag) {
+    el.classList.add("drop-target-hover");
+    if (state.drag.kind === "attacker") el.classList.add("attack-hover");
+  } else {
+    el.classList.add("target-aimed");
+  }
+}
+function hitTestDragTarget(clientX, clientY, dragCfg) {
+  const stack = typeof document.elementsFromPoint === "function" ? document.elementsFromPoint(clientX, clientY) : [];
+  const overHand = stack.some((el) => el && el.closest && el.closest("#hand-dock"));
+  const tableEl = $("table");
+  const overTableRect = (() => {
+    if (!tableEl || typeof tableEl.getBoundingClientRect !== "function") return false;
+    const r = tableEl.getBoundingClientRect();
+    return clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
+  })();
+  const overBoard = !overHand && (stack.some((el) => el && el.closest && (el.closest("#table") || el.closest(".seat"))) || overTableRect);
+  let target = null;
+  for (const node of stack) {
+    const objEl = node && node.closest ? node.closest("[data-object-id]") : null;
+    if (objEl && objEl.dataset && objEl.dataset.objectId) {
+      const cand = { type: "object", id: objEl.dataset.objectId };
+      if (StudioDragTargetUX.isLegalDropTarget(dragCfg, cand, state.click)) {
+        target = cand;
+        break;
+      }
+    }
+    const seatEl = node && node.closest ? node.closest(".seat[data-seat]") : null;
+    if (seatEl && seatEl.dataset && seatEl.dataset.seat !== undefined) {
+      const cand = { type: "seat", seat: Number(seatEl.dataset.seat) };
+      if (StudioDragTargetUX.isLegalDropTarget(dragCfg, cand, state.click)) {
+        target = cand;
+        break;
+      }
+    }
+  }
+  return { overBoard, target };
+}
+function cancelActiveDrag(notifyUser) {
+  if (state.drag && typeof state.drag.cleanup === "function") state.drag.cleanup();
+  const hadDrag = Boolean(state.drag);
+  state.drag = null;
+  state.hoveredTarget = null;
+  if (hadDrag && notifyUser) {
+    state.suppressNextClickUntil = Date.now() + 400;
+    const armClickSuppressOnRelease = () => {
+      state.suppressNextClickUntil = Date.now() + 250;
+      document.removeEventListener("pointerup", armClickSuppressOnRelease, true);
+      document.removeEventListener("pointercancel", armClickSuppressOnRelease, true);
+      document.removeEventListener("pointerdown", clearSuppress, true);
+    };
+    const clearSuppress = () => {
+      state.suppressNextClickUntil = 0;
+      document.removeEventListener("pointerup", armClickSuppressOnRelease, true);
+      document.removeEventListener("pointercancel", armClickSuppressOnRelease, true);
+      document.removeEventListener("pointerdown", clearSuppress, true);
+    };
+    document.addEventListener("pointerup", armClickSuppressOnRelease, true);
+    document.addEventListener("pointercancel", armClickSuppressOnRelease, true);
+    document.addEventListener("pointerdown", clearSuppress, true);
+  }
+  const ghost = $("drag-ghost");
+  if (ghost) {
+    ghost.hidden = true;
+    ghost.textContent = "";
+  }
+  if ($("table")) $("table").classList.remove("drop-zone-active");
+  for (const el of document.querySelectorAll(".dragging-source")) el.classList.remove("dragging-source");
+  syncHoverHighlights();
+  drawBlockLinks();
+  if (notifyUser && hadDrag) toast("Ziehen abgebrochen — keine Aktion ausgelöst.", 1800);
+  return hadDrag;
+}
+function bindPointerDrag(el, configFn) {
+  if (!el || typeof el.addEventListener !== "function" || typeof StudioDragTargetUX === "undefined") return;
+  el.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || event.shiftKey || state.drag) return;
+    if (event.target && event.target.closest && event.target.closest(".hand-zoom-btn, .seat-focus-btn")) return;
+    const cfg = configFn();
+    if (!cfg || !cfg.draggable) return;
+    const startX = event.clientX;
+    const startY = event.clientY;
+    let started = false;
+    const cleanup = () => {
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      document.removeEventListener("pointercancel", onCancel);
+    };
+    const updatePosition = (cx, cy) => {
+      if (!state.drag) return;
+      state.drag.clientX = cx;
+      state.drag.clientY = cy;
+      const ghost = $("drag-ghost");
+      if (ghost && !ghost.hidden) {
+        ghost.style.left = `${Math.max(8, Math.min(cx + 14, window.innerWidth - 220))}px`;
+        ghost.style.top = `${Math.max(8, Math.min(cy + 14, window.innerHeight - 90))}px`;
+      }
+      const hit = hitTestDragTarget(cx, cy, cfg);
+      state.drag.overBoard = hit.overBoard;
+      state.hoveredTarget = hit.target;
+      syncHoverHighlights();
+      drawBlockLinks();
+    };
+    const onMove = (moveEv) => {
+      if (!started) {
+        const dist = Math.hypot(moveEv.clientX - startX, moveEv.clientY - startY);
+        if (dist < StudioDragTargetUX.DRAG_THRESHOLD_PX) return;
+        started = true;
+        closeBoardMenu(false);
+        if ($("preview")) $("preview").hidden = true;
+        state.drag = Object.assign({}, cfg, { sourceEl: el, clientX: moveEv.clientX, clientY: moveEv.clientY, overBoard: false, cleanup });
+        el.classList.add("dragging-source");
+        if (cfg.dropMode === "board" && $("table")) $("table").classList.add("drop-zone-active");
+        const ghost = $("drag-ghost");
+        if (ghost) {
+          ghost.textContent = "";
+          ghost.append(h("div", { class: "drag-ghost-title" }, cfg.name), h("div", { class: "drag-ghost-hint" }, cfg.dropHint));
+          ghost.hidden = false;
+        }
+      }
+      updatePosition(moveEv.clientX, moveEv.clientY);
+    };
+    const onCancel = () => {
+      cleanup();
+      if (started) cancelActiveDrag(false);
+    };
+    const onUp = (upEv) => {
+      cleanup();
+      if (!started || !state.drag) return;
+      updatePosition(upEv.clientX, upEv.clientY);
+      const dragSnapshot = state.drag;
+      const hit = hitTestDragTarget(upEv.clientX, upEv.clientY, dragSnapshot);
+      const dropTarget = hit.target;
+      const dropAnchor = elementForBoardTarget(dropTarget);
+      state.suppressNextClickUntil = Date.now() + 300;
+      cancelActiveDrag(false);
+      if (dragSnapshot.dropMode === "board") {
+        if (!hit.overBoard) {
+          toast("Außerhalb des Spielfelds losgelassen — keine Aktion ausgeführt.", 1800);
+          return;
+        }
+        if (dragSnapshot.kind === "hand") {
+          const info = dragSnapshot.info;
+          if (!info || !offeredOption(dragSnapshot.primaryOptionId)) {
+            toast("Diese Aktion ist in der aktuellen Entscheidung nicht mehr verfügbar.");
+            return;
+          }
+          if (dragSnapshot.actionKind === "cast_spell" && state.stagedHand && state.stagedHand.objectId === dragSnapshot.objectId) {
+            startStagedCast(info, true);
+          } else {
+            onHandCardActivate(info, isAtLiveTail());
+          }
+          return;
+        }
+        if (dragSnapshot.kind === "permanent_action") {
+          const pending = boardDecision();
+          if (pending && state.clickActive) {
+            dispatchBoardTarget({ type: "object", id: dragSnapshot.objectId }, dragSnapshot.sourceEl);
+          }
+          return;
+        }
+      } else if (dragSnapshot.dropMode === "targets") {
+        if (dropTarget && StudioDragTargetUX.isLegalDropTarget(dragSnapshot, dropTarget, state.click)) {
+          dispatchBoardTarget(dropTarget, dropAnchor || dragSnapshot.sourceEl);
+        } else {
+          toast("Kein gültiges Ziel unter dem Zeiger — keine Aktion ausgelöst.", 1800);
+        }
+      }
+    };
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+    document.addEventListener("pointercancel", onCancel);
+  });
+}
+function dismissTargetMode() {
+  const tm = currentTargetMode();
+  if (!tm.active || !state.pendingDecision) return false;
+  state.targetModeDismissedId = String(state.pendingDecision.decision_id);
+  state.hoveredTarget = null;
+  state.targetPointer = null;
+  syncHoverHighlights();
+  render();
+  toast("Ziel-Modus ausgeblendet (Zauber bleibt in Auswahl).", 2200);
+  return true;
+}
+// Lines and curved targeting/combat arrows (#1821).
 function drawBlockLinks() {
   const svg = $("board-links");
   if (!svg) return;
   svg.textContent = "";
-  if (!state.clickActive || state.click.kind !== "blocker" || !state.click.asked) return;
-  const from = document.querySelector(`[data-object-id="${state.click.asked}"]`);
-  if (!from) return;
-  const a = from.getBoundingClientRect();
-  for (const optionId of state.selectedOptions) {
-    const to = document.querySelector(`[data-object-id="${optionId}"]`);
-    if (!to) continue;
-    const b = to.getBoundingClientRect();
-    const line = document.createElementNS(SVG_NS, "line");
-    line.setAttribute("class", "board-link");
-    line.setAttribute("x1", String(Math.round(a.left + a.width / 2)));
-    line.setAttribute("y1", String(Math.round(a.top + a.height / 2)));
-    line.setAttribute("x2", String(Math.round(b.left + b.width / 2)));
-    line.setAttribute("y2", String(Math.round(b.top + b.height / 2)));
-    svg.append(line);
+  const tm = currentTargetMode();
+  const hasBlockerLines = Boolean(state.clickActive && state.click && state.click.kind === "blocker" && state.click.asked && state.selectedOptions && state.selectedOptions.length);
+  if (!hasBlockerLines && !state.drag && !tm.active) return;
+  if (typeof document.createElementNS !== "function") return;
+  ensureArrowMarkers(svg);
+  if (hasBlockerLines) {
+    const from = document.querySelector(`[data-object-id="${state.click.asked}"]`);
+    if (from) {
+      const a = from.getBoundingClientRect();
+      for (const optionId of state.selectedOptions) {
+        const to = document.querySelector(`[data-object-id="${optionId}"]`);
+        if (!to) continue;
+        const b = to.getBoundingClientRect();
+        appendCurvedArrow(svg, a.left + a.width / 2, a.top + a.height / 2, b.left + b.width / 2, b.top + b.height / 2, "block", false);
+      }
+    }
+  }
+  if (state.drag) {
+    const srcCoords = centerOfEl(state.drag.sourceEl) || { x: state.drag.clientX, y: state.drag.clientY };
+    const tgtCoords = state.hoveredTarget ? centerOfEl(elementForBoardTarget(state.hoveredTarget)) : null;
+    const tx = tgtCoords ? tgtCoords.x : state.drag.clientX;
+    const ty = tgtCoords ? tgtCoords.y : state.drag.clientY;
+    appendCurvedArrow(svg, srcCoords.x, srcCoords.y, tx, ty, state.drag.arrowKind || "target", !tgtCoords);
+  }
+  if (tm.active && state.click) {
+    const src = resolveTargetSourceAnchor(tm.sourceAnchor);
+    for (const optId of state.selectedOptions) {
+      const entryObj = Object.entries(state.click.objects || {}).find(([, v]) => v && v.optionIds && v.optionIds.includes(optId));
+      const entrySeat = !entryObj ? Object.entries(state.click.seats || {}).find(([, v]) => v && v.optionIds && v.optionIds.includes(optId)) : null;
+      const targetEl = entryObj ? elementForBoardTarget({ type: "object", id: entryObj[0] }) : (entrySeat ? elementForBoardTarget({ type: "seat", seat: Number(entrySeat[0]) }) : null);
+      const tc = centerOfEl(targetEl);
+      if (tc) appendCurvedArrow(svg, src.x, src.y, tc.x, tc.y, "target", false);
+    }
+    if (!state.drag) {
+      const hoverCoords = state.hoveredTarget ? centerOfEl(elementForBoardTarget(state.hoveredTarget)) : null;
+      if (hoverCoords) {
+        appendCurvedArrow(svg, src.x, src.y, hoverCoords.x, hoverCoords.y, "target", true);
+      } else if (state.targetPointer) {
+        appendCurvedArrow(svg, src.x, src.y, state.targetPointer.x, state.targetPointer.y, "target", true);
+      }
+    }
   }
 }
 const BAR_HINTS = {
@@ -406,6 +718,24 @@ function renderBoardBar(pending, model) {
     : (CLASSES[pending.decision_class] || pending.decision_class);
   const hint = boardHasClickables(model) ? (BAR_HINTS[model.kind] || "") : "Die Möglichkeiten dieser Entscheidung liegen nicht auf dem Brett (zum Beispiel in der Bibliothek): wähle in der Liste.";
   bar.append(h("b", { class: "board-bar-title" }, lead), h("span", { class: "board-bar-hint" }, hint));
+  const tm = typeof StudioDragTargetUX !== "undefined"
+    ? StudioDragTargetUX.resolveTargetMode(pending, model, currentFrameObj(), state.targetModeDismissedId)
+    : { active: false, paused: false };
+  if (tm.active) {
+    bar.append(
+      h("span", { class: "target-mode-pill", id: "target-mode-pill" }, `🎯 Ziel-Modus aktiv${tm.sourceName ? `: ${tm.sourceName}` : ""}`),
+      h("button", { type: "button", class: "small", id: "target-mode-toggle", onclick: () => dismissTargetMode() }, "Ausblenden (Esc)")
+    );
+  } else if (tm.paused) {
+    bar.append(
+      h("button", {
+        type: "button",
+        class: "small",
+        id: "target-mode-toggle",
+        onclick: () => { state.targetModeDismissedId = null; render(); }
+      }, "🎯 Ziel-Modus einblenden")
+    );
+  }
   if (model.mode === "staged") bar.append(h("span", { class: "board-bar-count" }, `${state.selectedOptions.length} von ${maxSel} gewählt (mindestens ${minSel})`));
   for (const optionId of model.loose) {
     const option = offeredOption(optionId);
@@ -569,6 +899,7 @@ function bindCardZoom(el, name, getMeta) {
   zoomMetaRegistry.set(el, { name, resolveMeta });
   el.dataset.zoomName = name;
   const openZoom = (event) => {
+    if (event.type === "contextmenu" && (state.drag || currentTargetMode().active)) return;
     event.preventDefault();
     event.stopPropagation();
     showCardZoom(name, resolveMeta());
@@ -596,6 +927,9 @@ function cardTile(name, options = {}) {
   const answerable = Boolean(entry) && clickAction({ type: "object", id: options.objectId }) !== "none";
   const picked = Boolean(entry) && entry.optionIds.some((id) => state.selectedOptions.includes(id));
   const manaPreviewSrc = isStagedManaSource(options.objectId);
+  const permDragCfg = typeof StudioDragTargetUX !== "undefined"
+    ? StudioDragTargetUX.classifyPermanentDrag(options.objectId, name, state.pendingDecision, state.click, isAtLiveTail(), state.submitting, Boolean(state.ff && state.ff.on))
+    : { draggable: false };
   const classes = [
     "card",
     options.tapped && "tapped",
@@ -610,14 +944,21 @@ function cardTile(name, options = {}) {
     picked && "picked",
     !entry && clickDimmed(options.objectId) && "dimmed"
   ].filter(Boolean).join(" ");
-  const props = { class: classes, title: options.title || name };
+  const props = { class: classes, title: permDragCfg.draggable ? `${options.title || name} — ziehen: ${permDragCfg.dropHint}` : (options.title || name) };
   if (options.objectId) props["data-object-id"] = options.objectId;
+  if (permDragCfg.draggable) {
+    props["data-draggable"] = "1";
+    props.draggable = false;
+  }
   let el;
   if (answerable) {
-    Object.assign(props, { type: "button", "data-click-key": `obj:${options.objectId}`, "aria-label": clickAria(name, entry), onclick: (event) => { if (event.shiftKey) return; boardClick({ type: "object", id: options.objectId }, event.currentTarget); } });
+    Object.assign(props, { type: "button", "data-click-key": `obj:${options.objectId}`, "aria-label": clickAria(name, entry), onclick: (event) => { if (event.shiftKey || Date.now() < state.suppressNextClickUntil) return; boardClick({ type: "object", id: options.objectId }, event.currentTarget); } });
     el = h("button", props, cardFace(name));
   } else {
     el = h("div", props, cardFace(name));
+  }
+  if (permDragCfg.draggable) {
+    bindPointerDrag(el, () => StudioDragTargetUX.classifyPermanentDrag(options.objectId, name, state.pendingDecision, state.click, isAtLiveTail(), state.submitting, Boolean(state.ff && state.ff.on)));
   }
   if (options.count > 1) el.append(h("span", { class: "badge count" }, `×${options.count}`));
   if (options.pt) el.append(h("span", { class: `badge pt${options.damage ? " hurt" : ""}` }, options.pt));
@@ -1288,7 +1629,7 @@ function renderHumanDecision() {
   if (!state.click || state.click.decisionId !== pending.decision_id) state.click = StudioBoardClick.build(pending);
   // The poll renders again every moment: an unchanged decision keeps its panel, so a typed number,
   // an open menu and the keyboard focus survive.
-  const panelSig = JSON.stringify([pending.decision_id, state.selectedOptions, state.orderList, state.submitting, state.concedePendingDecision]);
+  const panelSig = JSON.stringify([pending.decision_id, state.selectedOptions, state.orderList, state.submitting, state.concedePendingDecision, state.targetModeDismissedId]);
   if (!panel.hidden && panel.dataset.sig === panelSig) return;
   panel.dataset.sig = panelSig;
   panel.hidden = false;
@@ -1775,7 +2116,7 @@ function handCardTile(name, index, info, atLiveTail) {
   const artFace = state.noImage.has(name) || name === "(verdeckt)"
     ? h("div", { class: "nocard" }, name)
     : (() => {
-        const img = h("img", { alt: name, loading: "eager", referrerpolicy: "no-referrer", src: `/img-name?name=${encodeURIComponent(name)}` });
+        const img = h("img", { alt: name, loading: "eager", draggable: false, referrerpolicy: "no-referrer", src: `/img-name?name=${encodeURIComponent(name)}` });
         img.addEventListener("error", () => { state.noImage.add(name); img.replaceWith(h("div", { class: "nocard" }, name)); });
         return img;
       })();
@@ -1788,13 +2129,17 @@ function handCardTile(name, index, info, atLiveTail) {
     h("div", { class: "hand-card-state" },
       h("span", { class: badgeCls, title: info ? info.reasonText : "" }, `${info ? info.badgeIcon : ""} ${info ? info.badgeLabel : ""}`.trim()),
       ptText ? h("span", { class: "hand-card-pt" }, ptText) : null));
+  const handDragCfg = typeof StudioDragTargetUX !== "undefined"
+    ? StudioDragTargetUX.classifyHandDrag(info, state.pendingDecision, atLiveTail, state.submitting, Boolean(state.ff && state.ff.on))
+    : { draggable: false };
   const mainBtn = h("button", {
     type: "button",
     class: "hand-card-main",
+    draggable: false,
     "aria-label": `${name} — ${info ? `${info.badgeLabel}: ${info.reasonText}` : "Handkarte"}`,
-    title: info ? `${name}: ${info.reasonText}` : name,
+    title: handDragCfg.draggable ? `${name}: ${info.reasonText} (oder aufs Brett ziehen)` : (info ? `${name}: ${info.reasonText}` : name),
     onclick: (event) => {
-      if (event.shiftKey) return;
+      if (event.shiftKey || Date.now() < state.suppressNextClickUntil) return;
       onHandCardActivate(info, atLiveTail);
     }
   }, art, body);
@@ -1802,8 +2147,16 @@ function handCardTile(name, index, info, atLiveTail) {
     class: "hand-card",
     "data-object-id": info && info.objectId ? info.objectId : null,
     "data-playability": playability,
-    "data-reason-class": info && info.reasonClass ? info.reasonClass : null
+    "data-reason-class": info && info.reasonClass ? info.reasonClass : null,
+    "data-draggable": handDragCfg.draggable ? "1" : null
   }, mainBtn, zoomBtn);
+  if (handDragCfg.draggable) {
+    bindPointerDrag(cardEl, () => {
+      const cfg = StudioDragTargetUX.classifyHandDrag(info, state.pendingDecision, isAtLiveTail(), state.submitting, Boolean(state.ff && state.ff.on));
+      if (cfg.draggable) cfg.info = info;
+      return cfg;
+    });
+  }
   const getZoomMeta = () => ({
     handInfo: info,
     zoneLabel: "Hand",
@@ -2093,6 +2446,7 @@ function renderStackRail(frame, atLiveTail) {
       class: `stack-item${item.isTop ? " top" : ""}`,
       role: "listitem",
       "data-stack-order": String(item.orderNumber || ""),
+      "data-stack-object-id": item.objectId || null,
       onclick: cardZoomName && typeof showCardZoom === "function"
         ? (event) => {
             if (event && event.shiftKey) return;
@@ -3362,7 +3716,7 @@ async function start() {
   document.addEventListener("keydown", (event) => {
     if (event.ctrlKey || event.metaKey || event.altKey) return;
     if (event.key === "Enter" || event.key === " ") lastKeyActivateAt = Date.now();
-    if (event.key === "Escape") { if (closeBoardMenu(true)) return; if (!$("modal").hidden) { $("modal").hidden = true; finishConfirmModal(false); return; } if (state.focusSeat !== null) { toggleFocusSeat(null); return; } return; }
+    if (event.key === "Escape") { if (cancelActiveDrag(true)) return; if (dismissTargetMode()) return; if (closeBoardMenu(true)) return; if (!$("modal").hidden) { $("modal").hidden = true; finishConfirmModal(false); return; } if (state.focusSeat !== null) { toggleFocusSeat(null); return; } return; }
     if (event.key === "Tab" && $("modal") && !$("modal").hidden && $("modal-box") && $("modal-box").dataset.confirmOpen === "1") {
       const items = [...$("modal-box").querySelectorAll("button:not([disabled])")];
       if (items.length) {
@@ -3413,10 +3767,41 @@ async function start() {
     else if (event.key === "Tab") { event.preventDefault(); items[(at + (event.shiftKey ? -1 : 1) + items.length) % items.length].focus(); }
     if (event.key === "ArrowLeft" || event.key === "ArrowRight") event.stopPropagation();
   });
+  document.addEventListener("contextmenu", (event) => {
+    if (cancelActiveDrag(true)) { event.preventDefault(); return; }
+    if (dismissTargetMode()) { event.preventDefault(); }
+  });
+  document.addEventListener("pointermove", (event) => {
+    if (state.drag || !state.clickActive) return;
+    const tm = currentTargetMode();
+    if (!tm.active) return;
+    const stack = typeof document.elementsFromPoint === "function" ? document.elementsFromPoint(event.clientX, event.clientY) : [];
+    const tableEl = $("table");
+    const tr = tableEl && typeof tableEl.getBoundingClientRect === "function" ? tableEl.getBoundingClientRect() : null;
+    const inTable = Boolean(tr && event.clientX >= tr.left && event.clientX <= tr.right && event.clientY >= tr.top && event.clientY <= tr.bottom);
+    let nextTarget = null;
+    for (const node of stack) {
+      const objEl = node && node.closest ? node.closest("[data-object-id]") : null;
+      if (objEl && objEl.dataset && objEl.dataset.objectId && state.click.objects[objEl.dataset.objectId]) {
+        nextTarget = { type: "object", id: objEl.dataset.objectId };
+        break;
+      }
+      const seatEl = node && node.closest ? node.closest(".seat[data-seat]") : null;
+      if (seatEl && seatEl.dataset && seatEl.dataset.seat !== undefined && state.click.seats[String(seatEl.dataset.seat)]) {
+        nextTarget = { type: "seat", seat: Number(seatEl.dataset.seat) };
+        break;
+      }
+    }
+    state.hoveredTarget = nextTarget;
+    state.targetPointer = inTable ? { x: event.clientX, y: event.clientY } : null;
+    syncHoverHighlights();
+    drawBlockLinks();
+  }, { passive: true });
   document.addEventListener("click", (event) => {
     if (!$("board-menu").hidden && !event.target.closest("#board-menu, .clickable, .seat-pick")) closeBoardMenu(false);
   });
   $("table").addEventListener("scroll", () => { closeBoardMenu(false); drawBlockLinks(); }, { passive: true });
+  if ($("side")) $("side").addEventListener("scroll", () => { closeBoardMenu(false); drawBlockLinks(); }, { passive: true });
   window.addEventListener("resize", () => { closeBoardMenu(false); drawBlockLinks(); });
   if ($("log-search")) {
     $("log-search").addEventListener("input", () => {
