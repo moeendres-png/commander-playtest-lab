@@ -922,6 +922,29 @@ def validate_commander_snapshot_size(snapshot: Mapping[str, object]) -> None:
         )
 
 
+def _validated_revision_snapshot(store: StudioStore, revision_id: str) -> dict[str, object]:
+    """Load and validate one stored deck revision snapshot before starting an engine."""
+    snapshot = lab_snapshot(store, revision_id)
+    engine_unsupported = cards_unsupported_by_engine(snapshot)
+    if engine_unsupported:
+        raise ValueError(
+            "Die Regeln-Engine XMage unterstützt diese Karten noch nicht: "
+            + ", ".join(engine_unsupported[:8])
+        )
+    unknown = cards_unknown_to_pilots(snapshot)
+    if unknown:
+        raise ValueError(
+            "Das Kartenwissen der KI kennt diese Karten noch nicht: " + ", ".join(unknown[:8])
+        )
+    if snapshot.get("cards") or "studio_revision_id" in snapshot:
+        validate_commander_snapshot_size(snapshot)
+    return snapshot
+
+
+def _safe_revision_filename(revision_id: str) -> str:
+    return revision_id.replace("@", "-").replace("/", "-")
+
+
 def prepare_table_deck_paths(
     store: StudioStore,
     data_folder: str | Path,
@@ -933,6 +956,7 @@ def prepare_table_deck_paths(
 ) -> tuple[str, list[Path]]:
     """Validate decks and resolve ordered seat deck paths plus a fresh ``game_id``.
 
+    ``opponent_ids`` may name precon ids or stored deck ``revision_id`` values.
     ``play=True`` for a game with a human seat (the PLAY lock), else the SIMULATE lock. Either way
     the Partie page shows at most ``MAX_PARTIE_SEATS`` seats (#1672): a larger watched game is
     refused here, with the SIMULATE lock at eight."""
@@ -948,25 +972,27 @@ def prepare_table_deck_paths(
     if engine_command(data_folder) is None:
         raise RuntimeError(str(engine_state(data_folder)["reason"]))
     paths = {deck_id: path for deck_id, _name, _commanders, _year, path in _precons()}
-    opponents = [paths[deck_id] for deck_id in opponent_ids]
-    snapshot = lab_snapshot(store, revision_id)
-    engine_unsupported = cards_unsupported_by_engine(snapshot)
-    if engine_unsupported:
-        raise ValueError(
-            "Die Regeln-Engine XMage unterstützt diese Karten noch nicht: "
-            + ", ".join(engine_unsupported[:8])
-        )
-    unknown = cards_unknown_to_pilots(snapshot)
-    if unknown:
-        raise ValueError(
-            "Das Kartenwissen der KI kennt diese Karten noch nicht: " + ", ".join(unknown[:8])
-        )
-    if snapshot.get("cards") or "studio_revision_id" in snapshot:
-        validate_commander_snapshot_size(snapshot)
+    snapshot = _validated_revision_snapshot(store, revision_id)
     deck_folder = games_folder(data_folder) / "decks"
-    deck_folder.mkdir(exist_ok=True)
-    own = deck_folder / (revision_id.replace("@", "-").replace("/", "-") + ".json")
-    own.write_text(json.dumps(snapshot, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    pending_writes: list[tuple[Path, dict[str, object]]] = []
+    own = deck_folder / f"{_safe_revision_filename(revision_id)}.json"
+    pending_writes.append((own, snapshot))
+    opponents: list[Path] = []
+    for deck_id in opponent_ids:
+        precon_path = paths.get(deck_id)
+        if precon_path is not None:
+            opponents.append(precon_path)
+            continue
+        opp_snapshot = _validated_revision_snapshot(store, deck_id)
+        opp_path = deck_folder / f"opp-{_safe_revision_filename(deck_id)}.json"
+        pending_writes.append((opp_path, opp_snapshot))
+        opponents.append(opp_path)
+    deck_folder.mkdir(parents=True, exist_ok=True)
+    for target_path, target_snapshot in pending_writes:
+        target_path.write_text(
+            json.dumps(target_snapshot, indent=1, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
     seats = len(opponents) + 1
     game_id = free_game_id(data_folder, f"{snapshot['deck_id']}-{seats}p-seed{seed}")
     return game_id, [own, *opponents]

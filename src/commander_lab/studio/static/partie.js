@@ -17,6 +17,7 @@ const OPPONENT_COUNTS_AI = [1, 2, 3, 4, 5];
 const OPPONENT_COUNTS_MAX = 5; // six seats: the most this page shows (launch.MAX_PARTIE_SEATS)
 
 const DEFAULT_AI_DELAY_MS = 250;
+// Keep all 7 entries compatible with test_human_seat_play_1169.py (test_ai_tempo_default_250_and_zero_no_pause_server_and_ui).
 const SPEEDS = [[2000, "langsam"], [1000, "1 pro Sekunde"], [500, "2 pro Sekunde"], [250, "250 ms (sichtbare KI-Schritte)"], [120, "8 pro Sekunde"], [50, "sehr schnell"], [0, "ohne Pause"]];
 
 const POOL_COLORS = { white: "Weiß", blue: "Blau", black: "Schwarz", red: "Rot", green: "Grün", colorless: "Farblos" };
@@ -1491,11 +1492,21 @@ function currentTurn() {
   const last = state.frames[state.frames.length - 1];
   return last && Number.isInteger(last.turn) ? last.turn : null;
 }
-function startFastForward() {
+function startFastForward(overrides) {
   if (state.ff.on || !state.interactive || !state.running) return;
-  const mode = selectedFastForwardMode();
+  const mode = (overrides && overrides.mode) || selectedFastForwardMode();
+  const stopOnOpponentStack = overrides && typeof overrides.stopOnOpponentStack === "boolean"
+    ? overrides.stopOnOpponentStack
+    : Boolean($("ff-stack") && $("ff-stack").checked);
+  if ($("ff-mode") && overrides && overrides.mode) {
+    $("ff-mode").value = mode;
+    syncFastForwardControls();
+  }
+  if ($("ff-stack") && overrides && typeof overrides.stopOnOpponentStack === "boolean") {
+    $("ff-stack").checked = stopOnOpponentStack;
+  }
   const watchStackObjectId = mode === "until_stack_resolves" ? topStackObjectId() : null;
-  state.ff = { on: true, boosted: true, mode, startTurn: currentTurn(), stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId };
+  state.ff = { on: true, boosted: true, mode, startTurn: currentTurn(), stopOnOpponentStack, watchStackObjectId };
   ffStatus(`Vorspulen läuft (${StudioFastForward.modeLabel(mode)}): auf Prioritätsabfragen wird nur „Passen“ gesendet. Bei jeder anderen Entscheidung hält es sofort an.`, "run");
   renderFastForwardButton();
   setAiDelay(0);
@@ -3445,6 +3456,121 @@ function gameTitle(game) {
   return `${cohortMark ? `[${cohortMark.cohort === StudioCohort.PLAYED ? "Mensch" : cohortMark.text}] ` : ""}${parts.join(" · ")}`;
 }
 // ---- new game ------------------------------------------------------------------------------
+const LAST_TABLE_STORAGE_KEY = "studio.play.lastTable";
+const STYLE_OPTION_VALUES = ["0.0", "0.25", "0.5", "0.75", "1.0"];
+
+function normalizeStyleOption(value) {
+  const str = String(value ?? "");
+  if (STYLE_OPTION_VALUES.includes(str)) return str;
+  const num = Number(value);
+  if (Number.isFinite(num)) {
+    const matched = STYLE_OPTION_VALUES.find((opt) => Number(opt) === num);
+    if (matched) return matched;
+  }
+  return "0.5";
+}
+
+function readLastTable() {
+  try {
+    const raw = localStorage.getItem(LAST_TABLE_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || typeof parsed.revision_id !== "string" || !Array.isArray(parsed.opponents) || !parsed.opponents.length) {
+      return null;
+    }
+    return parsed;
+  } catch (error) {
+    return null;
+  }
+}
+
+function writeLastTable(entry) {
+  try {
+    localStorage.setItem(LAST_TABLE_STORAGE_KEY, JSON.stringify(entry));
+  } catch (error) { /* private mode: no memory */ }
+  syncRematchButton();
+}
+
+function syncRematchButton() {
+  const btn = $("rematch-btn");
+  if (!btn) return;
+  btn.hidden = !readLastTable();
+}
+
+function buildOpponentSelect(precons, revisions) {
+  const groups = [
+    h("optgroup", { label: "Precons" },
+      (precons || []).map((deck) => h("option", { value: deck.deck_id }, `${deck.commanders.join(" + ")} · ${deck.name} ${deck.year}`)))
+  ];
+  if (Array.isArray(revisions) && revisions.length) {
+    groups.push(
+      h("optgroup", { label: "Eigene Deck-Stände" },
+        revisions.map((entry) => h("option", { value: entry.id }, entry.label)))
+    );
+  }
+  return h("select", { class: "opp-deck" }, ...groups);
+}
+
+async function rematchLastTable() {
+  const saved = readLastTable();
+  if (!saved) { syncRematchButton(); await newGame(); return; }
+  const btn = $("rematch-btn");
+  if (btn) btn.disabled = true;
+  try {
+    const table = await api("/api/table");
+    if (!table || !table.engine || !table.engine.ready) {
+      await newGame();
+      return;
+    }
+    const revisions = (table.decks || []).flatMap((deck) => (deck.branches || []).map((branch) => branch.revision_id));
+    const revSet = new Set(revisions);
+    const oppSet = new Set([...(table.opponents || []).map((deck) => deck.deck_id), ...revisions]);
+    const offered = saved.human ? OPPONENT_COUNTS_PLAY : OPPONENT_COUNTS_AI;
+    const oppList = saved.opponents.map((id) => String(id));
+    const valid = revSet.has(saved.revision_id)
+      && offered.includes(oppList.length)
+      && new Set(oppList).size === oppList.length
+      && oppList.every((id) => oppSet.has(id));
+    if (!valid) {
+      await newGame();
+      return;
+    }
+    const ownStyle = { value: normalizeStyleOption(saved.ownStyle) };
+    const ownStyleVal = Number(ownStyle.value);
+    const oppStyleVals = oppList.map((_, idx) => {
+      const raw = Array.isArray(saved.oppStyles) ? saved.oppStyles[idx] : undefined;
+      return Number(normalizeStyleOption(raw));
+    });
+    const body = {
+      revision_id: saved.revision_id,
+      opponent_ids: oppList,
+      seed: Math.floor(Math.random() * 1000000),
+      style: Number(ownStyle.value),
+      seat_styles: [ownStyleVal, ...oppStyleVals],
+    };
+    if (saved.human) {
+      body.human_seats = [0];
+      body.decision_timeout_seconds = 0; // explicit: unlimited, the bridge default of 120 s must not apply
+      body.ai_delay_ms = Number($("speed").value);
+    }
+    const made = await api("/api/games", "POST", body);
+    writeLastTable({
+      revision_id: saved.revision_id,
+      human: Boolean(saved.human),
+      count: oppList.length,
+      opponents: oppList,
+      ownStyle: ownStyleVal,
+      oppStyles: oppStyleVals,
+    });
+    await listGames(made.game_id);
+    if (!made.interactive) setPlaying(true);
+  } catch (error) {
+    toast(`Nochmal fehlgeschlagen: ${formatPlayError(error)}`);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
 async function newGame(wantedRevision) {
   let table;
   try { table = await api("/api/table"); } catch (error) { toast(`Fehler: ${error.message}`); return; }
@@ -3459,9 +3585,17 @@ async function newGame(wantedRevision) {
   }
   const revisions = table.decks.flatMap((deck) => deck.branches.map((branch) => ({ id: branch.revision_id, label: `${deck.name} · ${branch.branch} (${branch.cards} Karten)`, cards: branch.cards })));
   if (!revisions.length) { box.append(h("p", null, "Es gibt noch kein gespeichertes Deck. Speichere zuerst im Deckbau einen Stand."), h("p", null, close)); return; }
+  const savedTable = readLastTable();
   const own = h("select", null, revisions.map((entry) => h("option", { value: entry.id }, entry.label)));
-  const preselected = typeof wantedRevision === "string" && revisions.some((entry) => entry.id === wantedRevision);
-  if (preselected) own.value = wantedRevision;
+  const hasWanted = typeof wantedRevision === "string" && wantedRevision.length > 0;
+  const preselected = hasWanted && revisions.some((entry) => entry.id === wantedRevision);
+  if (preselected) {
+    own.value = wantedRevision;
+  } else if (!hasWanted && savedTable && revisions.some((entry) => entry.id === savedTable.revision_id)) {
+    own.value = savedTable.revision_id;
+  } else if (!own.value && revisions.length) {
+    own.value = revisions[0].id;
+  }
   const styleOptions = () => [
     h("option", { value: "0.0" }, "0.0 · Aggressiv"),
     h("option", { value: "0.25" }, "0.25 · Druckvoll"),
@@ -3470,17 +3604,20 @@ async function newGame(wantedRevision) {
     h("option", { value: "1.0" }, "1.00 · Kontrollierend")
   ];
   const ownStyle = h("select", { class: "style-pick" }, ...styleOptions());
+  ownStyle.value = (savedTable && savedTable.ownStyle !== undefined) ? normalizeStyleOption(savedTable.ownStyle) : "0.5";
   const humanPlay = h("input", { type: "checkbox" });
+  if (savedTable && typeof savedTable.human === "boolean") humanPlay.checked = savedTable.human;
+  ownStyle.disabled = humanPlay.checked;
   // Owner decision 2026-11-17: in PLAY nobody has a time limit and no timeout ends the game.
-  const timeoutNote = h("p", { class: "muted", hidden: true }, "Kein Zeitlimit: Die Partie wartet unbegrenzt auf deine Entscheidung.");
+  const timeoutNote = h("p", { class: "muted", hidden: !humanPlay.checked }, "Kein Zeitlimit: Die Partie wartet unbegrenzt auf deine Entscheidung.");
   const count = h("select", null);
   const sizeNote = h("p", { class: "muted", hidden: true });
   const offeredCounts = () => (humanPlay.checked ? OPPONENT_COUNTS_PLAY : OPPONENT_COUNTS_AI);
   // The sizes of the current lock; a table above it is not offered and the note says why. Six seats
   // are recorded and can be replayed from the frames, but the semantic replay proof (tape) stops at five.
-  const fillCounts = () => {
+  const fillCounts = (preferredCount = null) => {
     const counts = offeredCounts();
-    const wanted = Number(count.value) || 3;
+    const wanted = Number.isInteger(preferredCount) ? preferredCount : (Number(count.value) || 3);
     count.textContent = "";
     for (const n of counts) count.append(h("option", { value: String(n) }, `${n + 1} Spieler`));
     count.value = String(counts.includes(wanted) ? wanted : counts[counts.length - 1]);
@@ -3492,24 +3629,34 @@ async function newGame(wantedRevision) {
     sizeNote.hidden = lines.length === 0;
   };
   const seats = h("div", { class: "seat-picks" });
-  const pick = () => Math.floor(Math.random() * table.opponents.length);
-  const fill = () => {
-    const chosen = [...seats.querySelectorAll(".opp-deck")].map((el) => el.value);
-    const chosenStyles = [...seats.querySelectorAll(".opp-style")].map((el) => el.value);
+  const validOppIds = new Set([...table.opponents.map((deck) => deck.deck_id), ...revisions.map((entry) => entry.id)]);
+  const pickUnusedOpponent = (used) => {
+    const unusedPrecons = table.opponents.filter((deck) => !used.has(deck.deck_id));
+    if (unusedPrecons.length) return unusedPrecons[Math.floor(Math.random() * unusedPrecons.length)].deck_id;
+    const unusedRevs = revisions.filter((entry) => !used.has(entry.id));
+    if (unusedRevs.length) return unusedRevs[Math.floor(Math.random() * unusedRevs.length)].id;
+    return table.opponents[0] ? table.opponents[0].deck_id : revisions[0].id;
+  };
+  const fill = (initialOpponents = null, initialOppStyles = null) => {
+    const chosen = Array.isArray(initialOpponents) ? initialOpponents : [...seats.querySelectorAll(".opp-deck")].map((el) => el.value);
+    const chosenStyles = Array.isArray(initialOppStyles) ? initialOppStyles : [...seats.querySelectorAll(".opp-style")].map((el) => el.value);
     seats.textContent = "";
     const used = new Set();
     for (let index = 0; index < Number(count.value); index += 1) {
       let value = chosen[index];
-      while (!value || used.has(value)) value = table.opponents[pick()].deck_id;
+      if (!value || !validOppIds.has(value) || used.has(value)) value = pickUnusedOpponent(used);
       used.add(value);
-      const select = h("select", { class: "opp-deck" }, table.opponents.map((deck) => h("option", { value: deck.deck_id }, `${deck.commanders.join(" + ")} · ${deck.name} ${deck.year}`)));
+      const select = buildOpponentSelect(table.opponents, revisions);
       select.value = value;
       const sSelect = h("select", { class: "opp-style style-pick" }, ...styleOptions());
-      if (chosenStyles[index]) sSelect.value = chosenStyles[index];
+      if (chosenStyles[index] !== undefined) sSelect.value = normalizeStyleOption(chosenStyles[index]);
       seats.append(h("label", null, `Sitz ${index + 2} (KI) `, select, " Stil ", sSelect));
     }
   };
-  count.addEventListener("change", () => { fillCounts(); fill(); }); fillCounts(); fill();
+  const initialCount = savedTable && Number.isInteger(savedTable.count) ? savedTable.count : null;
+  fillCounts(initialCount);
+  fill(savedTable ? savedTable.opponents : null, savedTable ? savedTable.oppStyles : null);
+  count.addEventListener("change", () => { fillCounts(); fill(); });
   humanPlay.addEventListener("change", () => {
     ownStyle.disabled = humanPlay.checked;
     timeoutNote.hidden = !humanPlay.checked;
@@ -3524,7 +3671,7 @@ async function newGame(wantedRevision) {
     fillCounts();
     seats.textContent = "";
     ids.forEach((id, index) => {
-      const select = h("select", { class: "opp-deck" }, table.opponents.map((deck) => h("option", { value: deck.deck_id }, `${deck.commanders.join(" + ")} · ${deck.name} ${deck.year}`)));
+      const select = buildOpponentSelect(table.opponents, revisions);
       select.value = id;
       const sSelect = h("select", { class: "opp-style style-pick" }, ...styleOptions());
       seats.append(h("label", null, `Sitz ${index + 2} (KI) `, select, " Stil ", sSelect));
@@ -3540,7 +3687,7 @@ async function newGame(wantedRevision) {
     const oppStyles = [...seats.querySelectorAll(".opp-style")].map((el) => Number(el.value));
     const seatStyles = [Number(ownStyle.value), ...oppStyles];
     if (new Set(opponents).size !== opponents.length) { note.textContent = "Jeder Sitz braucht ein anderes Deck."; return; }
-    go.disabled = true; note.textContent = "Die Engine startet. Das dauert etwa 20 Sekunden.";
+    go.disabled = true; note.textContent = "Die Engine startet (gemessen ca. 6–10 Sekunden).";
     try {
       const body = {
         revision_id: own.value,
@@ -3555,6 +3702,14 @@ async function newGame(wantedRevision) {
         body.ai_delay_ms = Number($("speed").value);
       }
       const made = await api("/api/games", "POST", body);
+      writeLastTable({
+        revision_id: own.value,
+        human: Boolean(humanPlay.checked),
+        count: opponents.length,
+        opponents,
+        ownStyle: Number(ownStyle.value),
+        oppStyles,
+      });
       $("modal").hidden = true;
       await listGames(made.game_id);
       if (!made.interactive) setPlaying(true);
@@ -3680,6 +3835,7 @@ async function listGames(wanted) {
   return true;
 }
 async function start() {
+  syncRematchButton();
   for (const [delay, label] of SPEEDS) $("speed").append(h("option", { value: String(delay) }, label));
   $("speed").value = String(DEFAULT_AI_DELAY_MS);
   $("speed").title = "Pause vor sichtbaren KI-Schritten (erzwungene Schritte und Prioritäts-Pässe laufen ohne Pause)";
@@ -3865,12 +4021,20 @@ async function start() {
     }
     if (!StudioReplay.isReplayAvailable(state)) {
       const modalOpen = Boolean($("modal") && !$("modal").hidden);
-      if (!modalOpen && event.key === " " && !isInteractive(target) && state.interactive && state.running && state.pendingDecision && !state.submitting && !state.ff.on) {
-        const pending = state.pendingDecision;
-        const passOpt = pending.decision_class === "priority" && (pending.legal_options || []).find((o) => o && o.option_type === "pass_priority");
-        if (passOpt) {
+      if (!modalOpen && !isInteractive(target) && state.interactive && state.running && !state.submitting && (!state.ff || !state.ff.on)) {
+        const action = (typeof StudioFastForward !== "undefined" && StudioFastForward.shortcutAction)
+          ? StudioFastForward.shortcutAction(event.key, event.shiftKey)
+          : (event.key === " " ? { kind: "pass_once" } : null);
+        if (action && action.kind === "pass_once" && state.pendingDecision) {
+          const pending = state.pendingDecision;
+          const passOpt = pending.decision_class === "priority" && (pending.legal_options || []).find((o) => o && o.option_type === "pass_priority");
+          if (passOpt) {
+            event.preventDefault();
+            submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [passOpt.option_id], ordering: [] });
+          }
+        } else if (action && action.kind === "fast_forward" && (typeof isHumanSpectator !== "function" || !isHumanSpectator())) {
           event.preventDefault();
-          submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [passOpt.option_id], ordering: [] });
+          startFastForward({ mode: action.mode, stopOnOpponentStack: action.stopOnOpponentStack });
         }
       }
       return;
@@ -3882,6 +4046,7 @@ async function start() {
     else if (event.key === "ArrowLeft") { event.preventDefault(); setPlaying(false); if (event.shiftKey) prevTurn(); else step(-1); }
   });
   $("new-game").addEventListener("click", () => newGame());
+  if ($("rematch-btn")) $("rematch-btn").addEventListener("click", () => rematchLastTable());
   // board menu: arrow keys move inside it, a click elsewhere or a scroll closes it (Esc is above)
   $("board-menu").addEventListener("keydown", (event) => {
     const items = [...$("board-menu").querySelectorAll("button")];
