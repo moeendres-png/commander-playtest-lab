@@ -77,11 +77,29 @@ _TASKKILL_WAIT_SECONDS = 30.0
 _EXIT_POLL_SECONDS = 0.05
 
 
-def series_pool_enabled() -> bool:
+def series_pool_setting() -> bool | None:
+    """The explicit value of ``COMMANDER_LAB_STUDIO_SERIES_POOL``; ``None`` when it is not set."""
     raw = os.environ.get(SERIES_POOL_ENV, "").strip().lower()
     if not raw:
-        return True
+        return None
     return raw not in {"0", "false", "no", "off"}
+
+
+def series_pool_enabled(seats: int | None = None) -> bool:
+    """Whether a series uses the pool (#1652: on by default).
+
+    An explicit switch wins (``0``/``false``/``no``/``off`` turn it off, any other value on).
+    Without one the pool is the default only where it has a wall-clock limit for the table
+    (``table_spec.GAME_WALL_LIMIT_SECONDS``, today two to four seats); a larger table keeps the
+    chunked path instead of being refused. ``seats`` counts the tested deck as well."""
+    setting = series_pool_setting()
+    if setting is not None:
+        return setting
+    if seats is None:
+        return True
+    from .table_spec import GAME_WALL_LIMIT_SECONDS
+
+    return int(seats) in GAME_WALL_LIMIT_SECONDS
 
 
 class GamePoolError(RuntimeError):
@@ -1281,6 +1299,7 @@ __all__ = [
     "run_worker_process",
     "seat_pilot_fingerprint",
     "series_pool_enabled",
+    "series_pool_setting",
     "skip_forced_decisions_of",
     "task_key_of",
     "task_refusal",
