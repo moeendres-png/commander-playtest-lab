@@ -4605,3 +4605,245 @@ def test_batch_table_options_and_duration_note_under_node() -> None:
             assert "3 GB Heap" in note
         else:
             assert "Hinweis" not in note, seats
+
+
+def test_batch_latest_games_deduplicates_by_game_id_and_preserves_unkeyed_rows() -> None:
+    games = [
+        {"game_id": "g1", "status": "failed", "failure_class": "Cancelled"},
+        {"status": "finished", "winner_seats": [0], "candidate_won": True},
+        {"game_id": "g2", "status": "failed", "failure_class": "Timeout"},
+        {"status": "finished", "winner_seats": [1], "candidate_won": False},
+        {"game_id": "g1", "status": "finished", "winner_seats": []},
+        {"game_id": "g2", "status": "failed", "failure_class": "NotPlayed"},
+    ]
+    out = _interim_js(
+        f"(() => {{"
+        f" const dedup = batchLatestGames({json.dumps(games)});"
+        f" const b = {{status: 'completed', games: {json.dumps(games)}}};"
+        f" return {{"
+        f"   len: dedup.length,"
+        f"   ids: dedup.map((g) => g.game_id ?? null),"
+        f"   g1Status: dedup[0].status,"
+        f"   classes: batchResultClasses(b),"
+        f"   failures: batchFailureRows(b),"
+        f"   empty: [batchLatestGames(null), batchLatestGames(undefined)]"
+        f" }};"
+        f"}})()"
+    )
+    assert out == {
+        "len": 4,
+        "ids": ["g1", None, "g2", None],
+        "g1Status": "finished",
+        "classes": {"failed": 1, "cancelled": 0, "drawn": 1},
+        "failures": [{"reason": "NotPlayed", "count": 1}],
+        "empty": [[], []],
+    }
+
+
+def _render_active_batch_monitor(batch: dict[str, object]) -> dict[str, object]:
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    start = app.index("if (state.activeBatch) {")
+    end = app.index("bBox.append(monitor);", start)
+    block = app[start:end]
+    script = (
+        "const StudioUI = {"
+        "num: (v, d = 0) => (v === null || v === undefined || v === '' || !Number.isFinite(Number(v)))"
+        " ? 'unbekannt' : Number(v).toLocaleString('de-DE', {minimumFractionDigits: d, maximumFractionDigits: d}),"
+        "numFlex: (v, d = 2) => (v === null || v === undefined || v === '' || !Number.isFinite(Number(v)))"
+        " ? 'unbekannt' : Number(v).toLocaleString('de-DE', {maximumFractionDigits: d}),"
+        "mapFailureReason: (r) => r,"
+        "classifyError: () => ({title: 'E', sentence: 'S', actions: []}),"
+        "renderErrorCard: () => ({tag: 'div', props: {}, children: []})"
+        "};\n"
+        "const seriesPlayedText = () => '';\n"
+        "const h = (tag, props, ...kids) => ({\n"
+        "  tag, props: props || {},\n"
+        "  children: kids.flat().filter(Boolean),\n"
+        "  get textContent() {\n"
+        "    return this.children.map((c) => typeof c === 'object' ? c.textContent : String(c)).join('');\n"
+        "  },\n"
+        "  append(...more) { this.children.push(...more.flat().filter(Boolean)); }\n"
+        "});\n"
+        "const ids = (node) => {\n"
+        "  const out = [];\n"
+        "  if (node && typeof node === 'object') {\n"
+        "    if (node.props && node.props.id) out.push(node.props.id);\n"
+        "    for (const c of node.children || []) out.push(...ids(c));\n"
+        "  }\n"
+        "  return out;\n"
+        "};\n"
+        "const findTag = (node, tag) => {\n"
+        "  const out = [];\n"
+        "  if (node && typeof node === 'object') {\n"
+        "    if (node.tag === tag) out.push(node);\n"
+        "    for (const c of node.children || []) out.push(...findTag(c, tag));\n"
+        "  }\n"
+        "  return out;\n"
+        "};\n"
+        + _interim_source()
+        + f"\nconst state = {{activeBatch: {json.dumps(batch)}, tab: 'sim'}};\n"
+        + "const startBtn = {click: () => {}};\n"
+        + "const bBox = h('div', {});\n"
+        + "const api = async () => ({}), pollBatch = () => {}, renderDeck = () => {};\n"
+        + "let captured = null;\n"
+        + block
+        + "captured = monitor;\n}\n"
+        + "const bodies = findTag(captured, 'tbody');\n"
+        + "const gameTableRows = bodies.length ? bodies[bodies.length - 1].children.length : 0;\n"
+        + "process.stdout.write(JSON.stringify({ids: ids(captured), text: captured.textContent, gameTableRows}));\n"
+    )
+    out = _node_json(script)
+    assert isinstance(out, dict)
+    return out
+
+
+def test_stopped_live_monitor_avoids_duplicate_draws_and_aborts_and_handles_all_draw_wins() -> None:
+    games_with_dup = [
+        {"game_id": "g1", "seed": 1, "status": "failed", "failure_class": "Cancelled"},
+        {"game_id": "g1", "seed": 1, "status": "finished", "winner_seats": []},
+        {"game_id": "g2", "seed": 2, "status": "finished", "winner_seats": []},
+        {
+            "game_id": "g3",
+            "seed": 3,
+            "status": "finished",
+            "winner_seats": [0],
+            "candidate_won": True,
+        },
+        {"game_id": "g4", "seed": 4, "status": "failed", "failure_class": "Cancelled"},
+    ]
+    live_cancelled = {
+        "batch_id": "b1",
+        "pod": "precon",
+        "status": "cancelled",
+        "games_planned": 10,
+        "games_completed": 3,
+        "games_played": 3,
+        "games_failed": 0,
+        "games_cancelled": 1,
+        "games_drawn": 2,
+        "games": games_with_dup,
+        "interim_summary": {
+            "games_planned": 10,
+            "games_completed": 3,
+            "games_decided": 1,
+            "games_drawn": 2,
+            "games_cancelled": 1,
+            "games_failed": 0,
+            "wins_fractional": 1.0,
+            "win_rate": 1.0,
+            "win_rate_percent": 100.0,
+            "confidence_interval_95": {"lower_percent": 20.7, "upper_percent": 100.0},
+            "by_seat": [],
+            "origin": {"batch_id": "b1", "pod": "precon", "deck_id": "d", "revision_id": "r"},
+        },
+        "summary": {
+            "games_completed": 3,
+            "games_decided": 1,
+            "games_drawn": 2,
+            "wins_fractional": 1.0,
+            "win_rate": 1.0,
+            "win_rate_percent": 100.0,
+            "confidence_interval_95": {"lower_percent": 20.7, "upper_percent": 100.0},
+        },
+    }
+    out_live = _render_active_batch_monitor(live_cancelled)
+    live_ids = out_live["ids"]
+    assert isinstance(live_ids, list)
+    assert "sim-interim" in live_ids and "sim-interim-draws" in live_ids
+    assert "sim-drawn" not in live_ids and "sim-aborted" not in live_ids
+    assert "sim-stopped-saved-note" not in live_ids
+    # 5 raw rows with duplicate g1 -> 4 deduplicated rows in the games table
+    assert out_live["gameTableRows"] == 4
+
+    # When draws == 0, interim has no drawsText, so sumBox still shows sim-drawn once, while
+    # sim-aborted stays suppressed because interim.rest already reports the cancelled games.
+    live_no_draws = {
+        **live_cancelled,
+        "games_drawn": 0,
+        "games": [
+            {
+                "game_id": "g1",
+                "seed": 1,
+                "status": "finished",
+                "winner_seats": [0],
+                "candidate_won": True,
+            },
+            {"game_id": "g4", "seed": 4, "status": "failed", "failure_class": "Cancelled"},
+        ],
+        "interim_summary": {
+            **live_cancelled["interim_summary"],  # type: ignore[dict-item]
+            "games_completed": 1,
+            "games_decided": 1,
+            "games_drawn": 0,
+        },
+        "summary": {
+            **live_cancelled["summary"],  # type: ignore[dict-item]
+            "games_completed": 1,
+            "games_decided": 1,
+            "games_drawn": 0,
+        },
+    }
+    out_no_draws = _render_active_batch_monitor(live_no_draws)
+    assert "sim-interim-draws" not in out_no_draws["ids"]  # type: ignore[operator]
+    assert "sim-drawn" in out_no_draws["ids"]  # type: ignore[operator]
+    assert "sim-aborted" not in out_no_draws["ids"]  # type: ignore[operator]
+
+    # Saved cancelled batch (after restart, no interim_summary) with only draws -> honest wins label
+    saved_all_draws = {
+        "batch_id": "b1",
+        "pod": "precon",
+        "status": "cancelled",
+        "games_planned": 10,
+        "games_completed": 3,
+        "games_failed": 0,
+        "games_cancelled": 1,
+        "games_drawn": 3,
+        "games": [],
+        "summary": {
+            "games_completed": 3,
+            "games_decided": 0,
+            "games_drawn": 3,
+            "wins_fractional": 0.0,
+            "win_rate": None,
+        },
+    }
+    out_saved = _render_active_batch_monitor(saved_all_draws)
+    assert "sim-stopped-saved-note" in out_saved["ids"]  # type: ignore[operator]
+    assert "sim-drawn" in out_saved["ids"] and "sim-aborted" in out_saved["ids"]  # type: ignore[operator]
+    assert "Siege: \u2013 (0 mit Sieger)" in str(out_saved["text"])
+    assert "0 / 0" not in str(out_saved["text"])
+
+    # Unknown decidedN stays "unbekannt", never "0 / 0" or "unbekannt / unbekannt"
+    unknown_decided = {
+        "batch_id": "b2",
+        "pod": "precon",
+        "status": "completed",
+        "games_planned": 5,
+        "games_completed": 0,
+        "games": [],
+        "summary": {},
+    }
+    out_unknown = _render_active_batch_monitor(unknown_decided)
+    assert "Siege: unbekannt" in str(out_unknown["text"])
+    assert "0 / 0" not in str(out_unknown["text"])
+
+
+def test_batch_pod_labels_and_saved_runs_heading_are_table_size_neutral() -> None:
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert "4P-Simulationsläufe" not in app
+    assert "Simulationsläufe (gespeichert)" in app
+    sim_block = app[app.index("function renderSimulations(") :]
+    pod_block = sim_block[
+        sim_block.index("const podSelect = h(") : sim_block.index("const initialSeats")
+    ]
+    for pod in ("Precon", "Mixed", "Optimized"):
+        assert f"{pod} (Gegner je nach Tischgröße)" in pod_block
+    for old_name in (
+        "Lorehold",
+        "Animated Army",
+        "Token Triumph",
+        "Kaervek",
+        "Hosts of Mordor",
+        "Eldrazi",
+    ):
+        assert old_name not in pod_block

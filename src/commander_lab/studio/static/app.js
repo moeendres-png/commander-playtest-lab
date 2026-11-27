@@ -1666,20 +1666,31 @@ function batchGameOutcome(g) {
   if (kind === "cancelled") return "Abgebrochen";
   return kind === "failed" ? "Fehlgeschlagen" : "unbekannt";
 }
+function batchLatestGames(games) {
+  if (!Array.isArray(games)) return [];
+  const latest = new Map();
+  for (const g of games) {
+    const id = g && typeof g === "object" ? g.game_id : null;
+    const key = id !== undefined && id !== null && id !== "" ? String(id) : Symbol();
+    latest.set(key, g);
+  }
+  return [...latest.values()];
+}
 function batchResultClasses(b) {
   if (b && batchKnown(b.games_failed) && batchKnown(b.games_cancelled) && batchKnown(b.games_drawn)) {
     return { failed: Number(b.games_failed), cancelled: Number(b.games_cancelled), drawn: Number(b.games_drawn) };
   }
   // a saved record from before #1852 counts an aborted game as failed: its rows tell the classes
   if (!b || !Array.isArray(b.games)) return { failed: null, cancelled: null, drawn: null };
-  const count = (kind) => b.games.filter((g) => batchGameClass(g) === kind).length;
+  const games = batchLatestGames(b.games);
+  const count = (kind) => games.filter((g) => batchGameClass(g) === kind).length;
   return { failed: count("failed"), cancelled: count("cancelled"), drawn: count("draw") };
 }
 function batchFailureRows(b) {
   const sums = b && b.summary && Array.isArray(b.summary.failure_summary) ? b.summary.failure_summary.filter((f) => f && f.reason !== "Cancelled") : [];
   if (sums.length) return sums;
   const acc = {};
-  for (const g of (b && Array.isArray(b.games) ? b.games : [])) {
+  for (const g of batchLatestGames(b && b.games)) {
     if (batchGameClass(g) === "failed") {
       const key = g.failure_class || "Unbekannt";
       acc[key] = (acc[key] || 0) + 1;
@@ -1925,9 +1936,9 @@ function renderSimulations(body) {
   const curRev = state.baseRevision || (state.deckId ? `rev@${state.deckId}/main/current` : "rev@deck/main/current");
   const revInput = h("input", { type: "text", value: curRev, class: "rev-input", title: "Deck-Revision" });
   const podSelect = h("select", {},
-    h("option", { value: "precon" }, "Precon (Lorehold, Animated Army, Token Triumph)"),
-    h("option", { value: "mixed" }, "Mixed (Kaervek, Animated Army, Lorehold)"),
-    h("option", { value: "optimized" }, "Optimized (Eldrazi, Kaervek, Hosts of Mordor)")
+    h("option", { value: "precon" }, "Precon (Gegner je nach Tischgröße)"),
+    h("option", { value: "mixed" }, "Mixed (Gegner je nach Tischgröße)"),
+    h("option", { value: "optimized" }, "Optimized (Gegner je nach Tischgröße)")
   );
   const initialSeats = state.batchTableSize || BATCH_DEFAULT_SEATS;
   const tableSelect = h("select", { id: "batch-table-size-select" },
@@ -2149,8 +2160,8 @@ function renderSimulations(body) {
               `Teilergebnis: ${StudioUI.num(s.games_completed ?? 0, 0)} von ${StudioUI.num(b.games_planned ?? s.games_planned ?? 0, 0)} Partien (ungeplanter Stopp · breiteres CI, nicht als abgeschlossener Lauf gespeichert).`)
           : null,
         h("div", { class: "sim-grid" },
-          h("div", {}, h("span", { class: "muted" }, "Siege: "), h("b", {}, `${StudioUI.numFlex(s.wins_fractional, 1)} / ${StudioUI.num(decidedN, 0)}`)),
-          h("div", { id: "sim-drawn" }, classLines.drawn),
+          h("div", {}, h("span", { class: "muted" }, "Siege: "), h("b", {}, decidedN === null ? "unbekannt" : decidedN === 0 ? "– (0 mit Sieger)" : `${StudioUI.numFlex(s.wins_fractional, 1)} / ${StudioUI.num(decidedN, 0)}`)),
+          !(interim && interim.drawsText) ? h("div", { id: "sim-drawn" }, classLines.drawn) : null,
           h("div", {}, h("span", { class: "muted" }, "Siegrate: "), h("b", {}, s.win_rate !== null && decidedN !== null && decidedN > 0 ? `${StudioUI.num(s.win_rate_percent, 1)} %` : "–")),
           h("div", {}, h("span", { class: "muted" }, "95 %-CI (Wilson): "), h("b", {}, hasCi ? `[${StudioUI.num(ci.lower_percent, 1)} %, ${StudioUI.num(ci.upper_percent, 1)} %]` : "–")),
           h("div", {}, h("span", { class: "muted" }, "Ø Runden: "), h("b", {}, s.mean_rounds == null ? "–" : StudioUI.numFlex(s.mean_rounds, 1))),
@@ -2163,7 +2174,7 @@ function renderSimulations(body) {
               h("strong", {}, `${StudioUI.num(failCountNonCancelled || failedCount, 0)} fehlgeschlagen: `),
               h("span", {}, failText))
           : null,
-        classLines.aborted ? h("p", { class: "note note-compact", id: "sim-aborted" }, classLines.aborted) : null,
+        !(interim && interim.rest) && classLines.aborted ? h("p", { class: "note note-compact", id: "sim-aborted" }, classLines.aborted) : null,
         b.run_id ? h("p", { class: "note note-compact" }, `Dauerhaft im Store hinterlegt unter ID: `, h("code", {}, b.run_id)) : null
       );
       monitor.append(sumBox);
@@ -2186,10 +2197,11 @@ function renderSimulations(body) {
       ));
     }
 
-    if (b.games && b.games.length) {
+    const latestGames = batchLatestGames(b.games);
+    if (latestGames.length) {
       const bTable = h("div", { class: "table-wrap" }, h("table", { class: "mt-2" },
         h("thead", {}, h("tr", {}, h("th", {}, "Partie"), h("th", { class: "num" }, "Seed"), h("th", { class: "num" }, "Runden"), h("th", {}, "Ergebnis"), h("th", {}, ""))),
-        h("tbody", {}, b.games.map((g) => {
+        h("tbody", {}, latestGames.map((g) => {
           const outcome = batchGameOutcome(g);
           return h("tr", {},
             h("td", {}, h("code", {}, g.game_id)),
@@ -2266,7 +2278,7 @@ function renderSimulations(body) {
       h("td", { class: "num" }, StudioUI.numFlex(run.wins_fractional, 1)),
       h("td", { class: "num" }, run.win_rate === null ? "unbekannt" : `${StudioUI.num(100 * run.win_rate, 1)} %${runHasHiddenDraws(run) ? " *" : ""}`),
       h("td", { class: "num" }, run.mean_rounds == null ? "unbekannt" : StudioUI.numFlex(run.mean_rounds, 1)))))));
-  body.append(h("h3", {}, "4P-Simulationsläufe"), runTable,
+  body.append(h("h3", {}, "Simulationsläufe (gespeichert)"), runTable,
     state.simulations.some(runHasHiddenDraws) ? h("p", { class: "note", id: "run-draws-note" }, RUN_DRAWS_NOTE_RUN) : null,
     h("p", { class: "note" }, "Ergebnisse aus echten XMage-Regelkern-Spielen, gebunden an Deck, Engine-Pin, Bridge-JAR, Pilot-Policy und Seeds. Läufe mit BRIDGE_AHEAD_OF_QUALIFICATION oder UNKNOWN sind nicht von der versiegelten Epoche abgedeckt. Kein Beleg für reale Tisch-Siegraten. Exakte Handverweildauer: unbekannt (nicht gemessen)."));
   for (const run of state.simulations) {
