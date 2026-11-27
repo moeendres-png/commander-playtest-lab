@@ -17,7 +17,6 @@ the runner (not exactly 100 cards, no commander) names that as a failed precondi
 from __future__ import annotations
 
 import os
-import shlex
 import shutil
 import sqlite3
 from collections.abc import Mapping, Sequence
@@ -129,7 +128,7 @@ def engine_readiness(data_folder: str | Path) -> tuple[bool, str]:
     raw = os.environ.get(launch.ENGINE_COMMAND_ENV, "").strip()
     if raw:
         try:
-            command = shlex.split(raw, posix=(os.name != "nt"))
+            command = list(launch.parse_command_text(raw))
         except ValueError:
             return False, "Der Startbefehl der Engine ist nicht lesbar."
         if not command or not _runnable(command[0]):

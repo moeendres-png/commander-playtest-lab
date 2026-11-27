@@ -6,7 +6,6 @@ import hashlib
 import importlib
 import os
 import re
-import shlex
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -119,7 +118,7 @@ def _parse_env_command() -> tuple[list[str] | None, str | None]:
     if not raw:
         return None, None
     try:
-        tokens = shlex.split(raw, posix=(os.name != "nt"))
+        tokens = list(launch.parse_command_text(raw))
     except ValueError as exc:
         return [], f"Ungültiger Startbefehl in {launch.ENGINE_COMMAND_ENV}: {exc}"
     return tokens, None

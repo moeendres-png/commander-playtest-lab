@@ -285,6 +285,39 @@ def test_engine_command_comes_from_the_environment_or_the_data_folder(
     assert launch.engine_command(tmp_path) == ("java", "-jar", "my bridge.jar", "full-game")
 
 
+def test_parse_command_text_windows_roundtrip_with_spaces_and_quotes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import subprocess
+
+    from commander_lab.engine.rules.full_game import (
+        XMAGE_FULL_GAME_COMMAND_ENV,
+        XmageFullGameRunner,
+    )
+    from commander_lab.storage.command_line import parse_command_text
+
+    cmd = (
+        r"C:\Program Files\Eclipse Adoptium\jdk-17.0.20.8-hotspot\bin\java.EXE",
+        "-Xmx3g",
+        "-jar",
+        r"S:\Pfad mit Leerzeichen und Ümläuten\engine\xmage-engine-bridge.jar",
+        '--flag=with "quote" and trailing\\',
+        "full-game",
+    )
+    serialized = subprocess.list2cmdline(list(cmd))
+    assert parse_command_text(serialized, windows=True) == cmd
+
+    monkeypatch.setattr(launch.os, "name", "nt")
+    monkeypatch.setenv(launch.ENGINE_COMMAND_ENV, serialized)
+    assert launch.engine_command(Path("ignored")) == cmd
+
+    monkeypatch.setenv(XMAGE_FULL_GAME_COMMAND_ENV, serialized)
+    assert XmageFullGameRunner.command_from_environment() == cmd
+
+    with pytest.raises(ValueError, match="No closing quotation"):
+        parse_command_text('"C:\\Program Files\\unclosed', windows=True)
+
+
 def test_starting_a_game_checks_its_seats_before_any_process_starts(
     studio_folder: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

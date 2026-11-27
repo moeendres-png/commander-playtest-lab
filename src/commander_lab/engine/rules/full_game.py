@@ -46,6 +46,7 @@ from commander_lab.semantic_replay.tape_helpers import (
     deck_content_digest,
     selected_fingerprints_for_response,
 )
+from commander_lab.storage.command_line import parse_command_text
 from commander_lab.storage.hashing import sha256_value
 
 from .full_game_pilot import ExternalPilotDecisionPolicy
@@ -1286,7 +1287,7 @@ class XmageFullGameRunner:
     @staticmethod
     def command_from_environment() -> tuple[str, ...] | None:
         raw = os.getenv(XMAGE_FULL_GAME_COMMAND_ENV)
-        return tuple(shlex.split(raw)) if raw else None
+        return parse_command_text(raw) if raw else None
 
     @public_full_game_errors
     def run(
