@@ -33,7 +33,7 @@ from commander_lab.qualification.current_boundary.bridge_launcher import (
     canonical_xmage_engine_pin as canonical_xmage_engine_pin,
 )
 
-from . import cache, series_reservation
+from . import cache, launch, series_reservation
 from .decks import DECK_SIZE, lab_snapshot
 from .games import COHORT_PLAYED, COHORT_SIMULATED, game_cohort, games_folder, read_game
 from .launch import (
@@ -43,6 +43,7 @@ from .launch import (
     checked_series_settings,
     command_text,
     engine_state,
+    pod_opponent_ids,
     resolve_opponent_paths,
     series_engine,
     validate_commander_snapshot_size,
@@ -1991,6 +1992,7 @@ class BatchSimulation:
                 "revision_id": self.revision_id,
                 "pod": self.pod_name,
                 "opponent_ids": self.opponent_ids,
+                "table_size": self._resolved_table_size(),
                 "pilot_fingerprint": self.pilot_fingerprint,
                 "status": self.status,
                 "games_planned": len(self.seeds),
@@ -2574,6 +2576,7 @@ class SimulationBatchManager:
         revision_id: str,
         pod: str = "precon",
         opponent_ids: list[str] | None = None,
+        table_size: int | None = None,
         games_count: int = 10,
         base_seed: int = 1000,
         style: float | None = None,
@@ -2588,9 +2591,22 @@ class SimulationBatchManager:
 
         ``workers`` (1..16, default ``min(4, cpu count - 1)``) chunks of games run at once; one
         engine process plays up to ``games_per_jvm`` (1..24, default 16) games of its chunk.
+        ``table_size`` (seats, 2 to 8) sizes a pod preset's table or checks explicit ``opponent_ids``.
         """
         data_path = Path(data_folder).resolve()
         used_workers, used_games_per_jvm = checked_series_settings(workers, games_per_jvm)
+
+        if table_size is not None:
+            launch.validate_released_seat_count(
+                table_size - 1, allow_unreleased_seats=allow_unreleased_seats
+            )
+            if opponent_ids is None:
+                opponent_ids = list(pod_opponent_ids(pod, table_size - 1))
+            elif len(opponent_ids) + 1 != table_size:
+                raise ValueError(
+                    f"ein Tisch mit {table_size} Sitzen braucht {table_size - 1} Gegner, "
+                    f"angegeben sind {len(opponent_ids)}"
+                )
 
         # Unknown pod or deck id is an error before anything starts (B2, #1658): no other deck
         # takes the seat, so the series plays exactly the table that was asked for.

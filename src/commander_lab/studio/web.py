@@ -370,6 +370,7 @@ class BatchSimulationBody(BaseModel):
     revision_id: str = Field(min_length=1, max_length=200)
     pod: str = Field(default="precon", max_length=50)
     opponent_ids: list[str] | None = None
+    table_size: int | None = Field(default=None, ge=launch.MIN_SEATS, le=launch.MAX_SEATS)
     games_count: int = Field(default=10, ge=1, le=100)
     base_seed: int = Field(default=1000, ge=0, le=2_000_000_000)
     style: float | None = Field(default=None, ge=0.0, le=1.0)
@@ -1461,6 +1462,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 revision_id=body.revision_id,
                 pod=body.pod,
                 opponent_ids=body.opponent_ids,
+                table_size=body.table_size,
                 games_count=body.games_count,
                 base_seed=body.base_seed,
                 style=body.style,
@@ -1471,6 +1473,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             return {
                 "batch_id": batch.batch_id,
                 "status": batch.status,
+                "table_size": batch._resolved_table_size(),
                 "execution": batch.execution(),
             }
         except KeyError as error:

@@ -3951,3 +3951,338 @@ def test_a_stopped_series_resumed_after_a_restart_keeps_the_stop_apart_from_fail
     finally:
         release.set()
         store.close()
+
+
+# --- #1858: batch table_size 2..8 seats across manager, web API, and CLI ------------------------
+
+
+@pytest.mark.parametrize("table_size", (2, 3, 4, 5, 6, 7, 8))
+def test_batch_start_and_api_support_table_size_two_to_eight(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    table_size: int,
+) -> None:
+    from commander_lab.studio.launch import pod_opponent_ids
+
+    expected_opponents = list(pod_opponent_ids("precon", table_size - 1))
+    seen_deck_counts: list[int] = []
+
+    def mock_executor(**kwargs: object) -> dict[str, object]:
+        deck_paths = kwargs.get("deck_paths")
+        assert isinstance(deck_paths, list)
+        seen_deck_counts.append(len(deck_paths))
+        return {"status": "finished", "winner_seats": [0], "decision_count": 8, "rounds": 6}
+
+    # 1. Manager start_batch
+    mgr_dir = tmp_path / "mgr"
+    mgr_dir.mkdir()
+    store = StudioStore.open(mgr_dir)
+    try:
+        rev_id = _seed_test_deck(store)
+        mgr = SimulationBatchManager()
+        batch = mgr.start_batch(
+            store,
+            mgr_dir,
+            revision_id=rev_id,
+            pod="precon",
+            table_size=table_size,
+            games_count=2,
+            base_seed=100,
+            game_executor=mock_executor,
+        )
+        _wait(batch)
+        assert batch.worker_done.wait(5)
+        assert batch.status == "completed"
+        assert batch.opponent_ids == expected_opponents
+        assert len(batch.opponent_paths) == table_size - 1
+        payload = batch.to_dict()
+        assert payload["table_size"] == table_size
+        assert payload["opponent_ids"] == expected_opponents
+        assert payload["validity_block"]["seat_curve"]["reference_comparable"] is (  # type: ignore[index]
+            table_size == 4
+        )
+        assert payload["summary"]["validity_block"]["seat_curve"]["reference_comparable"] is (  # type: ignore[index]
+            table_size == 4
+        )
+        row = store.connection.execute(
+            "SELECT table_size, opponent_ids FROM simulation_run WHERE run_id = ?",
+            (batch.run_id,),
+        ).fetchone()
+        assert row is not None
+        assert row["table_size"] == table_size
+        assert json.loads(row["opponent_ids"]) == expected_opponents
+    finally:
+        store.close()
+
+    # 2. Web API POST /api/simulations/batch
+    api_dir = tmp_path / "api"
+    api_dir.mkdir()
+    api_store = StudioStore.open(api_dir)
+    try:
+        api_rev_id = _seed_test_deck(api_store)
+    finally:
+        api_store.close()
+
+    api_mgr = SimulationBatchManager()
+    orig_start = api_mgr.start_batch
+
+    def start_with_mock(
+        s: StudioStore,
+        folder: str | Path,
+        **kwargs: object,
+    ) -> BatchSimulation:
+        kwargs["game_executor"] = mock_executor
+        return orig_start(s, folder, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(api_mgr, "start_batch", start_with_mock)
+    monkeypatch.setattr(simulations_module, "simulation_manager", api_mgr)
+    client = TestClient(create_app(api_dir), headers={"X-Studio": "1"})
+    res = client.post(
+        "/api/simulations/batch",
+        json={
+            "revision_id": api_rev_id,
+            "pod": "precon",
+            "table_size": table_size,
+            "games_count": 2,
+            "base_seed": 200,
+        },
+    )
+    assert res.status_code == 200, res.text
+    started = res.json()
+    assert started["table_size"] == table_size
+    api_batch = api_mgr.get_batch(started["batch_id"])
+    assert api_batch is not None
+    _wait(api_batch)
+    assert api_batch.worker_done.wait(5)
+    got = client.get(f"/api/simulations/batch/{started['batch_id']}").json()
+    assert got["table_size"] == table_size
+    assert got["opponent_ids"] == expected_opponents
+    assert got["validity_block"]["seat_curve"]["reference_comparable"] is (table_size == 4)
+    check_store = StudioStore.open(api_dir)
+    try:
+        api_row = check_store.connection.execute(
+            "SELECT table_size FROM simulation_run WHERE run_id = ?",
+            (api_batch.run_id,),
+        ).fetchone()
+        assert api_row is not None and api_row["table_size"] == table_size
+    finally:
+        check_store.close()
+    assert seen_deck_counts == [table_size] * 4
+
+
+def test_batch_table_size_negative_controls_and_play_stays_at_six(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from commander_lab.studio import launch
+
+    def mock_executor(**kwargs: object) -> dict[str, object]:
+        return {"status": "finished", "winner_seats": [0], "decision_count": 5, "rounds": 4}
+
+    store = StudioStore.open(tmp_path)
+    try:
+        rev_id = _seed_test_deck(store)
+        mgr = SimulationBatchManager()
+        api_mgr = SimulationBatchManager()
+        orig_start = api_mgr.start_batch
+
+        def start_with_mock(
+            s: StudioStore,
+            folder: str | Path,
+            **kwargs: object,
+        ) -> BatchSimulation:
+            kwargs["game_executor"] = mock_executor
+            return orig_start(s, folder, **kwargs)  # type: ignore[arg-type]
+
+        monkeypatch.setattr(api_mgr, "start_batch", start_with_mock)
+        monkeypatch.setattr(simulations_module, "simulation_manager", api_mgr)
+        client = TestClient(create_app(tmp_path), headers={"X-Studio": "1"})
+
+        # Out-of-bounds table_size (1 and 9)
+        for bad_size in (1, 9):
+            with pytest.raises(ValueError, match="1 to 7 opponents"):
+                mgr.start_batch(
+                    store,
+                    tmp_path,
+                    revision_id=rev_id,
+                    pod="precon",
+                    table_size=bad_size,
+                    games_count=1,
+                    game_executor=mock_executor,
+                )
+            res = client.post(
+                "/api/simulations/batch",
+                json={"revision_id": rev_id, "pod": "precon", "table_size": bad_size},
+            )
+            assert res.status_code == 422, res.text
+
+        # Opponent count mismatch: table_size=5 with 3 opponents
+        three_opps = list(launch.pod_opponent_ids("precon", 3))
+        with pytest.raises(ValueError, match="braucht 4 Gegner, angegeben sind 3"):
+            mgr.start_batch(
+                store,
+                tmp_path,
+                revision_id=rev_id,
+                pod="precon",
+                opponent_ids=three_opps,
+                table_size=5,
+                games_count=1,
+                game_executor=mock_executor,
+            )
+        mismatch = client.post(
+            "/api/simulations/batch",
+            json={
+                "revision_id": rev_id,
+                "pod": "precon",
+                "opponent_ids": three_opps,
+                "table_size": 5,
+            },
+        )
+        assert mismatch.status_code == 422 and "braucht 4 Gegner" in mismatch.text
+
+        # Unknown pod with table_size=6
+        with pytest.raises(ValueError, match="Unbekannter Gegnertisch"):
+            mgr.start_batch(
+                store,
+                tmp_path,
+                revision_id=rev_id,
+                pod="unknown-pod",
+                table_size=6,
+                games_count=1,
+                game_executor=mock_executor,
+            )
+        bad_pod = client.post(
+            "/api/simulations/batch",
+            json={"revision_id": rev_id, "pod": "unknown-pod", "table_size": 6},
+        )
+        assert bad_pod.status_code == 422 and "Unbekannter Gegnertisch" in bad_pod.text
+
+        # Lock rollback to 6: 7 and 8 are blocked, 6 stays allowed
+        monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 6)
+        for locked_size in (7, 8):
+            with pytest.raises(ValueError, match=f"tables of {locked_size} seats are locked"):
+                mgr.start_batch(
+                    store,
+                    tmp_path,
+                    revision_id=rev_id,
+                    pod="precon",
+                    table_size=locked_size,
+                    games_count=1,
+                    game_executor=mock_executor,
+                )
+            locked_res = client.post(
+                "/api/simulations/batch",
+                json={"revision_id": rev_id, "pod": "precon", "table_size": locked_size},
+            )
+            assert locked_res.status_code == 422
+            assert f"tables of {locked_size} seats are locked" in locked_res.json()["detail"]
+
+        six_batch = mgr.start_batch(
+            store,
+            tmp_path,
+            revision_id=rev_id,
+            pod="precon",
+            table_size=6,
+            games_count=1,
+            game_executor=mock_executor,
+        )
+        _wait(six_batch)
+        assert six_batch.worker_done.wait(5)
+        assert six_batch.status == "completed"
+        six_res = client.post(
+            "/api/simulations/batch",
+            json={"revision_id": rev_id, "pod": "precon", "table_size": 6, "games_count": 1},
+        )
+        assert six_res.status_code == 200 and six_res.json()["table_size"] == 6
+        six_api = api_mgr.get_batch(six_res.json()["batch_id"])
+        assert six_api is not None
+        _wait(six_api)
+        assert six_api.worker_done.wait(5)
+
+        # PLAY stays capped at 6 seats even when SIMULATE lock is 8
+        monkeypatch.setattr(launch, "MAX_RELEASED_SEATS", 8)
+        assert launch.MAX_RELEASED_PLAY_SEATS == 6
+        play_seven = client.post(
+            "/api/games",
+            json={
+                "revision_id": rev_id,
+                "opponent_ids": list(launch.pod_opponent_ids("precon", 6)),
+                "seed": 1,
+                "human_seats": [0],
+            },
+        )
+        assert play_seven.status_code == 422, play_seven.text
+    finally:
+        store.close()
+
+
+def test_cli_simulate_passes_table_size_and_rejects_invalid_size(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from commander_lab.studio.__main__ import main as studio_main
+
+    store = StudioStore.open(tmp_path)
+    try:
+        rev_id = _seed_test_deck(store)
+    finally:
+        store.close()
+
+    captured_kwargs: list[dict[str, object]] = []
+    orig_start = SimulationBatchManager.start_batch
+
+    def fake_start(
+        self: SimulationBatchManager,
+        s: StudioStore,
+        folder: str | Path,
+        **kwargs: object,
+    ) -> BatchSimulation:
+        captured_kwargs.append(dict(kwargs))
+        kwargs["game_executor"] = lambda **_kw: {
+            "status": "finished",
+            "winner_seats": [0],
+            "decision_count": 3,
+            "rounds": 4,
+        }
+        return orig_start(self, s, folder, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(SimulationBatchManager, "start_batch", fake_start)
+    rc = studio_main(
+        [
+            "--data",
+            str(tmp_path),
+            "simulate",
+            "--revision",
+            rev_id,
+            "--pod",
+            "precon",
+            "--table-size",
+            "7",
+            "--count",
+            "1",
+        ]
+    )
+    out = capsys.readouterr()
+    assert rc == 0, out.err
+    assert captured_kwargs[-1]["table_size"] == 7
+    payload = json.loads(out.out)
+    assert payload["table_size"] == 7
+
+    monkeypatch.setattr(SimulationBatchManager, "start_batch", orig_start)
+    bad_rc = studio_main(
+        [
+            "--data",
+            str(tmp_path),
+            "simulate",
+            "--revision",
+            rev_id,
+            "--table-size",
+            "9",
+            "--count",
+            "1",
+        ]
+    )
+    bad_out = capsys.readouterr()
+    assert bad_rc == 2
+    assert "1 to 7 opponents" in bad_out.err and "Traceback" not in bad_out.err
