@@ -62,6 +62,7 @@ from . import (
     paired_comparison,
     paired_series,
     play,
+    postgame,
     queries,
     roles,
     signals,
@@ -360,6 +361,15 @@ class PlayConcedeBody(BaseModel):
 
 class PlaySpeedBody(BaseModel):
     ai_delay_ms: int = Field(ge=0, le=5_000)
+
+
+class PlayNoteBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    note_text: str = Field(max_length=4_000)
+    card_name: str | None = Field(default=None, max_length=200)
+    action_hint: str | None = Field(default=None, max_length=64)
+    deck_id: str | None = Field(default=None, max_length=200)
+    revision_id: str | None = Field(default=None, max_length=200)
 
 
 class BatchSimulationBody(BaseModel):
@@ -2134,6 +2144,18 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
+    @app.get("/api/decks/{deck_id}/play-notes")
+    def deck_play_notes(
+        deck_id: str,
+        revision_id: str | None = Query(default=None, min_length=1, max_length=200),
+    ) -> dict[str, object]:
+        store = open_store()
+        try:
+            notes = postgame.list_play_notes(store, deck_id=deck_id, revision_id=revision_id)
+            return {"deck_id": deck_id, "revision_id": revision_id, "notes": notes}
+        finally:
+            store.close()
+
     @app.post("/api/decks/{deck_id}/branches/{branch:path}/draft/card")
     def change_draft_card(
         deck_id: str,
@@ -3142,6 +3164,69 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             )
         except (KeyError, ValueError) as error:
             raise HTTPException(404, "unknown game") from error
+
+    @app.get("/api/games/{game_id}/postgame")
+    def game_postgame(
+        game_id: str,
+        seat: int | None = Query(default=None, ge=0, le=7),
+    ) -> dict[str, object]:
+        try:
+            summary = postgame.summarize_game_for_postgame(
+                games_home(),
+                game_id,
+                seat=seat,
+                live_game_ids=play_manager.live_ids(),
+            )
+        except (KeyError, ValueError) as error:
+            raise HTTPException(404, "unknown game") from error
+        store = open_store()
+        try:
+            if summary.get("finished"):
+                postgame.record_play_session(store, summary)
+            notes = postgame.list_play_notes(store, game_id=game_id)
+            return {**summary, "notes": notes}
+        finally:
+            store.close()
+
+    @app.post("/api/games/{game_id}/notes")
+    def create_game_note(game_id: str, body: PlayNoteBody) -> dict[str, object]:
+        if not body.note_text.strip():
+            raise HTTPException(422, "note_text darf nicht leer sein")
+        try:
+            summary = postgame.summarize_game_for_postgame(
+                games_home(),
+                game_id,
+                live_game_ids=play_manager.live_ids(),
+            )
+        except (KeyError, ValueError) as error:
+            raise HTTPException(404, "unknown game") from error
+        raw_deck = summary.get("deck_id")
+        raw_rev = summary.get("revision_id")
+        resolved_deck_id = (
+            body.deck_id.strip()
+            if isinstance(body.deck_id, str) and body.deck_id.strip()
+            else (raw_deck if isinstance(raw_deck, str) else None)
+        )
+        resolved_revision_id = (
+            body.revision_id.strip()
+            if isinstance(body.revision_id, str) and body.revision_id.strip()
+            else (raw_rev if isinstance(raw_rev, str) else None)
+        )
+        store = open_store()
+        try:
+            return postgame.add_play_note(
+                store,
+                game_id=game_id,
+                note_text=body.note_text,
+                deck_id=resolved_deck_id,
+                revision_id=resolved_revision_id,
+                card_name=body.card_name,
+                action_hint=body.action_hint,
+            )
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
 
     @app.get("/api/play/{game_id}")
     def interactive_game_state(
