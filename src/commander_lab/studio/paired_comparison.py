@@ -165,6 +165,26 @@ class PairedComparison(TypedDict):
     pairs: list[PairRecord]
 
 
+class LookSnapshot(PairedComparison):
+    """The state of a series at one planned look, handed to the ``on_look`` observer (#1828).
+
+    It is the look's own ``_summarize`` result (the interval at this look's spent level, the sign
+    test, the counts over the pairs completed so far) plus where in the series the look sits. It
+    is a descriptive interim, never a decision: only the series result decides. ``look_decides``
+    says whether this look would end the series (an answer and no censoring blocker).
+    """
+
+    look_index: int
+    look_alpha: float
+    pairs_attempted: int
+    censoring_blocker: str | None
+    look_decides: bool
+
+
+#: Observer of the planned looks of a series; read-only, a failure in it never reaches the series.
+LookObserver = Callable[[LookSnapshot], None]
+
+
 class PlayedGame(TypedDict):
     """One played game of a comparison series: its exposure, or why there is none."""
 
@@ -839,6 +859,7 @@ def run_comparison_series(
     play: PairPlayer,
     execution: Mapping[str, object] | None = None,
     audit_data_folder: Path | str | None = None,
+    on_look: LookObserver | None = None,
 ) -> PairedComparison:
     """Play a paired series that stops by itself once the question is answered.
 
@@ -850,6 +871,11 @@ def run_comparison_series(
     look is its O'Brien-Fleming increment (``sequential_look_alphas``). The series
     ends at the first deciding look (unless censoring exceeds ``max_censored_share``
     or is one-sided across arms), else at the budget with ``NOT_DECIDED``.
+
+    ``on_look`` (optional) receives a ``LookSnapshot`` after every planned look: a deep copy of
+    that look's summary, so the observer can neither change the series nor see its live state.
+    The result, the statistics, the look levels and the stop rule are the same with and without
+    it; an exception raised by the observer is swallowed (the series must not depend on it).
     """
     if base_deck_id == variant_deck_id:
         raise ValueError("base and variant must be two different decks")
@@ -933,7 +959,7 @@ def run_comparison_series(
         attempted = index + 1
         if attempted in look_counts:
             looks_used += 1
-            _, answer = _summarize(
+            look_summary, answer = _summarize(
                 pairs,
                 base_deck_id=base_deck_id,
                 variant_deck_id=variant_deck_id,
@@ -951,6 +977,20 @@ def run_comparison_series(
                 failed_variant=failed["variant"],
                 max_censored_share=max_censored_share,
             )
+            if on_look is not None:
+                _notify_look(
+                    on_look,
+                    look_summary,
+                    look_index=looks_used,
+                    looks_planned=len(look_counts),
+                    look_alpha=alphas[looks_used - 1],
+                    attempted=attempted,
+                    censored=censored,
+                    failed=failed,
+                    failure_classes=failure_classes,
+                    blocker_reason=blocker_reason,
+                    decides=answer is not None and blocker_reason is None,
+                )
             if answer is not None and blocker_reason is None:
                 break
     result, _ = _summarize(
@@ -1017,6 +1057,51 @@ def run_comparison_series(
         **dict(execution or {}),
     }
     return result
+
+
+def _notify_look(
+    on_look: LookObserver,
+    look_summary: PairedComparison,
+    *,
+    look_index: int,
+    looks_planned: int,
+    look_alpha: float,
+    attempted: int,
+    censored: int,
+    failed: Counter[str],
+    failure_classes: Mapping[str, Counter[str]],
+    blocker_reason: str | None,
+    decides: bool,
+) -> None:
+    """Hand a copy of one look to the observer; whatever the observer does stays out of the series.
+
+    A look's ``_summarize`` result carries single-look defaults for the series fields (censoring,
+    failures, looks used, stop reason); they are set to the series state at this look. Nothing of
+    this reaches the series result: the observer gets a deep copy.
+    """
+    snapshot = copy.deepcopy(look_summary)
+    snapshot["pairs_censored"] = censored
+    snapshot["games_failed_base"] = failed["base"]
+    snapshot["games_failed_variant"] = failed["variant"]
+    snapshot["failure_classes"] = {
+        arm: dict(sorted(counts.items())) for arm, counts in failure_classes.items()
+    }
+    snapshot["looks_planned"] = looks_planned
+    snapshot["looks_used"] = look_index
+    snapshot["pairs_played"] = attempted
+    snapshot["stop_reason"] = "LOOK_INTERIM"
+    look: LookSnapshot = {
+        **snapshot,
+        "look_index": look_index,
+        "look_alpha": look_alpha,
+        "pairs_attempted": attempted,
+        "censoring_blocker": blocker_reason,
+        "look_decides": decides,
+    }
+    try:
+        on_look(look)
+    except Exception:  # an observer must never change or stop a series
+        return
 
 
 def _summary_to_played_game(summary: Mapping[str, object]) -> PlayedGame:

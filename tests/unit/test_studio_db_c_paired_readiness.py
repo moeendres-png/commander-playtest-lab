@@ -14,6 +14,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from commander_lab.agents.card_knowledge import CardCatalogError
+from commander_lab.models import RulesDeckInput
 from commander_lab.qualification.current_boundary.bridge_launcher import (
     canonical_xmage_engine_pin,
 )
@@ -2953,3 +2954,255 @@ def test_paired_seat_curve_turn_order_legacy_disk_fallback_and_compare_logs_fail
         r for r in compared["consistency_table"]["rows"] if r["metric_id"] == "variant_win_rate"
     )
     assert var_row["n_of_N"] == "2/2"
+
+
+# --- #1828 Paket 3: interim from the planned looks, partial result after a cancel -----------
+
+
+def _interim_series_revisions(store: StudioStore) -> tuple[str, str]:
+    cards = [
+        RevisionCard("cid-chulane", 1, "commander"),
+        RevisionCard("cid-sol-ring", 1, "main"),
+        RevisionCard("cid-forest", 98, "main"),
+    ]
+    base = create_revision(store, deck_id="chulane-int", name="C", branch="main", cards=cards)
+    variant = create_revision(
+        store,
+        deck_id="chulane-int",
+        name="C",
+        branch="variant",
+        cards=[cards[0], RevisionCard("cid-signet", 1, "main"), cards[2]],
+    )
+    return base, variant
+
+
+def _sweep_play(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+    did = "chulane-int--base" if arm == "base" else "chulane-int--variant"
+    return {
+        "exposure": _mock_exposure(  # type: ignore[typeddict-item]
+            f"{arm}-{seed}-{seat}",
+            seed=seed,
+            seat=seat,
+            tested_deck_id=did,
+            won=(arm == "variant"),
+        ),
+        "failure_class": None,
+    }
+
+
+def test_paired_job_exposes_the_last_look_as_interim_while_running(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, folder = _make_store(tmp_path)
+    reached_fifth_pair = threading.Event()
+    release = threading.Event()
+    calls: list[tuple[str, int, int]] = []
+
+    def _play(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+        calls.append((arm, seed, seat))
+        if len(calls) == 9:  # the first game of pair 5: look 1 (4 pairs) is behind us
+            reached_fifth_pair.set()
+            assert release.wait(timeout=10.0)
+        return _sweep_play(arm, seed, seat)
+
+    try:
+        monkeypatch.setattr(paired_series, "_preflight_snapshot_cards", lambda *_a, **_k: None)
+        rev_base, rev_var = _interim_series_revisions(store)
+        mgr = PairedSeriesManager()
+        job = mgr.start_series(
+            store,
+            folder,
+            base_revision_id=rev_base,
+            variant_revision_id=rev_var,
+            pod="precon",
+            budget_pairs=8,
+            look_every_pairs=4,
+            rotate_seats=False,
+            workers=1,
+            games_per_jvm=1,
+            play_override=_play,
+        )
+        assert reached_fifth_pair.wait(timeout=10.0)
+        live = job.to_dict()
+        assert live["status"] == "running" and live["result"] is None
+        interim = live["interim"]
+        assert isinstance(interim, dict)
+        assert interim["partial"] is True and interim["data_class"] == "SIMULATED_RESULT"
+        assert (interim["look_index"], interim["looks_planned"]) == (1, 2)
+        assert (interim["pairs_completed"], interim["pairs_attempted"]) == (4, 4)
+        assert interim["pairs_budget"] == 8
+        assert interim["difference_pp"] == 100.0
+        assert (interim["variant_only_wins"], interim["baseline_only_wins"]) == (4, 0)
+        assert interim["tied_pairs"] == 0
+        # 4 discordant pairs: p = 2 * 0.5**4 = 0.125, no deciding look; look 1 of 2 spends
+        # an O'Brien-Fleming level far below 0.05, which the interim names
+        assert interim["sign_test_p_value"] == 0.125
+        assert interim["look_decides"] is False and interim["decision_ci_pp"] is None
+        level = interim["decision_level_pct"]
+        assert isinstance(level, float) and 99.0 < level < 100.0
+        assert interim["observed_at"] and live["result_partial"] is None
+        # the series file on disk never holds the interim
+        saved = json.loads((folder / "games" / f"{job.series_id}.paired.json").read_text("utf-8"))
+        assert "interim" not in saved and "result_partial" not in saved
+        release.set()
+        finished = _wait_job(mgr, folder, job.series_id)
+        assert finished["status"] == "completed"
+        done = job.to_dict()
+        # a finished series has its result; the interim of a look is gone
+        assert done["result"] is not None and done["interim"] is None
+        assert done["result_partial"] is None
+    finally:
+        release.set()
+        store.close()
+
+
+def test_a_cancelled_paired_job_keeps_its_last_look_as_a_partial_never_as_a_result(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from commander_lab.studio import deck_series
+
+    store, folder = _make_store(tmp_path)
+    calls: list[tuple[str, int, int]] = []
+
+    def _play(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+        calls.append((arm, seed, seat))
+        if len(calls) == 11:  # pair 6, base game: after look 1 (4 pairs), before look 2
+            raise paired_series.SeriesCancelledError("Serie vom Benutzer abgebrochen")
+        return _sweep_play(arm, seed, seat)
+
+    try:
+        monkeypatch.setattr(paired_series, "_preflight_snapshot_cards", lambda *_a, **_k: None)
+        rev_base, rev_var = _interim_series_revisions(store)
+        mgr = PairedSeriesManager()
+        job = mgr.start_series(
+            store,
+            folder,
+            base_revision_id=rev_base,
+            variant_revision_id=rev_var,
+            pod="precon",
+            budget_pairs=8,
+            look_every_pairs=4,
+            rotate_seats=False,
+            workers=1,
+            games_per_jvm=1,
+            play_override=_play,
+        )
+        finished = _wait_job(mgr, folder, job.series_id)
+        assert finished["status"] == "cancelled" and finished["result"] is None
+        partial = finished["result_partial"]
+        assert isinstance(partial, dict)
+        assert partial["partial"] is True and partial["partial_reason"] == "cancelled"
+        # the last look: 4 of the planned 8 pairs; the pairs played after it are not in it
+        assert partial["look_index"] == 1 and partial["pairs_completed"] == 4
+        assert partial["pairs_attempted"] == 4 and len(partial["pairs"]) == 4
+        assert partial["difference_pp"] == 100.0 and partial["sign_test_p_value"] == 0.125
+        assert partial["data_class"] == "SIMULATED_RESULT"
+        assert finished["interim"] is not None and finished["summary_partial"] is True
+        assert finished["pairs_attempted"] == 5  # more pairs finished than the last look saw
+
+        # on disk: no result, no partial, no interim; the readers see a cancelled series only
+        path = folder / "games" / f"{job.series_id}.paired.json"
+        saved = json.loads(path.read_text("utf-8"))
+        assert saved["status"] == "cancelled" and saved["result"] is None
+        for key in ("interim", "result_partial", "interim_comparison", "seed_pairs"):
+            assert key not in saved
+        assert deck_series.series_status(saved) == deck_series.STATUS_CANCELLED
+        # even a record that carried the partial could never count: the readers take "result" only
+        with_partial = {**saved, "result_partial": partial, "interim": finished["interim"]}
+        assert deck_series.series_status(with_partial) == deck_series.STATUS_CANCELLED
+        completed_without_result = {**with_partial, "status": "completed"}
+        assert deck_series.series_status(completed_without_result) == deck_series.STATUS_INCOMPLETE
+        # progress and series id are untouched: the journal holds every game that finished
+        assert saved["series_id"] == job.series_id
+        journal = job.progress_file().read_text("utf-8").splitlines()
+        assert len(journal) == len(calls) - 1  # all games but the one that was cancelled
+        # a stopped series stays resumable (the stored record, not the live view, says so)
+        disk = paired_series.PairedSeriesManager._normalize_disk_series(saved, folder)
+        assert disk["resumable"] is True
+    finally:
+        store.close()
+
+
+def test_a_cancel_before_the_first_look_has_no_partial_result(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store, folder = _make_store(tmp_path)
+
+    def _play(arm: str, seed: int, seat: int) -> paired_comparison.PlayedGame:
+        if seed >= 3:
+            raise paired_series.SeriesCancelledError("Serie vom Benutzer abgebrochen")
+        return _sweep_play(arm, seed, seat)
+
+    try:
+        monkeypatch.setattr(paired_series, "_preflight_snapshot_cards", lambda *_a, **_k: None)
+        rev_base, rev_var = _interim_series_revisions(store)
+        mgr = PairedSeriesManager()
+        job = mgr.start_series(
+            store,
+            folder,
+            base_revision_id=rev_base,
+            variant_revision_id=rev_var,
+            pod="precon",
+            budget_pairs=8,
+            look_every_pairs=4,
+            rotate_seats=False,
+            workers=1,
+            games_per_jvm=1,
+            play_override=_play,
+        )
+        finished = _wait_job(mgr, folder, job.series_id)
+        assert finished["status"] == "cancelled"
+        # no look reached: nothing to show as a look interval, and nothing invented
+        assert finished["result_partial"] is None and finished["interim"] is None
+    finally:
+        store.close()
+
+
+def test_the_job_series_result_is_identical_with_the_observer_wired_in(tmp_path: Path) -> None:
+    """Differential: run_comparison_series with the job's own observer equals the plain call."""
+
+    def _series(
+        on_look: object,
+    ) -> paired_comparison.PairedComparison:
+        return paired_comparison.run_comparison_series(
+            base_deck_id="chulane-int--base",
+            variant_deck_id="chulane-int--variant",
+            seeds=list(range(100, 108)),
+            tested_seats=[0],
+            budget_pairs=8,
+            look_every_pairs=4,
+            play=_sweep_play,
+            on_look=on_look,  # type: ignore[arg-type]
+        )
+
+    job = paired_series.PairedSeriesJob(
+        series_id="p-diff",
+        data_folder=tmp_path,
+        base_ref="repo:main",
+        variant_ref="rev@x",
+        base_deck=_rules_deck("chulane-int--base"),
+        variant_deck=_rules_deck("chulane-int--variant"),
+        opponents=[_rules_deck("o1"), _rules_deck("o2"), _rules_deck("o3")],
+        paths_by_deck_id={},
+        pod_name="precon",
+        seeds=list(range(100, 108)),
+        tested_seats=[0],
+        budget_pairs=8,
+        look_every_pairs=4,
+        threshold_pp=0.0,
+        significance_level=0.05,
+    )
+    with_observer = _series(job.on_look)
+    without = _series(None)
+    assert json.dumps(with_observer, sort_keys=True) == json.dumps(without, sort_keys=True)
+    # the job kept the last look it saw, and it is the look the series ended at or before
+    assert job.interim is not None and job.interim["pairs_attempted"] in (4, 8)
+
+
+def _rules_deck(deck_id: str) -> RulesDeckInput:
+    return RulesDeckInput(
+        deck_id=deck_id,
+        name=deck_id,
+        commander_names=("Chulane, Teller of Tales",),
+        mainboard=("Forest",) * 99,
+    )
