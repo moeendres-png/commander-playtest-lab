@@ -42,8 +42,12 @@ import os
 import platform
 import random
 import re
-import resource
 import signal
+
+try:
+    import resource
+except ImportError:
+    resource = None  # type: ignore[assignment]
 import subprocess
 import sys
 import threading
@@ -406,7 +410,7 @@ def execute(spec: BatchSpec, env: Environment) -> dict[str, Any]:
         hook = FaultHook(spec.fault)
     elif spec.sample_memory:
         hook = MemoryHook()
-    before = resource.getrusage(resource.RUSAGE_CHILDREN)
+    before = resource.getrusage(resource.RUSAGE_CHILDREN) if resource is not None else None
     started = time.monotonic()
     _HOOKS.current = hook
     try:
@@ -421,7 +425,7 @@ def execute(spec: BatchSpec, env: Environment) -> dict[str, Any]:
         _HOOKS.current = None
         if isinstance(hook, FaultHook):
             hook.cleanup()
-    after = resource.getrusage(resource.RUSAGE_CHILDREN)
+    after = resource.getrusage(resource.RUSAGE_CHILDREN) if resource is not None else None
     record: dict[str, Any] = {
         **asdict(spec),
         "games": list(spec.games),
@@ -430,8 +434,10 @@ def execute(spec: BatchSpec, env: Environment) -> dict[str, Any]:
             for i, (game, outcome) in enumerate(zip(spec.games, outcomes, strict=True))
         ],
         "wall_s": round(time.monotonic() - started, 1),
-        "child_cpu_s": round(
-            (after.ru_utime - before.ru_utime) + (after.ru_stime - before.ru_stime), 1
+        "child_cpu_s": (
+            round((after.ru_utime - before.ru_utime) + (after.ru_stime - before.ru_stime), 1)
+            if before is not None and after is not None
+            else None
         ),
     }
     if isinstance(hook, FaultHook):

@@ -190,3 +190,25 @@ def test_doctor_appcds_warns_on_missing_mismatched_or_older_archive(tmp_path: Pa
     assert stale["archive_matches_jar"] is False
     assert "älter" in str(stale["detail"])
     assert "build-appcds" in str(stale["remediation"])
+
+
+def test_doctor_fails_closed_on_corrupt_sqlite_database_without_modifying_it(
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "studio.sqlite3"
+    corrupt_bytes = b"NOT A SQLITE DB"
+    db_path.write_bytes(corrupt_bytes)
+
+    configured = doctor._check_studio_data(tmp_path, configured=True)
+    assert configured["status"] == "FAIL"
+    assert configured["required"] is True
+    assert configured["database_exists"] is True
+    assert configured["database_valid"] is False
+    assert "beschädigt" in str(configured["detail"])
+
+    unconfigured = doctor._check_studio_data(tmp_path, configured=False)
+    assert unconfigured["status"] == "FAIL"
+    assert unconfigured["required"] is True
+    assert unconfigured["database_valid"] is False
+
+    assert db_path.read_bytes() == corrupt_bytes

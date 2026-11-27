@@ -3476,7 +3476,7 @@ async function openGame(gameId) {
   const listed = state.games.find((entry) => entry.game_id === gameId);
   const listedInteractive = Boolean(listed && listed.header && Array.isArray(listed.header.human_seats) && listed.header.human_seats.length);
   Object.assign(state, { gameId, cohortRecord: null, focusSeat: null, frames: [], lines: [], logRuns: [], logQuery: "", index: 0, seatKeys: [], header: null, result: null, postgame: null, postgameGameId: null, postgameLoadingFor: null, postgameFailedFor: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, pollFailures: 0, revision: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), combatPreview: null, ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
-  if ($("postgame-sheet")) { $("postgame-sheet").hidden = true; $("postgame-sheet").replaceChildren(); if ($("postgame-sheet").dataset) delete $("postgame-sheet").dataset.gameId; }
+  if ($("postgame-sheet")) { $("postgame-sheet").hidden = true; $("postgame-sheet").textContent = ""; if ($("postgame-sheet").dataset) delete $("postgame-sheet").dataset.gameId; }
   if ($("log-search")) $("log-search").value = "";
   if ($("table-mode-bar")) $("table-mode-bar").hidden = true;
   ffStatus(""); showConnectionLost(0, ""); renderCohortPill();
@@ -4016,7 +4016,7 @@ async function listGames(wanted) {
     state.postgameGameId = null;
     state.postgameLoadingFor = null;
     state.postgameFailedFor = null;
-    if ($("postgame-sheet")) { $("postgame-sheet").hidden = true; $("postgame-sheet").replaceChildren(); if ($("postgame-sheet").dataset) delete $("postgame-sheet").dataset.gameId; }
+    if ($("postgame-sheet")) { $("postgame-sheet").hidden = true; $("postgame-sheet").textContent = ""; if ($("postgame-sheet").dataset) delete $("postgame-sheet").dataset.gameId; }
     $("game-info").textContent = "";
     $("now").textContent = "";
     if ($("own-combat")) { $("own-combat").textContent = ""; $("own-combat").hidden = true; }
