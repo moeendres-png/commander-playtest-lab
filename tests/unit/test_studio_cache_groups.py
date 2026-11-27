@@ -586,3 +586,82 @@ def test_a_store_without_a_file_never_remembers_the_universe_figures() -> None:
         cache.cached(store, ("universe_options", None), lambda: seen.append(1))
     assert seen == [1, 1]
     store.close()
+
+
+# -- two tests of the deleted memo test file that guard ``builder._corpus_hits`` (a cache kind) --
+
+
+@pytest.fixture
+def _folder(tmp_path: Path) -> Path:
+    from tests.unit.test_studio_builder import _fill
+
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    store.close()
+    return tmp_path / "studio"
+
+
+def test_an_import_of_changed_data_gives_fresh_corpus_hits(_folder: Path, tmp_path: Path) -> None:
+    """Same number of rows, the import still gives a fresh result (moved from the memo tests)."""
+    from commander_lab.studio import builder, importers
+    from tests.unit.test_studio_store import _card_row, _write_csv
+
+    commander = ["Test Commander"]
+    store = StudioStore.open(_folder)
+    before = builder._corpus_hits(store, commander)
+    assert "Forest" in before
+    assert builder._corpus_hits(store, commander) is before  # remembered
+    store.close()
+    store = StudioStore.open(_folder)
+    rows = [
+        {**_card_row("d1", "Forest", 30), "oracle_id": "oracle-forest"},
+        {**_card_row("d1", "Swarm Rat"), "oracle_id": "oracle-swarm-rat"},
+        {**_card_row("d2", "Swarm Rat"), "oracle_id": "oracle-swarm-rat"},
+        {**_card_row("d3", "Swarm Rat"), "oracle_id": "oracle-swarm-rat"},
+        {**_card_row("d3", "Unknown Card"), "oracle_id": ""},
+        {**_card_row("d4", "Swarm Rat"), "oracle_id": "oracle-swarm-rat"},
+    ]
+    importers.import_corpus_cards(store, _write_csv(tmp_path / "cards.csv", rows))
+    store.close()
+    store = StudioStore.open(_folder)
+    after = builder._corpus_hits(store, commander)
+    assert after is not before
+    assert sum(after["Swarm Rat"].values()) > sum(before["Swarm Rat"].values())
+    assert sum(after["Forest"].values()) < sum(before["Forest"].values())
+    store.close()
+
+
+def test_an_in_place_change_of_a_card_gives_fresh_deck_counts(_folder: Path) -> None:
+    """A relink changes a card row in place: no new row, no new source. The deck counts per
+    card depend on the card names, so they must not be served from before the change."""
+    from commander_lab.studio import builder
+
+    commander = ["Test Commander"]
+    store = StudioStore.open(_folder)
+    before = builder._corpus_hits(store, commander)
+    assert builder._corpus_hits(store, commander) is before
+    row = store.connection.execute("SELECT card_id, oracle_id FROM card LIMIT 1").fetchone()
+    store.connection.execute(
+        "UPDATE card SET oracle_id = ? WHERE card_id = ?", (f"relinked-{row[1]}", row[0])
+    )
+    store.connection.commit()
+    assert builder._corpus_hits(store, commander) is not before
+    store.close()
+
+
+def test_scoped_and_unscoped_universe_options_keep_separate_entries(tmp_path: Path) -> None:
+    """The scope is part of the key: options of one commander and of no scope are two entries
+    with their own answers, and the scope order does not matter."""
+    from commander_lab.studio import universe
+
+    store = _store(tmp_path)
+    scoped = universe.options(store, commander_names=_MEMO_COMMANDER)
+    unscoped = universe.options(store)
+    keys = [key for key, _ in cache.snapshot(store) if key[0] == "universe_options"]
+    assert sorted(keys, key=repr) == sorted(
+        [("universe_options", ("Test Commander",)), ("universe_options", None)], key=repr
+    )
+    assert universe.options(store, commander_names=_MEMO_COMMANDER) is scoped
+    assert universe.options(store) is unscoped
+    assert scoped is not unscoped and scoped != unscoped
+    store.close()

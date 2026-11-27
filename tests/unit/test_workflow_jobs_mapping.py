@@ -75,6 +75,10 @@ def test_windows_studio_smoke_runs_the_store_cache_export_and_backup_tests(
         line.strip() for line in str(smoke["run"]).splitlines() if "python -m pytest" in line
     ]
     assert len(pytest_lines) == 1, pytest_lines
+    # no narrowing of the selection: no -k, -m, --deselect, --ignore or collect-only option
+    arguments = pytest_lines[0].split("python -m pytest", 1)[1].split()
+    for argument in arguments:
+        assert not argument.startswith(("-k", "-m", "--deselect", "--ignore", "--co")), argument
     for name in (
         "test_studio_engine_provisioning.py",
         "test_studio_simulations.py",
