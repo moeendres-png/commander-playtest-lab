@@ -870,6 +870,8 @@ def test_two_series_started_in_one_second_keep_two_run_ids(
         second = _start(manager, store, tmp_path, rev_id, 20)  # same second, same deck slug
         _wait(first)
         _wait(second)
+        _wait_for_record(tmp_path, first)  # the record is written after the status flips
+        _wait_for_record(tmp_path, second)
         assert first.status == "completed" and second.status == "completed"
         # the first id of a second keeps its old form, the later one only gains a suffix
         assert first.batch_id == "batch-1800000000-chulane"
@@ -977,7 +979,10 @@ def test_a_taken_batch_id_is_refused_and_nothing_is_changed(
         rev_id = _seed_test_deck(store)
         manager = SimulationBatchManager()
         for base in (10, 20):
-            _wait(_start(manager, store, tmp_path, rev_id, base))
+            started = _start(manager, store, tmp_path, rev_id, base)
+            _wait(started)
+            # the record is written after the status flips: wait for it before the snapshot
+            _wait_for_record(tmp_path, started)
         records = {
             p.name: p.read_text("utf-8") for p in games.games_folder(tmp_path).glob("*.series.json")
         }
@@ -2914,6 +2919,7 @@ def test_a_stopped_series_keeps_its_partial_flagged_and_is_never_stored(tmp_path
         # never persisted: no run row, no id, and the saved record has no interim keys
         assert batch.run_id is None
         assert _runs_in_store(store) == 0
+        assert batch.worker_done.wait(5)  # the record is written before this is set
         records = list(tmp_path.rglob("*.series.json"))
         assert len(records) == 1
         saved = json.loads(records[0].read_text(encoding="utf-8"))
