@@ -3976,21 +3976,48 @@ def test_the_replay_line_counts_failures_and_timeouts_and_keeps_a_stop_apart() -
     assert isinstance(out, dict)
     assert out["text"] == (
         "3 Partien nach Fehlschlag wiederholt (davon Timeout: 1) · "
-        "1 Partien nach Abbruch fortgesetzt"
+        "1 Partie nach Abbruch fortgesetzt"
     )
     assert (out["failed"], out["timeouts"], out["stopped"], out["cls"]) == (3, 1, 1, "warn")
-    assert "2 \u00d7 TimeoutExpired" in str(out["title"]) and "1 \u00d7 Boom" in str(out["title"])
+    # the tooltip names the last error and the attempts, never "n x last class"
+    assert "batch-b-sfailed: letzter Fehler: Boom, Versuche: 1" in str(out["title"])
+    assert "batch-b-stimeout: letzter Fehler: TimeoutExpired, Versuche: 2" in str(out["title"])
+    assert "\u00d7" not in str(out["title"])
+    # while the series still runs nothing is claimed as done; singular and plural
+    for status in ("running", "pending"):
+        run = _interim_js(
+            "batchReplayInfo({status: '%s', replayed_failures: [%s, %s, %s]})"
+            % (
+                status,
+                json.dumps(_replay_entry("timeout")),
+                json.dumps(_replay_entry("failed", game_id="x")),
+                json.dumps(_replay_entry("cancelled")),
+            )
+        )
+        assert isinstance(run, dict)
+        assert run["text"] == (
+            "2 Partien nach Fehlschlag werden wiederholt (davon Timeout: 1) · "
+            "1 Partie nach Abbruch wird fortgesetzt"
+        )
+    one = _interim_js(
+        f"batchReplayInfo({json.dumps({'replayed_failures': [_replay_entry('timeout')]})})"
+    )
+    assert isinstance(one, dict)
+    assert one["text"] == "1 Partie nach Fehlschlag wiederholt (davon Timeout: 1)"
     # only stopped games: no failure is claimed, the pill stays neutral
     only_stop = _interim_js(
         f"batchReplayInfo({json.dumps({'replayed_failures': [_replay_entry('cancelled')]})})"
     )
     assert isinstance(only_stop, dict)
-    assert only_stop["text"] == "1 Partien nach Abbruch fortgesetzt" and only_stop["cls"] == ""
+    assert only_stop["text"] == "1 Partie nach Abbruch fortgesetzt" and only_stop["cls"] == ""
     # an unknown attempt count stays text; a failure class that is not named stays "Unbekannt"
     odd = _interim_js(
         "batchReplayInfo({replayed_failures: [{game_id: 'g', class: 'failed', attempts: null}]})"
     )
-    assert isinstance(odd, dict) and odd["title"] == "unbekannt \u00d7 Unbekannt (g)"
+    assert (
+        isinstance(odd, dict)
+        and odd["title"] == "g: letzter Fehler: Unbekannt, Versuche: unbekannt"
+    )
 
 
 def test_an_old_record_without_the_key_shows_no_replay_line_and_no_zero() -> None:
@@ -4017,12 +4044,23 @@ def test_the_status_does_not_claim_zero_failures_for_a_series_that_replayed_fail
         " {failed: 0})]"
     )
     assert out == [
-        "Abgeschlossen (0 Fehlschläge im letzten Lauf, 2 nach Wiederholung)",
+        "Abgeschlossen (0 Fehlschläge in den Endergebnissen; 2 Partien erst nach Fehlschlag "
+        "wiederholt)",
         "Abgeschlossen (1 fehlgeschlagen)",
         "Abgeschlossen (Fehlschläge: unbekannt)",
         "Abgeschlossen",  # a stop is not a failure
     ]
     app = (STATIC / "app.js").read_text(encoding="utf-8")
+    one = _interim_js(
+        f"batchCompletedStatus({json.dumps({'replayed_failures': [_replay_entry('failed')]})},"
+        " {failed: 0})"
+    )
+    assert one == (
+        "Abgeschlossen (0 Fehlschläge in den Endergebnissen; 1 Partie erst nach Fehlschlag "
+        "wiederholt)"
+    )
+    # the badge is not plain green when failed games were replayed
+    assert '(batchReplayInfo(b) || {}).failed > 0 ? "warn" : "good"' in app
     assert "? batchCompletedStatus(b, classes)" in app
     assert 'id: "sim-replayed"' in app and "const replayInfo = batchReplayInfo(b);" in app
     assert "if (replayInfo) {\n      monitor.append(" in app

@@ -2096,11 +2096,14 @@ class BatchSimulation:
         finished_ids = {g.game_id for g in completed_games}
         record_dropped: list[tuple[str, str | None, bool]] = []
         raw_games = raw.get("games")
+        # one row per game, the latest (as in memory); a record from before #1854 can hold two
+        latest_rows: dict[str, dict[str, object]] = {}
         for row in raw_games if isinstance(raw_games, list) else []:
-            if not isinstance(row, dict) or row.get("status") == "finished":
-                continue
-            row_id = row.get("game_id")
-            if not isinstance(row_id, str) or not row_id or row_id in finished_ids:
+            row_key = row.get("game_id") if isinstance(row, dict) else None
+            if isinstance(row, dict) and isinstance(row_key, str) and row_key:
+                latest_rows[row_key] = row
+        for row_id, row in latest_rows.items():
+            if row.get("status") == "finished" or row_id in finished_ids:
                 continue
             row_class = row.get("failure_class")
             failure_class = row_class if isinstance(row_class, str) and row_class else None

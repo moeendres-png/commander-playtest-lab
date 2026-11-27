@@ -1731,19 +1731,22 @@ function batchReplayInfo(b) {
       failed += 1;
       if (entry.class === "timeout") timeouts += 1;
     }
-    reasons.push(`${batchKnown(entry.attempts) ? StudioUI.num(entry.attempts, 0) : "unbekannt"} × ${entry.last_error_class || "Unbekannt"} (${entry.game_id || "unbekannt"})`);
+    reasons.push(`${entry.game_id || "unbekannt"}: letzter Fehler: ${entry.last_error_class || "Unbekannt"}, Versuche: ${batchKnown(entry.attempts) ? StudioUI.num(entry.attempts, 0) : "unbekannt"}`);
   }
   if (!failed && !stopped) return null;
   const parts = [];
-  if (failed) parts.push(`${StudioUI.num(failed, 0)} Partien nach Fehlschlag wiederholt (davon Timeout: ${StudioUI.num(timeouts, 0)})`);
-  if (stopped) parts.push(`${StudioUI.num(stopped, 0)} Partien nach Abbruch fortgesetzt`);
+  // while the series still runs the games are not played again yet: no claim that it is done
+  const running = Boolean(b) && (b.status === "running" || b.status === "pending");
+  const games = (n) => `${StudioUI.num(n, 0)} ${n === 1 ? "Partie" : "Partien"}`;
+  if (failed) parts.push(`${games(failed)} nach Fehlschlag ${running ? (failed === 1 ? "wird" : "werden") + " wiederholt" : "wiederholt"} (davon Timeout: ${StudioUI.num(timeouts, 0)})`);
+  if (stopped) parts.push(`${games(stopped)} nach Abbruch ${running ? (stopped === 1 ? "wird" : "werden") + " fortgesetzt" : "fortgesetzt"}`);
   return { failed, timeouts, stopped, text: parts.join(" · "), cls: failed ? "warn" : "", title: reasons.join(", ") };
 }
 // The status word of a finished series: an unknown failure count stays text, and a series whose
 // final rows have no failure but that replayed failed games says so (never a bare "0 Fehlschläge").
 function batchCompletedStatus(b, classes) {
   const replay = batchReplayInfo(b);
-  return classes.failed === null ? "Abgeschlossen (Fehlschläge: unbekannt)" : classes.failed > 0 ? `Abgeschlossen (${StudioUI.num(classes.failed, 0)} fehlgeschlagen)` : replay && replay.failed > 0 ? `Abgeschlossen (0 Fehlschläge im letzten Lauf, ${StudioUI.num(replay.failed, 0)} nach Wiederholung)` : "Abgeschlossen";
+  return classes.failed === null ? "Abgeschlossen (Fehlschläge: unbekannt)" : classes.failed > 0 ? `Abgeschlossen (${StudioUI.num(classes.failed, 0)} fehlgeschlagen)` : replay && replay.failed > 0 ? `Abgeschlossen (0 Fehlschläge in den Endergebnissen; ${StudioUI.num(replay.failed, 0)} ${replay.failed === 1 ? "Partie" : "Partien"} erst nach Fehlschlag wiederholt)` : "Abgeschlossen";
 }
 // END batch-interim
 function pollBatch(batchId) {
@@ -1955,7 +1958,7 @@ function renderSimulations(body) {
           : b.status === "cancelled"
             ? (completed > 0 ? "Gestoppt (Teilergebnis)" : "Abgebrochen")
             : "Fehlgeschlagen";
-    const badgeCls = isRunning ? "warn" : (b.status === "completed" && !allFailed) ? "good" : b.status === "cancelled" ? "warn" : "bad";
+    const badgeCls = isRunning ? "warn" : (b.status === "completed" && !allFailed) ? ((batchReplayInfo(b) || {}).failed > 0 ? "warn" : "good") : b.status === "cancelled" ? "warn" : "bad";
     const pct = b.games_planned > 0 ? Math.round((b.games_completed / b.games_planned) * 100) : 0;
 
     const monitor = h("div", { class: "sim-monitor" },

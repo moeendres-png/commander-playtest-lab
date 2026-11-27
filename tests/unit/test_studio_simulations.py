@@ -3873,3 +3873,67 @@ def test_a_dropped_row_of_a_game_the_plan_does_not_name_keeps_its_entry_with_an_
         ("batch-other-s9", None, "failed", 1),
     ]
     assert entries[1]["last_error_class"] is None  # unknown stays unknown
+
+
+def test_a_stopped_series_resumed_after_a_restart_keeps_the_stop_apart_from_failures(
+    tmp_path: Path,
+) -> None:
+    """Stop (4 finished, one ``Cancelled`` row), then a new manager resumes from the record: the
+    stop is a ``cancelled`` entry, never a failure (G-SIM point 2); five games never started."""
+    store = StudioStore.open(tmp_path / "studio")
+    reached, release = threading.Event(), threading.Event()
+    holder: list[BatchSimulation] = []
+    ready = threading.Event()
+
+    def stopping(seeds: Sequence[int]) -> Iterator[GameSummary]:
+        assert ready.wait(5)
+        ordered = list(seeds)
+        yield from _replay_rows(holder[0], {}, ordered[:4])
+        yield GameSummary(
+            game_id=holder[0].game_id_of(ordered[4]),
+            seed=ordered[4],
+            status="failed",
+            failure_class="Cancelled",
+            failure_message="cancelled",
+        )
+        reached.set()
+        assert release.wait(10)
+
+    try:
+        manager = SimulationBatchManager()
+        batch = manager.start_batch(
+            store,
+            tmp_path,
+            revision_id=_seed_test_deck(store),
+            pod="precon",
+            games_count=10,
+            base_seed=700,
+            workers=1,
+            chunk_runner=stopping,
+        )
+        holder.append(batch)
+        ready.set()
+        assert reached.wait(5)
+        assert manager.cancel_batch(batch.batch_id)
+        release.set()
+        _wait(batch)
+        assert batch.worker_done.wait(5) and batch.status == "cancelled"
+        restarted = SimulationBatchManager()
+        again: list[BatchSimulation] = []
+        resumed = restarted.resume_batch(
+            store,
+            tmp_path,
+            batch.batch_id,
+            workers=1,
+            chunk_runner=lambda seeds: _replay_rows(again[0], {}, seeds),
+        )
+        again.append(resumed)
+        _wait(resumed)
+        assert resumed.worker_done.wait(5) and resumed.status == "completed"
+        assert [
+            (e["seed"], e["class"], e["attempts"], e["last_error_class"])
+            for e in _replayed(resumed.to_dict())
+        ] == [(704, "cancelled", 1, "Cancelled")]
+    finally:
+        release.set()
+        store.close()
