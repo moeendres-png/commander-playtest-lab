@@ -9,7 +9,7 @@ Alle Zahlen sind lokale Echt-Engine-Messungen am Owner-PC (`SIMULATED_RESULT`, G
 - **Vorab-Plan (Vertrag vor dem ersten Spiel):** [`chulane_land_axis_plan_1528_20261124.md`](chulane_land_axis_plan_1528_20261124.md)
 - **Kontrolltor-Basis:** `N36` + Identitätsprobe (`chulane_land_axis_controls_1528_20261125.md`) sowie geschärfte Positivkontrolle Option A1 (`P27` vs. `B36`, `360` Paare, PR `#1871`, oberes `95-%`-CI `-1,131 pp < 0 pp` → alle Kontrollen `PASS`)
 - **`origin/main` vor Laufbeginn & Bericht:** `f13666f2c2288ab242fba7e4681a15e55ea0466b`
-- **`commander_lab.__file__`:** `/home/moeen/code/cpl-serien/src/commander_lab/__init__.py`
+- **`commander_lab.__file__`:** `$HOME/code/cpl-serien/src/commander_lab/__init__.py`
 - **Engine-Pin (`config/rules_engines.json`):** `f4d12f6e8066203fba7aa38bd35ea3358117393d` (XMage `1.4.62`)
 - **Bridge-JAR (`release-artifacts.yml` Lauf `45995268152`, 2026-11-27):** SHA-256 `b184148260a46865092bb105bf1fd566af1cc9e349c173ebe19c39394dc38d5f` (AppCDS aktiv)
 - **System & Einstellungen:** Linux WSL2, `AMD Ryzen 7 7700` (`16` logische CPUs), `COMMANDER_LAB_STUDIO_SERIES_POOL=0`, `--workers 6 --games-per-jvm 20 --rotate-seats --record-pilot-audit --reuse-baseline`
