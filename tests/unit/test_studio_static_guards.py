@@ -3890,7 +3890,36 @@ def test_the_interim_leaves_draws_out_of_the_rate_and_says_so() -> None:
     assert str(texts["headline"]).startswith(
         "Siegrate Sitz 1: 50,0 % (1 / 2 entschiedene Partien von 8 geplant)"
     )
-    assert texts["rest"] == (
-        "Unentschieden: 1 (kein Sieger, nicht als Niederlage gezählt, nicht in der Siegrate)."
+    assert texts["rest"] is None
+    assert texts["drawsText"] == (
+        "Unentschieden (ohne Sieger): 1 / 3, nicht als Niederlage gezählt und nicht in der "
+        "Siegrate."
     )
     assert [s["count"] for s in texts["seats"]] == ["1/2", "1/2"]  # type: ignore[union-attr]
+
+
+def test_an_interim_of_only_draws_says_no_game_was_decided_not_that_none_finished() -> None:
+    from commander_lab.studio.simulations import GameSummary, interim_batch_summary
+
+    games = [GameSummary(f"g{i}", i, "finished", winner_seats=[], table_size=2) for i in range(3)]
+    batch = _interim_batch(0, 0, status="cancelled")
+    batch["interim_summary"] = interim_batch_summary(games, games_planned=10, table_size=2)
+    texts = _interim_js(f"batchInterimTexts({json.dumps(batch)})")
+    assert isinstance(texts, dict)
+    assert texts["title"] == "Teilergebnis: 3 von 10 Partien"
+    assert texts["headline"] == (
+        "Siegrate Sitz 1: unbekannt (keine entschiedene Partie: 3 Unentschieden von 3 "
+        "abgeschlossenen, von 10 geplant), kein Intervall."
+    )
+    assert "noch keine Partie abgeschlossen" not in str(texts["headline"])
+    assert [s["count"] for s in texts["seats"]] == ["unbekannt", "unbekannt"]  # type: ignore[union-attr]
+
+
+def test_the_status_text_keeps_an_unknown_failure_count_as_text_never_zero() -> None:
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert 'classes.failed === null ? "Abgeschlossen (Fehlschläge: unbekannt)"' in app
+    out = _interim_js(
+        "[batchResultClasses({status: 'completed'}).failed,"
+        " batchResultClasses({status: 'completed', games: []}).failed]"
+    )
+    assert out == [None, 0]

@@ -3108,8 +3108,8 @@ def test_a_resumed_series_counts_one_row_per_seed_in_the_final_result_and_the_ev
         assert isinstance(games, list) and len(games) == 10
         assert {g["status"] for g in games} == {"finished"}
         assert payload["run_id"] == f"batch-{first.batch_id}"
-        # the history stays in memory, the counts do not read it
-        assert sum(1 for g in resumed._games if g.failure_class == "Cancelled") == 1
+        # the resume drops the old row of a replayed seed (the history is not kept, #1852)
+        assert sum(1 for g in resumed._games if g.failure_class == "Cancelled") == 0
         row = store.connection.execute(
             "SELECT games_planned, games_completed, games_failed FROM simulation_run"
         ).fetchall()
@@ -3340,8 +3340,8 @@ def test_a_stopped_series_summary_names_the_planned_n_and_counts_aborted_apart(
         assert rows["games_completed"]["display"] == (
             "4/10 abgeschlossen, 0 fehlgeschlagen, 1 abgebrochen, 0 unentschieden"
         )
-        assert rows["rounds_to_finish"]["n_of_N"] == "4/10"
-        assert rows["rounds_to_finish"]["not_reached"] == 6
+        assert rows["rounds_to_finish"]["n_of_N"] == "4/5"  # the games that started, see below
+        assert rows["rounds_to_finish"]["not_reached"] == 1
         record = json.loads(
             (tmp_path / "games" / f"{batch.batch_id}.series.json").read_text("utf-8")
         )
@@ -3406,5 +3406,69 @@ def test_a_resumed_series_takes_a_stop_again_after_it_completed_with_a_failed_ro
         assert not batch._finalizing
         batch.cancel()
         assert batch.is_cancelled
+    finally:
+        store.close()
+
+
+def test_a_batch_that_holds_two_rows_of_one_game_counts_the_latest_in_every_view(
+    tmp_path: Path,
+) -> None:
+    """Defence in depth: whatever puts a second row of a game into the series (the resume drops
+    the old one), the monitor payload, the summary and the games list read the latest row."""
+    batch = BatchSimulation(
+        batch_id="dup",
+        data_folder=tmp_path,
+        deck_id="d",
+        revision_id="r",
+        pod_name="precon",
+        opponent_paths=[],
+        seeds=[1, 2],
+        chunk_runner=lambda seeds: iter(()),
+    )
+    batch._add_game(batch._failed(1, "Cancelled", "stopped"))
+    batch._add_game(GameSummary("batch-dup-s1", 1, "finished", winner_seats=[0]))
+    batch._add_game(GameSummary("batch-dup-s2", 2, "finished", winner_seats=[1]))
+    payload = batch.to_dict()
+    assert (payload["games_completed"], payload["games_failed"], payload["games_cancelled"]) == (
+        2,
+        0,
+        0,
+    )
+    assert [g["status"] for g in payload["games"]] == ["finished", "finished"]  # type: ignore[union-attr]
+    interim = payload["interim_summary"]
+    assert isinstance(interim, dict) and interim["games_cancelled"] == 0
+    summary = batch._aggregate_games(batch._games_in_seed_order())
+    assert (summary["games_completed"], summary["games_cancelled"], summary["games_planned"]) == (
+        2,
+        0,
+        2,
+    )
+
+
+def test_the_rounds_statistic_of_a_stopped_series_censors_over_the_games_that_started(
+    tmp_path: Path,
+) -> None:
+    """Stop at 4 finished games (6 rounds each) and one aborted game of 10: the median is
+    computed over the 5 games that started; the 5 that never started are missing data, not
+    censored games, and the text says so (#1854 review P2-1, G-SIM point 2)."""
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        _, batch = _stop_after_four(store, tmp_path)
+        summary = batch.to_dict()["summary"]
+        assert isinstance(summary, dict)
+        table = summary["consistency_table"]
+        assert isinstance(table, dict)
+        rows = {r["metric_id"]: r for r in table["rows"]}  # type: ignore[union-attr]
+        rounds = rows["rounds_to_finish"]
+        assert rounds["quartiles"]["median"] == 6  # not None: the 5 never-started games do not rank
+        assert (rounds["n"], rounds["N"], rounds["n_of_N"]) == (4, 5, "4/5")
+        assert (rounds["reached"], rounds["not_reached"]) == (4, 1)
+        assert (rounds["started"], rounds["not_started"]) == (5, 5)
+        assert rounds["display"] == (
+            "Median Runde 6 (4/5 erreicht, 1 nicht erreicht; 5 von 10 geplanten nie gestartet "
+            "(fehlend, nicht zensiert))"
+        )
+        # the planned N stays in the counts row and the summary
+        assert rows["games_completed"]["n_of_N"] == "4/10" and summary["games_planned"] == 10
     finally:
         store.close()
