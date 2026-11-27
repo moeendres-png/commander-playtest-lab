@@ -7,7 +7,7 @@ Alle Zahlen sind lokale Messungen auf dem Owner-PC (`SIMULATED_RESULT`, Gewicht 
 ## 1. Umgebung & Provenienz
 
 - **Basis-Commit (`origin/main`):** `f13666f2c2288ab242fba7e4681a15e55ea0466b` (per `git fetch origin` unmittelbar vor Laufbeginn geprüft)
-- **Paketpfad (`commander_lab.__file__`):** `/home/moeen/code/cpl-serien/src/commander_lab/__init__.py`
+- **Paketpfad (`commander_lab.__file__`):** `$HOME/code/cpl-serien/src/commander_lab/__init__.py`
 - **Engine-Pin (`config/rules_engines.json`):** `f4d12f6e8066203fba7aa38bd35ea3358117393d` (XMage `1.4.62`)
 - **System / Hardware:** Linux WSL2 (`6.6.87.2-microsoft-standard-WSL2 x86_64`), `AMD Ryzen 7 7700 8-Core Processor` (`16` logische CPUs), `15 GiB` RAM, Python `3.12.14`, OpenJDK `21.0.13.1`
 - **Pool-Schalter:** `COMMANDER_LAB_STUDIO_SERIES_POOL=0` (AUS)
