@@ -38,7 +38,7 @@ const state = {
   universe: "", universeInfo: null, countedUniverse: null, gcBand: "", gcBandData: null,
   decks: [], deckId: null, branch: "main", baseRevision: null,
   list: new Map(), dirty: false, draftUpdatedAt: "", draftConflict: false, baseStale: false, needsDraftPut: false, issues: [], shape: null, deckRoles: {}, combos: null, roles: [], shapes: [],
-  simulations: [], diffBaseRev: null, diffData: null, deckFacts: null, castability: null, activeBatch: null, batchPollTimer: null,
+  simulations: [], diffBaseRev: null, diffData: null, deckFacts: null, castability: null, activeBatch: null, batchPollTimer: null, batchTableSize: 4,
   activePaired: null, pairedPollTimer: null, pairedHistory: [], pairedPreset: null, readinessAudit: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
   subset: null, subsetNames: [], subsetWanted: null, strength: null, showTier: true, modalCardId: null, changeSeq: 0, savedSeq: 0, layers: null, diffDefault: null,
@@ -1845,6 +1845,50 @@ function pollPaired(seriesId) {
     }
   }, 1200);
 }
+// BEGIN batch-table (#1858): pure table-size options and duration note helpers, no DOM; tests slice this block.
+const BATCH_MIN_SEATS = 2;
+const BATCH_MAX_SEATS = 8;
+const BATCH_RELEASED_SEATS = 8;
+const BATCH_DEFAULT_SEATS = 4;
+const BATCH_MEASURED_GAMES_PER_HOUR = 541.2;
+const BATCH_SINGLE_GAME_REFERENCE_7_8 = {
+  7: [87.0, 46.1, 102.3, 955, 1343, 9760, 6, 6, 114.4, 140.9, 8, 8, 1231, 883],
+  8: [98.8, 65.7, 121.9, 945, 1006, 10314, 6, 6, 143.8, 189.0, 8, 8, 1255, 1255],
+};
+
+function batchTableOptions() {
+  const sizes = [];
+  for (let seats = BATCH_MIN_SEATS; seats <= BATCH_MAX_SEATS; seats += 1) {
+    sizes.push({
+      seats,
+      locked: seats > BATCH_RELEASED_SEATS,
+      label: `${seats} Sitze${seats > BATCH_RELEASED_SEATS ? " (nicht freigegeben)" : ""}`,
+    });
+  }
+  return sizes;
+}
+
+function batchSingleGameReferenceText(tableSeats) {
+  const ref = BATCH_SINGLE_GAME_REFERENCE_7_8[Number(tableSeats)];
+  if (ref === undefined) return "";
+  const [wall, low, high, rss, rssMax, decisions, games, planned, secondWall, secondMax, secondGames, secondPlanned, batchA, batchB] = ref;
+  return ` Hinweis ${StudioUI.num(tableSeats, 0)} Sitze: eine Partie dauerte im Median ${StudioUI.num(wall, 1)} s (${StudioUI.num(low, 1)} bis ${StudioUI.num(high, 1)} s) bei etwa ${StudioUI.num(decisions, 0)} Entscheidungen, Spitzen-Speicher der Engine (RSS) im Median ${StudioUI.num(rss, 0)} MiB, höchstens ${StudioUI.num(rssMax, 0)} MiB (n = ${StudioUI.num(games, 0)}/${StudioUI.num(planned, 0)} Partien; Machbarkeitsversuch #1672 im Cloud-Container, eine JVM je Partie, SIMULATED_RESULT, kein Owner-PC-Wert). Zweite Messung (Gates #1672, zwei Tische parallel, Fremdlast): Median ${StudioUI.num(secondWall, 1)} s, bis ${StudioUI.num(secondMax, 1)} s (n = ${StudioUI.num(secondGames, 0)}/${StudioUI.num(secondPlanned, 0)} Partien); Spitzen-Speicher einer JVM mit 8 Partien ${StudioUI.num(batchA, 0)} und ${StudioUI.num(batchB, 0)} MiB (2 Läufe). Bei 16 Partien je JVM (Studio-Standard) ist der Speicher unbekannt (n = 0): wenige Worker wählen und den freien Arbeitsspeicher prüfen (je Worker eine JVM mit bis zu 3 GB Heap).`;
+}
+
+function batchDurationNote(gamesCount, tableSize) {
+  const seats = Number(tableSize);
+  const games = Math.max(0, Number(gamesCount) || 0);
+  if (seats === 4) {
+    const estimate = games > 0
+      ? `mindestens ~${StudioUI.num(Math.round(games * (3600.0 / BATCH_MEASURED_GAMES_PER_HOUR)) / 60.0, 1)} min für ${StudioUI.num(games, 0)} Partien`
+      : "unbekannt (n = 0 Partien)";
+    return `Dauer: ${estimate} (gemessene 4-Sitze-Batch-Serie: 541 Partien/h mit 6 Workern und 8 Partien je JVM, #1251; SIMULATED_RESULT). Die Playgroup-Referenz gilt nur für 4 Sitze.`;
+  }
+  const seatText = Number.isFinite(seats) ? StudioUI.num(seats, 0) : "unbekannt";
+  return `Dauer: unbekannt (n = 0 Partien). Für einen Tisch mit ${seatText} Sitzen ist kein Batch-Durchsatz gemessen (SIMULATED_RESULT); die gemessenen 541 Partien/h (#1251) und die Playgroup-Referenz gelten nur für 4 Sitze.${batchSingleGameReferenceText(seats)}`;
+}
+// END batch-table
+
 function renderSimulations(body) {
   body.append(h("div", { class: "actions" }, h("a", { class: "nav", href: "partie.html" }, "Partien-Ansicht & Neue Einzelpartie →")));
 
@@ -1875,7 +1919,7 @@ function renderSimulations(body) {
   // Batch simulation launcher & live monitor
   const bBox = h("div", { class: "sim-box" },
     h("h3", { class: "mt-0" }, "Neue Simulationsserie starten"),
-    h("p", { class: "note" }, "Spielt mehrere vollständige 4-Spieler-Partien nacheinander in prozessisolierten Durchläufen mit deterministischen Seeds. Berechnet Siegrate mit Nenner und 95%-Wilson-Konfidenzintervall.")
+    h("p", { class: "note" }, "Spielt mehrere vollständige Partien (2 bis 8 Sitze, SIMULATED_RESULT) nacheinander in prozessisolierten Durchläufen mit deterministischen Seeds. Berechnet Siegrate mit Nenner und 95%-Wilson-Konfidenzintervall.")
   );
 
   const curRev = state.baseRevision || (state.deckId ? `rev@${state.deckId}/main/current` : "rev@deck/main/current");
@@ -1885,6 +1929,11 @@ function renderSimulations(body) {
     h("option", { value: "mixed" }, "Mixed (Kaervek, Animated Army, Lorehold)"),
     h("option", { value: "optimized" }, "Optimized (Eldrazi, Kaervek, Hosts of Mordor)")
   );
+  const initialSeats = state.batchTableSize || BATCH_DEFAULT_SEATS;
+  const tableSelect = h("select", { id: "batch-table-size-select" },
+    batchTableOptions().map((opt) => h("option", { value: String(opt.seats), selected: opt.seats === initialSeats }, opt.label))
+  );
+  tableSelect.value = String(initialSeats);
   const countSelect = h("select", {},
     h("option", { value: "5" }, "5 Partien"),
     h("option", { value: "10", selected: true }, "10 Partien"),
@@ -1895,16 +1944,43 @@ function renderSimulations(body) {
   const seedInput = h("input", { type: "number", value: "1000", class: "seed-input" });
 
   const startBtn = h("button", { type: "submit", class: "primary" }, "Serie starten");
+  const currentSeats = () => Math.max(BATCH_MIN_SEATS, Math.min(BATCH_MAX_SEATS, parseInt(tableSelect.value, 10) || BATCH_DEFAULT_SEATS));
+  const lockNote = h("p", { class: "note note-compact", id: "batch-table-lock-note" });
+  const durationNote = h("p", { class: "note", id: "batch-duration-note" });
+  const syncBatchFormState = () => {
+    const seats = currentSeats();
+    const games = parseInt(countSelect.value, 10) || 10;
+    const locked = seats > BATCH_RELEASED_SEATS;
+    startBtn.disabled = locked;
+    lockNote.textContent = locked
+      ? `${StudioUI.num(seats, 0)} Sitze sind für SIMULATE nicht freigegeben (Freigabe bis ${StudioUI.num(BATCH_RELEASED_SEATS, 0)} Sitze): der Server lehnt den Start ab.`
+      : "";
+    lockNote.hidden = !locked;
+    durationNote.textContent = batchDurationNote(games, seats);
+  };
+  tableSelect.addEventListener("change", () => {
+    state.batchTableSize = currentSeats();
+    syncBatchFormState();
+  });
+  countSelect.addEventListener("change", syncBatchFormState);
+  syncBatchFormState();
+
   const form = h("form", {
     class: "sim-form",
     onsubmit: async (e) => {
       e.preventDefault();
+      const selectedSeats = currentSeats();
+      if (selectedSeats > BATCH_RELEASED_SEATS) {
+        syncBatchFormState();
+        return;
+      }
       state.batchStartError = null;
       startBtn.disabled = true;
       try {
         const res = await api("/api/simulations/batch", "POST", {
           revision_id: revInput.value.trim(),
           pod: podSelect.value,
+          table_size: selectedSeats,
           games_count: parseInt(countSelect.value, 10),
           base_seed: parseInt(seedInput.value, 10),
         });
@@ -1912,6 +1988,7 @@ function renderSimulations(body) {
           batch_id: res.batch_id,
           status: res.status,
           pod: podSelect.value,
+          table_size: selectedSeats,
           games_planned: parseInt(countSelect.value, 10),
           games_completed: 0,
           games_failed: 0,
@@ -1922,18 +1999,19 @@ function renderSimulations(body) {
       } catch (err) {
         state.batchStartError = err;
         fail(err);
-        startBtn.disabled = false;
+        syncBatchFormState();
         renderDeck();
       }
     }
   },
     h("label", {}, "Revision", revInput),
     h("label", {}, "Gegnertisch (Pod)", podSelect),
+    h("label", {}, "Tischgröße", tableSelect),
     h("label", {}, "Anzahl", countSelect),
     h("label", {}, "Basis-Seed", seedInput),
     startBtn
   );
-  bBox.append(form);
+  bBox.append(form, lockNote, durationNote);
   if (state.batchStartError) {
     bBox.append(StudioUI.renderErrorCard(
       StudioUI.classifyError(state.batchStartError, { context: "batch" }),
