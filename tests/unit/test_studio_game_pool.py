@@ -3275,7 +3275,7 @@ def test_pool_ipc_emits_pure_ascii_json_and_sets_utf8_worker_env(
             "-c",
             (
                 "import os, sys; "
-                "sys.stdout.buffer.write(b'{\"ev\":\"ready\",\"pyutf8\":\"' + os.environ['PYTHONUTF8'].encode() + b'\",\"pyio\":\"' + os.environ['PYTHONIOENCODING'].encode() + b'\"}\\n'); "
+                'sys.stdout.buffer.write(b\'{"ev":"ready","pyutf8":"\' + os.environ[\'PYTHONUTF8\'].encode() + b\'","pyio":"\' + os.environ[\'PYTHONIOENCODING\'].encode() + b\'"}\\n\'); '
                 "sys.stdout.buffer.write(b'\\xfc\\n'); "
                 "sys.stdout.buffer.flush()"
             ),
