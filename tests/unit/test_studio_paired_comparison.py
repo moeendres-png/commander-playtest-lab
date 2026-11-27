@@ -2458,3 +2458,16 @@ def test_an_observer_that_raises_a_base_exception_is_not_swallowed(tmp_path: Pat
 
     with pytest.raises(KeyboardInterrupt):
         _series_with_observer(tmp_path, interrupt)
+
+
+def test_an_observer_cannot_stop_the_series_with_the_cancellation_error(
+    tmp_path: Path,
+) -> None:
+    from commander_lab.studio import paired_series
+
+    def cancelling(_look: paired_comparison.LookSnapshot) -> None:
+        raise paired_series.SeriesCancelledError("observer cancel")
+
+    with_observer = _series_with_observer(tmp_path / "cancel", cancelling, winner=_even_split)
+    without = _series_with_observer(tmp_path / "plain", None, winner=_even_split)
+    assert _result_bytes(with_observer) == _result_bytes(without)

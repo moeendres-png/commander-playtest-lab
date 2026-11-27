@@ -1098,9 +1098,12 @@ def _notify_look(
         "censoring_blocker": blocker_reason,
         "look_decides": decides,
     }
+    # An observer must never change or stop the series — not even by raising the series' own
+    # cancellation error. Cancellation reaches a series only through the job's cancel path
+    # (the play loop's cancel_error_factory), never through an observer.
     try:
         on_look(look)
-    except Exception:  # an observer must never change or stop a series
+    except Exception:
         return
 
 

@@ -3097,6 +3097,10 @@ def test_a_cancelled_paired_job_keeps_its_last_look_as_a_partial_never_as_a_resu
         assert partial["pairs_attempted"] == 4 and len(partial["pairs"]) == 4
         assert partial["difference_pp"] == 100.0 and partial["sign_test_p_value"] == 0.125
         assert partial["data_class"] == "SIMULATED_RESULT"
+        # the partial carries the budget it was cut from, in the production shape (this job
+        # really ran and was cancelled — no fixture injection): the partial-result title
+        # renders "4 von 8 Paaren" from pairs_completed and this field alone
+        assert partial["pairs_budget"] == 8
         assert finished["interim"] is not None and finished["summary_partial"] is True
         assert finished["pairs_attempted"] == 5  # more pairs finished than the last look saw
 

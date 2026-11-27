@@ -1101,6 +1101,7 @@ class PairedSeriesJob:
         partial: dict[str, object] = dict(look)
         partial["partial"] = True
         partial["partial_reason"] = "cancelled"
+        partial["pairs_budget"] = self.budget_pairs
         partial["observed_at"] = now_utc()
         return partial
 

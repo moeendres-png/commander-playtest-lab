@@ -326,7 +326,10 @@ function pairedTruthBadge(summary, isPartial) {
       : ["good", `Frage „größer als ${StudioUI.num(threshold, 1)} pp?“ mit ja beantwortet (Look-Intervall ganz über der Schwelle, nicht „B > A“)`];
   }
   if (summary.status === "DECIDED" && summary.answer === "NOT_ABOVE") {
-    return ["bad", "Kein ausreichender Vorteil für B (Vorteil unterhalb Schwelle · Look-Intervall)"];
+    const threshold = pairedThresholdPp(summary);
+    return threshold === 0
+      ? ["bad", "Kein ausreichender Vorteil für B (B nicht über A · Look-Intervall)"]
+      : ["bad", `Kein ausreichender Vorteil für B (Frage „größer als ${StudioUI.num(threshold, 1)} pp?“ mit nein beantwortet · Look-Intervall nicht über der Schwelle)`];
   }
   return ["warn", pairedThresholdPp(summary) === 0
     ? "Zufall nicht ausgeschlossen (Look-Intervall umfasst Schwelle · kein eindeutiger Unterschied)"
@@ -812,7 +815,7 @@ function renderPairedMonitor(h, job, deps) {
         h("div", {}, h("span", { class: "muted" }, "Basis-Siegrate (A, 95 %-Wilson-CI je Rate): "), h("b", {}, fmtRateCi(interim.base_rate, interim.base_ci95_pp))),
         h("div", {}, h("span", { class: "muted" }, "Varianten-Siegrate (B, 95 %-Wilson-CI je Rate): "), h("b", {}, fmtRateCi(interim.variant_rate, interim.variant_ci95_pp))),
         h("div", {}, h("span", { class: "muted" }, "Delta (B − A): "), h("b", {}, pairedPpText(interim.difference_pp))),
-        h("div", { title: "Ein Intervall zu 95 %, das mit jedem Paar schmaler wird: ein Blick bei jedem Paar belegt nichts (Peeking). Das Intervall zum Look-Niveau steht im Block „Zwischenstand (Look k von K)“." }, h("span", { class: "muted" }, "95 %-Cluster-CI (Delta, unadjustiert, nur beschreibend): "), h("b", {}, fmtCiPp(interim.difference_ci95_pp))),
+        h("div", { title: "Ein Intervall zu 95 %, das mit jedem Paar schmaler wird: ein Blick bei jedem Paar beweist nichts (Peeking). Das Intervall zum Look-Niveau steht im Block „Zwischenstand (Look k von K)“." }, h("span", { class: "muted" }, "95 %-Cluster-CI (Delta, unadjustiert, nur beschreibend): "), h("b", {}, fmtCiPp(interim.difference_ci95_pp))),
         h("div", {}, h("span", { class: "muted" }, "Diskordante Paare: "), h("b", {}, `${pairedNum(interim.variant_only_wins)}B : ${pairedNum(interim.baseline_only_wins)}A · ${pairedNum(interim.tied_pairs)} gleich (${pairedNum(interim.pairs_censored)} zensiert)`))),
       h("p", { class: "note note-compact", id: "paired-interim-pace" }, tempoText),
       partial ? null : renderPairedSeedPairs(h, job.seed_pairs, { pairs_censored: interim.pairs_censored }),
