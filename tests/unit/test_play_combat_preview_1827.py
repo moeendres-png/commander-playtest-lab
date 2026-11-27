@@ -523,6 +523,15 @@ def test_combat_preview_xmage_redactor_real_payloads_and_review_regressions() ->
           drag: { kind: 'attacker', objectId: 'a-pw', name: 'Bear' },
           hoveredTarget: { type: 'object', id: 'pw-uuid-1' }
         });
+        const pwFrameNamedPv = CP.evaluateCombatPreview(
+          {
+            turn: 4, phase: 'combat', step: 'declare_blockers', active_seat: 0, seat: 1,
+            players: pwAtkFrame.players,
+            combat: { attacks: [{ attacker: 'Bear', target: 'Nissa, Who Shakes' }], blocks: [] }
+          },
+          null,
+          {}
+        );
 
         // 7. P3 #13 & #14: post-damage replay step doesn't re-subtract life; maxSel=1 hover replaces staged block
         const postDmgPv = CP.evaluateCombatPreview(
@@ -569,7 +578,7 @@ def test_combat_preview_xmage_redactor_real_payloads_and_review_regressions() ->
 
         console.log(JSON.stringify({
           stagedReal, ledgerPv, blkPreSelect, blkFallbackNoTrick, blkWithPwUncertain,
-          dtZero, dtVsFirstStrike, nonSelfKw, doublerCheck, dupPv, pwHoverPv, postDmgPv, hoverReplacePv
+          dtZero, dtVsFirstStrike, nonSelfKw, doublerCheck, dupPv, pwHoverPv, pwFrameNamedPv, postDmgPv, hoverReplacePv
         }));
         """
     )
@@ -602,6 +611,11 @@ def test_combat_preview_xmage_redactor_real_payloads_and_review_regressions() ->
     assert pw_clash["defenderLabel"] == "Nissa, Who Shakes"
     assert pw_clash["playerDamage"] == 0
     assert "Loyalit." in pw_clash["summaryText"]
+    pw_named_clash = out["pwFrameNamedPv"]["clashes"][0]
+    assert pw_named_clash["defenderLabel"] == "Nissa, Who Shakes"
+    assert pw_named_clash["playerDamage"] == 0
+    assert pw_named_clash["certainty"] == "uncertain"
+    assert any("Planeswalker" in r for r in pw_named_clash["reasons"])
     # P3 #13 & #14
     assert out["postDmgPv"]["seatEffects"].get("1", {}).get("delta", 0) == 0
     assert out["postDmgPv"]["certainty"] == "uncertain"

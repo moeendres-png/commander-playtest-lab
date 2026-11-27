@@ -305,20 +305,22 @@
         return { seat: labelSeat, objectId: null, label: seatNameFn(labelSeat), isPlaneswalker: false };
       }
     }
-    const pwFound = findCardAcrossBoard(frame, defenderRef ? String(defenderRef) : null, labelTarget || null, psCardById, facts);
+    const rawRef = defenderRef ? String(defenderRef).trim() : "";
+    const fallbackName = labelTarget || (rawRef && !/^[0-9a-f-]{36}$/i.test(rawRef) ? rawRef : null);
+    const pwFound = findCardAcrossBoard(frame, rawRef || null, fallbackName, psCardById, facts);
     if (pwFound) {
       return {
         seat: null,
         ownerSeat: pwFound.seat,
-        objectId: pwFound.card.object_id || (defenderRef ? String(defenderRef) : null),
-        label: pwFound.card.name || labelTarget || "Planeswalker",
+        objectId: pwFound.card.object_id || rawRef || null,
+        label: pwFound.card.name || fallbackName || "Planeswalker",
         isPlaneswalker: true
       };
     }
     return {
       seat: null,
       objectId: null,
-      label: labelTarget || "Verteidiger",
+      label: fallbackName || "Verteidiger",
       isPlaneswalker: false
     };
   }
