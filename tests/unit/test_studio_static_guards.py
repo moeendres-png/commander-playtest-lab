@@ -3944,3 +3944,137 @@ def test_a_stored_run_with_draws_is_marked_in_the_pod_matrix_and_the_run_list() 
     assert isinstance(note, list) and all(
         "#1856" in str(n) and "Unentschieden" in str(n) for n in note
     )
+
+
+# --- #1857: a series that replayed failed games says so, in the line and in the status ----------
+
+
+def _replay_entry(kind: str, **extra: object) -> dict[str, object]:
+    return {
+        "game_id": f"batch-b-s{kind}",
+        "seed": 1,
+        "class": kind,
+        "attempts": 1,
+        "last_error_class": "TimeoutExpired" if kind == "timeout" else "Boom",
+        **extra,
+    }
+
+
+def test_the_replay_line_counts_failures_and_timeouts_and_keeps_a_stop_apart() -> None:
+    batch = {
+        "replayed_failures": [
+            _replay_entry("timeout", attempts=2),
+            _replay_entry("failed"),
+            _replay_entry("failed", game_id="batch-b-s9"),
+            _replay_entry("cancelled"),
+        ]
+    }
+    out = _interim_js(f"batchReplayInfo({json.dumps(batch)})")
+    assert isinstance(out, dict)
+    assert out["text"] == (
+        "3 Partien nach Fehlschlag wiederholt (davon Timeout: 1) · "
+        "1 Partie nach Abbruch fortgesetzt"
+    )
+    assert (out["failed"], out["timeouts"], out["stopped"], out["cls"]) == (3, 1, 1, "warn")
+    # the tooltip names the last error and the attempts, never "n x last class"
+    assert "batch-b-sfailed: letzter Fehler: Boom, Versuche: 1" in str(out["title"])
+    assert "batch-b-stimeout: letzter Fehler: TimeoutExpired, Versuche: 2" in str(out["title"])
+    assert "\u00d7" not in str(out["title"])
+    # while the series still runs nothing is claimed as done; singular and plural
+    for status in ("running", "pending"):
+        entries = [
+            _replay_entry("timeout"),
+            _replay_entry("failed", game_id="x"),
+            _replay_entry("cancelled"),
+        ]
+        run = _interim_js(
+            f"batchReplayInfo({json.dumps({'status': status, 'replayed_failures': entries})})"
+        )
+        assert isinstance(run, dict)
+        assert run["text"] == (
+            "2 Partien nach Fehlschlag werden wiederholt (davon Timeout: 1) · "
+            "1 Partie nach Abbruch wird fortgesetzt"
+        )
+    one_run = _interim_js(
+        "batchReplayInfo("
+        + json.dumps({"status": "running", "replayed_failures": [_replay_entry("timeout")]})
+        + ")"
+    )
+    assert isinstance(one_run, dict)
+    assert one_run["text"] == "1 Partie nach Fehlschlag wird wiederholt (davon Timeout: 1)"
+    one = _interim_js(
+        f"batchReplayInfo({json.dumps({'replayed_failures': [_replay_entry('timeout')]})})"
+    )
+    assert isinstance(one, dict)
+    assert one["text"] == "1 Partie nach Fehlschlag wiederholt (davon Timeout: 1)"
+    # only stopped games: no failure is claimed, the pill stays neutral
+    only_stop = _interim_js(
+        f"batchReplayInfo({json.dumps({'replayed_failures': [_replay_entry('cancelled')]})})"
+    )
+    assert isinstance(only_stop, dict)
+    assert only_stop["text"] == "1 Partie nach Abbruch fortgesetzt" and only_stop["cls"] == ""
+    # an unknown attempt count stays text; a failure class that is not named stays "Unbekannt"
+    odd = _interim_js(
+        "batchReplayInfo({replayed_failures: [{game_id: 'g', class: 'failed', attempts: null}]})"
+    )
+    assert (
+        isinstance(odd, dict)
+        and odd["title"] == "g: letzter Fehler: Unbekannt, Versuche: unbekannt"
+    )
+
+
+def test_an_old_record_without_the_key_shows_no_replay_line_and_no_zero() -> None:
+    nothing = _interim_js(
+        "[batchReplayInfo({}), batchReplayInfo(null), batchReplayInfo({replayed_failures: null}),"
+        " batchReplayInfo({replayed_failures: []}), batchReplayInfo({replayed_failures: [null, 3]}),"
+        " batchReplayInfo({replayed_failures: 'x'})]"
+    )
+    assert nothing == [None] * 6
+    status = _interim_js(
+        "[batchCompletedStatus({}, {failed: 0}), batchCompletedStatus({replayed_failures: []},"
+        " {failed: 0})]"
+    )
+    assert status == ["Abgeschlossen", "Abgeschlossen"]
+
+
+def test_the_status_does_not_claim_zero_failures_for_a_series_that_replayed_failed_games() -> None:
+    replayed = {"replayed_failures": [_replay_entry("timeout"), _replay_entry("failed")]}
+    out = _interim_js(
+        f"[batchCompletedStatus({json.dumps(replayed)}, {{failed: 0}}),"
+        f" batchCompletedStatus({json.dumps(replayed)}, {{failed: 1}}),"
+        f" batchCompletedStatus({json.dumps(replayed)}, {{failed: null}}),"
+        f" batchCompletedStatus({json.dumps({'replayed_failures': [_replay_entry('cancelled')]})},"
+        " {failed: 0})]"
+    )
+    assert out == [
+        "Abgeschlossen (0 Fehlschläge in den Endergebnissen; 2 Partien erst nach Fehlschlag "
+        "wiederholt)",
+        "Abgeschlossen (1 fehlgeschlagen)",
+        "Abgeschlossen (Fehlschläge: unbekannt)",
+        "Abgeschlossen",  # a stop is not a failure
+    ]
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    one = _interim_js(
+        f"batchCompletedStatus({json.dumps({'replayed_failures': [_replay_entry('failed')]})},"
+        " {failed: 0})"
+    )
+    assert one == (
+        "Abgeschlossen (0 Fehlschläge in den Endergebnissen; 1 Partie erst nach Fehlschlag "
+        "wiederholt)"
+    )
+    # the badge is not plain green when failed games were replayed
+    assert '(batchReplayInfo(b) || {}).failed > 0 ? "warn" : "good"' in app
+    assert "? batchCompletedStatus(b, classes)" in app
+    assert 'id: "sim-replayed"' in app and "const replayInfo = batchReplayInfo(b);" in app
+    assert "if (replayInfo) {\n      monitor.append(" in app
+
+
+def test_the_replay_helpers_use_no_innerhtml_style_or_tofixed() -> None:
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    block = app[app.index("function batchReplayInfo(") : app.index(_INTERIM_END)]
+    for forbidden in ("innerHTML", "outerHTML", "style:", "style=", ".toFixed(", ".toPrecision("):
+        assert forbidden not in block, forbidden
+    start = app.index("const replayInfo = batchReplayInfo(b);")
+    line = app[start : start + 500]
+    for forbidden in ("innerHTML", "style:", "style=", ".toFixed("):
+        assert forbidden not in line, forbidden

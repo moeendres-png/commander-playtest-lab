@@ -30,7 +30,7 @@ function resolvePriorityOptionType(opt) {
   return ot || "activated_ability";
 }
 
-const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, focusSeat: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, responseMode: "full_control", holdToConfirm: true, haltConfig: typeof StudioTurnBar !== "undefined" ? StudioTurnBar.defaultHaltConfig("full_control") : null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, drag: null, suppressNextClickUntil: 0, hoveredTarget: null, targetModeDismissedId: null, targetPointer: null, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], logRuns: [], logQuery: "", seatKeys: [], poll: 0 };
+const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, focusSeat: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, responseMode: "full_control", holdToConfirm: true, haltConfig: typeof StudioTurnBar !== "undefined" ? StudioTurnBar.defaultHaltConfig("full_control") : null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), combatPreview: null, ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, drag: null, suppressNextClickUntil: 0, hoveredTarget: null, targetModeDismissedId: null, targetPointer: null, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], logRuns: [], logQuery: "", seatKeys: [], poll: 0 };
 
 const $ = (id) => document.getElementById(id);
 function h(tag, props, ...children) {
@@ -534,6 +534,7 @@ function cancelActiveDrag(notifyUser) {
   for (const el of document.querySelectorAll(".dragging-source")) el.classList.remove("dragging-source");
   syncHoverHighlights();
   drawBlockLinks();
+  if (hadDrag && typeof refreshCombatPreviewLive === "function") refreshCombatPreviewLive();
   if (notifyUser && hadDrag) toast("Ziehen abgebrochen — keine Aktion ausgelöst.", 1800);
   return hadDrag;
 }
@@ -563,9 +564,13 @@ function bindPointerDrag(el, configFn) {
       }
       const hit = hitTestDragTarget(cx, cy, cfg);
       state.drag.overBoard = hit.overBoard;
+      const prevTarget = state.hoveredTarget;
       state.hoveredTarget = hit.target;
       syncHoverHighlights();
       drawBlockLinks();
+      if (JSON.stringify(prevTarget) !== JSON.stringify(hit.target) && (cfg.kind === "attacker" || cfg.kind === "blocker") && typeof refreshCombatPreviewLive === "function") {
+        refreshCombatPreviewLive();
+      }
     };
     const onMove = (moveEv) => {
       if (!started) {
@@ -969,6 +974,13 @@ function cardTile(name, options = {}) {
     const bClass = `badge combat${options.blocking ? " blocking" : ""}${options.targeted ? " targeted" : ""}`;
     el.append(h("span", { class: bClass, title: badge }, badge));
   }
+  const combatOutcome = options.objectId && state.combatPreview && state.combatPreview.creatureOutcomes
+    ? state.combatPreview.creatureOutcomes[options.objectId]
+    : null;
+  if (combatOutcome) {
+    const outClass = `badge preview-${combatOutcome.outcome === "dies" ? "dies" : (combatOutcome.outcome === "uncertain" ? "uncertain" : "survives")}`;
+    el.append(h("span", { class: outClass, title: `Kampf-Vorschau: ${combatOutcome.text}` }, `${combatOutcome.icon} ${combatOutcome.outcome === "dies" ? "Stirbt" : (combatOutcome.outcome === "uncertain" ? "Offen" : "Überlebt")}`));
+  }
   hover(el, name);
   bindCardZoom(el, name);
   return el;
@@ -979,7 +991,8 @@ function grouped(cards) {
   const groups = new Map();
   for (const card of cards) {
     const own = state.clickActive && card.object_id && state.click.objects[card.object_id] ? card.object_id : null;
-    const key = JSON.stringify([card.name, card.tapped, card.power, card.toughness, card.damage, card.counters || null, own]);
+    const previewOwn = card.object_id && state.combatPreview && state.combatPreview.creatureOutcomes && state.combatPreview.creatureOutcomes[card.object_id] ? card.object_id : null;
+    const key = JSON.stringify([card.name, card.tapped, card.power, card.toughness, card.damage, card.counters || null, own || previewOwn]);
     const entry = groups.get(key) || { card, count: 0 };
     entry.count += 1; groups.set(key, entry);
   }
@@ -1115,9 +1128,21 @@ function seatPanel(player, frame) {
   const cmdMatrix = typeof StudioBoardUX !== "undefined"
     ? StudioBoardUX.buildCommanderMatrix(frame, player.seat, seatName)
     : null;
+  const seatCombatEff = state.combatPreview && state.combatPreview.seatEffects
+    ? state.combatPreview.seatEffects[player.seat]
+    : null;
+  const seatDeltaPill = seatCombatEff && (seatCombatEff.delta !== 0 || !seatCombatEff.certain)
+    ? h("span", {
+        class: `seat-life-preview${seatCombatEff.lethal ? " lethal" : (seatCombatEff.delta > 0 ? " gain" : "")}`,
+        title: seatCombatEff.certain ? "Kampf-Vorschau aus offenen Informationen" : "Kampf-Vorschau (mit Unsicherheiten)"
+      }, seatCombatEff.delta !== 0
+        ? `${seatCombatEff.certain ? "" : "≈ "}→ ${seatCombatEff.newLife} (${seatCombatEff.delta > 0 ? `+${seatCombatEff.delta}` : seatCombatEff.delta}${seatCombatEff.lethal ? " 💀" : ""})`
+        : "≈ offen")
+    : null;
   return h("div", { class: classes, "data-seat": String(player.seat) },
     h("div", { class: "seat-head" },
       h("span", { class: lifeCls, "data-danger": lifeInfo.dangerLevel }, String(lifeInfo.displayLife)),
+      seatDeltaPill,
       h("b", { class: `s${player.seat}` }, seatName(player.seat)),
       h("span", null, seatLabel(player.seat)),
       h("span", { class: "muted" }, info.deck_id || ""),
@@ -1933,6 +1958,87 @@ function renderOwnCombat(frame, atLiveTail) {
   box.hidden = false;
 }
 
+function computeCurrentCombatPreview(frame, atLiveTail) {
+  if (typeof StudioCombatPreviewUX === "undefined" || !StudioCombatPreviewUX.evaluateCombatPreview || !frame) {
+    state.combatPreview = null;
+    return null;
+  }
+  const latestFrame = Array.isArray(state.frames) && state.frames.length ? state.frames[state.frames.length - 1] : null;
+  const preview = StudioCombatPreviewUX.evaluateCombatPreview(frame, atLiveTail ? state.pendingDecision : null, {
+    selectedOptions: state.selectedOptions,
+    ownCombat: state.ownCombat,
+    hoveredTarget: state.hoveredTarget,
+    drag: state.drag,
+    seatName,
+    isLand: typeof isLand === "function" ? isLand : null,
+    facts: state.facts,
+    fallbackCombat: atLiveTail && latestFrame && latestFrame.combat && latestFrame.turn === frame.turn && latestFrame.phase === "combat" ? latestFrame.combat : null
+  });
+  state.combatPreview = preview;
+  return preview;
+}
+
+function renderCombatPreview(preview) {
+  const box = $("combat-preview");
+  if (!box) return;
+  box.textContent = "";
+  if (!preview || !preview.visible) {
+    box.hidden = true;
+    box.className = "combat-preview";
+    return;
+  }
+  const uncertain = preview.certainty === "uncertain";
+  box.className = `combat-preview ${uncertain ? "uncertain" : "certain"}`;
+  const badgeText = uncertain ? "⚠️ Mit Unsicherheiten" : "✓ Aus offenen Infos eindeutig";
+  box.append(
+    h("div", { class: "combat-preview-head" },
+      h("span", { class: "combat-preview-title" }, "Kampf-Vorschau (Oracle's Eye)"),
+      h("span", { class: `combat-preview-badge ${uncertain ? "uncertain" : "certain"}` }, badgeText)
+    )
+  );
+  if (preview.uncertaintyReasons && preview.uncertaintyReasons.length) {
+    box.append(
+      h("p", { class: "combat-preview-warn" }, preview.uncertaintyReasons.slice(0, 3).join(" · "))
+    );
+  }
+  const seatChips = Object.values(preview.seatEffects || {})
+    .filter((eff) => eff && (eff.delta !== 0 || !eff.certain))
+    .map((eff) => {
+      const sign = eff.delta > 0 ? `+${eff.delta}` : String(eff.delta);
+      const cls = `combat-life-chip${eff.lethal ? " lethal" : (eff.delta > 0 ? " gain" : (eff.delta < 0 ? " loss" : ""))}`;
+      const lifePart = eff.currentLife !== null
+        ? `${eff.currentLife} → ${eff.newLife} (${eff.certain ? "" : "≈ "}${sign})`
+        : `${eff.certain ? "" : "≈ "}${sign} Leben`;
+      return h("span", { class: cls }, `${eff.label}: ${eff.delta !== 0 ? lifePart : "offen (Unsicherheit)"}${eff.lethal ? " · Tödlich" : ""}`);
+    });
+  if (seatChips.length) {
+    box.append(h("div", { class: "combat-preview-seats" }, ...seatChips));
+  }
+  box.append(
+    h("ul", { class: "combat-preview-list" }, preview.clashes.map((clash) =>
+      h("li", { class: `combat-preview-row${clash.staged ? " staged" : ""}` },
+        h("div", null, `${clash.staged ? "[Auswahl] " : ""}${clash.summaryText}`),
+        clash.reasons && clash.reasons.length
+          ? h("div", { class: "combat-preview-row-note" }, `Unsicher: ${clash.reasons.join("; ")}`)
+          : null
+      )
+    ))
+  );
+  box.hidden = false;
+}
+
+function refreshCombatPreviewLive() {
+  const atLiveTail = state.interactive && state.running && state.pendingDecision && state.index >= Math.max(0, state.frames.length - 1);
+  const frame = atLiveTail ? pilotStateToFrame(state.pendingDecision) : state.frames[state.index];
+  if (!frame) {
+    state.combatPreview = null;
+    renderCombatPreview(null);
+    return;
+  }
+  const preview = computeCurrentCombatPreview(frame, atLiveTail);
+  renderCombatPreview(preview);
+}
+
 function clearStagedHand() {
   state.stagedHand = null;
   state.autoPayPlan = null;
@@ -2545,6 +2651,8 @@ function renderView() {
   const table = $("table");
   if (!frame) {
     state.seatKeys = [];
+    state.combatPreview = null;
+    if (typeof renderCombatPreview === "function") renderCombatPreview(null);
     if ($("table-mode-bar")) $("table-mode-bar").hidden = true;
     if ($("replay-timeline")) $("replay-timeline").hidden = true;
     if (typeof renderPhaseBar === "function") renderPhaseBar(null, false);
@@ -2602,7 +2710,17 @@ function renderView() {
   const castingSig = typeof StudioBoardUX !== "undefined" && StudioBoardUX.detectCastingSeat
     ? StudioBoardUX.detectCastingSeat(frame, atLiveTail ? state.pendingDecision : null)
     : null;
-  const keys = frame.players.map((player) => JSON.stringify([player, frame.active_seat, frame.seat, humanPendingSeat, waitSeatSig, castingSig, frame.commanders, state.focusSeat, finished, clickSig, stagedSourcesSig]));
+  const previewObj = typeof computeCurrentCombatPreview === "function"
+    ? computeCurrentCombatPreview(frame, atLiveTail)
+    : null;
+  const previewSig = previewObj && previewObj.visible
+    ? JSON.stringify([
+        previewObj.certainty,
+        previewObj.clashes.map((c) => [c.attackerId, c.attackerSeat, c.defenderSeat, c.certainty, c.playerDamage, c.blockers.map((b) => [b.blockerId, b.dies])]),
+        Object.entries(previewObj.seatEffects || {}).map(([s, e]) => [s, e.delta, e.newLife, e.certain, e.lethal])
+      ])
+    : "";
+  const keys = frame.players.map((player) => JSON.stringify([player, frame.active_seat, frame.seat, humanPendingSeat, waitSeatSig, castingSig, frame.commanders, state.focusSeat, finished, clickSig, stagedSourcesSig, previewSig]));
   if (table.dataset.banner !== banner || keys.length !== state.seatKeys.length) {
     table.textContent = ""; state.seatKeys = []; table.dataset.banner = banner;
     if (finished) {
@@ -2640,6 +2758,7 @@ function renderView() {
     h("div", { class: "ask" }, ...askNodes),
     h("div", { class: "hint" }, "Der Spielstand zeigt den Tisch zum Zeitpunkt der Frage; das Ergebnis der gewählten Aktion wird im nächsten Schritt sichtbar."));
   renderOwnCombat(frame, atLiveTail);
+  if (typeof renderCombatPreview === "function") renderCombatPreview(state.combatPreview);
   renderStackRail(frame, atLiveTail);
   const actor = frame.players.find((player) => player.seat === frame.seat);
   const handOwner = actor && Array.isArray(actor.hand)
@@ -3149,7 +3268,7 @@ async function openGame(gameId) {
   restoreAiDelayOnLeave(state.gameId);
   const listed = state.games.find((entry) => entry.game_id === gameId);
   const listedInteractive = Boolean(listed && listed.header && Array.isArray(listed.header.human_seats) && listed.header.human_seats.length);
-  Object.assign(state, { gameId, cohortRecord: null, focusSeat: null, frames: [], lines: [], logRuns: [], logQuery: "", index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, pollFailures: 0, revision: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
+  Object.assign(state, { gameId, cohortRecord: null, focusSeat: null, frames: [], lines: [], logRuns: [], logQuery: "", index: 0, seatKeys: [], header: null, result: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, pollFailures: 0, revision: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), combatPreview: null, ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
   if ($("log-search")) $("log-search").value = "";
   if ($("table-mode-bar")) $("table-mode-bar").hidden = true;
   ffStatus(""); showConnectionLost(0, ""); renderCohortPill();
@@ -3534,9 +3653,11 @@ async function listGames(wanted) {
     if ($("replay-timeline")) { $("replay-timeline").hidden = true; $("replay-timeline").textContent = ""; }
     if ($("stack-count")) $("stack-count").textContent = "";
     state.ownCombat = StudioPlayP1a.emptyCombatLedger();
+    state.combatPreview = null;
     $("game-info").textContent = "";
     $("now").textContent = "";
     if ($("own-combat")) { $("own-combat").textContent = ""; $("own-combat").hidden = true; }
+    if ($("combat-preview")) { $("combat-preview").textContent = ""; $("combat-preview").hidden = true; }
     $("stack").textContent = "";
     $("hand").textContent = "";
     $("log").textContent = "";

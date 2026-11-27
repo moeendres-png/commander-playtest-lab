@@ -1026,6 +1026,90 @@ def _is_draw(game: GameSummary) -> bool:
     return game.status == "finished" and not game.winner_seats
 
 
+#: Names of the failure classes a replay counts apart, in the order of their weight: a game that
+#: ran into a time limit at any attempt stays a ``timeout``, a failure is never downgraded by a
+#: later stop, and an aborted game (``cancelled``) is not a failure at all.
+REPLAY_CLASSES = ("timeout", "failed", "cancelled")
+_TIMEOUT_MARKERS = ("timeout", "timelimit")
+
+
+def replay_class_of(failure_class: str | None, *, cancelled: bool) -> str:
+    """The class of one dropped row: ``cancelled``, ``timeout`` or ``failed`` (unknown: failed)."""
+    if cancelled:
+        return "cancelled"
+    text = (failure_class or "").lower()
+    return "timeout" if any(marker in text for marker in _TIMEOUT_MARKERS) else "failed"
+
+
+@dataclass
+class ReplayedFailure:
+    """A game whose failed or stopped row a resume dropped to play its seed again (#1857).
+
+    The final figures count only the latest row of a game; this is the trace of the rows that were
+    replaced, so a failure does not vanish from the record (G-SIM point 2). ``attempts`` is the
+    number of dropped rows of the game over all resumes, ``kind`` the heaviest class of them (see
+    ``REPLAY_CLASSES``), ``last_error_class`` the raw ``failure_class`` of the latest dropped row
+    (None: the row named none, unknown).
+    """
+
+    game_id: str
+    seed: int | None
+    kind: str
+    attempts: int
+    last_error_class: str | None
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "game_id": self.game_id,
+            "seed": self.seed,
+            "class": self.kind,
+            "attempts": self.attempts,
+            "last_error_class": self.last_error_class,
+        }
+
+    def merged_with(self, kind: str, last_error_class: str | None) -> ReplayedFailure:
+        """This entry plus one more dropped row of the same game."""
+        weight = {name: index for index, name in enumerate(REPLAY_CLASSES)}
+        heaviest = min((self.kind, kind), key=lambda name: weight.get(name, len(weight)))
+        return ReplayedFailure(
+            game_id=self.game_id,
+            seed=self.seed,
+            kind=heaviest,
+            attempts=self.attempts + 1,
+            last_error_class=last_error_class,
+        )
+
+
+def replayed_failures_from_record(raw: object) -> list[ReplayedFailure]:
+    """The replay history a saved series record holds; a record without it (older) gives none,
+    an entry that is not readable is left out, an unreadable class counts as ``failed``."""
+    if not isinstance(raw, list):
+        return []
+    entries: list[ReplayedFailure] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        game_id = item.get("game_id")
+        attempts = item.get("attempts")
+        if not isinstance(game_id, str) or not game_id:
+            continue
+        if isinstance(attempts, bool) or not isinstance(attempts, int) or attempts < 1:
+            continue
+        seed = item.get("seed")
+        kind = item.get("class")
+        last = item.get("last_error_class")
+        entries.append(
+            ReplayedFailure(
+                game_id=game_id,
+                seed=seed if isinstance(seed, int) and not isinstance(seed, bool) else None,
+                kind=kind if isinstance(kind, str) and kind in REPLAY_CLASSES else "failed",
+                attempts=attempts,
+                last_error_class=last if isinstance(last, str) and last else None,
+            )
+        )
+    return entries
+
+
 def aggregate_batch_results(
     games: Sequence[GameSummary],
     deck_card_names: Sequence[str] | None = None,
@@ -1632,6 +1716,7 @@ class BatchSimulation:
         qualification: Mapping[str, object] | None = None,
         opponent_ids: Sequence[str] | None = None,
         record_pilot_audit: bool = False,
+        replayed_failures: Sequence[ReplayedFailure] | None = None,
     ) -> None:
         self.batch_id = batch_id
         #: The opponents as asked for (None: the pod preset), so a resume plays the same table
@@ -1670,6 +1755,14 @@ class BatchSimulation:
 
         # Track completed vs remaining seeds for resumable execution
         self._games: list[GameSummary] = list(initial_games or [])
+        #: Games whose failed or stopped row a resume dropped, by game id (#1857): a trace in the
+        #: record only, never an input of the figures (they count the latest row of a game).
+        self._replayed: dict[str, ReplayedFailure] = {
+            entry.game_id: entry for entry in (replayed_failures or [])
+        }
+        #: Rows of a loaded record that were not finished and that the load did not carry over
+        #: (``from_saved_series``): a resume adds them to the replay history, see ``resume_batch``.
+        self.record_dropped: list[tuple[str, str | None, bool]] = []
         completed_seeds = {g.seed for g in self._games if g.status == "finished"}
         remaining_seeds = [s for s in self.seeds if s not in completed_seeds]
         self.chunks = plan_chunks(remaining_seeds, self.workers, self.games_per_jvm)
@@ -1740,6 +1833,42 @@ class BatchSimulation:
 
     def game_id_of(self, seed: int) -> str:
         return f"batch-{self.batch_id}-s{seed}"
+
+    def note_replayed(self, dropped: Sequence[tuple[str, str | None, bool]]) -> None:
+        """Add the rows a resume drops to the replay history (takes the lock)."""
+        with self._lock:
+            self._note_replayed_locked(dropped)
+
+    def _note_replayed_locked(self, dropped: Sequence[tuple[str, str | None, bool]]) -> None:
+        """The same, caller holds the lock.
+
+        Each item is ``(game_id, failure_class, cancelled)`` of one dropped row that was not
+        finished. A game never started has no row and is never here (#1857). The seed comes from
+        the plan, not from the row: a row of an unreadable log carries seed 0.
+        """
+        by_id = {self.game_id_of(seed): seed for seed in self.seeds}
+        for game_id, failure_class, cancelled in dropped:
+            kind = replay_class_of(failure_class, cancelled=cancelled)
+            known = self._replayed.get(game_id)
+            if known is None:
+                self._replayed[game_id] = ReplayedFailure(
+                    game_id=game_id,
+                    seed=by_id.get(game_id),
+                    kind=kind,
+                    attempts=1,
+                    last_error_class=failure_class,
+                )
+            else:
+                self._replayed[game_id] = known.merged_with(kind, failure_class)
+
+    def _replayed_in_order(self) -> list[dict[str, object]]:
+        """The replay history for the record, in seed order (an unmapped game id last); caller
+        holds the lock."""
+        order = {self.game_id_of(seed): index for index, seed in enumerate(self.seeds)}
+        entries = sorted(
+            self._replayed.values(), key=lambda e: (order.get(e.game_id, len(order)), e.game_id)
+        )
+        return [entry.to_dict() for entry in entries]
 
     def execution(self) -> dict[str, object]:
         """The execution identity of the series: how its games were run, not what they were."""
@@ -1887,6 +2016,9 @@ class BatchSimulation:
                 "consistency_table": consistency_table,
                 "summary": self._summary,
                 "games": [g.to_dict() for g in games],
+                # #1857: the games a resume played again after a failed or stopped row; the
+                # figures above count only the latest row of a game, this is the trace of the rest
+                "replayed_failures": self._replayed_in_order(),
             }
             if live:
                 # #1828: an interim of the games finished so far; ``summary`` stays the final one.
@@ -1959,6 +2091,24 @@ class BatchSimulation:
                 except Exception:
                     pass
 
+        # The rows of the record that were not finished and whose game is not finished on disk
+        # either: this load does not carry them over, a resume plays them again (#1857).
+        finished_ids = {g.game_id for g in completed_games}
+        record_dropped: list[tuple[str, str | None, bool]] = []
+        raw_games = raw.get("games")
+        # one row per game, the latest (as in memory); a record from before #1854 can hold two
+        latest_rows: dict[str, dict[str, object]] = {}
+        for row in raw_games if isinstance(raw_games, list) else []:
+            row_key = row.get("game_id") if isinstance(row, dict) else None
+            if isinstance(row, dict) and isinstance(row_key, str) and row_key:
+                latest_rows[row_key] = row
+        for row_id, row in latest_rows.items():
+            if row.get("status") == "finished" or row_id in finished_ids:
+                continue
+            row_class = row.get("failure_class")
+            failure_class = row_class if isinstance(row_class, str) and row_class else None
+            record_dropped.append((row_id, failure_class, failure_class == CANCELLED_CLASS))
+
         # Resolve opponents if needed: the stored ids, else the stored pod preset; an unknown
         # one is an error, never a stand-in deck (B2, #1658)
         raw_ids = raw.get("opponent_ids")
@@ -1994,7 +2144,7 @@ class BatchSimulation:
             else (saved_qual if isinstance(saved_qual, dict) else None)
         )
 
-        return cls(
+        batch = cls(
             batch_id=batch_id,
             data_folder=data_path,
             deck_id=deck_id,
@@ -2012,7 +2162,10 @@ class BatchSimulation:
             bridge_jar_sha256=resolved_sha,
             qualification=resolved_qual,
             record_pilot_audit=saved_audit,
+            replayed_failures=replayed_failures_from_record(raw.get("replayed_failures")),
         )
+        batch.record_dropped = record_dropped
+        return batch
 
     def run_worker(
         self,
@@ -2595,6 +2748,15 @@ class SimulationBatchManager:
             completed_seeds = {g.seed for g in completed_games}
             remaining_seeds = [s for s in existing.seeds if s not in completed_seeds]
             with existing._lock:
+                # The old rows of a replayed game are dropped below; their trace stays (#1857).
+                # Only rows that exist are counted: a game never started has none.
+                existing._note_replayed_locked(
+                    [
+                        (g.game_id, g.failure_class, _is_cancelled(g))
+                        for g in latest_row_per_game(existing._games)
+                        if g.status != "finished"
+                    ]
+                )
                 existing._games = completed_games
                 existing._played = {g.game_id for g in completed_games}
                 existing.chunks = plan_chunks(remaining_seeds, used_workers, used_games_per_jvm)
@@ -2619,6 +2781,9 @@ class SimulationBatchManager:
                 bridge_jar_sha256=jar_sha,
                 qualification=qual,
             )
+            # the failed and stopped rows of the record are played again: keep their trace
+            batch.note_replayed(batch.record_dropped)
+            batch.record_dropped = []
 
         with self._lock:
             self._batches[batch_id] = batch

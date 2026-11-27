@@ -870,6 +870,8 @@ def test_two_series_started_in_one_second_keep_two_run_ids(
         second = _start(manager, store, tmp_path, rev_id, 20)  # same second, same deck slug
         _wait(first)
         _wait(second)
+        _wait_for_record(tmp_path, first)  # the record is written after the status flips
+        _wait_for_record(tmp_path, second)
         assert first.status == "completed" and second.status == "completed"
         # the first id of a second keeps its old form, the later one only gains a suffix
         assert first.batch_id == "batch-1800000000-chulane"
@@ -977,7 +979,10 @@ def test_a_taken_batch_id_is_refused_and_nothing_is_changed(
         rev_id = _seed_test_deck(store)
         manager = SimulationBatchManager()
         for base in (10, 20):
-            _wait(_start(manager, store, tmp_path, rev_id, base))
+            started = _start(manager, store, tmp_path, rev_id, base)
+            _wait(started)
+            # the record is written after the status flips: wait for it before the snapshot
+            _wait_for_record(tmp_path, started)
         records = {
             p.name: p.read_text("utf-8") for p in games.games_folder(tmp_path).glob("*.series.json")
         }
@@ -2914,6 +2919,7 @@ def test_a_stopped_series_keeps_its_partial_flagged_and_is_never_stored(tmp_path
         # never persisted: no run row, no id, and the saved record has no interim keys
         assert batch.run_id is None
         assert _runs_in_store(store) == 0
+        assert batch.worker_done.wait(5)  # the record is written before this is set
         records = list(tmp_path.rglob("*.series.json"))
         assert len(records) == 1
         saved = json.loads(records[0].read_text(encoding="utf-8"))
@@ -3108,7 +3114,8 @@ def test_a_resumed_series_counts_one_row_per_seed_in_the_final_result_and_the_ev
         assert isinstance(games, list) and len(games) == 10
         assert {g["status"] for g in games} == {"finished"}
         assert payload["run_id"] == f"batch-{first.batch_id}"
-        # the resume drops the old row of a replayed seed (the history is not kept, #1852)
+        # the resume drops the old row of a replayed seed; its trace is the record's
+        # ``replayed_failures`` (#1857), never a row next to the new result (#1852)
         assert sum(1 for g in resumed._games if g.failure_class == "Cancelled") == 0
         row = store.connection.execute(
             "SELECT games_planned, games_completed, games_failed FROM simulation_run"
@@ -3471,4 +3478,476 @@ def test_the_rounds_statistic_of_a_stopped_series_censors_over_the_games_that_st
         # the planned N stays in the counts row and the summary
         assert rows["games_completed"]["n_of_N"] == "4/10" and summary["games_planned"] == 10
     finally:
+        store.close()
+
+
+# --- #1857: a resume keeps the trace of the failed or stopped rows it replaces ------------------
+
+
+def _replay_start(
+    store: StudioStore,
+    folder: Path,
+    manager: SimulationBatchManager,
+    plan: dict[int, list[str]],
+    *,
+    games: int = 6,
+) -> BatchSimulation:
+    """A series of ``games`` (seeds 700..): per seed ``plan`` lists the failure classes of its
+    next attempts (``Cancelled`` is a stopped row); once the list is empty the seed is won by
+    seat 0 (even seeds) or seat 1. Rows carry the real game ids of the batch."""
+    holder: list[BatchSimulation] = []
+    ready = threading.Event()
+
+    def runner(seeds: Sequence[int]) -> Iterator[GameSummary]:
+        assert ready.wait(5)
+        yield from _replay_rows(holder[0], plan, seeds)
+
+    batch = manager.start_batch(
+        store,
+        folder,
+        revision_id=_seed_test_deck(store),
+        pod="precon",
+        games_count=games,
+        base_seed=700,
+        workers=1,
+        chunk_runner=runner,
+    )
+    holder.append(batch)
+    ready.set()
+    _wait(batch)
+    assert batch.worker_done.wait(5)
+    batch.chunk_runner = lambda seeds: _replay_rows(batch, plan, seeds)
+    return batch
+
+
+def _replay_rows(
+    batch: BatchSimulation, plan: dict[int, list[str]], seeds: Sequence[int]
+) -> Iterator[GameSummary]:
+    for seed in seeds:
+        attempts = plan.get(seed, [])
+        if attempts:
+            failure = attempts.pop(0)
+            yield GameSummary(
+                game_id=batch.game_id_of(seed),
+                seed=seed,
+                status="failed",
+                failure_class=failure,
+                failure_message="planned failure",
+            )
+            continue
+        won = seed % 2 == 0
+        yield GameSummary(
+            game_id=batch.game_id_of(seed),
+            seed=seed,
+            status="finished",
+            winner_seats=[0] if won else [1],
+            rounds=6,
+            candidate_won=won,
+            table_size=4,
+            starting_player_seat=0,
+        )
+
+
+def _resume(
+    store: StudioStore, folder: Path, manager: SimulationBatchManager, batch: BatchSimulation
+) -> BatchSimulation:
+    resumed = manager.resume_batch(store, folder, batch.batch_id, workers=1)
+    _wait(resumed)
+    assert resumed.worker_done.wait(5)
+    return resumed
+
+
+def _replayed(payload: dict[str, object]) -> list[dict[str, object]]:
+    value = payload["replayed_failures"]
+    assert isinstance(value, list)
+    return value  # type: ignore[return-value]
+
+
+def _record_of(folder: Path, batch: BatchSimulation) -> dict[str, object]:
+    return json.loads((folder / "games" / f"{batch.batch_id}.series.json").read_text("utf-8"))  # type: ignore[no-any-return]
+
+
+def _run_row(store: StudioStore) -> list[tuple[object, ...]]:
+    rows = store.connection.execute(
+        "SELECT games_planned, games_completed, games_failed, wins_fractional, win_rate "
+        "FROM simulation_run"
+    ).fetchall()
+    return [tuple(r) for r in rows]
+
+
+def test_a_failed_seed_that_succeeds_after_a_resume_leaves_its_trace_in_the_record(
+    tmp_path: Path,
+) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        manager = SimulationBatchManager()
+        batch = _replay_start(store, tmp_path, manager, {702: ["TimeoutExpired"]})
+        first = batch.to_dict()
+        assert (first["games_completed"], first["games_failed"]) == (5, 1)
+        assert first["replayed_failures"] == []  # nothing is replayed yet
+        first_run = _run_row(store)
+        assert [r[:3] for r in first_run] == [(6, 5, 1)]
+        resumed = _resume(store, tmp_path, manager, batch)
+        payload = resumed.to_dict()
+        assert (payload["games_completed"], payload["games_failed"]) == (6, 0)
+        assert _replayed(payload) == [
+            {
+                "game_id": batch.game_id_of(702),
+                "seed": 702,
+                "class": "timeout",
+                "attempts": 1,
+                "last_error_class": "TimeoutExpired",
+            }
+        ]
+        # the figures are the latest row of each game: the failure does not change them
+        assert [r[:3] for r in _run_row(store)] == [(6, 6, 0)]
+        assert _replayed(_record_of(tmp_path, batch)) == _replayed(payload)
+        # the history is not in the summary, the execution identity or the stored run
+        assert "replayed" not in json.dumps(payload["summary"])
+        assert "replayed" not in json.dumps(payload["execution"])
+    finally:
+        store.close()
+
+
+def test_a_stopped_series_that_is_resumed_records_only_the_row_that_existed(
+    tmp_path: Path,
+) -> None:
+    """A stop at 4 finished games and one ``Cancelled`` row: the resume replays that one game;
+    the five games that never started have no row and no entry; the class is ``cancelled``."""
+    store = StudioStore.open(tmp_path / "studio")
+    reached, release = threading.Event(), threading.Event()
+    holder: list[BatchSimulation] = []
+    ready = threading.Event()
+
+    def stopping(seeds: Sequence[int]) -> Iterator[GameSummary]:
+        assert ready.wait(5)
+        ordered = list(seeds)
+        yield from _replay_rows(holder[0], {}, ordered[:4])
+        yield GameSummary(
+            game_id=holder[0].game_id_of(ordered[4]),
+            seed=ordered[4],
+            status="failed",
+            failure_class="Cancelled",
+            failure_message="cancelled",
+        )
+        reached.set()
+        assert release.wait(10)
+
+    try:
+        manager = SimulationBatchManager()
+        batch = manager.start_batch(
+            store,
+            tmp_path,
+            revision_id=_seed_test_deck(store),
+            pod="precon",
+            games_count=10,
+            base_seed=700,
+            workers=1,
+            chunk_runner=stopping,
+        )
+        holder.append(batch)
+        ready.set()
+        assert reached.wait(5)
+        assert manager.cancel_batch(batch.batch_id)
+        release.set()
+        _wait(batch)
+        assert batch.worker_done.wait(5) and batch.status == "cancelled"
+        assert _replayed(batch.to_dict()) == []
+        batch.chunk_runner = lambda seeds: _replay_rows(batch, {}, seeds)
+        resumed = _resume(store, tmp_path, manager, batch)
+        assert resumed.status == "completed"
+        assert _replayed(resumed.to_dict()) == [
+            {
+                "game_id": batch.game_id_of(704),
+                "seed": 704,
+                "class": "cancelled",
+                "attempts": 1,
+                "last_error_class": "Cancelled",
+            }
+        ]
+        assert _replayed(_record_of(tmp_path, batch)) == _replayed(resumed.to_dict())
+    finally:
+        release.set()
+        store.close()
+
+
+def test_two_resumes_add_up_the_attempts_of_a_game_and_a_failure_is_never_downgraded(
+    tmp_path: Path,
+) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        manager = SimulationBatchManager()
+        plan = {
+            702: ["TimeoutExpired", "BRIDGE_TIMEOUT"],
+            703: ["ChunkProcessExited", "Cancelled"],
+            705: ["Boom"],
+        }
+        batch = _replay_start(store, tmp_path, manager, plan)
+        _resume(store, tmp_path, manager, batch)  # 702 and 703 fail again, 705 now succeeds
+        mid = batch.to_dict()
+        assert [(e["seed"], e["attempts"]) for e in _replayed(mid)] == [
+            (702, 1),
+            (703, 1),
+            (705, 1),
+        ]
+        assert (mid["games_completed"], mid["games_failed"], mid["games_cancelled"]) == (4, 1, 1)
+        _resume(store, tmp_path, manager, batch)
+        final = batch.to_dict()
+        assert (final["games_completed"], final["games_failed"]) == (6, 0)
+        assert [
+            (e["seed"], e["class"], e["attempts"], e["last_error_class"]) for e in _replayed(final)
+        ] == [
+            (702, "timeout", 2, "BRIDGE_TIMEOUT"),
+            (703, "failed", 2, "Cancelled"),  # the later stop does not turn the failure away
+            (705, "failed", 1, "Boom"),
+        ]
+        assert _replayed(_record_of(tmp_path, batch)) == _replayed(final)
+    finally:
+        store.close()
+
+
+def test_the_history_survives_a_restart_in_the_record_and_in_the_route(tmp_path: Path) -> None:
+    """In-memory resume, then a restart (a new manager reads the record): the attempts keep
+    adding up; the route serves the history from the record."""
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        manager = SimulationBatchManager()
+        plan = {702: ["TimeoutExpired", "TimeoutExpired", "Boom"]}
+        batch = _replay_start(store, tmp_path, manager, plan)
+        _resume(store, tmp_path, manager, batch)  # 702 fails again: record says attempts 1
+        client = TestClient(create_app(tmp_path))
+        served = client.get(f"/api/simulations/batch/{batch.batch_id}").json()
+        assert served["status"] == "completed" and served["games_failed"] == 1
+        assert [(e["seed"], e["attempts"]) for e in served["replayed_failures"]] == [(702, 1)]
+
+        restarted = SimulationBatchManager()  # a new process: nothing in memory
+        holder: list[BatchSimulation] = []
+        ready = threading.Event()
+
+        def replay(seeds: Sequence[int]) -> Iterator[GameSummary]:
+            assert ready.wait(5)  # the runner needs the resumed batch for its game ids
+            yield from _replay_rows(holder[0], plan, seeds)
+
+        resumed = restarted.resume_batch(
+            store,
+            tmp_path,
+            batch.batch_id,
+            workers=1,
+            chunk_runner=replay,
+        )
+        holder.append(resumed)
+        ready.set()
+        _wait(resumed)
+        assert resumed.worker_done.wait(5)
+        # the record's failed row was dropped once more: 2 attempts, the game fails again (Boom)
+        assert [(e["seed"], e["attempts"]) for e in _replayed(resumed.to_dict())] == [(702, 2)]
+        assert resumed.to_dict()["games_failed"] == 1
+        # a third resume of the restarted series (in memory again) succeeds
+        again = _resume(store, tmp_path, restarted, resumed)
+        final = _replayed(again.to_dict())
+        assert [(e["seed"], e["class"], e["attempts"]) for e in final] == [(702, "timeout", 3)]
+        served = client.get(f"/api/simulations/batch/{batch.batch_id}").json()
+        assert served["replayed_failures"] == final and served["games_failed"] == 0
+    finally:
+        store.close()
+
+
+def test_a_record_without_the_key_is_served_without_it_and_loads_as_no_history(
+    tmp_path: Path,
+) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        manager = SimulationBatchManager()
+        batch = _replay_start(store, tmp_path, manager, {702: ["Boom"]})
+        path = tmp_path / "games" / f"{batch.batch_id}.series.json"
+        record = json.loads(path.read_text("utf-8"))
+        del record["replayed_failures"]  # a record written before #1857
+        path.write_text(json.dumps(record), encoding="utf-8")
+        served = TestClient(create_app(tmp_path)).get(f"/api/simulations/batch/{batch.batch_id}")
+        assert "replayed_failures" not in served.json()  # unknown, not an empty history
+        loaded = BatchSimulation.from_saved_series(
+            tmp_path, batch.batch_id, chunk_runner=lambda s: iter(())
+        )
+        assert loaded.to_dict()["replayed_failures"] == []
+        # the failed row of the old record is still dropped by a resume and is not lost
+        resumed = SimulationBatchManager().resume_batch(
+            store, tmp_path, batch.batch_id, workers=1, chunk_runner=lambda seeds: iter(())
+        )
+        _wait(resumed)
+        assert resumed.worker_done.wait(5)
+        entries = _replayed(resumed.to_dict())
+        assert [(e["seed"], e["attempts"], e["last_error_class"]) for e in entries] == [
+            (702, 1, "Boom")
+        ]
+    finally:
+        store.close()
+
+
+def test_the_replay_history_changes_no_figure_the_evidence_reads(tmp_path: Path) -> None:
+    """A series that failed two seeds and replayed them, against a series with the same final
+    games and no failure: the summary, the stored run and the card rows are identical."""
+    outcomes: list[tuple[object, ...]] = []
+    for index in range(2):
+        folder = tmp_path / f"s{index}"
+        folder.mkdir()
+        store = StudioStore.open(folder / "studio")
+        try:
+            manager = SimulationBatchManager()
+            plan = {702: ["TimeoutExpired"], 704: ["Cancelled"]} if index == 0 else {}
+            batch = _replay_start(store, folder, manager, plan)
+            final = _resume(store, folder, manager, batch) if plan else batch
+            payload = final.to_dict()
+            summary = payload["summary"]
+            assert isinstance(summary, dict)
+            run = store.connection.execute(
+                "SELECT games_planned, games_completed, games_failed, wins_fractional, win_rate, "
+                "table_size FROM simulation_run"
+            ).fetchall()
+            cards = store.connection.execute(
+                "SELECT card_name, games_completed FROM simulation_card ORDER BY card_name"
+            ).fetchall()
+            outcomes.append(
+                (
+                    json.dumps(summary, sort_keys=True, default=str),
+                    [tuple(r) for r in run],
+                    [tuple(r) for r in cards],
+                    (
+                        payload["games_completed"],
+                        payload["games_failed"],
+                        payload["games_cancelled"],
+                    ),
+                    len(_replayed(payload)),
+                )
+            )
+        finally:
+            store.close()
+    replayed, clean = outcomes
+    assert (replayed[-1], clean[-1]) == (2, 0)
+    assert replayed[:-1] == clean[:-1]
+    assert replayed[1] == [(6, 6, 0, 3.0, 0.5, 4)]
+
+
+def test_the_helpers_classify_and_read_a_replay_history_without_trusting_it() -> None:
+    classify = simulations_module.replay_class_of
+    assert classify("TimeoutExpired", cancelled=False) == "timeout"
+    assert classify("BRIDGE_TIMEOUT", cancelled=False) == "timeout"
+    assert classify("Cancelled", cancelled=True) == "cancelled"
+    assert classify("NotPlayed", cancelled=False) == "failed"
+    assert classify(None, cancelled=False) == "failed"
+    read = simulations_module.replayed_failures_from_record
+    assert read(None) == [] and read({"a": 1}) == []
+    entries = read(
+        [
+            {
+                "game_id": "g1",
+                "seed": 5,
+                "class": "timeout",
+                "attempts": 2,
+                "last_error_class": "x",
+            },
+            {"game_id": "g2", "attempts": 1, "class": "weird"},  # unknown class counts as failed
+            {"game_id": "g3", "attempts": 0},  # not a replay
+            {"game_id": "", "attempts": 1},
+            {"game_id": "g4", "attempts": True},
+            "not a dict",
+        ]
+    )
+    assert [(e.game_id, e.seed, e.kind, e.attempts, e.last_error_class) for e in entries] == [
+        ("g1", 5, "timeout", 2, "x"),
+        ("g2", None, "failed", 1, None),
+    ]
+
+
+def test_a_dropped_row_of_a_game_the_plan_does_not_name_keeps_its_entry_with_an_unknown_seed(
+    tmp_path: Path,
+) -> None:
+    """The trace is never skipped for lack of a seed: the seed comes from the plan, else unknown."""
+    batch = BatchSimulation(
+        batch_id="trace",
+        data_folder=tmp_path,
+        deck_id="d",
+        revision_id="r",
+        pod_name="precon",
+        opponent_paths=[],
+        seeds=[1, 2],
+        chunk_runner=lambda seeds: iter(()),
+    )
+    batch.note_replayed([("batch-trace-s2", "Boom", False), ("batch-other-s9", None, False)])
+    batch.note_replayed([("batch-trace-s2", "Cancelled", True)])
+    entries = _replayed(batch.to_dict())
+    assert [(e["game_id"], e["seed"], e["class"], e["attempts"]) for e in entries] == [
+        ("batch-trace-s2", 2, "failed", 2),
+        ("batch-other-s9", None, "failed", 1),
+    ]
+    assert entries[1]["last_error_class"] is None  # unknown stays unknown
+
+
+def test_a_stopped_series_resumed_after_a_restart_keeps_the_stop_apart_from_failures(
+    tmp_path: Path,
+) -> None:
+    """Stop (4 finished, one ``Cancelled`` row), then a new manager resumes from the record: the
+    stop is a ``cancelled`` entry, never a failure (G-SIM point 2); five games never started."""
+    store = StudioStore.open(tmp_path / "studio")
+    reached, release = threading.Event(), threading.Event()
+    holder: list[BatchSimulation] = []
+    ready = threading.Event()
+
+    def stopping(seeds: Sequence[int]) -> Iterator[GameSummary]:
+        assert ready.wait(5)
+        ordered = list(seeds)
+        yield from _replay_rows(holder[0], {}, ordered[:4])
+        yield GameSummary(
+            game_id=holder[0].game_id_of(ordered[4]),
+            seed=ordered[4],
+            status="failed",
+            failure_class="Cancelled",
+            failure_message="cancelled",
+        )
+        reached.set()
+        assert release.wait(10)
+
+    try:
+        manager = SimulationBatchManager()
+        batch = manager.start_batch(
+            store,
+            tmp_path,
+            revision_id=_seed_test_deck(store),
+            pod="precon",
+            games_count=10,
+            base_seed=700,
+            workers=1,
+            chunk_runner=stopping,
+        )
+        holder.append(batch)
+        ready.set()
+        assert reached.wait(5)
+        assert manager.cancel_batch(batch.batch_id)
+        release.set()
+        _wait(batch)
+        assert batch.worker_done.wait(5) and batch.status == "cancelled"
+        restarted = SimulationBatchManager()
+        again: list[BatchSimulation] = []
+        ready_again = threading.Event()
+
+        def replay_again(seeds: Sequence[int]) -> Iterator[GameSummary]:
+            assert ready_again.wait(5)
+            yield from _replay_rows(again[0], {}, seeds)
+
+        resumed = restarted.resume_batch(
+            store,
+            tmp_path,
+            batch.batch_id,
+            workers=1,
+            chunk_runner=replay_again,
+        )
+        again.append(resumed)
+        ready_again.set()
+        _wait(resumed)
+        assert resumed.worker_done.wait(5) and resumed.status == "completed"
+        assert [
+            (e["seed"], e["class"], e["attempts"], e["last_error_class"])
+            for e in _replayed(resumed.to_dict())
+        ] == [(704, "cancelled", 1, "Cancelled")]
+    finally:
+        release.set()
         store.close()
