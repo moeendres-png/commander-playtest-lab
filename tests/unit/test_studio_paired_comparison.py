@@ -1081,6 +1081,7 @@ def test_parallel_window_player_announces_each_played_game_before_the_pair_is_do
         look_every_pairs=3,
         workers=1,
         games_per_jvm=6,
+        series_pool=False,
         on_pair_done=on_pair,
         on_game_played=on_played,
     )
@@ -1543,7 +1544,7 @@ def test_a_pool_series_takes_the_wall_limit_of_its_seat_count(
     assert created[0]["game_wall_limit_seconds"] == 300.0  # three seats
 
 
-def test_the_pool_is_off_by_default_and_a_switch_turns_it_on(
+def test_the_pool_switch_turns_it_off_and_on(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     created: list[dict[str, object]] = []
@@ -1564,7 +1565,7 @@ def test_the_pool_is_off_by_default_and_a_switch_turns_it_on(
             created.append({"closed": True})
 
     monkeypatch.setattr("commander_lab.studio.game_pool.GamePool", _Recorded)
-    monkeypatch.delenv("COMMANDER_LAB_STUDIO_SERIES_POOL", raising=False)
+    monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", "0")
     tmp_path.joinpath("x.json").write_text("{}", encoding="utf-8")
     tmp_path.joinpath("b.jar").write_bytes(b"jar")  # the pool plans with the JAR's hash
     monkeypatch.chdir(tmp_path)
@@ -1599,6 +1600,57 @@ def test_the_pool_is_off_by_default_and_a_switch_turns_it_on(
     assert created[0]["command"] == ("java", "-jar", "b.jar", "full-game")
     on.close()
     assert created[-1] == {"closed": True}
+
+
+def test_the_default_pool_covers_tables_with_a_wall_limit_only(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """#1652: without the switch the pool is the default for two to four seats; a five- or six-seat
+    table (no wall-clock limit until F6) keeps the chunked path instead of being refused, and an
+    explicit switch still wins either way."""
+    from commander_lab.studio.game_pool import SERIES_POOL_ENV, series_pool_enabled
+
+    monkeypatch.delenv(SERIES_POOL_ENV, raising=False)
+    assert series_pool_enabled() is True
+    assert [series_pool_enabled(n) for n in (2, 3, 4, 5, 6)] == [True, True, True, False, False]
+    monkeypatch.setenv(SERIES_POOL_ENV, "1")
+    assert series_pool_enabled(5) is True
+    monkeypatch.setenv(SERIES_POOL_ENV, "off")
+    assert series_pool_enabled(4) is False
+
+
+def test_a_five_seat_series_without_the_switch_runs_chunked_not_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Regression (review of #1888, P1): with the pool on by default, a five-seat paired series
+    must not raise "keine Wandzeit-Grenze"; it plans on the chunked path and creates no pool."""
+    from commander_lab.studio.game_pool import SERIES_POOL_ENV
+
+    created: list[object] = []
+    monkeypatch.setattr(
+        "commander_lab.studio.game_pool.GamePool", lambda *a, **k: created.append(k)
+    )
+    monkeypatch.delenv(SERIES_POOL_ENV, raising=False)
+    tmp_path.joinpath("x.json").write_text("{}", encoding="utf-8")
+    opponents = [SimpleNamespace(deck_id=f"opp{i}") for i in range(4)]
+    player = paired_comparison.parallel_window_player(
+        tmp_path,
+        series_id="five",
+        base_deck=SimpleNamespace(deck_id=BASE),  # type: ignore[arg-type]
+        variant_deck=SimpleNamespace(deck_id=VARIANT),  # type: ignore[arg-type]
+        opponents=opponents,  # type: ignore[arg-type]
+        paths_by_deck_id={
+            d: tmp_path / "x.json" for d in (BASE, VARIANT, *(o.deck_id for o in opponents))
+        },
+        seeds=[1],
+        tested_seats=[0],
+        budget_pairs=1,
+        look_every_pairs=1,
+        workers=1,
+        games_per_jvm=1,
+        command=("java", "-jar", "b.jar", "full-game"),
+    )
+    assert player.pool_summary() is None and created == []
 
 
 def test_a_series_refuses_games_of_two_pilot_fingerprints() -> None:
@@ -1669,7 +1721,7 @@ def test_a_series_with_a_determinism_violation_in_its_journal_is_not_resumable_o
     from commander_lab.studio import paired_series
 
     if pool_switch is None:
-        monkeypatch.delenv("COMMANDER_LAB_STUDIO_SERIES_POOL", raising=False)  # chunked path
+        monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", "0")  # chunked path
     else:
         monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", pool_switch)  # pool path
     manager = paired_series.PairedSeriesManager()
@@ -1879,7 +1931,7 @@ def test_k5_a_real_violation_of_an_old_key_series_is_reported_as_violation_not_a
     from commander_lab.studio import paired_series, series_record
 
     if pool_switch is None:
-        monkeypatch.delenv("COMMANDER_LAB_STUDIO_SERIES_POOL", raising=False)
+        monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", "0")
     else:
         monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", pool_switch)
     manager = paired_series.PairedSeriesManager()
@@ -1910,7 +1962,7 @@ def test_a_series_recorded_with_the_old_key_version_is_not_resumable_and_not_a_v
     from commander_lab.studio import paired_series, series_record
 
     if pool_switch is None:
-        monkeypatch.delenv("COMMANDER_LAB_STUDIO_SERIES_POOL", raising=False)
+        monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", "0")
     else:
         monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", pool_switch)
     manager = paired_series.PairedSeriesManager()

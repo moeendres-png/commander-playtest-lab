@@ -917,13 +917,15 @@ def _snapshot_for_ref(store: StudioStore, ref_id: str) -> dict[str, object]:
 def _preflight_pool_wall_limit(opponent_count: int) -> None:
     """Refuse, before anything is written, a table the series pool has no wall-clock limit for.
 
-    Only where the pool would run (the switch ``COMMANDER_LAB_STUDIO_SERIES_POOL`` is on); the
-    default path does not use the limit. Five and six seats have none until F6 measures it (#1661);
-    ``table_spec.game_wall_limit_seconds`` names the seat count and guesses nothing."""
+    Only where the pool would run: by default (#1652) a table with a wall-clock limit (two to four
+    seats) uses the pool and a larger one keeps the chunked path; an explicitly switched-on
+    ``COMMANDER_LAB_STUDIO_SERIES_POOL`` at five or six seats is refused here, because those have
+    no limit until F6 measures it (#1661). ``table_spec.game_wall_limit_seconds`` names the seat
+    count and guesses nothing."""
     from .game_pool import series_pool_enabled
     from .table_spec import game_wall_limit_seconds
 
-    if series_pool_enabled():
+    if series_pool_enabled(opponent_count + 1):
         game_wall_limit_seconds(opponent_count + 1)
 
 
@@ -1751,7 +1753,11 @@ class PairedSeriesManager:
             validate_released_seat_count(
                 len(opponent_ids), allow_unreleased_seats=allow_unreleased_seats
             )
-        if play_override is None and (opponent_ids is not None or pod in POD_PRESETS):
+        if (
+            play_override is None
+            and not record_pilot_audit  # a pilot-audit series never uses the pool
+            and (opponent_ids is not None or pod in POD_PRESETS)
+        ):
             # (an unknown pod is refused later with its own message, not as "1 seat")
             _preflight_pool_wall_limit(
                 len(opponent_ids) if opponent_ids is not None else len(POD_PRESETS[pod])
