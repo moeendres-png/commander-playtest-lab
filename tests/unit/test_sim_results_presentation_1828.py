@@ -405,6 +405,7 @@ const mon = renderPairedMonitor(makeNode, {{
 const notDecidedFlag = pairedTruthBadge({{ status: "NOT_DECIDED" }}, false);
 const decidedAboveFlag = pairedTruthBadge({{ status: "DECIDED", answer: "ABOVE" }}, false);
 const decidedNotAboveFlag = pairedTruthBadge({{ status: "DECIDED", answer: "NOT_ABOVE" }}, false);
+const decidedNotAboveThresholdFlag = pairedTruthBadge({{ status: "DECIDED", answer: "NOT_ABOVE", question: {{ threshold_pp: 20 }} }}, false);
 const noPairsFlag = pairedTruthBadge({{ status: "NO_PAIRS" }}, false);
 
 console.log(JSON.stringify({{
@@ -414,6 +415,7 @@ console.log(JSON.stringify({{
   notDecidedFlag,
   decidedAboveFlag,
   decidedNotAboveFlag,
+  decidedNotAboveThresholdFlag,
   noPairsFlag
 }}));
 """
@@ -422,13 +424,25 @@ console.log(JSON.stringify({{
     assert out["perHour"] == 12
     # 10 remaining of 12 at 2 games per 10 min -> 50 min = 3000s (previously was 2400s if subtracting prior failures)
     assert out["etaSeconds"] == 3000
-    assert "Teilergebnis: 5 von 20 Paaren" in out["monText"]
+    # a stop before the first look has no Teilergebnis (it means the last look, #1872 review):
+    # the pairs played up to the stop are shown as a separate descriptive block
+    assert "Kein Teilergebnis (vor dem ersten Look gestoppt" in out["monText"]
+    assert (
+        "Beschreibend, alle bis zum Stopp gespielten Paare (ungeplant): 5 / 20 Paare"
+        in out["monText"]
+    )
+    assert "Paar-Teilergebnis" not in out["monText"]
     assert "ungeplanter Stopp" in out["monText"]
     assert "Seed-Paartabelle" in out["monText"]
     assert "Replay A" in out["monText"] and "Replay B" in out["monText"]
     assert "Zufall nicht ausgeschlossen" in out["notDecidedFlag"][1]
     assert "Hinweis auf echten Unterschied" in out["decidedAboveFlag"][1]
     assert "Kein ausreichender Vorteil" in out["decidedNotAboveFlag"][1]
+    assert "B nicht über A" in out["decidedNotAboveFlag"][1]
+    # NOT_ABOVE at a non-zero threshold names the question it answers, like ABOVE does
+    assert "Kein ausreichender Vorteil" in out["decidedNotAboveThresholdFlag"][1]
+    assert "Frage „größer als" in out["decidedNotAboveThresholdFlag"][1]
+    assert "mit nein beantwortet" in out["decidedNotAboveThresholdFlag"][1]
     assert "Keine auswertbaren Paare" in out["noPairsFlag"][1]
 
 
