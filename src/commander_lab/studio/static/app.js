@@ -652,6 +652,7 @@ function renderHeader() {
   renderPlayButton();
   renderAutoDeckNote();
   if (typeof StudioDeckHud !== "undefined") StudioDeckHud.render(hudDeps());
+  if (typeof StudioWorkbench !== "undefined") StudioWorkbench.applyIdentity(state.byId.get(state.commanderIds[0]) || null);
 }
 // Choosing a commander without a deck creates a saved deck of just the commander (the deck list,
 // the variants and the draft all need a deck to belong to). That is not an action the person
@@ -2433,11 +2434,12 @@ function renderDeck() {
   ];
   // Two groups keep tabs readable: looking at the deck (Analyse) and working on it (Arbeiten).
   const workTabs = new Set(["compare", "similar", "diff", "modules", "primer", "cut", "sim"]);
-  const tabButton = ([key, label]) => h("button", { type: "button", class: "chip" + (state.tab === key ? " on" : ""), "aria-pressed": state.tab === key, onclick: () => { state.tab = key; renderDeck(); } }, label);
+  const tabButton = ([key, label]) => h("button", { type: "button", class: "chip" + (state.tab === key ? " on" : ""), "aria-pressed": state.tab === key, dataset: { tab: key }, onclick: () => { state.tab = key; renderDeck(); } }, label);
   const tabGroup = (name, items) => h("div", { class: "tab-group", role: "group", "aria-label": name }, h("span", { class: "tab-group-label" }, name), ...items.map(tabButton));
   $("deck-tabs").replaceChildren(
     tabGroup("Analyse", tabs.filter(([key]) => !workTabs.has(key))),
     tabGroup("Arbeiten", tabs.filter(([key]) => workTabs.has(key))));
+  if (typeof StudioWorkbench !== "undefined") StudioWorkbench.decorateTabs($("deck-tabs"));
   const body = $("deck-body"); body.replaceChildren();
   const planPkgDeps = (tabKey) => ({
     h, api, entries, fail, roleName, openCard, add, remove, cohortName,
@@ -4530,6 +4532,7 @@ async function start() {
     if (runningPaired) { state.activePaired = runningPaired; pollPaired(runningPaired.series_id); }
     setupControls();
     if (typeof StudioDeckHud !== "undefined") StudioDeckHud.setup(hudDeps());
+    if (typeof StudioWorkbench !== "undefined") StudioWorkbench.setup({ h, toast, currentTab: () => state.tab, setTab: (key) => { state.tab = key; renderDeck(); } });
     await loadDecks(); await loadBranch(); applyReplaceUrlParams();
     try {
       const pendingToast = sessionStorage.getItem("studio.pendingToast");

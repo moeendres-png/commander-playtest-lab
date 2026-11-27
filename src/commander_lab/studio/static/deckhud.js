@@ -14,6 +14,9 @@ const StudioDeckHud = (() => {
   let paletteIndex = 0;
   let paletteReturnFocus = null;
   let latestDeps = null;
+  // Command mode (query starts with ">"): the Werkbank supplies the commands.
+  let actionProvider = null;
+  let paletteMode = "cards";
 
   function formatNum(value, decimals = 0) {
     if (typeof StudioUI !== "undefined" && typeof StudioUI.num === "function") {
@@ -452,6 +455,9 @@ const StudioDeckHud = (() => {
             paletteIndex = (paletteIndex - 1 + paletteMatches.length) % paletteMatches.length;
             renderPaletteList();
           }
+        } else if (e.key === "Enter" && paletteMode === "actions") {
+          e.preventDefault();
+          runAction(paletteMatches[paletteIndex]);
         } else if (e.key === "Enter") {
           e.preventDefault();
           const card = paletteMatches[paletteIndex];
@@ -503,7 +509,7 @@ const StudioDeckHud = (() => {
       h(
         "div",
         { class: "quick-add-foot muted" },
-        "Enter: hinzufügen · Umschalt+Enter: entfernen · ↑↓: wählen · Esc: schließen"
+        "Enter: hinzufügen · Umschalt+Enter: entfernen · ↑↓: wählen · Esc: schließen · > am Anfang: Befehle"
       )
     );
     paletteEl = h("div", {
@@ -515,10 +521,60 @@ const StudioDeckHud = (() => {
     return paletteEl;
   }
 
+  function runAction(action) {
+    if (!action || typeof action.run !== "function") return;
+    closePalette();
+    action.run();
+  }
+
+  function renderActionList() {
+    const { h } = latestDeps;
+    const q = paletteInput ? paletteInput.value : "";
+    const all = actionProvider ? actionProvider() : [];
+    const ranked = typeof StudioWorkbench !== "undefined" ? StudioWorkbench.rankActions(all, q) : all;
+    paletteMatches = ranked.slice(0, 40);
+    if (paletteIndex >= paletteMatches.length) paletteIndex = Math.max(0, paletteMatches.length - 1);
+    if (!paletteMatches.length) {
+      paletteList.replaceChildren(h("div", { class: "quick-add-empty muted" }, "Kein passender Befehl."));
+      return;
+    }
+    const rows = paletteMatches.map((action, idx) => {
+      const selected = idx === paletteIndex;
+      return h(
+        "div",
+        {
+          class: `quick-add-row is-action${selected ? " is-selected" : ""}`,
+          role: "option",
+          "aria-selected": selected ? "true" : "false",
+          onclick: () => runAction(action),
+        },
+        h("span", { class: "quick-add-thumb action-icon", "aria-hidden": "true" }, action.icon || "›"),
+        h(
+          "div",
+          { class: "quick-add-main" },
+          h("div", { class: "quick-add-name" }, action.label),
+          h("div", { class: "quick-add-sub muted" }, [action.group, action.hint].filter(Boolean).join(" · "))
+        ),
+        action.keys ? h("kbd", { class: "action-keys" }, action.keys) : null
+      );
+    });
+    paletteList.replaceChildren(...kidsList(rows));
+    const sel = paletteList.children[paletteIndex];
+    if (sel && typeof sel.scrollIntoView === "function") {
+      sel.scrollIntoView({ block: "nearest" });
+    }
+  }
+
   function renderPaletteList() {
     if (!paletteList || !latestDeps) return;
-    const { h, state, qty, maxCopies, add, cardImageUrl, mana, toast, deckTotal } = latestDeps;
     const q = paletteInput ? paletteInput.value : "";
+    paletteMode = actionProvider && q.trimStart().startsWith(">") ? "actions" : "cards";
+    if (paletteEl) paletteEl.classList.toggle("is-commands", paletteMode === "actions");
+    if (paletteMode === "actions") {
+      renderActionList();
+      return;
+    }
+    const { h, state, qty, maxCopies, add, cardImageUrl, mana, toast, deckTotal } = latestDeps;
     paletteMatches = rankMatches(state.pool, q, 12, state.commanderIds);
     if (paletteIndex >= paletteMatches.length) paletteIndex = Math.max(0, paletteMatches.length - 1);
 
@@ -585,14 +641,14 @@ const StudioDeckHud = (() => {
     }
   }
 
-  function openPalette() {
+  function openPalette(prefix) {
     if (!latestDeps) return;
     ensurePalette(latestDeps);
-    paletteReturnFocus = document.activeElement;
+    if (paletteEl.hidden) paletteReturnFocus = document.activeElement;
     paletteEl.hidden = false;
     paletteIndex = 0;
     if (paletteInput) {
-      paletteInput.value = "";
+      paletteInput.value = typeof prefix === "string" ? prefix : "";
       renderPaletteList();
       paletteInput.focus();
     }
@@ -613,7 +669,7 @@ const StudioDeckHud = (() => {
     didSetup = true;
 
     const openBtn = document.getElementById("quick-add-open");
-    if (openBtn) openBtn.addEventListener("click", openPalette);
+    if (openBtn) openBtn.addEventListener("click", () => openPalette());
 
     document.addEventListener("keydown", (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
@@ -692,7 +748,11 @@ const StudioDeckHud = (() => {
     draggingSource = src || "";
   }
 
-  return { MIME, summarize, rankMatches, render, renderStacks, setup, setDraggingSource };
+  function setActionProvider(fn) {
+    actionProvider = typeof fn === "function" ? fn : null;
+  }
+
+  return { MIME, summarize, rankMatches, render, renderStacks, setup, setDraggingSource, setActionProvider, open: openPalette, close: closePalette };
 })();
 
 if (typeof module !== "undefined") module.exports = StudioDeckHud;

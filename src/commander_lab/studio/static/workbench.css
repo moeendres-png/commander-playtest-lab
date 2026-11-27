@@ -1,0 +1,574 @@
+/* BUILD-Werkbank: work modes, split, colour-identity theme, tab rail, command palette, shortcut
+   sheet. Every rule is scoped under body.build-studio so other pages stay untouched. */
+
+body.build-studio {
+  --wb-identity: linear-gradient(90deg, var(--accent), var(--accent));
+  --wb-c1: var(--accent);
+  --wb-c2: var(--accent);
+  --wb-c3: var(--accent);
+  background:
+    radial-gradient(1200px 520px at 12% -10%, color-mix(in srgb, var(--wb-c1) 10%, transparent), transparent 70%),
+    radial-gradient(1000px 520px at 95% -5%, color-mix(in srgb, var(--wb-c3) 9%, transparent), transparent 70%),
+    var(--bg);
+}
+
+/* ---------- identity line under the brand bar ---------- */
+body.build-studio #brand {
+  position: relative;
+  border-bottom: 0;
+}
+
+body.build-studio #brand::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--wb-identity);
+  opacity: .9;
+}
+
+/* ---------- command bar: grouped pods ---------- */
+body.build-studio #top {
+  gap: var(--s2);
+  padding: var(--s2) var(--s3);
+  align-items: stretch;
+}
+
+body.build-studio .wb-cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--panel2) 70%, transparent);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+body.build-studio .wb-cluster-status {
+  background: transparent;
+  border-style: dashed;
+}
+
+body.build-studio .wb-cluster-actions {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
+}
+
+body.build-studio .wb-identity {
+  display: inline-flex;
+  gap: 3px;
+  padding-right: 2px;
+}
+
+body.build-studio .wb-identity[hidden] {
+  display: none;
+}
+
+body.build-studio .wb-pip {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #0b0f14;
+  box-shadow: 0 0 0 1px #0006, 0 2px 6px #0005;
+}
+
+body.build-studio .wb-pip-W { background: #e9d9a6; }
+body.build-studio .wb-pip-U { background: #3f8fe0; }
+body.build-studio .wb-pip-B { background: #8d6cc0; }
+body.build-studio .wb-pip-R { background: #e2553f; }
+body.build-studio .wb-pip-G { background: #3aa568; }
+body.build-studio .wb-pip-C { background: #a3acb9; }
+
+/* ---------- mode switch ---------- */
+body.build-studio .wb-modes {
+  display: inline-flex;
+  align-items: stretch;
+  padding: 3px;
+  gap: 2px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 60%, var(--panel));
+}
+
+body.build-studio .wb-modes button {
+  border: 2px solid transparent;
+  background: transparent;
+  border-radius: 9px;
+  padding: 2px 12px;
+  min-height: 28px;
+  color: var(--muted);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+body.build-studio .wb-modes button:hover:not(:disabled) {
+  color: var(--text);
+  background: color-mix(in srgb, var(--panel2) 80%, transparent);
+  border-color: transparent;
+}
+
+body.build-studio .wb-modes button.on {
+  color: var(--text);
+  background:
+    linear-gradient(var(--panel), var(--panel)) padding-box,
+    var(--wb-identity) border-box;
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--wb-c1) 28%, transparent);
+}
+
+body.build-studio .wb-mode-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+body.build-studio #wb-help-open {
+  min-width: 30px;
+  font-weight: 700;
+}
+
+/* ---------- layout: pool | splitter | deck ---------- */
+body.build-studio main {
+  --wb-deck-default: 410px;
+  grid-template-columns: minmax(0, 1fr) 10px var(--wb-deck-w, var(--wb-deck-default));
+  transition: grid-template-columns .28s ease;
+}
+
+body.build-studio.wb-resizing main {
+  transition: none;
+}
+
+body.build-studio.wb-resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
+body.build-studio main > #pool { grid-column: 1; grid-row: 1; }
+body.build-studio main > #wb-splitter { grid-column: 2; grid-row: 1; }
+body.build-studio main > #deck { grid-column: 3; grid-row: 1; }
+
+body.build-studio #wb-splitter {
+  position: relative;
+  cursor: col-resize;
+  touch-action: none;
+  background: transparent;
+  outline-offset: -2px;
+}
+
+body.build-studio #wb-splitter .wb-grip {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: var(--line);
+  transition: width .15s ease, background .15s ease;
+}
+
+body.build-studio #wb-splitter::after {
+  content: "⋮";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1;
+}
+
+body.build-studio #wb-splitter:hover .wb-grip,
+body.build-studio #wb-splitter:focus-visible .wb-grip,
+body.build-studio.wb-resizing #wb-splitter .wb-grip {
+  width: 4px;
+  background: linear-gradient(180deg, var(--wb-c1), var(--wb-c2), var(--wb-c3));
+}
+
+body.build-studio #deck {
+  border-left: 0;
+}
+
+/* Sammeln: pool takes the room, the deck is a slim dock with cockpit and list. */
+body.build-studio.wb-mode-collect main {
+  grid-template-columns: minmax(0, 1fr) 0 300px;
+}
+
+body.build-studio.wb-mode-collect #wb-splitter,
+body.build-studio.wb-mode-collect #deck-tabs,
+body.build-studio.wb-mode-collect #play-row,
+body.build-studio.wb-mode-collect .hud-meta {
+  display: none;
+}
+
+body.build-studio.wb-mode-collect #deck {
+  border-left: 1px solid var(--line);
+  box-shadow: -8px 0 24px color-mix(in srgb, #000 18%, transparent);
+}
+
+body.build-studio.wb-mode-collect .hud-banner {
+  height: 74px;
+}
+
+body.build-studio.wb-mode-collect #pool-body .grid {
+  grid-template-columns: repeat(auto-fill, minmax(178px, 1fr));
+}
+
+/* Analysieren: the deck and its evaluations over the whole width, tabs as a rail. */
+body.build-studio.wb-mode-analyze main {
+  grid-template-columns: 0 0 minmax(0, 1fr);
+}
+
+body.build-studio.wb-mode-analyze main > #pool,
+body.build-studio.wb-mode-analyze main > #wb-splitter {
+  display: none;
+}
+
+body.build-studio.wb-mode-analyze #deck {
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-areas: "hud hud" "tabs play" "tabs body";
+  background: transparent;
+}
+
+body.build-studio.wb-mode-analyze #deck-hud {
+  grid-area: hud;
+  display: grid;
+  grid-template-columns: minmax(220px, 340px) minmax(280px, 1fr) minmax(260px, 1fr);
+  align-items: stretch;
+  gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  background: color-mix(in srgb, var(--panel) 86%, transparent);
+}
+
+body.build-studio.wb-mode-analyze #deck-hud .hud-banner {
+  height: auto;
+  min-height: 118px;
+}
+
+body.build-studio.wb-mode-analyze #play-row {
+  grid-area: play;
+  padding: var(--s2) var(--s4) 0;
+}
+
+body.build-studio.wb-mode-analyze #play-row button {
+  width: auto;
+}
+
+body.build-studio.wb-mode-analyze #deck-tabs {
+  grid-area: tabs;
+  overflow: auto;
+  border-bottom: 0;
+  border-right: 1px solid var(--line);
+  padding: var(--s3) var(--s2);
+  gap: var(--s3);
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+}
+
+body.build-studio.wb-mode-analyze #deck-tabs .tab-group {
+  flex-direction: column;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  gap: 2px;
+}
+
+body.build-studio.wb-mode-analyze #deck-tabs .tab-group-label {
+  padding: 0 var(--s2) var(--s1);
+}
+
+body.build-studio.wb-mode-analyze #deck-tabs .chip {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  margin: 0;
+  padding: 6px 8px;
+  min-height: 0;
+  text-align: left;
+  white-space: normal;
+  background: transparent;
+  color: var(--text);
+}
+
+body.build-studio.wb-mode-analyze #deck-tabs .chip:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--panel2) 85%, transparent);
+  border-color: var(--line);
+}
+
+body.build-studio.wb-mode-analyze #deck-tabs .chip.on {
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--wb-c1) 16%, var(--panel2)), var(--panel2)) padding-box;
+  border-color: color-mix(in srgb, var(--wb-c1) 45%, var(--line));
+  box-shadow: inset 3px 0 0 var(--wb-c1);
+}
+
+body.build-studio.wb-mode-analyze #deck-tabs .wb-tab-desc {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.build-studio.wb-mode-analyze #deck-body {
+  grid-area: body;
+  min-height: 0;
+  padding: var(--s3) var(--s4) var(--s4);
+}
+
+body.build-studio.wb-mode-analyze .stack-board {
+  flex-wrap: wrap;
+}
+
+/* ---------- tab buttons with icon (all modes) ---------- */
+body.build-studio #deck-tabs .chip[data-tab] {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+body.build-studio .wb-tab-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1;
+  background: color-mix(in srgb, var(--panel2) 60%, var(--line));
+  color: var(--muted);
+  flex: 0 0 auto;
+}
+
+body.build-studio #deck-tabs .chip.on .wb-tab-icon {
+  background: var(--wb-identity);
+  color: #0b0f14;
+}
+
+body.build-studio .wb-tab-text {
+  display: inline-flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+body.build-studio .wb-tab-label {
+  font-weight: 600;
+}
+
+body.build-studio .wb-tab-desc {
+  display: none;
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+/* ---------- identity accents on the cockpit and the pool ---------- */
+body.build-studio.wb-has-identity .hud-banner {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--panel2), var(--panel2)) padding-box,
+    var(--wb-identity) border-box;
+  box-shadow: 0 6px 22px color-mix(in srgb, var(--wb-c1) 22%, transparent);
+}
+
+body.build-studio.wb-has-identity .tile:hover {
+  border-color: color-mix(in srgb, var(--wb-c1) 75%, var(--line));
+}
+
+body.build-studio.wb-has-identity #pool-body {
+  background:
+    radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--wb-c1) 8%, transparent) 0%, transparent 62%),
+    radial-gradient(circle at 15% 90%, color-mix(in srgb, var(--wb-c3) 6%, transparent) 0%, transparent 50%),
+    transparent;
+}
+
+/* ---------- command mode of the quick search ---------- */
+body.build-studio #quick-add.is-commands .quick-add-panel {
+  border-top: 3px solid transparent;
+  border-image: var(--wb-identity) 1;
+}
+
+body.build-studio .quick-add-thumb.action-icon {
+  display: inline-grid;
+  place-items: center;
+  height: 34px;
+  border-radius: 8px;
+  font-size: 16px;
+  background: color-mix(in srgb, var(--panel2) 60%, var(--line));
+  color: var(--text);
+}
+
+body.build-studio .quick-add-row.is-action.is-selected .action-icon {
+  background: var(--wb-identity);
+  color: #0b0f14;
+}
+
+body.build-studio kbd.action-keys,
+body.build-studio .wb-help-list kbd {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ---------- shortcut sheet ---------- */
+body.build-studio #wb-help {
+  position: fixed;
+  inset: 0;
+  z-index: 56;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, #05070b 64%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+body.build-studio #wb-help[hidden] {
+  display: none;
+}
+
+body.build-studio .wb-help-panel {
+  width: min(520px, 94vw);
+  max-height: 86vh;
+  overflow: auto;
+  background: var(--panel);
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--wb-c1);
+  box-shadow: var(--shadow);
+  padding: var(--s3) var(--s4) var(--s4);
+}
+
+body.build-studio .wb-help-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+  margin-bottom: var(--s3);
+  font-size: 15px;
+}
+
+body.build-studio .wb-help-list {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 8px 14px;
+  margin: 0;
+}
+
+body.build-studio .wb-help-list dt {
+  text-align: right;
+}
+
+body.build-studio .wb-help-list dd {
+  margin: 0;
+}
+
+body.build-studio .wb-help-foot {
+  margin: var(--s3) 0 0;
+  font-size: 12px;
+}
+
+/* ---------- smaller windows ---------- */
+@media (min-width: 1500px) {
+  body.build-studio main {
+    --wb-deck-default: clamp(410px, 30vw, 640px);
+  }
+}
+
+@media (max-width: 1180px) {
+  body.build-studio main {
+    --wb-deck-default: 340px;
+  }
+  body.build-studio.wb-mode-analyze #deck-hud {
+    grid-template-columns: minmax(200px, 1fr) minmax(240px, 1.4fr);
+  }
+  body.build-studio.wb-mode-analyze #deck-hud .hud-meta {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-height: 1050px) {
+  body.build-studio.wb-mode-analyze #deck-tabs .chip:not(.on) .wb-tab-desc {
+    display: none;
+  }
+}
+
+@media (max-width: 1400px) {
+  body.build-studio .wb-modes button {
+    padding: 2px 8px;
+  }
+}
+
+@media (max-width: 900px) {
+  body.build-studio main,
+  body.build-studio.wb-mode-collect main,
+  body.build-studio.wb-mode-analyze main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  body.build-studio main > #pool,
+  body.build-studio main > #deck {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  body.build-studio main > #wb-splitter {
+    display: none;
+  }
+  body.build-studio.wb-mode-analyze #deck {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "hud" "play" "tabs" "body";
+    max-height: none;
+  }
+  body.build-studio.wb-mode-analyze #deck-hud {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  body.build-studio.wb-mode-analyze #deck-tabs {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  body.build-studio.wb-mode-analyze #deck-tabs .tab-group {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  body.build-studio.wb-mode-analyze #deck-tabs .wb-tab-desc {
+    display: none;
+  }
+  body.build-studio .wb-modes button {
+    padding: 2px 6px;
+  }
+}
+
+@media (max-width: 600px) {
+  body.build-studio .wb-cluster {
+    border: 0;
+    padding: 0;
+    background: transparent;
+  }
+  body.build-studio #wb-commands,
+  body.build-studio #wb-help-open,
+  body.build-studio #quick-add-open kbd,
+  body.build-studio .wb-mode-icon {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.build-studio main {
+    transition: none;
+  }
+}
