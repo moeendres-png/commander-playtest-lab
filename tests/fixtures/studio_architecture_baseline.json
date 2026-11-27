@@ -1,8 +1,8 @@
 {
   "definition": "Import graph of src/commander_lab/studio/*.py with every import statement found by ast.walk (function bodies and TYPE_CHECKING blocks included); see scripts/studio_architecture_counts.py and tests/architecture/test_layer_boundaries.py. Ratchet: the values may only go down. Every change of a ratchet value is a new entry in `history` (date, ref, reason), and the top-level values equal the last entry. From entry #1622 on the test checks monotonicity step by step: lowering needs nothing more, a raise (larger count, a module added to the cycle, a facade added, a larger or new import exception) passes only with `raise_review` in its entry (a #number or pull request link of the approving review, not the entry's own ref). A new entry with just any reason does not make a raise pass. Not checked by the test: removing or rewriting earlier entries (the pull request diff is the check). tests/architecture/test_layer_boundaries.py checks all of this.",
-  "measured_at": "branch feat/q1b5-single-tier-scale-1680 with main d8d48634 merged (2026-11-20, Refs #1680)",
+  "measured_at": "branch refactor/schema22-step1b-1703 on main 951f331f (2026-11-27, Refs #1703)",
   "max_cyclic_components": 1,
-  "max_largest_cyclic_component": 11,
+  "max_largest_cyclic_component": 10,
   "cyclic_modules": [
     "builder",
     "corpus_signals",
@@ -11,7 +11,6 @@
     "roles",
     "sources",
     "strength_view",
-    "tier_snapshot",
     "universe",
     "universe_choice",
     "universe_view"
@@ -128,6 +127,33 @@
         "sources",
         "strength_view",
         "tier_snapshot",
+        "universe",
+        "universe_choice",
+        "universe_view"
+      ],
+      "qualification_facades": [],
+      "qualification_import_exceptions": {
+        "doctor -> commander_lab.qualification.current_boundary.bridge_launcher": 1,
+        "launch -> commander_lab.qualification.current_boundary.bridge_launcher": 2,
+        "paired_comparison -> commander_lab.qualification.current_boundary.bridge_launcher": 1,
+        "play -> commander_lab.qualification.current_boundary.bridge_launcher": 1,
+        "simulations -> commander_lab.qualification.current_boundary.bridge_launcher": 1
+      }
+    },
+    {
+      "date": "2026-11-27",
+      "ref": "#1703",
+      "reason": "Step 1b: removed tier_snapshot (E15 Q1/E4): the module, its callers in strength_view (compute_with_snapshot), import_all, ranking_check and web, and the route /api/strength/snapshot. tier_snapshot imported strength_view and strength_view imported it back in a function body, so it left the cycle: 11 -> 10 modules, one cycle. memo.py is removed as well (its three callers use cache.cached); it was not in the cycle. Measured with: python3 scripts/studio_architecture_counts.py (studio_import_graph: modules 92, edges 407; qualification imports unchanged).",
+      "max_cyclic_components": 1,
+      "max_largest_cyclic_component": 10,
+      "cyclic_modules": [
+        "builder",
+        "corpus_signals",
+        "decks",
+        "gc_band",
+        "roles",
+        "sources",
+        "strength_view",
         "universe",
         "universe_choice",
         "universe_view"

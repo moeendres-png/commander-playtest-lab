@@ -56,7 +56,7 @@ from collections.abc import Collection, Mapping, Sequence
 from dataclasses import replace
 from typing import TypedDict
 
-from . import corpus_signals, strength, strength_view, tier_snapshot, universe_choice, universe_view
+from . import corpus_signals, strength, strength_view, universe_choice, universe_view
 from .store import LEGACY_COMMANDER, StudioStore
 from .strength import (
     DECK_UNIVERSE,
@@ -251,7 +251,6 @@ class RankingCheckReport(TypedDict):
     sensitivity: SensitivityBlock | None
     weight_rule: strength.WeightRule | None
     shrinkage: dict[str, object]
-    tier_snapshot: dict[str, object] | None
 
 
 def _counted_share(observation: Observation | None) -> float | None:
@@ -583,7 +582,6 @@ def check_ranking(
         "sensitivity": sensitivity,
         "weight_rule": weight_rule,
         "shrinkage": dict(shrinkage) if isinstance(shrinkage, dict) else {},
-        "tier_snapshot": None,
     }
 
 
@@ -758,7 +756,7 @@ def run_ranking_check(
     if prepared.edhtop16:
         counter_shares["edhtop16"] = ("EDHTop16-Spielrate", prepared.edhtop16)
 
-    report = check_ranking(
+    return check_ranking(
         prepared.effective,
         per_card,
         prepared.collected,
@@ -771,8 +769,6 @@ def run_ranking_check(
         counter_shares=counter_shares,
         weight_rule=prepared.weight_rule,
     )
-    report["tier_snapshot"] = tier_snapshot.latest_snapshot_summary(store, commander)
-    return report
 
 
 def _fmt_rho(value: float | None) -> str:
@@ -989,15 +985,6 @@ def _extra_lines(report: RankingCheckReport) -> list[str]:
                     f"   {component}: Prior-Mittel {prior['prior_mean']}, "
                     f"Prior-Stärke {prior['prior_strength']} ({prior['cards']} Karten)"
                 )
-    snap = report.get("tier_snapshot")
-    if isinstance(snap, dict):
-        state = "VERALTET" if snap.get("stale") else "AKTUELL"
-        lines.append("")
-        lines.append(
-            f"Tier-Snapshot ({snap.get('profile_name', '')}): {state} · "
-            f"Epoche {str(snap.get('data_epoch', ''))[:12]} · "
-            f"Stand {snap.get('created_at', '')}"
-        )
     return lines
 
 

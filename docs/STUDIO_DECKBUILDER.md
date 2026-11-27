@@ -753,8 +753,10 @@ that has a combo, like a card without an EDHREC combo row counts for nothing und
 
 **Additions of #1369 (Tierliste, backend charge 1).** The index, the default weights, the cuts
 54 / 35 / 20 / 5, the tiers S / A / B / C / D / U / N and every index value stay bit-identical
-(frozen-reference test); everything below is an additional field. Snapshots are stored under
-`tier-snapshot-2`: a snapshot of the earlier schema is not read.
+(frozen-reference test); everything below is an additional field. (The tier snapshot that stored
+the answer under `tier-snapshot-2` is gone since #1703, E15 Q1/E4: `/api/strength` computes live from
+the per-store-state cache and carries no `snapshot` field; where the lines below say "snapshot" or
+`STALE`, that is history.)
 
 - **Stability of the tier (D6).** Per ranked card `tier_stability` (0..1) is the share of weight
   variants that keep its tier, `tier_stability_kept` of `tier_stability_variants` ("in x von N

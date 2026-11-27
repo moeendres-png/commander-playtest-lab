@@ -57,7 +57,6 @@ from . import (
     land_advisor,
     launch,
     maturity,
-    memo,
     number_contract,
     packages,
     paired_comparison,
@@ -67,11 +66,9 @@ from . import (
     roles,
     signals,
     similar_decks,
-    strength,
     strength_view,
     swap,
     tam_prices,
-    tier_snapshot,
     tokens,
     understanding_field,
     universe,
@@ -682,18 +679,6 @@ def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]
         store, preset=body.preset, profile=body.profile, settings=body.settings
     )
 
-    # The snapshot answer names the profile it belongs to: a preset and the same figures typed in
-    # as plain settings are different requests and must not share one remembered answer.
-    profile_name = (
-        None
-        if body.profile is not None
-        else (
-            body.preset
-            if body.preset is not None
-            else ("Ausgewogen" if settings == strength.StrengthSettings.recommended() else None)
-        )
-    )
-
     def compute() -> dict[str, object]:
         if body.profile is not None:
             return dict(
@@ -708,16 +693,11 @@ def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]
                     saved_weights=strength_view.profile_saved_weights(store, body.profile),
                 )
             )
-        return dict(
-            strength_view.compute_with_snapshot(
-                store, body.commander, settings, profile_name=profile_name
-            )
-        )
+        return dict(strength_view.compute(store, body.commander, settings))
 
     key = (
         body.commander,
         body.profile,
-        profile_name,
         json.dumps(asdict(settings), sort_keys=True, default=str),
     )
     answer = cache.cached(store, ("strength", *key), compute)
@@ -728,8 +708,8 @@ def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]
             answer, card_id=body.card_id, preset=body.preset, profile=body.profile
         )
     # Additive: the rubric v2 field "Kartenverständnis (Modellurteil)" (Q1-b3, #1678, E5), only
-    # for Chulane. Added after the snapshot and the remembered answer, so neither of them
-    # changes (``with_understanding`` copies the answer); the stamps of the data, audit and pooled
+    # for Chulane. Added after the remembered answer, so it does not change
+    # (``with_understanding`` copies the answer); the stamps of the data, audit and pooled
     # files are part of the key.
     return cache.cached(
         store,
@@ -1071,20 +1051,6 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def strength_presets() -> dict[str, object]:
         return strength_view.presets()
 
-    @app.get("/api/strength/snapshot")
-    def strength_snapshot_summary(
-        commander: str = Query(min_length=1, max_length=200),
-    ) -> dict[str, object]:
-        """Lightweight persisted tier snapshot summary (#1420, #1369) without card rows."""
-        store = open_store()
-        try:
-            found = tier_snapshot.latest_snapshot_summary(store, commander)
-            if found is None:
-                raise HTTPException(404, "no tier snapshot for commander")
-            return found
-        finally:
-            store.close()
-
     @app.post("/api/strength")
     def strength_index(body: StrengthBody) -> dict[str, object]:
         """Strength index per pool card of one commander: an estimate from usage signals,
@@ -1279,7 +1245,6 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 )
             with cache.write(store, _PROFILES):
                 universe.save_profile(store, name, body.model_dump(exclude_none=True))
-            memo.clear()  # the data-epoch memo (``memo.py``) as before; the cache saw the write
             return dict(universe_view.profile_summary(store, name, commander_names=[commander]))
         except ValueError as error:
             raise HTTPException(422, _german(error)) from error
@@ -1294,7 +1259,6 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         try:
             with cache.write(store, _PROFILES):
                 universe.delete_profile(store, name)
-            memo.clear()
             return {"deleted": name}
         except KeyError as error:
             raise HTTPException(404, "unknown universe profile") from error

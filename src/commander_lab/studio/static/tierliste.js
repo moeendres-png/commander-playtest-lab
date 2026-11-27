@@ -1697,23 +1697,6 @@ function tierHeader(result) {
     h("div", { class: "rule", id: "corpus-line" }, corpusLine(result)),
     h("div", { class: "rule", id: "borderline-line" }, `grenzwertig (näher als ${StudioUI.numFlex(result.settings.borderline_distance, 3)} Punkte an einer Stufengrenze): ${nf(result.borderline_count)} Karten${result.stability ? ` · unscharf (< 80 % der Varianten): ${nf(result.stability.unscharf_count)}/${nf(result.stability.evaluated_cards)}` : ""}. ${CONFIDENCE_TEXT}`))];
 }
-function snapshotBadge(result) {
-  const snap = result.snapshot;
-  if (!snap) return null;
-  if (snap.status === "STALE") {
-    return h("span", { id: "snapshot-status", class: "badge warn badge-text", title: `Snapshot-Epoche ${(snap.snapshot_epoch || "").slice(0, 12)} ungleich aktueller Epoche ${(snap.current_epoch || "").slice(0, 12)}` }, "Snapshot veraltet, Neuberechnung läuft");
-  }
-  if (snap.status === "HIT") {
-    const stamp = snap.created_at ? `${snap.created_at.slice(0, 19).replace("T", " ")} UTC` : "–";
-    const epochShort = snap.data_epoch ? snap.data_epoch.slice(0, 12) : "–";
-    return h("span", { id: "snapshot-status", class: "badge good badge-text", title: `Snapshot ${snap.profile_name || ""} (${snap.spec_version || ""})` }, `Snapshot: Stand ${stamp} · Epoche ${epochShort}`);
-  }
-  if (snap.status === "MISSING") {
-    const epochShort = snap.current_epoch ? snap.current_epoch.slice(0, 12) : "–";
-    return h("span", { id: "snapshot-status", class: "badge dim badge-text" }, `Live berechnet (kein Snapshot · Epoche ${epochShort})`);
-  }
-  return null;
-}
 function renderStrengthSummary() {
   const s = state.strength, box = $("strength-summary");
   renderTierBar();
@@ -1725,17 +1708,13 @@ function renderStrengthSummary() {
   const universeText = `Index berechnet mit: ${choice ? universeLine(choice) : "kein Decklisten-Universum"}${universe && universe.subset_note ? `; ${universe.subset_note}` : ""}${choice && choice.kind !== "none" ? (universeWeight > 0 ? `; zählt in die Stufe mit Gewicht ${StudioUI.numFlex(universeWeight, 3)}` : "; Gewicht 0: zählt nicht in die Stufe") : ""}`;
   // Sources that can exist for these settings: no bracket source without a bracket, no deck universe without one.
   const possible = s.meta.components.filter((c) => !(c.key === "bracket_inclusion" && result.settings.bracket === "none") && !(c.key === "deck_universe" && !(result.universe_choice && result.universe_choice.kind !== "none"))).length;
-  const snapNode = snapshotBadge(result);
-  const snapStale = result.snapshot && result.snapshot.status === "STALE";
   const notices = (result.notices || [])
-    .filter((text) => !(snapStale && text === "Snapshot veraltet, Neuberechnung läuft"))
     .map((text) => h("div", { class: "badge warn badge-text" }, text));
   const ambiguous = result.ambiguous_names || [];
   const shown = ambiguous.slice(0, 10).map((item) => `${item.name} (${item.candidates.join(" / ")})`).join("; ");
   const families = Array.isArray(result.weight_families) ? result.weight_families.filter((f) => f.share > 0) : [];
   box.replaceChildren(
     ...tierHeader(result),
-    snapNode,
     h("span", { class: "muted" }, `von ${nf(result.cards.length)} Karten · ${universeText} · Quellen vorhanden: ${nf(result.collected.length)}/${nf(possible)}`),
     ...(families.length ? [h("div", { class: "rule", id: "weight-families-line" }, `Gewichtungs-Familien: ${families.map((f) => `${f.label} ${StudioUI.pct(f.share, 0)}`).join(" · ")}`)] : []),
     ...notices,

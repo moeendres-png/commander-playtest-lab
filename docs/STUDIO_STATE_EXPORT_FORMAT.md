@@ -71,7 +71,9 @@ Ziel findet, bricht ab und lässt ihn nie still fallen.
 
 - Alle Importtabellen (Karten, Sammlung, Korpus, Beobachtungen, Rollen, Signale, `tam_price_print`,
   `tam_cardmarket_guide*`, ...). Sie sind neu bauen, nicht sichern (E-A1).
-- `tier_snapshot`: aus Daten und Profil ableitbar.
+- `tier_snapshot`: entfällt (Q1/E4, #1703): kein Schreiber und kein Leser mehr. Die leere Tabelle bleibt in Schema 21
+  (wird mit K-2c nicht übernommen); Zeilen eines älteren Stores bleiben unberührt, werden weder exportiert noch beim
+  Import angelegt und gelten nicht als Verlust (aus Daten und Profil ableitbar).
 - `simulation_run`, `simulation_card` (Ergebnisse, `SIMULATED_RESULT`), `experiment`,
   `experiment_arm` (vollständig aus `games/experiments/<id>/plan.json` und `decision.json` via
   `experiments.rebuild_index()` rekonstruierbare Indizes) und `games/`: Export, Import, `--verify`,
