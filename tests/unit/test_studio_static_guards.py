@@ -4081,3 +4081,232 @@ def test_the_replay_helpers_use_no_innerhtml_style_or_tofixed() -> None:
     line = app[start : start + 500]
     for forbidden in ("innerHTML", "style:", "style=", ".toFixed("):
         assert forbidden not in line, forbidden
+
+
+# --- #1828 Paket 3: paired interim per look, partial result, seed pair table ---------------------
+
+
+def _paired_source() -> str:
+    paired = (STATIC / "paired.js").read_text(encoding="utf-8")
+    assert (
+        paired.count("// BEGIN paired-interim") == 1 and paired.count("// END paired-interim") == 1
+    )
+    return paired
+
+
+def _paired_js(calls: str) -> object:
+    """Run the whole paired.js under node with a German-number StudioUI and a tiny node factory."""
+    script = (
+        "const StudioUI = {"
+        "num: (v, d = 0) => (v === null || v === undefined || v === '' || !Number.isFinite(Number(v)))"
+        " ? 'unbekannt' : Number(v).toLocaleString('de-DE', {minimumFractionDigits: d, maximumFractionDigits: d}),"
+        "numFlex: (v, d = 2) => (v === null || v === undefined || v === '' || !Number.isFinite(Number(v)))"
+        " ? 'unbekannt' : Number(v).toLocaleString('de-DE', {maximumFractionDigits: d})};\n"
+        "const document = {getElementById: () => null};\n"
+        "const h = (tag, props, ...kids) => ({tag, props: props || {}, children: kids.flat().filter(Boolean),"
+        " get textContent() { return this.children.map((c) => typeof c === 'object' ? c.textContent : String(c)).join(' '); },"
+        " append(...m) { this.children.push(...m.flat().filter(Boolean)); }});\n"
+        + _paired_source()
+        + f"\nprocess.stdout.write(JSON.stringify({calls}));\n"
+    )
+    return _node_json(script)
+
+
+_LOOK = {
+    "look_index": 2,
+    "looks_planned": 4,
+    "look_alpha": 0.0001,
+    "decision_level_pct": 99.99,
+    "look_decides": False,
+    "censoring_blocker": None,
+    "pairs_completed": 20,
+    "pairs_attempted": 22,
+    "pairs_censored": 2,
+    "pairs_budget": 40,
+    "difference_pp": 12.5,
+    "decision_ci_pp": [-3.25, 28.25],
+    "variant_only_wins": 7,
+    "baseline_only_wins": 2,
+    "tied_pairs": 11,
+    "sign_test_p_value": 0.179688,
+}
+
+
+def test_paired_interim_names_the_look_the_level_and_never_a_decision() -> None:
+    out = _paired_js(
+        f"[pairedLookTitle({json.dumps(_LOOK)}), pairedLevelText({json.dumps(_LOOK)}),"
+        f" pairedLookDeltaText({json.dumps(_LOOK)}), pairedLookCountsText({json.dumps(_LOOK)}),"
+        f" pairedLookSignText({json.dumps(_LOOK)}), pairedLookRuleText({json.dumps(_LOOK)})]"
+    )
+    assert out == [
+        "Zwischenstand (Look 2 von 4, kein Entscheid)",
+        "Look-Niveau 99,99 % (\u03b1 = 0,0001 für diesen Look)",
+        "Delta (B \u2212 A): +12,5 pp · Look-Intervall [-3,3 pp; +28,3 pp] bei "
+        "Look-Niveau 99,99 % (\u03b1 = 0,0001 für diesen Look)",
+        "Paare: 20/40 ausgewertet · zensiert: 2 von 22 gespielten Paaren "
+        "(ein zensiertes Paar zählt nie als Niederlage).",
+        "Vorzeichentest: B besser in 7, A besser in 2, gleich in 11 Paaren; "
+        "diskordante Paare 9/20; exaktes p = 0,179688.",
+        "Dieser Look entscheidet nicht; die Serie läuft bis zum nächsten Look oder zum Budget.",
+    ]
+    # the mock num() has an ASCII minus; the real StudioUI.num prints the typographic one
+
+
+def test_paired_interim_unknown_figures_stay_text_never_zero_or_a_fake_interval() -> None:
+    out = _paired_js(
+        "[pairedLookTitle({}), pairedPartialTitle({}), pairedLookDeltaText({pairs_completed: 0}),"
+        " pairedLookDeltaText({pairs_completed: 3, difference_pp: 100, decision_ci_pp: null,"
+        " look_alpha: 0.0000004, decision_level_pct: null}),"
+        " pairedLookSignText({}), pairedLevelText({}), pairedLookRuleText({})]"
+    )
+    assert out == [
+        "Zwischenstand (Look unbekannt, kein Entscheid)",
+        "Teilergebnis: unbekannt von unbekannt Paaren, ungeplanter Stopp: nur beschreibend",
+        "Delta (B \u2212 A): unbekannt (noch kein Paar abgeschlossen).",
+        "Delta (B \u2212 A): +100,0 pp · kein Look-Intervall (zu wenige Seeds oder keine Streuung "
+        "zwischen den Seeds: dann entscheidet bei Look-Niveau 100 % (\u03b1 = weniger als 0,000001 "
+        "für diesen Look) nur der Vorzeichentest über die Seeds)",
+        "Vorzeichentest: B besser in unbekannt, A besser in unbekannt, gleich in unbekannt "
+        "Paaren; diskordante Paare unbekannt/unbekannt; exaktes p = unbekannt.",
+        "Look-Niveau unbekannt (\u03b1 = unbekannt für diesen Look)",
+        "Ob dieser Look die Stoppregel erfüllt: unbekannt.",
+    ]
+
+
+def test_paired_partial_title_and_rule_words() -> None:
+    partial = {**_LOOK, "pairs_completed": 4, "pairs_budget": 8}
+    out = _paired_js(
+        f"[pairedPartialTitle({json.dumps(partial)}),"
+        f" pairedLookRuleText({json.dumps({**_LOOK, 'look_decides': True})}),"
+        f" pairedLookRuleText({json.dumps({**_LOOK, 'censoring_blocker': 'CENSORING_LIMIT'})})]"
+    )
+    assert out[0] == "Teilergebnis: 4 von 8 Paaren, ungeplanter Stopp: nur beschreibend"
+    assert (
+        "die Serie endet mit ihrem Ergebnis, dieser Zwischenstand ist nicht das Ergebnis" in out[1]
+    )
+    assert "durch Zensierung gesperrt (zu viele zensierte Paare)" in out[2]
+
+
+def test_paired_chance_line_by_kind_and_outcome() -> None:
+    budget = {
+        "status": "NOT_DECIDED",
+        "stop_reason": "BUDGET_EXHAUSTED",
+        "pairs_completed": 40,
+        "decision_alpha": 0.049,
+        "decision_level_pct": 95.1,
+        "question": {"threshold_pp": 0},
+    }
+    cases = {
+        "interim": ["null", "'interim'"],
+        "partial": ["null", "'partial'"],
+        "budget": [json.dumps(budget), "'final'"],
+        "censored": [json.dumps({**budget, "stop_reason": "CENSORING_LIMIT"}), "'final'"],
+        "above": [json.dumps({**budget, "status": "DECIDED", "answer": "ABOVE"}), "'final'"],
+        "notabove": [json.dumps({**budget, "status": "DECIDED", "answer": "NOT_ABOVE"}), "'final'"],
+        "nopairs": [json.dumps({"status": "NO_PAIRS"}), "'final'"],
+    }
+    calls = ", ".join(f"{k}: pairedChanceLine({a}, {b})" for k, (a, b) in cases.items())
+    out = _paired_js("{" + calls + "}")
+    assert isinstance(out, dict)
+    assert out["interim"].startswith("Echt vs. Zufall: offen; erst das Ergebnis der Serie")
+    assert "ungeplanter Stopp ist nur beschreibend" in out["partial"]
+    assert out["budget"] == (
+        "Echt vs. Zufall: nicht unterscheidbar von Zufall bei dieser Stichprobe "
+        "(heißt nicht, dass die Karte egal ist). Budget erschöpft: kein eindeutiger "
+        "Unterschied; die nachweisbare Differenz steht darunter."
+    )
+    # a series that ended on censoring is not "nicht unterscheidbar von Zufall"
+    assert "nicht unterscheidbar" not in out["censored"] and "nicht beurteilbar" in out["censored"]
+    assert "zu viele zensierte Paare" in out["censored"]
+    assert "Hinweis auf einen echten Unterschied" in out["above"]
+    assert "Look-Niveau 95,1 % (\u03b1 = 0,049 für diesen Look)" in out["above"]
+    assert "nicht, dass B schlechter ist" in out["notabove"]
+    assert out["nopairs"] == "Echt vs. Zufall: keine Aussage möglich (keine auswertbaren Paare)."
+
+
+def test_paired_seed_pair_counts_and_truncation_by_hand() -> None:
+    # 63 pairs: 30 B better, 20 A better, 10 equal, 2 censored, 1 open -> known in 60/63
+    rows = (
+        [{"difference": 1, "status": "paired"}] * 30
+        + [{"difference": -1, "status": "paired"}] * 20
+        + [{"difference": 0, "status": "paired"}] * 10
+        + [{"difference": None, "status": "censored"}] * 2
+        + [{"difference": None, "status": "pending"}]
+    )
+    out = _paired_js(f"pairedSeedPairSummaryText({json.dumps(rows)}, 60)")
+    assert out == {
+        "summary": "Seed-Paartabelle (60 von 63 Paaren angezeigt, 3 weitere nicht · "
+        "Einzelspiel-Drilldown ins Replay)",
+        "counts": "Differenz bekannt in 60/63 Paaren: B besser 30, A besser 20, gleich 10; "
+        "zensiert 2, offen 1.",
+        "more": "3 weitere Paare nicht angezeigt (angezeigt 60/63).",
+    }
+    short = _paired_js(f"pairedSeedPairSummaryText({json.dumps(rows[:5])}, 5)")
+    assert isinstance(short, dict) and short["more"] is None
+    assert short["summary"].startswith("Seed-Paartabelle (5 Paare")
+    # PairRecords are 0-based in the seat: the table shows seat + 1
+    seat = _paired_js("pairedPairRows([{seed: 3, seat: 0}, {seed: 4, seat: 2}]).map((r) => r.seat)")
+    assert seat == [1, 3]
+
+
+def test_paired_monitor_shows_interim_partial_and_unknown_partial() -> None:
+    base = {
+        "series_id": "p1", "pod": "precon", "base_ref": "a", "variant_ref": "b",
+        "budget_pairs": 8, "pairs_attempted": 5, "games_played": 10, "games_planned_max": 16,
+    }  # fmt: skip
+    pairs = [
+        {"seed": s, "seat": 0, "base_game_id": f"b{s}", "variant_game_id": f"v{s}",
+         "base_credit": 0.0, "variant_credit": 1.0, "difference": 1.0}
+        for s in (1, 2, 3, 4)
+    ]  # fmt: skip
+    running = {**base, "status": "running", "interim": _LOOK, "result": None}
+    stopped = {
+        **base, "status": "cancelled", "result": None, "interim": _LOOK,
+        "result_partial": {**_LOOK, "pairs_completed": 4, "pairs_budget": 8,
+                           "pairs_attempted": 4, "pairs": pairs},
+    }  # fmt: skip
+    nothing = {**base, "status": "cancelled", "result": None}
+    deps = (
+        "{api: async () => ({}), fail: () => {}, setActivePaired: () => {}, pollPaired: () => {}}"
+    )
+    out = _paired_js(
+        "["
+        + ", ".join(
+            f"renderPairedMonitor(h, {json.dumps(m)}, {deps}).textContent"
+            for m in (running, stopped, nothing)
+        )
+        + "]"
+    )
+    assert isinstance(out, list)
+    assert "Zwischenstand (Look 2 von 4, kein Entscheid)" in out[0]
+    assert "Look-Niveau 99,99 %" in out[0] and "Echt vs. Zufall: offen" in out[0]
+    assert "Teilergebnis" not in out[0]
+    assert "Teilergebnis: 4 von 8 Paaren, ungeplanter Stopp: nur beschreibend" in out[1]
+    assert "Nach diesem Look wurden noch 1 Paare gespielt" in out[1]
+    assert "Seed-Paartabelle (4 Paare" in out[1] and "Replay A" in out[1]
+    assert "Teilergebnis: unbekannt" in out[2] and "Das ist keine Aussage über die Karten" in out[2]
+    assert "Gepaarte Serien zeigen noch keinen Zwischenstand" not in out[0]
+
+
+def test_paired_interim_helpers_use_no_forbidden_wording_markup_or_raw_decimals() -> None:
+    source = _paired_source()
+    block = source[source.index("// BEGIN paired-interim") : source.index("// END paired-interim")]
+    cards = source[
+        source.index("function renderPairedSeedPairs(") : source.index(
+            "function renderPairedMonitor("
+        )
+    ]
+    shown = json.dumps(
+        _paired_js(
+            f"[pairedChanceLine(null, 'interim'), pairedChanceLine(null, 'partial'),"
+            f" pairedLookRuleText({json.dumps(_LOOK)}), pairedLookTitle({json.dumps(_LOOK)}),"
+            f" pairedPartialTitle({json.dumps(_LOOK)}), pairedLookDeltaText({json.dumps(_LOOK)})]"
+        ),
+        ensure_ascii=False,
+    )
+    for text in (block, cards, shown):
+        low = text.lower()
+        for word in ("signifikant", "belegt", "bewiesen"):
+            assert word not in low, word
+        for forbidden in (".toFixed(", ".toPrecision(", "innerHTML", "style=", "outerHTML"):
+            assert forbidden not in text, forbidden
