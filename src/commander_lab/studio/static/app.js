@@ -1697,6 +1697,17 @@ function batchClassLines(b) {
     aborted: c.cancelled ? `abgebrochen: ${StudioUI.num(c.cancelled, 0)}` : null,
   };
 }
+// A stored run has no column for draws (#1856): its win rate is wins / games with a winner, while the
+// pod matrix divides by all finished games. Where the two differ beyond rounding the run had draws
+// (a draw next to only lost games shows no difference and cannot be told apart here).
+function runHasHiddenDraws(run) {
+  if (!run || !batchKnown(run.win_rate) || !batchKnown(run.games_completed) || !batchKnown(run.wins_fractional)) return false;
+  const n = Number(run.games_completed);
+  if (!(n > 0)) return false;
+  return Math.abs(Number(run.win_rate) - Number(run.wins_fractional) / n) > 0.005 / n + 0.0001;
+}
+const RUN_DRAWS_NOTE_POD = "* Enthält Läufe mit Unentschieden: hier Siege / alle abgeschlossenen Partien (ein Unentschieden steht im Nenner und wirkt wie eine Niederlage); die Laufliste unten zeigt Siege / Partien mit Sieger. Der Store hat noch keine Spalte für Unentschieden (#1856).";
+const RUN_DRAWS_NOTE_RUN = "* Lauf mit Unentschieden: die Siegrate zählt nur Partien mit Sieger, die Spalte „Spiele“ alle abgeschlossenen Partien; der Store hat noch keine Spalte für Unentschieden (#1856).";
 // The games the win rate is based on: those with a winner (older records: all finished ones).
 function batchDecided(summary) {
   if (!summary) return null;
@@ -2095,19 +2106,20 @@ function renderSimulations(body) {
     const pod = String(run.pod || "unbekannt");
     const pKey = JSON.stringify([pod, run.opponent_set_hash || null, run.table_size ?? null]);
     const table = run.opponent_set_hash ? `${(run.opponent_ids || []).join(", ")} · ${run.table_size ?? "?"} Sitze` : null;
-    if (!byPod.has(pKey)) byPod.set(pKey, { pod, table, known: Boolean(run.opponent_set_hash), runs: 0, planned: 0, completed: 0, wins: 0, roundsNum: 0, roundsDen: 0, allSealed: true, states: new Set() });
+    if (!byPod.has(pKey)) byPod.set(pKey, { pod, table, known: Boolean(run.opponent_set_hash), runs: 0, planned: 0, completed: 0, wins: 0, roundsNum: 0, roundsDen: 0, allSealed: true, states: new Set(), drawsHidden: false });
     const agg = byPod.get(pKey);
     agg.runs += 1;
     agg.planned += Number(run.games_planned || 0);
     const gc = Number(run.games_completed || 0);
     agg.completed += gc;
     agg.wins += Number(run.wins_fractional || 0);
+    if (runHasHiddenDraws(run)) agg.drawsHidden = true;
     if (run.mean_rounds != null && gc > 0) { agg.roundsNum += Number(run.mean_rounds) * gc; agg.roundsDen += gc; }
     if (!run.covered_by_sealed_epoch) agg.allSealed = false;
     agg.states.add(String(run.bridge_qualification_state || "UNKNOWN"));
   }
   const podRows = [...byPod.values()].sort((a, b) => a.pod.localeCompare(b.pod, "de") || Number(b.known) - Number(a.known) || String(a.table || "").localeCompare(String(b.table || ""), "de")).map((agg) => {
-    const wr = agg.completed > 0 ? `${StudioUI.num((100 * agg.wins) / agg.completed, 1)} %` : "unbekannt";
+    const wr = agg.completed > 0 ? `${StudioUI.num((100 * agg.wins) / agg.completed, 1)} %${agg.drawsHidden ? " *" : ""}` : "unbekannt";
     const mr = agg.roundsDen > 0 ? StudioUI.numFlex(agg.roundsNum / agg.roundsDen, 1) : "unbekannt";
     const ep = agg.allSealed ? "versiegelt" : (agg.states.has("BRIDGE_AHEAD_OF_QUALIFICATION") ? "Engine-Stand noch nicht qualifiziert" : [...agg.states].join(", "));
     return h("tr", {},
@@ -2123,6 +2135,7 @@ function renderSimulations(body) {
     h("thead", {}, h("tr", {}, h("th", {}, "Pod / Tisch"), h("th", { class: "num" }, "Läufe"), h("th", { class: "num" }, "Spiele (n / N)"), h("th", { class: "num" }, "Siege"), h("th", { class: "num" }, "Siegrate"), h("th", { class: "num" }, "Ø Runden"), h("th", {}, "Epochen-Stand"))),
     h("tbody", {}, podRows)));
   body.append(h("h3", {}, "Pod-Matchup-Übersicht (aggregiert je Tisch)"), podMatrixTable,
+    [...byPod.values()].some((agg) => agg.drawsHidden) ? h("p", { class: "note", id: "pod-draws-note" }, RUN_DRAWS_NOTE_POD) : null,
     h("p", { class: "note" }, "Eine Zeile je Pod, Gegnersatz und Tischgröße: Läufe gegen verschiedene Tische werden nie zusammengezählt. Läufe ohne gespeicherten Gegnersatz (vor #1688) stehen in einer eigenen Zeile „Gegnersatz unbekannt“: das ist keine Kohorte, ihre Läufe können gegen verschiedene Gegner gespielt haben; Läufe vor #1658 spielten möglicherweise gegen einen Ersatz-Tisch."));
   const runTable = h("div", { class: "table-wrap" }, h("table", {},
     h("thead", {}, h("tr", {}, h("th", {}, "Pod"), h("th", {}, "Engine-Pin"), h("th", {}, "Bridge-JAR"), h("th", {}, "Epoche"), h("th", {}, "Pilot"), h("th", { class: "num" }, "Spiele"), h("th", { class: "num" }, "Siege"), h("th", { class: "num" }, "Siegrate"), h("th", { class: "num" }, "Ø Runden"))),
@@ -2134,9 +2147,10 @@ function renderSimulations(body) {
       h("td", {}, run.pilot_policy),
       h("td", { class: "num" }, `${StudioUI.num(run.games_completed, 0)}/${StudioUI.num(run.games_planned, 0)}`),
       h("td", { class: "num" }, StudioUI.numFlex(run.wins_fractional, 1)),
-      h("td", { class: "num" }, run.win_rate === null ? "unbekannt" : `${StudioUI.num(100 * run.win_rate, 1)} %`),
+      h("td", { class: "num" }, run.win_rate === null ? "unbekannt" : `${StudioUI.num(100 * run.win_rate, 1)} %${runHasHiddenDraws(run) ? " *" : ""}`),
       h("td", { class: "num" }, run.mean_rounds == null ? "unbekannt" : StudioUI.numFlex(run.mean_rounds, 1)))))));
   body.append(h("h3", {}, "4P-Simulationsläufe"), runTable,
+    state.simulations.some(runHasHiddenDraws) ? h("p", { class: "note", id: "run-draws-note" }, RUN_DRAWS_NOTE_RUN) : null,
     h("p", { class: "note" }, "Ergebnisse aus echten XMage-Regelkern-Spielen, gebunden an Deck, Engine-Pin, Bridge-JAR, Pilot-Policy und Seeds. Läufe mit BRIDGE_AHEAD_OF_QUALIFICATION oder UNKNOWN sind nicht von der versiegelten Epoche abgedeckt. Kein Beleg für reale Tisch-Siegraten. Exakte Handverweildauer: unbekannt (nicht gemessen)."));
   for (const run of state.simulations) {
     const inDeckCards = (run.cards || []).filter((c) => !c.card_id || qty(c.card_id) > 0 || state.commanderIds.includes(c.card_id));

@@ -3923,3 +3923,27 @@ def test_the_status_text_keeps_an_unknown_failure_count_as_text_never_zero() -> 
         " batchResultClasses({status: 'completed', games: []}).failed]"
     )
     assert out == [None, 0]
+
+
+def test_a_stored_run_with_draws_is_marked_in_the_pod_matrix_and_the_run_list() -> None:
+    """The store has no draw column (#1856): where the stored rate (wins / decided) and wins /
+    completed differ beyond rounding, the views say so; a plain run is not marked."""
+    runs = [
+        {"win_rate": 0.5, "wins_fractional": 1.5, "games_completed": 4},  # one draw
+        {"win_rate": 0.5, "wins_fractional": 2.0, "games_completed": 4},  # no draw
+        {"win_rate": 0.3333, "wins_fractional": 0.33, "games_completed": 1},  # share rounding
+        {"win_rate": None, "wins_fractional": 0.0, "games_completed": 2},
+        {"win_rate": 0.5, "wins_fractional": None, "games_completed": 4},
+        {"win_rate": 0.5, "wins_fractional": 1.0, "games_completed": 0},
+    ]
+    out = _interim_js(f"{json.dumps(runs)}.map(runHasHiddenDraws)")
+    assert out == [True, False, False, False, False, False]
+    assert _interim_js("runHasHiddenDraws(null)") is False
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert 'id: "pod-draws-note" }, RUN_DRAWS_NOTE_POD' in app
+    assert 'id: "run-draws-note" }, RUN_DRAWS_NOTE_RUN' in app
+    assert 'agg.drawsHidden ? " *" : ""' in app and 'runHasHiddenDraws(run) ? " *" : ""' in app
+    note = _interim_js("[RUN_DRAWS_NOTE_POD, RUN_DRAWS_NOTE_RUN]")
+    assert isinstance(note, list) and all(
+        "#1856" in str(n) and "Unentschieden" in str(n) for n in note
+    )
