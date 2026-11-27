@@ -96,7 +96,7 @@ test("both runs stop at every non-priority question", () => {
 test("both runs stop when my own turn begins, and when the turn is unknown", () => {
   const own = pending({}, { active_player_id: "p0", turn_number: 4 });
   for (const action of [ENTER, SHIFT_ENTER]) {
-    assert.deepEqual(FF.verdict(own, ctx(action, 3)), { action: "stop", reason: "dein Zug beginnt" });
+    assert.deepEqual(FF.verdict(own, ctx(action, 3)), { action: "stop", reason: "your turn begins" });
     // still the turn the run started in: keep passing
     assert.equal(FF.verdict(pending({}, { active_player_id: "p0", turn_number: 3 }), ctx(action, 3)).action, "pass");
     assert.equal(FF.verdict(own, { startTurn: null, stopOnOpponentStack: action.stopOnOpponentStack }).action, "stop");

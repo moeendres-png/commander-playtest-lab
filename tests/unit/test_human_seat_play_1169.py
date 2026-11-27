@@ -2717,7 +2717,7 @@ console.log(JSON.stringify(out));
     verdicts = _node_json(script)
     assert isinstance(verdicts, list) and len(verdicts) == len(classes)
     for verdict in verdicts:
-        assert verdict["action"] == "stop" and "selbst" in verdict["reason"]
+        assert verdict["action"] == "stop" and "yourself" in verdict["reason"]
         assert "optionId" not in verdict
 
 
@@ -2738,7 +2738,7 @@ console.log(JSON.stringify([
     result = _node_json(script)
     assert isinstance(result, list)
     own_next, own_same, unknown_start, unknown_owner, opponent = result
-    assert own_next == {"action": "stop", "reason": "dein Zug beginnt"}
+    assert own_next == {"action": "stop", "reason": "your turn begins"}
     assert own_same["action"] == "pass"
     assert unknown_start["action"] == "stop"
     assert unknown_owner["action"] == "stop"
@@ -3591,7 +3591,7 @@ console.log(JSON.stringify({
     assert (
         out["enterOwnTurn"]
         == out["shiftOwnTurn"]
-        == {"action": "stop", "reason": "dein Zug beginnt"}
+        == {"action": "stop", "reason": "your turn begins"}
     )
     assert out["unknownTurn"]["action"] == "stop"
 
@@ -4158,6 +4158,124 @@ def test_ai_tempo_visible_only_pause_and_delay_equivalence(tmp_path: Path) -> No
     assert elapsed_250 >= 0.20
     assert elapsed_250 < 1.25
     assert elapsed_0 < 1.0
+
+
+# ---- one pass element: by hand and with "Continue" are the same game (#1662) --------------------------
+
+_CONTINUE_VERDICT_JS = """
+const fs = require('fs');
+const input = JSON.parse(fs.readFileSync(0, 'utf8'));
+let src = fs.readFileSync('./vorspulen.js', 'utf8');
+if (input.mutate) {
+  const mutated = src.replace('option.option_type === "pass_priority"', 'option.option_type === "play_land"');
+  if (mutated === src) throw new Error('mutation did not change the source');
+  src = mutated;
+}
+const FF = new Function('module', src + '\\nreturn StudioFastForward;')({exports: {}});
+console.log(JSON.stringify(FF.verdict(input.pending, input.context)));
+"""
+
+
+def _continue_verdict(
+    pending: dict[str, object], start_turn: int, *, mutate: bool = False
+) -> dict[str, object]:
+    """The real vorspulen.js ``verdict`` as the Continue path calls it (Enter: stop on opponent stack)."""
+    import shutil
+    import subprocess
+
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("NOT_RUN: node is not installed")
+    payload = {
+        "pending": pending,
+        "context": {"startTurn": start_turn, "stopOnOpponentStack": True},
+        "mutate": mutate,
+    }
+    done = subprocess.run(
+        [node, "-e", _CONTINUE_VERDICT_JS],
+        input=json.dumps(payload),
+        capture_output=True,
+        text=True,
+        check=True,
+        cwd=STATIC,
+    )
+    return json.loads(done.stdout)  # type: ignore[no-any-return]
+
+
+def _offered_pass_id(pending: dict[str, object]) -> str:
+    options = pending["legal_options"]
+    assert isinstance(options, list)
+    return next(o["option_id"] for o in options if o["option_type"] == "pass_priority")
+
+
+def _send_only_offered_pass(
+    client: TestClient, game_id: str, pending: dict[str, object], option_id: object
+) -> None:
+    """The guard of the pass element: only an offered pass_priority option may be sent."""
+    offered = {o["option_id"]: o["option_type"] for o in pending["legal_options"]}  # type: ignore[attr-defined]
+    assert offered.get(option_id) == "pass_priority", f"not an offered pass_priority: {option_id}"
+    resp = client.post(
+        f"/api/play/{game_id}/decision",
+        json={
+            "decision_id": pending["decision_id"],
+            "selected_option_ids": [option_id],
+            "ordering": [],
+        },
+    )
+    assert resp.status_code == 200
+
+
+def _play_scripted_game(tmp_path: Path, game_id: str, *, continue_path: bool, mutate: bool = False):
+    import hashlib
+
+    fake = _FakeInteractiveClient()
+    app, client = _start_fake_session(tmp_path, game_id, fake, ai_delay_ms=0)
+    try:
+        first = _wait_for_pending(client, game_id, "dec-h-1")["pending_decision"]
+        assert isinstance(first, dict)
+        if continue_path:
+            turn = first["pilot_state"]["turn_number"]  # type: ignore[index]
+            verdict = _continue_verdict(first, turn, mutate=mutate)
+            assert verdict["action"] == "pass"
+            _send_only_offered_pass(client, game_id, first, verdict["optionId"])
+        else:
+            _send_only_offered_pass(client, game_id, first, _offered_pass_id(first))
+        snap = _wait_for_pending(client, game_id, "dec-h-2")
+        pending = snap["pending_decision"]
+        assert isinstance(pending, dict)
+        if continue_path:
+            # the target question is not priority: Continue must stop here and send nothing
+            stop = _continue_verdict(pending, 1)
+            assert stop["action"] == "stop" and "optionId" not in stop
+        frames = snap["frames"]
+        digest = hashlib.sha256(
+            json.dumps([fake.submitted_responses, frames], sort_keys=True).encode()
+        ).hexdigest()
+        return list(fake.submitted_responses), digest
+    finally:
+        app.state.play_manager.shutdown_all()  # type: ignore[attr-defined]
+
+
+def test_continue_and_manual_pass_play_the_same_game_with_the_same_transcript_hash(
+    tmp_path: Path,
+) -> None:
+    by_hand, hand_digest = _play_scripted_game(tmp_path / "hand", "eq-hand", continue_path=False)
+    by_continue, continue_digest = _play_scripted_game(
+        tmp_path / "cont", "eq-cont", continue_path=True
+    )
+    assert by_hand == by_continue
+    assert [r["selected_option_ids"] for r in by_continue] == [["pass-1"], ["pass-ai"]]
+    assert hand_digest == continue_digest
+
+
+def test_a_continue_that_would_send_a_non_pass_option_is_refused_and_turns_the_test_red(
+    tmp_path: Path,
+) -> None:
+    # mutation probe: vorspulen.js answers with play_land instead of pass_priority; the guard of the
+    # pass element refuses to send it (without the guard the fake bridge would take the game down a
+    # different path and the digest comparison above would be red)
+    with pytest.raises(AssertionError, match="not an offered pass_priority"):
+        _play_scripted_game(tmp_path / "mut", "eq-mut", continue_path=True, mutate=True)
 
 
 # ---- new decisions are reported at once, not at a fixed interval (#1593) ---------------------------

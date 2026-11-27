@@ -12,7 +12,7 @@ const StudioFastForward = (() => {
     const owner = players.find((player) => player.player_id === pilotState.active_player_id);
     return owner && Number.isInteger(owner.seat) ? owner.seat : null;
   }
-  function stackName(item) { return item && item.face_down ? "verdeckt" : (item && item.name) || "?"; }
+  function stackName(item) { return item && item.face_down ? "face down" : (item && item.name) || "?"; }
 
   // pending: the pending decision of the human as the server publishes it.
   // context: { startTurn, stopOnOpponentStack, labelOf }
@@ -24,22 +24,22 @@ const StudioFastForward = (() => {
     const labelOf = (context && context.labelOf) || ((value) => value);
     if (!pending || pending.decision_class !== "priority") {
       const cls = pending ? labelOf(pending.decision_class || "choice") : "?";
-      return { action: "stop", reason: `Entscheidung „${cls}“: die triffst du selbst` };
+      return { action: "stop", reason: `decision "${cls}": you make this one yourself` };
     }
     const options = Array.isArray(pending.legal_options) ? pending.legal_options : [];
     const pass = options.find((option) => option.option_type === "pass_priority");
-    if (!pass) return { action: "stop", reason: "die Engine bietet keine Pass-Option an" };
+    if (!pass) return { action: "stop", reason: "the engine offers no pass option" };
     const state = pending.pilot_state || {};
     const active = activeSeat(state);
-    if (active === null) return { action: "stop", reason: "der Zugbesitzer ist nicht bekannt" };
+    if (active === null) return { action: "stop", reason: "the turn owner is not known" };
     const startTurn = context && Number.isInteger(context.startTurn) ? context.startTurn : null;
     const stack = Array.isArray(state.stack) ? state.stack : [];
     if (active === pending.seat && (startTurn === null || state.turn_number !== startTurn)) {
-      return { action: "stop", reason: "dein Zug beginnt" };
+      return { action: "stop", reason: "your turn begins" };
     }
     if (context && context.stopOnOpponentStack) {
       const foreign = stack.find((item) => !item || item.controller_id !== pending.actor_id);
-      if (foreign !== undefined) return { action: "stop", reason: `Gegner-Objekt auf dem Stack (${stackName(foreign)})` };
+      if (foreign !== undefined) return { action: "stop", reason: `opponent object on the stack (${stackName(foreign)})` };
     }
     return { action: "pass", optionId: pass.option_id };
   }
