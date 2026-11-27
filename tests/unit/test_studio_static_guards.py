@@ -4277,6 +4277,26 @@ def test_paired_monitor_shows_interim_partial_and_unknown_partial() -> None:
         )
         + "]"
     )
+    # a finished series shows its result, never the interim of a look next to it
+    done = {
+        **base,
+        "status": "completed",
+        "interim": _LOOK,
+        "result": {
+            "status": "NOT_DECIDED",
+            "stop_reason": "BUDGET_EXHAUSTED",
+            "pairs_completed": 8,
+            "pairs_censored": 0,
+            "decision_alpha": 0.049,
+            "decision_level_pct": 95.1,
+            "question": {"threshold_pp": 0},
+            "pairs": pairs,
+        },
+    }
+    finished = _paired_js(f"renderPairedMonitor(h, {json.dumps(done)}, {deps}).textContent")
+    assert isinstance(finished, str)
+    assert "Zwischenstand (Look" not in finished and "paired-look-interim" not in finished
+    assert "Echt vs. Zufall: nicht unterscheidbar von Zufall bei dieser Stichprobe" in finished
     assert isinstance(out, list)
     assert "Zwischenstand (Look 2 von 4, kein Entscheid)" in out[0]
     assert "Look-Niveau 99,99 %" in out[0] and "Echt vs. Zufall: offen" in out[0]
