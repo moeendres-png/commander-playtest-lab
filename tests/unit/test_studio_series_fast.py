@@ -1217,3 +1217,65 @@ def test_batch_recording_runner_opt_in_pilot_audit_invariance(
     assert audit_path is not None
     assert audit_path.parent == dir_on / "pilot_audit"
     assert games.list_games(dir_on)[0]["game_id"] == "g-audit-1"
+
+
+def _write_record_rows(data: Path, batch_id: str, rows: list[tuple[int, str, str | None]]) -> None:
+    """A saved record of seeds 1..3 whose games list holds ``(seed, status, failure_class)`` rows."""
+    _write_series_record(data, batch_id, with_seeds=True)
+    path = data / "games" / f"{batch_id}.series.json"
+    record = json.loads(path.read_text(encoding="utf-8"))
+    record["games"] = [
+        {
+            "game_id": f"batch-{batch_id}-s{seed}",
+            "seed": seed,
+            "status": status,
+            "failure_class": failure_class,
+        }
+        for seed, status, failure_class in rows
+    ]
+    path.write_text(json.dumps(record), encoding="utf-8")
+
+
+def test_a_load_does_not_drop_the_rows_of_games_that_are_finished_on_disk(tmp_path: Path) -> None:
+    """The record says failed for seeds 1 and 2, but the log of seed 1 says finished: that game
+    is taken over, not replayed, so only seeds 2 and 3 enter the replay history (#1857)."""
+    _write_record_rows(
+        tmp_path,
+        "d3",
+        [(1, "failed", "Boom"), (2, "failed", "TimeoutExpired"), (3, "failed", "Cancelled")],
+    )
+    _write_game_log(tmp_path, "d3", 1, "finished")
+    _write_game_log(tmp_path, "d3", 2, "failed")
+    batch = BatchSimulation.from_saved_series(tmp_path, "d3", chunk_runner=lambda seeds: iter(()))
+    assert batch.record_dropped == [
+        ("batch-d3-s2", "TimeoutExpired", False),
+        ("batch-d3-s3", "Cancelled", True),  # a stop is read as a stop after a restart
+    ]
+    batch.note_replayed(batch.record_dropped)
+    entries = batch.to_dict()["replayed_failures"]
+    assert isinstance(entries, list)
+    assert [(e["seed"], e["class"], e["attempts"]) for e in entries] == [
+        (2, "timeout", 1),
+        (3, "cancelled", 1),
+    ]
+
+
+def test_a_load_counts_one_attempt_for_a_game_with_two_unfinished_rows(tmp_path: Path) -> None:
+    """A record of before #1854 can hold two unfinished rows of one game: the latest row counts,
+    as in memory; a game whose latest row is finished is not dropped at all."""
+    _write_record_rows(
+        tmp_path,
+        "d4",
+        [
+            (1, "failed", "Cancelled"),
+            (2, "failed", "TimeoutExpired"),
+            (1, "failed", "Boom"),
+            (3, "failed", "Boom"),
+            (3, "finished", None),
+        ],
+    )
+    batch = BatchSimulation.from_saved_series(tmp_path, "d4", chunk_runner=lambda seeds: iter(()))
+    assert batch.record_dropped == [
+        ("batch-d4-s1", "Boom", False),
+        ("batch-d4-s2", "TimeoutExpired", False),
+    ]
