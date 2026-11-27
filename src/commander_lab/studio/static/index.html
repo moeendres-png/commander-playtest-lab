@@ -7,6 +7,7 @@
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="build.css">
+<link rel="stylesheet" href="workbench.css">
 <script src="ui.js"></script>
 </head>
 <body class="build-studio">
@@ -18,20 +19,38 @@
   <button id="theme-toggle" type="button" class="ghost"></button>
 </header>
 <header id="top">
-  <label>Deck <select id="deck-select"></select></label>
-  <button id="new-deck" type="button">Neues Deck</button>
-  <button id="import-text" type="button">Deckliste einfügen</button>
-  <label>Variante <select id="branch-select"></select></label>
-  <button id="new-branch" type="button">Neue Variante</button>
-  <button id="quick-add-open" type="button" title="Karte per Tastatur suchen und hinzufügen (Strg+K oder /)">Schnell hinzufügen <kbd>Strg K</kbd></button>
-  <span id="counter" class="pill">0 / 100</span>
-  <span id="check-pill" class="pill">Prüfung</span>
-  <span id="save-state" class="muted"></span>
+  <div class="wb-cluster wb-cluster-deck" role="group" aria-label="Deck">
+    <span id="wb-identity" class="wb-identity" hidden></span>
+    <label>Deck <select id="deck-select"></select></label>
+    <button id="new-deck" type="button">Neues Deck</button>
+    <button id="import-text" type="button">Deckliste einfügen</button>
+  </div>
+  <div class="wb-cluster wb-cluster-variant" role="group" aria-label="Variante">
+    <label>Variante <select id="branch-select"></select></label>
+    <button id="new-branch" type="button">Neue Variante</button>
+  </div>
+  <div class="wb-cluster wb-cluster-status" role="group" aria-label="Stand">
+    <span id="counter" class="pill">0 / 100</span>
+    <span id="check-pill" class="pill">Prüfung</span>
+    <span id="save-state" class="muted"></span>
+  </div>
   <span class="spacer"></span>
-  <button id="save" type="button" class="primary">Als Stand speichern</button>
-  <button id="deck-labels" type="button" title="Deine Archetyp-Marken für dieses Deck (nur zum Ordnen, keine Wertung)">Marken: keine</button>
-  <button id="history" type="button">Verlauf</button>
-  <button id="export" type="button">Export</button>
+  <div id="wb-modes" class="wb-modes" role="group" aria-label="Arbeitsmodus">
+    <button type="button" data-mode="collect" aria-label="Arbeitsmodus Sammeln" aria-pressed="false"><span class="wb-mode-icon" aria-hidden="true">◧</span> <span class="wb-label">Sammeln</span></button>
+    <button type="button" data-mode="build" aria-label="Arbeitsmodus Bauen" class="on" aria-pressed="true"><span class="wb-mode-icon" aria-hidden="true">◫</span> <span class="wb-label">Bauen</span></button>
+    <button type="button" data-mode="analyze" aria-label="Arbeitsmodus Analysieren" aria-pressed="false"><span class="wb-mode-icon" aria-hidden="true">◨</span> <span class="wb-label">Analysieren</span></button>
+  </div>
+  <div class="wb-cluster wb-cluster-tools" role="group" aria-label="Werkzeuge">
+    <button id="quick-add-open" type="button" title="Karte per Tastatur suchen und hinzufügen (Strg+K oder /)">Schnell hinzufügen <kbd>Strg K</kbd></button>
+    <button id="wb-commands" type="button" class="ghost" title="Befehle: Ansichten, Speichern, Export … (Strg+Umschalt+K oder &gt;)" aria-label="Befehle öffnen">⌘ <span class="wb-label">Befehle</span></button>
+    <button id="wb-help-open" type="button" class="ghost" title="Tastenkürzel (?)" aria-label="Tastenkürzel zeigen">?</button>
+  </div>
+  <div class="wb-cluster wb-cluster-actions" role="group" aria-label="Speichern und Ausgabe">
+    <button id="save" type="button" class="primary">Als Stand speichern</button>
+    <button id="deck-labels" type="button" title="Deine Archetyp-Marken für dieses Deck (nur zum Ordnen, keine Wertung)">Marken: keine</button>
+    <button id="history" type="button">Verlauf</button>
+    <button id="export" type="button">Export</button>
+  </div>
 </header>
 <div id="data-state"></div>
 <div id="auto-deck-note" class="auto-deck-note" role="status" hidden></div>
@@ -104,6 +123,7 @@
 <script src="wishlist.js"></script>
 <script src="cohort.js"></script>
 <script src="deckhud.js"></script>
+<script src="workbench.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
