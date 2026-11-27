@@ -665,3 +665,26 @@ def test_scoped_and_unscoped_universe_options_keep_separate_entries(tmp_path: Pa
     assert universe.options(store) is unscoped
     assert scoped is not unscoped and scoped != unscoped
     store.close()
+
+
+def test_keys_lists_the_remembered_keys_of_one_kind_and_file(tmp_path: Path) -> None:
+    """``keys``: the caller's keys of one kind for one store file, oldest first; none for an
+    in-memory store, and a dropped entry is gone from it."""
+    store = _store(tmp_path)
+    other = StudioStore.open(tmp_path / "other")
+    try:
+        cache.cached(store, ("strength", "a"), lambda: 1)
+        cache.cached(store, ("land_source_groups", "a"), lambda: 2)
+        cache.cached(store, ("strength", "b"), lambda: 3)
+        cache.cached(other, ("strength", "c"), lambda: 4)
+        assert cache.keys(store, "strength") == [("strength", "a"), ("strength", "b")]
+        assert cache.keys(other, "strength") == [("strength", "c")]
+        assert cache.keys(StudioStore.in_memory(), "strength") == []
+        with cache.write(store, {cache.Group.IMPORT}):
+            store.connection.execute("UPDATE card SET oracle_name = oracle_name || ' x'")
+            store.connection.commit()
+        assert cache.keys(store, "strength") == []
+        assert cache.keys(other, "strength") == [("strength", "c")]
+    finally:
+        other.close()
+        store.close()

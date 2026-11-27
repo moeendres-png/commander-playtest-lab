@@ -2307,3 +2307,170 @@ def test_role_origin_audit_key_order_is_independent_of_hash_seed(tmp_path: Path)
     origin_keys = outputs[0]["origin_keys"]
     assert origin_keys == sorted(origin_keys)
     assert len(origin_keys) >= 3
+
+
+# -- D-1 rest (#1612): mutation, import and the background re-warm of the strength answer ------
+
+
+def _plain_strength(folder: Path) -> dict[str, object]:
+    """The plain strength answer of the default request, as JSON values."""
+    from commander_lab.studio import strength_view
+    from commander_lab.studio.strength import StrengthSettings
+
+    store = StudioStore.open(folder)
+    try:
+        plain: dict[str, object] = json.loads(
+            json.dumps(strength_view.compute(store, COMMANDER, StrengthSettings()))
+        )
+        return plain
+    finally:
+        store.close()
+
+
+def _same_as_plain(route: dict[str, object], plain: dict[str, object]) -> None:
+    """The route answer is the plain answer plus only the additive judgement field."""
+    assert set(route) - set(plain) <= {"kartenverstaendnis"}
+    assert {key: route[key] for key in plain} == plain
+
+
+def test_check_mode_catches_a_caller_that_changes_the_remembered_strength_answer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, _fresh_answers: None
+) -> None:
+    """Over the real route: a caller that changes the remembered strength answer (or the
+    remembered full answer built on it) fails the next request in check mode."""
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio.web import create_app
+
+    monkeypatch.setattr(cache, "CHECK", True)
+    folder = tmp_path / "studio"
+    _big_store(tmp_path).close()
+    client = TestClient(create_app(folder), headers={"X-Studio": "1"})
+    body = {"commander": COMMANDER}
+    assert client.post("/api/strength", json=body).status_code == 200
+    store = StudioStore.open(folder)
+    try:
+        held = {key[0]: value for key, value in cache.snapshot(store)}
+    finally:
+        store.close()
+    full = held["strength_understanding"]
+    assert isinstance(full, dict)
+    full["probe"] = 1
+    with pytest.raises(cache.CacheCheckError, match="strength_understanding"):
+        client.post("/api/strength", json=body)
+    assert cache.counters()["strength_understanding mutated"] == 1
+    answer = held["strength"]
+    assert isinstance(answer, dict) and isinstance(answer["cards"], list)
+    answer["cards"].pop()
+    with pytest.raises(cache.CacheCheckError, match="'strength'"):
+        client.post("/api/strength", json={**body, "detail": "summary"})
+    assert cache.counters()["strength mutated"] == 1
+
+
+def test_an_import_recomputes_the_strength_answer_and_it_equals_the_plain_one(
+    tmp_path: Path, _fresh_answers: None
+) -> None:
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio import catalog
+    from commander_lab.studio.web import create_app
+    from tests.unit.test_studio_builder import _write_csv
+
+    folder = tmp_path / "studio"
+    _big_store(tmp_path).close()
+    client = TestClient(create_app(folder), headers={"X-Studio": "1"})
+    body = {"commander": COMMANDER}
+    first = client.post("/api/strength", json=body)
+    assert first.status_code == 200
+    assert client.post("/api/strength", json=body).content == first.content
+    assert cache.counters()["strength computed"] == 1
+    importer = StudioStore.open(folder)
+    picked: list[dict[str, object]] = [{"deck_id": f"g{n:04d}"} for n in range(10, 60)]
+    catalog.import_cohort(importer, _write_csv(tmp_path / "picked.csv", picked), cohort="bracket:4")
+    importer.close()
+    after = client.post("/api/strength", json=body)
+    assert after.status_code == 200
+    assert cache.counters()["strength computed"] == 2  # the import dropped the kept answer
+    _same_as_plain(after.json(), _plain_strength(folder))
+
+
+def test_a_first_mark_of_an_unowned_card_rewarms_the_strength_answer_in_the_background(
+    tmp_path: Path, _fresh_answers: None
+) -> None:
+    """The first favorite (or mark) of an unowned ``scryfall:`` card adds its ``card`` row, an
+    import table: the remembered strength answers are dropped and filled again in the background
+    (P3 of D-1), so the next request is a hit with the same bytes, equal to the plain answer. A
+    mark of an owned card drops nothing and starts no re-warm."""
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio.web import create_app
+    from tests.unit.test_studio_builder import _insert_scryfall
+
+    folder = tmp_path / "studio"
+    seeded = _big_store(tmp_path)
+    for card_id in _UNOWNED[:2]:
+        _insert_scryfall(
+            seeded,
+            oracle_id=card_id.removeprefix("scryfall:"),
+            name=f"Unowned {card_id[-1]}",
+            colors="G",
+            type_line="Creature — Elf",
+        )
+    seeded.connection.commit()
+    seeded.close()
+    app = create_app(folder)
+    client = TestClient(app, headers={"X-Studio": "1"})
+    body = {"commander": COMMANDER}
+    summary = {**body, "detail": "summary"}
+    before = client.post("/api/strength", json=body)
+    before_summary = client.post("/api/strength", json=summary)
+    assert before.status_code == before_summary.status_code == 200
+    assert cache.counters()["strength computed"] == 1
+
+    # an owned card: marks only, the answer is kept and nothing is started
+    owned = client.put("/api/cards/card:project:0101/favorite", json={"favorite": True})
+    assert owned.status_code == 200
+    assert not hasattr(app.state, "strength_rewarm")
+    assert client.post("/api/strength", json=body).content == before.content
+    assert cache.counters()["strength computed"] == 1
+
+    for card_id, route, payload in (
+        (_UNOWNED[0], "favorite", {"favorite": True}),
+        (_UNOWNED[1], "mark", {"favorite": False, "excluded": True, "note": ""}),
+    ):
+        computed = cache.counters()["strength computed"]
+        dropped = cache.counters().get("strength dropped_written", 0)
+        response = client.put(f"/api/cards/{card_id}/{route}", json=payload)
+        assert response.status_code == 200
+        assert cache.counters()["strength dropped_written"] == dropped + 1  # IMPORT was written
+        rewarm = app.state.strength_rewarm
+        rewarm.join(timeout=60)
+        assert not rewarm.is_alive()
+        assert cache.counters()["strength computed"] == computed + 1  # the re-warm, once
+        hits = cache.counters()["strength hit"]
+        after = client.post("/api/strength", json=body)
+        after_summary = client.post("/api/strength", json=summary)
+        assert cache.counters()["strength computed"] == computed + 1  # the requests: hits
+        assert cache.counters()["strength hit"] == hits + 2
+        assert (after.content, after_summary.content) == (before.content, before_summary.content)
+        del app.state.strength_rewarm
+    _same_as_plain(before.json(), _plain_strength(folder))
+
+
+def test_a_rewarm_request_resolves_to_the_key_it_fills(tmp_path: Path) -> None:
+    """Every preset's key (and the default's) rebuilds a request with the same key; a key in
+    another shape is left alone."""
+    from commander_lab.studio import strength
+    from commander_lab.studio.strength import StrengthSettings
+    from commander_lab.studio.web import StrengthBody, _rewarm_body, _strength_key
+
+    store = _big_store(tmp_path)
+    try:
+        for settings in (StrengthSettings(), *strength.PRESETS.values()):
+            key = _strength_key(StrengthBody(commander=COMMANDER), settings)
+            body = _rewarm_body(store, key)
+            assert body is not None and body.commander == COMMANDER
+        assert _rewarm_body(store, (COMMANDER, None)) is None
+        assert _rewarm_body(store, (COMMANDER, 3, "{}")) is None
+    finally:
+        store.close()

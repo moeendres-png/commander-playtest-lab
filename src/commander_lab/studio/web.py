@@ -13,8 +13,9 @@ import copy
 import json
 import re
 import sqlite3
+import sys
 import threading
-from collections.abc import AsyncIterator, Awaitable, Callable, Iterable, Mapping
+from collections.abc import AsyncIterator, Awaitable, Callable, Hashable, Iterable, Mapping
 from contextlib import asynccontextmanager
 from dataclasses import asdict
 from datetime import UTC, datetime
@@ -105,6 +106,7 @@ from .source_layers import freshness as source_freshness
 from .source_layers import recent_dated_sources, source_layers
 from .sources import source_inventory_payload
 from .store import StudioStore, studio_data_dir
+from .strength import StrengthSettings
 from .universe import UnknownUniverseCards
 
 # What the write routes declare to the cache (``cache.write``). The cache also watches what each
@@ -682,6 +684,83 @@ def _project_strength_card(
     }
 
 
+def _strength_key(body: StrengthBody, settings: StrengthSettings) -> tuple[str, str | None, str]:
+    """The caller's key of a ``strength`` entry after its kind: commander, profile and the
+    resolved settings."""
+    return (
+        body.commander,
+        body.profile,
+        json.dumps(asdict(settings), sort_keys=True, default=str),
+    )
+
+
+def _held_strength_keys(store: StudioStore) -> frozenset[tuple[Hashable, ...]]:
+    """The ``strength`` entries remembered for ``store``'s file (their keys after the kind)."""
+    return frozenset(key[1:] for key in cache.keys(store, "strength"))
+
+
+def _rewarm_body(store: StudioStore, key: tuple[Hashable, ...]) -> StrengthBody | None:
+    """The default-detail request that fills the ``strength`` entry ``key`` again, or ``None``
+    when no request rebuilt from it resolves to the same key (it is then left alone)."""
+    if len(key) != 3:
+        return None
+    commander, profile, settings_json = key
+    if not isinstance(commander, str) or not isinstance(settings_json, str):
+        return None
+    if profile is not None and not isinstance(profile, str):
+        return None
+    body = StrengthBody(commander=commander, profile=profile)
+    if profile is None:
+        default = json.dumps(asdict(StrengthSettings()), sort_keys=True, default=str)
+        if settings_json != default:
+            loaded = json.loads(settings_json)
+            if not isinstance(loaded, dict):
+                return None
+            body = StrengthBody(commander=commander, settings=loaded)
+    settings = strength_view.resolve_settings(
+        store, preset=body.preset, profile=body.profile, settings=body.settings
+    )
+    return body if _strength_key(body, settings) == key else None
+
+
+def _rewarm_strength(
+    app: FastAPI,
+    open_store: Callable[[], StudioStore],
+    store: StudioStore,
+    held: frozenset[tuple[Hashable, ...]],
+) -> None:
+    """P3 of D-1 (#1612): a mark window that also wrote the catalog (the first mark of an
+    unowned ``scryfall:`` card adds its ``card`` row, an import table) drops the remembered
+    strength answers. Fill the dropped ones again in the background, on a connection of their
+    own, so the page's next ``/api/strength`` finds them (or waits for the running computation
+    instead of starting its own). The route's answer does not wait for it; an error is printed,
+    never raised."""
+    dropped = held - _held_strength_keys(store)
+    if not dropped:
+        return
+
+    def run() -> None:
+        try:
+            warm = open_store()
+        except Exception as error:  # a re-warm must never fail a request
+            print(f"strength re-warm: {type(error).__name__}", file=sys.stderr)
+            return
+        try:
+            for key in sorted(dropped, key=repr):
+                try:
+                    body = _rewarm_body(warm, key)
+                    if body is not None:
+                        strength_answer(warm, body)
+                except Exception as error:  # one failed entry keeps the others
+                    print(f"strength re-warm: {type(error).__name__}", file=sys.stderr)
+        finally:
+            warm.close()
+
+    thread = threading.Thread(target=run, name="studio-strength-rewarm", daemon=True)
+    app.state.strength_rewarm = thread
+    thread.start()
+
+
 def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]:
     """The strength index answer of ``/api/strength``, remembered per store state and request
     (the resolved settings are part of the key; errors are not kept). Also what the start-up
@@ -706,11 +785,7 @@ def strength_answer(store: StudioStore, body: StrengthBody) -> dict[str, object]
             )
         return dict(strength_view.compute(store, body.commander, settings))
 
-    key = (
-        body.commander,
-        body.profile,
-        json.dumps(asdict(settings), sort_keys=True, default=str),
-    )
+    key = _strength_key(body, settings)
     answer = cache.cached(store, ("strength", *key), compute)
     if body.detail == "summary":
         return _project_strength_summary(answer, preset=body.preset, profile=body.profile)
@@ -1929,8 +2004,12 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         """Only the favorite mark; the exclusion and the note of the card stay as stored."""
         store = open_store()
         try:
-            with cache.write(store, _with_catalog(_MARKS, [card_id])):
-                return builder.set_favorite(store, card_id, body.favorite)
+            groups = _with_catalog(_MARKS, [card_id])
+            held = _held_strength_keys(store) if cache.Group.IMPORT in groups else frozenset()
+            with cache.write(store, groups):
+                found = builder.set_favorite(store, card_id, body.favorite)
+            _rewarm_strength(app, open_store, store, held)
+            return found
         except KeyError as error:
             raise HTTPException(404, "unknown card") from error
         finally:
@@ -1940,10 +2019,13 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def mark(card_id: str, body: MarkBody) -> dict[str, object]:
         store = open_store()
         try:
-            with cache.write(store, _with_catalog(_MARKS, [card_id])):
+            groups = _with_catalog(_MARKS, [card_id])
+            held = _held_strength_keys(store) if cache.Group.IMPORT in groups else frozenset()
+            with cache.write(store, groups):
                 builder.set_mark(
                     store, card_id, favorite=body.favorite, excluded=body.excluded, note=body.note
                 )
+            _rewarm_strength(app, open_store, store, held)
             return {"card_id": card_id, **body.model_dump()}
         except KeyError as error:
             raise HTTPException(404, "unknown card") from error
