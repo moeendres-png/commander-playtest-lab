@@ -38,8 +38,8 @@ In PR #1862 (`A4`-Zufallstisch) blieben gezielte 4P-Mehrfachblock-Gleichstände 
 
 | Modus | Läufe (`n/N`) | Eindeutige `FrameDigest` (`skip_forced=False` / `True`) | Eindeutige `semantic_transcript_sha256` | Siegerverteilung | Frame-Anzahlen | Laufzeit |
 |---|---:|---:|---:|---|---|---:|
-| Cross-JVM (`single_01..10`) | `10/10` | **`10`** / **`10`** (`0` Paare identisch) | `7` | `seat 3`: `5`, `seat 1`: `5` (gesamt über 20 Läufe: `seat 3`: `11`, `seat 1`: `9`) | `4759` (`3×`), `4760` (`3×`), `5448` (`4×`) | `22.42–29.09 s` je Lauf |
-| Within-JVM (`batch_01..10`, `gamesPerJvm=10`) | `10/10` | **`10`** / **`10`** (`0` Paare identisch) | `n/a` (gesamt `12` über alle `20` Läufe) | — | `4759` (`4×`), `4760` (`1×`), `5448` (`3×`), `5657` (`1×`), `6105` (`1×`) | `190.67 s` gesamt |
+| Cross-JVM (`single_01..10`) | `10/10` | **`10`** / **`10`** (`0` Paare identisch) | `8` | `seat 3`: `6`, `seat 1`: `4` | `4759` (`3×`), `4760` (`3×`), `5448` (`4×`) | `22.42–29.09 s` je Lauf |
+| Within-JVM (`batch_01..10`, `gamesPerJvm=10`) | `10/10` | **`10`** / **`10`** (`0` Paare identisch) | `6` | `seat 3`: `5`, `seat 1`: `5` | `4759` (`4×`), `4760` (`1×`), `5448` (`3×`), `5657` (`1×`), `6105` (`1×`) | `190.67 s` gesamt |
 | **Gesamt (`single` + `batch`)** | **`20/20`** | **`20/20` verschieden** | **`12/20` eindeutig** | **`seat 3`: `11`, `seat 1`: `9`** | **`4759`..`6105`** | — |
 
 ### 2.3 Einzel-Frame-Befunde der Divergenz (`DIRECTLY_VERIFIED`)
@@ -56,4 +56,4 @@ In PR #1862 (`A4`-Zufallstisch) blieben gezielte 4P-Mehrfachblock-Gleichstände 
 
 ## 3. Rohlog-Nachweis (außerhalb Repo)
 
-Alle `28` komprimierten Rohlogs (`8×` Seed `123` + `20×` `seed=1` Mehrfachblock), Deck-JSONs (`4×`) und Zusammenfassungen (`4×`) liegen lokal unter `$HOME/studio-messung/logs_1715_part2/` und sind über `$HOME/studio-messung/logs_1715_part2/sha256sums.txt` (`36` Einträge, SHA-256 `c77edced0f05187dd2ff965a10f79ab1e78d3516a08e37004034b573407b9b3c`) gesichert.
+Alle `28` komprimierten Rohlogs (`8×` Seed `123` + `20×` `seed=1` Mehrfachblock), Deck-JSONs (`5×`: `4×` aktives Setup + `1×` vorangehende Sonde) und Zusammenfassungen (`3×`) liegen lokal unter `$HOME/studio-messung/logs_1715_part2/` und sind über `$HOME/studio-messung/logs_1715_part2/sha256sums.txt` (`36` Einträge, SHA-256 `c77edced0f05187dd2ff965a10f79ab1e78d3516a08e37004034b573407b9b3c`) gesichert.
