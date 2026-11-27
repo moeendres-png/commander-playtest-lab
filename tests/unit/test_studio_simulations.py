@@ -3108,7 +3108,8 @@ def test_a_resumed_series_counts_one_row_per_seed_in_the_final_result_and_the_ev
         assert isinstance(games, list) and len(games) == 10
         assert {g["status"] for g in games} == {"finished"}
         assert payload["run_id"] == f"batch-{first.batch_id}"
-        # the resume drops the old row of a replayed seed (the history is not kept, #1852)
+        # the resume drops the old row of a replayed seed; its trace is the record's
+        # ``replayed_failures`` (#1857), never a row next to the new result (#1852)
         assert sum(1 for g in resumed._games if g.failure_class == "Cancelled") == 0
         row = store.connection.execute(
             "SELECT games_planned, games_completed, games_failed FROM simulation_run"
@@ -3842,3 +3843,27 @@ def test_the_helpers_classify_and_read_a_replay_history_without_trusting_it() ->
         ("g1", 5, "timeout", 2, "x"),
         ("g2", None, "failed", 1, None),
     ]
+
+
+def test_a_dropped_row_of_a_game_the_plan_does_not_name_keeps_its_entry_with_an_unknown_seed(
+    tmp_path: Path,
+) -> None:
+    """The trace is never skipped for lack of a seed: the seed comes from the plan, else unknown."""
+    batch = BatchSimulation(
+        batch_id="trace",
+        data_folder=tmp_path,
+        deck_id="d",
+        revision_id="r",
+        pod_name="precon",
+        opponent_paths=[],
+        seeds=[1, 2],
+        chunk_runner=lambda seeds: iter(()),
+    )
+    batch.note_replayed([("batch-trace-s2", "Boom", False), ("batch-other-s9", None, False)])
+    batch.note_replayed([("batch-trace-s2", "Cancelled", True)])
+    entries = _replayed(batch.to_dict())
+    assert [(e["game_id"], e["seed"], e["class"], e["attempts"]) for e in entries] == [
+        ("batch-trace-s2", 2, "failed", 2),
+        ("batch-other-s9", None, "failed", 1),
+    ]
+    assert entries[1]["last_error_class"] is None  # unknown stays unknown

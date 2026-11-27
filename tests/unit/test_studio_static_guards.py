@@ -3968,17 +3968,18 @@ def test_the_replay_line_counts_failures_and_timeouts_and_keeps_a_stop_apart() -
         "replayed_failures": [
             _replay_entry("timeout", attempts=2),
             _replay_entry("failed"),
+            _replay_entry("failed", game_id="batch-b-s9"),
             _replay_entry("cancelled"),
         ]
     }
     out = _interim_js(f"batchReplayInfo({json.dumps(batch)})")
     assert isinstance(out, dict)
     assert out["text"] == (
-        "2 Partien nach Fehlschlag wiederholt (davon Timeout: 1) · "
+        "3 Partien nach Fehlschlag wiederholt (davon Timeout: 1) · "
         "1 Partien nach Abbruch fortgesetzt"
     )
-    assert (out["failed"], out["timeouts"], out["stopped"], out["cls"]) == (2, 1, 1, "warn")
-    assert "2 × TimeoutExpired" in str(out["title"]) and "1 × Boom" in str(out["title"])
+    assert (out["failed"], out["timeouts"], out["stopped"], out["cls"]) == (3, 1, 1, "warn")
+    assert "2 \u00d7 TimeoutExpired" in str(out["title"]) and "1 \u00d7 Boom" in str(out["title"])
     # only stopped games: no failure is claimed, the pill stays neutral
     only_stop = _interim_js(
         f"batchReplayInfo({json.dumps({'replayed_failures': [_replay_entry('cancelled')]})})"
@@ -3989,7 +3990,7 @@ def test_the_replay_line_counts_failures_and_timeouts_and_keeps_a_stop_apart() -
     odd = _interim_js(
         "batchReplayInfo({replayed_failures: [{game_id: 'g', class: 'failed', attempts: null}]})"
     )
-    assert isinstance(odd, dict) and odd["title"] == "unbekannt × Unbekannt (g)"
+    assert isinstance(odd, dict) and odd["title"] == "unbekannt \u00d7 Unbekannt (g)"
 
 
 def test_an_old_record_without_the_key_shows_no_replay_line_and_no_zero() -> None:
@@ -4024,6 +4025,7 @@ def test_the_status_does_not_claim_zero_failures_for_a_series_that_replayed_fail
     app = (STATIC / "app.js").read_text(encoding="utf-8")
     assert "? batchCompletedStatus(b, classes)" in app
     assert 'id: "sim-replayed"' in app and "const replayInfo = batchReplayInfo(b);" in app
+    assert "if (replayInfo) {\n      monitor.append(" in app
 
 
 def test_the_replay_helpers_use_no_innerhtml_style_or_tofixed() -> None:
