@@ -329,9 +329,10 @@ function tile(card) {
       if (typeof StudioDeckHud !== "undefined") StudioDeckHud.setDraggingSource("");
     },
   },
-    face,
-    count ? h("span", { class: "qty-badge", title: `${count}× im Deck` }, `${count}×`) : null,
-    card.favorite && h("span", { class: "star" }, "★"), tierMark(card, " corner"),
+    h("div", { class: "tile-media" },
+      face,
+      count ? h("span", { class: "qty-badge", title: `${count}× im Deck` }, `${count}×`) : null,
+      card.favorite && h("span", { class: "star" }, "★"), tierMark(card, " corner")),
     h("div", { class: "bar" },
       h("button", { class: "small", type: "button", title: "ins Deck", "aria-label": `${card.name} ins Deck`, disabled: count >= maxCopies(card), onclick: () => add(card) }, "+"),
       h("b", { class: "count", title: "Kopien im Deck" }, count ? count + "×" : "0×"),

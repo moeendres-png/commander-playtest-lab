@@ -14,6 +14,7 @@ body.build-studio #areas a[aria-current="page"] {
 body.build-studio #top {
   background: color-mix(in srgb, var(--panel) 88%, var(--bg));
   backdrop-filter: blur(8px);
+  flex-wrap: wrap;
 }
 
 body.build-studio #quick-add-open {
@@ -65,10 +66,14 @@ body.build-studio .tile.in {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--good) 24%, transparent), 0 8px 20px color-mix(in srgb, #000 26%, transparent);
 }
 
+body.build-studio .tile-media {
+  position: relative;
+}
+
 body.build-studio .tile .qty-badge {
   position: absolute;
-  top: 8px;
-  left: 8px;
+  bottom: 8px;
+  right: 8px;
   z-index: 2;
   padding: 2px 7px;
   border-radius: 999px;
@@ -78,10 +83,6 @@ body.build-studio .tile .qty-badge {
   background: var(--good);
   color: #06140d;
   box-shadow: 0 2px 8px #0008;
-}
-
-body.build-studio .tile:has(.star) .qty-badge {
-  top: 32px;
 }
 
 body.build-studio .tile .bar {
@@ -318,9 +319,7 @@ body.build-studio #deck-tabs {
 }
 
 body.build-studio #deck-tabs .tab-group {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scrollbar-width: none;
+  flex-wrap: wrap;
   padding: 2px;
   border-radius: var(--radius-s);
   background: var(--panel);

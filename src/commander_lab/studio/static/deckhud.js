@@ -23,11 +23,7 @@ const StudioDeckHud = (() => {
   }
 
   function kidsList(items) {
-    const out = items.filter((item) => item !== null && item !== undefined && item !== false);
-    if (typeof StudioUI !== "undefined" && typeof StudioUI.kids === "function") {
-      return StudioUI.kids(out);
-    }
-    return out;
+    return items.filter((item) => item !== null && item !== undefined && item !== false);
   }
 
   function parsePips(manaCost) {
