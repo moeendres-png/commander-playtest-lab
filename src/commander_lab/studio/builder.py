@@ -337,7 +337,7 @@ def _corpus_hits(store: StudioStore, commander_names: Sequence[str]) -> dict[str
     commander (see ``_corpus_hits_uncached``). Remembered per store state (read-only result).
 
     The keys depend on the collection's card names and oracle links, which an importer can
-    change in place without moving the data epoch of ``memo``: so this uses the file stamp of
+    change in place without moving ``Store.data_epoch``: so this uses the file stamp of
     ``cache``, which every commit changes."""
     return cache.cached(
         store,

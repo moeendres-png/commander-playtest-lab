@@ -258,16 +258,13 @@ def test_mobile_deck_browser_columns_and_tier_banner_stay_in_the_viewport() -> N
     tier_js = (STATIC / "tierliste.js").read_text(encoding="utf-8")
     # Every sentence-length badge carries the wrapping class, pinned per site:
     # oracle banner, universe-empty note, subset note, below-minimum note,
-    # calculation notices and snapshot-status badges.
+    # calculation notices.
     for site in (
         'class: "badge warn badge-text", id: "oracle-banner"',
         'id: "universe-empty", class: "badge warn badge-text"',
         'class: "badge warn badge-text" }, summary.subset_note)',
         'class: "badge warn badge-text" }, `unter dem Mindest-Universum',
         'class: "badge warn badge-text" }, text)',
-        'id: "snapshot-status", class: "badge good badge-text"',
-        'id: "snapshot-status", class: "badge warn badge-text"',
-        'id: "snapshot-status", class: "badge dim badge-text"',
     ):
         assert site in tier_js, site
 

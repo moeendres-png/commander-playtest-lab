@@ -57,7 +57,6 @@ from collections.abc import Collection, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from typing import NotRequired, TypedDict, cast
 
-from . import memo
 from ._coerce import to_int
 from .cache import cached
 from .gc_band import (
@@ -462,9 +461,9 @@ def get_profile(store: StudioStore, name: str) -> Profile:
 
 
 def options(store: StudioStore, *, commander_names: Sequence[str] | None = None) -> UniverseOptions:
-    """Memoized per data epoch (read-only result); see ``_options`` for the meaning."""
+    """Remembered per store state (read-only result); see ``_options`` for the meaning."""
     scope = tuple(sorted(set(commander_names))) if commander_names else None
-    return memo.cached(store, "universe_options", scope, lambda: _options(store, commander_names))
+    return cached(store, ("universe_options", scope), lambda: _options(store, commander_names))
 
 
 def _options(store: StudioStore, commander_names: Sequence[str] | None) -> UniverseOptions:
@@ -1104,13 +1103,12 @@ def universe_decks(
     spec: Mapping[str, object] | None = None,
 ) -> UniverseDecks:
     """Resolve a profile (or a free ``spec``) once: its figures and, per raw card name, the
-    universe decks that list it in a counted section with a quantity above zero. Memoized per
-    data epoch (the result is read-only)."""
+    universe decks that list it in a counted section with a quantity above zero. Remembered per
+    store state (the result is read-only)."""
     resolved = _universe_spec(store, profile, spec, commander_names)
-    return memo.cached(
+    return cached(
         store,
-        "universe_decks",
-        json.dumps(resolved, sort_keys=True, default=str),
+        ("universe_decks", json.dumps(resolved, sort_keys=True, default=str)),
         lambda: _universe_decks_of(store, resolved),
     )
 
