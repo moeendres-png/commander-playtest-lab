@@ -46,13 +46,13 @@
   - `Ausgewogen`: `0 / 927` Tier-Abweichungen, `0 / 927` Index-Abweichungen (`max |Δindex| = 0,0`).
   - `Commander-nah`: `0 / 927` Tier-Abweichungen, `0 / 927` Index-Abweichungen (`max |Δindex| = 0,0`).
   - `Turniernah`: `0 / 927` Tier-Abweichungen, `0 / 927` Index-Abweichungen (`max |Δindex| = 0,0`).
-- **Owner-Markierungen (`card_mark`):** Im echten Store existieren `79` Markierungen (im Repo-Store `0`). Gegenprobe auf einer temporären Kopie mit geleerter `card_mark`-Tabelle ergab `0 / 927` Änderungen bei Stufe und Index über alle drei Presets (`Ausgewogen`, `Commander-nah`, `Turniernah`).
+- **Owner-Markierungen (`card_mark`):** Im echten Store existieren `79` Einträge in `card_mark` auf `1.655` Karten (im Repo-Store `0 / 1.655`). Gegenprobe auf einer temporären Kopie mit geleerter `card_mark`-Tabelle ergab `0 / 927` Änderungen bei Stufe und Index über alle drei Presets (`Ausgewogen`, `Commander-nah`, `Turniernah`).
 - **Entfernte Gewichte (E15 Q1 / `#1696`):** `rubric` und `simulation` sind nicht mehr in `strength.COMPONENTS` enthalten (`False` / `False`).
 - **Kartenverständnis (`understanding_field` / `H_pooled`, E17/E19):** Separate Spalte `URTEIL` in `POST /api/strength` (`0 / 922` in `strength_view.compute`, da erst auf API-Antwortebene aus `data/card_understanding/` angehängt); nicht sortierbar, ohne Tier und ohne Index-Gewicht.
 
 ### 3.2 Verteilungen, Plausibilität und Qualitätsmerkmale je Preset
 
-Alle Kennzahlen (außer `tier_snapshot`-Zeitstempel/Epoche) stimmen zwischen echtem Store und frischem Repo-Store bitgleich überein (`Delta = 0`). Poolgröße `N = 927`, gerankt `922` (`S..D`), nicht bewertet `N = 5` (Commander + 4 Standardländer), `U = 0`.
+Alle Kennzahlen (außer `tier_snapshot`-Zeitstempel/Epoche) stimmen zwischen echtem Store und frischem Repo-Store bitgleich überein (`Delta = 0`). Poolgröße `N = 927`, gerankt `922` (`S..D`), nicht bewertet `N = 5` (Commander + 4 Standardländer), `U = 0`. Der Nenner `28` bei „Stammkarten unten“ bezeichnet die `28` Pool-Karten mit `> 30 %` Anteil in den gezählten Korpus-Listen.
 
 | Preset | S (`Zauber/Land`) | A (`Zauber/Land`) | B (`Zauber/Land`) | C (`Zauber/Land`) | D (`Zauber/Land`) | U | N | Plausibilität Spearman (Alle / Zauber / Länder, `n = 10.128` Decks) | Randkarten oben (`< 5 %` in S/A) | Stammkarten unten (`> 30 %` in C/D) | Dünne Datenlage oben (`< 5` Signale in S/A) |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -127,13 +127,13 @@ In allen drei Presets (Echter Store = Repo-Store, Δ = 0) ist `deck_universe` da
 ### 4.2 Sub-Archetypen (`#1368`) auf dem aktuellen Store (`10.128` kanonische Decks)
 
 Der Lauf von `scripts/subarchetype_analysis.py` auf beiden Stores liefert exakt identische Ergebnisse (Echter Store = Repo-Store, Δ = 0):
-- **Kanonische Decks:** `10.128` (`B1: 59`, `B2: 606`, `B3: 887`, `B4: 812`, `B5: 252`).
+- **Kanonische Decks:** `10.128` (`2.616 / 10.128` mit Bracket-Tag: `B1: 59`, `B2: 606`, `B3: 887`, `B4: 812`, `B5: 252`; `7.512 / 10.128` ohne Bracket-Tag).
 - **Tag-Umfang:** `landfall: 2.651`, `blink_bounce: 5.543`, `big_mana: 2.249`, `clue_artifact: 2.014`, `cedh_combo: 5.449`.
 - **Spearman gegen Gesamtkorpus (Auswahl):**
   - `deck_universe`: `0,8819` (`landfall`) bis `0,9441` (`blink_bounce`).
   - `corpus_log_lift`: `0,7962` (`clue_artifact`) bis `0,8979` (`blink_bounce`).
   - `corpus_tuned`: `0,7801` (`landfall`) bis `0,9350` (`blink_bounce`).
-  - `corpus_bracket_slope`: `0,5090` (`big_mana`) bis `0,7726` (`blink_bounce`) — die stärkere Streuung der Steigung entsteht weiterhin auf kleinen Schnittmengen (`big_mana ∩ B5 = 4` Decks, `landfall ∩ B5 = 6` Decks).
+  - `corpus_bracket_slope`: `0,5090` (`big_mana`) bis `0,7726` (`blink_bounce`) — die stärkere Streuung der Steigung entsteht weiterhin auf kleinen Schnittmengen (`big_mana ∩ B5 = 4 / 252` Decks, `landfall ∩ B5 = 6 / 252` Decks).
 - **Einordnung:** Die Empfehlung aus `docs/research/SUBARCHETYPE_ANALYSIS_1368_20261115.md` (**kein Index-Eingriff / kein Archetyp-Filter**) bleibt auch auf dem `10.128`-Deck-Korpus unverändert gültig.
 
 ---
@@ -150,7 +150,7 @@ Der Lauf von `scripts/subarchetype_analysis.py` auf beiden Stores liefert exakt 
 | **E6.a** | UI-Trennung `U`, Datenklassen, Nenner, Konfidenz | In `#1365` umgesetzt; zusätzlich `E15 Q1` (`#1676`–`#1680`): Gesamtrating v1, Layer, Turnier-Conversion und zweite S–D-Skala entfernt | Weiterentwickelt per `E15 Q1` |
 | **Plan-Revision #2** | Redundanz `r > 0,90` für `deck_universe` vs. `corpus_tuned` | Gemessen `r = 0,8129` (alle 3 Presets `0` Paare `> 0,90`) | Eingehalten (`kein Paar`) |
 | **Plan-Revision #3** | Empirical Bayes im Rechenkern für Nenner `< 500` | Aktiv für `tournament` (`max_denominator = 500`) | Umgesetzt & bestätigt |
-| **Plan-Revision #4** | Lokaler MTGJSON-Abgleich (`#1367`) & echter Store (`#1369`) | `#1367` abgeschlossen (`ρ = 0,9659`); `#1369` am echten Store hiermit vorgelegt (`0` Diffs zum Repo-Store) | Erledigt (wartet auf Review & Freigabe durch Hans/Owner) |
+| **Plan-Revision #4** | Lokaler MTGJSON-Abgleich (`#1367`) & echter Store (`#1369`) | `#1367` abgeschlossen (`ρ = 0,9659`); `#1369` am echten Store hiermit vorgelegt (`0` Diffs zum Repo-Store) | Erledigt (wartet auf Review & Freigabe durch den Owner) |
 
 ---
 
@@ -159,4 +159,4 @@ Der Lauf von `scripts/subarchetype_analysis.py` auf beiden Stores liefert exakt 
 - **`UNKNOWN` / `NOT_RUN`:**
   - `kartenverstaendnis` (`H_pooled`, `n = 922`) wurde in `strength_view.compute` nicht separat abgefragt (wird erst durch `understanding_field.py` auf `POST /api/strength` angehängt); seine Anzeige im Browser am Owner-PC ist hier `NOT_RUN`.
   - `edhtop16` ohne Überlappung im Preset `Commander-nah`: `NOT_RUN`, da `tournament` dort ohnehin Gewicht `0` hat.
-- **Nächster Schritt:** Unabhängiges Review dieses PRs abwarten; **danach Stopp bis zur Freigabe durch Hans/Owner** (gemäß `#1369`). Issue `#1369` bleibt bis dahin offen.
+- **Nächster Schritt:** Unabhängiges Review dieses PRs abwarten; **danach Stopp bis zur Freigabe durch den Owner** (gemäß `#1369`). Issue `#1369` bleibt bis dahin offen.
