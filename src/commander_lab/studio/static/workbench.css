@@ -339,7 +339,7 @@ body.build-studio #deck-tabs .chip[data-tab] {
 }
 
 body.build-studio .wb-tab-icon {
-  display: inline-grid;
+  display: none;
   place-items: center;
   width: 18px;
   height: 18px;
@@ -349,6 +349,10 @@ body.build-studio .wb-tab-icon {
   background: color-mix(in srgb, var(--panel2) 60%, var(--line));
   color: var(--muted);
   flex: 0 0 auto;
+}
+
+body.build-studio.wb-mode-analyze .wb-tab-icon {
+  display: inline-grid;
 }
 
 body.build-studio #deck-tabs .chip.on .wb-tab-icon {
@@ -503,6 +507,37 @@ body.build-studio .wb-help-foot {
   }
 }
 
+@media (min-width: 1181px) {
+  body.build-studio #top {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+  body.build-studio .wb-cluster {
+    flex-wrap: nowrap;
+    padding: 2px 4px;
+    gap: 4px;
+  }
+  body.build-studio #save-state {
+    max-width: 210px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (max-width: 1599px) {
+  body.build-studio .wb-modes .wb-label,
+  body.build-studio #wb-commands .wb-label,
+  body.build-studio #quick-add-open kbd {
+    display: none;
+  }
+  body.build-studio .wb-modes button {
+    padding: 2px 9px;
+  }
+  body.build-studio .wb-mode-icon {
+    font-size: 16px;
+  }
+}
+
 @media (max-height: 1050px) {
   body.build-studio.wb-mode-analyze #deck-tabs .chip:not(.on) .wb-tab-desc {
     display: none;
@@ -528,6 +563,12 @@ body.build-studio .wb-help-foot {
   }
   body.build-studio main > #wb-splitter {
     display: none;
+  }
+  body.build-studio #deck-tabs {
+    flex-shrink: 0;
+  }
+  body.build-studio #deck-tabs .tab-group {
+    flex-wrap: wrap;
   }
   body.build-studio.wb-mode-analyze #deck {
     grid-template-columns: minmax(0, 1fr);
@@ -564,6 +605,9 @@ body.build-studio .wb-help-foot {
   body.build-studio #quick-add-open kbd,
   body.build-studio .wb-mode-icon {
     display: none;
+  }
+  body.build-studio .wb-modes .wb-label {
+    display: inline;
   }
 }
 

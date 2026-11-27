@@ -652,7 +652,7 @@ function renderHeader() {
   renderPlayButton();
   renderAutoDeckNote();
   if (typeof StudioDeckHud !== "undefined") StudioDeckHud.render(hudDeps());
-  if (typeof StudioWorkbench !== "undefined") StudioWorkbench.applyIdentity(state.byId.get(state.commanderIds[0]) || null);
+  if (typeof StudioWorkbench !== "undefined") StudioWorkbench.applyIdentity(state.commanderIds.map((id) => state.byId.get(id)));
 }
 // Choosing a commander without a deck creates a saved deck of just the commander (the deck list,
 // the variants and the draft all need a deck to belong to). That is not an action the person

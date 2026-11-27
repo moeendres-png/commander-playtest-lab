@@ -52,7 +52,7 @@ def test_command_bar_keeps_every_control_the_page_script_wires() -> None:
     modes = re.findall(r'data-mode="([a-z]+)"', top)
     assert modes == ["collect", "build", "analyze"]
     # the default (before the script runs) is the familiar split view
-    assert re.search(r'data-mode="build" class="on" aria-pressed="true"', top)
+    assert re.search(r'data-mode="build"[^>]* class="on" aria-pressed="true"', top)
     for ident in ("pool", "deck", "deck-hud", "deck-tabs", "deck-body", "play-row"):
         assert f'id="{ident}"' in html, ident
 
@@ -128,7 +128,7 @@ console.log(JSON.stringify({
     assert isinstance(data, dict)
     assert data["modes"] == ["collect", "build", "analyze", "build", "build", "build"]
     assert data["narrow"] == 320
-    assert data["wide"] == 1400 - 360
+    assert data["wide"] == 1400 - 360 - 10  # pool minimum plus the splitter column
     assert data["mid"] == 612
     assert data["tiny"] == 320  # the deck never gets narrower than its minimum
     assert data["bad"] is None

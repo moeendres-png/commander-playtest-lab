@@ -570,6 +570,12 @@ const StudioDeckHud = (() => {
     const q = paletteInput ? paletteInput.value : "";
     paletteMode = actionProvider && q.trimStart().startsWith(">") ? "actions" : "cards";
     if (paletteEl) paletteEl.classList.toggle("is-commands", paletteMode === "actions");
+    const foot = paletteEl ? paletteEl.querySelector(".quick-add-foot") : null;
+    if (foot) {
+      foot.textContent = paletteMode === "actions"
+        ? "Enter: Befehl ausführen · ↑↓: wählen · Esc: schließen · ohne > am Anfang: Karten suchen"
+        : "Enter: hinzufügen · Umschalt+Enter: entfernen · ↑↓: wählen · Esc: schließen · > am Anfang: Befehle";
+    }
     if (paletteMode === "actions") {
       renderActionList();
       return;

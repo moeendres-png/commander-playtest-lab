@@ -16,6 +16,7 @@ const StudioWorkbench = (() => {
   };
   const MIN_DECK = 320;
   const MIN_POOL = 360;
+  const SPLITTER = 10;
   const STEP = 32;
 
   // Colour of each identity letter, tuned to read on the dark and the light scheme.
@@ -72,7 +73,7 @@ const StudioWorkbench = (() => {
   // Deck column width in pixels, kept so that both pool and deck stay usable.
   function clampDeckWidth(px, mainWidth) {
     const width = Number(mainWidth) || 0;
-    const max = Math.max(MIN_DECK, width - MIN_POOL);
+    const max = Math.max(MIN_DECK, width - MIN_POOL - SPLITTER);
     const value = Number(px);
     if (!Number.isFinite(value)) return null;
     return Math.round(Math.min(max, Math.max(MIN_DECK, value)));
@@ -99,6 +100,7 @@ const StudioWorkbench = (() => {
   let deps = null;
   let mode = "build";
   let helpEl = null;
+  let helpReturnFocus = null;
   let lastIdentity = null;
 
   const byId = (id) => (typeof document !== "undefined" ? document.getElementById(id) : null);
@@ -154,7 +156,7 @@ const StudioWorkbench = (() => {
       const now = deck ? Math.round(deck.getBoundingClientRect().width) : 0;
       splitter.setAttribute("aria-valuenow", String(width || now || MIN_DECK));
       splitter.setAttribute("aria-valuemin", String(MIN_DECK));
-      splitter.setAttribute("aria-valuemax", String(Math.max(MIN_DECK, main.clientWidth - MIN_POOL)));
+      splitter.setAttribute("aria-valuemax", String(Math.max(MIN_DECK, main.clientWidth - MIN_POOL - SPLITTER)));
     }
   }
 
@@ -217,8 +219,10 @@ const StudioWorkbench = (() => {
   }
 
   // Colour identity of the commander as page theme: a gradient line, tinted backdrops and pips.
-  function applyIdentity(commanderCard) {
-    const colors = commanderCard ? commanderCard.colors || "" : null;
+  // Takes one commander card or a list (partners): the identity is the union of their colours.
+  function applyIdentity(commanderCards) {
+    const cards = (Array.isArray(commanderCards) ? commanderCards : [commanderCards]).filter(Boolean);
+    const colors = cards.length ? cards.map((card) => card.colors || "").join("") : null;
     const key = colors === null ? "" : identityLetters(colors).join("");
     if (key === lastIdentity) return;
     lastIdentity = key;
@@ -326,6 +330,7 @@ const StudioWorkbench = (() => {
     ["[ und ]", "vorige / nächste Deck-Ansicht"],
     ["Pfeiltasten am Teiler", "Breite von Pool und Deck"],
     ["?", "diese Übersicht"],
+    ["> oder Knopf ⌘", "Befehle (in Firefox öffnet Strg Umschalt K die Konsole)"],
     ["Esc", "schließen"],
   ];
 
@@ -339,14 +344,18 @@ const StudioWorkbench = (() => {
           h("p", { class: "muted wb-help-foot" }, "Arbeitsmodus und Teilerbreite merkt sich nur dieser Browser; am Deck ändert sich dadurch nichts.")));
       document.body.append(helpEl);
     }
+    if (helpEl.hidden) helpReturnFocus = document.activeElement;
     helpEl.hidden = false;
     const close = helpEl.querySelector("button");
     if (close) close.focus();
   }
 
   function closeHelp() {
-    if (helpEl && !helpEl.hidden) { helpEl.hidden = true; return true; }
-    return false;
+    if (!helpEl || helpEl.hidden) return false;
+    helpEl.hidden = true;
+    if (helpReturnFocus && typeof helpReturnFocus.focus === "function" && document.contains(helpReturnFocus)) helpReturnFocus.focus();
+    helpReturnFocus = null;
+    return true;
   }
 
   function stepTab(direction) {
@@ -364,7 +373,11 @@ const StudioWorkbench = (() => {
     if (event.defaultPrevented) return;
     const typing = isTyping(document.activeElement);
     const modalOpen = byId("modal") && !byId("modal").hidden;
-    if (event.key === "Escape" && closeHelp()) { event.preventDefault(); return; }
+    // The shortcut sheet is modal: Escape closes only it, every other shortcut waits.
+    if (helpEl && !helpEl.hidden) {
+      if (event.key === "Escape") { event.preventDefault(); event.stopImmediatePropagation(); closeHelp(); }
+      return;
+    }
     if ((event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey && event.key.toLowerCase() === "s") {
       event.preventDefault();
       // An open dialog (card window, input) keeps its own focus; the draft is saved from the page.
