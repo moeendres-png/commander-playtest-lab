@@ -4530,3 +4530,78 @@ def test_finished_result_loaded_from_disk_counts_censored_pairs_in_the_table_lin
     assert isinstance(text, str)
     assert "Differenz bekannt in 7/10 gespielten Paaren" in text
     assert "zensiert 3 von 10 gespielten Paaren" in text and "zensiert 0" not in text
+
+
+# --- #1858: batch table_size 2..8 seats parity and duration note guards --------------------------
+
+
+def _batch_table_source() -> str:
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert app.count("// BEGIN batch-table") == 1 and app.count("// END batch-table") == 1
+    return app[app.index("// BEGIN batch-table") : app.index("// END batch-table")]
+
+
+def _batch_table_js(calls: str) -> object:
+    script = (
+        "const StudioUI = {"
+        "num: (v, d = 0) => (v === null || v === undefined || v === '' || !Number.isFinite(Number(v)))"
+        " ? 'unbekannt' : Number(v).toLocaleString('de-DE', {minimumFractionDigits: d, maximumFractionDigits: d})};\n"
+        + _batch_table_source()
+        + f"\nprocess.stdout.write(JSON.stringify({calls}));\n"
+    )
+    return _node_json(script)
+
+
+def test_batch_table_constants_and_form_match_server_seat_bounds() -> None:
+    from commander_lab.studio import launch
+
+    app = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert f"const BATCH_MIN_SEATS = {launch.MIN_SEATS};" in app
+    assert f"const BATCH_MAX_SEATS = {launch.MAX_SEATS};" in app
+    assert f"const BATCH_RELEASED_SEATS = {launch.MAX_RELEASED_SEATS};" in app
+    assert "const BATCH_DEFAULT_SEATS = 4;" in app
+    sim_block = app[app.index("function renderSimulations(") :]
+    sim_block = sim_block[: sim_block.index("if (state.activeBatch)")]
+    assert "4-Spieler-Partien" not in sim_block
+    assert "2 bis 8 Sitze" in sim_block and "SIMULATED_RESULT" in sim_block
+    assert "table_size: selectedSeats" in sim_block
+    assert "state.batchTableSize" in sim_block
+
+
+def test_batch_table_options_and_duration_note_under_node() -> None:
+    out = _batch_table_js(
+        "{"
+        "options: batchTableOptions(),"
+        "note2: batchDurationNote(10, 2),"
+        "note3: batchDurationNote(10, 3),"
+        "note4: batchDurationNote(10, 4),"
+        "note5: batchDurationNote(10, 5),"
+        "note6: batchDurationNote(10, 6),"
+        "note7: batchDurationNote(10, 7),"
+        "note8: batchDurationNote(10, 8)"
+        "}"
+    )
+    assert isinstance(out, dict)
+    options = out["options"]
+    assert isinstance(options, list)
+    assert [(o["seats"], o["locked"]) for o in options] == [(s, False) for s in range(2, 9)]
+
+    note4 = str(out["note4"])
+    assert "541 Partien/h" in note4 and "#1251" in note4 and "SIMULATED_RESULT" in note4
+    assert "Playgroup-Referenz" in note4
+    assert "unbekannt (n = 0 Partien)" not in note4
+    assert not re.search(r"(?<![\d.,])0\s*(?:min|s)\b", note4)
+
+    for seats in (2, 3, 5, 6, 7, 8):
+        note = str(out[f"note{seats}"])
+        assert "Dauer: unbekannt (n = 0 Partien)" in note, seats
+        assert not re.search(r"(?<![\d.,])0\s*(?:min|s)\b", note), (seats, note)
+        assert "SIMULATED_RESULT" in note, seats
+        assert "Playgroup-Referenz gelten nur für 4 Sitze" in note, seats
+        if seats in (7, 8):
+            assert f"Hinweis {seats} Sitze" in note
+            assert "16 Partien je JVM (Studio-Standard)" in note
+            assert "wenige Worker wählen" in note
+            assert "3 GB Heap" in note
+        else:
+            assert "Hinweis" not in note, seats

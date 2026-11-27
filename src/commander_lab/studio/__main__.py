@@ -398,6 +398,12 @@ def _parser() -> argparse.ArgumentParser:
         choices=["precon", "mixed", "optimized"],
         help="pod preset",
     )
+    sim.add_argument(
+        "--table-size",
+        type=int,
+        default=None,
+        help="table size in seats, 2 to 8",
+    )
     sim.add_argument("--count", type=int, default=10, help="number of games to simulate")
     sim.add_argument("--base-seed", type=int, default=1000, help="starting random seed")
     sim.add_argument("--style", type=float, default=None, help="AI pilot style from 0.0 to 1.0")
@@ -1364,6 +1370,7 @@ def main(argv: list[str] | None = None) -> int:
                         folder,
                         revision_id=args.revision,
                         pod=args.pod,
+                        table_size=args.table_size,
                         games_count=args.count,
                         base_seed=args.base_seed,
                         style=args.style,
@@ -1373,6 +1380,9 @@ def main(argv: list[str] | None = None) -> int:
                     )
                 except BatchIdsExhausted as error:
                     print(f"error: {_ids_exhausted_text(error)}", file=sys.stderr)
+                    return 2
+                except ValueError as error:
+                    print(f"error: {error}", file=sys.stderr)
                     return 2
             try:
                 while batch.status in {"pending", "running"}:
