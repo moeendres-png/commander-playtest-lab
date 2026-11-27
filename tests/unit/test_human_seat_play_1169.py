@@ -911,8 +911,10 @@ def test_partie_ui_covers_human_seat_controls_without_client_rules() -> None:
     for elem_id in (
         "concede-btn",
         "bridge-status",
-        "auto-pass-wrap",
-        "auto-pass-human",
+        "pass-element",
+        "pass-once",
+        "pass-continue",
+        "pass-to-my-turn",
         "human-decision",
     ):
         assert f'id="{elem_id}"' in html_text
@@ -2771,12 +2773,12 @@ console.log(JSON.stringify([
 def test_fast_forward_page_code_answers_nothing_but_the_verdict_pass() -> None:
     js_text = (STATIC / "partie.js").read_text(encoding="utf-8")
     html_text = (STATIC / "partie.html").read_text(encoding="utf-8")
-    for elem_id in ("ff-btn", "ff-stack", "ff-rule", "ff-status"):
+    for elem_id in ("pass-once", "pass-continue", "pass-to-my-turn", "pass-rule", "ff-status"):
         assert f'id="{elem_id}"' in html_text
     assert 'src="vorspulen.js"' in html_text
     assert "selected_option_ids: [verdict.optionId]" in js_text
     # the fast-forward switch itself never submits; only the verdict path above does
-    for name in ("startFastForward", "endFastForward", "setAiDelay"):
+    for name in ("startFastForward", "endFastForward", "setAiDelay", "renderPassElement"):
         body = js_text.split(f"function {name}(", 1)[1].split("\nfunction ", 1)[0]
         assert "submitHumanChoice(" not in body, name
     vorspulen = (STATIC / "vorspulen.js").read_text(encoding="utf-8")
@@ -3549,58 +3551,49 @@ def test_yield_modes_only_send_pass_priority_and_stop_on_every_non_priority_clas
     ]
     script = (
         _FF_PRELUDE
-        + f"""
-const modes = ['until_my_turn', 'until_end_of_turn', 'until_stack_resolves'];
-const nonPriority = {json.dumps(non_priority)};
+        + """
+const nonPriority = ["mulligan", "declare_attacker", "declare_blocker", "target", "mana_payment", "choose_use", "mode", "announce_x", "order", "trigger_order", "choice", "amount"];
 const stoppedNonPriority = [];
-for (const mode of modes) {{
-  for (const cls of nonPriority) {{
+for (const stopOnOpponentStack of [true, false]) {
+  for (const cls of nonPriority) {
     const v = FF.verdict(
-      pending({{decision_class: cls, legal_options: [others[0], pass]}}, {{turn_number: 3, stack: [{{object_id: 's1', name: 'Bolt', controller_id: 'op-1'}}]}}),
-      ctx({{mode, startTurn: 3, watchStackObjectId: 's1', stopOnOpponentStack: false}})
+      pending({decision_class: cls, legal_options: [others[0], pass]}, {turn_number: 3, stack: [{object_id: 's1', name: 'Bolt', controller_id: 'op-1'}]}),
+      ctx({startTurn: 3, stopOnOpponentStack})
     );
-    stoppedNonPriority.push({{mode, cls, action: v.action, hasOptionId: 'optionId' in v}});
-  }}
-}}
-const eotSameTurn = FF.verdict(pending({{}}, {{active_player_id: 'p0', turn_number: 3}}), ctx({{mode: 'until_end_of_turn', startTurn: 3}}));
-const eotNextTurn = FF.verdict(pending({{}}, {{active_player_id: 'op-1', turn_number: 4}}), ctx({{mode: 'until_end_of_turn', startTurn: 3}}));
-const eotUnknownTurn = FF.verdict(pending({{}}, {{active_player_id: 'p0', turn_number: 3}}), ctx({{mode: 'until_end_of_turn', startTurn: null}}));
-const eotOppStack = FF.verdict(pending({{}}, {{active_player_id: 'p0', turn_number: 3, stack: [{{object_id: 's1', name: 'Counterspell', controller_id: 'op-1'}}]}}), ctx({{mode: 'until_end_of_turn', startTurn: 3, stopOnOpponentStack: true}}));
+    stoppedNonPriority.push({stopOnOpponentStack, cls, action: v.action, hasOptionId: 'optionId' in v});
+  }
+}
+const oppStack = [{object_id: 's1', name: 'Counterspell', controller_id: 'op-1'}];
+// Enter (stopOnOpponentStack) stops on an opponent object; Shift+Enter does not
+const enterOppStack = FF.verdict(pending({}, {active_player_id: 'p0', turn_number: 3, stack: oppStack}), ctx({startTurn: 3, stopOnOpponentStack: true}));
+const shiftOppStack = FF.verdict(pending({}, {active_player_id: 'p0', turn_number: 3, stack: oppStack}), ctx({startTurn: 3, stopOnOpponentStack: false}));
+// both stop when my own turn begins
+const enterOwnTurn = FF.verdict(pending({}, {active_player_id: 'p0', turn_number: 4}), ctx({startTurn: 3, stopOnOpponentStack: true}));
+const shiftOwnTurn = FF.verdict(pending({}, {active_player_id: 'p0', turn_number: 4}), ctx({startTurn: 3, stopOnOpponentStack: false}));
+const unknownTurn = FF.verdict(pending({}, {active_player_id: 'p0', turn_number: 3}), ctx({startTurn: null}));
 
-const sWatch = {{object_id: 's-1', name: 'Sol Ring', controller_id: 'op-1'}};
-const sResp = {{object_id: 's-2', name: 'Counterspell', controller_id: 'op-1'}};
-const sOld = {{object_id: 's-0', name: 'Arcane Signet', controller_id: 'p0'}};
-const stackPass = FF.verdict(pending({{}}, {{stack: [sWatch]}}), ctx({{mode: 'until_stack_resolves', watchStackObjectId: 's-1'}}));
-const stackEmpty = FF.verdict(pending({{}}, {{stack: []}}), ctx({{mode: 'until_stack_resolves', watchStackObjectId: 's-1'}}));
-const stackResolved = FF.verdict(pending({{}}, {{stack: [sOld]}}), ctx({{mode: 'until_stack_resolves', watchStackObjectId: 's-1'}}));
-const stackNewOpp = FF.verdict(pending({{}}, {{stack: [sResp, sWatch]}}), ctx({{mode: 'until_stack_resolves', watchStackObjectId: 's-1'}}));
-const badMode = FF.verdict(pending({{}}, {{}}), ctx({{mode: 'unknown_mode'}}));
-
-console.log(JSON.stringify({{
+console.log(JSON.stringify({
   stoppedNonPriority,
-  eotSameTurn, eotNextTurn, eotUnknownTurn, eotOppStack,
-  stackPass, stackEmpty, stackResolved, stackNewOpp, badMode,
-  modes: Object.keys(FF.MODES),
-}}));
+  enterOppStack, shiftOppStack, enterOwnTurn, shiftOwnTurn, unknownTurn,
+}));
 """
     )
     out = _node_json(script)
     assert isinstance(out, dict)
-    assert set(out["modes"]) == {"until_my_turn", "until_end_of_turn", "until_stack_resolves"}
-    assert len(out["stoppedNonPriority"]) == 3 * len(non_priority)
+    assert len(out["stoppedNonPriority"]) == 2 * len(non_priority)
     for row in out["stoppedNonPriority"]:
         assert row["action"] == "stop" and row["hasOptionId"] is False, row
-    assert out["eotSameTurn"] == {"action": "pass", "optionId": "pass-1"}
-    assert out["eotNextTurn"]["action"] == "stop" and "Zug" in out["eotNextTurn"]["reason"]
-    assert out["eotUnknownTurn"]["action"] == "stop"
-    assert out["eotOppStack"]["action"] == "stop" and "Counterspell" in out["eotOppStack"]["reason"]
-    assert out["stackPass"] == {"action": "pass", "optionId": "pass-1"}
-    assert out["stackEmpty"]["action"] == "stop" and "leer" in out["stackEmpty"]["reason"]
     assert (
-        out["stackResolved"]["action"] == "stop" and "aufgelöst" in out["stackResolved"]["reason"]
+        out["enterOppStack"]["action"] == "stop"
+        and "Counterspell" in out["enterOppStack"]["reason"]
     )
-    assert out["stackNewOpp"]["action"] == "stop" and "Counterspell" in out["stackNewOpp"]["reason"]
-    assert out["badMode"]["action"] == "stop"
+    assert out["shiftOppStack"] == {"action": "pass", "optionId": "pass-1"}
+    assert (
+        out["enterOwnTurn"]
+        == out["shiftOwnTurn"]
+        == {"action": "stop", "reason": "dein Zug beginnt"}
+    )
+    assert out["unknownTurn"]["action"] == "stop"
 
 
 def test_boardclick_mana_payment_land_click_emits_only_offered_option_id() -> None:
@@ -3847,37 +3840,6 @@ console.log(JSON.stringify({
     assert "begin_combat" in out["steps"] and "beginning_combat" not in out["steps"]
 
 
-def test_fast_forward_stack_checkbox_is_disabled_with_a_hint_and_mode_switch_retargets() -> None:
-    script = (
-        _FF_PRELUDE
-        + """
-const boxStack = FF.stackCheckboxState('until_stack_resolves');
-const boxMy = FF.stackCheckboxState('until_my_turn');
-const boxEot = FF.stackCheckboxState('until_end_of_turn');
-const opp = {object_id: 's-1', name: 'Counterspell', controller_id: 'op-1'};
-// no entry to watch and the checkbox off: the opponent object stops the run anyway (not ignored)
-const noWatchOpp = FF.verdict(pending({}, {stack: [opp]}), ctx({mode: 'until_stack_resolves', stopOnOpponentStack: false}));
-const base = {on: true, boosted: true, mode: 'until_my_turn', startTurn: 3, stopOnOpponentStack: true, watchStackObjectId: null};
-const toStack = FF.retarget(base, 'until_stack_resolves', {topStackObjectId: 's-7', currentTurn: 4});
-const toEot = FF.retarget(toStack, 'until_end_of_turn', {topStackObjectId: 's-7', currentTurn: 4});
-const toMy = FF.retarget(toEot, 'until_my_turn', {topStackObjectId: null, currentTurn: 4});
-const toStackEmpty = FF.retarget(base, 'until_stack_resolves', {topStackObjectId: null, currentTurn: 4});
-console.log(JSON.stringify({boxStack, boxMy, boxEot, noWatchOpp, toStack, toEot, toMy, toStackEmpty, base}));
-"""
-    )
-    out = _node_json(script)
-    assert isinstance(out, dict)
-    assert out["boxStack"]["disabled"] is True and "Gegner" in out["boxStack"]["hint"]
-    assert out["boxMy"] == out["boxEot"] == {"disabled": False, "hint": ""}
-    assert out["noWatchOpp"]["action"] == "stop" and "Counterspell" in out["noWatchOpp"]["reason"]
-    assert out["toStack"]["mode"] == "until_stack_resolves"
-    assert out["toStack"]["watchStackObjectId"] == "s-7" and out["toStack"]["startTurn"] == 3
-    assert out["toEot"]["watchStackObjectId"] is None and out["toEot"]["startTurn"] == 4
-    assert out["toMy"]["mode"] == "until_my_turn" and out["toMy"]["watchStackObjectId"] is None
-    assert out["toStackEmpty"]["watchStackObjectId"] is None
-    assert out["base"]["watchStackObjectId"] is None and out["base"]["mode"] == "until_my_turn"
-
-
 def test_should_pause_for_ai_step_distinguishes_visible_and_invisible_steps() -> None:
     pass_opt = {"option_id": "pass-1", "option_type": "pass_priority", "label": "Pass priority"}
     cast_opt = {"option_id": "cast-1", "option_type": "cast_spell", "label": "Cast Sol Ring"}
@@ -4062,10 +4024,10 @@ def test_ai_tempo_default_250_and_zero_no_pause_server_and_ui(tmp_path: Path) ->
     assert m_speeds is not None
     speeds = json.loads(m_speeds.group(1))
     delays = [entry[0] for entry in speeds]
-    assert delays == [2000, 1000, 500, 250, 120, 50, 0]
+    assert delays == [0, 250, 1000]  # #1662: exactly three steps
     labels_by_delay = {entry[0]: entry[1] for entry in speeds}
-    assert "ohne Pause" in labels_by_delay[0]
-    assert "250 ms" in labels_by_delay[250]
+    assert "No pause" in labels_by_delay[0]
+    assert "250 ms" in labels_by_delay[250] and "1 s" in labels_by_delay[1000]
     assert '$("speed").value = String(DEFAULT_AI_DELAY_MS);' in js_text
 
 

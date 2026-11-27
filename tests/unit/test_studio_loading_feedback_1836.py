@@ -181,22 +181,23 @@ global.document = {{ documentElement: {{ dataset: {{}}, setAttribute: () => {{}}
 const uiCode = fs.readFileSync(path.join(staticDir, 'ui.js'), 'utf8');
 const StudioUI = new Function('window', 'document', 'localStorage', uiCode + '; return StudioUI;')(windowObj, global.document, global.localStorage);
 
-// Test partie.js syncEngineStartBusy with #ff-btn, #speed, #ff-mode
+// Test partie.js syncEngineStartBusy with the pass element buttons and #speed
 const partieCode = fs.readFileSync(path.join(staticDir, 'partie.js'), 'utf8');
 const startIdx = partieCode.indexOf('let engineStartBusy = null;');
 const endIdx = partieCode.indexOf('function renderView()');
 const syncCode = partieCode.slice(startIdx, endIdx);
-const ffBtn = Object.assign(getEl('ff-btn'), {{ disabled: false }});
+const ffBtn = Object.assign(getEl('pass-continue'), {{ disabled: false }});
 const speedSel = Object.assign(getEl('speed'), {{ disabled: false }});
-const ffMode = Object.assign(getEl('ff-mode'), {{ disabled: false }});
+const ffMode = Object.assign(getEl('pass-to-my-turn'), {{ disabled: false }});
+const passOnce = Object.assign(getEl('pass-once'), {{ disabled: false }});
 const syncFn = new Function('StudioUI', '$', syncCode + '; return syncEngineStartBusy;')(StudioUI, getEl);
 
 syncFn(false); // unpaired call before waiting must not touch anything
 const ctrlBefore = ffBtn.disabled;
 const busyObj = syncFn(true);
-const lockedDuringWait = [speedSel.disabled, ffMode.disabled, ffBtn.disabled];
+const lockedDuringWait = [speedSel.disabled, ffMode.disabled, ffBtn.disabled, passOnce.disabled];
 syncFn(false);
-const unlockedAfterWait = [speedSel.disabled, ffMode.disabled, ffBtn.disabled];
+const unlockedAfterWait = [speedSel.disabled, ffMode.disabled, ffBtn.disabled, passOnce.disabled];
 
 // Test daten.js error cleanup removes all 6 busy cards from sections
 const datenCode = fs.readFileSync(path.join(staticDir, 'daten.js'), 'utf8');
@@ -237,8 +238,8 @@ const loadAllFn = new Function('StudioUI', 'StudioCommander', '$', 'h', 'nf', 'r
     out = json.loads(raw)
     assert out["ctrlBefore"] is False
     assert out["hasBusyEl"] is True
-    assert out["lockedDuringWait"] == [True, True, True]
-    assert out["unlockedAfterWait"] == [False, False, False]
+    assert out["lockedDuringWait"] == [True, True, True, True]
+    assert out["unlockedAfterWait"] == [False, False, False, False]
     assert out["stuckBusyAttrs"] == ["warn"] * 6
     assert out["failedMsg"] == "Offline"
     assert out["datenCmdDisabledAfter"] is False and out["datenRefreshDisabledAfter"] is False
@@ -252,7 +253,7 @@ def test_all_seven_surfaces_wire_create_busy_view() -> None:
         "cardduel.js": ("createBusyView", "setControlsBusy"),
         "packages.js": ("6-Schritte-Bauplan", "Pakete & Upgrade-Pfad"),
         "commander.js": ("setControlsBusy", "data-main"),
-        "partie.js": ("syncEngineStartBusy", "XMage-Engine startet", "ff-btn"),
+        "partie.js": ("syncEngineStartBusy", "XMage-Engine startet", "pass-continue"),
         "tierliste.js": (
             "Tierliste wird berechnet",
             "Stärke-Index wird neu berechnet",

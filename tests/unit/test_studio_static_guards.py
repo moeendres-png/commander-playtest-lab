@@ -436,8 +436,10 @@ def test_partie_leave_restore_deleted_game_and_attempt_reset() -> None:
     assert follow.index("error.status === 404") < follow.index(
         "showConnectionLost(state.pollFailures"
     )
-    assert 'addEventListener("pagehide"' in js and "keepalive: true" in js
-    assert "restoreAiDelayOnLeave(state.gameId);" in js  # when another game is opened
+    # #1662: fast-forward no longer changes the session AI delay, so nothing has to be given back
+    # when the page goes away; the speed control is the only writer of the delay
+    assert "restoreAiDelayOnLeave" not in js and "boosted" not in js
+    assert "keepalive: true" not in js
     ended = js.split("function endFastForward(", 1)[1].split("\nfunction ", 1)[0]
     assert "state.autoPassAttempt = null" in ended
 
@@ -1644,19 +1646,17 @@ def test_play_p1a_accessibility_focus_and_static_sinks() -> None:
 
     assert html.index('src="play_p1a.js"') < html.index('src="partie.js"')
     for token in (
-        'id="ff-mode"',
-        'aria-label="Vorspul-Modus"',
-        'value="until_my_turn"',
-        'value="until_end_of_turn"',
-        'value="until_stack_resolves"',
+        'id="pass-element"',
+        'id="pass-once"',
+        'id="pass-continue"',
+        'id="pass-to-my-turn"',
         'id="own-combat"',
-        'id="ff-stack-hint"',
         'class="stack-rail"',
     ):
         assert token in html, token
 
     for rule in (
-        "#ff-mode:focus-visible",
+        ".pass-element button:focus-visible",
         "button.card:focus-visible",
         ".own-combat",
     ):
@@ -1665,7 +1665,7 @@ def test_play_p1a_accessibility_focus_and_static_sinks() -> None:
     # the stack items do nothing themselves (their card tile is the only control): no extra tab stop
     assert "tabindex" not in partie_js
     # the book-keeping of an answer runs in play_p1a.js (node-tested), after the engine accepted it;
-    # both automatic passes hand over their reason instead of writing the log line themselves
+    # the automatic pass hands over their reason instead of writing the log line themselves
     assert "StudioPlayP1a.submitAnswer(" in partie_js
     for wiring in (
         " getPendingDecision: () => state.pendingDecision",
@@ -1675,11 +1675,11 @@ def test_play_p1a_accessibility_focus_and_static_sinks() -> None:
         " logAutoPass: appendAutoPassLog",
     ):
         assert wiring in partie_js, wiring
-    assert partie_js.count("autoPassReason:") == 2
+    assert partie_js.count("autoPassReason:") == 1  # the one pass element (#1662)
     assert "appendAutoPassLog(pending" not in partie_js
     assert "StudioPlayP1a.ownCombatView(" in partie_js
     assert "StudioPlayP1a.clearOwnCombatLedger(" not in partie_js
-    assert "syncFastForwardControls()" in partie_js and "StudioFastForward.retarget(" in partie_js
+    assert "runPassAction(" in partie_js and "StudioFastForward.shortcutAction(" in partie_js
     assert "beginning_combat" not in partie_js
     assert "eigene Angaben" in p1a_js
 

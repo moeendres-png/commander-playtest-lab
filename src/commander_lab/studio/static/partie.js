@@ -18,7 +18,8 @@ const OPPONENT_COUNTS_MAX = 5; // six seats: the most this page shows (launch.MA
 
 const DEFAULT_AI_DELAY_MS = 250;
 // Keep all 7 entries compatible with test_human_seat_play_1169.py (test_ai_tempo_default_250_and_zero_no_pause_server_and_ui).
-const SPEEDS = [[2000, "langsam"], [1000, "1 pro Sekunde"], [500, "2 pro Sekunde"], [250, "250 ms (sichtbare KI-Schritte)"], [120, "8 pro Sekunde"], [50, "sehr schnell"], [0, "ohne Pause"]];
+// Speed control (#1662): exactly three steps, pause before visible AI steps. Fast-forward never changes it.
+const SPEEDS = [[0, "No pause"], [250, "250 ms"], [1000, "1 s"]];
 
 const POOL_COLORS = { white: "Weiß", blue: "Blau", black: "Schwarz", red: "Rot", green: "Grün", colorless: "Farblos" };
 const OPTION_TYPES = { pass_priority: "Passen", play_land: "Land spielen", cast_spell: "Zauber wirken", activated_ability: "Fähigkeit aktivieren", mana_ability: "Mana-Fähigkeit", special_action: "Sonderaktion", target: "Ziel", choose_object: "Objekt wählen", attacker: "Angreifer", blocker: "Blocker", mode: "Modus", choice: "Auswahl", mana_payment: "Mana", trigger_order: "Auslöser", yes: "Ja", no: "Nein" };
@@ -31,7 +32,7 @@ function resolvePriorityOptionType(opt) {
   return ot || "activated_ability";
 }
 
-const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, focusSeat: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, responseMode: "full_control", holdToConfirm: true, haltConfig: typeof StudioTurnBar !== "undefined" ? StudioTurnBar.defaultHaltConfig("full_control") : null, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, postgame: null, postgameGameId: null, postgameLoadingFor: null, postgameFailedFor: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), combatPreview: null, ff: { on: false, boosted: false, mode: "until_my_turn", startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null }, drag: null, suppressNextClickUntil: 0, hoveredTarget: null, targetModeDismissedId: null, targetPointer: null, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], logRuns: [], logQuery: "", seatKeys: [], poll: 0 };
+const state = { cohortRecord: null, click: null, clickActive: false, menu: null, openZone: null, focusSeat: null, games: [], gameId: null, header: null, result: null, running: false, interactive: false, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, holdToConfirm: true, pollFailures: 0, revision: null, followGen: 0, foreground: 0, pollAbort: null, renderedKey: null, postgame: null, postgameGameId: null, postgameLoadingFor: null, postgameFailedFor: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), combatPreview: null, ff: { on: false, label: "", startTurn: null, stopOnOpponentStack: true }, drag: null, suppressNextClickUntil: 0, hoveredTarget: null, targetModeDismissedId: null, targetPointer: null, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], logRuns: [], logQuery: "", seatKeys: [], poll: 0 };
 
 const $ = (id) => document.getElementById(id);
 function h(tag, props, ...children) {
@@ -1421,26 +1422,17 @@ async function submitHumanChoice(payload, opts) {
   }
 }
 
-// ---- fast-forward (Owner decision 2026-11-17) ----------------------------------------------------
-// While on, a priority question of the human is answered with the pass option the engine offered and
-// nothing else (vorspulen.js decides; every other decision stops it). The AI delay of the session is
-// set to 0 and the page polls faster. The slider keeps its value and is restored when it ends.
+// ---- the one pass element (#1662; fast-forward Owner decision 2026-11-17) -------------------------
+// Space = pass once, Enter = continue, Shift+Enter = to my turn. Buttons and keys both go through
+// runPassAction. A run ("continue" / "to my turn") answers a priority question of the human with the
+// pass option the engine offered and nothing else (vorspulen.js decides; every other decision stops
+// it). It never touches the speed control.
 function ffStatus(text, kind) {
   const box = $("ff-status");
   if (!box) return;
   box.textContent = text || "";
   box.hidden = !text;
   box.className = `ff-status${kind ? ` ${kind}` : ""}`;
-}
-function selectedFastForwardMode() {
-  const sel = $("ff-mode");
-  return sel && sel.value ? sel.value : "until_my_turn";
-}
-function topStackObjectId() {
-  const stack = state.pendingDecision && state.pendingDecision.pilot_state && state.pendingDecision.pilot_state.stack;
-  if (!Array.isArray(stack) || !stack.length) return null;
-  const top = stack[0];
-  return top && typeof top.object_id === "string" && top.object_id ? top.object_id : null;
 }
 function appendAutoPassLog(line) {
   const log = $("log");
@@ -1451,40 +1443,16 @@ function appendAutoPassLog(line) {
   log.append(el);
   state.lines.push({ index: Math.max(0, state.frames.length - 1), el });
 }
-// The "stop at opponent spells" checkbox does nothing in the mode "until the stack entry resolved":
-// it is disabled there and the page says why (vorspulen.js stackCheckboxState).
-function syncFastForwardControls() {
-  const box = $("ff-stack");
-  const hint = $("ff-stack-hint");
-  if (!box) return;
-  const info = StudioFastForward.stackCheckboxState(selectedFastForwardMode());
-  box.disabled = info.disabled;
-  if (hint) { hint.textContent = info.hint; hint.hidden = !info.hint; }
-}
-function renderFastForwardButton() {
-  const button = $("ff-btn");
-  if (!button) return;
-  const available = state.interactive && state.running && !isHumanSpectator();
-  $("ff-wrap").hidden = !available;
-  button.setAttribute("aria-pressed", state.ff.on ? "true" : "false");
-  button.textContent = state.ff.on ? "⏹ Vorspulen beenden" : "⏩ Vorspulen bis zu meiner nächsten Entscheidung";
-}
-async function setAiDelay(milliseconds) {
-  if (!state.interactive || !state.running || !state.gameId) return;
-  try { await api(`/api/play/${encodeURIComponent(state.gameId)}/speed`, "POST", { ai_delay_ms: milliseconds }); } catch (error) { toast(`Tempo konnte nicht gesetzt werden: ${error.message}`); }
-}
-// The session keeps the fast AI delay if the page goes away while fast-forwarding: give the slider
-// value back for the game that was open (page close, switching the game).
-function restoreAiDelayOnLeave(gameId) {
-  if (!state.ff.boosted || !gameId) return;
-  try {
-    fetch(`/api/play/${encodeURIComponent(gameId)}/speed`, {
-      method: "POST",
-      keepalive: true,
-      headers: { "X-Studio": "1", "Content-Type": "application/json" },
-      body: JSON.stringify({ ai_delay_ms: Number($("speed").value) })
-    }).catch(() => { /* the page is leaving; the next load sets the slider value again */ });
-  } catch (error) { /* same */ }
+function renderPassElement() {
+  const wrap = $("pass-element");
+  if (!wrap) return;
+  wrap.hidden = !(state.interactive && state.running && !isHumanSpectator());
+  const running = state.ff.on;
+  const pressed = { "pass-continue": running && state.ff.label === "Continue", "pass-to-my-turn": running && state.ff.label === "To my turn" };
+  for (const id of Object.keys(pressed)) {
+    const button = $(id);
+    if (button) button.setAttribute("aria-pressed", pressed[id] ? "true" : "false");
+  }
 }
 function currentTurn() {
   const pending = state.pendingDecision;
@@ -1492,86 +1460,62 @@ function currentTurn() {
   const last = state.frames[state.frames.length - 1];
   return last && Number.isInteger(last.turn) ? last.turn : null;
 }
-function startFastForward(overrides) {
+// The only place a pass of the pass element is built: the offered pass_priority option, on a
+// priority question, or nothing.
+function passOnce() {
+  const pending = state.pendingDecision;
+  if (!pending || state.submitting || pending.decision_class !== "priority") return false;
+  const passOpt = (pending.legal_options || []).find((o) => o && o.option_type === "pass_priority");
+  if (!passOpt) return false;
+  submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [passOpt.option_id], ordering: [] });
+  return true;
+}
+function startFastForward(action) {
   if (state.ff.on || !state.interactive || !state.running) return;
-  const mode = (overrides && overrides.mode) || selectedFastForwardMode();
-  const stopOnOpponentStack = overrides && typeof overrides.stopOnOpponentStack === "boolean"
-    ? overrides.stopOnOpponentStack
-    : Boolean($("ff-stack") && $("ff-stack").checked);
-  if ($("ff-mode") && overrides && overrides.mode) {
-    $("ff-mode").value = mode;
-    syncFastForwardControls();
-  }
-  if ($("ff-stack") && overrides && typeof overrides.stopOnOpponentStack === "boolean") {
-    $("ff-stack").checked = stopOnOpponentStack;
-  }
-  const watchStackObjectId = mode === "until_stack_resolves" ? topStackObjectId() : null;
-  state.ff = { on: true, boosted: true, mode, startTurn: currentTurn(), stopOnOpponentStack, watchStackObjectId };
-  ffStatus(`Vorspulen läuft (${StudioFastForward.modeLabel(mode)}): auf Prioritätsabfragen wird nur „Passen“ gesendet. Bei jeder anderen Entscheidung hält es sofort an.`, "run");
-  renderFastForwardButton();
-  setAiDelay(0);
+  state.ff = { on: true, label: action.label, startTurn: currentTurn(), stopOnOpponentStack: Boolean(action.stopOnOpponentStack) };
+  ffStatus(`${action.label} running: only the engine's pass option is sent on priority. It stops at any other question${action.stopOnOpponentStack ? ", at an opponent object on the stack" : ""} and at my turn.`, "run");
+  renderPassElement();
   if (state.pendingDecision) maybeAutoPassHuman(state.pendingDecision);
   follow();
 }
 function endFastForward(reason) {
   if (!state.ff.on) return;
-  const boosted = state.ff.boosted;
-  state.ff = { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null };
+  state.ff = { on: false, label: "", startTurn: null, stopOnOpponentStack: true };
   state.autoPassAttempt = null; // a pass that was never sent must not block the next try
-  if (boosted) setAiDelay(Number($("speed").value));
-  ffStatus(`Vorspulen beendet: ${reason}.`, "stop");
-  renderFastForwardButton();
+  ffStatus(`Stopped: ${reason}.`, "stop");
+  renderPassElement();
   clearTimeout(state.poll);
   follow();
 }
+// Buttons and keys alike: a click on a running button stops the run; otherwise the action is the
+// one vorspulen.js maps from the key.
+function runPassAction(key, shiftKey) {
+  if (typeof StudioFastForward === "undefined") return false;
+  const action = StudioFastForward.shortcutAction(key, shiftKey);
+  if (!action) return false;
+  if (state.ff.on) { endFastForward("stopped by you"); return true; }
+  if (!state.interactive || !state.running || state.submitting || isHumanSpectator()) return false;
+  if (action.kind === "pass_once") return passOnce();
+  startFastForward(action);
+  return true;
+}
+async function setAiDelay(milliseconds) {
+  if (!state.interactive || !state.running || !state.gameId) return;
+  try { await api(`/api/play/${encodeURIComponent(state.gameId)}/speed`, "POST", { ai_delay_ms: milliseconds }); } catch (error) { toast(`Speed could not be set: ${error.message}`); }
+}
 
 function maybeAutoPassHuman(pending) {
-  if (!pending || state.submitting || pending.decision_id === state.autoPassAttempt) return false;
-  if (state.ff.on) {
-    // Fast-forward: the pass option of the engine on a priority question, otherwise it stops.
-    const verdict = StudioFastForward.verdict(pending, {
-      mode: state.ff.mode,
-      startTurn: state.ff.startTurn,
-      stopOnOpponentStack: state.ff.stopOnOpponentStack,
-      watchStackObjectId: state.ff.watchStackObjectId,
-      labelOf: (value) => CLASSES[value] || value
-    });
-    if (verdict.action !== "pass") { endFastForward(verdict.reason); return false; }
-    state.autoPassAttempt = pending.decision_id;
-    submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [verdict.optionId], ordering: [] },
-      { autoPassReason: StudioFastForward.modeLabel(state.ff.mode) });
-    return true;
-  }
-  const autoBox = $("auto-pass-human");
-  const modeId = state && state.responseMode ? state.responseMode : "big_moments";
-  const wantsAuto = Boolean(autoBox && autoBox.checked);
-  if (!wantsAuto) return false;
-  let profilePassId = null;
-  let profileReason = "Auto-Pass bis eigene Aktion";
-  if (typeof StudioTurnBar !== "undefined" && StudioTurnBar.evaluateResponseProfile) {
-    const verdict = StudioTurnBar.evaluateResponseProfile(pending, modeId, state.haltConfig);
-    if (verdict.action !== "pass") return false;
-    profilePassId = verdict.optionId;
-    profileReason = verdict.reason || "Antwort-Modus";
-  } else {
-    if (pending.decision_class !== "priority") return false;
-    const options = Array.isArray(pending.legal_options) ? pending.legal_options : [];
-    const passOpt = options.find((opt) => opt.option_type === "pass_priority");
-    if (!passOpt) return false;
-    const ps = pending.pilot_state || {};
-    const stack = Array.isArray(ps.stack) ? ps.stack : [];
-    const frame = pilotStateToFrame(pending);
-    const onlyPass = options.length === 1;
-    const safeOpponentEmptyStack = frame.active_seat !== pending.seat && stack.length === 0;
-    if (!onlyPass && !safeOpponentEmptyStack) return false;
-    profilePassId = passOpt.option_id;
-  }
+  if (!pending || state.submitting || !state.ff.on || pending.decision_id === state.autoPassAttempt) return false;
+  // The pass option of the engine on a priority question, otherwise the run stops.
+  const verdict = StudioFastForward.verdict(pending, {
+    startTurn: state.ff.startTurn,
+    stopOnOpponentStack: state.ff.stopOnOpponentStack,
+    labelOf: (value) => CLASSES[value] || value
+  });
+  if (verdict.action !== "pass") { endFastForward(verdict.reason); return false; }
   state.autoPassAttempt = pending.decision_id;
-  submitHumanChoice({
-    decision_id: pending.decision_id,
-    selected_option_ids: [profilePassId],
-    ordering: []
-  }, { autoPassReason: profileReason });
+  submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [verdict.optionId], ordering: [] },
+    { autoPassReason: state.ff.label });
   return true;
 }
 
@@ -1623,21 +1567,15 @@ function renderSpectatorStatus() {
 function renderHumanDecision() {
   const panel = $("human-decision");
   const concedebtn = $("concede-btn");
-  const autoWrap = $("auto-pass-wrap");
   renderSpectatorStatus();
   if (concedebtn) {
     concedebtn.hidden = !(state.interactive && state.running && state.canConcede && !isHumanSpectator());
     concedebtn.disabled = Boolean(state.conceding);
   }
   const showLiveHumanCtrls = Boolean(state.interactive && state.running && !isHumanSpectator());
-  if (autoWrap) autoWrap.hidden = !showLiveHumanCtrls;
-  const respWrap = $("response-mode-wrap");
-  if (respWrap) respWrap.hidden = !showLiveHumanCtrls;
-  const haltWrap = $("halt-config-wrap");
-  if (haltWrap) haltWrap.hidden = !showLiveHumanCtrls;
   const holdWrap = $("hold-confirm-wrap");
   if (holdWrap) holdWrap.hidden = !showLiveHumanCtrls;
-  renderFastForwardButton();
+  renderPassElement();
   const pending = state.interactive && state.running ? state.pendingDecision : null;
   if (!pending) {
     panel.hidden = true;
@@ -2621,7 +2559,7 @@ function buildResultErrorCard(result) {
 let engineStartBusy = null;
 let engineStartControlsLocked = false;
 function syncEngineStartBusy(waiting) {
-  const ctrls = [$("speed"), $("ff-mode"), $("ff-btn")];
+  const ctrls = [$("speed"), $("pass-once"), $("pass-continue"), $("pass-to-my-turn")];
   if (!waiting) {
     if (engineStartBusy) {
       engineStartBusy.stop();
@@ -3472,10 +3410,9 @@ async function loadMoreOnce(hold, prefetched) {
 async function openGame(gameId) {
   if (typeof syncEngineStartBusy === "function") syncEngineStartBusy(false);
   setPlaying(false); clearTimeout(state.poll); abortHeldRequest(); state.followGen += 1;
-  restoreAiDelayOnLeave(state.gameId);
   const listed = state.games.find((entry) => entry.game_id === gameId);
   const listedInteractive = Boolean(listed && listed.header && Array.isArray(listed.header.human_seats) && listed.header.human_seats.length);
-  Object.assign(state, { gameId, cohortRecord: null, focusSeat: null, frames: [], lines: [], logRuns: [], logQuery: "", index: 0, seatKeys: [], header: null, result: null, postgame: null, postgameGameId: null, postgameLoadingFor: null, postgameFailedFor: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, pollFailures: 0, revision: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), combatPreview: null, ff: { on: false, boosted: false, mode: selectedFastForwardMode(), startTurn: null, stopOnOpponentStack: $("ff-stack").checked, watchStackObjectId: null } });
+  Object.assign(state, { gameId, cohortRecord: null, focusSeat: null, frames: [], lines: [], logRuns: [], logQuery: "", index: 0, seatKeys: [], header: null, result: null, postgame: null, postgameGameId: null, postgameLoadingFor: null, postgameFailedFor: null, interactive: listedInteractive, humanSeats: [], pendingDecision: null, pendingDecisionId: null, selectedOptions: [], orderList: [], submitting: false, canConcede: false, concededSeats: [], eliminatedSeats: [], concedePendingDecision: false, conceding: false, handsRevealed: false, forcedPasses: null, autoPassAttempt: null, lastOwnPriority: null, stagedHand: null, autoPayPlan: null, autoPayAttempt: null, keepStageOnCancel: false, pollFailures: 0, revision: null, ownCombat: StudioPlayP1a.emptyCombatLedger(), combatPreview: null, ff: { on: false, label: "", startTurn: null, stopOnOpponentStack: true } });
   if ($("postgame-sheet")) { $("postgame-sheet").hidden = true; $("postgame-sheet").textContent = ""; if ($("postgame-sheet").dataset) delete $("postgame-sheet").dataset.gameId; }
   if ($("log-search")) $("log-search").value = "";
   if ($("table-mode-bar")) $("table-mode-bar").hidden = true;
@@ -3494,7 +3431,7 @@ async function openGame(gameId) {
   if (state.interactive && state.frames.length) state.index = state.frames.length - 1;
   render();
   follow();
-  // A fast AI delay left behind by an earlier page is replaced by the slider value.
+  // The session takes the speed control value when the game opens.
   if (state.interactive && state.running) setAiDelay(Number($("speed").value));
 }
 const POLL_FAILURES_BEFORE_BANNER = 2;
@@ -4043,23 +3980,15 @@ async function start() {
   syncRematchButton();
   for (const [delay, label] of SPEEDS) $("speed").append(h("option", { value: String(delay) }, label));
   $("speed").value = String(DEFAULT_AI_DELAY_MS);
-  $("speed").title = "Pause vor sichtbaren KI-Schritten (erzwungene Schritte und Prioritäts-Pässe laufen ohne Pause)";
+  $("speed").title = "Pause before visible AI steps (forced steps and priority passes run without a pause)";
   $("speed").addEventListener("change", async () => {
-    // While fast-forwarding the AI delay stays 0; the chosen value is restored when it ends.
-    if (state.ff.boosted) return;
     if (state.interactive && state.running && state.gameId) {
       try { await api(`/api/play/${encodeURIComponent(state.gameId)}/speed`, "POST", { ai_delay_ms: Number($("speed").value) }); } catch (error) { /* ignore speed update errors */ }
     }
   });
-  window.addEventListener("pagehide", () => restoreAiDelayOnLeave(state.gameId));
-  $("ff-btn").addEventListener("click", () => { if (state.ff.on) endFastForward("von dir beendet"); else startFastForward(); });
-  $("ff-mode").addEventListener("change", () => {
-    syncFastForwardControls();
-    // a run in progress takes the target of the new mode from the table as it is now
-    if (state.ff.on) state.ff = StudioFastForward.retarget(state.ff, selectedFastForwardMode(), { topStackObjectId: topStackObjectId(), currentTurn: currentTurn() });
-  });
-  syncFastForwardControls();
-  $("ff-stack").addEventListener("change", () => { state.ff.stopOnOpponentStack = $("ff-stack").checked; });
+  for (const [id, key, shiftKey] of [["pass-once", " ", false], ["pass-continue", "Enter", false], ["pass-to-my-turn", "Enter", true]]) {
+    $(id).addEventListener("click", () => runPassAction(key, shiftKey));
+  }
   $("first").addEventListener("click", () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); go(0); });
   $("prev-turn").addEventListener("click", () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); prevTurn(); });
   $("back").addEventListener("click", () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); step(-1); });
@@ -4070,66 +3999,8 @@ async function start() {
   $("position").addEventListener("input", () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); go(Number($("position").value)); });
   $("game-select").addEventListener("change", () => openGame($("game-select").value));
   $("modal").addEventListener("click", (event) => { if (event.target === $("modal")) closeActiveModal(false); });
-  const syncHaltFromDom = () => {
-    state.haltConfig = {
-      haltStackNonEmpty: Boolean($("halt-stack") && $("halt-stack").checked),
-      haltCombat: Boolean($("halt-combat") && $("halt-combat").checked),
-      haltOwnMain: Boolean($("halt-own-main") && $("halt-own-main").checked),
-      haltOpponentEndStep: Boolean($("halt-opp-end") && $("halt-opp-end").checked),
-      haltPlayableOptions: Boolean($("halt-playable") && $("halt-playable").checked),
-    };
-  };
-  const applyModeCheckboxes = (modeId) => {
-    if (typeof StudioTurnBar === "undefined") return;
-    const defaults = StudioTurnBar.defaultHaltConfig(modeId);
-    state.haltConfig = defaults;
-    if ($("halt-stack")) $("halt-stack").checked = defaults.haltStackNonEmpty;
-    if ($("halt-combat")) $("halt-combat").checked = defaults.haltCombat;
-    if ($("halt-own-main")) $("halt-own-main").checked = defaults.haltOwnMain;
-    if ($("halt-opp-end")) $("halt-opp-end").checked = defaults.haltOpponentEndStep;
-    if ($("halt-playable")) $("halt-playable").checked = defaults.haltPlayableOptions;
-  };
-  // Synchronize response profile, halt checkboxes, Hold-to-Confirm, and Auto-Pass from DOM on startup (soft-reload safe).
-  const syncControlsFromDomOnLoad = () => {
-    if ($("hold-confirm-toggle")) state.holdToConfirm = Boolean($("hold-confirm-toggle").checked);
-    const modeEl = $("response-mode");
-    const autoEl = $("auto-pass-human");
-    if (modeEl && autoEl) {
-      if (autoEl.checked && modeEl.value === "full_control") modeEl.value = "big_moments";
-      else if (!autoEl.checked) modeEl.value = "full_control";
-      state.responseMode = modeEl.value;
-    } else if (modeEl) {
-      state.responseMode = modeEl.value;
-    }
-    syncHaltFromDom();
-  };
-  syncControlsFromDomOnLoad();
-  $("auto-pass-human").addEventListener("change", () => {
-    if ($("auto-pass-human").checked) {
-      if ($("response-mode") && $("response-mode").value === "full_control") {
-        $("response-mode").value = "big_moments";
-        state.responseMode = "big_moments";
-        applyModeCheckboxes("big_moments");
-      }
-      if (state.interactive && state.pendingDecision) maybeAutoPassHuman(state.pendingDecision);
-    } else if ($("response-mode")) {
-      $("response-mode").value = "full_control";
-      state.responseMode = "full_control";
-    }
-  });
-  if ($("response-mode") && typeof StudioTurnBar !== "undefined") {
-    $("response-mode").addEventListener("change", () => {
-      const modeId = $("response-mode").value;
-      state.responseMode = modeId;
-      applyModeCheckboxes(modeId);
-      $("auto-pass-human").checked = modeId !== "full_control";
-      if (state.interactive && state.pendingDecision) maybeAutoPassHuman(state.pendingDecision);
-    });
-  }
-  for (const id of ["halt-stack", "halt-combat", "halt-own-main", "halt-opp-end", "halt-playable"]) {
-    const el = $(id);
-    if (el) el.addEventListener("change", () => { syncHaltFromDom(); if (state.interactive && state.pendingDecision) maybeAutoPassHuman(state.pendingDecision); });
-  }
+  // Hold-to-Confirm from the DOM on startup (soft-reload safe).
+  if ($("hold-confirm-toggle")) state.holdToConfirm = Boolean($("hold-confirm-toggle").checked);
   if ($("hold-confirm-toggle")) {
     $("hold-confirm-toggle").addEventListener("change", () => {
       state.holdToConfirm = Boolean($("hold-confirm-toggle").checked);
@@ -4226,21 +4097,9 @@ async function start() {
     }
     if (!StudioReplay.isReplayAvailable(state)) {
       const modalOpen = Boolean($("modal") && !$("modal").hidden);
-      if (!modalOpen && !isInteractive(target) && state.interactive && state.running && !state.submitting && (!state.ff || !state.ff.on)) {
-        const action = (typeof StudioFastForward !== "undefined" && StudioFastForward.shortcutAction)
-          ? StudioFastForward.shortcutAction(event.key, event.shiftKey)
-          : (event.key === " " ? { kind: "pass_once" } : null);
-        if (action && action.kind === "pass_once" && state.pendingDecision) {
-          const pending = state.pendingDecision;
-          const passOpt = pending.decision_class === "priority" && (pending.legal_options || []).find((o) => o && o.option_type === "pass_priority");
-          if (passOpt) {
-            event.preventDefault();
-            submitHumanChoice({ decision_id: pending.decision_id, selected_option_ids: [passOpt.option_id], ordering: [] });
-          }
-        } else if (action && action.kind === "fast_forward" && (typeof isHumanSpectator !== "function" || !isHumanSpectator())) {
-          event.preventDefault();
-          startFastForward({ mode: action.mode, stopOnOpponentStack: action.stopOnOpponentStack });
-        }
+      if (!modalOpen && !isInteractive(target) && state.interactive && state.running) {
+        // keys and buttons share runPassAction; the page preventDefaults only what it handled
+        if (runPassAction(event.key, event.shiftKey)) event.preventDefault();
       }
       return;
     }
@@ -4291,6 +4150,12 @@ async function start() {
     syncHoverHighlights();
     drawBlockLinks();
   }, { passive: true });
+  // A click on any decision control while a run is going stops the run (the click itself still works).
+  document.addEventListener("click", (event) => {
+    if (!state.ff.on || !event.target || !event.target.closest) return;
+    if (event.target.closest("#pass-element")) return;
+    if (event.target.closest("#human-decision, #decision-bar, #board-bar, #board-menu, .clickable, .hand-card, .seat-pick")) endFastForward("you clicked a decision control");
+  }, true);
   document.addEventListener("click", (event) => {
     if (!$("board-menu").hidden && !event.target.closest("#board-menu, .clickable, .seat-pick")) closeBoardMenu(false);
   });

@@ -228,15 +228,13 @@ const FF = require('./vorspulen.js');
 assert.deepStrictEqual(FF.shortcutAction(' ', false), { kind: 'pass_once' });
 assert.deepStrictEqual(FF.shortcutAction('Enter', false), {
   kind: 'fast_forward',
-  mode: 'until_my_turn',
   stopOnOpponentStack: true,
-  label: 'weiter, bis etwas passiert',
+  label: 'Continue',
 });
 assert.deepStrictEqual(FF.shortcutAction('Enter', true), {
   kind: 'fast_forward',
-  mode: 'until_my_turn',
   stopOnOpponentStack: false,
-  label: 'bis zum eigenen Zug',
+  label: 'To my turn',
 });
 assert.strictEqual(FF.shortcutAction('Escape', false), null);
 assert.strictEqual(FF.shortcutAction('a', true), null);
@@ -270,8 +268,8 @@ const pendingPriority = {
   },
 };
 
-for (const mode of ['until_my_turn', 'until_end_of_turn', 'until_stack_resolves']) {
-  const v = FF.verdict(pendingPriority, { mode, startTurn: 2, stopOnOpponentStack: false, watchStackObjectId: 's1' });
+for (const stopOnOpponentStack of [false]) {
+  const v = FF.verdict(pendingPriority, { startTurn: 2, stopOnOpponentStack });
   assertVerdictOnlyPassesPriority(v, pendingPriority);
   assert.strictEqual(v.action, 'pass');
   assert.strictEqual(v.optionId, 'pass-1');
@@ -285,7 +283,7 @@ const mutatedSrc = raw.replace(
 );
 assert.notStrictEqual(mutatedSrc, raw, 'mutation must change source');
 const MutatedFF = new Function('module', mutatedSrc + '\nreturn StudioFastForward;')({ exports: {} });
-const mutatedVerdict = MutatedFF.verdict(pendingPriority, { mode: 'until_my_turn', startTurn: 2, stopOnOpponentStack: false });
+const mutatedVerdict = MutatedFF.verdict(pendingPriority, { startTurn: 2, stopOnOpponentStack: false });
 assert.strictEqual(mutatedVerdict.optionId, 'cast-1');
 assert.throws(
   () => assertVerdictOnlyPassesPriority(mutatedVerdict, pendingPriority),
@@ -304,11 +302,10 @@ def test_partie_ui_table_memory_own_opponents_rematch_and_shortcuts() -> None:
     js = (STATIC / "partie.js").read_text(encoding="utf-8")
 
     for req_id in (
-        'id="response-mode"',
-        'id="auto-pass-human"',
-        'id="ff-btn"',
-        'id="ff-mode"',
-        'id="ff-stack"',
+        'id="pass-element"',
+        'id="pass-once"',
+        'id="pass-continue"',
+        'id="pass-to-my-turn"',
         'id="ff-status"',
         'id="hold-confirm-toggle"',
         'id="rematch-btn"',
@@ -382,13 +379,11 @@ class El {
 }
 
 const registry = {};
-for (const id of ['rematch-btn', 'new-game', 'modal', 'modal-box', 'speed', 'ff-btn', 'ff-mode', 'ff-stack', 'ff-stack-hint', 'ff-wrap', 'ff-status', 'table']) {
-  registry[id] = new El(id === 'rematch-btn' || id === 'new-game' || id === 'ff-btn' ? 'button' : 'div', id);
+for (const id of ['rematch-btn', 'new-game', 'modal', 'modal-box', 'speed', 'pass-element', 'pass-once', 'pass-continue', 'pass-to-my-turn', 'ff-status', 'table']) {
+  registry[id] = new El(id === 'rematch-btn' || id === 'new-game' || id.startsWith('pass-') && id !== 'pass-element' ? 'button' : 'div', id);
 }
 registry['rematch-btn'].hidden = true;
 registry['modal'].hidden = true;
-registry['ff-stack'].checked = true;
-registry['ff-mode'].value = 'until_my_turn';
 registry['speed'].value = '250';
 
 const docListeners = {};
@@ -543,7 +538,7 @@ const page = make(document, window, window.location, { replaceState() {} }, fetc
       stack: [],
     },
   };
-  page.state.ff = { on: false, boosted: false, mode: 'until_my_turn', startTurn: null, stopOnOpponentStack: true, watchStackObjectId: null };
+  page.state.ff = { on: false, label: '', startTurn: null, stopOnOpponentStack: true };
 
   const targetPlain = { closest: () => null };
   // Space submits pass_priority
@@ -557,14 +552,12 @@ const page = make(document, window, window.location, { replaceState() {} }, fetc
   page.state.pendingDecision = null;
   keyHandler({ key: 'Enter', shiftKey: false, ctrlKey: false, metaKey: false, altKey: false, target: targetPlain, preventDefault() {} });
   assert.strictEqual(page.state.ff.on, true);
-  assert.strictEqual(page.state.ff.mode, 'until_my_turn');
   assert.strictEqual(page.state.ff.stopOnOpponentStack, true);
   page.endFastForward('test');
 
   // Shift+Enter starts fast-forward with stopOnOpponentStack=false
   keyHandler({ key: 'Enter', shiftKey: true, ctrlKey: false, metaKey: false, altKey: false, target: targetPlain, preventDefault() {} });
   assert.strictEqual(page.state.ff.on, true);
-  assert.strictEqual(page.state.ff.mode, 'until_my_turn');
   assert.strictEqual(page.state.ff.stopOnOpponentStack, false);
   page.endFastForward('test');
 
@@ -581,3 +574,51 @@ const page = make(document, window, window.location, { replaceState() {} }, fetc
 """
     )
     assert out == {"ok": True}
+
+
+def test_vorspulen_node_test_file_runs() -> None:
+    """Runs tests/js/vorspulen.test.mjs (node:test). No node: skipped, which is NOT_RUN, not a pass."""
+    import shutil
+    import subprocess
+
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("NOT_RUN: node is not installed, tests/js/vorspulen.test.mjs did not run")
+    repo = Path(__file__).resolve().parents[2]
+    result = subprocess.run(
+        [node, "--test", str(repo / "tests" / "js" / "vorspulen.test.mjs")],
+        capture_output=True,
+        text=True,
+        cwd=repo,
+        timeout=120,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "# fail 0" in result.stdout
+
+
+def test_pass_element_replaces_the_old_controls_and_speed_has_three_steps() -> None:
+    import re
+
+    html = (STATIC / "partie.html").read_text(encoding="utf-8")
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    removed = (
+        "response-mode-wrap", "response-mode", "halt-config-wrap", "halt-stack", "halt-combat",
+        "halt-own-main", "halt-opp-end", "halt-playable", "auto-pass-wrap", "auto-pass-human",
+        "ff-wrap", "ff-btn", "ff-mode", "ff-stack", "ff-stack-hint", "ff-rule",
+    )  # fmt: skip
+    for removed_id in removed:
+        assert f'id="{removed_id}"' not in html, removed_id
+        assert f'"{removed_id}"' not in js and f"'{removed_id}'" not in js, removed_id
+    for kept in ("pass-element", "pass-once", "pass-continue", "pass-to-my-turn",
+                 "ff-status", "hold-confirm-wrap"):  # fmt: skip
+        assert f'id="{kept}"' in html, kept
+    # buttons and keys take one path
+    assert "runPassAction(key, shiftKey)" in js and "runPassAction(event.key, event.shiftKey)" in js
+    # fast-forward never touches the speed control or the session delay
+    for name in ("startFastForward", "endFastForward", "maybeAutoPassHuman"):
+        body = js.split(f"function {name}(", 1)[1].split("\nfunction ", 1)[0]
+        assert "setAiDelay" not in body and '$("speed")' not in body, name
+    m = re.search(r"const SPEEDS = (\[.*?\]);", js)
+    assert m is not None
+    delays = sorted(entry[0] for entry in json.loads(m.group(1)))
+    assert delays == [0, 250, 1000]
