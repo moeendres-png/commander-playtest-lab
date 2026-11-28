@@ -1410,7 +1410,7 @@ async function submitHumanChoice(payload, opts) {
     toast(stale
       ? `Die Engine hat diese Antwort nicht angenommen (${error.message}). Vermutlich hat sich die Entscheidung inzwischen geändert; der Tisch wird neu geladen, bitte wähle noch einmal.`
       : `Entscheidung abgelehnt: ${error.message}`, 8000);
-    endFastForward(`die Engine hat die Antwort nicht angenommen (${error.message})`);
+    endFastForward(`the engine did not accept the answer (${error.message})`);
     state.selectedOptions = [];
     if (stale) { try { await loadMore(); } catch (reloadError) { /* the next poll tries again */ } }
   } finally {
@@ -1489,12 +1489,27 @@ function endFastForward(reason) {
 }
 // Buttons and keys alike: a click on a running button stops the run; otherwise the action is the
 // one vorspulen.js maps from the key.
-function runPassAction(key, shiftKey) {
+// A click on the pass element in a critical window, with "hold to confirm" on, does not pass:
+// the hold-guarded pass button of the decision bar (or the Space key) is the way there.
+function clickNeedsHold() {
+  const pending = state.pendingDecision;
+  return Boolean(
+    pending &&
+    typeof StudioTurnBar !== "undefined" &&
+    StudioTurnBar.shouldRequireHoldToConfirm &&
+    StudioTurnBar.shouldRequireHoldToConfirm(pending, null, { holdToConfirm: state.holdToConfirm })
+  );
+}
+function runPassAction(key, shiftKey, fromClick = false) {
   if (typeof StudioFastForward === "undefined") return false;
   const action = StudioFastForward.shortcutAction(key, shiftKey);
   if (!action) return false;
   if (state.ff.on) { endFastForward("stopped by you"); return true; }
   if (!state.interactive || !state.running || state.submitting || isHumanSpectator()) return false;
+  if (fromClick && clickNeedsHold()) {
+    toast("Critical moment: hold the pass button in the decision bar, or press Space, to pass here.", 6000);
+    return false;
+  }
   if (action.kind === "pass_once") return passOnce();
   startFastForward(action);
   return true;
@@ -3987,7 +4002,7 @@ async function start() {
     }
   });
   for (const [id, key, shiftKey] of [["pass-once", " ", false], ["pass-continue", "Enter", false], ["pass-to-my-turn", "Enter", true]]) {
-    $(id).addEventListener("click", () => runPassAction(key, shiftKey));
+    $(id).addEventListener("click", () => runPassAction(key, shiftKey, true));
   }
   $("first").addEventListener("click", () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); go(0); });
   $("prev-turn").addEventListener("click", () => { if (!StudioReplay.isReplayAvailable(state)) return; setPlaying(false); prevTurn(); });
@@ -4072,7 +4087,7 @@ async function start() {
   document.addEventListener("keydown", (event) => {
     if (event.ctrlKey || event.metaKey || event.altKey) return;
     if (event.key === "Enter" || event.key === " ") lastKeyActivateAt = Date.now();
-    if (event.key === "Escape") { if (cancelActiveDrag(true)) return; if (dismissTargetMode()) return; if (closeBoardMenu(true)) return; if (!$("modal").hidden) { $("modal").hidden = true; finishConfirmModal(false); return; } if (state.focusSeat !== null) { toggleFocusSeat(null); return; } return; }
+    if (event.key === "Escape") { if (state.ff && state.ff.on) { endFastForward("stopped by you"); return; } if (cancelActiveDrag(true)) return; if (dismissTargetMode()) return; if (closeBoardMenu(true)) return; if (!$("modal").hidden) { $("modal").hidden = true; finishConfirmModal(false); return; } if (state.focusSeat !== null) { toggleFocusSeat(null); return; } return; }
     if (event.key === "Tab" && $("modal") && !$("modal").hidden && $("modal-box") && $("modal-box").dataset.confirmOpen === "1") {
       const items = [...$("modal-box").querySelectorAll("button:not([disabled])")];
       if (items.length) {
@@ -4099,6 +4114,8 @@ async function start() {
       const modalOpen = Boolean($("modal") && !$("modal").hidden);
       if (!modalOpen && !isInteractive(target) && state.interactive && state.running) {
         // keys and buttons share runPassAction; the page preventDefaults only what it handled
+        // a held key repeats: only the first press starts or stops a run
+        if (event.repeat && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); return; }
         if (runPassAction(event.key, event.shiftKey)) event.preventDefault();
       }
       return;

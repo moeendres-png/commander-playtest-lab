@@ -614,7 +614,7 @@ def test_pass_element_replaces_the_old_controls_and_speed_has_three_steps() -> N
                  "ff-status", "hold-confirm-wrap"):  # fmt: skip
         assert f'id="{kept}"' in html, kept
     # buttons and keys take one path
-    assert "runPassAction(key, shiftKey)" in js and "runPassAction(event.key, event.shiftKey)" in js
+    assert "runPassAction(key, shiftKey, true)" in js and "runPassAction(event.key, event.shiftKey)" in js
     # fast-forward never touches the speed control or the session delay
     for name in ("startFastForward", "endFastForward", "maybeAutoPassHuman"):
         body = js.split(f"function {name}(", 1)[1].split("\nfunction ", 1)[0]
@@ -623,3 +623,17 @@ def test_pass_element_replaces_the_old_controls_and_speed_has_three_steps() -> N
     assert m is not None
     delays = sorted(entry[0] for entry in json.loads(m.group(1)))
     assert delays == [0, 250, 1000]
+
+
+def test_a_click_on_the_pass_element_respects_hold_to_confirm_and_escape_stops_a_run() -> None:
+    """Review of PR #1893 (P2): a click on the pass element must not bypass "hold to confirm" in a
+    critical window; Escape ends a running Continue; a held key does not toggle the run."""
+    js = (STATIC / "partie.js").read_text(encoding="utf-8")
+    assert "runPassAction(key, shiftKey, true)" in js  # clicks are marked as clicks
+    guard = js[js.index("function clickNeedsHold()") : js.index("function runPassAction(")]
+    assert "shouldRequireHoldToConfirm" in guard and "state.holdToConfirm" in guard
+    body = js[js.index("function runPassAction(") : js.index("async function setAiDelay(")]
+    assert "fromClick && clickNeedsHold()" in body
+    assert body.index("fromClick && clickNeedsHold()") < body.index("passOnce()")
+    assert 'if (state.ff && state.ff.on) { endFastForward("stopped by you"); return; }' in js
+    assert "event.repeat &&" in js
