@@ -17,9 +17,9 @@ Claude Code; if the two seem to disagree, `AGENTS.md` governs.
 
 ## Models and helpers
 
-The Owner picks the main session's model and effort (project default `high`,
-`.claude/settings.json`, Owner 2026-11-28); there is no automatic fallback between models. The main session keeps planning, Rules and evidence adjudication, gate and merge
-decisions, and the final check of helper output (`AGENTS.md` §7). Helpers get their own context,
+The Owner picks the main session's model and effort (project default `high` in
+`.claude/settings.json`, Owner 2026-11-28); there is no automatic fallback between models. The
+main session keeps planning, Rules and evidence adjudication, gate and merge decisions, and the final check of helper output (`AGENTS.md` §7). Helpers get their own context,
 so their tool output stays out of the main one. Each tier below follows Anthropic's guidance:
 Haiku for simple read-only jobs, Sonnet for most coding, Opus for review and hard judgement.
 
