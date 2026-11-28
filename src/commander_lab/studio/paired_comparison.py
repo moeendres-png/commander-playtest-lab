@@ -1296,7 +1296,8 @@ def parallel_window_player(
         play_single is None
         and not record_pilot_audit
         and (
-            pool is not None or (series_pool if series_pool is not None else series_pool_enabled())
+            pool is not None
+            or (series_pool if series_pool is not None else series_pool_enabled(len(opponents) + 1))
         )
     )
     if use_pool and pool is None:
