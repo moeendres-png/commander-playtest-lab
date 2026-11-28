@@ -614,7 +614,10 @@ def test_pass_element_replaces_the_old_controls_and_speed_has_three_steps() -> N
                  "ff-status", "hold-confirm-wrap"):  # fmt: skip
         assert f'id="{kept}"' in html, kept
     # buttons and keys take one path
-    assert "runPassAction(key, shiftKey, true)" in js and "runPassAction(event.key, event.shiftKey)" in js
+    assert (
+        "runPassAction(key, shiftKey, true)" in js
+        and "runPassAction(event.key, event.shiftKey)" in js
+    )
     # fast-forward never touches the speed control or the session delay
     for name in ("startFastForward", "endFastForward", "maybeAutoPassHuman"):
         body = js.split(f"function {name}(", 1)[1].split("\nfunction ", 1)[0]
