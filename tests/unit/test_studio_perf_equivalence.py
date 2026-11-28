@@ -1155,6 +1155,63 @@ def _evidence_kind(store: StudioStore) -> object:
     )
 
 
+def _universe_counted_kind(store: StudioStore) -> object:
+    from commander_lab.studio import signals, universe_choice
+
+    known = signals.known_card_names(store)
+    return [
+        (
+            item,
+            signals.unmatched_universe_names(store, COMMANDER, item["signal"], known),
+        )
+        for item in universe_choice.counted_universes(store, COMMANDER)
+    ]
+
+
+def _import_kind_tracers() -> dict[str, Callable[[StudioStore], object]]:
+    import datetime
+
+    from commander_lab.studio import (
+        card_trend,
+        combos,
+        data_report,
+        packages,
+        roles,
+        similar_decks,
+        universe_view,
+        web,
+    )
+
+    return {
+        "card_name_index": lambda store: universe._build_card_name_index(store),
+        "card_trend": lambda store: card_trend.card_trend(store, [COMMANDER]),
+        "cohort_deck_sets": lambda store: builder._cohort_deck_sets(store, [COMMANDER], "all"),
+        "cohort_shapes": lambda store: builder.cohort_shapes(store, [COMMANDER]),
+        "cohort_sizes": lambda store: builder.cohort_sizes(store, [COMMANDER]),
+        "corpus_deck_ids": lambda store: builder._corpus_deck_ids(store, [COMMANDER]),
+        "corpus_deck_sets": lambda store: builder.corpus_deck_sets(store, [COMMANDER]),
+        "corpus_groups": lambda store: builder._corpus_groups(store, [COMMANDER]),
+        "corpus_hits": lambda store: builder._corpus_hits(store, [COMMANDER]),
+        "layer_overview": lambda store: web.layer_overview_cached(store, COMMANDER),
+        "package_candidates": lambda store: packages._cohort_candidates_cached(
+            store, [COMMANDER], "all"
+        ),
+        "package_deck_sets": lambda store: packages._cohort_deck_sets(store, [COMMANDER], "all"),
+        "resolve": lambda store: universe.resolve_universe(store, {"commanders": [COMMANDER]}),
+        "similar_decks_index": lambda store: similar_decks._commander_source_index(
+            store, [COMMANDER]
+        ),
+        "slot_catalog": lambda store: combos._catalog_rows(store, [COMMANDER]),
+        "spelling_owners": lambda store: universe._build_spelling_owners(store),
+        "universe_context": lambda store: universe_view._context(store, None, None, [COMMANDER]),
+        "answer:corpus_audit": lambda store: data_report.corpus_audit(
+            store.connection, today=datetime.date(2026, 11, 27)
+        ),
+        "answer:role_audit": lambda store: roles.role_origin_audit(store, commander=COMMANDER),
+        "answer:universe_counted": _universe_counted_kind,
+    }
+
+
 _KIND_TRACERS: dict[str, Callable[[StudioStore], object]] = {
     "land_source_groups": lambda store: land_advisor.source_deck_groups(store, [COMMANDER]),
     "strength": _strength_kind,
@@ -1173,6 +1230,7 @@ _KIND_TRACERS: dict[str, Callable[[StudioStore], object]] = {
     "corpus_oracle_ids": lambda store: import_all._repo_layers(
         store, [], [], None, None, lambda *args, **kwargs: None
     ),
+    **_import_kind_tracers(),
 }
 
 
@@ -1207,7 +1265,7 @@ def _declaration_violations(
 def test_every_narrowed_kind_reads_only_its_groups(tmp_path: Path) -> None:
     store = _big_store(tmp_path)
     narrowed = {name for name, kind in cache.KINDS.items() if kind.reads != cache.ALL}
-    # the kinds proven so far (#1561); none of them reads the marks
+    # the kinds proven so far (#1561, #1612 D-1 P2); only layer_overview reads marks
     assert narrowed == {
         "land_source_groups",
         "strength",
@@ -1216,8 +1274,30 @@ def test_every_narrowed_kind_reads_only_its_groups(tmp_path: Path) -> None:
         "corpus_oracle_ids",
         "universe_decks",
         "universe_options",
+        "card_name_index",
+        "card_trend",
+        "cohort_deck_sets",
+        "cohort_shapes",
+        "cohort_sizes",
+        "corpus_deck_ids",
+        "corpus_deck_sets",
+        "corpus_groups",
+        "corpus_hits",
+        "layer_overview",
+        "package_candidates",
+        "package_deck_sets",
+        "resolve",
+        "similar_decks_index",
+        "slot_catalog",
+        "spelling_owners",
+        "universe_context",
+        "answer:corpus_audit",
+        "answer:role_audit",
+        "answer:universe_counted",
     }
-    assert all(cache.Group.MARKS not in cache.KINDS[name].reads for name in narrowed)
+    assert all(
+        cache.Group.MARKS not in cache.KINDS[name].reads for name in narrowed - {"layer_overview"}
+    )
     assert _declaration_violations(store, cache.KINDS, _KIND_TRACERS) == {}
 
 
@@ -2307,3 +2387,170 @@ def test_role_origin_audit_key_order_is_independent_of_hash_seed(tmp_path: Path)
     origin_keys = outputs[0]["origin_keys"]
     assert origin_keys == sorted(origin_keys)
     assert len(origin_keys) >= 3
+
+
+# -- D-1 rest (#1612): mutation, import and the background re-warm of the strength answer ------
+
+
+def _plain_strength(folder: Path) -> dict[str, object]:
+    """The plain strength answer of the default request, as JSON values."""
+    from commander_lab.studio import strength_view
+    from commander_lab.studio.strength import StrengthSettings
+
+    store = StudioStore.open(folder)
+    try:
+        plain: dict[str, object] = json.loads(
+            json.dumps(strength_view.compute(store, COMMANDER, StrengthSettings()))
+        )
+        return plain
+    finally:
+        store.close()
+
+
+def _same_as_plain(route: dict[str, object], plain: dict[str, object]) -> None:
+    """The route answer is the plain answer plus only the additive judgement field."""
+    assert set(route) - set(plain) <= {"kartenverstaendnis"}
+    assert {key: route[key] for key in plain} == plain
+
+
+def test_check_mode_catches_a_caller_that_changes_the_remembered_strength_answer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, _fresh_answers: None
+) -> None:
+    """Over the real route: a caller that changes the remembered strength answer (or the
+    remembered full answer built on it) fails the next request in check mode."""
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio.web import create_app
+
+    monkeypatch.setattr(cache, "CHECK", True)
+    folder = tmp_path / "studio"
+    _big_store(tmp_path).close()
+    client = TestClient(create_app(folder), headers={"X-Studio": "1"})
+    body = {"commander": COMMANDER}
+    assert client.post("/api/strength", json=body).status_code == 200
+    store = StudioStore.open(folder)
+    try:
+        held = {key[0]: value for key, value in cache.snapshot(store)}
+    finally:
+        store.close()
+    full = held["strength_understanding"]
+    assert isinstance(full, dict)
+    full["probe"] = 1
+    with pytest.raises(cache.CacheCheckError, match="strength_understanding"):
+        client.post("/api/strength", json=body)
+    assert cache.counters()["strength_understanding mutated"] == 1
+    answer = held["strength"]
+    assert isinstance(answer, dict) and isinstance(answer["cards"], list)
+    answer["cards"].pop()
+    with pytest.raises(cache.CacheCheckError, match="'strength'"):
+        client.post("/api/strength", json={**body, "detail": "summary"})
+    assert cache.counters()["strength mutated"] == 1
+
+
+def test_an_import_recomputes_the_strength_answer_and_it_equals_the_plain_one(
+    tmp_path: Path, _fresh_answers: None
+) -> None:
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio import catalog
+    from commander_lab.studio.web import create_app
+    from tests.unit.test_studio_builder import _write_csv
+
+    folder = tmp_path / "studio"
+    _big_store(tmp_path).close()
+    client = TestClient(create_app(folder), headers={"X-Studio": "1"})
+    body = {"commander": COMMANDER}
+    first = client.post("/api/strength", json=body)
+    assert first.status_code == 200
+    assert client.post("/api/strength", json=body).content == first.content
+    assert cache.counters()["strength computed"] == 1
+    importer = StudioStore.open(folder)
+    picked: list[dict[str, object]] = [{"deck_id": f"g{n:04d}"} for n in range(10, 60)]
+    catalog.import_cohort(importer, _write_csv(tmp_path / "picked.csv", picked), cohort="bracket:4")
+    importer.close()
+    after = client.post("/api/strength", json=body)
+    assert after.status_code == 200
+    assert cache.counters()["strength computed"] == 2  # the import dropped the kept answer
+    _same_as_plain(after.json(), _plain_strength(folder))
+
+
+def test_a_first_mark_of_an_unowned_card_rewarms_the_strength_answer_in_the_background(
+    tmp_path: Path, _fresh_answers: None
+) -> None:
+    """The first favorite (or mark) of an unowned ``scryfall:`` card adds its ``card`` row, an
+    import table: the remembered strength answers are dropped and filled again in the background
+    (P3 of D-1), so the next request is a hit with the same bytes, equal to the plain answer. A
+    mark of an owned card drops nothing and starts no re-warm."""
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio.web import create_app
+    from tests.unit.test_studio_builder import _insert_scryfall
+
+    folder = tmp_path / "studio"
+    seeded = _big_store(tmp_path)
+    for card_id in _UNOWNED[:2]:
+        _insert_scryfall(
+            seeded,
+            oracle_id=card_id.removeprefix("scryfall:"),
+            name=f"Unowned {card_id[-1]}",
+            colors="G",
+            type_line="Creature — Elf",
+        )
+    seeded.connection.commit()
+    seeded.close()
+    app = create_app(folder)
+    client = TestClient(app, headers={"X-Studio": "1"})
+    body = {"commander": COMMANDER}
+    summary = {**body, "detail": "summary"}
+    before = client.post("/api/strength", json=body)
+    before_summary = client.post("/api/strength", json=summary)
+    assert before.status_code == before_summary.status_code == 200
+    assert cache.counters()["strength computed"] == 1
+
+    # an owned card: marks only, the answer is kept and nothing is started
+    owned = client.put("/api/cards/card:project:0101/favorite", json={"favorite": True})
+    assert owned.status_code == 200
+    assert not hasattr(app.state, "strength_rewarm")
+    assert client.post("/api/strength", json=body).content == before.content
+    assert cache.counters()["strength computed"] == 1
+
+    for card_id, route, payload in (
+        (_UNOWNED[0], "favorite", {"favorite": True}),
+        (_UNOWNED[1], "mark", {"favorite": False, "excluded": True, "note": ""}),
+    ):
+        computed = cache.counters()["strength computed"]
+        dropped = cache.counters().get("strength dropped_written", 0)
+        response = client.put(f"/api/cards/{card_id}/{route}", json=payload)
+        assert response.status_code == 200
+        assert cache.counters()["strength dropped_written"] == dropped + 1  # IMPORT was written
+        rewarm = app.state.strength_rewarm
+        rewarm.join(timeout=60)
+        assert not rewarm.is_alive()
+        assert cache.counters()["strength computed"] == computed + 1  # the re-warm, once
+        hits = cache.counters()["strength hit"]
+        after = client.post("/api/strength", json=body)
+        after_summary = client.post("/api/strength", json=summary)
+        assert cache.counters()["strength computed"] == computed + 1  # the requests: hits
+        assert cache.counters()["strength hit"] == hits + 2
+        assert (after.content, after_summary.content) == (before.content, before_summary.content)
+        del app.state.strength_rewarm
+    _same_as_plain(before.json(), _plain_strength(folder))
+
+
+def test_a_rewarm_request_resolves_to_the_key_it_fills(tmp_path: Path) -> None:
+    """Every preset's key (and the default's) rebuilds a request with the same key; a key in
+    another shape is left alone."""
+    from commander_lab.studio import strength
+    from commander_lab.studio.strength import StrengthSettings
+    from commander_lab.studio.web import StrengthBody, _rewarm_body, _strength_key
+
+    store = _big_store(tmp_path)
+    try:
+        for settings in (StrengthSettings(), *strength.PRESETS.values()):
+            key = _strength_key(StrengthBody(commander=COMMANDER), settings)
+            body = _rewarm_body(store, key)
+            assert body is not None and body.commander == COMMANDER
+        assert _rewarm_body(store, (COMMANDER, None)) is None
+        assert _rewarm_body(store, (COMMANDER, 3, "{}")) is None
+    finally:
+        store.close()

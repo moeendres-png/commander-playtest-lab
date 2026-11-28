@@ -260,9 +260,8 @@ for (const id of [
   "brand", "top", "game-select", "sim-pill", "game-info", "concede-btn", "delete-game", "new-game",
   "bridge-status", "conn-status", "sr-announce", "controls", "replay-controls", "first", "prev-turn",
   "back", "play", "next", "next-turn", "turn-jump", "skip", "position", "replay-note", "speed",
-  "response-mode-wrap", "response-mode", "halt-config-wrap", "halt-stack", "halt-combat", "halt-own-main",
-  "halt-opp-end", "halt-playable", "hold-confirm-wrap", "hold-confirm-toggle", "auto-pass-wrap", "auto-pass-human",
-  "ff-wrap", "ff-btn", "ff-mode", "ff-stack", "ff-stack-hint", "where", "ff-status",
+  "hold-confirm-wrap", "hold-confirm-toggle",
+  "pass-element", "pass-once", "pass-continue", "pass-to-my-turn", "pass-rule", "where", "ff-status",
   "phase-bar", "table-mode-bar", "board-bar", "table", "spectator-status", "human-decision", "now",
   "own-combat", "stack", "stack-count", "log-search", "log", "decision-bar", "hand-dock", "mana-stage-bar",
   "hand-title", "hand-summary", "hand", "preview", "preview-info", "board-menu", "board-links", "modal",
@@ -270,7 +269,6 @@ for (const id of [
 ]) elements.set(id, makeEl(id === "log-search" ? "input" : "div", id));
 elements.get("hold-confirm-toggle").checked = true;
 elements.get("skip").checked = false;
-elements.get("ff-stack").checked = true;
 
 const document = {{
   getElementById: (id) => elements.get(id) || null,

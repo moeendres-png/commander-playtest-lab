@@ -165,41 +165,43 @@ _ANSWER = Kind(seal="bytes", limit="answer")
 # former data-epoch memo) read import tables only; they are declared with the groups the memo's epoch covered
 # (imports and universe profiles), so marks, decks and simulations keep them as before.
 # Every other kind reads all groups until its own declaration and tracer exist (P2).
+_IMPORT_READS = frozenset({Group.IMPORT})
 _STRENGTH_READS = frozenset({Group.IMPORT, Group.PROFILES})
 _IMPORT_PROFILE_READS = frozenset({Group.IMPORT, Group.PROFILES})
+_LAYER_READS = frozenset({Group.IMPORT, Group.MARKS})
 KINDS: Final[Mapping[str, Kind]] = MappingProxyType(
     {
-        "card_name_index": Kind(),
-        "card_trend": Kind(),
-        "cohort_deck_sets": Kind(),
-        "cohort_shapes": Kind(),
-        "cohort_sizes": Kind(seal="copy", limit="cohort_sizes"),
-        "corpus_deck_ids": Kind(),
-        "corpus_oracle_ids": Kind(reads=frozenset({Group.IMPORT})),
-        "corpus_deck_sets": Kind(),
-        "corpus_groups": Kind(),
-        "corpus_hits": Kind(),
+        "card_name_index": Kind(reads=_IMPORT_READS),
+        "card_trend": Kind(reads=_IMPORT_READS),
+        "cohort_deck_sets": Kind(reads=_IMPORT_READS),
+        "cohort_shapes": Kind(reads=_IMPORT_READS),
+        "cohort_sizes": Kind(reads=_IMPORT_READS, seal="copy", limit="cohort_sizes"),
+        "corpus_deck_ids": Kind(reads=_IMPORT_READS),
+        "corpus_oracle_ids": Kind(reads=_IMPORT_READS),
+        "corpus_deck_sets": Kind(reads=_IMPORT_READS),
+        "corpus_groups": Kind(reads=_IMPORT_READS),
+        "corpus_hits": Kind(reads=_IMPORT_READS),
         "data_report": Kind(seal="copy"),
         "deck_evidence_bundle": Kind(),
-        "land_source_groups": Kind(reads=frozenset({Group.IMPORT})),
-        "layer_overview": Kind(),
-        "package_candidates": Kind(),
-        "package_deck_sets": Kind(),
-        "resolve": Kind(),
-        "similar_decks_index": Kind(),
-        "slot_catalog": Kind(limit="slot_catalog"),
-        "spelling_owners": Kind(),
+        "land_source_groups": Kind(reads=_IMPORT_READS),
+        "layer_overview": Kind(reads=_LAYER_READS),
+        "package_candidates": Kind(reads=_IMPORT_READS),
+        "package_deck_sets": Kind(reads=_IMPORT_READS),
+        "resolve": Kind(reads=_IMPORT_READS),
+        "similar_decks_index": Kind(reads=_IMPORT_READS),
+        "slot_catalog": Kind(reads=_IMPORT_READS, limit="slot_catalog"),
+        "spelling_owners": Kind(reads=_IMPORT_READS),
         "status_store_part": Kind(seal="copy"),
         "strength": Kind(reads=_STRENGTH_READS),
         # the strength answer plus the card-understanding field (only ``card``, an import table)
         "strength_understanding": Kind(reads=_STRENGTH_READS),
-        "universe_context": Kind(),
+        "universe_context": Kind(reads=_IMPORT_PROFILE_READS),
         "universe_decks": Kind(reads=_IMPORT_PROFILE_READS, limit="universe_decks"),
         "universe_options": Kind(reads=_IMPORT_PROFILE_READS),
         # One kind per remembered route answer (``answer_cache.json_answer``): a shared kind
         # could never carry one declaration (``pool`` reads the marks, ``deck_browser`` the deck
         # labels). They share one size limit.
-        "answer:corpus_audit": _ANSWER,
+        "answer:corpus_audit": Kind(reads=_IMPORT_READS, seal="bytes", limit="answer"),
         "answer:deck_browser": _ANSWER,
         "answer:evidence": Kind(
             reads=frozenset({Group.IMPORT, Group.PROFILES, Group.SIMULATION}),
@@ -207,8 +209,8 @@ KINDS: Final[Mapping[str, Kind]] = MappingProxyType(
             limit="answer",
         ),
         "answer:pool": _ANSWER,
-        "answer:role_audit": _ANSWER,
-        "answer:universe_counted": _ANSWER,
+        "answer:role_audit": Kind(reads=_IMPORT_READS, seal="bytes", limit="answer"),
+        "answer:universe_counted": Kind(reads=_IMPORT_READS, seal="bytes", limit="answer"),
     }
 )
 _UNDECLARED = Kind()
@@ -516,6 +518,17 @@ def invalidate() -> None:
         _counters.clear()
 
 
+def keys(store: StudioStore, kind: str) -> list[tuple[Hashable, ...]]:
+    """The caller's keys of ``kind`` remembered for ``store``'s file, oldest first (none for an
+    in-memory store). What a write route looks at before and after its window to learn which
+    figures the window dropped, so it can fill them again in the background."""
+    if store.path is None:
+        return []
+    path = str(store.path)
+    with _lock:
+        return [key[1:] for key, entry in _entries.items() if key[0] == path and entry.kind == kind]
+
+
 def snapshot(store: StudioStore | None = None) -> list[tuple[tuple[Hashable, ...], object]]:
     """The remembered entries as (caller's key, value), oldest first; of ``store``'s file only
     when given. For tests and diagnostics: the values are the shared ones, not copies."""
@@ -763,6 +776,7 @@ __all__ = [
     "cached",
     "counters",
     "invalidate",
+    "keys",
     "kind_name",
     "kind_of",
     "read_only",

@@ -446,9 +446,7 @@ def test_partie_frontend_replaces_native_confirm_and_shows_concede_feedback() ->
         pytest.skip("node is not installed")
 
     format_slice = js[js.index("function toast(") : js.index("const seatName =")]
-    ff_slice = js[
-        js.index("function renderFastForwardButton()") : js.index("async function setAiDelay(")
-    ]
+    ff_slice = js[js.index("function renderPassElement()") : js.index("function currentTurn()")]
     show_list_slice = js[js.index("function showList(") : js.index("function showZone(")]
     human_slice = js[
         js.index("function isHumanSpectator()") : js.index("function renderBridgeBanner()")
@@ -491,7 +489,7 @@ function makeEl(tag, id) {{
   if (el.id) elements.set(el.id, el);
   return el;
 }}
-for (const id of ["toast", "modal", "modal-box", "spectator-status", "human-decision", "concede-btn", "auto-pass-wrap", "ff-btn", "ff-wrap"]) {{
+for (const id of ["toast", "modal", "modal-box", "spectator-status", "human-decision", "concede-btn", "pass-element"]) {{
   const el = makeEl("div", id);
   if (id === "modal" || id === "spectator-status" || id === "human-decision") el.hidden = true;
 }}
@@ -585,7 +583,7 @@ async function run() {{
   assert.ok(elements.get("human-decision").textContent.includes("Aufgabe vorgemerkt"));
   assert.strictEqual(elements.get("concede-btn").hidden, true);
 
-  // 5. After elimination, #spectator-status switches to Zuschauer-Modus and #ff-wrap hides
+  // 5. After elimination, #spectator-status switches to Zuschauer-Modus and #pass-element hides
   state.concedePendingDecision = false;
   state.eliminatedSeats = [0];
   state.pendingDecision = null;
@@ -593,7 +591,7 @@ async function run() {{
   assert.strictEqual(elements.get("spectator-status").hidden, false);
   assert.ok(elements.get("spectator-status").textContent.includes("Zuschauer-Modus"));
   assert.strictEqual(elements.get("concede-btn").hidden, true);
-  assert.strictEqual(elements.get("ff-wrap").hidden, true);
+  assert.strictEqual(elements.get("pass-element").hidden, true);
 
   // 6. Ended game distinguishes natural loss vs. conceded seat in spectator banner
   state.running = false;
