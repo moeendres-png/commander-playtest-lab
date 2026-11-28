@@ -10,10 +10,8 @@ import uuid
 from datetime import UTC, datetime
 from pathlib import Path, PureWindowsPath
 
-from .games import GAMES_FOLDER
-from .launch import _repository_root
 from .series_reservation import RESERVATION_SUFFIX
-from .store import DATABASE_NAME
+from .store import DATABASE_NAME, _repository_root
 
 SCHEMA_BACKUP = "studio-backup-1"
 _CHUNK_BYTES = 1024 * 1024
@@ -80,6 +78,10 @@ def create_backup(
     repo_root: Path | None = None,
 ) -> dict[str, object]:
     """Create a timestamped, consistent backup of ``studio.sqlite3`` and ``games/``."""
+    # ``games`` pulls in the engine package (pydantic); the package import registers this module
+    # with the store and must stay importable without it (the one-click launcher imports it).
+    from .games import GAMES_FOLDER
+
     data_path = Path(data_folder).expanduser().resolve()
     dest_root = Path(destination_root).expanduser().resolve()
     repo = (repo_root if repo_root is not None else _repository_root()).resolve()
