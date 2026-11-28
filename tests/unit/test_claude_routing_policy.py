@@ -59,6 +59,7 @@ def test_the_helper_set_is_exactly_the_documented_one():
 
 
 def test_each_helper_pins_model_effort_context_and_tools():
+    assert len(HELPERS) == 4
     for name, (model, effort, omit, writes) in HELPERS.items():
         fm = frontmatter(AGENTS_DIR / f"{name}.md")
         assert fm["name"] == name
@@ -74,6 +75,7 @@ def test_each_helper_pins_model_effort_context_and_tools():
 
 def test_claude_md_table_matches_the_frontmatter():
     text = read(ROOT / "CLAUDE.md")
+    assert len(HELPERS) == 4
     for name, (model, effort, _omit, _writes) in HELPERS.items():
         row = re.search(rf"^\| `{re.escape(name)}` \| ([A-Za-z]+) / ([a-z]+) \|", text, re.M)
         assert row, name
