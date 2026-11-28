@@ -220,7 +220,8 @@ def test_export_content_shape_and_card_identity(tmp_path: Path) -> None:
     header = export_state(store, tmp_path / "out.json.gz")
     state = read_state(tmp_path / "out.json.gz")
     assert state.declared_sha256 == header["content_sha256"]
-    assert state.source_schema_version == 21
+    # Schema 22a: the version moves 21 -> 22 (Owner decision 2026-11-28, #1703/#1856)
+    assert state.source_schema_version == 22
     tables = state.content["tables"]
     assert isinstance(tables, dict)
     card_row = next(r for r in tables["deck_revision_card"] if r["card_id"] == "c_two")
@@ -985,11 +986,12 @@ def test_an_older_store_with_tier_snapshot_rows_opens_exports_and_imports_unchan
     store.close()
 
     reopened = StudioStore.open(tmp_path / "data")  # an older store opens
-    assert SCHEMA_VERSION == 21  # no bump: Schema 22 stays with K-2c
+    # Schema 22a: the version moves 21 -> 22 (Owner decision 2026-11-28, #1703/#1856)
+    assert SCHEMA_VERSION == 22  # the K-2 file split is Schema 23
     recorded = reopened.connection.execute(
         "SELECT value FROM meta WHERE key = 'schema_version'"
     ).fetchone()
-    assert recorded is not None and recorded[0] == "21"
+    assert recorded is not None and recorded[0] == "22"
     assert reopened.count("tier_snapshot") == 3
     with_rows = export_state(reopened, tmp_path / "with.json.gz")
     assert with_rows["content_sha256"] == clean["content_sha256"]
