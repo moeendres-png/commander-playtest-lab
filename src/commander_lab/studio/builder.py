@@ -1692,10 +1692,7 @@ def pod_matchup_matrix(store: StudioStore, commander_names: Sequence[str]) -> di
             r.get("games_decided") is not None and r.get("games_drawn") is not None
             for r in pod_runs
         )
-        if draws_known:
-            base = sum(int(str(r["games_decided"])) for r in pod_runs)
-        else:
-            base = completed
+        base = sum(int(str(r["games_decided"])) for r in pod_runs) if draws_known else completed
         win_rate = round(wins / base, 4) if base > 0 else None
         rounds_num = 0.0
         rounds_den = 0
