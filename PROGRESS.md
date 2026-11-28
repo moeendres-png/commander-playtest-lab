@@ -20,4 +20,5 @@ Branch: `claude/project-thread-gj8qzc` (agent defs + this file). Per-package bra
 - 6: #1612 D-0/D-3/D-2 done; D-1 P2 by #1891 (other session); P3 re-warm + acceptance tests PR #1892 merged c513c209; #1612 closed (real-store timing UNKNOWN).
 - 7: #1662 Part 2 gaps (3-step speed, single pass element) on feat/play-v1-pass-element-1662.
 - #1524: audit package PR #1890 (review FAIL -> fixed -> PASS) merged 40ca4519; owner go for the 240-game run still pending.
-- 7: PR #1893 (single pass element, 3-step speed, hold-to-confirm on click) reviewed; merge pending CI on bf096114.
+- 7: PR #1893 merged d341839c; #1662 stays open (Part 3 TableSpec opponents, owner-PC timing UNKNOWN).
+- Closing summary on #1167; claims released. Package 8 not started (condition 1-7 not met).
