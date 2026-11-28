@@ -586,14 +586,15 @@ def test_vorspulen_node_test_file_runs() -> None:
         pytest.skip("NOT_RUN: node is not installed, tests/js/vorspulen.test.mjs did not run")
     repo = Path(__file__).resolve().parents[2]
     result = subprocess.run(
-        [node, "--test", str(repo / "tests" / "js" / "vorspulen.test.mjs")],
+        [node, "--test", "--test-reporter=tap", str(repo / "tests" / "js" / "vorspulen.test.mjs")],
         capture_output=True,
         text=True,
         cwd=repo,
         timeout=120,
     )
     assert result.returncode == 0, result.stdout + result.stderr
-    assert "# fail 0" in result.stdout
+    # TAP reporter regardless of TTY (the default reporter differs between a terminal and CI)
+    assert "# fail 0" in result.stdout and "# pass 0" not in result.stdout
 
 
 def test_pass_element_replaces_the_old_controls_and_speed_has_three_steps() -> None:
