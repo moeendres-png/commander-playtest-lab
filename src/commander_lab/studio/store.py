@@ -14,7 +14,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 21
+SCHEMA_VERSION = 22
 DATABASE_NAME = "studio.sqlite3"
 # The sections a source deck's cards are counted in, everywhere (universe spread, deck-builder
 # frequencies, co-occurrence, role counts). The corpus importer stores the main deck as
@@ -350,7 +350,9 @@ CREATE TABLE IF NOT EXISTS simulation_run (
     win_rate REAL,
     mean_rounds REAL,
     hand_dwell_status TEXT NOT NULL,
-    source_id TEXT NOT NULL REFERENCES source(source_id)
+    source_id TEXT NOT NULL REFERENCES source(source_id),
+    games_drawn INTEGER,
+    games_decided INTEGER
 );
 CREATE TABLE IF NOT EXISTS simulation_card (
     run_id TEXT NOT NULL REFERENCES simulation_run(run_id),
@@ -366,7 +368,7 @@ CREATE TABLE IF NOT EXISTS simulation_card (
     PRIMARY KEY (run_id, card_name)
 );
 CREATE INDEX IF NOT EXISTS simulation_card_id ON simulation_card(card_id);
--- B2 (#1658): additive experiment index, no schema bump (22 is reserved for K-2, E15 Q9).
+-- B2 (#1658): additive experiment index, no schema bump (the K-2 file split is Schema 23, Owner decision 2026-11-28).
 -- Plan, result and decision files stay the source; ``experiments.rebuild_index`` rebuilds
 -- both tables from them. A decision is kept in the row and in its file.
 CREATE TABLE IF NOT EXISTS experiment (
@@ -566,8 +568,8 @@ CREATE TABLE IF NOT EXISTS card_ruling_source (
 -- TAM purchase guide values (#1637, register entry "Preise für TAM"): the field prices.eur of a
 -- local Scryfall bulk file, one value per oracle_id, only in this local store (never committed,
 -- never in scryfall_card). Read only by purchase_guide_values (TAM guide-value module).
--- Created on every open without a schema bump (schema 22 is reserved for the file split,
--- E15 Q9); a card without a usable value has no row ("unbekannt", never 0).
+-- Created on every open without a schema bump (the K-2 file split is Schema 23, Owner
+-- decision 2026-11-28); a card without a usable value has no row ("unbekannt", never 0).
 CREATE TABLE IF NOT EXISTS tam_price_snapshot (
     snapshot_id INTEGER PRIMARY KEY CHECK (snapshot_id = 1),
     file_name TEXT NOT NULL,
@@ -633,7 +635,7 @@ CREATE TABLE IF NOT EXISTS tam_cardmarket_guide_snapshot (
     cards_with_value INTEGER NOT NULL
 );
 -- PLAY v1 postgame session summary and deck/card play notes (#1662 part 4): additive tables
--- without bumping SCHEMA_VERSION (22 is reserved for #1703 K-2).
+-- without bumping SCHEMA_VERSION (the K-2 file split is Schema 23, Owner decision 2026-11-28).
 CREATE TABLE IF NOT EXISTS play_session (
     game_id TEXT PRIMARY KEY,
     deck_id TEXT,
@@ -923,8 +925,31 @@ def _migrate_schema_18(connection: sqlite3.Connection) -> None:
     connection.commit()
 
 
+def _migrate_schema_22(connection: sqlite3.Connection) -> None:
+    """Schema 22a (#1703, #1856; Owner decision 2026-11-28): the draw classes of a run.
+
+    ``games_drawn`` (finished without a winner) and ``games_decided`` (the base of ``win_rate``)
+    are nullable. Rows written before stay NULL, which reads "unknown" and never 0; nothing is
+    backfilled. Idempotent: only a missing column is added.
+    """
+    columns = {str(row["name"]) for row in connection.execute("PRAGMA table_info(simulation_run)")}
+    for column in SIMULATION_RUN_DRAW_COLUMNS:
+        if column not in columns:
+            try:
+                connection.execute(f"ALTER TABLE simulation_run ADD COLUMN {column} INTEGER")
+            except sqlite3.OperationalError as error:
+                # another process opening the same store added it between PRAGMA and ALTER
+                if "duplicate column" not in str(error).lower():
+                    raise
+    connection.commit()
+
+
+# Order matters: it is the order the report of ``migrate --dry-run`` lists them in.
+SIMULATION_RUN_DRAW_COLUMNS = ("games_drawn", "games_decided")
+
+
 # The deck state a simulation series played (#1657): nullable, added on every open without a
-# schema bump (schema 22 is reserved for the file split, E15 Q9). Rows written before stay NULL,
+# schema bump (the K-2 file split is Schema 23, Owner decision 2026-11-28). Rows written before stay NULL,
 # which reads as "Stand unbekannt"; nothing is backfilled.
 SIMULATION_RUN_STATE_COLUMNS = ("revision_id", "deck_hash")
 # The table a series played against (#1688), added the same way: ``opponent_ids`` (JSON list in
@@ -940,7 +965,7 @@ SIMULATION_RUN_TABLE_COLUMNS = (
 )
 
 # Censored time-to-event columns on simulation_card (#1527): nullable, added on every open
-# without bumping SCHEMA_VERSION (21). Rows written before stay NULL ("unbekannt", never 0).
+# without bumping SCHEMA_VERSION (21 then). Rows written before stay NULL ("unbekannt", never 0).
 SIMULATION_CARD_CENSORED_COLUMNS = (
     ("first_cast_round_games_reached", "INTEGER"),
     ("first_cast_round_games_not_reached", "INTEGER"),
@@ -969,7 +994,7 @@ def _ensure_tam_price_columns(connection: sqlite3.Connection) -> None:
 
 def _ensure_experiment_status_column(connection: sqlite3.Connection) -> None:
     """Additive ``status`` column on ``experiment`` for Owner 5a plan withdrawal (#1658);
-    no schema bump (schema 22 is reserved for K-2, E15 Q9)."""
+    no schema bump (the K-2 file split is Schema 23, Owner decision 2026-11-28)."""
     columns = {str(row["name"]) for row in connection.execute("PRAGMA table_info(experiment)")}
     if "status" not in columns:
         try:
@@ -1016,6 +1041,44 @@ _NAMES_OTHER_COMMANDER = (
 )
 
 
+def stored_schema_version(path: Path) -> int | None:
+    """The ``meta.schema_version`` of a store file, read with a plain read-only query.
+
+    ``None`` when there is no file, no ``meta`` table or no version row (a new store). Nothing
+    is created or written, so it is safe to call before ``_prepare`` runs the schema.
+    """
+    if not path.is_file():
+        return None
+    connection = sqlite3.connect(f"{path.as_uri()}?mode=ro", uri=True, timeout=30)
+    try:
+        row = connection.execute("SELECT value FROM meta WHERE key = 'schema_version'").fetchone()
+    except sqlite3.OperationalError:  # no meta table: a file that was never prepared
+        return None
+    finally:
+        connection.close()
+    return int(row[0]) if row is not None else None
+
+
+def _backup_before_migration(directory: Path, path: Path) -> None:
+    """Mandatory backup of a file store before a schema migration (#1703, Owner 2026-11-28).
+
+    A store whose version is below ``SCHEMA_VERSION`` is saved with ``backup.create_backup`` into
+    ``<data folder name>-backups/pre-schema-<N>-<utc>`` next to the data folder (a backup may not
+    lie inside the store). If that fails the error propagates and the store is not touched
+    (fail closed). New stores and stores at the current version need none.
+    """
+    version = stored_schema_version(path)
+    if version is None or version >= SCHEMA_VERSION:
+        return
+    from . import backup  # backup imports this module: not at import time
+
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    destination = (
+        directory.parent / f"{directory.name}-backups" / f"pre-schema-{SCHEMA_VERSION}-{stamp}"
+    )
+    backup.create_backup(directory, destination)
+
+
 class StudioStore:
     """One open Studio database."""
 
@@ -1031,6 +1094,7 @@ class StudioStore:
             raise RuntimeError(f"the Studio store must be outside the repository: {directory}")
         directory.mkdir(parents=True, exist_ok=True)
         path = directory / DATABASE_NAME
+        _backup_before_migration(directory, path)
         return cls(cls._prepare(sqlite3.connect(path, timeout=30)), path)
 
     @classmethod
@@ -1077,6 +1141,8 @@ class StudioStore:
                 _migrate_schema_17(connection)
             if current < 18:
                 _migrate_schema_18(connection)
+            if current < 22:
+                _migrate_schema_22(connection)
             connection.execute(
                 "UPDATE meta SET value = ? WHERE key = 'schema_version'", (str(SCHEMA_VERSION),)
             )

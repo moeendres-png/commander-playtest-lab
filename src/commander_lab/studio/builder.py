@@ -1587,6 +1587,7 @@ def list_simulations(store: StudioStore, commander_names: Sequence[str]) -> list
         "SELECT r.run_id, r.deck_id, r.pod, r.opponent_ids, r.opponent_set_hash, r.table_size, "
         "r.pilot_fingerprint, r.engine_pin, r.bridge_jar_sha256, r.bridge_qualification_state, "
         "r.pilot_policy, r.seeds, r.games_planned, r.games_completed, r.games_failed, "
+        "r.games_drawn, r.games_decided, "
         f"r.wins_fractional, r.win_rate, r.mean_rounds, r.hand_dwell_status "
         f"FROM simulation_run r WHERE 1{bound} "
         "ORDER BY r.pod, r.run_id",
@@ -1683,7 +1684,20 @@ def pod_matchup_matrix(store: StudioStore, commander_names: Sequence[str]) -> di
         completed = sum(int(str(r.get("games_completed") or 0)) for r in pod_runs)
         failed = sum(int(str(r.get("games_failed") or 0)) for r in pod_runs)
         wins = round(sum(float(str(r.get("wins_fractional") or 0.0)) for r in pod_runs), 4)
-        win_rate = round(wins / completed, 4) if completed > 0 else None
+        # The base of the win rate is the games with a winner (#1856, Schema 22a): a run that
+        # stored ``games_decided`` is divided by it, an older run (NULL, draws unknown) by all
+        # finished games as before, where a draw counts like a loss.
+        draws_known = all(
+            r.get("games_decided") is not None and r.get("games_drawn") is not None
+            for r in pod_runs
+        )
+        base = sum(
+            int(str(r["games_decided"]))
+            if r.get("games_decided") is not None
+            else int(str(r.get("games_completed") or 0))
+            for r in pod_runs
+        )
+        win_rate = round(wins / base, 4) if base > 0 else None
         rounds_num = 0.0
         rounds_den = 0
         for r in pod_runs:
@@ -1717,6 +1731,13 @@ def pod_matchup_matrix(store: StudioStore, commander_names: Sequence[str]) -> di
                 "games_failed": failed,
                 "wins_fractional": wins,
                 "win_rate": win_rate,
+                "draws_known": draws_known,
+                "games_drawn": sum(int(str(r["games_drawn"])) for r in pod_runs)
+                if draws_known
+                else None,
+                "games_decided": sum(int(str(r["games_decided"])) for r in pod_runs)
+                if draws_known
+                else None,
                 "mean_rounds": mean_rounds,
                 "bridge_qualification_states": qual_states,
                 "all_covered_by_sealed_epoch": all_sealed,

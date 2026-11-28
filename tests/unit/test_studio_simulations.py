@@ -657,7 +657,8 @@ def test_schema_21_store_without_state_columns_gains_them_and_stays_21(tmp_path:
     )
     raw.commit()
     raw.close()
-    assert store_module.SCHEMA_VERSION == 21
+    # Schema 22a: the version moves 21 -> 22 (Owner decision 2026-11-28, #1703/#1856)
+    assert store_module.SCHEMA_VERSION == 22
     for _ in range(2):  # the second open finds the columns and changes nothing
         store = StudioStore.open(tmp_path)
         try:
@@ -681,7 +682,8 @@ def test_schema_21_store_without_state_columns_gains_them_and_stays_21(tmp_path:
             version = store.connection.execute(
                 "SELECT value FROM meta WHERE key = 'schema_version'"
             ).fetchone()
-            assert version["value"] == "21"
+            # Schema 22a: the version moves 21 -> 22 (Owner decision 2026-11-28, #1703/#1856)
+            assert version["value"] == "22"
             old = store.connection.execute(
                 "SELECT revision_id, deck_hash FROM simulation_run WHERE run_id = 'old-run'"
             ).fetchone()
@@ -2071,7 +2073,8 @@ def test_batch_validity_block_consistency_table_and_censored_persistence(tmp_pat
     from commander_lab.studio import builder
     from commander_lab.studio import store as store_module
 
-    assert store_module.SCHEMA_VERSION == 21
+    # Schema 22a: the version moves 21 -> 22 (Owner decision 2026-11-28, #1703/#1856)
+    assert store_module.SCHEMA_VERSION == 22
 
     g1 = GameSummary(
         game_id="b-1",

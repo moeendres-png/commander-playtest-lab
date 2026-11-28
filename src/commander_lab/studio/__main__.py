@@ -570,6 +570,17 @@ def _parser() -> argparse.ArgumentParser:
         help="destination folder outside the repository and outside the Studio data folder",
     )
     backup_cmd.add_argument("--json", action="store_true", help="print backup manifest as JSON")
+    migrate_cmd = commands.add_parser(
+        "migrate",
+        help="show what the next open does to the store (Schema 22a, #1703): --dry-run migrates "
+        "a copy and reports; a real migration happens on the next open, after a backup",
+    )
+    migrate_cmd.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="migrate a temporary copy and report; the real store is never written",
+    )
+    migrate_cmd.add_argument("--json", action="store_true", help="print the report as JSON")
     export_state_cmd = commands.add_parser(
         "export-state",
         help="write the user state (decks, revisions, marks, profiles, TAM prices) as studio-user-state-2",
@@ -1305,6 +1316,27 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(manifest, indent=2, ensure_ascii=False))
         else:
             print(str(manifest["backup_dir"]))
+        return 0
+    if args.command == "migrate":
+        from .migrate import REAL_MIGRATION_NOTE, dry_run, format_report
+        from .store import studio_data_dir
+
+        if not args.dry_run:
+            print(REAL_MIGRATION_NOTE)
+            return 0
+        folder = Path(args.data).resolve() if args.data else studio_data_dir()
+        try:
+            migration = dry_run(folder)
+        except (FileNotFoundError, ValueError) as error:
+            print(f"error: {error}", file=sys.stderr)
+            return 2
+        except (OSError, sqlite3.Error) as error:
+            print(f"error: {error}", file=sys.stderr)
+            return 1
+        if args.json:
+            print(json.dumps(migration, indent=2, ensure_ascii=False))
+        else:
+            print(format_report(migration))
         return 0
     if args.command == "export-state":
         from .state_export import run_export_command

@@ -1132,7 +1132,8 @@ def test_a_schema_21_store_from_before_the_index_stays_readable(
         version = store.connection.execute(
             "SELECT value FROM meta WHERE key = 'schema_version'"
         ).fetchone()
-        assert version is not None and int(version[0]) == 21
+        # Schema 22a: the version moves 21 -> 22 (Owner decision 2026-11-28, #1703/#1856)
+        assert version is not None and int(version[0]) == 22
         assert store.connection.execute("SELECT COUNT(*) FROM experiment").fetchone()[0] == 0
     finally:
         store.close()
@@ -1527,7 +1528,8 @@ def test_store_adds_experiment_status_column_without_schema_bump(tmp_path: Path)
     """An existing schema-21 store without experiment.status gets the column on open."""
     from commander_lab.studio.store import SCHEMA_VERSION
 
-    assert SCHEMA_VERSION == 21
+    # Schema 22a: the version moves 21 -> 22 (Owner decision 2026-11-28, #1703/#1856)
+    assert SCHEMA_VERSION == 22
     store = StudioStore.open(tmp_path)
     try:
         # Simulate a pre-Owner-5a schema-21 table without ``status``
@@ -1566,7 +1568,8 @@ def test_store_adds_experiment_status_column_without_schema_bump(tmp_path: Path)
         ver = reopened.connection.execute(
             "SELECT value FROM meta WHERE key = 'schema_version'"
         ).fetchone()
-        assert ver is not None and int(ver["value"]) == 21
+        # Schema 22a: the version moves 21 -> 22 (Owner decision 2026-11-28, #1703/#1856)
+        assert ver is not None and int(ver["value"]) == 22
     finally:
         reopened.close()
 

@@ -352,7 +352,8 @@ def test_schema_17_to_18_migration_and_fail_closed_simulation_readback(tmp_path:
         ver = store.connection.execute(
             "SELECT value FROM meta WHERE key = 'schema_version'"
         ).fetchone()[0]
-        assert ver == str(SCHEMA_VERSION) == "21"
+        # Schema 22a: the version moves 21 -> 22 (Owner decision 2026-11-28, #1703/#1856)
+        assert ver == str(SCHEMA_VERSION) == "22"
 
         # Register commander + simulated file importing fail-closed
         store.connection.execute(

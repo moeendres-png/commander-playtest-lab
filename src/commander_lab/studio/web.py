@@ -1614,7 +1614,9 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                         [
                             g
                             for g in raw_games
-                            if isinstance(g, dict) and g.get("status") == "finished"
+                            if isinstance(g, dict)
+                            and g.get("status") == "finished"
+                            and g.get("winner_seats")
                         ]
                         if isinstance(raw_games, list)
                         else []

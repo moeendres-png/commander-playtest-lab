@@ -1482,6 +1482,20 @@ def opponent_table(
     return encoded, hashlib.sha256(encoded.encode("utf-8")).hexdigest(), 1 + len(ids)
 
 
+def _stored_draw_classes(summary: Mapping[str, object]) -> tuple[int | None, int | None]:
+    """``(games_drawn, games_decided)`` of a run's own classification (Schema 22a, #1856).
+
+    Both come from the summary the series aggregated (``aggregate_batch_results``). A summary
+    that lacks either one or carries a non-count stores NULL for both: unknown, never 0.
+    """
+    drawn = summary.get("games_drawn")
+    decided = summary.get("games_decided")
+    for value in (drawn, decided):
+        if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+            return None, None
+    return int(str(drawn)), int(str(decided))
+
+
 def save_batch_to_store(
     store: StudioStore,
     batch: BatchSimulation,
@@ -1604,6 +1618,7 @@ def save_batch_to_store(
         else getattr(batch, "pilot_fingerprint", None)
     )
 
+    draw_classes = _stored_draw_classes(summary)
     with store.connection as db:
         db.execute("DELETE FROM simulation_card WHERE run_id = ?", (run_id,))
         db.execute(
@@ -1611,8 +1626,9 @@ def save_batch_to_store(
             "opponent_ids, opponent_set_hash, table_size, pilot_fingerprint, "
             "pod, engine_pin, bridge_jar_sha256, bridge_qualification_state, "
             "pilot_policy, seeds, games_planned, games_completed, games_failed, "
-            "wins_fractional, win_rate, mean_rounds, hand_dwell_status, source_id) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "wins_fractional, win_rate, mean_rounds, hand_dwell_status, source_id, "
+            "games_drawn, games_decided) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 run_id,
                 batch.deck_id,
@@ -1634,6 +1650,7 @@ def save_batch_to_store(
                 summary.get("mean_rounds"),
                 "NOT_MEASURED",
                 source_id,
+                *draw_classes,
             ),
         )
         db.executemany(
