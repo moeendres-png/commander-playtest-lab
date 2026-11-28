@@ -278,11 +278,10 @@ def test_turn_bar_static_guards_and_vorspulen_compat() -> None:
     for tok in (
         'id="phase-bar"',
         'id="decision-bar"',
-        'id="response-mode"',
         'id="hold-confirm-toggle"',
-        'id="auto-pass-human"',
-        'id="ff-btn"',
-        'id="ff-mode"',
+        'id="pass-once"',
+        'id="pass-continue"',
+        'id="pass-to-my-turn"',
         'src="turn_bar.js"',
     ):
         assert tok in html, tok

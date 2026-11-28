@@ -42,36 +42,13 @@
     <input id="position" aria-label="Position in der Partie" type="range" min="0" max="0" value="0">
     <span id="replay-note" class="muted" hidden>KI-Hände aufgedeckt (Partie beendet)</span>
   </span>
-  <label>Tempo <select id="speed"></select></label>
-  <label id="response-mode-wrap" hidden>Antwort-Modus
-    <select id="response-mode" aria-label="Antwort-Modus">
-      <option value="full_control" selected>Volle Kontrolle</option>
-      <option value="big_moments">Große Momente halten</option>
-      <option value="auto_pass">Auto-Pass</option>
-    </select>
-  </label>
-  <details id="halt-config-wrap" class="halt-config" hidden>
-    <summary>Halt-Ereignisse</summary>
-    <div class="halt-config-menu" role="group" aria-label="Halt-Ereignisse für Auto-Pass">
-      <label><input id="halt-stack" type="checkbox" checked> Stapel &amp; Auslöser halten</label>
-      <label><input id="halt-combat" type="checkbox" checked> Kampf-Fenster halten</label>
-      <label><input id="halt-own-main" type="checkbox" checked> Eigene Hauptphasen halten</label>
-      <label><input id="halt-opp-end" type="checkbox" checked> Gegner-Endsegment halten</label>
-      <label><input id="halt-playable" type="checkbox" checked> Bei spielbaren Karten halten</label>
-    </div>
-  </details>
+  <label>Speed <select id="speed"></select></label>
   <label id="hold-confirm-wrap" hidden><input id="hold-confirm-toggle" type="checkbox" checked> Passen schützen (gedrückt halten)</label>
-  <label id="auto-pass-wrap" hidden><input id="auto-pass-human" type="checkbox"> Auto-Pass bis eigene Aktion</label>
-  <span id="ff-wrap" class="ff-wrap" hidden>
-    <button id="ff-btn" type="button" aria-pressed="false" title="Spielt schnell bis zu deiner nächsten Entscheidung: gibt nur die Pass-Option der Engine ab, wenn du nach Priorität gefragt wirst">⏩ Vorspulen bis zu meiner nächsten Entscheidung</button>
-    <select id="ff-mode" aria-label="Vorspul-Modus">
-      <option value="until_my_turn">Bis zu meinem Zug</option>
-      <option value="until_end_of_turn">Bis Zugende</option>
-      <option value="until_stack_resolves">Bis Stapel-Eintrag aufgelöst</option>
-    </select>
-    <label><input id="ff-stack" type="checkbox" checked> auch bei Gegner-Zaubern anhalten</label>
-    <span id="ff-stack-hint" class="muted" hidden></span>
-    <span id="ff-rule" class="muted">Gibt auf Prioritätsabfragen nur „Passen“ ab. Hält an: je nach Modus (eigener Zug, Zugwechsel oder Stapel-Auflösung), bei jeder anderen Entscheidung (Mulligan, Angriff, Block, Ziel, Modus, X, Mana, Reihenfolge, Ja/Nein) und, wenn angehakt, bei Gegner-Objekten auf dem Stack.</span>
+  <span id="pass-element" class="pass-element" role="group" aria-label="Passing" hidden>
+    <button id="pass-once" type="button" title="Pass priority once (Space)">Pass (Space)</button>
+    <button id="pass-continue" type="button" aria-pressed="false" title="Passes on priority until something happens: an opponent object on the stack, any question that is not priority, or my own turn (Enter)">Continue (Enter)</button>
+    <button id="pass-to-my-turn" type="button" aria-pressed="false" title="Passes on priority until my own turn; still stops at every question that is not priority (Shift+Enter)">To my turn (Shift+Enter)</button>
+    <span id="pass-rule" class="muted">Only ever sends the engine's own pass option. Continue stops at an opponent object on the stack, any other question, and my turn.</span>
   </span>
   <span id="where" class="muted"></span>
 </div>

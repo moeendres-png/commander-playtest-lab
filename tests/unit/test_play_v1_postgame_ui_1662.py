@@ -156,10 +156,9 @@ for (const id of [
   'theme-toggle', 'game-select', 'sim-pill', 'game-info', 'concede-btn', 'delete-game',
   'rematch-btn', 'new-game', 'bridge-status', 'conn-status', 'sr-announce', 'replay-controls',
   'first', 'prev-turn', 'back', 'play', 'next', 'next-turn', 'turn-jump', 'skip', 'position',
-  'replay-note', 'speed', 'response-mode-wrap', 'response-mode', 'halt-config-wrap',
-  'halt-stack', 'halt-combat', 'halt-own-main', 'halt-opp-end', 'halt-playable',
-  'hold-confirm-wrap', 'hold-confirm-toggle', 'auto-pass-wrap', 'auto-pass-human',
-  'ff-wrap', 'ff-btn', 'ff-mode', 'ff-stack', 'ff-stack-hint', 'ff-rule', 'where',
+  'replay-note', 'speed',
+  'hold-confirm-wrap', 'hold-confirm-toggle',
+  'pass-element', 'pass-once', 'pass-continue', 'pass-to-my-turn', 'pass-rule', 'where',
   'ff-status', 'replay-timeline', 'phase-bar', 'table-mode-bar', 'board-bar', 'table',
   'side', 'spectator-status', 'human-decision', 'combat-preview', 'now', 'own-combat',
   'postgame-sheet', 'stack-count', 'stack', 'log-search', 'log', 'decision-bar',
@@ -169,15 +168,14 @@ for (const id of [
   registry[id] = new El(id === 'postgame-sheet' ? 'section' : 'div', id);
 }
 registry['postgame-sheet'].hidden = true;
-for (const id of ['speed', 'game-select', 'turn-jump', 'response-mode', 'ff-mode']) {
+for (const id of ['speed', 'game-select', 'turn-jump']) {
   registry[id] = new El('select', id);
 }
-for (const id of ['skip', 'hold-confirm-toggle', 'auto-pass-human', 'ff-stack', 'halt-stack', 'halt-combat', 'halt-own-main', 'halt-opp-end', 'halt-playable']) {
+for (const id of ['skip', 'hold-confirm-toggle']) {
   registry[id] = new El('input', id);
 }
 registry['skip'].checked = true;
 registry['hold-confirm-toggle'].checked = true;
-registry['ff-stack'].checked = true;
 
 const document = {
   getElementById: (id) => registry[id] || null,
