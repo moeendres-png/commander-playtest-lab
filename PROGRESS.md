@@ -17,6 +17,7 @@ Branch: `claude/project-thread-gj8qzc` (agent defs + this file). Per-package bra
 - 1: #1864 #1865 #1868 #1745 verified on 3495bc48 and closed.
 - 2: PR #1888 review FAIL (5/6-seat default refused) -> fixed 8fd05cb9, delta PASS_WITH_NOTES, merged 33ea5f27. #1652, #1586 closed.
 - 4/5: #1856 waits on Schema-22 cut; owner template on #1703 (rec. B: 22a migration machinery + draw columns, split = 23).
-- 6: #1612 D-0/D-3/D-2 done; D-1 target met for owned cards (synthetic 0.036 s); rest on perf/d1-rest-1612.
+- 6: #1612 D-0/D-3/D-2 done; D-1 P2 by #1891 (other session); P3 re-warm + acceptance tests PR #1892 merged c513c209; #1612 closed (real-store timing UNKNOWN).
 - 7: #1662 Part 2 gaps (3-step speed, single pass element) on feat/play-v1-pass-element-1662.
-- #1524: package PR #1890 (review FAIL round 1, fixing).
+- #1524: audit package PR #1890 (review FAIL -> fixed -> PASS) merged 40ca4519; owner go for the 240-game run still pending.
+- 7: PR #1893 (single pass element, 3-step speed, hold-to-confirm on click) reviewed; merge pending CI on bf096114.
