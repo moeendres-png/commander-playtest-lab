@@ -48,9 +48,9 @@ def frontmatter(path: Path) -> dict[str, str]:
     return fields
 
 
-def test_project_defaults_to_medium_and_unassigned_subagents_to_sonnet():
+def test_project_defaults_to_high_and_unassigned_subagents_to_sonnet():
     settings = json.loads(read(ROOT / ".claude" / "settings.json"))
-    assert settings["effortLevel"] == "medium"
+    assert settings["effortLevel"] == "high"  # Owner 2026-11-28, option 1b
     assert settings["env"]["CLAUDE_CODE_SUBAGENT_MODEL"] == "sonnet"
 
 
