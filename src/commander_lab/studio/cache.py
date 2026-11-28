@@ -518,6 +518,17 @@ def invalidate() -> None:
         _counters.clear()
 
 
+def keys(store: StudioStore, kind: str) -> list[tuple[Hashable, ...]]:
+    """The caller's keys of ``kind`` remembered for ``store``'s file, oldest first (none for an
+    in-memory store). What a write route looks at before and after its window to learn which
+    figures the window dropped, so it can fill them again in the background."""
+    if store.path is None:
+        return []
+    path = str(store.path)
+    with _lock:
+        return [key[1:] for key, entry in _entries.items() if key[0] == path and entry.kind == kind]
+
+
 def snapshot(store: StudioStore | None = None) -> list[tuple[tuple[Hashable, ...], object]]:
     """The remembered entries as (caller's key, value), oldest first; of ``store``'s file only
     when given. For tests and diagnostics: the values are the shared ones, not copies."""
@@ -765,6 +776,7 @@ __all__ = [
     "cached",
     "counters",
     "invalidate",
+    "keys",
     "kind_name",
     "kind_of",
     "read_only",
