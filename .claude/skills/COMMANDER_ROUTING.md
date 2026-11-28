@@ -20,7 +20,8 @@ lane that preserves required correctness and evidence:
    security/containment and other high-risk adjudication; `reviewer` (Opus `high`) for every
    fresh-context review.
 
-Implementation goes to `builder` with a complete brief, not to `general-purpose`. Keep Claude helper topology flat and do not create agent teams. After delegation,
+In a Claude session the selected worker of item 2 is `builder` unless the Owner names another;
+implementation goes to it with a complete brief, not to `general-purpose`. Keep Claude helper topology flat and do not create agent teams. After delegation,
 consume the compact handoff before reopening raw material, and reopen it only when authority or
 independent verification requires it.
 

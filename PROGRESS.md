@@ -11,7 +11,7 @@ Branch: `claude/project-thread-gj8qzc` (agent defs + this file). Per-package bra
 
 ## Decisions
 - gh CLI token invalid in this container; GitHub via MCP tools only.
-- #1888 belongs to a Gemini session (claim 19:27); owner brief explicitly hands it to this thread.
+- #1888 belongs to another agent's session (claim 19:27); owner brief explicitly hands it to this thread.
 
 ## Done
 - 1: #1864 #1865 #1868 #1745 verified on 3495bc48 and closed.

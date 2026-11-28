@@ -40,8 +40,11 @@ Haiku for simple read-only jobs, Sonnet for most coding, Opus for review and har
 - Consume a helper's report first; reopen raw logs, diffs or evidence only for an authority
   decision, a contradiction, an unusual security/qualification claim or a required independent
   check. A `scout` fact that decides a gate or a merge is checked against the source.
-- The fresh-context review of a MATERIAL change (`AGENTS.md` §10) always runs on `reviewer`
-  (Opus / high), never on a lower tier.
+- The fresh-context review of a MATERIAL change (`AGENTS.md` §10) always runs on `reviewer`,
+  never on a lower tier: Opus at `high` or the main session's effort, whichever is higher (pass
+  the higher effort on the invocation when the main session runs above `high`).
+- A helper's fixed model and effort change only together with this table and
+  `tests/unit/test_claude_routing_policy.py`, in a reviewed PR; never silently raised or lowered.
 - Helpers are flat: no helper has the `Agent` tool, so none spawns children. No agent teams or
   recursive coordinator/worker trees for normal work.
 - `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` (`.claude/settings.json`) is only the default for helpers
@@ -51,13 +54,15 @@ Haiku for simple read-only jobs, Sonnet for most coding, Opus for review and har
 
 ## Token habits
 
+- Test narrow while iterating; run the full suite once at the integration boundary.
+- No background load (game series, builds) while helpers run test suites.
 - Long Java suites, PB-03 runs and CI waits run in the background (`run_in_background` or
   `gh_ops.py wait`), never as repeated polls or bare `sleep`.
 - Long command output goes to a file; read the tail or the matching lines.
 - Helper reports ≤40 lines; routine status to the Owner ≤8 lines.
 - No third review round for wording; a re-review checks only the delta.
 - `gh_ops.py brief|status|queue|threads|wait|run|errors|rerun-cancelled` covers PRs, CI and logs.
-  GitHub GraphQL is unavailable here: use `gh api` REST. A GitHub 429 gets one retry, then stop
+  GitHub GraphQL is unavailable here: use `gh api` REST. A GitHub 429 gets one attempt, then stop
   and record it in the issue.
 
 ## Repo specifics Claude tends to miss

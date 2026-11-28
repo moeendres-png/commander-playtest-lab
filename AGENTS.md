@@ -122,7 +122,8 @@ between executors.
   (whatever its tool or model) or an explicitly launched Coordinator session, both under the
   delegation in §8.
 - **Worker**: any other executor. Workers inside an owned workstream and Muse (the Owner's Meta
-  agent) may execute and merge as §10 delegates. Lead-orchestrated helpers execute
+  agent) may execute and merge as §10 delegates (every session self-merges after its own
+  fresh-context review, Owner decision 2026-11-27, §10). Lead-orchestrated helpers execute
   bounded briefs and report back without merging (§7). Unappointed external agents (GitHub Copilot,
   Cline and others) work on their own branch and PR and never merge; the Lead or the Owner reviews
   and merges. No worker decides Owner-only reservations (§8); results count as evidence only after
@@ -317,10 +318,11 @@ qualification gate PASS on the exact head; Rules and evidence integrity hold; th
 source-lock conflict, no merge conflict and no unresolved review thread or P1/P2; no
 FAIL/UNKNOWN/BLOCKED is hidden; and a MATERIAL change (one to the engine, the bridge, qualification,
 gates, the pilots' decision logic, Rules/evidence/privacy text, policy text (`AGENTS.md`,
-`CLAUDE.md`, `docs/CURRENT_EXECUTION_AUTHORITY.md`, the Owner-only list, Git boundaries),
+`CLAUDE.md`, the tool-specific agent definitions such as `.claude/agents/`,
+`docs/CURRENT_EXECUTION_AUTHORITY.md`, the Owner-only list, Git boundaries),
 containment and security configuration, workflow files, or more than 300 changed lines) has an
-independent review PASS from a fresh context that did not write it (at the Lead's inherited level
-unless the Owner specifies otherwise), with no blocking findings. A MATERIAL change is not merged
+independent review PASS from a fresh context that did not write it (at the Lead's level or
+higher unless the Owner specifies otherwise, §7), with no blocking findings. A MATERIAL change is not merged
 before that review is recorded on the pull request with its verdict and the exact head SHA it
 reviewed, and that SHA is the head being merged; green required checks alone are not enough. The
 review record names the reviewing session in neutral words, the exact head SHA, the commands it

@@ -278,6 +278,10 @@ deinem Empfehlungen bitte so in den issues hinterlegen damit gemini das auch ric
   jeweils anderen Agenten geprüft; der Review-Kommentar nennt die prüfende Sitzung neutral, die
   Head-SHA, die Befehle und das Urteil; der Autor mergt frühestens danach (`AGENTS.md` §10). Wer
   Development Lead ist und fremde PRs mergt, bleibt Owner-Sache und ist damit nicht geregelt.
+  *Abgelöst am 2026-11-27* (Owner, #1167, Kommentar 7223458270): „jedes Modell / jede Sitzung
+  [macht] vor dem Merge selbst ein Fresh-Eye-Review (frischer Kontext), fixt die Befunde und
+  mergt dann selbst. Auf Kreuz-Reviews wird nicht gewartet — sie finden nur noch statt, wenn sie
+  essentiell sind.“ Umgesetzt in `AGENTS.md` §10 (Refs #1167).
 - **C8** `docs/research/studio_abschluss_20261118/ist_lage_dbs.md` prüfen, gegebenenfalls kürzen. Sichtbarkeit
   und #1108 bleiben Owner-Sache, ohne Empfehlung.
 

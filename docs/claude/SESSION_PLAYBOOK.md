@@ -130,7 +130,9 @@ Use this decision order for each new unit of work:
    security/containment, cross-WS arbitration and merge decisions stay in the main session.
    `reviewer` (Opus `high`, fresh context) does every review a MATERIAL change needs.
 
-Claude helper topology stays flat: the project helpers are read-only and have no `Agent` tool.
+Claude helper topology stays flat: no project helper has the `Agent` tool, and all except
+`builder` are read-only. In a Claude session, `builder` is the selected worker of item 2 unless
+the Owner names another.
 Do not create agent teams or nested subagent trees for routine work.
 
 **Consume delegation, do not duplicate it.** Read the compact worker report first. Re-open raw
