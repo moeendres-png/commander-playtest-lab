@@ -121,8 +121,8 @@ between executors.
 - **Development Lead / Coordinator**: the Owner-appointed Orchestrator and Development Lead session
   (whatever its tool or model) or an explicitly launched Coordinator session, both under the
   delegation in §8.
-- **Worker**: any other executor. Claude Sonnet workers inside an owned workstream and Muse (the
-  Owner's Meta agent) may execute and merge as §10 delegates. Lead-orchestrated helpers execute
+- **Worker**: any other executor. Workers inside an owned workstream and Muse (the Owner's Meta
+  agent) may execute and merge as §10 delegates. Lead-orchestrated helpers execute
   bounded briefs and report back without merging (§7). Unappointed external agents (GitHub Copilot,
   Cline and others) work on their own branch and PR and never merge; the Lead or the Owner reviews
   and merges. No worker decides Owner-only reservations (§8); results count as evidence only after
@@ -151,12 +151,16 @@ never a model poll.
 
 - A helper's result counts only after the lead has checked it against §4. Neither that check nor an
   implementation pass inside the same editing flow is the independent review of §10.
-- Fixed minimums: unless the Owner specifies otherwise, review and delegated subagents of the Lead
-  or Coordinator inherit its model and effort; the Lead may lower them only for status, CI and log
-  digestion; **Muse** runs at `high` to `max`, including its subagents.
+- Helper tiers: each tool's own entrypoint (for Claude Code `CLAUDE.md` and `.claude/agents/`)
+  fixes which model and effort each helper uses, following that tool vendor's guidance: a small
+  fast tier for read-only lookups and log digestion, a capable coding tier for implementation, and
+  for every independent review of a MATERIAL change (§10) the Lead's level or higher. Unless the
+  Owner specifies otherwise, a helper without a fixed tier inherits the Lead's model and effort.
+  **Muse** runs at `high` to `max`, including its subagents.
 
-Tiering never lowers the level the Owner selected, is not a fallback between executors and never
-changes authority: the session that owns the work stays accountable for it.
+Tiering never lowers the level the Owner selected for the session itself, is not a fallback
+between executors and never changes authority: the session that owns the work stays accountable
+for it, and a fact from a lower tier that decides a gate or a merge is checked against its source.
 
 ## 8. Technical decision authority
 
@@ -305,7 +309,7 @@ creation/deletion; no secret/token extraction or exposure.
 
 `AGENT_SELF_MERGE = ENABLED`
 
-The Development Lead, Claude sessions (Coordinator and thread sessions) and Muse merge their own
+The Development Lead, Coordinator and thread sessions, and Muse merge their own
 PRs, and the Development Lead also handed-over or completed PRs, through the normal GitHub merge
 path when: ownership is exclusive (or transferred to the Lead); exact head and target SHAs are
 freshly verified and target drift is adjudicated; the required checks and every applicable
@@ -325,12 +329,11 @@ identity and level, never relabel) still applies. Since the Owner decision of 20
 MATERIAL has two classes: class A is a change that is MATERIAL because of a category listed above
 (engine, bridge, qualification, gates, pilot decision logic, Rules/evidence/privacy text, policy
 text, containment and security configuration, workflow files), even if it also exceeds 300
-changed lines; class B is a change that is MATERIAL only because it exceeds 300 changed lines. Both classes need the fresh-context review described above; only class A needs, where two
-agents work in parallel, the cross-review: a session of the other agent reviews a class A
-MATERIAL pull request, and the author, where §6 lets it merge at all,
-merges no earlier than that review comment (Owner decision 2026-11-18,
-`docs/OWNER_DECISIONS_STUDIO_20261118.md` E7); who is Development Lead and merges other agents'
-pull requests stays an Owner matter. One review per head; after fixes the same reviewer re-checks
+changed lines; class B is a change that is MATERIAL only because it exceeds 300 changed lines. Both classes need the fresh-context review described above. Since the Owner decision of
+2026-11-27 (#1167, comment 7223458270) that review is the session's own fresh-context review: a
+cross-review by another agent is no longer a wait gate and is requested only where it is
+essential (this replaces the cross-review rule of `docs/OWNER_DECISIONS_STUDIO_20261118.md` E7);
+who is Development Lead and merges other agents' pull requests stays an Owner matter. One review per head; after fixes the same reviewer re-checks
 only the delta. After merging, the session reads back the merge commit and the resulting `main`
 HEAD/TREE (`commander-quality-gate`, Phase 6) and reports the merge in one line with the PR link.
 

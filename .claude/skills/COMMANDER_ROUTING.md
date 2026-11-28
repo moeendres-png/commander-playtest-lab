@@ -13,15 +13,14 @@ lane that preserves required correctness and evidence:
 2. the worker the Owner selected for the session (the Owner picks tool and model manually) for
    implementation, debugging, tests, qualification execution, evidence production, audits,
    reviews and long engineering work; there is no automatic fallback between models;
-3. bounded Claude read-only helpers: `log-scanner` = Sonnet `low`, `ci-triage` = Sonnet
-   `medium`, built-in `Explore` only for a scoped lookup after deterministic search is
-   insufficient;
-4. Opus 5.5 `medium` for normal coordination/dispatch/source-state management and `high` for
-   Rules, evidence/qualification, architecture, security/containment and other high-risk
-   adjudication. `evidence-reviewer` is Opus `high`.
+3. bounded Claude helpers by tier (`CLAUDE.md`, "Models and helpers"): `scout` = Haiku `low`,
+   `ci-triage` = Sonnet `medium`, `builder` = Sonnet `high`, built-in `Explore` for a broad
+   read-only search after deterministic search is insufficient;
+4. the main session for planning, Rules, evidence/qualification, architecture,
+   security/containment and other high-risk adjudication; `reviewer` (Opus `high`) for every
+   fresh-context review.
 
-Do not spawn general-purpose Claude subagents for implementation/debug/test-fix work; send that
-work to the selected worker. Keep Claude helper topology flat and do not create agent teams. After delegation,
+Implementation goes to `builder` with a complete brief, not to `general-purpose`. Keep Claude helper topology flat and do not create agent teams. After delegation,
 consume the compact handoff before reopening raw material, and reopen it only when authority or
 independent verification requires it.
 
