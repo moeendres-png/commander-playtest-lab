@@ -1032,6 +1032,37 @@ Co-Leads bzw. der umsetzenden Sitzung (Einspruch des Owners jederzeit möglich).
    eigener PR (Workflow-Änderung, Klasse A) und wird erst nach Owner-Go gebaut. (2) Die
    Scryfall-Datei „Oracle Cards“ bleibt manuell; der Starter lädt sie nicht.
 
+### Entscheide 2026-11-28 (Thread-Sitzung, #1167)
+
+Wortlaut des Owners (Session-Chat, 2026-11-28, Antworten auf die Vorlage D1 bis D7 der
+Claude-Thread-Sitzung): „1b stelle ich gleich um, und ja dann 2a“ und „D1: B, 22a jetzt; D2: 1 nur
+40; D3: A; D4: 1 freigegeben und schließen; D5: 1 beide für den Abschluss repin bündeln; D6 a/nein;
+D7: hier mein los also prüfen“. Vorher am selben Tag: Claude ist derzeit alleiniger Writer und darf
+volle Autonomie und Entscheidungskraft nehmen; Subagents nach Anthropics Empfehlung (umgesetzt in
+PR #1894).
+
+1. **Effort (1b):** Hauptsitzung `high`; Projektstandard `.claude/settings.json` auf `high`.
+2. **Parallel-Agenten-Regeln (2a):** Claims in #1167 und Übergaben bleiben, auch solange nur eine
+   Sitzung schreibt.
+3. **D1, #1703/#1856:** Option B. Schema 22 = 22a: nummerierte Migration 21 → 22 in der einen
+   Datei, Pflicht-Sicherung vor dem Start, `games_drawn`/`games_decided` an `simulation_run`
+   (alte Zeilen bleiben NULL = unbekannt, nie 0), `migrate --dry-run`, Nachweis am Owner-Export.
+   Der Dateischnitt (K-2c1 bis K-2c4) wird Schema 23. Ändert E15 Q9 („Schema 22 = Dateischnitt“).
+   Das Studio-Daten-Gate (#1746) wird mit 22a fällig.
+4. **D2, #1528:** Option 1, nur der Arm `V40` (40 Länder) wird verlängert (+240 Paare, disjunkter
+   Seed-Block); `V38` nicht.
+5. **D3, #1524:** Option A. Zwei Agenten-Sitzungen annotieren die Blätter A und B blind, der Owner
+   kalibriert die 40 Punkte und die Streitfälle. Lesart der Thread-Sitzung: Die Serie aus D2 läuft
+   mit vorher geschriebenem Audit-Plan und `--record-pilot-audit`, damit ein Lauf beide Fragen
+   bedient.
+6. **D4, #1369:** Tierliste v3 am echten Store freigegeben, #1369 geschlossen.
+7. **D5, #1093/#1628:** Beide Fork-Fixes werden für den Abschluss-Repin (#1533) gebündelt; bis
+   dahin kein Fork-Push und kein Repin.
+8. **D6, #1556:** User-Agent bleibt ohne Kontaktangabe (DATA-S4 = a); kein Kartenatlas-Scraping.
+9. **D7:** Go für die 52 vorbereiteten Forschungsaufträge (PLAY/SIMULATE-Vergleiche). Lesart der
+   Thread-Sitzung: „los“ gibt die Aufträge frei; die Sitzung prüft sie zuerst und legt Reihenfolge
+   und Umfang fest (Lead-Entscheidung nach §8), Owner-Vorbehalte nach `AGENTS.md` §8 bleiben.
+
 ## 3. Was aufgehoben, geändert oder neu ist
 
 | Bisher | Jetzt | Quelle |
