@@ -244,3 +244,17 @@ def restore_backup(
         "files_verified": len(verified_entries),
         "integrity_check": "ok",
     }
+
+
+def backup_before_migration(directory: Path, schema_version: int) -> None:
+    """Mandatory backup of a file store before a schema migration (#1703, Owner 2026-11-28).
+
+    Saved with ``create_backup`` into ``<data folder name>-backups/pre-schema-<N>-<utc>`` next to
+    the data folder (a backup may not lie inside the store). Registered with the store by
+    ``commander_lab.studio.__init__``; a failure propagates and the store is not touched.
+    """
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    destination = (
+        directory.parent / f"{directory.name}-backups" / f"pre-schema-{schema_version}-{stamp}"
+    )
+    create_backup(directory, destination)

@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -136,6 +138,83 @@ def test_a_failed_backup_leaves_the_store_untouched(
     assert _version(path) == "21"
     assert not NEW_COLUMNS & _columns(path)
     assert path.read_bytes() == before
+
+
+def _leave_hot_journal(path: Path) -> Path:
+    """A writer that crashed mid-transaction: the store keeps a hot rollback journal."""
+    code = (
+        "import sqlite3, os, sys\n"
+        "c = sqlite3.connect(sys.argv[1], isolation_level=None)\n"
+        "c.execute('PRAGMA cache_size=1')\n"
+        "c.execute('BEGIN')\n"
+        "c.execute(\"UPDATE meta SET value = value WHERE key='schema_version'\")\n"
+        "c.execute('CREATE TABLE junk(x)')\n"
+        "c.executemany('INSERT INTO junk VALUES (?)', [(b'x'*4000,) for _ in range(2000)])\n"
+        "os._exit(0)\n"
+    )
+    subprocess.run([sys.executable, "-c", code, str(path)], check=True)
+    journal = path.with_name(path.name + "-journal")
+    assert journal.exists()
+    return journal
+
+
+def test_a_hot_journal_refuses_the_open_and_changes_nothing(tmp_path: Path) -> None:
+    """#1703 review P1: a probe that cannot read must not read as "nothing to back up"."""
+    path = _make_21_store(tmp_path / "data")
+    journal = _leave_hot_journal(path)
+    before = (path.read_bytes(), journal.read_bytes())
+    with pytest.raises(sqlite3.OperationalError):
+        StudioStore.open(tmp_path / "data")
+    assert (path.read_bytes(), journal.read_bytes()) == before
+    assert not (tmp_path / "data-backups").exists()
+    with pytest.raises(sqlite3.OperationalError):
+        store_module.stored_schema_version(path)
+    with pytest.raises(sqlite3.OperationalError):
+        migrate.dry_run(tmp_path / "data")
+
+
+def test_a_locked_store_refuses_the_open_promptly(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = _make_21_store(tmp_path / "data")
+    monkeypatch.setattr(store_module, "STORE_TIMEOUT_SECONDS", 0.2)
+    before = path.read_bytes()
+    holder = sqlite3.connect(path, isolation_level=None)
+    holder.execute("BEGIN EXCLUSIVE")
+    try:
+        with pytest.raises(sqlite3.OperationalError, match="locked"):
+            StudioStore.open(tmp_path / "data")
+    finally:
+        holder.execute("ROLLBACK")
+        holder.close()
+    assert _version(path) == "21"
+    assert path.read_bytes() == before
+    assert not (tmp_path / "data-backups").exists()
+
+
+def test_without_a_registered_backup_the_open_refuses_to_migrate(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The store cannot import the backup (cycle): no registered function means fail closed."""
+    path = _make_21_store(tmp_path / "data")
+    before = path.read_bytes()
+    monkeypatch.setattr(store_module, "_migration_backup", None)
+    with pytest.raises(RuntimeError, match="no backup function"):
+        StudioStore.open(tmp_path / "data")
+    assert path.read_bytes() == before
+
+
+def test_the_package_import_registers_the_backup() -> None:
+    import commander_lab.studio as studio_package
+
+    assert store_module._migration_backup is studio_package.backup_before_migration
+
+
+def test_a_file_without_meta_table_is_a_new_store(tmp_path: Path) -> None:
+    path = tmp_path / DATABASE_NAME
+    sqlite3.connect(path).close()
+    assert store_module.stored_schema_version(path) is None
+    assert store_module.stored_schema_version(tmp_path / "absent.sqlite3") is None
 
 
 def test_migration_is_idempotent(tmp_path: Path) -> None:

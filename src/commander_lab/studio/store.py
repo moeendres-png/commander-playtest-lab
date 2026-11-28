@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import os
 import sqlite3
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from contextlib import contextmanager
 from datetime import UTC, datetime
 from enum import StrEnum
@@ -1041,19 +1041,42 @@ _NAMES_OTHER_COMMANDER = (
 )
 
 
+# Seconds a connection waits for a lock held by another connection; the probe and the open use
+# the same value (a module constant so that a test can shorten it).
+STORE_TIMEOUT_SECONDS = 30.0
+
+# Set by ``commander_lab.studio.__init__`` (the package import runs before any store can be
+# opened): ``backup`` imports this module, so the backup is injected instead of imported.
+_MigrationBackup = Callable[[Path, int], None]
+_migration_backup: _MigrationBackup | None = None
+
+
+def register_migration_backup(backup: _MigrationBackup | None) -> None:
+    """Install the function that saves a file store before a schema migration (#1703)."""
+    global _migration_backup
+    _migration_backup = backup
+
+
 def stored_schema_version(path: Path) -> int | None:
     """The ``meta.schema_version`` of a store file, read with a plain read-only query.
 
-    ``None`` when there is no file, no ``meta`` table or no version row (a new store). Nothing
-    is created or written, so it is safe to call before ``_prepare`` runs the schema.
+    ``None`` only when there is no file, the file has no ``meta`` table (never prepared) or no
+    version row (a new store). Every other failure (a hot rollback journal that a read-only
+    probe cannot replay, a lock held by another connection, a damaged file) propagates: an
+    unreadable version is not "nothing to migrate" and must not skip the mandatory backup
+    (fail closed). Nothing is created or written, so it is safe to call before ``_prepare``.
     """
     if not path.is_file():
         return None
-    connection = sqlite3.connect(f"{path.as_uri()}?mode=ro", uri=True, timeout=30)
+    connection = sqlite3.connect(
+        f"{path.as_uri()}?mode=ro", uri=True, timeout=STORE_TIMEOUT_SECONDS
+    )
     try:
         row = connection.execute("SELECT value FROM meta WHERE key = 'schema_version'").fetchone()
-    except sqlite3.OperationalError:  # no meta table: a file that was never prepared
-        return None
+    except sqlite3.OperationalError as error:
+        if "no such table: meta" in str(error).lower():  # a file that was never prepared
+            return None
+        raise
     finally:
         connection.close()
     return int(row[0]) if row is not None else None
@@ -1062,21 +1085,20 @@ def stored_schema_version(path: Path) -> int | None:
 def _backup_before_migration(directory: Path, path: Path) -> None:
     """Mandatory backup of a file store before a schema migration (#1703, Owner 2026-11-28).
 
-    A store whose version is below ``SCHEMA_VERSION`` is saved with ``backup.create_backup`` into
-    ``<data folder name>-backups/pre-schema-<N>-<utc>`` next to the data folder (a backup may not
-    lie inside the store). If that fails the error propagates and the store is not touched
-    (fail closed). New stores and stores at the current version need none.
+    A store whose version is below ``SCHEMA_VERSION`` is saved by the registered backup function
+    (``backup.backup_before_migration``) next to the data folder. If the version cannot be read,
+    no backup function is registered or the backup fails, the error propagates and the store is
+    not touched (fail closed). New stores and stores at the current version need none.
     """
     version = stored_schema_version(path)
     if version is None or version >= SCHEMA_VERSION:
         return
-    from . import backup  # backup imports this module: not at import time
-
-    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    destination = (
-        directory.parent / f"{directory.name}-backups" / f"pre-schema-{SCHEMA_VERSION}-{stamp}"
-    )
-    backup.create_backup(directory, destination)
+    if _migration_backup is None:
+        raise RuntimeError(
+            "Studio store needs a schema migration but no backup function is registered: "
+            f"refusing to migrate {path} (import commander_lab.studio first)"
+        )
+    _migration_backup(directory, SCHEMA_VERSION)
 
 
 class StudioStore:
@@ -1095,7 +1117,7 @@ class StudioStore:
         directory.mkdir(parents=True, exist_ok=True)
         path = directory / DATABASE_NAME
         _backup_before_migration(directory, path)
-        return cls(cls._prepare(sqlite3.connect(path, timeout=30)), path)
+        return cls(cls._prepare(sqlite3.connect(path, timeout=STORE_TIMEOUT_SECONDS)), path)
 
     @classmethod
     def in_memory(cls) -> StudioStore:
