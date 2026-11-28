@@ -46,9 +46,8 @@ Moving the engine pin has its own procedure: `docs/claude/REPIN_RUNBOOK.md`.
   false red.
 - **CI-02.** `ci-definition-integrity-shadow` is red by design. Comment once per PR, never weaken
   it, and expect it to flag PRs that change a required workflow.
-- **Codex review** is often out of quota. Without an external review, run the `evidence-reviewer`
-  agent, or a fresh-context adversarial review agent on the main model, before pushing
-  qualification or security code.
+- **Codex review** is often out of quota. Without an external review, run the `reviewer` agent
+  (Opus `high`, fresh context) before pushing qualification or security code.
 
 ## Evidence work
 
@@ -123,17 +122,17 @@ Use this decision order for each new unit of work:
    refactors and long Mage/Lab campaigns go to the worker the Owner selected for the session.
 3. **No fallback.** Never switch models on failure or quota, and do not add one without a new
    direct Owner instruction.
-4. **Read-only helper.** Use `log-scanner` (Sonnet `low`) for mechanical extraction and
-   `ci-triage` (Sonnet `medium`) for one red-check classification. Use built-in `Explore` only
-   for a scoped read-only lookup when deterministic search is insufficient. Never use
-   `general-purpose` or another Claude subagent for implementation, debugging or test/fix work.
-5. **Opus judgement.** Keep normal coordination, dispatch and source-state management at Opus
-   5.5 `medium`. Use `high` for Rules/CR, evidence/qualification promotion, architecture,
-   security/containment, difficult cross-WS arbitration and final high-risk integration review.
-   `evidence-reviewer` is the dedicated Opus `high` fresh-context helper for qualification-,
-   evidence-, Rules- or security-sensitive diffs.
+4. **Helpers by tier** (table and rules in `CLAUDE.md`, "Models and helpers"): `scout` (Haiku
+   `low`) for lookups and log digestion, `ci-triage` (Sonnet `medium`) for one red check,
+   `builder` (Sonnet `high`) for one bounded change from a complete brief, built-in `Explore`
+   for a broad read-only search when grep is not enough.
+5. **Opus judgement.** Planning, Rules/CR, evidence/qualification promotion, architecture,
+   security/containment, cross-WS arbitration and merge decisions stay in the main session.
+   `reviewer` (Opus `high`, fresh context) does every review a MATERIAL change needs.
 
-Claude helper topology stays flat: the project helpers are read-only and have no `Agent` tool.
+Claude helper topology stays flat: no project helper has the `Agent` tool, and all except
+`builder` are read-only. In a Claude session, `builder` is the selected worker of item 2 unless
+the Owner names another.
 Do not create agent teams or nested subagent trees for routine work.
 
 **Consume delegation, do not duplicate it.** Read the compact worker report first. Re-open raw
@@ -158,6 +157,6 @@ canonical-state change, incomplete packet or unrecoverable/non-resumable termina
 - End every material session with a lane checkpoint: exact heads, item state, blockers and exact
   next action.
 
-`omitClaudeMd: true` is deliberately limited to the mechanical `log-scanner` and bounded
-`ci-triage` helpers; the evidence reviewer retains project context. Do not set an explicit
+`omitClaudeMd: true` is deliberately limited to the mechanical `scout` and bounded `ci-triage`
+helpers; `builder` and `reviewer` retain project context. Do not set an explicit
 subagent cache TTL until a representative benchmark shows a benefit.

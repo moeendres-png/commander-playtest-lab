@@ -1,6 +1,6 @@
 ---
 name: ci-triage
-description: Use when a pull-request check is red to establish its root cause and whether the failure belongs to the PR — reads the failing job's log lines, the PR diff, the same check on the base branch, and earlier runs of the same commit. Read-only; returns a diagnosis with evidence, never pushes, re-runs or comments.
+description: Use proactively when a pull-request check is red to establish its root cause and whether the failure belongs to the PR — reads the failing job's log lines, the PR diff, the same check on the base branch, and earlier runs of the same commit. Read-only; returns a diagnosis with evidence, never pushes, re-runs or comments.
 tools: Bash, Read, Grep, Glob
 model: sonnet
 effort: medium

@@ -1,79 +1,75 @@
-# Commander Simulator Next — Claude entrypoint
+# Commander Studio — Claude Code entrypoint
 
-Read and follow the repository-root `AGENTS.md` first: it is the canonical durable agent
-policy. This file adds Claude-specific operating notes and is not an independent policy
-source; if they seem to disagree, `AGENTS.md` governs. Lead, Coordinator and campaign
-authority, the Owner-only reservations and the merge gate are in `AGENTS.md` §8 and §10.
+@AGENTS.md
 
-## Efficient operation
+`AGENTS.md` above is the binding policy for every agent. This file holds only what is specific to
+Claude Code; if the two seem to disagree, `AGENTS.md` governs.
 
-**Focus.** Owner-deck work: Chulane only (`docs/OWNER_DECK_FOCUS_CURRENT.md`); RogShai is
-historical/regression data. Studio work (deck building, simulating, playing): the required
-reading is the charter `docs/STUDIO_CHARTA_V2.md` with the decision register
-`docs/OWNER_DECISIONS_STUDIO_20261118.md` and its older part
-`docs/OWNER_DECISIONS_STUDIO_20261112.md` (E15 Q10, Owner answer 8a, `AGENTS.md` §1). The former
-scope, simulator plan and roadmap are archived; their binding rules are in the register, section 6,
-and the bridge-gate reference set is in `docs/STUDIO_BRIDGE_GATE_TOOLING.md`.
-Who holds which Studio surface is in the claim table of #1167. Before touching an issue or pull
-request, check that no other agent holds it (`AGENTS.md` §11, parallel agents).
-Abarbeitung: the register, section 6.7. Shared files and the entry page for other
-agents: `docs/STUDIO_AGENT_ONBOARDING.md`. Claim your own work too, before you start (`AGENTS.md`
-§11, Claims).
+## Start of a session
 
-**Cold start.** Run `python3 .claude/skills/lab-ops/scripts/gh_ops.py brief`, then read the
-issue or pull request you own. Git/GitHub, tests and sealed evidence are Source Truth. When the
-workstream changes materially, record the handoff in its issue or PR and start a fresh session
-instead of growing one giant conversation.
+- Run `python3 .claude/skills/lab-ops/scripts/gh_ops.py brief`, then read the issue or PR you own.
+- Studio work: `docs/STUDIO_CHARTA_V2.md` and the decision register
+  `docs/OWNER_DECISIONS_STUDIO_20261118.md` (older part `..._20261112.md`). Owner-deck work: Chulane
+  only (`docs/OWNER_DECK_FOCUS_CURRENT.md`). Claims and shared files:
+  `docs/STUDIO_AGENT_ONBOARDING.md` and the claim table of #1167.
+- When the workstream changes materially, record the handoff on GitHub and start a fresh session
+  (`/clear`) instead of growing one giant context.
 
-**Cheapest sufficient path.**
-1. Deterministic scripts first (`lab-ops`, grep, focused tests, packet readers).
-2. Hand implementation, debugging, test/fix loops, CI repair and long engineering work to
-   the worker the Owner selected for the session; the lead session stays
-   coordinator/planner/adjudicator.
-3. No automatic fallback between models for failure, quota or convenience.
-4. Claude subagents for bounded side work: `log-scanner` (Sonnet, low), `ci-triage`
-   (Sonnet, medium), built-in `Explore` for read-only lookups. Claude Sonnet may also be an
-   implementation worker; the evidence and review rules apply to it.
+## Models and helpers
 
-**Model tiers and quota** (`AGENTS.md` §7). Helpers and reviewers inherit the lead's model and
-effort unless the Owner says otherwise; the lead may lower them only for status, CI and log
-digestion (`log-scanner`, `ci-triage`). The defaults in `.claude/settings.json` and the fixed
-levels in `.claude/agents/*.md` are Owner-set exceptions to this inheritance; the lead may not
-raise or lower them silently. `evidence-reviewer` reviews Rules, evidence,
-containment, security, gate and policy text. A brief
-contains the review checklist, so the first review finds little. No third review round for
-wording. No background load (game series, builds) while helpers run test suites. Paste what a
-helper already found into the next brief instead of having the next helper rediscover it.
+The Owner picks the main session's model and effort; there is no automatic fallback between
+models. The main session keeps planning, Rules and evidence adjudication, gate and merge
+decisions, and the final check of helper output (`AGENTS.md` §7). Helpers get their own context,
+so their tool output stays out of the main one. Each tier below follows Anthropic's guidance:
+Haiku for simple read-only jobs, Sonnet for most coding, Opus for review and hard judgement.
 
-Custom Claude helpers are flat: their tool allowlists contain no `Agent` tool, so they must not
-spawn children. Do not create agent teams or recursive coordinator/worker trees for normal work.
+| Helper | Model / effort | Use for | Writes |
+|---|---|---|---|
+| `scout` | Haiku / low | lookups, filtered command output, CI/test/PB-03 log digestion | no |
+| `ci-triage` | Sonnet / medium | root cause of one red check | no |
+| `builder` | Sonnet / high | one bounded change from a complete brief, tests first | commits |
+| `reviewer` | Opus / high | fresh-context review before merge, all evidence-, Rules-, policy-sensitive diffs | no |
+| built-in `Explore` / `Plan` | inherit | broad read-only search / plan research when grep is not enough | no |
 
-**Delegation discipline.** A worker's handoff is the first source after delegation.
-Do not automatically re-read the same logs, files, diffs, tests or evidence in the lead
-session; reopen raw material only for an authority-sensitive decision, contradictory or insufficient
-evidence, an unusual security/qualification claim, or a required independent verification.
-Dispatches carry the task delta, not chat history. Do not micromanage a complete dispatch
-unless an authority/ownership gate appears, canonical source changes, the packet was
-incomplete, or the run ends without resumable state.
-
-**Habits.**
-- `gh_ops.py brief` is the one-screen status; `status`, `queue`, `threads`, `wait`, `run`,
-  `errors` and `rerun-cancelled` cover single PRs, CI and logs.
-- Reports other agents need go to GitHub at once, not only scratchpad or chat: a short comment
-  plus the full file under `docs/analysis-reports/`; a chat-only handoff is not handed over
-  (`AGENTS.md` §11).
-- Helper reports ≤40 lines; routine user status ≤8 lines.
-- Test narrow while iterating; run the full suite once at the integration boundary (local
-  testing: `AGENTS.md` §10).
-- Long Java suites, PB-03 and CI waits run in the background, never as repeated polls.
-- GitHub GraphQL is unavailable: use `gh api` REST and the CCR routes.
-- GitHub 429: one attempt, then stop and record it in the issue.
-- A skipped real-engine test is `NOT_RUN`; report it as such.
-- `WS17_SHA256SUMS`: regenerating its digest line (`python scripts/regenerate_hash_manifests.py`)
-  is allowed only within a change to `.github/workflows/production-qualification.yml`; any
-  other change to it needs the Owner's go (`AGENTS.md` §8).
-- Open CI points: `docs/CI_GATES_IMPROVEMENT_PLAN_20261112.md` (a plan, not a gate).
-- `.claude/settings.json` sets `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` only as the default for
-  unassigned helpers; agent frontmatter wins. `log-scanner` and `ci-triage` use
-  `omitClaudeMd: true` on purpose; `evidence-reviewer` keeps project context. No custom
+- Deterministic first: `lab-ops` scripts, `grep`, a focused test or a packet reader beats any
+  helper. Use a helper only when its output would flood the main context or the work is a
+  bounded, parallel side task; iterative back-and-forth stays in the main session.
+- One helper per PR-sized objective, with a complete brief (objective, source lock, files, rules
+  to hold, tests first, exact commands, stop condition, report limit). Run independent helpers in
+  parallel. Paste what one helper found into the next brief instead of having it rediscover it.
+- Consume a helper's report first; reopen raw logs, diffs or evidence only for an authority
+  decision, a contradiction, an unusual security/qualification claim or a required independent
+  check. A `scout` fact that decides a gate or a merge is checked against the source.
+- The fresh-context review of a MATERIAL change (`AGENTS.md` §10) always runs on `reviewer`,
+  never on a lower tier: Opus at `high` or the main session's effort, whichever is higher (pass
+  the higher effort on the invocation when the main session runs above `high`).
+- A helper's fixed model and effort change only together with this table and
+  `tests/unit/test_claude_routing_policy.py`, in a reviewed PR; never silently raised or lowered.
+- Helpers are flat: no helper has the `Agent` tool, so none spawns children. No agent teams or
+  recursive coordinator/worker trees for normal work.
+- `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` (`.claude/settings.json`) is only the default for helpers
+  without a `model:` field (for example `general-purpose`). `scout` and `ci-triage` set
+  `omitClaudeMd: true` because they need no policy; `builder` and `reviewer` load it. No custom
   cache TTL without benchmark evidence.
+
+## Token habits
+
+- Test narrow while iterating; run the full suite once at the integration boundary.
+- No background load (game series, builds) while helpers run test suites.
+- Long Java suites, PB-03 runs and CI waits run in the background (`run_in_background` or
+  `gh_ops.py wait`), never as repeated polls or bare `sleep`.
+- Long command output goes to a file; read the tail or the matching lines.
+- Helper reports ≤40 lines; routine status to the Owner ≤8 lines.
+- No third review round for wording; a re-review checks only the delta.
+- `gh_ops.py brief|status|queue|threads|wait|run|errors|rerun-cancelled` covers PRs, CI and logs.
+  GitHub GraphQL is unavailable here: use `gh api` REST. A GitHub 429 gets one attempt, then stop
+  and record it in the issue.
+
+## Repo specifics Claude tends to miss
+
+- The PostToolUse hook runs `ruff --fix` and `ruff format` after every edit; re-read a file only
+  if a later edit fails to match.
+- A skipped real-engine test is `NOT_RUN`; report it as such.
+- `WS17_SHA256SUMS`: regenerate its digest line (`python scripts/regenerate_hash_manifests.py`)
+  only within a change to `.github/workflows/production-qualification.yml` (`AGENTS.md` §8).
+- Open CI points: `docs/CI_GATES_IMPROVEMENT_PLAN_20261112.md` (a plan, not a gate).
