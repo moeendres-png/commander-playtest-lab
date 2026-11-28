@@ -1815,18 +1815,46 @@ function runHasHiddenDraws(run) {
   if (!(n > 0)) return false;
   return Math.abs(Number(run.win_rate) - Number(run.wins_fractional) / n) > 0.005 / n + 0.0001;
 }
-// The pod matrix figure of a group of runs: wins over the games with a winner where the run stored
-// them (the base of its own win rate), over all finished games where it did not (draws unknown).
+// The pod matrix figure of a group of runs (the same rule as the server's pod matrix): wins over
+// the games with a winner only when every run stored both draw numbers, otherwise over all
+// finished games for every run (never a mix); "baseKind" says which one it is.
 function podWinFigure(runs) {
   let wins = 0;
-  let base = 0;
+  let completed = 0;
+  let decided = 0;
   let drawsHidden = false;
+  let knownDraws = 0;
+  const allKnown = runs.length > 0 && runs.every(runDrawsKnown);
   for (const run of runs) {
     wins += Number(run.wins_fractional || 0);
-    base += runDrawsKnown(run) ? Number(run.games_decided) : Number(run.games_completed || 0);
+    completed += Number(run.games_completed || 0);
+    if (runDrawsKnown(run)) {
+      decided += Number(run.games_decided);
+      knownDraws += Number(run.games_drawn);
+    }
     if (runHasHiddenDraws(run)) drawsHidden = true;
   }
-  return { wins, base, drawsHidden };
+  const baseKind = allKnown ? "decided" : "completed";
+  // a stored draw inside an all-finished-games base counts like a loss: flag it like a hidden one
+  if (!allKnown && knownDraws > 0) drawsHidden = true;
+  return { wins, base: allKnown ? decided : completed, baseKind, drawsHidden };
+}
+// The base next to a rate, only where it differs from the games column: "(5/10 entschiedene,
+// 2 Unentschieden)" for a run or pod with stored draws, "(5/12 abgeschlossene)" for a pod whose
+// base had to fall back to all finished games although a run stored draws.
+function runWinBaseText(run) {
+  if (!runDrawsKnown(run)) return "";
+  const decided = Number(run.games_decided);
+  const drawn = Number(run.games_drawn);
+  if (!(decided !== Number(run.games_completed))) return "";
+  return ` (${StudioUI.numFlex(Number(run.wins_fractional || 0), 1)}/${StudioUI.num(decided, 0)} entschiedene, ${StudioUI.num(drawn, 0)} Unentschieden)`;
+}
+function podWinBaseText(fig, completed) {
+  if (fig.baseKind === "decided") {
+    if (fig.base === completed) return "";
+    return ` (${StudioUI.numFlex(fig.wins, 1)}/${StudioUI.num(fig.base, 0)} entschiedene, ${StudioUI.num(completed - fig.base, 0)} Unentschieden)`;
+  }
+  return fig.drawsHidden ? ` (${StudioUI.numFlex(fig.wins, 1)}/${StudioUI.num(fig.base, 0)} abgeschlossene)` : "";
 }
 const RUN_DRAWS_NOTE_POD = "* Enthält Läufe mit Unentschieden und ohne gespeicherte Unentschieden-Zahl (vor Schema 22): hier Siege / alle abgeschlossenen Partien (ein Unentschieden steht im Nenner und wirkt wie eine Niederlage); Läufe mit gespeicherter Zahl zählen nur Partien mit Sieger (#1856).";
 const RUN_DRAWS_NOTE_RUN = "* Lauf mit Unentschieden und ohne gespeicherte Unentschieden-Zahl (vor Schema 22): die Siegrate zählt nur Partien mit Sieger, die Spalte „Spiele“ alle abgeschlossenen Partien (#1856).";
@@ -2361,7 +2389,7 @@ function renderSimulations(body) {
     const fig = podWinFigure(agg.runList);
     agg.wins = fig.wins;
     agg.drawsHidden = fig.drawsHidden;
-    const wr = fig.base > 0 ? `${StudioUI.num((100 * fig.wins) / fig.base, 1)} %${agg.drawsHidden ? " *" : ""}` : "unbekannt";
+    const wr = fig.base > 0 ? `${StudioUI.num((100 * fig.wins) / fig.base, 1)} %${agg.drawsHidden ? " *" : ""}${podWinBaseText(fig, agg.completed)}` : "unbekannt";
     const mr = agg.roundsDen > 0 ? StudioUI.numFlex(agg.roundsNum / agg.roundsDen, 1) : "unbekannt";
     const ep = agg.allSealed ? "versiegelt" : (agg.states.has("BRIDGE_AHEAD_OF_QUALIFICATION") ? "Engine-Stand noch nicht qualifiziert" : [...agg.states].join(", "));
     return h("tr", {},
@@ -2389,7 +2417,7 @@ function renderSimulations(body) {
       h("td", {}, run.pilot_policy),
       h("td", { class: "num" }, `${StudioUI.num(run.games_completed, 0)}/${StudioUI.num(run.games_planned, 0)}`),
       h("td", { class: "num" }, StudioUI.numFlex(run.wins_fractional, 1)),
-      h("td", { class: "num" }, run.win_rate === null ? "unbekannt" : `${StudioUI.num(100 * run.win_rate, 1)} %${runHasHiddenDraws(run) ? " *" : ""}`),
+      h("td", { class: "num" }, run.win_rate === null ? "unbekannt" : `${StudioUI.num(100 * run.win_rate, 1)} %${runHasHiddenDraws(run) ? " *" : ""}${runWinBaseText(run)}`),
       h("td", { class: "num" }, run.mean_rounds == null ? "unbekannt" : StudioUI.numFlex(run.mean_rounds, 1)))))));
   body.append(h("h3", {}, "Simulationsläufe (gespeichert)"), runTable,
     state.simulations.some(runHasHiddenDraws) ? h("p", { class: "note", id: "run-draws-note" }, RUN_DRAWS_NOTE_RUN) : null,

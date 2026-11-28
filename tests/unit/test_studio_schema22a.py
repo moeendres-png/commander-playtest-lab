@@ -424,6 +424,46 @@ def test_pod_matrix_base_is_decided_games_when_known(tmp_path: Path) -> None:
     assert pod["draws_known"] is True
 
 
+def test_pod_matrix_mixed_cohort_uses_one_base_and_reports_it(tmp_path: Path) -> None:
+    """#1856 review P2: one run with draws stored, one without: every run is divided by all
+    finished games (no mixed base), and the base is reported."""
+    store = StudioStore.open(tmp_path / "data")
+    try:
+        _insert_run(store, "r1", completed=12, wins=5.0, win_rate=0.5, drawn=2, decided=10)
+        _insert_run(store, "r2", completed=12, wins=5.0, win_rate=5 / 12, drawn=None, decided=None)
+        pod = builder.pod_matchup_matrix(store, [COMMANDER])["pods"][0]  # type: ignore[index]
+    finally:
+        store.close()
+    assert pod["draws_known"] is False
+    assert pod["win_rate"] == round(10 / 24, 4)
+    assert pod["win_rate_base"] == 24 and pod["win_rate_base_kind"] == "completed"
+    assert pod["games_completed"] == 24
+
+
+def test_pod_matrix_all_known_cohort_reports_the_decided_base(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "data")
+    try:
+        _insert_run(store, "r1", completed=12, wins=5.0, win_rate=0.5, drawn=2, decided=10)
+        _insert_run(store, "r2", completed=12, wins=6.0, win_rate=0.6, drawn=2, decided=10)
+        pod = builder.pod_matchup_matrix(store, [COMMANDER])["pods"][0]  # type: ignore[index]
+    finally:
+        store.close()
+    assert pod["win_rate"] == round(11 / 20, 4)
+    assert pod["win_rate_base"] == 20 and pod["win_rate_base_kind"] == "decided"
+
+
+def test_pod_matrix_a_half_known_run_counts_as_unknown(tmp_path: Path) -> None:
+    """One predicate with the page: draws are known only when both numbers are stored."""
+    store = StudioStore.open(tmp_path / "data")
+    try:
+        _insert_run(store, "r1", completed=12, wins=5.0, win_rate=0.5, drawn=None, decided=10)
+        pod = builder.pod_matchup_matrix(store, [COMMANDER])["pods"][0]  # type: ignore[index]
+    finally:
+        store.close()
+    assert pod["draws_known"] is False
+    assert pod["win_rate_base"] == 12 and pod["win_rate_base_kind"] == "completed"
+
+
 def test_pod_matrix_keeps_todays_figure_and_flags_unknown_draws_when_null(tmp_path: Path) -> None:
     store = StudioStore.open(tmp_path / "data")
     try:
@@ -458,11 +498,52 @@ def test_js_pod_matrix_uses_decided_base_and_marks_unknown(tmp_path: Path) -> No
         f"[podWinFigure([{json.dumps(known)}]), podWinFigure([{json.dumps(unknown)}])]"
     )
     assert out == [
-        {"wins": 5.0, "base": 10, "drawsHidden": False},
-        {"wins": 5.0, "base": 12, "drawsHidden": True},
+        {"wins": 5.0, "base": 10, "baseKind": "decided", "drawsHidden": False},
+        {"wins": 5.0, "base": 12, "baseKind": "completed", "drawsHidden": True},
     ]
     assert _interim_js(f"runHasHiddenDraws({json.dumps(known)})") is False
     assert _interim_js(f"runHasHiddenDraws({json.dumps(unknown)})") is True
+
+
+def test_js_shows_the_base_next_to_the_rate_and_uses_one_base_per_pod() -> None:
+    """#1856 review P2/P3: 12 games, 2 draws, 5 wins is "50,0 %" only with its base beside it;
+    a mixed pod falls back to all finished games for every run."""
+    from tests.unit.test_studio_static_guards import _interim_js
+
+    known = {
+        "games_completed": 12,
+        "wins_fractional": 5.0,
+        "win_rate": 0.5,
+        "games_drawn": 2,
+        "games_decided": 10,
+    }
+    unknown = {**known, "win_rate": 5 / 12, "games_drawn": None, "games_decided": None}
+    half = {**known, "games_drawn": None}
+    no_draw = {**known, "games_drawn": 0, "games_decided": 12}
+    out = _interim_js(
+        f"[runWinBaseText({json.dumps(known)}), runWinBaseText({json.dumps(unknown)}),"
+        f" runWinBaseText({json.dumps(half)}), runWinBaseText({json.dumps(no_draw)}),"
+        f" runDrawsKnown({json.dumps(half)})]"
+    )
+    assert out == [" (5/10 entschiedene, 2 Unentschieden)", "", "", "", False]
+    figs = _interim_js(
+        f"[podWinFigure([{json.dumps(known)}, {json.dumps(known)}]),"
+        f" podWinFigure([{json.dumps(known)}, {json.dumps(unknown)}])]"
+    )
+    assert figs == [
+        {"wins": 10.0, "base": 20, "baseKind": "decided", "drawsHidden": False},
+        {"wins": 10.0, "base": 24, "baseKind": "completed", "drawsHidden": True},
+    ]
+    texts = _interim_js(
+        f"[podWinBaseText(podWinFigure([{json.dumps(known)}]), 12),"
+        f" podWinBaseText(podWinFigure([{json.dumps(known)}, {json.dumps(unknown)}]), 24),"
+        f" podWinBaseText(podWinFigure([{json.dumps(no_draw)}]), 12)]"
+    )
+    assert texts == [
+        " (5/10 entschiedene, 2 Unentschieden)",
+        " (10/24 abgeschlossene)",
+        "",
+    ]
 
 
 def test_the_dry_run_leaves_nothing_next_to_the_store(tmp_path: Path) -> None:
@@ -498,3 +579,11 @@ def test_legacy_series_record_seat_curve_leaves_a_draw_out_of_its_base(tmp_path:
     (gdir / "legacy-draw.series.json").write_text(json.dumps(record), encoding="utf-8")
     body = TestClient(create_app(tmp_path)).get("/api/simulations/batch/legacy-draw").json()
     assert body["validity_block"]["seat_curve"]["seats"][0]["n_of_N"] == "1/1"
+
+
+def test_the_run_list_and_the_pod_table_render_the_base_text() -> None:
+    app = (
+        Path(__file__).resolve().parents[2] / "src/commander_lab/studio/static/app.js"
+    ).read_text(encoding="utf-8")
+    assert "${runWinBaseText(run)}`" in app
+    assert "${podWinBaseText(fig, agg.completed)}`" in app

@@ -1684,19 +1684,18 @@ def pod_matchup_matrix(store: StudioStore, commander_names: Sequence[str]) -> di
         completed = sum(int(str(r.get("games_completed") or 0)) for r in pod_runs)
         failed = sum(int(str(r.get("games_failed") or 0)) for r in pod_runs)
         wins = round(sum(float(str(r.get("wins_fractional") or 0.0)) for r in pod_runs), 4)
-        # The base of the win rate is the games with a winner (#1856, Schema 22a): a run that
-        # stored ``games_decided`` is divided by it, an older run (NULL, draws unknown) by all
-        # finished games as before, where a draw counts like a loss.
+        # The base of the win rate is one for the whole row (#1856, Schema 22a): the games with a
+        # winner only when every run stored both ``games_drawn`` and ``games_decided`` (the same
+        # predicate as ``runDrawsKnown`` on the page); otherwise all finished games for every
+        # run, where a draw counts like a loss. Never a mix of the two. The base is reported.
         draws_known = all(
             r.get("games_decided") is not None and r.get("games_drawn") is not None
             for r in pod_runs
         )
-        base = sum(
-            int(str(r["games_decided"]))
-            if r.get("games_decided") is not None
-            else int(str(r.get("games_completed") or 0))
-            for r in pod_runs
-        )
+        if draws_known:
+            base = sum(int(str(r["games_decided"])) for r in pod_runs)
+        else:
+            base = completed
         win_rate = round(wins / base, 4) if base > 0 else None
         rounds_num = 0.0
         rounds_den = 0
@@ -1731,6 +1730,8 @@ def pod_matchup_matrix(store: StudioStore, commander_names: Sequence[str]) -> di
                 "games_failed": failed,
                 "wins_fractional": wins,
                 "win_rate": win_rate,
+                "win_rate_base": base,
+                "win_rate_base_kind": "decided" if draws_known else "completed",
                 "draws_known": draws_known,
                 "games_drawn": sum(int(str(r["games_drawn"])) for r in pod_runs)
                 if draws_known
