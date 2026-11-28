@@ -1288,8 +1288,9 @@ def _import_one_simulation_file(
             "INSERT OR REPLACE INTO simulation_run(run_id, deck_id, pod, engine_pin, "
             "bridge_jar_sha256, bridge_qualification_state, pilot_fingerprint, "
             "pilot_policy, seeds, games_planned, games_completed, games_failed, "
-            "wins_fractional, win_rate, mean_rounds, hand_dwell_status, source_id) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "wins_fractional, win_rate, mean_rounds, hand_dwell_status, source_id, "
+            "games_drawn, games_decided) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 run_id,
                 deck_id,
@@ -1308,6 +1309,10 @@ def _import_one_simulation_file(
                 mean_rounds,
                 hand_dwell_status,
                 source_id,
+                # a deckbau_eval report does not say which base its win rate has: the draws are
+                # unknown, NULL and never 0 (Schema 22a, #1856)
+                None,
+                None,
             ),
         )
         db.executemany(

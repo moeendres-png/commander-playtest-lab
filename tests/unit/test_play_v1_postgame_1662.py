@@ -181,14 +181,15 @@ def _sample_played_frames() -> list[dict[str, object]]:
     ]
 
 
-def test_schema_version_stays_21_and_postgame_tables_exist(tmp_path: Path) -> None:
-    assert SCHEMA_VERSION == 21
+def test_schema_version_is_22_and_postgame_tables_exist(tmp_path: Path) -> None:
+    # Schema 22a: the version moves 21 -> 22 (Owner decision 2026-11-28, #1703/#1856)
+    assert SCHEMA_VERSION == 22
     store = StudioStore.open(tmp_path / "studio")
     try:
         version = store.connection.execute(
             "SELECT value FROM meta WHERE key = 'schema_version'"
         ).fetchone()[0]
-        assert version == "21"
+        assert version == "22"
         tables = {
             str(row[0])
             for row in store.connection.execute(

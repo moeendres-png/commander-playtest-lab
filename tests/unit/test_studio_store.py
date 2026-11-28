@@ -593,7 +593,8 @@ def test_import_delete_queries_search_by_index_on_every_open(tmp_path: Path) -> 
     version = reopened.connection.execute(
         "SELECT value FROM meta WHERE key = 'schema_version'"
     ).fetchone()[0]
-    assert version == str(SCHEMA_VERSION) == "21"  # additive: the schema version does not move
+    # Schema 22a: the version moves 21 -> 22 (Owner decision 2026-11-28, #1703/#1856)
+    assert version == str(SCHEMA_VERSION) == "22"
     reopened.close()
 
 
@@ -953,8 +954,9 @@ def test_schema_12_adds_profile_lifecycle_columns_to_an_older_store(tmp_path: Pa
     version = store.connection.execute(
         "SELECT value FROM meta WHERE key = 'schema_version'"
     ).fetchone()[0]
-    assert version == "21"  # pinned: a new schema step must change this on purpose
-    assert SCHEMA_VERSION == 21
+    # Schema 22a: the version moves 21 -> 22 (Owner decision 2026-11-28, #1703/#1856)
+    assert version == "22"  # pinned: a new schema step must change this on purpose
+    assert SCHEMA_VERSION == 22
     profile = universe.get_profile(store, "alt")
     assert profile["version"] == 1 and profile["updated_at"] is None
     assert profile["created_at"] == "2026-01-01T00:00:00Z"
