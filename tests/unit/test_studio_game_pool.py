@@ -3236,3 +3236,57 @@ def test_parallel_window_player_reuses_baseline_games_and_spot_checks_live(
         encoding="utf-8"
     )
     assert "ser-3-base-s100-t0" in journal_3
+
+
+def test_series_pool_enabled_defaults_on_and_honors_opt_out(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """#1652: pool is ON by default once Windows verification passed, with explicit opt-out."""
+    monkeypatch.delenv(game_pool.SERIES_POOL_ENV, raising=False)
+    assert game_pool.series_pool_enabled() is True
+    for off_val in ("0", "false", "FALSE", "no", "off", " off "):
+        monkeypatch.setenv(game_pool.SERIES_POOL_ENV, off_val)
+        assert game_pool.series_pool_enabled() is False
+    for on_val in ("1", "true", "yes", "on"):
+        monkeypatch.setenv(game_pool.SERIES_POOL_ENV, on_val)
+        assert game_pool.series_pool_enabled() is True
+
+
+def test_pool_ipc_emits_pure_ascii_json_and_sets_utf8_worker_env(
+    tmp_path: Path,
+) -> None:
+    """#1652 Windows UTF-8 IPC fix: German umlauts must serialize as ASCII escapes so cp1252
+    workers cannot crash _read_stdout with UnicodeDecodeError."""
+    import io
+    import os
+    import queue
+
+    buf = io.StringIO()
+    game_pool._emit(buf, {"ev": "done", "failure_message": "Schalter für erzwungene Pässe"})
+    raw = buf.getvalue()
+    assert raw.isascii()
+    assert json.loads(raw)["failure_message"] == "Schalter für erzwungene Pässe"
+
+    events: queue.Queue[tuple[game_pool._ProcessWorker, dict[str, object] | None]] = queue.Queue()
+    worker = game_pool._ProcessWorker(
+        "w-utf8",
+        [
+            sys.executable,
+            "-c",
+            (
+                "import os, sys; "
+                'sys.stdout.buffer.write(b\'{"ev":"ready","pyutf8":"\' + os.environ[\'PYTHONUTF8\'].encode() + b\'","pyio":"\' + os.environ[\'PYTHONIOENCODING\'].encode() + b\'"}\\n\'); '
+                "sys.stdout.buffer.write(b'\\xfc\\n'); "
+                "sys.stdout.buffer.flush()"
+            ),
+        ],
+        {"PATH": os.environ.get("PATH", "")},
+        events,
+    )
+    seen: list[dict[str, object] | None] = []
+    while len(seen) < 2:
+        _w, msg = events.get(timeout=5.0)
+        seen.append(msg)
+    worker.proc.wait(timeout=5.0)
+    assert seen[0] == {"ev": "ready", "pyutf8": "1", "pyio": "utf-8"}
+    assert seen[1] is None

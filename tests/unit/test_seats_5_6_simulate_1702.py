@@ -295,9 +295,9 @@ def test_series_start_checks_the_table_size_against_the_opponents(
 def test_the_pool_path_refuses_a_table_without_a_wall_limit_before_it_writes_anything(
     lab: dict[str, object], monkeypatch: pytest.MonkeyPatch, tmp_path: Path, seats: int
 ) -> None:
-    """F6 has not measured the wall-clock limit of a five- or six-seat game, so the series pool (off by
-    default) refuses such a table. It does so on the route, before any series file or pool manifest is
-    written (review of #1743, P3); the default path without the pool is not affected."""
+    """F6 has not measured the wall-clock limit of a five- or six-seat game, so an explicitly switched-on
+    series pool refuses such a table. It does so on the route, before any series file or pool manifest
+    is written (review of #1743, P3); the default (#1652) keeps such a table on the chunked path."""
     import types
 
     from commander_lab.studio.game_pool import SERIES_POOL_ENV
@@ -325,8 +325,13 @@ def test_the_pool_path_refuses_a_table_without_a_wall_limit_before_it_writes_any
     assert lab["calls"] == []
     # the pre-flight is exact: four seats have a limit, and with the pool off nothing is asked
     paired_series._preflight_pool_wall_limit(3)
-    monkeypatch.delenv(SERIES_POOL_ENV)
+    monkeypatch.setenv(SERIES_POOL_ENV, "0")
     paired_series._preflight_pool_wall_limit(seats - 1)
+    # the default (switch unset, #1652) is the pool only where a limit exists: five and six seats
+    # keep the chunked path and pass the pre-flight instead of being refused
+    monkeypatch.delenv(SERIES_POOL_ENV, raising=False)
+    paired_series._preflight_pool_wall_limit(seats - 1)
+    paired_series._preflight_pool_wall_limit(3)
 
 
 def test_the_pool_preflight_does_not_judge_an_unknown_pod_as_a_table_of_one_seat(

@@ -49,8 +49,8 @@ from .series_record import DeterminismViolation, SeriesRecord, file_sha256
 from .store import now_utc
 from .table_spec import game_wall_limit_seconds
 
-#: ``1`` (or ``true``) lets a paired series play on long-lived worker JVMs. Unset: the chunked
-#: path of ``play_batch`` stays in use until the pool is measured against the real engine.
+#: ``0`` (or ``false``/``no``/``off``) falls back to the chunked path of ``play_batch``.
+#: Unset or truthy: a paired series plays on long-lived worker JVMs (#1652, #1586).
 SERIES_POOL_ENV = "COMMANDER_LAB_STUDIO_SERIES_POOL"
 
 #: A game that has been in flight this long with no answer is given up: the worker process is
@@ -77,8 +77,29 @@ _TASKKILL_WAIT_SECONDS = 30.0
 _EXIT_POLL_SECONDS = 0.05
 
 
-def series_pool_enabled() -> bool:
-    return os.environ.get(SERIES_POOL_ENV, "").strip().lower() in {"1", "true", "yes", "on"}
+def series_pool_setting() -> bool | None:
+    """The explicit value of ``COMMANDER_LAB_STUDIO_SERIES_POOL``; ``None`` when it is not set."""
+    raw = os.environ.get(SERIES_POOL_ENV, "").strip().lower()
+    if not raw:
+        return None
+    return raw not in {"0", "false", "no", "off"}
+
+
+def series_pool_enabled(seats: int | None = None) -> bool:
+    """Whether a series uses the pool (#1652: on by default).
+
+    An explicit switch wins (``0``/``false``/``no``/``off`` turn it off, any other value on).
+    Without one the pool is the default only where it has a wall-clock limit for the table
+    (``table_spec.GAME_WALL_LIMIT_SECONDS``, today two to four seats); a larger table keeps the
+    chunked path instead of being refused. ``seats`` counts the tested deck as well."""
+    setting = series_pool_setting()
+    if setting is not None:
+        return setting
+    if seats is None:
+        return True
+    from .table_spec import GAME_WALL_LIMIT_SECONDS
+
+    return int(seats) in GAME_WALL_LIMIT_SECONDS
 
 
 class GamePoolError(RuntimeError):
@@ -344,7 +365,7 @@ def plan_task(
 
 
 def _emit(out: IO[str], message: Mapping[str, object]) -> None:
-    out.write(json.dumps(message, separators=(",", ":"), ensure_ascii=False) + "\n")
+    out.write(json.dumps(message, separators=(",", ":"), ensure_ascii=True) + "\n")
     out.flush()
 
 
@@ -726,6 +747,9 @@ class _ProcessWorker:
         # POSIX: the worker leads a process group of its own, which its bridge JVM joins (the
         # JVM is started without a session of its own), so killing the group ends both (#1584).
         # A worker started this way no longer gets the terminal's Ctrl+C; the supervisor ends it.
+        worker_env = dict(env)
+        worker_env.setdefault("PYTHONUTF8", "1")
+        worker_env.setdefault("PYTHONIOENCODING", "utf-8")
         self.proc = subprocess.Popen(
             list(argv),
             stdin=subprocess.PIPE,
@@ -734,9 +758,11 @@ class _ProcessWorker:
             text=True,
             encoding="utf-8",
             errors="strict",
-            env=dict(env),
+            env=worker_env,
             start_new_session=not _WINDOWS,
         )
+        if isinstance(self.proc.stdout, io.TextIOWrapper):
+            self.proc.stdout.reconfigure(errors="backslashreplace")
         if isinstance(self.proc.stderr, io.TextIOWrapper):
             self.proc.stderr.reconfigure(errors="backslashreplace")
         self._events = events
@@ -783,7 +809,7 @@ class _ProcessWorker:
         if stdin is None:
             return False
         try:
-            stdin.write(json.dumps(message, separators=(",", ":"), ensure_ascii=False) + "\n")
+            stdin.write(json.dumps(message, separators=(",", ":"), ensure_ascii=True) + "\n")
             stdin.flush()
         except (OSError, ValueError):
             return False
@@ -1273,6 +1299,7 @@ __all__ = [
     "run_worker_process",
     "seat_pilot_fingerprint",
     "series_pool_enabled",
+    "series_pool_setting",
     "skip_forced_decisions_of",
     "task_key_of",
     "task_refusal",

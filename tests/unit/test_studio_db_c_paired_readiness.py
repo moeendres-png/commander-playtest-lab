@@ -2065,6 +2065,8 @@ def test_paired_resume_live_lockfile_and_engine_chunk_filtering(
     win_denied = mgr.get_series(tmp_path, sid)
     assert win_denied is not None and win_denied["status"] == "running"
     monkeypatch.undo()
+    # Engine chunk filtering is a property of the chunked path; the pool is on by default (#1652).
+    monkeypatch.setenv("COMMANDER_LAB_STUDIO_SERIES_POOL", "0")
 
     # Dead lockfile -> reported as interrupted & resumable
     (deck_dir / "running.lock").write_text(
